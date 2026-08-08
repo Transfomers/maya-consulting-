@@ -1,0 +1,83 @@
+{
+  "theme": "light",
+  "project_type": "nonprofit marketing website",
+  "aesthetic_archetype": "ORGANIC & EARTHY / HIGH-CONTRAST SWISS (Award-worthy Editorial)",
+  "colors": {
+    "background": "#F7F5F0",
+    "surface": "#FFFFFF",
+    "primary": "#1A3626",
+    "primary_hover": "#12251A",
+    "secondary": "#C65D47",
+    "text_main": "#121E15",
+    "text_muted": "#5C6B61",
+    "border": "rgba(26, 54, 38, 0.15)",
+    "description": "Warm bone-white background for tactile paper feel, deep forest green for primary typography and architecture, with terracotta (maple) accents for interactions."
+  },
+  "typography": {
+    "heading_font": "Cabinet Grotesk",
+    "editorial_font": "Cormorant Garamond",
+    "body_font": "Manrope",
+    "scale": {
+      "h1": "text-5xl md:text-7xl lg:text-8xl tracking-tighter leading-[0.85]",
+      "h2": "text-4xl md:text-5xl lg:text-6xl tracking-tight leading-none",
+      "h3": "text-2xl md:text-3xl leading-snug",
+      "body": "text-base md:text-lg leading-relaxed text-[#5C6B61]"
+    },
+    "rules": "Never use Inter for headings. Cabinet Grotesk for bold kinetic reveals. Cormorant Garamond for elegant italicized quotes and manifesto chapter numbers."
+  },
+  "visual_enhancers": {
+    "borders": "1px solid #1A3626 with 15% opacity for structural grids (Bento layouts).",
+    "border_radius": "rounded-none for all cards, images, and buttons to enforce a strict editorial, architectural aesthetic.",
+    "shadows": "No soft shadows. Rely on sharp borders and negative space.",
+    "image_treatment": "Deliberate photography. Use spotlight effects or clipped/masked frames. Max height 80vh on mobile.",
+    "textures": "Apply a very subtle noise overlay globally to mimic organic paper."
+  },
+  "layouts": {
+    "spacing": "Generous. Use py-24 or py-32 for sections. gap-8 to gap-16 in grids.",
+    "grids": "Asymmetrical Bento Grid (e.g., col-span-8 and col-span-4 combinations).",
+    "navigation": "Sticky, glassmorphic header (backdrop-blur-xl bg-[#F7F5F0]/70) with 1px bottom border.",
+    "footer": "Massive typography (text-[10vw]) for the brand name, dark background (#1A3626) with light text (#F7F5F0)."
+  },
+  "motion": {
+    "hero_kinetic": "Signature on-load moment: Masked line-by-line reveal using framer-motion (overflow-hidden wrapper, text slides up from y: 100%).",
+    "scrolling": "Implement Lenis for smooth momentum scrolling globally on marketing pages.",
+    "scroll_reveals": "Use framer-motion 'whileInView' for subtle section reveals (y: 40, opacity: 0 to y: 0, opacity: 1, duration: 0.8, ease: cubic-bezier).",
+    "parallax": "Subtle parallax on hero images using framer-motion useScroll and useTransform hooks.",
+    "marquee": "Slow editorial marquee for partner names or manifesto keywords using react-fast-marquee. Massive outline text or refined serif ribbons."
+  },
+  "component_instructions": {
+    "forms": "Shadcn UI forms. Override default rounding to rounded-none. Inputs must have 1px solid border, clear focus states (ring-0 border-[#1A3626]).",
+    "buttons": "Sharp rectangular buttons (rounded-none). Dark background, light text. On hover, background shifts to terracotta (#C65D47).",
+    "dashboard": "Strict grid hierarchy. High density. Sidebar navigation. Avoid card components; use flat layouts with sharp separators. Do not use Lenis scrolling in the admin dashboard."
+  },
+  "key_features_to_build": [
+    "Large kinetic hero with masked text reveal",
+    "Numbered manifesto chapters (using Cormorant Garamond for the oversized numerals)",
+    "Slow editorial marquee ribbon",
+    "Subtle parallax image containers (clipped frames)",
+    "Forms for Pledge/Donation, Membership, Program Apps, Volunteer, Contact",
+    "Admin Dashboard to view form submissions"
+  ],
+  "libraries": {
+    "install_commands": "yarn add framer-motion @studio-freight/react-lenis react-fast-marquee lucide-react clsx tailwind-merge"
+  },
+  "image_urls": {
+    "hero_nature_parallax": "https://images.unsplash.com/photo-1502252430442-aac78f397426?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwyfHxjYW5hZGlhbiUyMG5hdHVyZSUyMHBpbmUlMjB0cmVlcyUyMGZvZ3xlbnwwfHx8fDE3ODYxNTI0MDF8MA&ixlib=rb-4.1.0&q=85",
+    "diverse_collaboration": "https://images.unsplash.com/photo-1568992688065-536aad8a12f6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwzfHxkaXZlcnNlJTIwZW50cmVwcmVuZXVycyUyMGNvbGxhYm9yYXRpbmd8ZW58MHx8fHwxNzg2MTUyMzkxfDA&ixlib=rb-4.1.0&q=85",
+    "board_meeting": "https://images.unsplash.com/photo-1622675363311-3e1904dc1885?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwZW50cmVwcmVuZXVycyUyMGNvbGxhYm9yYXRpbmd8ZW58MHx8fHwxNzg2MTUyMzkxfDA&ixlib=rb-4.1.0&q=85",
+    "workshop_event": "https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MDV8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjB3b3Jrc2hvcCUyMGV2ZW50fGVufDB8fHx8MTc4NjE1MjM5MHww&ixlib=rb-4.1.0&q=85",
+    "modern_building": "https://images.unsplash.com/photo-1487958449943-2429e8be8625?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNzl8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBhcmNoaXRlY3R1cmUlMjBidWlsZGluZ3xlbnwwfHx8fDE3ODYxNTIzOTB8MA&ixlib=rb-4.1.0&q=85",
+    "portrait_male": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMGNvbmZpZGVudHxlbnwwfHx8fDE3ODYxNTI0MDF8MA&ixlib=rb-4.1.0&q=85",
+    "portrait_female": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMGNvbmZpZGVudHxlbnwwfHx8fDE3ODYxNTI0MDF8MA&ixlib=rb-4.1.0&q=85"
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not use generic centered layouts or uniform styling. Prioritize asymmetry.",
+    "Do not use transition: all. Target specific properties (e.g. transition-colors, transition-transform).",
+    "Do not center align the app container (.App { text-align: center; } is banned).",
+    "All interactive elements and inputs MUST include a 'data-testid' attribute (e.g. data-testid='hero-cta-button').",
+    "Ensure contrast ratios meet APCA/WCAG AA standards, especially on form placeholders and muted text.",
+    "Use sonner for toast notifications.",
+    "Use Shadcn UI components for forms, dialogs, and admin tables, but override their aesthetic to match the sharp editorial style.",
+    "Do not use complete transparent backgrounds in headers or overlays with content underneath."
+  ]
+}
