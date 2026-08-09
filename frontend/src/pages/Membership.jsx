@@ -73,10 +73,10 @@ const Membership = () => {
               { name: "organization", label: t.form.org, placeholder: t.form.orgPh },
               {
                 name: "interest",
-                label: t.membership.joinAsLabel,
+                label: t.membership.joinLabel,
                 kind: "select",
-                placeholder: t.membership.selectOne,
-                options: t.membership.joinAsOptions,
+                placeholder: t.membership.joinPh,
+                options: t.membership.joinOptions,
                 required: true,
               },
               {
@@ -119,7 +119,7 @@ const Membership = () => {
                 name: "area",
                 label: t.membership.areaLabel,
                 kind: "select",
-                placeholder: t.membership.selectOne,
+                placeholder: t.membership.joinPh,
                 options: t.membership.areaOptions,
               },
               { name: "availability", label: t.membership.availLabel, placeholder: t.membership.availPh },

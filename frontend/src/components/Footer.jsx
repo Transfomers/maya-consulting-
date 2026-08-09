@@ -29,6 +29,7 @@ const Footer = () => {
               [t.nav.programs, "/programs"],
               [t.nav.stories, "/impact-stories"],
               [t.nav.news, "/news-events"],
+              [t.nav.blog, "/blog"],
             ].map(([label, to]) => (
               <li key={to}>
                 <Link to={to} data-testid={`footer-link-${label.toLowerCase().replace(/[^a-z]+/g, "-")}`} className="text-bone/85 transition-colors hover:text-vivid">
