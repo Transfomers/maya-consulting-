@@ -81,8 +81,8 @@ function App() {
           <Route path="/membership" element={page(Membership)} />
           <Route path="/partners" element={page(Partners)} />
           <Route path="/news-events" element={page(NewsEvents)} />
-          <Route path="/news" element={page(Blog)} />
-          <Route path="/news/:slug" element={page(BlogPost)} />
+          <Route path="/blog" element={page(Blog)} />
+          <Route path="/blog/:slug" element={page(BlogPost)} />
           <Route path="/events" element={page(Events)} />
           <Route path="/donate" element={page(Donate)} />
           <Route path="/contact" element={page(Contact)} />

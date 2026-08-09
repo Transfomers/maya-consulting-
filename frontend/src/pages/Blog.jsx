@@ -55,7 +55,7 @@ export default function Blog() {
               const trans = getTranslation(post);
               return (
                 <Reveal key={post.id} delay={i * 0.1}>
-                  <Link to={`/news/${post.slug}`} className="group block bg-white border border-forest/15 hover:border-forest transition-colors h-full flex flex-col">
+                  <Link to={`/blog/${post.slug}`} className="group block bg-white border border-forest/15 hover:border-forest transition-colors h-full flex flex-col">
                     <div className="aspect-[16/9] w-full bg-forest/5 flex items-center justify-center overflow-hidden">
                       {/* Placeholder for featured image */}
                       <span className="text-forest/20 font-serif italic text-2xl group-hover:scale-110 transition-transform duration-700">CAP</span>

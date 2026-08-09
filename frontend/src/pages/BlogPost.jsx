@@ -102,8 +102,8 @@ export default function BlogPost() {
 
       <div className="mx-auto max-w-[800px] px-5">
         <Reveal>
-          <Link to="/news" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sage hover:text-forest transition-colors mb-12">
-            <ArrowLeft className="h-4 w-4" /> Back to News
+          <Link to="/blog" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sage hover:text-forest transition-colors mb-12">
+            <ArrowLeft className="h-4 w-4" /> Back to Blog
           </Link>
           
           <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-wider text-maple mb-6">
