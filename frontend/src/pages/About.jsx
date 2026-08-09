@@ -2,62 +2,50 @@ import PageHero from "@/components/PageHero";
 import AboutBulbs from "@/components/AboutBulbs";
 import LogoSlider from "@/components/LogoSlider";
 import { Reveal, ParallaxImage, EditorialMarquee } from "@/components/motion";
+import TiltCard from "@/components/TiltCard";
 import { IMAGES } from "@/lib/content";
+import { useLang } from "@/lib/i18n";
 
-const PILLARS = [
-  {
-    num: "01",
-    title: "Our Mission",
-    text: "To empower entrepreneurs and nonprofit organizations by developing innovative programs that strengthen local economies, encourage collaboration and expand international opportunities.",
-  },
-  {
-    num: "02",
-    title: "Our Vision",
-    text: "To become a leading entrepreneurial ecosystem connecting communities, organizations and innovators across Canada and internationally.",
-  },
-  {
-    num: "03",
-    title: "Our Promise",
-    text: "We believe entrepreneurship should create opportunity for everyone, regardless of where they live. We develop practical programs that help entrepreneurs grow their businesses, access new markets and become active contributors to stronger communities.",
-  },
-];
 
-const About = () => (
+
+const About = () => {
+  const { t } = useLang();
+  const PILLARS = [
+    { num: "01", title: t.about.pillars[0].title, text: t.about.pillars[0].text },
+    { num: "02", title: t.about.pillars[1].title, text: t.about.pillars[1].text },
+    { num: "03", title: t.about.pillars[2].title, text: t.about.pillars[2].text },
+  ];
+  return (
   <div data-testid="about-page">
     <PageHero
       testId="about-hero"
-      eyebrow="About CAP Entrepreneurs"
+      eyebrow={t.about.eyebrow}
       lines={[
-        <>Why we</>,
+        <>{t.about.h1a}</>,
         <>
-          <span className="font-serif font-medium italic text-maple">exist</span>
+          <span className="font-serif font-medium italic text-maple">{t.about.h1accent}</span>
         </>,
       ]}
-      intro="CAP Entrepreneurs is a Canadian nonprofit organization that designs, delivers and supports innovative entrepreneurial programs. We are not a consulting firm — we are builders of ecosystems."
+      intro={t.about.intro}
     />
 
     <section className="mx-auto grid max-w-[1600px] gap-12 px-5 py-24 md:px-10 md:py-32 lg:grid-cols-12" data-testid="about-story-section">
       <div className="lg:col-span-6">
         <Reveal>
           <h2 className="font-heading text-3xl font-black tracking-tight text-forest md:text-5xl">
-            An ecosystem,<br />not isolated projects
+            {t.about.storyTitleA}<br />{t.about.storyTitleB}
           </h2>
         </Reveal>
         <Reveal delay={0.15}>
           <div className="mt-8 space-y-5 text-base leading-relaxed text-sage md:text-lg">
             <p>
-              CAP Entrepreneurs was founded on a simple observation: talent is everywhere, but opportunity is not.
-              Entrepreneurs in rural and underserved communities — and the nonprofits that support them — too often work
-              alone, without the networks, markets or learning experiences that turn effort into impact.
+              {t.about.storyP1}
             </p>
             <p>
-              So we build the connective tissue. Through education, collaboration, innovation and international
-              partnerships, our programs help participants progress from learning to implementation to measurable
-              impact — and keep growing long after a program ends.
+              {t.about.storyP2}
             </p>
             <p>
-              Every initiative we deliver answers one question: how can CAP Entrepreneurs help people create
-              opportunities for themselves and their communities?
+              {t.about.storyP3}
             </p>
           </div>
         </Reveal>
@@ -72,7 +60,7 @@ const About = () => (
             speed={0.1}
           />
           <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage">
-            Built to connect — across Canada and beyond
+            {t.about.storyCaption}
           </p>
         </Reveal>
       </div>
@@ -80,7 +68,7 @@ const About = () => (
 
     <EditorialMarquee
       testId="about-marquee"
-      items={["Mission", "Vision", "Promise", "Ecosystem", "Community", "Beyond Borders"]}
+      items={t.about.marquee}
     />
 
     <section className="mx-auto max-w-[1600px] px-5 py-24 md:px-10 md:py-32" data-testid="about-pillars-section">
@@ -97,6 +85,65 @@ const About = () => (
       </div>
     </section>
 
+    {/* INTERACTIVE ECOSYSTEM MAP (Stylized as a dynamic connecting grid) */}
+    <section className="bg-maple text-bone py-24 md:py-32 overflow-hidden relative">
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+      <div className="mx-auto max-w-[1600px] px-5 md:px-10 relative z-10">
+        <Reveal>
+          <h2 className="font-heading text-4xl font-black tracking-tight md:text-5xl lg:text-6xl text-center mb-16">
+            The Ecosystem <span className="font-serif italic font-medium">at a glance</span>
+          </h2>
+        </Reveal>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { title: "Learning", text: "Foundational education and skills building.", icon: "📚" },
+            { title: "Incubation", text: "Turning ideas into viable businesses.", icon: "🌱" },
+            { title: "Marketplace", text: "Connecting products to real markets.", icon: "🛍️" },
+            { title: "Global Reach", text: "Expanding impact across borders.", icon: "🌍" },
+          ].map((node, i) => (
+            <Reveal key={i} delay={i * 0.1}>
+              <TiltCard>
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-8 h-full rounded-tr-[40px] rounded-bl-[40px] hover:bg-white/20 transition-colors cursor-pointer group">
+                  <div className="text-4xl mb-4 transform group-hover:scale-125 transition-transform">{node.icon}</div>
+                  <h3 className="font-heading text-2xl font-bold tracking-tight mb-2">{node.title}</h3>
+                  <p className="text-bone/80 text-sm leading-relaxed">{node.text}</p>
+                </div>
+              </TiltCard>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* TEAM / FACES OF THE COMMUNITY */}
+    <section className="py-24 md:py-32">
+      <div className="mx-auto max-w-[1600px] px-5 md:px-10">
+        <Reveal>
+          <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl lg:text-6xl text-center mb-16">
+            Faces of the <span className="font-serif italic font-medium text-maple">community</span>
+          </h2>
+        </Reveal>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { img: IMAGES.portraitM, alt: "Community Member" },
+            { img: IMAGES.portraitF, alt: "Community Member", delay: 0.1 },
+            { img: IMAGES.team, alt: "Community Member", delay: 0.2 },
+            { img: IMAGES.workshop, alt: "Community Member", delay: 0.3 },
+          ].map((face, i) => (
+            <Reveal key={i} delay={face.delay || 0}>
+              <div className="relative aspect-square overflow-hidden rounded-xl group">
+                <img src={face.img} alt={face.alt} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-forest/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                  <span className="text-bone font-heading font-bold uppercase tracking-widest text-sm">View Story</span>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+
     <AboutBulbs />
     
     <LogoSlider />
@@ -105,22 +152,21 @@ const About = () => (
       <div className="mx-auto grid max-w-[1600px] gap-12 px-5 py-24 md:px-10 md:py-32 lg:grid-cols-12">
         <Reveal className="lg:col-span-5">
           <h2 className="font-heading text-3xl font-black tracking-tight text-forest md:text-5xl">
-            Our digital future
+            {t.about.futureTitle}
           </h2>
         </Reveal>
         <Reveal delay={0.15} className="lg:col-span-6 lg:col-start-7">
           <p className="font-serif text-2xl italic leading-snug text-forest md:text-3xl">
-            "As CAP Entrepreneurs expands, digital solutions will support the delivery of our programs through online
-            learning, member engagement and partnership collaboration."
+            {t.about.futureQuote}
           </p>
           <p className="mt-6 text-base leading-relaxed text-sage md:text-lg">
-            Technology will enhance our mission by making entrepreneurial support more accessible, measurable and
-            scalable — while preserving the human connections that drive community impact.
+            {t.about.futureText}
           </p>
         </Reveal>
       </div>
     </section>
   </div>
-);
+  );
+};
 
 export default About;

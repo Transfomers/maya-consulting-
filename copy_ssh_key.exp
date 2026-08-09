@@ -1,0 +1,9 @@
+#!/usr/bin/expect -f
+set password [lindex $argv 0]
+spawn ssh-copy-id -o StrictHostKeyChecking=no root@85.209.95.4
+expect {
+    "password:" {
+        send "$password\r"
+    }
+}
+expect eof

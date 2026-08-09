@@ -229,6 +229,51 @@ export const PROGRAMS_FR = [
   },
 ];
 
+export const PROGRAMS_AR = [
+  {
+    id: "cap-executive",
+    number: "01",
+    name: "CAP Executive",
+    theme: "تعزيز القيادة غير الربحية",
+    purpose:
+      "تجربة تعليمية تدعم المنظمات غير الربحية في تحسين الحوكمة والتخطيط الاستراتيجي وإشراك مجلس الإدارة وتطوير الشراكات.",
+    outcomes: [
+      "حوكمة أقوى وإشراك لمجلس الإدارة",
+      "استدامة تنظيمية محسنة",
+      "زيادة التعاون عبر القطاع",
+    ],
+    image: IMAGES.board,
+  },
+  {
+    id: "marketplace-lab",
+    number: "02",
+    name: "Marketplace Lab",
+    theme: "مساعدة رواد الأعمال على تحويل الأفكار إلى أعمال جاهزة للسوق",
+    purpose:
+      "يجمع Marketplace Lab بين التعليم الريادي والتجارة الرقمية والابتكار الريفي والتعرض للأعمال الدولية. يطور المشاركون مهارات عملية أثناء الاستعداد للوصول إلى المعارض التجارية والمهرجانات والفرص التجارية من خلال شبكة شركاء CAP Entrepreneurs.",
+    outcomes: [
+      "مهارات أعمال عملية وجاهزة للسوق",
+      "الوصول إلى المعارض التجارية والمهرجانات والفرص التجارية",
+      "خبرة أعمال دولية مدعومة بمنحة تعرض تصل إلى 8,000 دولار كندي، تخضع لأهلية البرنامج والتمويل المتاح",
+    ],
+    image: IMAGES.workshop,
+  },
+  {
+    id: "cap-global-mobility",
+    number: "03",
+    name: "CAP Global Mobility",
+    theme: "خلق فرص دولية",
+    purpose:
+      "يطور هذا البرنامج شراكات تسمح لرواد الأعمال والمتطوعين والمنظمات غير الربحية بالمشاركة في التبادلات الدولية ومبادرات التطوع والمشاريع التعاونية.",
+    outcomes: [
+      "التبادلات الدولية ومبادرات التطوع",
+      "التعلم والتعاون بين الثقافات",
+      "ريادة الأعمال عبر الحدود",
+    ],
+    image: IMAGES.building,
+  },
+];
+
 export const STORIES_FR = [
   {
     id: "northern-makers",
@@ -359,3 +404,9 @@ export const PARTNER_TYPES_FR = [
   { name: "Organisations internationales", detail: "Ouvrir des \u00e9changes, des missions et des march\u00e9s au-del\u00e0 des fronti\u00e8res." },
   { name: "Partenaires technologiques", detail: "Rendre le soutien entrepreneurial accessible et \u00e9volutif." },
 ];
+
+export const STORIES_AR = STORIES_FR;
+export const NEWS_AR = NEWS_FR;
+export const EVENTS_AR = EVENTS_FR;
+export const MEMBER_BENEFITS_AR = MEMBER_BENEFITS_FR;
+export const PARTNER_TYPES_AR = PARTNER_TYPES_FR;

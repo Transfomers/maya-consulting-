@@ -199,7 +199,7 @@ const STR = {
       membership: "Adh\u00e9sion", partners: "Partenaires", news: "Nouvelles et \u00e9v\u00e9nements", blog: "Blogue", contact: "Contact", donate: "Donner",
     },
     footer: {
-      quote: "\u00ab L'entrepreneuriat devrait cr\u00e9er des occasions pour tous, peu importe o\u00f9 l'on vit. \u00bb",
+      quote: "\u00ab L'entrepreneuriat devrait cr\u00e9er des opportunités pour tous, peu importe o\u00f9 l'on vit. \u00bb",
       support: "Soutenir la mission",
       explore: "Explorer",
       involved: "S'impliquer",
@@ -227,7 +227,7 @@ const STR = {
       chapters: [
         { title: "Apprendre", text: "Des programmes pratiques en \u00e9ducation entrepreneuriale, en commerce num\u00e9rique et en leadership \u00e0 but non lucratif \u2014 con\u00e7us pour de vraies communaut\u00e9s, pas pour les salles de conseil." },
         { title: "B\u00e2tir", text: "Les participants passent de l'apprentissage \u00e0 la mise en \u0153uvre : lancer des entreprises, renforcer des organismes et ouvrir de nouveaux march\u00e9s ensemble." },
-        { title: "Impact", text: "Chaque initiative se termine par un impact mesurable \u2014 des \u00e9conomies locales plus fortes, une collaboration plus profonde et des occasions qui franchissent les fronti\u00e8res." },
+        { title: "Impact", text: "Chaque initiative se termine par un impact mesurable \u2014 des \u00e9conomies locales plus fortes, une collaboration plus profonde et des opportunités qui franchissent les fronti\u00e8res." },
       ],
       programsTitleA: "Les programmes sont au c\u0153ur",
       programsTitleB: "de CAP Entrepreneurs",
@@ -236,9 +236,9 @@ const STR = {
       schTitleA: "Jusqu'\u00e0",
       schAmount: "8 000 $ CA",
       schTitleB: "pour une exp\u00e9rience d'affaires internationale",
-      schCopy: "Gr\u00e2ce au Marketplace Lab, des entrepreneurs s\u00e9lectionn\u00e9s acc\u00e8dent \u00e0 des foires commerciales, des festivals et des occasions d'affaires au sein de notre r\u00e9seau de partenaires \u2014 appuy\u00e9s par une bourse de rayonnement, sous r\u00e9serve de l'admissibilit\u00e9 au programme et du financement disponible.",
+      schCopy: "Gr\u00e2ce au Marketplace Lab, des entrepreneurs s\u00e9lectionn\u00e9s acc\u00e8dent \u00e0 des foires commerciales, des festivals et des opportunités d'affaires au sein de notre r\u00e9seau de partenaires \u2014 appuy\u00e9s par une bourse de rayonnement, sous r\u00e9serve de l'admissibilit\u00e9 au programme et du financement disponible.",
       schCta: "Postuler au Marketplace Lab",
-      audTitle: "Une communaut\u00e9 pour tous ceux qui cr\u00e9ent des occasions",
+      audTitle: "Une communaut\u00e9 pour tous ceux qui cr\u00e9ent des opportunités",
       audiences: ["Entrepreneurs", "Organismes \u00e0 but non lucratif", "Financeurs et donateurs", "B\u00e9n\u00e9voles", "Partenaires institutionnels"],
       storiesTitle: "Histoires de collaboration",
       allStories: "Toutes les histoires d'impact",
@@ -256,13 +256,13 @@ const STR = {
       storyTitleA: "Un \u00e9cosyst\u00e8me,", storyTitleB: "pas des projets isol\u00e9s",
       storyP1: "CAP Entrepreneurs est n\u00e9 d'un constat simple : le talent est partout, mais les occasions ne le sont pas. Les entrepreneurs des communaut\u00e9s rurales et mal desservies \u2014 et les organismes qui les soutiennent \u2014 travaillent trop souvent seuls, sans les r\u00e9seaux, les march\u00e9s ni les exp\u00e9riences d'apprentissage qui transforment les efforts en impact.",
       storyP2: "Nous b\u00e2tissons donc les liens qui manquent. Gr\u00e2ce \u00e0 l'\u00e9ducation, la collaboration, l'innovation et les partenariats internationaux, nos programmes font progresser les participants de l'apprentissage \u00e0 la mise en \u0153uvre, puis \u00e0 un impact mesurable \u2014 et continuent de grandir bien apr\u00e8s la fin du programme.",
-      storyP3: "Chaque initiative que nous offrons r\u00e9pond \u00e0 une question : comment CAP Entrepreneurs peut-il aider les gens \u00e0 cr\u00e9er des occasions pour eux-m\u00eames et leurs communaut\u00e9s ?",
+      storyP3: "Chaque initiative que nous offrons r\u00e9pond \u00e0 une question : comment CAP Entrepreneurs peut-il aider les gens \u00e0 cr\u00e9er des opportunités pour eux-m\u00eames et leurs communaut\u00e9s ?",
       storyCaption: "B\u00e2ti pour connecter \u2014 partout au Canada et au-del\u00e0",
       marquee: ["Mission", "Vision", "Promesse", "\u00c9cosyst\u00e8me", "Communaut\u00e9", "Sans fronti\u00e8res"],
       pillars: [
         { title: "Notre mission", text: "Donner aux entrepreneurs et aux organismes \u00e0 but non lucratif les moyens d'agir en d\u00e9veloppant des programmes novateurs qui renforcent les \u00e9conomies locales, encouragent la collaboration et \u00e9largissent les d\u00e9bouch\u00e9s internationaux." },
         { title: "Notre vision", text: "Devenir un \u00e9cosyst\u00e8me entrepreneurial de premier plan reliant communaut\u00e9s, organismes et innovateurs partout au Canada et \u00e0 l'international." },
-        { title: "Notre promesse", text: "Nous croyons que l'entrepreneuriat devrait cr\u00e9er des occasions pour tous, peu importe o\u00f9 l'on vit. Nous d\u00e9veloppons des programmes pratiques qui aident les entrepreneurs \u00e0 faire cro\u00eetre leur entreprise, \u00e0 acc\u00e9der \u00e0 de nouveaux march\u00e9s et \u00e0 contribuer activement \u00e0 des communaut\u00e9s plus fortes." },
+        { title: "Notre promesse", text: "Nous croyons que l'entrepreneuriat devrait cr\u00e9er des opportunités pour tous, peu importe o\u00f9 l'on vit. Nous d\u00e9veloppons des programmes pratiques qui aident les entrepreneurs \u00e0 faire cro\u00eetre leur entreprise, \u00e0 acc\u00e9der \u00e0 de nouveaux march\u00e9s et \u00e0 contribuer activement \u00e0 des communaut\u00e9s plus fortes." },
       ],
       futureTitle: "Notre avenir num\u00e9rique",
       futureQuote: "\u00ab \u00c0 mesure que CAP Entrepreneurs prend de l'expansion, des solutions num\u00e9riques soutiendront la prestation de nos programmes gr\u00e2ce \u00e0 l'apprentissage en ligne, \u00e0 l'engagement des membres et \u00e0 la collaboration avec les partenaires. \u00bb",
@@ -294,7 +294,7 @@ const STR = {
     membership: {
       eyebrow: "Adh\u00e9sion",
       h1a: "Rejoignez un \u00e9cosyst\u00e8me,", h1pre: "pas seulement une ", h1accent: "organisation", h1post: "",
-      intro: "Les membres font partie d'une communaut\u00e9 grandissante d'entrepreneurs, d'organismes, de b\u00e9n\u00e9voles et de partenaires \u2014 cr\u00e9ant des occasions pour eux-m\u00eames et leurs communaut\u00e9s.",
+      intro: "Les membres font partie d'une communaut\u00e9 grandissante d'entrepreneurs, d'organismes, de b\u00e9n\u00e9voles et de partenaires \u2014 cr\u00e9ant des opportunités pour eux-m\u00eames et leurs communaut\u00e9s.",
       benefitsTitle: "Avantages membres",
       communityCard: "\u2026et une communaut\u00e9 qui grandit avec vous",
       memberEyebrow: "Devenir membre",
@@ -348,7 +348,7 @@ const STR = {
       impacts: [
         { title: "\u00c9ducation et mentorat", text: "Les contributions financent l'acc\u00e8s aux programmes, au mentorat et au mat\u00e9riel d'apprentissage pour les entrepreneurs et les leaders d'organismes." },
         { title: "R\u00e9seaux et visibilit\u00e9", text: "Les dons ouvrent les portes du r\u00e9seautage et de la visibilit\u00e9 professionnelle gr\u00e2ce \u00e0 nos programmes et \u00e0 notre r\u00e9seau de partenaires." },
-        { title: "Bourses internationales", text: "Votre soutien contribue aux bourses des participants pour des foires commerciales, des festivals entrepreneuriaux et des occasions internationales." },
+        { title: "Bourses internationales", text: "Votre soutien contribue aux bourses des participants pour des foires commerciales, des festivals entrepreneuriaux et des opportunités internationales." },
       ],
       imgCaption: "100 % des dons soutiennent les participants aux programmes",
       pledgeEyebrow: "Promesse de don",
@@ -605,7 +605,7 @@ export const LanguageProvider = ({ children }) => {
     });
   };
   
-  return <LangContext.Provider value={{ lang, toggle, t: STR[lang] || STR.en }}>{children}</LangContext.Provider>;
+  return <LangContext.Provider value={{ lang, setLang, toggle, t: STR[lang] || STR.en }}>{children}</LangContext.Provider>;
 };
 
 export const useLang = () => useContext(LangContext);

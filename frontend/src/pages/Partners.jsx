@@ -1,28 +1,32 @@
 import PageHero from "@/components/PageHero";
 import FormShell from "@/components/FormShell";
 import { Reveal, EditorialMarquee } from "@/components/motion";
-import { PARTNER_TYPES } from "@/lib/content";
+import { PARTNER_TYPES, PARTNER_TYPES_FR, PARTNER_TYPES_AR } from "@/lib/content";
+import { useLang } from "@/lib/i18n";
 
-const Partners = () => (
+const Partners = () => {
+  const { lang, t } = useLang();
+  const currentPartnerTypes = lang === "fr" ? PARTNER_TYPES_FR : lang === "ar" ? PARTNER_TYPES_AR : PARTNER_TYPES;
+  return (
   <div data-testid="partners-page">
     <PageHero
       testId="partners-hero"
-      eyebrow="Partners"
+      eyebrow={t.partners.eyebrow}
       lines={[
-        <>Shared value,</>,
+        <>{t.partners.h1a}</>,
         <>
-          <span className="font-serif font-medium italic text-maple">measurable</span> impact
+          {t.partners.h1pre && <span>{t.partners.h1pre}</span>}<span className="font-serif font-medium italic text-maple">{t.partners.h1accent}</span>{t.partners.h1post}
         </>,
       ]}
-      intro="Partnerships are essential to achieving our mission. Every partnership we build demonstrates shared value and measurable community impact."
+      intro={t.partners.intro}
     />
 
     <section className="mx-auto max-w-[1600px] px-5 py-24 md:px-10 md:py-32" data-testid="partner-types-section">
       <Reveal>
-        <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">Who we partner with</h2>
+        <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">{t.partners.typesTitle}</h2>
       </Reveal>
       <div className="mt-12 border-t border-forest/15">
-        {PARTNER_TYPES.map((p, i) => (
+        {currentPartnerTypes.map((p, i) => (
           <Reveal key={p.name} delay={i * 0.05} y={20}>
             <div
               className="grid gap-2 border-b border-forest/15 py-6 transition-colors hover:bg-white md:grid-cols-12 md:items-baseline md:py-8"
@@ -41,7 +45,7 @@ const Partners = () => (
 
     <EditorialMarquee
       testId="partners-marquee"
-      items={["Co-Design", "Co-Deliver", "Co-Invest", "Grow Together"]}
+      items={t.partners.marquee}
     />
 
     <section className="bg-white" data-testid="partner-form-section">
@@ -49,39 +53,38 @@ const Partners = () => (
         <Reveal className="lg:col-span-5">
           <p className="mb-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.3em] text-maple">
             <span className="inline-block h-px w-10 bg-maple" />
-            Become a Partner
+            {t.partners.formEyebrow}
           </p>
           <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">
-            Let's build something together
+            {t.partners.formTitle}
           </h2>
           <p className="mt-6 max-w-md text-base leading-relaxed text-sage md:text-lg">
-            From program co-design to international missions, we build partnerships around shared goals and measurable
-            outcomes. Start the conversation below.
+            {t.partners.formCopy}
           </p>
         </Reveal>
         <Reveal delay={0.15} className="lg:col-span-6 lg:col-start-7">
           <FormShell
             type="partner"
             testId="partner-form"
-            submitLabel="Start the Conversation"
-            successMessage="Thank you — our partnerships team will reach out."
+            submitLabel={t.partners.formSubmit}
+            successMessage={t.partners.formSuccess}
             fields={[
-              { name: "name", label: "Full name", placeholder: "Your full name", required: true },
-              { name: "email", label: "Email", kind: "email", placeholder: "you@example.com", required: true },
-              { name: "organization", label: "Organization", placeholder: "Your organization", required: true },
+              { name: "name", label: t.form.name, placeholder: t.form.namePh, required: true },
+              { name: "email", label: t.form.email, kind: "email", placeholder: t.form.emailPh, required: true },
+              { name: "organization", label: t.form.org, placeholder: t.form.orgPh, required: true },
               {
                 name: "partnerType",
-                label: "Partnership type",
+                label: t.partners.typeLabel,
                 kind: "select",
-                placeholder: "Select one",
-                options: PARTNER_TYPES.map((p) => p.name),
+                placeholder: t.partners.typePh,
+                options: currentPartnerTypes.map((p) => p.name),
                 required: true,
               },
               {
                 name: "message",
-                label: "What could we build together?",
+                label: t.partners.ideaLabel,
                 kind: "textarea",
-                placeholder: "Share your idea, goal or opportunity…",
+                placeholder: t.partners.ideaPh,
               },
             ]}
           />
@@ -89,6 +92,7 @@ const Partners = () => (
       </div>
     </section>
   </div>
-);
+  );
+};
 
 export default Partners;

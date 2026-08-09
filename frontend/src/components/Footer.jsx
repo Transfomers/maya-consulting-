@@ -63,9 +63,15 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-bone/15 pt-6 text-xs text-bone/50 md:flex-row md:items-center">
-        <span>{t.footer.bottom1}</span>
-        <span>{t.footer.bottom2}</span>
+      <div className="mt-10 flex flex-col items-start justify-between gap-4 border-t border-bone/15 pt-6 text-xs text-bone/50 md:flex-row md:items-center">
+        <div className="flex flex-col gap-1">
+          <span>{t.footer.bottom1}</span>
+          <span>&copy; {new Date().getFullYear()} CAP Entrepreneurs. All rights reserved.</span>
+        </div>
+        <div className="flex flex-col items-start gap-1 md:items-end">
+          <span>{t.footer.bottom2}</span>
+          <span>App Designed by Crafti Studio</span>
+        </div>
       </div>
     </div>
   </footer>

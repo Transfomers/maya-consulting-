@@ -2,19 +2,28 @@ import { Check } from "lucide-react";
 import ProgramsHero from "@/components/ProgramsHero";
 import FormShell from "@/components/FormShell";
 import { Reveal, ParallaxImage } from "@/components/motion";
-import { PROGRAMS } from "@/lib/content";
+import { PROGRAMS, PROGRAMS_FR, PROGRAMS_AR } from "@/lib/content";
+import { useLang } from "@/lib/i18n";
 
-const Programs = () => (
-  <div data-testid="programs-page">
-    <ProgramsHero />
+const Programs = () => {
+  const { lang, t } = useLang();
+  
+  const currentPrograms = 
+    lang === "fr" ? PROGRAMS_FR : 
+    lang === "ar" ? PROGRAMS_AR : 
+    PROGRAMS;
 
-    {PROGRAMS.map((p, i) => (
-      <section
-        key={p.id}
-        id={p.id}
-        className={`border-b border-forest/15 ${i % 2 === 1 ? "bg-white" : ""}`}
-        data-testid={`program-section-${p.id}`}
-      >
+  return (
+    <div data-testid="programs-page">
+      <ProgramsHero />
+
+      {currentPrograms.map((p, i) => (
+        <section
+          key={p.id}
+          id={p.id}
+          className={`border-b border-forest/15 ${i % 2 === 1 ? "bg-white" : ""}`}
+          data-testid={`program-section-${p.id}`}
+        >
         <div className="mx-auto grid max-w-[1600px] items-center gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-12">
           <div className={`lg:col-span-6 ${i % 2 === 1 ? "lg:order-2" : ""}`}>
             <Reveal>
@@ -41,7 +50,7 @@ const Programs = () => (
                 data-testid={`program-apply-${p.id}`}
                 className="mt-9 inline-flex items-center gap-2 bg-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-bone transition-colors hover:bg-maple"
               >
-                Apply to this program
+                {t.programs.applyCta}
               </a>
             </Reveal>
           </div>
@@ -65,46 +74,46 @@ const Programs = () => (
         <Reveal className="lg:col-span-5">
           <p className="mb-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.3em] text-maple">
             <span className="inline-block h-px w-10 bg-maple" />
-            Program Application
+            {t.programs.formEyebrow}
           </p>
           <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">
-            Start your journey
+            {t.programs.formTitle}
           </h2>
           <p className="mt-6 max-w-md text-base leading-relaxed text-sage md:text-lg">
-            Tell us about yourself, your organization and the program you're interested in. Our team reviews every
-            application and will reach out with next steps.
+            {t.programs.formCopy}
           </p>
         </Reveal>
         <Reveal delay={0.15} className="lg:col-span-6 lg:col-start-7">
-          <FormShell
-            type="application"
-            testId="program-application-form"
-            submitLabel="Submit Application"
-            successMessage="Application received — our team will be in touch soon."
-            fields={[
-              { name: "name", label: "Full name", placeholder: "Your full name", required: true },
-              { name: "email", label: "Email", kind: "email", placeholder: "you@example.com", required: true },
-              { name: "organization", label: "Organization / Business", placeholder: "If applicable" },
-              {
-                name: "program",
-                label: "Program",
-                kind: "select",
-                placeholder: "Select a program",
-                options: ["CAP Executive", "Marketplace Lab", "CAP Global Mobility"],
-                required: true,
-              },
-              {
-                name: "message",
-                label: "Tell us about your goals",
-                kind: "textarea",
-                placeholder: "What would you like to achieve through this program?",
-              },
-            ]}
-          />
-        </Reveal>
-      </div>
-    </section>
-  </div>
-);
+            <FormShell
+              type="application"
+              testId="program-application-form"
+              submitLabel={t.programs.submit}
+              successMessage={t.programs.success}
+              fields={[
+                { name: "name", label: t.form.name, placeholder: t.form.namePh, required: true },
+                { name: "email", label: t.form.email, kind: "email", placeholder: t.form.emailPh, required: true },
+                { name: "organization", label: t.form.org, placeholder: t.form.orgPh },
+                {
+                  name: "program",
+                  label: t.programs.programLabel,
+                  kind: "select",
+                  placeholder: t.programs.programPh,
+                  options: currentPrograms.map(p => p.name),
+                  required: true,
+                },
+                {
+                  name: "message",
+                  label: t.programs.goalsLabel,
+                  kind: "textarea",
+                  placeholder: t.programs.goalsPh,
+                },
+              ]}
+            />
+          </Reveal>
+        </div>
+      </section>
+    </div>
+  );
+};
 
 export default Programs;

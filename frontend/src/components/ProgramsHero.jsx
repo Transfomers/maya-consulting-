@@ -1,6 +1,7 @@
 import { ArrowRight, Briefcase, MapPin, Globe2 } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { IMAGES } from "@/lib/content";
+import { motion } from "framer-motion";
 
 const ProgramsHero = () => {
   const { t } = useLang();

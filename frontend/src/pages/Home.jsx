@@ -4,41 +4,44 @@ import { KineticLines, Reveal, ParallaxImage, EditorialMarquee, Magnetic, FloatI
 import Scene3D from "@/components/Scene3D";
 import RotatingTagline from "@/components/RotatingTagline";
 import ImageCarousel from "@/components/ImageCarousel";
-import { IMAGES, PROGRAMS, STORIES } from "@/lib/content";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import TiltCard from "@/components/TiltCard";
+import { IMAGES, PROGRAMS, PROGRAMS_FR, PROGRAMS_AR, STORIES, STORIES_FR, STORIES_AR } from "@/lib/content";
+import { useLang } from "@/lib/i18n";
 
-const CHAPTERS = [
-  {
-    num: "01",
-    icon: BookOpen,
-    title: "Learn",
-    text: "Practical programs in entrepreneurial education, digital commerce and nonprofit leadership — built for real communities, not boardrooms.",
-  },
-  {
-    num: "02",
-    icon: Rocket,
-    title: "Build",
-    text: "Participants move from learning to implementation: launching ventures, strengthening organizations and opening new markets together.",
-  },
-  {
-    num: "03",
-    icon: TrendingUp,
-    title: "Impact",
-    text: "Every initiative ends in measurable impact — stronger local economies, deeper collaboration and opportunity that crosses borders.",
-  },
-];
 
-const AUDIENCES = [
-  { label: "Entrepreneurs", to: "/programs" },
-  { label: "Nonprofit organizations", to: "/programs" },
-  { label: "Funders & donors", to: "/donate" },
-  { label: "Volunteers", to: "/membership" },
-  { label: "Institutional partners", to: "/partners" },
-];
 
-const Home = () => (
+
+
+const Home = () => {
+  const { lang, t } = useLang();
+  const currentPrograms = lang === "fr" ? PROGRAMS_FR : lang === "ar" ? PROGRAMS_AR : PROGRAMS;
+  const currentStories = lang === "fr" ? STORIES_FR : lang === "ar" ? STORIES_AR : STORIES;
+  
+  const CHAPTERS = [
+    { num: "01", icon: Rocket, title: t.home.chapters?.[0]?.title, text: t.home.chapters?.[0]?.text },
+    { num: "02", icon: TrendingUp, title: t.home.chapters?.[1]?.title, text: t.home.chapters?.[1]?.text },
+    { num: "03", icon: Globe2, title: t.home.chapters?.[2]?.title, text: t.home.chapters?.[2]?.text },
+  ];
+
+  const AUDIENCES = [
+    { label: t.home.audiences?.[0] || "Entrepreneurs", to: "/programs" },
+    { label: t.home.audiences?.[1] || "Nonprofit organizations", to: "/programs" },
+    { label: t.home.audiences?.[2] || "Funders & donors", to: "/donate" },
+    { label: t.home.audiences?.[3] || "Volunteers", to: "/membership" },
+    { label: t.home.audiences?.[4] || "Institutional partners", to: "/partners" },
+  ];
+
+  return (
   <div data-testid="home-page">
     {/* HERO */}
     <section className="relative overflow-hidden border-b border-forest/15">
+      {/* Background Orbs */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute -left-[10%] top-[10%] h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] rounded-full bg-purple-300/30 mix-blend-multiply blur-[120px]" />
+        <div className="absolute right-[10%] top-[-10%] h-[40vw] max-h-[500px] w-[40vw] max-w-[500px] rounded-full bg-blue-300/30 mix-blend-multiply blur-[120px]" />
+        <div className="absolute -bottom-[20%] left-[20%] h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] rounded-full bg-yellow-200/40 mix-blend-multiply blur-[120px]" />
+      </div>
       <span
         aria-hidden="true"
         className="text-outline pointer-events-none absolute -right-10 top-16 hidden select-none font-heading text-[26vw] font-black leading-none opacity-20 lg:block"
@@ -54,30 +57,30 @@ const Home = () => (
           <Reveal y={16}>
             <p className="mb-8 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.3em] text-maple" data-testid="hero-eyebrow">
               <span className="inline-block h-px w-10 bg-maple" />
-              A Canadian nonprofit movement
+              {t.home.eyebrow}
             </p>
           </Reveal>
           <KineticLines
             testId="hero-heading"
             lines={[
-              <>Together, we build</>,
+              <>{t.home.h1a}</>,
               <>
-                <span className="font-serif font-medium italic tracking-tight text-maple">entrepreneurial</span> ecosystems
+                {t.home.h1pre && <span>{t.home.h1pre}</span>}
+                <span className="font-serif font-medium italic tracking-tight text-maple">{t.home.h1accent}</span>{t.home.h1post}
               </>,
-              <>where innovation creates opportunity</>,
-              <>and communities thrive.</>,
+              <>{t.home.h1c}</>,
             ]}
             className="font-heading text-[13vw] font-black leading-[0.92] tracking-tighter text-forest sm:text-6xl md:text-7xl lg:text-[5.2rem] xl:text-8xl"
           />
           <Reveal delay={0.55} className="mt-10 max-w-2xl">
             <p className="text-base leading-relaxed text-sage md:text-lg" data-testid="hero-subtext">
-              CAP Entrepreneurs is a nonprofit organization that designs, delivers and supports innovative entrepreneurial programs. Our programs help entrepreneurs develop sustainable businesses, strengthen nonprofit organizations and create international opportunities through technology, partnerships and community engagement.
+              {t.home.sub}
             </p>
           </Reveal>
           <Reveal delay={0.65} className="mt-8">
             <p className="flex items-center gap-4" data-testid="hero-tagline-fr">
               <span className="inline-block h-px w-10 bg-maple" />
-              <RotatingTagline className="font-serif text-3xl italic leading-none text-maple md:text-4xl" />
+              <RotatingTagline words={t.home.marquee.slice(0,3).map(w=>w.toUpperCase()+".")} className="font-serif text-3xl italic leading-none text-maple md:text-4xl" />
             </p>
           </Reveal>
           <Reveal delay={0.75} className="mt-10 flex flex-wrap gap-4">
@@ -87,7 +90,7 @@ const Home = () => (
                 data-testid="hero-cta-programs"
                 className="group inline-flex items-center gap-2 bg-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-bone transition-colors hover:bg-maple"
               >
-                Explore Programs
+                {t.home.ctaPrograms}
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
             </Magnetic>
@@ -109,14 +112,14 @@ const Home = () => (
     <EditorialMarquee
       dark
       testId="home-marquee"
-      items={["Créer", "Accompagner", "Propulser", "Bâtir", "Connecter", "Grandir"]}
+      items={t.home.marquee}
     />
 
     {/* MANIFESTO CHAPTERS */}
     <section className="mx-auto max-w-[1600px] px-5 py-24 md:px-10 md:py-32" data-testid="manifesto-section">
       <Reveal>
         <h2 className="max-w-3xl font-heading text-4xl font-black tracking-tight text-forest md:text-5xl lg:text-6xl">
-          How we turn learning into lasting impact
+          {t.home.manifestoTitle}
         </h2>
       </Reveal>
       <div className="mt-16 grid gap-px border border-forest/15 bg-forest/15 md:grid-cols-3">
@@ -140,6 +143,35 @@ const Home = () => (
       </div>
     </section>
 
+    {/* IMPACT BY THE NUMBERS */}
+    <section className="bg-maple text-bone" data-testid="home-impact-numbers">
+      <div className="mx-auto max-w-[1600px] px-5 py-24 md:px-10 md:py-32">
+        <Reveal>
+          <h2 className="font-heading text-4xl font-black tracking-tight md:text-5xl lg:text-6xl text-center mb-16">
+            Impact <span className="font-serif italic font-medium">by the numbers</span>
+          </h2>
+        </Reveal>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+          {[
+            { value: 50, suffix: "+", label: t.home.impacts?.[0] || "Active Programs" },
+            { value: 1200, suffix: "", label: t.home.impacts?.[1] || "Entrepreneurs Reached" },
+            { value: 15, suffix: "", label: t.home.impacts?.[2] || "Partner Organizations" },
+            { value: 8, suffix: "K", label: t.home.impacts?.[3] || "Max Scholarship" },
+          ].map((stat, i) => (
+            <Reveal key={stat.label} delay={i * 0.1}>
+              <div className="flex flex-col items-center">
+                <div className="font-heading text-6xl md:text-7xl lg:text-8xl font-black text-vivid">
+                  <AnimatedCounter value={stat.value} duration={2.5} />
+                  <span>{stat.suffix}</span>
+                </div>
+                <p className="mt-4 font-bold uppercase tracking-widest text-xs opacity-90">{stat.label}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+
     {/* IMAGE SLIDER */}
     <ImageCarousel />
 
@@ -149,7 +181,7 @@ const Home = () => (
         <div className="flex flex-wrap items-end justify-between gap-6">
           <Reveal>
             <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl lg:text-6xl">
-              Programs are the heart<br />of CAP Entrepreneurs
+              {t.home.programsTitleA}<br />{t.home.programsTitleB}
             </h2>
           </Reveal>
           <Reveal delay={0.15}>
@@ -158,7 +190,7 @@ const Home = () => (
               data-testid="home-programs-view-all"
               className="group inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.15em] text-maple"
             >
-              All programs
+              {t.home.allPrograms}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Reveal>
@@ -166,44 +198,48 @@ const Home = () => (
 
         <div className="mt-14 grid gap-8 lg:grid-cols-12">
           <Reveal className="lg:col-span-7">
-            <Link to="/programs#marketplace-lab" data-testid="home-program-marketplace-lab" className="group block border border-forest/15">
-              <ParallaxImage
-                src={PROGRAMS[1].image}
-                alt={PROGRAMS[1].name}
-                className="aspect-[16/9] w-full"
-                speed={0.08}
-              />
-              <div className="flex items-start justify-between gap-4 p-7 md:p-9">
-                <div>
-                  <span className="font-serif text-3xl italic text-maple">{PROGRAMS[1].number}</span>
-                  <h3 className="mt-2 font-heading text-3xl font-bold tracking-tight text-forest transition-colors group-hover:text-maple md:text-4xl">
-                    {PROGRAMS[1].name}
-                  </h3>
-                  <p className="mt-3 max-w-md text-sm leading-relaxed text-sage md:text-base">{PROGRAMS[1].theme}.</p>
+            <TiltCard>
+              <Link to="/programs#marketplace-lab" data-testid="home-program-marketplace-lab" className="group block border border-forest/15 bg-white h-full">
+                <ParallaxImage
+                  src={currentPrograms[1].image}
+                  alt={currentPrograms[1].name}
+                  className="aspect-[16/9] w-full"
+                  speed={0.08}
+                />
+                <div className="flex items-start justify-between gap-4 p-7 md:p-9">
+                  <div>
+                    <span className="font-serif text-3xl italic text-maple">{currentPrograms[1].number}</span>
+                    <h3 className="mt-2 font-heading text-3xl font-bold tracking-tight text-forest transition-colors group-hover:text-maple md:text-4xl">
+                      {currentPrograms[1].name}
+                    </h3>
+                    <p className="mt-3 max-w-md text-sm leading-relaxed text-sage md:text-base">{currentPrograms[1].theme}.</p>
+                  </div>
+                  <ArrowUpRight className="mt-2 h-7 w-7 shrink-0 text-forest transition-all group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-maple" />
                 </div>
-                <ArrowUpRight className="mt-2 h-7 w-7 shrink-0 text-forest transition-all group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-maple" />
-              </div>
-            </Link>
+              </Link>
+            </TiltCard>
           </Reveal>
           <div className="grid gap-8 lg:col-span-5">
-            {[PROGRAMS[0], PROGRAMS[2]].map((p, i) => (
+            {[currentPrograms[0], currentPrograms[2]].map((p, i) => (
               <Reveal key={p.id} delay={0.1 + i * 0.1}>
-                <Link
-                  to={`/programs#${p.id}`}
-                  data-testid={`home-program-${p.id}`}
-                  className="group flex h-full flex-col justify-between border border-forest/15 p-7 transition-colors hover:bg-forest md:p-9"
-                >
-                  <div>
-                    <span className="font-serif text-3xl italic text-maple">{p.number}</span>
-                    <h3 className="mt-2 font-heading text-2xl font-bold tracking-tight text-forest transition-colors group-hover:text-bone md:text-3xl">
-                      {p.name}
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-sage transition-colors group-hover:text-bone/75 md:text-base">
-                      {p.theme}.
-                    </p>
-                  </div>
-                  <ArrowUpRight className="mt-6 h-6 w-6 text-forest transition-all group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-maple" />
-                </Link>
+                <TiltCard className="h-full">
+                  <Link
+                    to={`/programs#${p.id}`}
+                    data-testid={`home-program-${p.id}`}
+                    className="group flex h-full flex-col justify-between border border-forest/15 p-7 transition-colors hover:bg-forest md:p-9 bg-white"
+                  >
+                    <div>
+                      <span className="font-serif text-3xl italic text-maple">{p.number}</span>
+                      <h3 className="mt-2 font-heading text-2xl font-bold tracking-tight text-forest transition-colors group-hover:text-bone md:text-3xl">
+                        {p.name}
+                      </h3>
+                      <p className="mt-3 text-sm leading-relaxed text-sage transition-colors group-hover:text-bone/75 md:text-base">
+                        {p.theme}.
+                      </p>
+                    </div>
+                    <ArrowUpRight className="mt-6 h-6 w-6 text-forest transition-all group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-maple" />
+                  </Link>
+                </TiltCard>
               </Reveal>
             ))}
           </div>
@@ -218,23 +254,20 @@ const Home = () => (
           <Reveal>
             <p className="mb-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.3em] text-vivid">
               <span className="inline-block h-px w-10 bg-vivid" />
-              Exposure Scholarship
+              {t.home.schEyebrow}
             </p>
             <h2 className="font-heading text-4xl font-black leading-[0.95] tracking-tight md:text-6xl">
-              Up to <span className="font-serif italic text-vivid">CAD $8,000</span> toward an international business
-              experience
+              {t.home.schTitleA} <span className="font-serif italic text-vivid">{t.home.schAmount}</span> {t.home.schTitleB}
             </h2>
             <p className="mt-6 max-w-lg text-base leading-relaxed text-bone/75 md:text-lg" data-testid="scholarship-copy">
-              Through Marketplace Lab, selected entrepreneurs gain access to trade fairs, festivals and commercial
-              opportunities across our partner network — with an exposure scholarship supporting the journey, subject to
-              program eligibility and available funding.
+              {t.home.schCopy}
             </p>
             <Link
               to="/programs#apply"
               data-testid="scholarship-cta"
               className="group mt-9 inline-flex items-center gap-2 bg-bone px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-maple hover:text-bone"
             >
-              Apply to Marketplace Lab
+              {t.home.schCta}
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
           </Reveal>
@@ -257,7 +290,7 @@ const Home = () => (
     <section className="mx-auto max-w-[1600px] px-5 py-24 md:px-10 md:py-32" data-testid="audiences-section">
       <Reveal>
         <h2 className="max-w-2xl font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">
-          A community built for everyone who creates opportunity
+          {t.home.audTitle}
         </h2>
       </Reveal>
       <div className="mt-12 border-t border-forest/15">
@@ -287,7 +320,7 @@ const Home = () => (
         <div className="flex flex-wrap items-end justify-between gap-6">
           <Reveal>
             <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl lg:text-6xl">
-              Stories of collaboration
+              {t.home.storiesTitle}
             </h2>
           </Reveal>
           <Reveal delay={0.15}>
@@ -296,13 +329,13 @@ const Home = () => (
               data-testid="home-stories-view-all"
               className="group inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.15em] text-maple"
             >
-              All impact stories
+              {t.home.allStories}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Reveal>
         </div>
         <div className="mt-14 grid gap-8 md:grid-cols-3">
-          {STORIES.map((s, i) => (
+          {currentStories.map((s, i) => (
             <Reveal key={s.id} delay={i * 0.1}>
               <Link
                 to={`/impact-stories#${s.id}`}
@@ -330,12 +363,61 @@ const Home = () => (
       </div>
     </section>
 
+    {/* TESTIMONIALS / VOICES */}
+    <section className="bg-forest/5 py-24 md:py-32 border-t border-forest/15">
+      <div className="mx-auto max-w-[1600px] px-5 md:px-10">
+        <Reveal>
+          <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl text-center mb-16">
+            Voices of the <span className="font-serif italic font-medium text-maple">community</span>
+          </h2>
+        </Reveal>
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            {
+              quote: "The Executive program completely transformed our board's approach to governance. We now have a clear strategic direction.",
+              author: "Sarah J.",
+              role: "Nonprofit Director",
+              img: IMAGES.portraitF
+            },
+            {
+              quote: "Marketplace Lab gave me the tools and the network to take my local business international. The scholarship was a game-changer.",
+              author: "David M.",
+              role: "Founder & CEO",
+              img: IMAGES.team
+            },
+            {
+              quote: "Collaborating across borders through CAP has opened our eyes to innovative solutions we never would have considered alone.",
+              author: "Elena R.",
+              role: "Community Leader",
+              img: IMAGES.collaboration
+            }
+          ].map((t, i) => (
+            <Reveal key={i} delay={i * 0.15}>
+              <TiltCard>
+                <div className="bg-white p-8 border border-forest/15 h-full rounded-tr-[40px] rounded-bl-[40px] shadow-sm hover:shadow-md transition-shadow relative">
+                  <div className="text-maple opacity-20 font-serif text-8xl absolute top-4 right-6 leading-none">"</div>
+                  <p className="text-forest/80 italic mb-8 relative z-10 text-lg">"{t.quote}"</p>
+                  <div className="flex items-center gap-4 mt-auto">
+                    <img src={t.img} alt={t.author} className="w-12 h-12 rounded-full object-cover" />
+                    <div>
+                      <p className="font-bold text-forest">{t.author}</p>
+                      <p className="text-xs uppercase tracking-widest text-maple font-bold">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              </TiltCard>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+
     {/* CTA BAND */}
     <section className="border-t border-forest/15" data-testid="home-cta-section">
       <div className="mx-auto max-w-[1600px] px-5 py-24 text-center md:px-10 md:py-32">
         <Reveal>
           <h2 className="mx-auto max-w-4xl font-heading text-4xl font-black leading-[0.95] tracking-tight text-forest md:text-6xl lg:text-7xl">
-            Ready to create <span className="font-serif font-medium italic text-maple">opportunity?</span>
+            {t.home.ctaTitleA} <span className="font-serif font-medium italic text-maple">{t.home.ctaAccent}</span>
           </h2>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link
@@ -357,6 +439,7 @@ const Home = () => (
       </div>
     </section>
   </div>
-);
+  );
+};
 
 export default Home;

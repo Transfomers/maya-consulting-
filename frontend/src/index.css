@@ -89,6 +89,14 @@ input:focus, textarea:focus, select:focus {
     background: linear-gradient(90deg, #6725EB 0%, #7A3EF0 50%, #8F65DD 100%);
 }
 
+.glass-panel {
+    @apply bg-white/60 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.04)];
+}
+
+.glass-card {
+    @apply bg-white/80 backdrop-blur-lg border border-white/50 shadow-sm transition-all hover:shadow-md hover:bg-white/90;
+}
+
 @layer base {
     [data-debug-wrapper="true"] {
         display: contents !important;

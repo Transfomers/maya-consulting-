@@ -1,30 +1,28 @@
 import PageHero from "@/components/PageHero";
 import { Reveal } from "@/components/motion";
-import { STORIES } from "@/lib/content";
+import { STORIES, STORIES_FR, STORIES_AR } from "@/lib/content";
+import { useLang } from "@/lib/i18n";
 
-const PARTS = [
-  ["Challenge", "challenge"],
-  ["Our Program", "program"],
-  ["Actions Taken", "actions"],
-  ["Measured Impact", "impact"],
-  ["Future Opportunities", "future"],
-];
 
-const ImpactStories = () => (
+
+const ImpactStories = () => {
+  const { lang, t } = useLang();
+  const currentStories = lang === "fr" ? STORIES_FR : lang === "ar" ? STORIES_AR : STORIES;
+  return (
   <div data-testid="impact-stories-page">
     <PageHero
       testId="stories-hero"
-      eyebrow="Impact Stories"
+      eyebrow={t.stories.eyebrow}
       lines={[
-        <>Stories of</>,
+        <>{t.stories.h1a}</>,
         <>
-          <span className="font-serif font-medium italic text-maple">collaboration</span>
+          <span className="font-serif font-medium italic text-maple">{t.stories.h1accent}</span>
         </>,
       ]}
-      intro="We don't present clients — we share stories of collaboration. Each one follows the same arc: a challenge, a program, actions taken, and the impact that follows."
+      intro={t.stories.intro}
     />
 
-    {STORIES.map((s, i) => (
+    {currentStories.map((s, i) => (
       <section
         key={s.id}
         id={s.id}
@@ -49,7 +47,7 @@ const ImpactStories = () => (
             </div>
             <div className="lg:col-span-7 lg:col-start-6">
               <div className="border-t border-forest/15">
-                {PARTS.map(([label, key], j) => (
+                {t.stories.parts.map(([label, key], j) => (
                   <Reveal key={key} delay={j * 0.08} y={24}>
                     <div className="grid gap-3 border-b border-forest/15 py-6 md:grid-cols-12 md:py-7" data-testid={`story-${s.id}-${key}`}>
                       <span className="text-xs font-bold uppercase tracking-[0.25em] text-maple md:col-span-3">
@@ -70,7 +68,7 @@ const ImpactStories = () => (
       <div className="mx-auto max-w-[1600px] px-5 py-20 text-center md:px-10 md:py-28">
         <Reveal>
           <h2 className="mx-auto max-w-3xl font-heading text-3xl font-black tracking-tight md:text-5xl">
-            Your story could be next
+            {t.stories.ctaTitle}
           </h2>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <a
@@ -92,6 +90,7 @@ const ImpactStories = () => (
       </div>
     </section>
   </div>
-);
+  );
+};
 
 export default ImpactStories;

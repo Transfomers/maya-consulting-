@@ -3,44 +3,36 @@ import FormShell from "@/components/FormShell";
 import { Reveal, ParallaxImage } from "@/components/motion";
 import { IMAGES } from "@/lib/content";
 import { GraduationCap, Users, Globe2 } from "lucide-react";
+import { useLang } from "@/lib/i18n";
 
-const IMPACTS = [
-  {
-    icon: GraduationCap,
-    title: "Education & mentoring",
-    text: "Contributions fund program access, mentoring and learning materials for entrepreneurs and nonprofit leaders.",
-  },
-  {
-    icon: Users,
-    title: "Networks & exposure",
-    text: "Donations open doors to networking opportunities and professional exposure through our programs and partner network.",
-  },
-  {
-    icon: Globe2,
-    title: "International scholarships",
-    text: "Support contributes toward participant scholarships for trade fairs, entrepreneurial festivals and international opportunities.",
-  },
-];
 
-const Donate = () => (
+
+const Donate = () => {
+  const { t } = useLang();
+  const IMPACTS = [
+    { icon: GraduationCap, title: t.donate.impacts[0].title, text: t.donate.impacts[0].text },
+    { icon: Users, title: t.donate.impacts[1].title, text: t.donate.impacts[1].text },
+    { icon: Globe2, title: t.donate.impacts[2].title, text: t.donate.impacts[2].text },
+  ];
+  return (
   <div data-testid="donate-page">
     <PageHero
       testId="donate-hero"
-      eyebrow="Donate"
+      eyebrow={t.donate.eyebrow}
       lines={[
-        <>Every contribution</>,
+        <>{t.donate.h1a}</>,
         <>
-          becomes <span className="font-serif font-medium italic text-maple">opportunity</span>
+          {t.donate.h1pre && <span>{t.donate.h1pre}</span>}<span className="font-serif font-medium italic text-maple">{t.donate.h1accent}</span>{t.donate.h1post}
         </>,
       ]}
-      intro="Every contribution helps entrepreneurs gain access to education, mentoring, networking opportunities and professional exposure through our programs."
+      intro={t.donate.intro}
     />
 
     <section className="mx-auto grid max-w-[1600px] gap-12 px-5 py-24 md:px-10 md:py-32 lg:grid-cols-12" data-testid="donate-impact-section">
       <div className="lg:col-span-7">
         <Reveal>
           <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">
-            Where your support goes
+            {t.donate.impactTitle}
           </h2>
         </Reveal>
         <div className="mt-12 space-y-px border border-forest/15 bg-forest/15">
@@ -67,7 +59,7 @@ const Donate = () => (
             speed={0.1}
           />
           <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage">
-            100% of donations support program participants
+            {t.donate.imgCaption}
           </p>
         </Reveal>
       </div>
@@ -78,9 +70,9 @@ const Donate = () => (
         <Reveal className="lg:col-span-5">
           <p className="mb-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.3em] text-vivid">
             <span className="inline-block h-px w-10 bg-vivid" />
-            Make a Pledge
+            {t.donate.pledgeEyebrow}
           </p>
-          <h2 className="font-heading text-4xl font-black tracking-tight md:text-5xl">Fuel the next story</h2>
+          <h2 className="font-heading text-4xl font-black tracking-tight md:text-5xl">{t.donate.pledgeTitle}</h2>
           <p className="mt-6 max-w-md text-base leading-relaxed text-bone/75 md:text-lg">
             Leave your pledge and our team will follow up to complete your contribution. Every dollar moves an
             entrepreneur closer to education, markets and community impact.
@@ -91,19 +83,19 @@ const Donate = () => (
             <FormShell
               type="pledge"
               testId="pledge-form"
-              submitLabel="Pledge My Support"
-              successMessage="Thank you for your pledge — we'll follow up to complete your contribution."
+              submitLabel={t.donate.submit}
+              successMessage={t.donate.success}
               fields={[
-                { name: "name", label: "Full name", placeholder: "Your full name", required: true },
-                { name: "email", label: "Email", kind: "email", placeholder: "you@example.com", required: true },
+                { name: "name", label: t.form.name, placeholder: t.form.namePh, required: true },
+                { name: "email", label: t.form.email, kind: "email", placeholder: t.form.emailPh, required: true },
                 {
                   name: "amount",
-                  label: "Pledge amount (CAD)",
+                  label: t.donate.amountLabel,
                   kind: "radio",
                   options: ["$50", "$100", "$250", "$500", "$1,000"],
                   required: true,
                 },
-                { name: "customAmount", label: "Or enter a custom amount", placeholder: "e.g. 750" },
+                { name: "customAmount", label: t.donate.customLabel, placeholder: t.donate.customPh },
                 {
                   name: "message",
                   label: "A note (optional)",
@@ -117,6 +109,7 @@ const Donate = () => (
       </div>
     </section>
   </div>
-);
+  );
+};
 
 export default Donate;

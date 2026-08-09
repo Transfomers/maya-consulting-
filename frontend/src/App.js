@@ -19,8 +19,16 @@ import NewsEvents from "@/pages/NewsEvents";
 import Donate from "@/pages/Donate";
 import Contact from "@/pages/Contact";
 import Blog from "@/pages/Blog";
+import Events from "@/pages/Events";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
+import BlogPost from "@/pages/BlogPost";
+import AdminOverview from "@/pages/admin/Overview";
+import AdminPostList from "@/pages/admin/PostList";
+import AdminPostEditor from "@/pages/admin/PostEditor";
+import AdminEventsList from "@/pages/admin/EventsList";
+import AdminMedia from "@/pages/admin/Media";
+
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -43,8 +51,11 @@ const MarketingLayout = ({ children }) => (
 
 const page = (Component) => <MarketingLayout><Component /></MarketingLayout>;
 
+import { HelmetProvider } from "react-helmet-async";
+
 function App() {
   return (
+    <HelmetProvider>
     <LanguageProvider>
     <div className="App">
       <div className="noise-overlay" aria-hidden="true" />
@@ -70,15 +81,27 @@ function App() {
           <Route path="/membership" element={page(Membership)} />
           <Route path="/partners" element={page(Partners)} />
           <Route path="/news-events" element={page(NewsEvents)} />
-          <Route path="/blog" element={page(Blog)} />
+          <Route path="/news" element={page(Blog)} />
+          <Route path="/news/:slug" element={page(BlogPost)} />
+          <Route path="/events" element={page(Events)} />
           <Route path="/donate" element={page(Donate)} />
           <Route path="/contact" element={page(Contact)} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          
+          <Route path="/admin" element={<AdminDashboard />}>
+            <Route index element={<AdminOverview />} />
+            <Route path="posts" element={<AdminPostList />} />
+            <Route path="posts/new" element={<AdminPostEditor />} />
+            <Route path="posts/:id/edit" element={<AdminPostEditor />} />
+            <Route path="events" element={<AdminEventsList />} />
+            <Route path="media" element={<AdminMedia />} />
+          </Route>
+
         </Routes>
       </BrowserRouter>
     </div>
     </LanguageProvider>
+    </HelmetProvider>
   );
 }
 

@@ -2,8 +2,11 @@ import { Mail, MapPin, Compass } from "lucide-react";
 import ContactHero from "@/components/ContactHero";
 import FormShell from "@/components/FormShell";
 import { Reveal } from "@/components/motion";
+import { useLang } from "@/lib/i18n";
 
-const Contact = () => (
+const Contact = () => {
+  const { t } = useLang();
+  return (
   <div data-testid="contact-page">
     <ContactHero />
 
@@ -12,9 +15,9 @@ const Contact = () => (
         <Reveal>
           <div className="space-y-px border border-forest/15 bg-forest/15">
             {[
-              { icon: Mail, label: "Email", value: "info@capentrepreneurs.ca" },
-              { icon: MapPin, label: "Based in", value: "Canada — serving communities nationwide and internationally" },
-              { icon: Compass, label: "Looking for", value: "Programs, membership, partnerships, volunteering or donations" },
+              { icon: Mail, label: t.contact.info[0].label, value: t.contact.info[0].value },
+              { icon: MapPin, label: t.contact.info[1].label, value: t.contact.info[1].value },
+              { icon: Compass, label: t.contact.info[2].label, value: t.contact.info[2].value },
             ].map((c, i) => (
               <div key={c.label} className="flex items-start gap-5 bg-bone p-6 md:p-8" data-testid={`contact-info-${i}`}>
                 <c.icon className="mt-1 h-6 w-6 shrink-0 text-maple" strokeWidth={1.5} />
@@ -28,29 +31,29 @@ const Contact = () => (
         </Reveal>
       </div>
       <Reveal delay={0.15} className="lg:col-span-6 lg:col-start-7">
-        <h2 className="font-heading text-3xl font-black tracking-tight text-forest md:text-4xl">Send us a message</h2>
+        <h2 className="font-heading text-3xl font-black tracking-tight text-forest md:text-4xl">{t.contact.formTitle}</h2>
         <div className="mt-8">
           <FormShell
             type="contact"
             testId="contact-form"
-            submitLabel="Send Message"
-            successMessage="Message sent — we'll get back to you shortly."
+            submitLabel={t.contact.submit}
+            successMessage={t.contact.success}
             fields={[
-              { name: "name", label: "Full name", placeholder: "Your full name", required: true },
-              { name: "email", label: "Email", kind: "email", placeholder: "you@example.com", required: true },
+              { name: "name", label: t.form.name, placeholder: t.form.namePh, required: true },
+              { name: "email", label: t.form.email, kind: "email", placeholder: t.form.emailPh, required: true },
               {
                 name: "subject",
-                label: "Topic",
+                label: t.contact.topicLabel,
                 kind: "select",
-                placeholder: "Select a topic",
-                options: ["Programs", "Membership", "Partnerships", "Donations", "Volunteering", "Media", "Other"],
+                placeholder: t.contact.topicPh,
+                options: t.contact.topicOptions,
                 required: true,
               },
               {
                 name: "message",
-                label: "Message",
+                label: t.contact.messageLabel,
                 kind: "textarea",
-                placeholder: "How can we help?",
+                placeholder: t.contact.messagePh,
                 required: true,
               },
             ]}
@@ -59,6 +62,7 @@ const Contact = () => (
       </Reveal>
     </section>
   </div>
-);
+  );
+};
 
 export default Contact;

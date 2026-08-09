@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const RotatingTagline = ({
-  words = ["CRÉER.", "ACCOMPAGNER.", "PROPULSER."],
+  words = ["CREATE.", "SUPPORT.", "PROPEL."],
   className = "",
   interval = 2200,
 }) => {

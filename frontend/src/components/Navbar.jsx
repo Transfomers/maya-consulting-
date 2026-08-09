@@ -7,7 +7,7 @@ import { useLang } from "@/lib/i18n";
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { lang, toggle, t } = useLang();
+  const { lang, setLang, t } = useLang();
   const LINKS = [
     { to: "/", label: t.nav.home },
     { to: "/about", label: t.nav.about },
@@ -26,13 +26,13 @@ const Navbar = () => {
         className="sticky top-0 z-50 border-b border-forest/15 bg-bone/70 backdrop-blur-xl"
         data-testid="main-nav"
       >
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between px-5 py-4 md:px-10">
-          <Link to="/" className="flex items-center gap-3" data-testid="nav-logo">
+        <div className="flex w-full items-center justify-between px-5 py-4 md:px-10 relative">
+          <Link to="/" className="flex items-center gap-3 relative z-10" data-testid="nav-logo">
             <img src="/assets/logo-mark.png" alt="CAP Entrepreneurs" className="h-9 w-auto mix-blend-multiply" />
           </Link>
 
-          <nav className="hidden items-center gap-4 xl:flex" data-testid="nav-links-desktop">
-            {LINKS.slice(1).map((l) => (
+          <nav className="hidden items-center justify-center gap-4 xl:flex absolute left-1/2 -translate-x-1/2" data-testid="nav-links-desktop">
+            {LINKS.map((l) => (
               <NavLink
                 key={l.to}
                 to={l.to}
@@ -46,15 +46,24 @@ const Navbar = () => {
                 {l.label}
               </NavLink>
             ))}
-            <button
-              onClick={toggle}
-              data-testid="lang-toggle-button"
-              className="flex items-center gap-1.5 border border-forest/30 px-3.5 py-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition-colors hover:border-forest hover:bg-forest hover:text-bone"
-              aria-label="Switch language / Changer de langue"
-            >
-              <Languages className="h-3.5 w-3.5" />
-              {lang === "en" ? "FR" : "EN"}
-            </button>
+          </nav>
+
+          <div className="hidden xl:flex items-center gap-4 relative z-10">
+            <div className="relative">
+              <Languages className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-forest pointer-events-none" />
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value)}
+                data-testid="lang-select-desktop"
+                className="appearance-none border border-forest/30 pl-8 pr-8 py-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest transition-colors hover:border-forest hover:bg-forest/5 focus:outline-none focus:ring-1 focus:ring-forest bg-transparent cursor-pointer"
+                aria-label="Select language"
+              >
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="ar">العربية</option>
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-forest text-[10px]">▼</div>
+            </div>
             <button
               onClick={() => navigate("/donate")}
               data-testid="nav-donate-button"
@@ -63,18 +72,24 @@ const Navbar = () => {
               {t.nav.donate}
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>
-          </nav>
+          </div>
 
-          <div className="flex items-center gap-4 xl:hidden">
-            <button
-              onClick={toggle}
-              data-testid="lang-toggle-button-mobile-header"
-              className="flex items-center gap-1.5 border border-forest/30 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-forest transition-colors hover:bg-forest hover:text-bone"
-              aria-label="Switch language / Changer de langue"
-            >
-              <Languages className="h-3.5 w-3.5" />
-              {lang === "en" ? "FR" : "EN"}
-            </button>
+          <div className="flex items-center gap-4 xl:hidden relative z-10">
+            <div className="relative">
+              <Languages className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-forest pointer-events-none" />
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value)}
+                data-testid="lang-select-mobile-header"
+                className="appearance-none border border-forest/30 pl-7 pr-6 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-forest transition-colors hover:bg-forest/5 focus:outline-none bg-transparent cursor-pointer"
+                aria-label="Select language"
+              >
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="ar">AR</option>
+              </select>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-forest text-[9px]">▼</div>
+            </div>
             <button
               className="text-forest"
               onClick={() => setOpen(true)}
@@ -141,13 +156,20 @@ const Navbar = () => {
                   >
                     {t.nav.donate}
                   </NavLink>
-                  <button
-                    onClick={toggle}
-                    data-testid="lang-toggle-mobile"
-                    className="ml-4 inline-block border border-bone/40 px-6 py-4 font-heading text-xl font-bold uppercase tracking-widest text-bone transition-colors hover:bg-bone hover:text-forest"
-                  >
-                    {lang === "en" ? "FR" : "EN"}
-                  </button>
+                  <div className="inline-block ml-4 relative">
+                    <select
+                      value={lang}
+                      onChange={(e) => setLang(e.target.value)}
+                      data-testid="lang-select-mobile-menu"
+                      className="appearance-none border border-bone/40 pl-6 pr-10 py-4 font-heading text-xl font-bold uppercase tracking-widest text-bone transition-colors hover:bg-bone/10 focus:outline-none bg-transparent cursor-pointer"
+                      aria-label="Select language"
+                    >
+                      <option value="en" className="text-forest">English</option>
+                      <option value="fr" className="text-forest">Français</option>
+                      <option value="ar" className="text-forest">العربية</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-bone text-[12px]">▼</div>
+                  </div>
                 </motion.div>
               </div>
             </nav>

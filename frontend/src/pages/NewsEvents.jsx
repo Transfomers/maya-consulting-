@@ -1,29 +1,34 @@
 import { CalendarDays, ArrowUpRight } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import { Reveal } from "@/components/motion";
-import { NEWS, EVENTS } from "@/lib/content";
+import { NEWS, NEWS_FR, NEWS_AR, EVENTS, EVENTS_FR, EVENTS_AR } from "@/lib/content";
+import { useLang } from "@/lib/i18n";
 
-const NewsEvents = () => (
+const NewsEvents = () => {
+  const { lang, t } = useLang();
+  const currentNews = lang === "fr" ? NEWS_FR : lang === "ar" ? NEWS_AR : NEWS;
+  const currentEvents = lang === "fr" ? EVENTS_FR : lang === "ar" ? EVENTS_AR : EVENTS;
+  return (
   <div data-testid="news-events-page">
     <PageHero
       testId="news-hero"
-      eyebrow="News & Events"
+      eyebrow={t.news.eyebrow}
       lines={[
-        <>What's happening in</>,
+        <>{t.news.h1a}</>,
         <>
-          the <span className="font-serif font-medium italic text-maple">ecosystem</span>
+          {t.news.h1pre && <span>{t.news.h1pre}</span>}<span className="font-serif font-medium italic text-maple">{t.news.h1accent}</span>{t.news.h1post}
         </>,
       ]}
-      intro="Program launches, success stories, partner announcements, funding opportunities, community initiatives and international missions."
+      intro={t.news.intro}
     />
 
     <section className="border-b border-forest/15 bg-white" data-testid="events-section">
       <div className="mx-auto max-w-[1600px] px-5 py-20 md:px-10 md:py-28">
         <Reveal>
-          <h2 className="font-heading text-3xl font-black tracking-tight text-forest md:text-5xl">Upcoming events</h2>
+          <h2 className="font-heading text-3xl font-black tracking-tight text-forest md:text-5xl">{t.news.eventsTitle}</h2>
         </Reveal>
         <div className="mt-12 grid gap-px border border-forest/15 bg-forest/15 md:grid-cols-3">
-          {EVENTS.map((e, i) => (
+          {currentEvents.map((e, i) => (
             <Reveal key={e.title} delay={i * 0.1} className="bg-white">
               <div className="flex h-full flex-col p-7 md:p-9" data-testid={`event-${i}`}>
                 <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-maple">
@@ -41,10 +46,10 @@ const NewsEvents = () => (
 
     <section className="mx-auto max-w-[1600px] px-5 py-20 md:px-10 md:py-28" data-testid="news-section">
       <Reveal>
-        <h2 className="font-heading text-3xl font-black tracking-tight text-forest md:text-5xl">Latest news</h2>
+        <h2 className="font-heading text-3xl font-black tracking-tight text-forest md:text-5xl">{t.news.newsTitle}</h2>
       </Reveal>
       <div className="mt-12 border-t border-forest/15">
-        {NEWS.map((n, i) => (
+        {currentNews.map((n, i) => (
           <Reveal key={n.title} delay={i * 0.05} y={20}>
             <article
               className="group grid cursor-pointer gap-2 border-b border-forest/15 py-7 transition-colors hover:bg-white md:grid-cols-12 md:items-baseline md:py-9"
@@ -65,6 +70,7 @@ const NewsEvents = () => (
       </div>
     </section>
   </div>
-);
+  );
+};
 
 export default NewsEvents;

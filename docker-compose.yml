@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: cap_backend
+    restart: always
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:////app/data/capentrepreneurs.db
+      - FRONTEND_URL=http://localhost
+      - SECRET_KEY=generate_a_secure_random_key_in_production
+    volumes:
+      - ./backend/data:/app/data
+    expose:
+      - "8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: cap_frontend
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cap.rule=Host(`capentrepreneurs.org`) || Host(`www.capentrepreneurs.org`)"
+      - "traefik.http.routers.cap.entrypoints=websecure"
+      - "traefik.http.routers.cap.tls.certresolver=letsencrypt"

@@ -51,7 +51,7 @@ const CustomCursor = () => {
     <>
       {/* Small dot that follows exactly */}
       <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[10000] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-vivid"
+        className="pointer-events-none fixed left-0 top-0 z-[10000] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-maple"
         animate={{
           x: mousePosition.x,
           y: mousePosition.y,
@@ -68,7 +68,7 @@ const CustomCursor = () => {
       
       {/* Larger trailing ring */}
       <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[9999] h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-[1.5px] border-vivid/50 bg-vivid/10 backdrop-blur-[1px]"
+        className="pointer-events-none fixed left-0 top-0 z-[9999] h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-[1.5px] border-maple/50 bg-maple/10 backdrop-blur-[1px]"
         animate={{
           x: mousePosition.x,
           y: mousePosition.y,

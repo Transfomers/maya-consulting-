@@ -1,28 +1,32 @@
 import PageHero from "@/components/PageHero";
 import FormShell from "@/components/FormShell";
 import { Reveal } from "@/components/motion";
-import { MEMBER_BENEFITS } from "@/lib/content";
+import { MEMBER_BENEFITS, MEMBER_BENEFITS_FR, MEMBER_BENEFITS_AR } from "@/lib/content";
+import { useLang } from "@/lib/i18n";
 
-const Membership = () => (
+const Membership = () => {
+  const { lang, t } = useLang();
+  const currentBenefits = lang === "fr" ? MEMBER_BENEFITS_FR : lang === "ar" ? MEMBER_BENEFITS_AR : MEMBER_BENEFITS;
+  return (
   <div data-testid="membership-page">
     <PageHero
       testId="membership-hero"
-      eyebrow="Membership"
+      eyebrow={t.membership.eyebrow}
       lines={[
-        <>Join an ecosystem,</>,
+        <>{t.membership.h1a}</>,
         <>
-          not just an <span className="font-serif font-medium italic text-maple">organization</span>
+          {t.membership.h1pre && <span>{t.membership.h1pre}</span>}<span className="font-serif font-medium italic text-maple">{t.membership.h1accent}</span>{t.membership.h1post}
         </>,
       ]}
-      intro="Members become part of a growing community of entrepreneurs, nonprofits, volunteers and partners — creating opportunity for themselves and their communities."
+      intro={t.membership.intro}
     />
 
     <section className="mx-auto max-w-[1600px] px-5 py-24 md:px-10 md:py-32" data-testid="benefits-section">
       <Reveal>
-        <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">Member benefits</h2>
+        <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">{t.membership.benefitsTitle}</h2>
       </Reveal>
       <div className="mt-14 grid gap-px border border-forest/15 bg-forest/15 sm:grid-cols-2 lg:grid-cols-4">
-        {MEMBER_BENEFITS.map((b, i) => (
+        {currentBenefits.map((b, i) => (
           <Reveal key={b} delay={i * 0.06} className={`bg-bone ${i === 0 ? "sm:col-span-2 lg:col-span-2" : ""}`}>
             <div className="group flex h-full flex-col justify-between p-7 transition-colors hover:bg-forest md:p-9" data-testid={`benefit-${b.toLowerCase().replace(/[^a-z]+/g, "-")}`}>
               <span className="font-serif text-4xl italic leading-none text-maple">0{i + 1}</span>
@@ -36,7 +40,7 @@ const Membership = () => (
           <div className="flex h-full flex-col justify-between p-7 md:p-9">
             <span className="font-serif text-4xl italic leading-none text-maple">+</span>
             <p className="mt-8 font-heading text-xl font-bold tracking-tight text-bone md:text-2xl">
-              …and a community that grows with you
+              {t.membership.benefitsMore}
             </p>
           </div>
         </Reveal>
@@ -48,39 +52,38 @@ const Membership = () => (
         <Reveal className="lg:col-span-5">
           <p className="mb-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.3em] text-maple">
             <span className="inline-block h-px w-10 bg-maple" />
-            Become a Member
+            {t.membership.memberEyebrow}
           </p>
           <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">
-            Take your place in the ecosystem
+            {t.membership.memberTitle}
           </h2>
           <p className="mt-6 max-w-md text-base leading-relaxed text-sage md:text-lg">
-            Whether you're an entrepreneur, a nonprofit leader or a volunteer, membership connects you to professional
-            development, networking, learning opportunities and international collaboration.
+            {t.membership.memberCopy}
           </p>
         </Reveal>
         <Reveal delay={0.15} className="lg:col-span-6 lg:col-start-7">
           <FormShell
             type="membership"
             testId="membership-form"
-            submitLabel="Request Membership"
-            successMessage="Welcome aboard — we'll reach out with your membership details."
+            submitLabel={t.membership.memberSubmit}
+            successMessage={t.membership.memberSuccess}
             fields={[
-              { name: "name", label: "Full name", placeholder: "Your full name", required: true },
-              { name: "email", label: "Email", kind: "email", placeholder: "you@example.com", required: true },
-              { name: "organization", label: "Organization / Business", placeholder: "If applicable" },
+              { name: "name", label: t.form.name, placeholder: t.form.namePh, required: true },
+              { name: "email", label: t.form.email, kind: "email", placeholder: t.form.emailPh, required: true },
+              { name: "organization", label: t.form.org, placeholder: t.form.orgPh },
               {
                 name: "interest",
-                label: "I'm joining as",
+                label: t.membership.joinAsLabel,
                 kind: "select",
-                placeholder: "Select one",
-                options: ["Entrepreneur", "Nonprofit organization", "Volunteer", "Funder / Supporter", "Other"],
+                placeholder: t.membership.selectOne,
+                options: t.membership.joinAsOptions,
                 required: true,
               },
               {
                 name: "message",
-                label: "What are you hoping to gain?",
+                label: t.membership.gainLabel,
                 kind: "textarea",
-                placeholder: "Tell us what membership means for you…",
+                placeholder: t.membership.gainPh,
               },
             ]}
           />
@@ -93,13 +96,13 @@ const Membership = () => (
         <Reveal className="lg:col-span-5">
           <p className="mb-6 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.3em] text-maple">
             <span className="inline-block h-px w-10 bg-maple" />
-            Volunteer
+            {t.membership.volEyebrow}
           </p>
           <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">
-            Give your time, grow your world
+            {t.membership.volTitle}
           </h2>
           <p className="mt-6 max-w-md text-base leading-relaxed text-sage md:text-lg">
-            Volunteers power our programs, events and international initiatives — including exchanges through CAP
+            {t.membership.volEyebrow}s power our programs, events and international initiatives — including exchanges through CAP
             Global Mobility. Tell us how you'd like to contribute.
           </p>
         </Reveal>
@@ -107,24 +110,24 @@ const Membership = () => (
           <FormShell
             type="volunteer"
             testId="volunteer-form"
-            submitLabel="Volunteer With Us"
-            successMessage="Thank you for raising your hand — we'll be in touch."
+            submitLabel="{t.membership.volEyebrow} With Us"
+            successMessage={t.membership.volSuccess}
             fields={[
-              { name: "name", label: "Full name", placeholder: "Your full name", required: true },
-              { name: "email", label: "Email", kind: "email", placeholder: "you@example.com", required: true },
+              { name: "name", label: t.form.name, placeholder: t.form.namePh, required: true },
+              { name: "email", label: t.form.email, kind: "email", placeholder: t.form.emailPh, required: true },
               {
                 name: "area",
-                label: "Area of interest",
+                label: t.membership.areaLabel,
                 kind: "select",
-                placeholder: "Select one",
-                options: ["Program delivery", "Events & community", "Mentoring", "International missions", "Administration"],
+                placeholder: t.membership.selectOne,
+                options: t.membership.areaOptions,
               },
-              { name: "availability", label: "Availability", placeholder: "e.g. evenings, weekends, one-time projects" },
+              { name: "availability", label: t.membership.availLabel, placeholder: t.membership.availPh },
               {
                 name: "message",
-                label: "Skills & experience",
+                label: t.membership.skillsLabel,
                 kind: "textarea",
-                placeholder: "What would you bring to the community?",
+                placeholder: t.membership.skillsPh,
               },
             ]}
           />
@@ -132,6 +135,7 @@ const Membership = () => (
       </div>
     </section>
   </div>
-);
+  );
+};
 
 export default Membership;
