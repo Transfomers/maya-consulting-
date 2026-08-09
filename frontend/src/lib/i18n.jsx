@@ -195,8 +195,8 @@ const STR = {
   },
   fr: {
     nav: {
-      home: "Accueil", about: "\u00c0 propos", programs: "Programmes", stories: "Histoires d'impact",
-      membership: "Adh\u00e9sion", partners: "Partenaires", news: "Nouvelles et \u00e9v\u00e9nements", blog: "Blogue", contact: "Contact", donate: "Donner",
+      home: "Accueil", about: "\u00c0 propos", programs: "Nos programmes", stories: "Notre impact",
+      membership: "Adh\u00e9sion", partners: "Partenaires", news: "Actualit\u00e9s", blog: "Ressources", contact: "Contact", donate: "Donner",
     },
     footer: {
       quote: "\u00ab L'entrepreneuriat devrait cr\u00e9er des opportunités pour tous, peu importe o\u00f9 l'on vit. \u00bb",
