@@ -35,9 +35,12 @@ export default function Blog() {
   return (
     <div className="bg-bone min-h-screen pb-24" data-testid="blog-page">
       <PageHero
-        title={t.nav.newsEvents}
-        subtitle="Latest insights, updates, and impact stories."
-        color="forest"
+        eyebrow="News & Updates"
+        lines={[
+          <>{t.nav.blog}</>
+        ]}
+        intro="Latest insights, updates, and impact stories."
+        testId="blog-hero"
       />
       
       <div className="mx-auto max-w-[1600px] px-5 pt-12 md:px-10">
