@@ -31,7 +31,7 @@ const Navbar = () => {
             <img src="/assets/logo-mark.png" alt="CAP Entrepreneurs" className="h-9 w-auto mix-blend-multiply" />
           </Link>
 
-          <nav className="hidden items-center justify-center gap-4 xl:flex absolute left-1/2 -translate-x-1/2" data-testid="nav-links-desktop">
+          <nav className="hidden flex-1 items-center justify-center gap-3 lg:gap-4 xl:flex" data-testid="nav-links-desktop">
             {LINKS.map((l) => (
               <NavLink
                 key={l.to}
