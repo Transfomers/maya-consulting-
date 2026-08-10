@@ -2,33 +2,65 @@ name: Deploy to Hostinger VPS
 
 on:
   push:
-    branches: [ main ] # Change to 'master' if your default branch is master
+    branches: [main]
+
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up SSH and Deploy
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        password: ${{ secrets.SSH_PASSWORD }}
-        script: |
-          # The directory where the repository is cloned on your VPS
-          PROJECT_DIR="/var/www/capentrepreneurs"
-          
-          # Navigate to your project directory on the VPS
-          cd $PROJECT_DIR || { echo "Directory not found! Please clone the repo first."; exit 1; }
-          
-          # Pull the latest code from GitHub
-          git fetch origin main
-          git reset --hard origin/main
+      - name: Check SSH configuration
+        run: |
+          if [ -z "${{ secrets.SSH_HOST }}" ]; then
+            echo "❌ SSH_HOST is missing"
+            exit 1
+          fi
 
-          # Rebuild and restart the Docker containers using Docker Compose
-          # This will spin up the backend, frontend, and traefik services defined in docker-compose.yml
-          docker compose up -d --build
+          if [ -z "${{ secrets.SSH_USERNAME }}" ]; then
+            echo "❌ SSH_USERNAME is missing"
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.SSH_PASSWORD }}" ]; then
+            echo "❌ SSH_PASSWORD is missing"
+            exit 1
+          fi
+
+          echo "✅ SSH configuration found"
+
+      - name: Deploy to Hostinger VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          timeout: 30s
+          command_timeout: 20m
+
+          script: |
+            set -e
+
+            echo "🚀 Starting CAP Entrepreneurs deployment..."
+
+            cd /var/www/capentrepreneurs
+
+            echo "📥 Pulling latest code..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "🐳 Rebuilding Docker containers..."
+            docker compose up -d --build
+
+            echo "🧹 Cleaning unused Docker images..."
+            docker image prune -f
+
+            echo "📊 Current containers:"
+            docker compose ps
+
+            echo "✅ Deployment completed successfully!"
