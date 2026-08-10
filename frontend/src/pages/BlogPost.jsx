@@ -15,10 +15,8 @@ export default function BlogPost() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await api.get(`/v1/admin/posts`);
-        // In reality, this should be a public endpoint optimized by slug
-        const found = (res.data || []).find(p => p.slug === slug || p.translations.some(t => t.slug === slug));
-        setPost(found);
+        const res = await api.get(`/v1/posts/${slug}`);
+        setPost(res.data);
       } catch (err) {
         console.error("Failed to load blog post", err);
       } finally {

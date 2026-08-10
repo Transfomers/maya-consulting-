@@ -15,7 +15,7 @@ export default function Blog() {
       try {
         // We reuse the admin posts endpoint for now, but in a real app
         // there should be a public endpoint that only returns 'published' posts
-        const res = await api.get("/v1/admin/posts");
+        const res = await api.get("/v1/posts");
         setPosts((res.data || []).filter(p => p.status === 'published'));
       } catch (err) {
         console.error("Failed to load blog posts", err);

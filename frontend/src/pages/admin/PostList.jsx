@@ -1,24 +1,44 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Edit2, Plus, Trash2 } from "lucide-react";
+import { Edit2, Plus, Trash2, Search, Filter } from "lucide-react";
 import api from "@/lib/api";
+import { toast } from "sonner";
 
 export default function AdminPostList() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [search, statusFilter]);
 
   const fetchPosts = async () => {
+    setLoading(true);
     try {
-      const res = await api.get("/v1/admin/posts");
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (statusFilter) params.append("status", statusFilter);
+      
+      const res = await api.get(`/v1/admin/posts/?${params.toString()}`);
       setPosts(res.data || []);
     } catch (err) {
       console.error(err);
+      toast.error("Failed to fetch posts");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this article?")) return;
+    try {
+      await api.delete(`/v1/admin/posts/${id}`);
+      toast.success("Article deleted");
+      fetchPosts();
+    } catch (err) {
+      toast.error("Failed to delete article");
     }
   };
 
@@ -38,6 +58,32 @@ export default function AdminPostList() {
         >
           <Plus className="h-4 w-4" /> Create Article
         </Link>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sage" />
+          <input 
+            type="text" 
+            placeholder="Search articles..." 
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-forest/15 bg-white text-sm focus:outline-none focus:border-forest"
+          />
+        </div>
+        <div className="relative w-full sm:w-48">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sage" />
+          <select 
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-forest/15 bg-white text-sm focus:outline-none focus:border-forest appearance-none cursor-pointer"
+          >
+            <option value="">All Statuses</option>
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+            <option value="scheduled">Scheduled</option>
+          </select>
+        </div>
       </div>
 
       <div className="bg-white border border-forest/15 overflow-hidden">
@@ -68,7 +114,7 @@ export default function AdminPostList() {
                   <Link to={`/admin/posts/${post.id}/edit`} className="inline-block text-forest hover:text-maple transition-colors">
                     <Edit2 className="h-4 w-4" />
                   </Link>
-                  <button className="text-forest hover:text-red-500 transition-colors">
+                  <button onClick={() => handleDelete(post.id)} className="text-forest hover:text-red-500 transition-colors">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </td>

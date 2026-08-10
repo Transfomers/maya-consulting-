@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "@/lib/api";
 import TipTap from "@/components/TipTap";
-import { Save, ArrowLeft, Plus, Trash2, Image as ImageIcon } from "lucide-react";
+import { Save, ArrowLeft, Plus, Trash2, Image as ImageIcon, Eye } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminPostEditor() {
@@ -11,26 +11,68 @@ export default function AdminPostEditor() {
   const isEditing = !!id;
   
   const [lang, setLang] = useState("en"); // en, fr, ar
+  const [categories, setCategories] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
   
+  const defaultTranslations = {
+    en: { title: "", slug: "", excerpt: "", content: "", seo_title: "", seo_description: "", focus_keyword: "", canonical_url: "", allow_index: true, allow_follow: true },
+    fr: { title: "", slug: "", excerpt: "", content: "", seo_title: "", seo_description: "", focus_keyword: "", canonical_url: "", allow_index: true, allow_follow: true },
+    ar: { title: "", slug: "", excerpt: "", content: "", seo_title: "", seo_description: "", focus_keyword: "", canonical_url: "", allow_index: true, allow_follow: true },
+  };
+
   const [formData, setFormData] = useState({
     slug: "",
     status: "draft",
-    category_id: null,
+    category_id: "",
     featured_image_id: null,
     featured_image_url: null, // UI only
     references: [],
-    translations: {
-      en: { title: "", slug: "", excerpt: "", content: "", seo_title: "", seo_description: "", focus_keyword: "", canonical_url: "", allow_index: true, allow_follow: true },
-      fr: { title: "", slug: "", excerpt: "", content: "", seo_title: "", seo_description: "", focus_keyword: "", canonical_url: "", allow_index: true, allow_follow: true },
-      ar: { title: "", slug: "", excerpt: "", content: "", seo_title: "", seo_description: "", focus_keyword: "", canonical_url: "", allow_index: true, allow_follow: true },
-    }
+    translations: defaultTranslations
   });
 
   useEffect(() => {
+    fetchCategories();
     if (isEditing) {
-      toast.error("Editing existing posts requires single post API endpoint implementation");
+      fetchPost();
     }
   }, [id, isEditing]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get("/v1/admin/categories");
+      setCategories(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchPost = async () => {
+    try {
+      const res = await api.get(`/v1/admin/posts/${id}`);
+      const post = res.data;
+      
+      const newTranslations = { ...defaultTranslations };
+      if (post.translations) {
+        post.translations.forEach(t => {
+          newTranslations[t.language] = { ...defaultTranslations[t.language], ...t };
+        });
+      }
+
+      setFormData({
+        slug: post.slug || "",
+        status: post.status || "draft",
+        category_id: post.category_id || "",
+        featured_image_id: post.featured_image_id || null,
+        featured_image_url: post.featured_image?.url || null,
+        references: post.references || [],
+        translations: newTranslations
+      });
+    } catch (err) {
+      toast.error("Failed to load article");
+      console.error(err);
+    }
+  };
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   
@@ -93,11 +135,12 @@ export default function AdminPostEditor() {
   };
 
   const handleSave = async (status) => {
+    setIsSaving(true);
     try {
       const payload = {
         slug: formData.slug || formData.translations.en.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         status,
-        category_id: null,
+        category_id: formData.category_id || null,
         featured_image_id: formData.featured_image_id,
         references: formData.references.filter(r => r.title.trim() !== ""),
         translations: Object.entries(formData.translations)
@@ -107,16 +150,33 @@ export default function AdminPostEditor() {
       
       if (payload.translations.length === 0) {
         toast.error("At least one language title is required.");
+        setIsSaving(false);
         return;
       }
 
-      await api.post("/v1/admin/posts", payload);
-      toast.success("Post saved successfully!");
-      navigate("/admin/posts");
+      if (isEditing) {
+        await api.put(`/v1/admin/posts/${id}`, payload);
+        toast.success("Post updated successfully!");
+      } else {
+        const res = await api.post("/v1/admin/posts", payload);
+        toast.success("Post created successfully!");
+        navigate(`/admin/posts/${res.data.id}/edit`);
+      }
+      setLastSaved(new Date());
     } catch (err) {
       toast.error("Failed to save post");
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handlePreview = () => {
+    // In a real app we'd save draft and open preview mode or new tab
+    handleSave('draft').then(() => {
+      // Mock open preview
+      toast.success("Preview opened in new window (Mock)");
+    });
   };
 
   // Google SEO Preview Logic
@@ -134,19 +194,29 @@ export default function AdminPostEditor() {
           <h1 className="font-heading text-3xl font-black tracking-tight text-forest">
             {isEditing ? "Edit Article" : "Create Article"}
           </h1>
+          {lastSaved && <span className="text-xs text-sage ml-4">Last saved: {lastSaved.toLocaleTimeString()}</span>}
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => handleSave('draft')}
-            className="px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-forest border border-forest/25 hover:bg-forest hover:text-bone transition-colors"
+            onClick={handlePreview}
+            disabled={isSaving}
+            className="px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-forest border border-forest/25 hover:bg-forest hover:text-bone transition-colors disabled:opacity-50 flex items-center gap-2"
           >
-            Save Draft
+            <Eye className="h-4 w-4" /> Preview
+          </button>
+          <button
+            onClick={() => handleSave('draft')}
+            disabled={isSaving}
+            className="px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-forest border border-forest/25 hover:bg-forest hover:text-bone transition-colors disabled:opacity-50"
+          >
+            {isSaving ? "Saving..." : "Save Draft"}
           </button>
           <button
             onClick={() => handleSave('published')}
-            className="px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-bone bg-forest hover:bg-forest/90 transition-colors flex items-center gap-2"
+            disabled={isSaving}
+            className="px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-bone bg-forest hover:bg-forest/90 transition-colors flex items-center gap-2 disabled:opacity-50"
           >
-            <Save className="h-4 w-4" /> Publish
+            <Save className="h-4 w-4" /> {isSaving ? "Publishing..." : "Publish"}
           </button>
         </div>
       </div>
@@ -159,11 +229,12 @@ export default function AdminPostEditor() {
               <button
                 key={l}
                 onClick={() => setLang(l)}
-                className={`px-6 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${
+                className={`flex items-center gap-2 px-6 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${
                   lang === l ? "border-b-2 border-forest text-forest" : "text-sage hover:text-forest"
                 }`}
               >
                 {l === 'en' ? 'English' : l === 'fr' ? 'Français' : 'العربية'}
+                {formData.translations[l].title && <span className="text-green-500 text-lg leading-none">✓</span>}
               </button>
             ))}
           </div>
@@ -182,7 +253,10 @@ export default function AdminPostEditor() {
             </div>
             
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Excerpt</label>
+              <div className="flex justify-between items-end mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-sage">Excerpt</label>
+                <span className="text-xs text-sage">{formData.translations[lang].excerpt.length} / 160</span>
+              </div>
               <textarea
                 value={formData.translations[lang].excerpt}
                 onChange={(e) => handleTranslationChange("excerpt", e.target.value)}
@@ -193,7 +267,7 @@ export default function AdminPostEditor() {
               />
             </div>
 
-            <div>
+            <div className={lang === 'ar' ? 'text-right' : 'text-left'}>
               <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Content</label>
               <TipTap
                 content={formData.translations[lang].content}
@@ -204,40 +278,44 @@ export default function AdminPostEditor() {
 
           {/* SEO Section */}
           <div className="bg-white border border-forest/15 p-6 space-y-6">
-            <h3 className="font-heading text-xl font-bold text-forest border-b border-forest/15 pb-2">SEO Optimization</h3>
+            <h2 className="text-lg font-bold font-heading text-forest">SEO Optimization ({lang.toUpperCase()})</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">SEO Title</label>
-                  <input
-                    type="text"
-                    value={formData.translations[lang].seo_title}
-                    onChange={(e) => handleTranslationChange("seo_title", e.target.value)}
-                    dir={lang === 'ar' ? 'rtl' : 'ltr'}
-                    className="w-full border border-forest/15 bg-bone px-3 py-2 text-sm text-forest focus:border-forest focus:outline-none"
-                    placeholder="Custom SEO Title"
-                  />
-                  <div className="text-right text-xs mt-1 text-sage">
-                    {(formData.translations[lang].seo_title || "").length} / 60
-                  </div>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between items-end mb-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-sage">SEO Title</label>
+                  <span className={`text-xs ${formData.translations[lang].seo_title.length > 60 ? 'text-red-500' : 'text-sage'}`}>
+                    {formData.translations[lang].seo_title.length} / 60
+                  </span>
                 </div>
+                <input
+                  type="text"
+                  value={formData.translations[lang].seo_title}
+                  onChange={(e) => handleTranslationChange("seo_title", e.target.value)}
+                  dir={lang === 'ar' ? 'rtl' : 'ltr'}
+                  className="w-full border border-forest/15 bg-white px-4 py-3 text-sm focus:border-forest focus:outline-none"
+                  placeholder="Leave empty to use article title"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Meta Description</label>
-                  <textarea
-                    value={formData.translations[lang].seo_description}
-                    onChange={(e) => handleTranslationChange("seo_description", e.target.value)}
-                    dir={lang === 'ar' ? 'rtl' : 'ltr'}
-                    rows={3}
-                    className="w-full border border-forest/15 bg-bone px-3 py-2 text-sm text-forest focus:border-forest focus:outline-none resize-none"
-                    placeholder="Meta Description"
-                  />
-                  <div className="text-right text-xs mt-1 text-sage">
-                    {(formData.translations[lang].seo_description || "").length} / 160
-                  </div>
+              <div>
+                <div className="flex justify-between items-end mb-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-sage">Meta Description</label>
+                  <span className={`text-xs ${formData.translations[lang].seo_description.length > 160 ? 'text-red-500' : 'text-sage'}`}>
+                    {formData.translations[lang].seo_description.length} / 160
+                  </span>
                 </div>
+                <textarea
+                  value={formData.translations[lang].seo_description}
+                  onChange={(e) => handleTranslationChange("seo_description", e.target.value)}
+                  dir={lang === 'ar' ? 'rtl' : 'ltr'}
+                  rows={2}
+                  className="w-full border border-forest/15 bg-white px-4 py-3 text-sm focus:border-forest focus:outline-none resize-none"
+                  placeholder="Leave empty to use article excerpt"
+                />
+              </div>
 
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Focus Keyword</label>
                   <input
@@ -245,164 +323,161 @@ export default function AdminPostEditor() {
                     value={formData.translations[lang].focus_keyword}
                     onChange={(e) => handleTranslationChange("focus_keyword", e.target.value)}
                     dir={lang === 'ar' ? 'rtl' : 'ltr'}
-                    className="w-full border border-forest/15 bg-bone px-3 py-2 text-sm text-forest focus:border-forest focus:outline-none"
+                    className="w-full border border-forest/15 bg-white px-4 py-3 text-sm focus:border-forest focus:outline-none"
                   />
                 </div>
-                
-                <div className="flex gap-4 pt-2">
-                  <label className="flex items-center gap-2 text-sm text-forest">
-                    <input 
-                      type="checkbox" 
-                      checked={formData.translations[lang].allow_index}
-                      onChange={(e) => handleCheckboxChange("allow_index", e)}
-                    />
-                    Allow Index
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-forest">
-                    <input 
-                      type="checkbox" 
-                      checked={formData.translations[lang].allow_follow}
-                      onChange={(e) => handleCheckboxChange("allow_follow", e)}
-                    />
-                    Allow Follow
-                  </label>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Canonical URL</label>
+                  <input
+                    type="text"
+                    value={formData.translations[lang].canonical_url}
+                    onChange={(e) => handleTranslationChange("canonical_url", e.target.value)}
+                    className="w-full border border-forest/15 bg-white px-4 py-3 text-sm focus:border-forest focus:outline-none"
+                    placeholder={`https://capentrepreneurs.org/${lang}/news/slug`}
+                  />
                 </div>
               </div>
 
-              {/* Google Preview */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Google Preview</label>
-                <div className="bg-white border border-gray-200 p-4 rounded-md shadow-sm font-sans">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-[10px]">C</div>
-                    <div className="text-xs text-gray-800">CAP Entrepreneurs</div>
-                  </div>
-                  <div className="text-xs text-gray-500 mb-1">
-                    https://capentrepreneurs.org/{lang}/news/{seoSlug}
-                  </div>
-                  <div className="text-xl text-[#1a0dab] font-medium hover:underline cursor-pointer mb-1 truncate">
-                    {seoTitle}
-                  </div>
-                  <div className="text-sm text-[#4d5156] line-clamp-2">
-                    {seoDesc}
-                  </div>
+              <div className="flex gap-6 pt-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.translations[lang].allow_index}
+                    onChange={(e) => handleCheckboxChange("allow_index", e)}
+                    className="accent-forest"
+                  />
+                  <span className="text-sm font-medium text-forest">Allow Index</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.translations[lang].allow_follow}
+                    onChange={(e) => handleCheckboxChange("allow_follow", e)}
+                    className="accent-forest"
+                  />
+                  <span className="text-sm font-medium text-forest">Allow Follow</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Google Preview */}
+            <div className="mt-8 p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-lg font-sans">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-sage mb-4 font-heading">Google Preview</h3>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-sm text-[#202124]">
+                  <span className="bg-[#f1f3f4] rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">C</span>
+                  CAP Entrepreneurs
+                </div>
+                <div className="text-sm text-[#4d5156] truncate">
+                  https://capentrepreneurs.org/{lang}/news/{seoSlug}
+                </div>
+                <div className="text-xl text-[#1a0dab] hover:underline cursor-pointer truncate">
+                  {seoTitle}
+                </div>
+                <div className="text-sm text-[#4d5156] line-clamp-2">
+                  {seoDesc}
                 </div>
               </div>
             </div>
           </div>
 
           {/* References */}
-          <div className="bg-white border border-forest/15 p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-forest/15 pb-2">
-              <h3 className="font-heading text-xl font-bold text-forest">References & Citations</h3>
-              <button onClick={addReference} className="text-xs flex items-center gap-1 font-bold uppercase tracking-wider text-forest hover:text-sage">
+          <div className="bg-white border border-forest/15 p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold font-heading text-forest">References & Citations</h2>
+              <button onClick={addReference} className="text-forest hover:text-maple transition-colors flex items-center gap-1 text-sm font-bold">
                 <Plus className="h-4 w-4" /> Add Reference
               </button>
             </div>
             
-            {formData.references.map((ref, idx) => (
-              <div key={idx} className="p-4 border border-forest/15 bg-bone space-y-4 relative group">
-                <button 
-                  onClick={() => removeReference(idx)} 
-                  className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-                <div className="grid grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    value={ref.title}
-                    onChange={(e) => updateReference(idx, "title", e.target.value)}
-                    placeholder="Title (Required)"
-                    className="border border-forest/15 bg-white px-3 py-2 text-sm focus:outline-none w-full"
-                  />
-                  <input
-                    type="text"
-                    value={ref.author}
-                    onChange={(e) => updateReference(idx, "author", e.target.value)}
-                    placeholder="Author"
-                    className="border border-forest/15 bg-white px-3 py-2 text-sm focus:outline-none w-full"
-                  />
-                  <input
-                    type="text"
-                    value={ref.publisher}
-                    onChange={(e) => updateReference(idx, "publisher", e.target.value)}
-                    placeholder="Publisher"
-                    className="border border-forest/15 bg-white px-3 py-2 text-sm focus:outline-none w-full"
-                  />
-                  <input
-                    type="text"
-                    value={ref.publication_date}
-                    onChange={(e) => updateReference(idx, "publication_date", e.target.value)}
-                    placeholder="Publication Date"
-                    className="border border-forest/15 bg-white px-3 py-2 text-sm focus:outline-none w-full"
-                  />
-                  <input
-                    type="text"
-                    value={ref.url}
-                    onChange={(e) => updateReference(idx, "url", e.target.value)}
-                    placeholder="URL (Optional)"
-                    className="border border-forest/15 bg-white px-3 py-2 text-sm focus:outline-none w-full col-span-2"
-                  />
+            <div className="space-y-4">
+              {formData.references.map((ref, index) => (
+                <div key={index} className="border border-forest/15 p-4 relative group">
+                  <button onClick={() => removeReference(index)} className="absolute top-4 right-4 text-sage hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-sage mb-1">Title *</label>
+                      <input type="text" value={ref.title} onChange={e => updateReference(index, "title", e.target.value)} className="w-full border border-forest/15 px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-sage mb-1">URL</label>
+                      <input type="text" value={ref.url} onChange={e => updateReference(index, "url", e.target.value)} className="w-full border border-forest/15 px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-sage mb-1">Author</label>
+                      <input type="text" value={ref.author} onChange={e => updateReference(index, "author", e.target.value)} className="w-full border border-forest/15 px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-sage mb-1">Publisher</label>
+                      <input type="text" value={ref.publisher} onChange={e => updateReference(index, "publisher", e.target.value)} className="w-full border border-forest/15 px-3 py-2 text-sm" />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {formData.references.length === 0 && (
-              <div className="text-center py-6 text-sm text-sage">No references added yet.</div>
-            )}
+              ))}
+              {formData.references.length === 0 && (
+                <p className="text-sm text-sage text-center py-4">No references added yet.</p>
+              )}
+            </div>
           </div>
         </div>
 
+        {/* Sidebar */}
         <div className="space-y-6">
-          <div className="bg-white border border-forest/15 p-5 space-y-4">
-            <h3 className="font-heading text-lg font-bold text-forest border-b border-forest/15 pb-2">Global Settings</h3>
+          <div className="bg-white border border-forest/15 p-6 space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-forest border-b border-forest/15 pb-2">Global Settings</h3>
             
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Global URL Slug</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Global Slug</label>
               <input
                 type="text"
                 name="slug"
                 value={formData.slug}
                 onChange={handleChange}
-                className="w-full border border-forest/15 bg-bone px-3 py-2 text-sm text-forest focus:border-forest focus:outline-none"
-                placeholder="auto-generated-if-empty"
+                className="w-full border border-forest/15 bg-white px-4 py-2 text-sm focus:border-forest focus:outline-none"
+                placeholder="Auto-generated if empty"
               />
             </div>
-
+            
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Category</label>
-              <select className="w-full border border-forest/15 bg-bone px-3 py-2 text-sm text-forest focus:border-forest focus:outline-none">
-                <option value="">Entrepreneurship</option>
-                <option value="">Programs</option>
-                <option value="">Community</option>
+              <select
+                name="category_id"
+                value={formData.category_id || ""}
+                onChange={handleChange}
+                className="w-full border border-forest/15 bg-white px-4 py-2 text-sm focus:border-forest focus:outline-none"
+              >
+                <option value="">Select Category...</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
               </select>
             </div>
           </div>
 
-          {/* Featured Image */}
-          <div className="bg-white border border-forest/15 p-5 space-y-4">
-            <h3 className="font-heading text-lg font-bold text-forest border-b border-forest/15 pb-2">Featured Image</h3>
+          <div className="bg-white border border-forest/15 p-6 space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-forest border-b border-forest/15 pb-2">Featured Image</h3>
             
             {formData.featured_image_url ? (
               <div className="relative group">
-                <img 
-                  src={api.defaults.baseURL.replace('/api', '') + formData.featured_image_url} 
-                  alt="Featured" 
-                  className="w-full h-auto border border-forest/15" 
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <label className="cursor-pointer px-3 py-1 bg-white text-forest text-xs font-bold uppercase">
-                    Change Image
-                    <input type="file" className="hidden" accept="image/*" onChange={handleFeaturedImageUpload} />
-                  </label>
-                </div>
+                <img src={formData.featured_image_url} alt="Featured" className="w-full h-48 object-cover border border-forest/15" />
+                <button 
+                  onClick={() => setFormData({ ...formData, featured_image_id: null, featured_image_url: null })}
+                  className="absolute top-2 right-2 bg-white/90 p-2 rounded-full text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
             ) : (
-              <label className="border-2 border-dashed border-forest/15 bg-bone w-full h-32 flex flex-col items-center justify-center cursor-pointer hover:border-forest/30 transition-colors">
-                <ImageIcon className="h-8 w-8 text-sage mb-2" />
-                <span className="text-xs text-sage font-bold uppercase tracking-wider">Upload Image</span>
-                <input type="file" className="hidden" accept="image/*" onChange={handleFeaturedImageUpload} />
-              </label>
+              <div className="border-2 border-dashed border-forest/25 p-8 text-center flex flex-col items-center justify-center group hover:border-forest/50 transition-colors">
+                <ImageIcon className="h-8 w-8 text-sage mb-3 group-hover:text-forest transition-colors" />
+                <label className="cursor-pointer">
+                  <span className="text-sm font-bold text-forest underline decoration-forest/30 underline-offset-4 hover:decoration-forest">Click to upload</span>
+                  <input type="file" className="hidden" accept="image/*" onChange={handleFeaturedImageUpload} />
+                </label>
+                <p className="text-xs text-sage mt-2">JPEG, PNG, WebP up to 5MB</p>
+              </div>
             )}
           </div>
         </div>

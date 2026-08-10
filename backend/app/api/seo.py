@@ -40,11 +40,11 @@ async def get_sitemap(db: AsyncSession = Depends(get_db)):
     posts = result.scalars().all()
     
     # We construct the XML manually for simplicity
-    xml = '<?xml version="1.0" encoding="UTF-8"?>\\n'
-    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\\n'
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
     
     for url in urls:
-        xml += f"  <url>\\n    <loc>{url}</loc>\\n  </url>\\n"
+        xml += f"  <url>\n    <loc>{url}</loc>\n  </url>\n"
         
     for post in posts:
         # Get language variants
@@ -52,15 +52,15 @@ async def get_sitemap(db: AsyncSession = Depends(get_db)):
         
         for lang, slug in variants.items():
             loc = f"{base_url}/{lang}/news/{slug}"
-            xml += "  <url>\\n"
-            xml += f"    <loc>{loc}</loc>\\n"
+            xml += "  <url>\n"
+            xml += f"    <loc>{loc}</loc>\n"
             
             # Hreflang for translations
             for alt_lang, alt_slug in variants.items():
                 alt_loc = f"{base_url}/{alt_lang}/news/{alt_slug}"
-                xml += f'    <xhtml:link rel="alternate" hreflang="{alt_lang}" href="{alt_loc}" />\\n'
+                xml += f'    <xhtml:link rel="alternate" hreflang="{alt_lang}" href="{alt_loc}" />\n'
                 
-            xml += "  </url>\\n"
+            xml += "  </url>\n"
             
     xml += "</urlset>"
     
