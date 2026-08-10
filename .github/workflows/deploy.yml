@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
 jobs:
@@ -15,38 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check SSH configuration
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
-        run: |
-          if [ -z "$SSH_HOST" ]; then
-            echo "❌ SSH_HOST is missing"
-            exit 1
-          fi
-
-          if [ -z "$SSH_USERNAME" ]; then
-            echo "❌ SSH_USERNAME is missing"
-            exit 1
-          fi
-
-          if [ -z "$SSH_PASSWORD" ]; then
-            echo "❌ SSH_PASSWORD is missing"
-            exit 1
-          fi
-
-          echo "✅ SSH configuration found"
-          echo "SSH_HOST is configured"
-          echo "SSH_USERNAME is configured"
-          echo "SSH_PASSWORD is configured"
-
       - name: Deploy to Hostinger VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           timeout: 30s
           command_timeout: 20m
@@ -70,5 +43,8 @@ jobs:
 
             echo "📊 Current containers:"
             docker compose ps
+
+            echo "🌐 Testing website..."
+            curl -f -I https://capentrepreneurs.org
 
             echo "✅ Deployment completed successfully!"
