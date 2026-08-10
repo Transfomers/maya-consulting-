@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from fastapi.staticfiles import StaticFiles
-from app.api import auth, submissions, posts, events, media, seo, stats, taxonomy, public_posts
+from app.api import auth, submissions, posts, events, media, seo, stats, taxonomy, public_posts, settings as api_settings, activity
 import os
 
 app = FastAPI(title=settings.PROJECT_NAME)
@@ -30,6 +30,8 @@ app.include_router(public_posts.router, prefix="/api/v1/posts", tags=["public_po
 app.include_router(events.router, prefix="/api/v1/admin/events", tags=["events"])
 app.include_router(media.router, prefix="/api/v1/admin/media", tags=["media"])
 app.include_router(submissions.router, prefix="/api/admin/submissions", tags=["admin_submissions"])
+app.include_router(api_settings.router, prefix="/api/v1/admin/settings", tags=["settings"])
+app.include_router(activity.router, prefix="/api/v1/admin/activity", tags=["activity"])
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)

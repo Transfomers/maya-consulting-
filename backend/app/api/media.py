@@ -39,8 +39,14 @@ async def upload_media(
     file_path = os.path.join(UPLOAD_DIR, unique_filename)
     
     content = await file.read()
-    with open(file_path, "wb") as f:
-        f.write(content)
+    try:
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
+        with open(file_path, "wb") as f:
+            f.write(content)
+    except PermissionError:
+        raise HTTPException(status_code=500, detail="Permission denied when saving file. Check directory permissions on the server.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
         
     # url logic: since we are mounting /uploads statically in main.py
     url = f"/uploads/{unique_filename}"

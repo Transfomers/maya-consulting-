@@ -152,24 +152,10 @@ const Navbar = () => {
                     to="/donate"
                     onClick={() => setOpen(false)}
                     data-testid="nav-mobile-link-donate"
-                    className="inline-block bg-maple px-8 py-4 font-heading text-xl font-bold uppercase tracking-widest text-bone"
+                    className="block w-full text-center bg-maple px-8 py-4 font-heading text-xl font-bold uppercase tracking-widest text-bone"
                   >
                     {t.nav.donate}
                   </NavLink>
-                  <div className="inline-block ml-4 relative">
-                    <select
-                      value={lang}
-                      onChange={(e) => setLang(e.target.value)}
-                      data-testid="lang-select-mobile-menu"
-                      className="appearance-none border border-bone/40 pl-6 pr-10 py-4 font-heading text-xl font-bold uppercase tracking-widest text-bone transition-colors hover:bg-bone/10 focus:outline-none bg-transparent cursor-pointer"
-                      aria-label="Select language"
-                    >
-                      <option value="en" className="text-forest">English</option>
-                      <option value="fr" className="text-forest">Français</option>
-                      <option value="ar" className="text-forest">العربية</option>
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-bone text-[12px]">▼</div>
-                  </div>
                 </motion.div>
               </div>
             </nav>

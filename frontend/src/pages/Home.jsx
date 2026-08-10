@@ -88,7 +88,7 @@ const Home = () => {
               <Link
                 to="/programs"
                 data-testid="hero-cta-programs"
-                className="group inline-flex items-center gap-2 bg-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-bone transition-colors hover:bg-maple"
+                className="group flex w-full sm:w-[280px] justify-center items-center gap-2 bg-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-bone transition-colors hover:bg-maple"
               >
                 {t.home.ctaPrograms}
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -98,9 +98,9 @@ const Home = () => {
               <Link
                 to="/membership"
                 data-testid="hero-cta-membership"
-                className="inline-flex items-center gap-2 border border-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-forest hover:text-bone"
+                className="flex w-full sm:w-[280px] justify-center items-center gap-2 border border-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-forest hover:text-bone"
               >
-                Become a Member
+                {t.home.ctaMember}
               </Link>
             </Magnetic>
           </Reveal>

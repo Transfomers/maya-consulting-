@@ -28,6 +28,7 @@ import AdminPostList from "@/pages/admin/PostList";
 import AdminPostEditor from "@/pages/admin/PostEditor";
 import AdminEventsList from "@/pages/admin/EventsList";
 import AdminMedia from "@/pages/admin/Media";
+import AdminCategories from "@/pages/admin/Categories";
 
 
 const ScrollToTop = () => {
@@ -93,6 +94,7 @@ function App() {
             <Route path="posts" element={<AdminPostList />} />
             <Route path="posts/new" element={<AdminPostEditor />} />
             <Route path="posts/:id/edit" element={<AdminPostEditor />} />
+            <Route path="categories" element={<AdminCategories />} />
             <Route path="events" element={<AdminEventsList />} />
             <Route path="media" element={<AdminMedia />} />
           </Route>

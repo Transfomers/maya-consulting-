@@ -11,6 +11,8 @@ import app.models.post
 import app.models.media
 import app.models.submission
 import app.models.event
+import app.models.setting
+import app.models.activity
 
 from logging.config import fileConfig
 
