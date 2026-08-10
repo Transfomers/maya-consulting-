@@ -16,8 +16,7 @@ export default function AdminCategories() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      // Fallback to /api/categories if /v1/admin/categories fails, based on standard project structures
-      const res = await api.get("/api/categories").catch(() => api.get("/categories"));
+      const res = await api.get("/categories");
       setCategories(res.data || []);
     } catch (err) {
       toast.error("Failed to load categories");
@@ -31,10 +30,10 @@ export default function AdminCategories() {
     e.preventDefault();
     try {
       if (isEditing) {
-        await api.put(`/api/categories/${isEditing}`, formData).catch(() => api.put(`/categories/${isEditing}`, formData));
+        await api.put(`/categories/${isEditing}`, formData);
         toast.success("Category updated");
       } else {
-        await api.post("/api/categories", formData).catch(() => api.post("/categories", formData));
+        await api.post("/categories", formData);
         toast.success("Category created");
       }
       setFormData({ name: "", slug: "" });
