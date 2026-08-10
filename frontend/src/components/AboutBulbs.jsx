@@ -1,17 +1,13 @@
 import { motion } from "framer-motion";
 import { Lightbulb, Settings, Network, TrendingUp, Users, Target, Globe, Zap } from "lucide-react";
 import { Reveal } from "@/components/motion";
+import { useLang } from "@/lib/i18n";
 
-const FEATURES = [
-  { icon: Network, title: "Ecosystem Building", desc: "Connect with entrepreneurs and nonprofits across the country." },
-  { icon: TrendingUp, title: "Measurable Impact", desc: "Track your growth and community contributions over time." },
-  { icon: Users, title: "Peer Collaboration", desc: "Learn from and collaborate with like-minded innovators." },
-  { icon: Target, title: "Strategic Mentorship", desc: "Get guidance from experienced business leaders." },
-  { icon: Globe, title: "Global Mobility", desc: "Expand your operations into international markets." },
-  { icon: Zap, title: "Innovation Lab", desc: "Test and refine your ideas in a supportive environment." },
-];
+const FEATURE_ICONS = [Network, TrendingUp, Users, Target, Globe, Zap];
 
 const AboutBulbs = () => {
+  const { t } = useLang();
+
   return (
     <div className="overflow-hidden bg-white pt-24 md:pt-32" data-testid="about-bulbs">
       {/* Lightbulb Hero Section */}
@@ -65,13 +61,13 @@ const AboutBulbs = () => {
           {/* Right: Text */}
           <Reveal delay={0.2}>
             <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">
-              What is our approach?
+              {t.approach.title}
             </h2>
             <p className="mt-6 text-lg leading-relaxed text-sage">
-              We focus on revealing insights from collaborative networks. Our programs offer powerful learning models capable of extracting real-world knowledge to help you build sustainable businesses and communities.
+              {t.approach.desc}
             </p>
             <button className="mt-8 inline-flex items-center gap-2 bg-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-bone transition-colors hover:bg-maple">
-              Explore Scalability
+              {t.approach.cta}
             </button>
           </Reveal>
         </div>
@@ -82,27 +78,30 @@ const AboutBulbs = () => {
         <Reveal>
           <div className="text-center">
             <h2 className="font-heading text-3xl font-black tracking-tight text-forest md:text-4xl">
-              What You Can Do
+              {t.approach.whatYouCanDo}
             </h2>
           </div>
         </Reveal>
         
         <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((feature, i) => (
-            <Reveal key={feature.title} delay={i * 0.1}>
-              <div className="flex flex-col items-center text-center">
-                <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#8B5CF6]/10 text-[#8B5CF6] transition-transform hover:scale-110">
-                  <feature.icon className="h-10 w-10" strokeWidth={1.5} />
+          {t.approach.features.map((feature, i) => {
+            const Icon = FEATURE_ICONS[i];
+            return (
+              <Reveal key={feature.title} delay={i * 0.1}>
+                <div className="flex flex-col items-center text-center">
+                  <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#8B5CF6]/10 text-[#8B5CF6] transition-transform hover:scale-110">
+                    <Icon className="h-10 w-10" strokeWidth={1.5} />
+                  </div>
+                  <h3 className="font-heading text-xl font-bold tracking-tight text-forest">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-sage">
+                    {feature.desc}
+                  </p>
                 </div>
-                <h3 className="font-heading text-xl font-bold tracking-tight text-forest">
-                  {feature.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-sage">
-                  {feature.desc}
-                </p>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            );
+          })}
         </div>
       </section>
     </div>

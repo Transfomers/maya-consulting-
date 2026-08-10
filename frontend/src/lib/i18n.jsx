@@ -56,6 +56,25 @@ const STR = {
       carouselTitle: "Glimpses of our Ecosystem",
       avatarsTitle: "Join our growing community",
       avatarsSub: "Entrepreneurs, innovators, and leaders from across the globe.",
+      voicesTitleA: "Voices of the ",
+      voicesTitleB: "community",
+      testimonials: [
+        {
+          quote: "The Executive program completely transformed our board's approach to governance. We now have a clear strategic direction.",
+          author: "Sarah J.",
+          role: "Nonprofit Director"
+        },
+        {
+          quote: "Marketplace Lab gave me the tools and the network to take my local business international. The scholarship was a game-changer.",
+          author: "David M.",
+          role: "Founder & CEO"
+        },
+        {
+          quote: "Collaborating across borders through CAP has opened our eyes to innovative solutions we never would have considered alone.",
+          author: "Elena R.",
+          role: "Community Leader"
+        }
+      ]
     },
     about: {
       eyebrow: "About CAP Entrepreneurs",
@@ -192,6 +211,20 @@ const STR = {
       nonprofitsTitle: "Nonprofit Links",
       learnTitle: "What to Learn",
     },
+    approach: {
+      title: "What is our approach?",
+      desc: "We focus on revealing insights from collaborative networks. Our programs offer powerful learning models capable of extracting real-world knowledge to help you build sustainable businesses and communities.",
+      cta: "Explore Scalability",
+      whatYouCanDo: "What You Can Do",
+      features: [
+        { title: "Ecosystem Building", desc: "Connect with entrepreneurs and nonprofits across the country." },
+        { title: "Measurable Impact", desc: "Track your growth and community contributions over time." },
+        { title: "Peer Collaboration", desc: "Learn from and collaborate with like-minded innovators." },
+        { title: "Strategic Mentorship", desc: "Get guidance from experienced business leaders." },
+        { title: "Global Mobility", desc: "Expand your operations into international markets." },
+        { title: "Innovation Lab", desc: "Test and refine your ideas in a supportive environment." },
+      ]
+    },
   },
   fr: {
     nav: {
@@ -248,6 +281,25 @@ const STR = {
       carouselTitle: "Aperçu de notre écosystème",
       avatarsTitle: "Rejoignez notre communauté grandissante",
       avatarsSub: "Entrepreneurs, innovateurs et leaders du monde entier.",
+      voicesTitleA: "Voix de la ",
+      voicesTitleB: "communauté",
+      testimonials: [
+        {
+          quote: "Le programme exécutif a complètement transformé l'approche de notre conseil en matière de gouvernance. Nous avons maintenant une direction stratégique claire.",
+          author: "Sarah J.",
+          role: "Directrice d'OBNL"
+        },
+        {
+          quote: "Le Marketplace Lab m'a donné les outils et le réseau nécessaires pour propulser mon entreprise locale à l'international. La bourse a changé la donne.",
+          author: "David M.",
+          role: "Fondateur & PDG"
+        },
+        {
+          quote: "Collaborer au-delà des frontières grâce à CAP nous a ouvert les yeux sur des solutions innovantes que nous n'aurions jamais envisagées seuls.",
+          author: "Elena R.",
+          role: "Leader communautaire"
+        }
+      ]
     },
     about: {
       eyebrow: "\u00c0 propos de CAP Entrepreneurs",
@@ -380,9 +432,23 @@ const STR = {
     blog: {
       eyebrow: "Blogue",
       h1a: "Perspectives et", h1accent: "Ressources",
-      intro: "Explorez des articles, des guides et des liens associ\u00e9s aux organismes \u00e0 but non lucratif et \u00e0 l'apprentissage continu.",
+      intro: "Explorez des articles, des guides et des liens associés aux organismes à but non lucratif et à l'apprentissage continu.",
       nonprofitsTitle: "Liens pour OBNL",
       learnTitle: "Quoi apprendre",
+    },
+    approach: {
+      title: "Quelle est notre approche ?",
+      desc: "Nous nous concentrons sur la révélation d'enseignements issus de réseaux collaboratifs. Nos programmes offrent de puissants modèles d'apprentissage capables d'extraire des connaissances du monde réel pour vous aider à bâtir des entreprises et des communautés durables.",
+      cta: "Explorer la scalabilité",
+      whatYouCanDo: "Ce que vous pouvez faire",
+      features: [
+        { title: "Création d'écosystèmes", desc: "Connectez-vous avec des entrepreneurs et des OBNL à travers le pays." },
+        { title: "Impact mesurable", desc: "Suivez votre croissance et vos contributions communautaires au fil du temps." },
+        { title: "Collaboration entre pairs", desc: "Apprenez et collaborez avec des innovateurs partageant la même vision." },
+        { title: "Mentorat stratégique", desc: "Obtenez des conseils de chefs d'entreprise expérimentés." },
+        { title: "Mobilité mondiale", desc: "Développez vos opérations sur les marchés internationaux." },
+        { title: "Laboratoire d'innovation", desc: "Testez et affinez vos idées dans un environnement favorable." },
+      ]
     },
   },
   ar: {
@@ -440,6 +506,25 @@ const STR = {
       carouselTitle: "لمحات من نظامنا البيئي",
       avatarsTitle: "انضم إلى مجتمعنا المتنامي",
       avatarsSub: "رواد أعمال ومبتكرون وقادة من جميع أنحاء العالم.",
+      voicesTitleA: "أصوات من ",
+      voicesTitleB: "المجتمع",
+      testimonials: [
+        {
+          quote: "لقد غيّر البرنامج التنفيذي نهج مجلس إدارتنا تجاه الحوكمة بالكامل. لدينا الآن توجه استراتيجي واضح.",
+          author: "سارة ج.",
+          role: "مديرة منظمة غير ربحية"
+        },
+        {
+          quote: "منحني مختبر السوق الأدوات والشبكة لنقل عملي المحلي إلى العالمية. المنحة كانت نقطة تحول حقيقية.",
+          author: "ديفيد م.",
+          role: "مؤسس ومدير تنفيذي"
+        },
+        {
+          quote: "التعاون عبر الحدود من خلال CAP فتح أعيننا على حلول مبتكرة لم نكن لنفكر فيها بمفردنا أبدًا.",
+          author: "إيلينا ر.",
+          role: "قائدة مجتمعية"
+        }
+      ]
     },
     about: {
       eyebrow: "حول CAP Entrepreneurs",
@@ -575,6 +660,20 @@ const STR = {
       intro: "استكشف المقالات والأدلة والروابط المرتبطة بالمنظمات غير الربحية والتعلم المستمر.",
       nonprofitsTitle: "روابط للمنظمات",
       learnTitle: "ماذا تتعلم",
+    },
+    approach: {
+      title: "ما هو نهجنا؟",
+      desc: "نحن نركز على الكشف عن الرؤى من خلال الشبكات التعاونية. تقدم برامجنا نماذج تعليمية قوية قادرة على استخلاص المعرفة الواقعية لمساعدتك في بناء أعمال ومجتمعات مستدامة.",
+      cta: "استكشف قابلية التوسع",
+      whatYouCanDo: "ما يمكنك القيام به",
+      features: [
+        { title: "بناء النظم البيئية", desc: "تواصل مع رواد الأعمال والمنظمات غير الربحية في جميع أنحاء البلاد." },
+        { title: "تأثير ملموس", desc: "تتبع نموك ومساهماتك المجتمعية بمرور الوقت." },
+        { title: "تعاون الأقران", desc: "تعلم وتعاون مع المبتكرين ذوي التفكير المماثل." },
+        { title: "توجيه استراتيجي", desc: "احصل على إرشادات من قادة الأعمال ذوي الخبرة." },
+        { title: "تنقل عالمي", desc: "وسع عملياتك في الأسواق الدولية." },
+        { title: "مختبر الابتكار", desc: "اختبر أفكارك وحسنها في بيئة داعمة." },
+      ]
     },
   },
 };

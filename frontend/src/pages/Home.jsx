@@ -368,40 +368,21 @@ const Home = () => {
       <div className="mx-auto max-w-[1600px] px-5 md:px-10">
         <Reveal>
           <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl text-center mb-16">
-            Voices of the <span className="font-serif italic font-medium text-maple">community</span>
+            {t.home.voicesTitleA} <span className="font-serif italic font-medium text-maple">{t.home.voicesTitleB}</span>
           </h2>
         </Reveal>
         <div className="grid md:grid-cols-3 gap-8">
-          {[
-            {
-              quote: "The Executive program completely transformed our board's approach to governance. We now have a clear strategic direction.",
-              author: "Sarah J.",
-              role: "Nonprofit Director",
-              img: IMAGES.portraitF
-            },
-            {
-              quote: "Marketplace Lab gave me the tools and the network to take my local business international. The scholarship was a game-changer.",
-              author: "David M.",
-              role: "Founder & CEO",
-              img: IMAGES.team
-            },
-            {
-              quote: "Collaborating across borders through CAP has opened our eyes to innovative solutions we never would have considered alone.",
-              author: "Elena R.",
-              role: "Community Leader",
-              img: IMAGES.collaboration
-            }
-          ].map((t, i) => (
+          {t.home.testimonials.map((tItem, i) => (
             <Reveal key={i} delay={i * 0.15}>
               <TiltCard>
                 <div className="bg-white p-8 border border-forest/15 h-full rounded-tr-[40px] rounded-bl-[40px] shadow-sm hover:shadow-md transition-shadow relative">
                   <div className="text-maple opacity-20 font-serif text-8xl absolute top-4 right-6 leading-none">"</div>
-                  <p className="text-forest/80 italic mb-8 relative z-10 text-lg">"{t.quote}"</p>
+                  <p className="text-forest/80 italic mb-8 relative z-10 text-lg">"{tItem.quote}"</p>
                   <div className="flex items-center gap-4 mt-auto">
-                    <img src={t.img} alt={t.author} className="w-12 h-12 rounded-full object-cover" />
+                    <img src={i === 0 ? IMAGES.portraitF : i === 1 ? IMAGES.team : IMAGES.collaboration} alt={tItem.author} className="w-12 h-12 rounded-full object-cover" />
                     <div>
-                      <p className="font-bold text-forest">{t.author}</p>
-                      <p className="text-xs uppercase tracking-widest text-maple font-bold">{t.role}</p>
+                      <p className="font-bold text-forest">{tItem.author}</p>
+                      <p className="text-xs uppercase tracking-widest text-maple font-bold">{tItem.role}</p>
                     </div>
                   </div>
                 </div>
