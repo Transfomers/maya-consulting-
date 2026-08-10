@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.core.database import get_db
+from app.core.config import settings
 from app.core.security import verify_password, create_access_token, create_refresh_token, get_current_user
 from app.schemas.auth import LoginInput
 from app.models.user import User
@@ -22,8 +23,9 @@ async def login(input: LoginInput, request: Request, response: Response, db: Asy
     access_token = create_access_token(user_id=user.id, email=user.email, role=user.role)
     refresh_token = create_refresh_token(user_id=user.id)
     
-    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=True, samesite="none", max_age=3600, path="/")
-    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="none", max_age=604800, path="/")
+    is_prod = "https" in getattr(settings, "FRONTEND_URL", "")
+    response.set_cookie(key="access_token", value=access_token, httponly=True, secure=is_prod, samesite="lax", max_age=3600, path="/")
+    response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=is_prod, samesite="lax", max_age=604800, path="/")
     
     return {"id": str(user.id), "email": email, "name": user.name, "role": user.role}
 
