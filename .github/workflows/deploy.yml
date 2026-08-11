@@ -59,7 +59,10 @@ jobs:
             docker compose ps
 
             echo ""
-            echo "6. Testing website..."
+            echo "6. Waiting for Traefik routing to update..."
+            sleep 15
+            
+            echo "7. Testing website..."
             curl --fail --silent --show-error --head \
               --max-time 30 \
               https://capentrepreneurs.org
