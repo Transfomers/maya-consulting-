@@ -1,35 +1,51 @@
-- name: Deploy to Hostinger VPS
-  uses: appleboy/ssh-action@v1.0.3
-  with:
-    host: ${{ secrets.SSH_HOST }}
-    username: ${{ secrets.SSH_USERNAME }}
-    key: ${{ secrets.VPS_SSH_KEY }}
-    passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
-    port: 22
-    timeout: 30s
-    command_timeout: 20m
+name: Deploy to Hostinger VPS
 
-    script: |
-      set -e
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-      echo "🚀 Starting CAP Entrepreneurs deployment..."
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-      cd /var/www/capentrepreneurs
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      echo "📥 Pulling latest code..."
-      git fetch origin main
-      git reset --hard origin/main
+      - name: Deploy to Hostinger VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          port: 22
+          timeout: 30s
+          command_timeout: 20m
 
-      echo "🐳 Rebuilding Docker containers..."
-      docker compose up -d --build
+          script: |
+            set -e
 
-      echo "🧹 Cleaning unused Docker images..."
-      docker image prune -f
+            echo "Starting CAP Entrepreneurs deployment..."
 
-      echo "📊 Current containers:"
-      docker compose ps
+            cd /var/www/capentrepreneurs
 
-      echo "🌐 Testing website..."
-      curl -f -I https://capentrepreneurs.org
+            echo "Pulling latest code..."
+            git fetch origin main
+            git reset --hard origin/main
 
-      echo "✅ Deployment completed successfully!"
+            echo "Rebuilding Docker containers..."
+            docker compose up -d --build
+
+            echo "Cleaning unused Docker images..."
+            docker image prune -f
+
+            echo "Current containers:"
+            docker compose ps
+
+            echo "Testing website..."
+            curl -f -I https://capentrepreneurs.org
+
+            echo "Deployment completed successfully!"
