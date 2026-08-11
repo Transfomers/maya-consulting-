@@ -3,10 +3,12 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 import { LanguageProvider } from "@/lib/i18n";
+import { SettingsProvider } from "@/lib/SettingsContext";
 import SmoothScroll from "@/components/SmoothScroll";
 import { ScrollProgress } from "@/components/motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 import AnimatedAvatars from "@/components/AnimatedAvatars";
 import CustomCursor from "@/components/CustomCursor";
 import Home from "@/pages/Home";
@@ -59,6 +61,8 @@ function App() {
   return (
     <HelmetProvider>
     <LanguageProvider>
+    <SettingsProvider>
+    <SEOHead />
     <div className="App">
       <div className="noise-overlay" aria-hidden="true" />
       <Toaster
@@ -104,6 +108,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </div>
+    </SettingsProvider>
     </LanguageProvider>
     </HelmetProvider>
   );

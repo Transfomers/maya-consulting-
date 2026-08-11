@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet, Link, useLocation } from "react-router-dom";
-import { LogOut, LayoutDashboard, FileText, FolderTree, Image as ImageIcon, Calendar, Settings, ChevronRight, Menu, ChevronLeft, Activity } from "lucide-react";
+import { LogOut, LayoutDashboard, FileText, FolderTree, Image as ImageIcon, Calendar, Settings, ChevronRight, Menu, ChevronLeft } from "lucide-react";
 import api from "@/lib/api";
 
 const NAV_ITEMS = [
@@ -10,7 +10,6 @@ const NAV_ITEMS = [
   { path: "/admin/media", label: "Media", icon: ImageIcon },
   { path: "/admin/events", label: "Events", icon: Calendar },
   { path: "/admin/settings", label: "Settings", icon: Settings },
-  { path: "/admin/activity", label: "Activity Logs", icon: Activity },
 ];
 
 export default function AdminDashboard() {

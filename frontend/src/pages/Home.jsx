@@ -8,6 +8,7 @@ import AnimatedCounter from "@/components/AnimatedCounter";
 import TiltCard from "@/components/TiltCard";
 import { IMAGES, PROGRAMS, PROGRAMS_FR, PROGRAMS_AR, STORIES, STORIES_FR, STORIES_AR } from "@/lib/content";
 import { useLang } from "@/lib/i18n";
+import { useSettings } from "@/lib/SettingsContext";
 
 
 
@@ -15,6 +16,8 @@ import { useLang } from "@/lib/i18n";
 
 const Home = () => {
   const { lang, t } = useLang();
+  const settings = useSettings();
+  
   const currentPrograms = lang === "fr" ? PROGRAMS_FR : lang === "ar" ? PROGRAMS_AR : PROGRAMS;
   const currentStories = lang === "fr" ? STORIES_FR : lang === "ar" ? STORIES_AR : STORIES;
   
@@ -74,7 +77,7 @@ const Home = () => {
           />
           <Reveal delay={0.55} className="mt-10 max-w-2xl">
             <p className="text-base leading-relaxed text-sage md:text-lg" data-testid="hero-subtext">
-              {t.home.sub}
+              {settings?.homepage?.hero_description || t.home.sub}
             </p>
           </Reveal>
           <Reveal delay={0.65} className="mt-8">
@@ -180,9 +183,7 @@ const Home = () => {
       <div className="mx-auto max-w-[1600px] px-5 py-24 md:px-10 md:py-32">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <Reveal>
-            <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl lg:text-6xl">
-              {t.home.programsTitleA}<br />{t.home.programsTitleB}
-            </h2>
+            <h2 className="font-heading text-4xl font-black tracking-tight text-forest md:text-5xl lg:text-6xl" dangerouslySetInnerHTML={{ __html: settings?.homepage?.programs_title || `${t.home.programsTitleA}<br />${t.home.programsTitleB}` }} />
           </Reveal>
           <Reveal delay={0.15}>
             <Link

@@ -3,9 +3,12 @@ import ContactHero from "@/components/ContactHero";
 import FormShell from "@/components/FormShell";
 import { Reveal } from "@/components/motion";
 import { useLang } from "@/lib/i18n";
+import { useSettings } from "@/lib/SettingsContext";
 
 const Contact = () => {
   const { t } = useLang();
+  const settings = useSettings();
+  
   return (
   <div data-testid="contact-page">
     <ContactHero />
@@ -15,9 +18,9 @@ const Contact = () => {
         <Reveal>
           <div className="space-y-px border border-forest/15 bg-forest/15">
             {[
-              { icon: Mail, label: t.contact.info[0].label, value: t.contact.info[0].value },
-              { icon: MapPin, label: t.contact.info[1].label, value: t.contact.info[1].value },
-              { icon: Compass, label: t.contact.info[2].label, value: t.contact.info[2].value },
+              { icon: Mail, label: t.contact.info[0].label, value: settings?.contact?.main_email || t.contact.info[0].value },
+              { icon: MapPin, label: t.contact.info[1].label, value: settings?.contact?.address || t.contact.info[1].value },
+              { icon: Compass, label: t.contact.info[2].label, value: settings?.contact?.phone || t.contact.info[2].value },
             ].map((c, i) => (
               <div key={c.label} className="flex items-start gap-5 bg-bone p-6 md:p-8" data-testid={`contact-info-${i}`}>
                 <c.icon className="mt-1 h-6 w-6 shrink-0 text-maple" strokeWidth={1.5} />
