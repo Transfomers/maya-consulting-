@@ -14,7 +14,7 @@ export default function Events() {
     const fetchEvents = async () => {
       try {
         // Mocking public API endpoint for now
-        const res = await api.get(`/v1/admin/events`);
+        const res = await api.get(`/admin/events`);
         setEvents(res.data.filter(e => e.status === "published" || e.status === "scheduled"));
       } catch (err) {
         console.error("Failed to fetch events", err);

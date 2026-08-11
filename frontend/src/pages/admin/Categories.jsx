@@ -16,7 +16,7 @@ export default function AdminCategories() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/categories");
+      const res = await api.get("/admin/categories");
       setCategories(res.data || []);
     } catch (err) {
       toast.error("Failed to load categories");
@@ -30,10 +30,10 @@ export default function AdminCategories() {
     e.preventDefault();
     try {
       if (isEditing) {
-        await api.put(`/categories/${isEditing}`, formData);
+        await api.put(`/admin/categories/${isEditing}`, formData);
         toast.success("Category updated");
       } else {
-        await api.post("/categories", formData);
+        await api.post("/admin/categories", formData);
         toast.success("Category created");
       }
       setFormData({ name: "", slug: "" });
@@ -47,7 +47,7 @@ export default function AdminCategories() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this category?")) return;
     try {
-      await api.delete(`/api/categories/${id}`).catch(() => api.delete(`/categories/${id}`));
+      await api.delete(`/admin/categories/${id}`);
       toast.success("Category deleted");
       fetchCategories();
     } catch (err) {

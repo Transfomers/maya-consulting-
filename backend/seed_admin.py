@@ -25,7 +25,7 @@ async def seed_admin():
                 email=email,
                 password_hash=password_hash,
                 name="Super Admin",
-                role="superadmin"
+                role="SUPER_ADMIN"
             )
             db.add(admin_user)
             await db.commit()
