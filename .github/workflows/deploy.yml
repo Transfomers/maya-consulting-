@@ -4,12 +4,17 @@ on:
   push:
     branches:
       - main
-
   workflow_dispatch:
+
+concurrency:
+  group: capentrepreneurs-production
+  cancel-in-progress: true
 
 jobs:
   deploy:
+    name: Deploy to VPS
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     steps:
       - name: Deploy to VPS
@@ -21,25 +26,45 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           timeout: 30s
           command_timeout: 20m
+          script_stop: true
 
           script: |
             set -e
 
-            echo "Starting CAP Entrepreneurs deployment..."
+            echo "======================================"
+            echo "CAP Entrepreneurs Deployment"
+            echo "======================================"
 
             cd /var/www/capentrepreneurs
 
-            echo "Pulling latest code..."
+            echo ""
+            echo "1. Pulling latest code..."
             git fetch origin main
             git reset --hard origin/main
 
-            echo "Rebuilding Docker containers..."
+            echo ""
+            echo "2. Current commit:"
+            git log -1 --oneline
+
+            echo ""
+            echo "3. Validating Docker Compose..."
+            docker compose config -q
+
+            echo ""
+            echo "4. Building and starting containers..."
             docker compose up -d --build
 
-            echo "Checking containers..."
+            echo ""
+            echo "5. Container status..."
             docker compose ps
 
-            echo "Testing website..."
-            curl -f -I https://capentrepreneurs.org
+            echo ""
+            echo "6. Testing website..."
+            curl --fail --silent --show-error --head \
+              --max-time 30 \
+              https://capentrepreneurs.org
 
+            echo ""
+            echo "======================================"
             echo "Deployment completed successfully!"
+            echo "======================================"
