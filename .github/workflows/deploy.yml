@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
   workflow_dispatch:
 
 jobs:
@@ -11,9 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -27,22 +25,21 @@ jobs:
           script: |
             set -e
 
-            echo "🚀 Starting deployment..."
+            echo "Starting CAP Entrepreneurs deployment..."
 
             cd /var/www/capentrepreneurs
 
-            echo "📥 Pulling latest code..."
+            echo "Pulling latest code..."
             git fetch origin main
             git reset --hard origin/main
 
-            echo "🐳 Rebuilding containers..."
+            echo "Rebuilding Docker containers..."
             docker compose up -d --build
 
-            echo "📊 Containers:"
+            echo "Checking containers..."
             docker compose ps
 
-            echo "🌐 Testing website..."
+            echo "Testing website..."
             curl -f -I https://capentrepreneurs.org
 
-            echo "✅ Deployment completed!"
-            
+            echo "Deployment completed successfully!"
