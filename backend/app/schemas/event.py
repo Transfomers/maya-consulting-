@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import datetime
 
 class EventTranslationBase(BaseModel):
@@ -26,10 +26,27 @@ class EventBase(BaseModel):
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     location: Optional[str] = None
+    category_id: Optional[str] = None
     featured_image_id: Optional[str] = None
+    
+    # Advanced Event Fields
+    all_day: bool = False
+    timezone: str = "UTC"
+    location_url: Optional[str] = None
+    is_online: bool = False
+    meeting_url: Optional[str] = None
+    
+    registration_required: bool = False
+    registration_url: Optional[str] = None
+    registration_deadline: Optional[datetime] = None
+    max_participants: Optional[int] = None
+    
+    recurrence: Optional[Any] = None
+    visibility: str = "public"
 
 class EventCreate(EventBase):
     translations: List[EventTranslationBase]
+    speaker_ids: Optional[List[str]] = []
 
 class EventTranslationResponse(EventTranslationBase):
     id: str
@@ -43,6 +60,9 @@ class EventResponse(EventBase):
     created_at: datetime
     updated_at: datetime
     translations: List[EventTranslationResponse] = []
+    
+    # We will just return speaker IDs or basic info for now, let's just do a list of dicts or Any
+    speakers: List[Any] = []
 
     class Config:
         from_attributes = True
