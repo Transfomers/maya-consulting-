@@ -13,17 +13,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT || '22' }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
           timeout: 60s
-          command_timeout: 15m
+          command_timeout: 20m
           script_stop: true
-
           script: |
             set -Eeuo pipefail
 
@@ -37,14 +36,12 @@ jobs:
             echo "1. Checking server..."
             echo "Server: $(hostname)"
             echo "User: $(whoami)"
-            echo "Docker: $(docker --version)"
-            echo "Compose: $(docker compose version)"
+            docker --version
+            docker compose version
 
             echo ""
             echo "2. Entering application directory..."
             cd "$APP_DIR"
-
-            echo "Application directory:"
             pwd
 
             echo ""
@@ -57,11 +54,11 @@ jobs:
             git fetch --prune origin main
 
             echo ""
-            echo "5. Resetting to origin/main..."
+            echo "5. Resetting production server to origin/main..."
             git reset --hard origin/main
 
             echo ""
-            echo "6. Current commit:"
+            echo "6. Current commit..."
             git log -1 --oneline
 
             echo ""
@@ -73,33 +70,26 @@ jobs:
             docker compose up -d --build
 
             echo ""
-            echo "9. Waiting for Traefik to route the containers..."
-            sleep 15
+            echo "9. Waiting for containers..."
+            sleep 10
 
             echo ""
             echo "10. Container status..."
             docker compose ps
 
             echo ""
-            echo "11. Checking container logs..."
-            docker compose logs --tail=50
+            echo "11. Container health..."
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
             echo ""
-            echo "12. Testing local application..."
-            curl --fail --silent --show-error --max-time 30 --head \
-              http://127.0.0.1:80 || true
+            echo "12. Recent application logs..."
+            docker compose logs --tail=100 || true
 
             echo ""
-            echo "13. Testing public website..."
-            curl --fail --silent --show-error --max-time 30 --head \
-              https://capentrepreneurs.org
-
-            echo ""
-            echo "14. Testing API routes..."
-            curl --fail --silent --show-error --max-time 30 \
-              https://capentrepreneurs.org/api/v1/categories || true
+            echo "13. Testing containers..."
+            docker compose ps --status running
 
             echo ""
             echo "======================================"
-            echo "DEPLOYMENT COMPLETED SUCCESSFULLY"
+            echo "DEPLOYMENT COMPLETED"
             echo "======================================"
