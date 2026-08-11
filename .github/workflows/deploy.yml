@@ -4,70 +4,102 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
-concurrency:
-  group: capentrepreneurs-production
-  cancel-in-progress: true
+  workflow_dispatch:
 
 jobs:
   deploy:
     name: Deploy to VPS
     runs-on: ubuntu-latest
-    timeout-minutes: 25
 
     steps:
-      - name: Deploy to VPS
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          timeout: 30s
-          command_timeout: 20m
+          port: ${{ secrets.VPS_PORT || '22' }}
+          timeout: 60s
+          command_timeout: 15m
           script_stop: true
 
           script: |
-            set -e
+            set -Eeuo pipefail
 
             echo "======================================"
-            echo "CAP Entrepreneurs Deployment"
+            echo "CAP ENTREPRENEURS DEPLOYMENT"
             echo "======================================"
 
-            cd /var/www/capentrepreneurs
+            APP_DIR="/var/www/capentrepreneurs"
 
             echo ""
-            echo "1. Pulling latest code..."
-            git fetch origin main
+            echo "1. Checking server..."
+            echo "Server: $(hostname)"
+            echo "User: $(whoami)"
+            echo "Docker: $(docker --version)"
+            echo "Compose: $(docker compose version)"
+
+            echo ""
+            echo "2. Entering application directory..."
+            cd "$APP_DIR"
+
+            echo "Application directory:"
+            pwd
+
+            echo ""
+            echo "3. Checking Git repository..."
+            git status
+            git remote -v
+
+            echo ""
+            echo "4. Fetching latest code..."
+            git fetch --prune origin main
+
+            echo ""
+            echo "5. Resetting to origin/main..."
             git reset --hard origin/main
 
             echo ""
-            echo "2. Current commit:"
+            echo "6. Current commit:"
             git log -1 --oneline
 
             echo ""
-            echo "3. Validating Docker Compose..."
-            docker compose config -q
+            echo "7. Validating Docker Compose..."
+            docker compose config
 
             echo ""
-            echo "4. Building and starting containers..."
+            echo "8. Building and starting containers..."
             docker compose up -d --build
 
             echo ""
-            echo "5. Container status..."
+            echo "9. Waiting for Traefik to route the containers..."
+            sleep 15
+
+            echo ""
+            echo "10. Container status..."
             docker compose ps
 
             echo ""
-            echo "6. Waiting for Traefik routing to update..."
-            sleep 15
-            
-            echo "7. Testing website..."
-            curl --fail --silent --show-error --head \
-              --max-time 30 \
+            echo "11. Checking container logs..."
+            docker compose logs --tail=50
+
+            echo ""
+            echo "12. Testing local application..."
+            curl --fail --silent --show-error --max-time 30 --head \
+              http://127.0.0.1:80 || true
+
+            echo ""
+            echo "13. Testing public website..."
+            curl --fail --silent --show-error --max-time 30 --head \
               https://capentrepreneurs.org
 
             echo ""
+            echo "14. Testing API routes..."
+            curl --fail --silent --show-error --max-time 30 \
+              https://capentrepreneurs.org/api/v1/categories || true
+
+            echo ""
             echo "======================================"
-            echo "Deployment completed successfully!"
+            echo "DEPLOYMENT COMPLETED SUCCESSFULLY"
             echo "======================================"
