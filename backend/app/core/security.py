@@ -65,8 +65,8 @@ class RequireRole:
         self.allowed_roles = allowed_roles
 
     async def __call__(self, user = Depends(get_current_user)):
-        # SUPER_ADMIN can do everything
-        if user.role.upper() == "SUPER_ADMIN":
+        # SUPER_ADMIN or ADMIN can do everything
+        if user.role.upper() in ["SUPER_ADMIN", "SUPERADMIN", "ADMIN"]:
             return user
         if user.role.upper() not in [r.upper() for r in self.allowed_roles]:
             raise HTTPException(status_code=403, detail=f"Operation not permitted. Required role: {', '.join(self.allowed_roles)}")
