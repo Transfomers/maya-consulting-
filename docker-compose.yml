@@ -1,51 +1,46 @@
-name: Deploy to Hostinger VPS
+version: "3.8"
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: cap_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:////app/data/capentrepreneurs.db
+      FRONTEND_URL: https://capentrepreneurs.org
+      SECRET_KEY: ${SECRET_KEY}
+    volumes:
+      - ./backend/data:/app/data
+    expose:
+      - "8000"
+    networks:
+      - cap_network
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  frontend:
+    build:
+      context: ./frontend
+    container_name: cap_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    expose:
+      - "80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.cap.rule=Host(`capentrepreneurs.org`) || Host(`www.capentrepreneurs.org`)"
+      - "traefik.http.routers.cap.entrypoints=websecure"
+      - "traefik.http.routers.cap.tls=true"
+      - "traefik.http.routers.cap.tls.certresolver=letsencrypt"
+      - "traefik.http.services.cap.loadbalancer.server.port=80"
+    networks:
+      - cap_network
+      - proxy
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+networks:
+  cap_network:
+    name: capentrepreneurs_default
 
-      - name: Deploy to Hostinger VPS
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
-          port: 22
-          timeout: 30s
-          command_timeout: 20m
-
-          script: |
-            set -e
-
-            echo "Starting CAP Entrepreneurs deployment..."
-
-            cd /var/www/capentrepreneurs
-
-            echo "Pulling latest code..."
-            git fetch origin main
-            git reset --hard origin/main
-
-            echo "Rebuilding Docker containers..."
-            docker compose up -d --build
-
-            echo "Cleaning unused Docker images..."
-            docker image prune -f
-
-            echo "Current containers:"
-            docker compose ps
-
-            echo "Testing website..."
-            curl -f -I https://capentrepreneurs.org
-
-            echo "Deployment completed successfully!"
+  proxy:
+    external: true
