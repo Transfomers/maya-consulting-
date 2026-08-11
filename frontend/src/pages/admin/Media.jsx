@@ -9,7 +9,7 @@ export default function AdminMedia() {
 
   const loadMedia = async () => {
     try {
-      const res = await api.get("/v1/admin/media");
+      const res = await api.get("/admin/media");
       setMedia(res.data);
     } catch (err) {
       toast.error("Failed to load media");
@@ -23,7 +23,7 @@ export default function AdminMedia() {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this image? Ensure it is not used in any posts first!")) return;
     try {
-      await api.delete(`/v1/admin/media/${id}`);
+      await api.delete(`/admin/media/${id}`);
       toast.success("Image deleted");
       loadMedia();
     } catch (err) {
@@ -45,7 +45,7 @@ export default function AdminMedia() {
 
     try {
       toast.loading("Uploading...", { id: "upload" });
-      await api.post("/v1/admin/media/upload", fd, {
+      await api.post("/admin/media/upload", fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       toast.success("Uploaded successfully", { id: "upload" });
@@ -60,7 +60,7 @@ export default function AdminMedia() {
     if (!editingMedia) return;
     
     try {
-      await api.put(`/v1/admin/media/${editingMedia.id}`, {
+      await api.put(`/admin/media/${editingMedia.id}`, {
         alt_text: editingMedia.alt_text,
         caption: editingMedia.caption
       });

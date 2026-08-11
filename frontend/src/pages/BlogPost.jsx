@@ -15,7 +15,7 @@ export default function BlogPost() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await api.get(`/v1/posts/${slug}`);
+        const res = await api.get(`/posts/${slug}`);
         setPost(res.data);
       } catch (err) {
         console.error("Failed to load blog post", err);

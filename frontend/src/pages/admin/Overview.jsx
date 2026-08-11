@@ -15,7 +15,7 @@ export default function AdminOverview() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await api.get("/v1/admin/stats");
+        const res = await api.get("/admin/stats");
         if (res.data) {
           setStats(res.data);
         }

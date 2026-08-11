@@ -18,7 +18,7 @@ const MenuBar = ({ editor }) => {
 
     try {
       toast.loading("Uploading image...", { id: "upload" })
-      const res = await api.post("/v1/admin/media/upload", fd, {
+      const res = await api.post("/admin/media/upload", fd, {
         headers: { "Content-Type": "multipart/form-data" }
       })
       toast.success("Image uploaded", { id: "upload" })

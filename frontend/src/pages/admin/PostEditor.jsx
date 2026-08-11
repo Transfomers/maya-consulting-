@@ -40,7 +40,7 @@ export default function AdminPostEditor() {
 
   const fetchCategories = async () => {
     try {
-      const res = await api.get("/v1/admin/categories");
+      const res = await api.get("/admin/categories");
       setCategories(res.data || []);
     } catch (err) {
       console.error(err);
@@ -49,7 +49,7 @@ export default function AdminPostEditor() {
 
   const fetchPost = async () => {
     try {
-      const res = await api.get(`/v1/admin/posts/${id}`);
+      const res = await api.get(`/admin/posts/${id}`);
       const post = res.data;
       
       const newTranslations = { ...defaultTranslations };
@@ -120,7 +120,7 @@ export default function AdminPostEditor() {
     fd.append("file", file);
 
     try {
-      const res = await api.post("/v1/admin/media/upload", fd, {
+      const res = await api.post("/admin/media/upload", fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       setFormData({
@@ -155,10 +155,10 @@ export default function AdminPostEditor() {
       }
 
       if (isEditing) {
-        await api.put(`/v1/admin/posts/${id}`, payload);
+        await api.put(`/admin/posts/${id}`, payload);
         toast.success("Post updated successfully!");
       } else {
-        const res = await api.post("/v1/admin/posts", payload);
+        const res = await api.post("/admin/posts", payload);
         toast.success("Post created successfully!");
         navigate(`/admin/posts/${res.data.id}/edit`);
       }

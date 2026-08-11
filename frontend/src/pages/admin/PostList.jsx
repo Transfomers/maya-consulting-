@@ -21,7 +21,7 @@ export default function AdminPostList() {
       if (search) params.append("search", search);
       if (statusFilter) params.append("status", statusFilter);
       
-      const res = await api.get(`/v1/admin/posts/?${params.toString()}`);
+      const res = await api.get(`/admin/posts/?${params.toString()}`);
       setPosts(res.data || []);
     } catch (err) {
       console.error(err);
@@ -34,7 +34,7 @@ export default function AdminPostList() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this article?")) return;
     try {
-      await api.delete(`/v1/admin/posts/${id}`);
+      await api.delete(`/admin/posts/${id}`);
       toast.success("Article deleted");
       fetchPosts();
     } catch (err) {

@@ -9,7 +9,7 @@ export default function AdminEventsList() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await api.get("/v1/admin/events");
+        const res = await api.get("/admin/events");
         setEvents(res.data);
       } catch (err) {
         console.error("Failed to load events", err);
