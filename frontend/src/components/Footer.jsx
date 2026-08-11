@@ -1,17 +1,24 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useLang } from "@/lib/i18n";
+import { useSettings } from "@/lib/SettingsContext";
 
 const Footer = () => {
   const { t } = useLang();
+  const settings = useSettings();
+  
+  const logoSrc = settings?.footer?.logo || settings?.branding?.logo_light || "/assets/logo-mark-light.png";
+  const quoteText = settings?.footer?.description || t.footer.quote;
+  const copyrightText = settings?.footer?.copyright_text || `© ${new Date().getFullYear()} CAP Entrepreneurs. All rights reserved.`;
+  
   return (
   <footer className="bg-forest text-bone" data-testid="site-footer">
     <div className="mx-auto max-w-[1600px] px-5 pb-10 pt-20 md:px-10 md:pt-28">
       <div className="grid gap-12 border-b border-bone/15 pb-16 md:grid-cols-12">
         <div className="md:col-span-5">
-          <img src="/assets/logo-mark-light.png" alt="CAP Entrepreneurs" className="mb-8 h-12 w-auto" data-testid="footer-logo" />
+          <img src={logoSrc} alt="CAP Entrepreneurs" className="mb-8 h-12 w-auto" data-testid="footer-logo" />
           <p className="font-serif text-2xl italic leading-snug text-bone/90 md:text-3xl">
-            {t.footer.quote}
+            {quoteText}
           </p>
           <Link
             to="/donate"
@@ -67,7 +74,7 @@ const Footer = () => {
       <div className="mt-10 flex flex-col items-start justify-between gap-4 border-t border-bone/15 pt-6 text-xs text-bone/50 md:flex-row md:items-center">
         <div className="flex flex-col gap-1">
           <span>{t.footer.bottom1}</span>
-          <span>&copy; {new Date().getFullYear()} CAP Entrepreneurs. All rights reserved.</span>
+          <span>{copyrightText}</span>
         </div>
         <div className="flex flex-col items-start gap-1 md:items-end">
           <span>{t.footer.bottom2}</span>

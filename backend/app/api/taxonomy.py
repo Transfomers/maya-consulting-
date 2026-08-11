@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from typing import List
 from app.core.database import get_db
-from app.core.security import RequireRole
+from app.core.security import RequirePermission
 from app.schemas.taxonomy import CategoryCreate, CategoryResponse, TagCreate, TagResponse
 from app.models.post import Category, Tag, Post
 
@@ -17,7 +17,7 @@ async def list_categories(db: AsyncSession = Depends(get_db)):
     return result.scalars().all()
 
 @router.post("/categories", response_model=CategoryResponse)
-async def create_category(category_data: CategoryCreate, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def create_category(category_data: CategoryCreate, user = Depends(RequirePermission("categories.edit")), db: AsyncSession = Depends(get_db)):
     # Check if slug exists
     res = await db.execute(select(Category).where(Category.slug == category_data.slug))
     if res.scalars().first():
@@ -30,7 +30,7 @@ async def create_category(category_data: CategoryCreate, user = Depends(RequireR
     return category
 
 @router.put("/categories/{id}", response_model=CategoryResponse)
-async def update_category(id: str, category_data: CategoryCreate, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def update_category(id: str, category_data: CategoryCreate, user = Depends(RequirePermission("categories.edit")), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Category).where(Category.id == id))
     category = res.scalars().first()
     if not category:
@@ -47,7 +47,7 @@ async def update_category(id: str, category_data: CategoryCreate, user = Depends
     return category
 
 @router.delete("/categories/{id}")
-async def delete_category(id: str, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def delete_category(id: str, user = Depends(RequirePermission("categories.edit")), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Category).where(Category.id == id))
     category = res.scalars().first()
     if not category:
@@ -70,7 +70,7 @@ async def list_tags(db: AsyncSession = Depends(get_db)):
     return result.scalars().all()
 
 @router.post("/tags", response_model=TagResponse)
-async def create_tag(tag_data: TagCreate, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def create_tag(tag_data: TagCreate, user = Depends(RequirePermission("categories.edit")), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Tag).where(Tag.slug == tag_data.slug))
     if res.scalars().first():
         raise HTTPException(status_code=400, detail="Tag slug already exists")
@@ -82,7 +82,7 @@ async def create_tag(tag_data: TagCreate, user = Depends(RequireRole(["SUPER_ADM
     return tag
 
 @router.delete("/tags/{id}")
-async def delete_tag(id: str, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def delete_tag(id: str, user = Depends(RequirePermission("categories.edit")), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Tag).where(Tag.id == id))
     tag = res.scalars().first()
     if not tag:

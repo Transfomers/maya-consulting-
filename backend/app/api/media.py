@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.core.database import get_db
-from app.core.security import get_current_user, RequireRole
+from app.core.security import get_current_user, RequirePermission
 from app.schemas.media import MediaResponse, MediaUpdate
 from app.models.media import Media
 from app.core.config import settings
@@ -16,7 +16,7 @@ UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.get("/", response_model=List[MediaResponse])
-async def list_media(user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR", "AUTHOR"])), db: AsyncSession = Depends(get_db)):
+async def list_media(user = Depends(RequirePermission("media.view")), db: AsyncSession = Depends(get_db)):
     query = select(Media).order_by(Media.created_at.desc())
     result = await db.execute(query)
     return result.scalars().all()
@@ -26,7 +26,7 @@ async def upload_media(
     file: UploadFile = File(...),
     alt_text: str = Form(None),
     caption: str = Form(None),
-    user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR", "AUTHOR"])), 
+    user = Depends(RequirePermission("media.view")), 
     db: AsyncSession = Depends(get_db)
 ):
     # Basic validation
@@ -69,7 +69,7 @@ async def upload_media(
 async def update_media(
     id: str,
     media_update: MediaUpdate,
-    user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])),
+    user = Depends(RequirePermission("media.upload")),
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(select(Media).where(Media.id == id))
@@ -87,7 +87,7 @@ async def update_media(
     return media
 
 @router.delete("/{id}")
-async def delete_media(id: str, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def delete_media(id: str, user = Depends(RequirePermission("media.upload")), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Media).where(Media.id == id))
     media = result.scalars().first()
     if not media:

@@ -3,10 +3,12 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 import { LanguageProvider } from "@/lib/i18n";
+import { SettingsProvider } from "@/lib/SettingsContext";
 import SmoothScroll from "@/components/SmoothScroll";
 import { ScrollProgress } from "@/components/motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 import AnimatedAvatars from "@/components/AnimatedAvatars";
 import CustomCursor from "@/components/CustomCursor";
 import Home from "@/pages/Home";
@@ -23,6 +25,7 @@ import Events from "@/pages/Events";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import BlogPost from "@/pages/BlogPost";
+import AcceptInvitation from "@/pages/admin/AcceptInvitation";
 import AdminOverview from "@/pages/admin/Overview";
 import AdminPostList from "@/pages/admin/PostList";
 import AdminPostEditor from "@/pages/admin/PostEditor";
@@ -59,6 +62,8 @@ function App() {
   return (
     <HelmetProvider>
     <LanguageProvider>
+    <SettingsProvider>
+    <SEOHead />
     <div className="App">
       <div className="noise-overlay" aria-hidden="true" />
       <Toaster
@@ -88,9 +93,10 @@ function App() {
           <Route path="/events" element={page(Events)} />
           <Route path="/donate" element={page(Donate)} />
           <Route path="/contact" element={page(Contact)} />
+          <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          
-          <Route path="/admin" element={<AdminDashboard />}>
+          <Route path="/admin/accept-invitation/:token" element={<AcceptInvitation />} />
+          <Route path="/admin/*" element={<AdminDashboard />}>
             <Route index element={<AdminOverview />} />
             <Route path="posts" element={<AdminPostList />} />
             <Route path="posts/new" element={<AdminPostEditor />} />
@@ -104,6 +110,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </div>
+    </SettingsProvider>
     </LanguageProvider>
     </HelmetProvider>
   );

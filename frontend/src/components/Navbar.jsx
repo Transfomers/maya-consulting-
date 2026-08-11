@@ -3,12 +3,22 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, ArrowUpRight, Languages } from "lucide-react";
 import { useLang } from "@/lib/i18n";
+import { useSettings } from "@/lib/SettingsContext";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { lang, setLang, t } = useLang();
-  const LINKS = [
+  const settings = useSettings();
+  
+  let dynamicLinks = [];
+  try {
+    if (settings?.navigation?.menu_json) {
+      dynamicLinks = JSON.parse(settings.navigation.menu_json);
+    }
+  } catch(e) {}
+  
+  const LINKS = dynamicLinks.length > 0 ? dynamicLinks.map(l => ({ to: l.url, label: l.label, new_tab: l.new_tab })) : [
     { to: "/", label: t.nav.home },
     { to: "/about", label: t.nav.about },
     { to: "/programs", label: t.nav.programs },
@@ -20,6 +30,9 @@ const Navbar = () => {
     { to: "/contact", label: t.nav.contact },
   ];
 
+  const logoSrc = settings?.branding?.logo_main || "/assets/logo-mark.png";
+  const logoLightSrc = settings?.branding?.logo_light || "/assets/logo-mark-light.png";
+
   return (
     <>
       <header
@@ -28,7 +41,7 @@ const Navbar = () => {
       >
         <div className="flex w-full items-center justify-between px-5 py-4 md:px-10 relative">
           <Link to="/" className="flex items-center gap-3 relative z-10" data-testid="nav-logo">
-            <img src="/assets/logo-mark.png" alt="CAP Entrepreneurs" className="h-9 w-auto mix-blend-multiply" />
+            <img src={logoSrc} alt={settings?.general?.site_name || "CAP Entrepreneurs"} className="h-9 w-auto mix-blend-multiply" />
           </Link>
 
           <nav className="hidden flex-1 items-center justify-center gap-3 lg:gap-4 xl:flex" data-testid="nav-links-desktop">
@@ -36,6 +49,8 @@ const Navbar = () => {
               <NavLink
                 key={l.to}
                 to={l.to}
+                target={l.new_tab ? "_blank" : undefined}
+                rel={l.new_tab ? "noopener noreferrer" : undefined}
                 data-testid={`nav-link-${l.label.toLowerCase().replace(/[^a-z]+/g, "-")}`}
                 className={({ isActive }) =>
                   `whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.1em] transition-colors xl:text-[12px] ${
@@ -113,7 +128,7 @@ const Navbar = () => {
             data-testid="nav-mobile-menu"
           >
             <div className="flex items-center justify-between px-5 py-4 md:px-10">
-              <img src="/assets/logo-mark-light.png" alt="CAP Entrepreneurs" className="h-9 w-auto" />
+              <img src={logoLightSrc} alt={settings?.general?.site_name || "CAP Entrepreneurs"} className="h-9 w-auto" />
               <button
                 onClick={() => setOpen(false)}
                 className="text-bone"

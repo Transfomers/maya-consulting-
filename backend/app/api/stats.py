@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.core.database import get_db
-from app.core.security import RequireRole
+from app.core.security import RequirePermission
 from app.models.post import Post, Category, Tag
 from app.models.media import Media
 from app.models.event import Event
@@ -20,7 +20,7 @@ class StatsResponse(BaseModel):
     total_events: int
 
 @router.get("/", response_model=StatsResponse)
-async def get_stats(user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR", "AUTHOR"])), db: AsyncSession = Depends(get_db)):
+async def get_stats(user = Depends(RequirePermission("articles.view")), db: AsyncSession = Depends(get_db)):
     
     total_articles = await db.execute(select(func.count(Post.id)))
     published_articles = await db.execute(select(func.count(Post.id)).where(Post.status == "published"))

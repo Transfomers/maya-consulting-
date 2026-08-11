@@ -12,7 +12,9 @@ import app.models.media
 import app.models.submission
 import app.models.event
 import app.models.setting
-import app.models.activity
+
+import app.models.speaker
+import app.models.role
 
 from logging.config import fileConfig
 

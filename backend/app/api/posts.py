@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, delete
 from sqlalchemy.orm import selectinload
 from app.core.database import get_db
-from app.core.security import get_current_user, RequireRole
+from app.core.security import get_current_user, RequirePermission
 from app.schemas.post import PostCreate, PostResponse, ReferenceCreate
 from app.models.post import Post, PostTranslation, Reference
 from datetime import datetime, timezone
@@ -40,7 +40,7 @@ async def list_posts(
     status: Optional[str] = None,
     category_id: Optional[str] = None,
     search: Optional[str] = None,
-    user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR", "AUTHOR"])), 
+    user = Depends(RequirePermission("articles.view")), 
     db: AsyncSession = Depends(get_db)
 ):
     query = select(Post).options(selectinload(Post.translations), selectinload(Post.references)).order_by(Post.created_at.desc())
@@ -57,7 +57,7 @@ async def list_posts(
     return result.scalars().unique().all()
 
 @router.get("/{id}", response_model=PostResponse)
-async def get_post(id: str, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR", "AUTHOR"])), db: AsyncSession = Depends(get_db)):
+async def get_post(id: str, user = Depends(RequirePermission("articles.view")), db: AsyncSession = Depends(get_db)):
     query = select(Post).where(Post.id == id).options(selectinload(Post.translations), selectinload(Post.references))
     result = await db.execute(query)
     post = result.scalars().first()
@@ -66,7 +66,7 @@ async def get_post(id: str, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR",
     return post
 
 @router.post("/", response_model=PostResponse)
-async def create_post(post_data: PostCreate, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR", "AUTHOR"])), db: AsyncSession = Depends(get_db)):
+async def create_post(post_data: PostCreate, user = Depends(RequirePermission("articles.view")), db: AsyncSession = Depends(get_db)):
     status = post_data.status
     if user.role == "AUTHOR" and status in ["published", "scheduled"]:
         status = "review"
@@ -123,7 +123,7 @@ async def create_post(post_data: PostCreate, user = Depends(RequireRole(["SUPER_
     return result.scalars().first()
 
 @router.put("/{id}", response_model=PostResponse)
-async def update_post(id: str, post_data: PostCreate, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR", "AUTHOR"])), db: AsyncSession = Depends(get_db)):
+async def update_post(id: str, post_data: PostCreate, user = Depends(RequirePermission("articles.view")), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Post).where(Post.id == id).options(selectinload(Post.translations), selectinload(Post.references)))
     post = result.scalars().first()
     if not post:
@@ -189,7 +189,7 @@ async def update_post(id: str, post_data: PostCreate, user = Depends(RequireRole
     return result.scalars().first()
 
 @router.delete("/{id}")
-async def delete_post(id: str, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def delete_post(id: str, user = Depends(RequirePermission("articles.edit")), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Post).where(Post.id == id))
     post = result.scalars().first()
     if not post:
