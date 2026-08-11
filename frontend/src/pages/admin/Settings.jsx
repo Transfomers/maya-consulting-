@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Save, Image as ImageIcon, Trash2, AlertCircle, Loader2, Plus, GripVertical } from 'lucide-react';
 import api from '@/lib/api';
+import AdministratorsManager from '@/components/admin/AdministratorsManager';
 
 const TABS = [
   { id: 'general', label: 'General' },
@@ -18,7 +19,8 @@ const TABS = [
   { id: 'integrations', label: 'Integrations' },
   { id: 'security', label: 'Security' },
   { id: 'maintenance', label: 'Maintenance' },
-  { id: 'legal', label: 'Legal' }
+  { id: 'legal', label: 'Legal' },
+  { id: 'administrators', label: 'Administrators' }
 ];
 
 const DEFAULT_SETTINGS = {
@@ -549,6 +551,10 @@ export default function AdminSettings() {
                 <Input label="Legal Notice URL" type="url" value={settings.legal.legal_notice_url} onChange={v => handleChange('legal', 'legal_notice_url', v)} />
               </div>
             </div>
+          )}
+
+          {activeTab === 'administrators' && (
+            <AdministratorsManager />
           )}
 
         </main>

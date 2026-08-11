@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
 from app.core.database import get_db
-from app.core.security import RequireRole
+from app.core.security import RequirePermission
 from app.models.setting import Setting
 from app.schemas.setting import SettingBase, SettingResponse, SettingBulkUpdate
 import os
@@ -14,7 +14,7 @@ router = APIRouter()
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "uploads")
 
 @router.get("/", response_model=List[SettingResponse])
-async def get_settings(category: str = None, user = Depends(RequireRole(["SUPER_ADMIN", "ADMIN"])), db: AsyncSession = Depends(get_db)):
+async def get_settings(category: str = None, user = Depends(RequirePermission("settings.view")), db: AsyncSession = Depends(get_db)):
     query = select(Setting)
     if category:
         query = query.where(Setting.category == category)
@@ -29,7 +29,7 @@ async def get_settings(category: str = None, user = Depends(RequireRole(["SUPER_
     return settings_list
 
 @router.put("/", response_model=List[SettingResponse])
-async def update_settings(update_data: SettingBulkUpdate, user = Depends(RequireRole(["SUPER_ADMIN", "ADMIN"])), db: AsyncSession = Depends(get_db)):
+async def update_settings(update_data: SettingBulkUpdate, user = Depends(RequirePermission("settings.edit")), db: AsyncSession = Depends(get_db)):
     updated_settings = []
     for item in update_data.settings:
         if item.key == "smtp_password" and item.value == "••••••••••••":
@@ -97,18 +97,17 @@ async def handle_file_delete(key: str, db: AsyncSession):
     return {"status": "ok"}
 
 @router.post("/logo", response_model=SettingResponse)
-async def upload_logo(file: UploadFile = File(...), user = Depends(RequireRole(["SUPER_ADMIN", "ADMIN"])), db: AsyncSession = Depends(get_db)):
+async def upload_logo(file: UploadFile = File(...), user = Depends(RequirePermission("settings.edit")), db: AsyncSession = Depends(get_db)):
     return await handle_file_upload(file, "logo_url", "branding", db)
 
 @router.delete("/logo")
-async def delete_logo(user = Depends(RequireRole(["SUPER_ADMIN", "ADMIN"])), db: AsyncSession = Depends(get_db)):
+async def delete_logo(user = Depends(RequirePermission("settings.edit")), db: AsyncSession = Depends(get_db)):
     return await handle_file_delete("logo_url", db)
 
 @router.post("/favicon", response_model=SettingResponse)
-async def upload_favicon(file: UploadFile = File(...), user = Depends(RequireRole(["SUPER_ADMIN", "ADMIN"])), db: AsyncSession = Depends(get_db)):
+async def upload_favicon(file: UploadFile = File(...), user = Depends(RequirePermission("settings.edit")), db: AsyncSession = Depends(get_db)):
     return await handle_file_upload(file, "favicon_url", "branding", db)
 
 @router.delete("/favicon")
-async def delete_favicon(user = Depends(RequireRole(["SUPER_ADMIN", "ADMIN"])), db: AsyncSession = Depends(get_db)):
+async def delete_favicon(user = Depends(RequirePermission("settings.edit")), db: AsyncSession = Depends(get_db)):
     return await handle_file_delete("favicon_url", db)
-

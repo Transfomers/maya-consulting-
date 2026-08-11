@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete, and_, or_
 from sqlalchemy.orm import selectinload
 from app.core.database import get_db
-from app.core.security import get_current_user, RequireRole
+from app.core.security import get_current_user, RequirePermission
 from app.schemas.event import EventCreate, EventResponse
 from app.models.event import Event, EventTranslation
 from app.models.speaker import Speaker
@@ -23,7 +23,7 @@ async def list_events(
     end: Optional[datetime] = Query(None),
     status: Optional[str] = Query(None),
     category_id: Optional[str] = Query(None),
-    user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR", "AUTHOR"])), 
+    user = Depends(RequirePermission("events.view")), 
     db: AsyncSession = Depends(get_db)
 ):
     query = select(Event).options(
@@ -44,7 +44,7 @@ async def list_events(
     return result.scalars().unique().all()
 
 @router.get("/{id}", response_model=EventResponse)
-async def get_event(id: str, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR", "AUTHOR"])), db: AsyncSession = Depends(get_db)):
+async def get_event(id: str, user = Depends(RequirePermission("events.view")), db: AsyncSession = Depends(get_db)):
     query = select(Event).where(Event.id == id).options(
         selectinload(Event.translations),
         selectinload(Event.speakers)
@@ -84,7 +84,7 @@ async def _set_event_fields(event: Event, data: EventCreate, db: AsyncSession):
             event.speakers = []
 
 @router.post("/", response_model=EventResponse)
-async def create_event(event_data: EventCreate, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def create_event(event_data: EventCreate, user = Depends(RequirePermission("events.edit")), db: AsyncSession = Depends(get_db)):
     event = Event(author_id=user.id)
     await _set_event_fields(event, event_data, db)
     db.add(event)
@@ -115,7 +115,7 @@ async def create_event(event_data: EventCreate, user = Depends(RequireRole(["SUP
     return result.scalars().first()
 
 @router.put("/{id}", response_model=EventResponse)
-async def update_event(id: str, event_data: EventCreate, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def update_event(id: str, event_data: EventCreate, user = Depends(RequirePermission("events.edit")), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Event).where(Event.id == id).options(selectinload(Event.translations), selectinload(Event.speakers)))
     event = result.scalars().first()
     if not event:
@@ -151,7 +151,7 @@ async def update_event(id: str, event_data: EventCreate, user = Depends(RequireR
     return result.scalars().first()
 
 @router.delete("/{id}")
-async def delete_event(id: str, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def delete_event(id: str, user = Depends(RequirePermission("events.edit")), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Event).where(Event.id == id))
     event = result.scalars().first()
     if not event:
@@ -161,7 +161,7 @@ async def delete_event(id: str, user = Depends(RequireRole(["SUPER_ADMIN", "EDIT
     return {"ok": True}
 
 @router.patch("/{id}/move")
-async def move_event(id: str, data: MoveEventRequest, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def move_event(id: str, data: MoveEventRequest, user = Depends(RequirePermission("events.edit")), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Event).where(Event.id == id))
     event = result.scalars().first()
     if not event:
@@ -177,7 +177,7 @@ async def move_event(id: str, data: MoveEventRequest, user = Depends(RequireRole
     return result.scalars().first()
 
 @router.post("/{id}/duplicate")
-async def duplicate_event(id: str, user = Depends(RequireRole(["SUPER_ADMIN", "EDITOR"])), db: AsyncSession = Depends(get_db)):
+async def duplicate_event(id: str, user = Depends(RequirePermission("events.edit")), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Event).where(Event.id == id).options(selectinload(Event.translations), selectinload(Event.speakers)))
     original = result.scalars().first()
     if not original:

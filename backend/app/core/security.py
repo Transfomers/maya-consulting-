@@ -57,14 +57,29 @@ async def get_current_user(request: Request, db: AsyncSession = Depends(get_db))
     
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
+    if user.status != "Active":
+        raise HTTPException(status_code=403, detail="User account is deactivated or pending")
         
     return user
 
-class RequireRole:
-    def __init__(self, allowed_roles: list[str]):
-        self.allowed_roles = allowed_roles
+class RequirePermission:
+    def __init__(self, required_permission: str):
+        self.required_permission = required_permission
 
-    async def __call__(self, user = Depends(get_current_user)):
-        # As requested: "remove all forbidden pattern". 
-        # Any authenticated user has access.
+    async def __call__(self, user = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+        from app.models.role import Role
+        
+        # Load user role permissions
+        if not user.role_id:
+            raise HTTPException(status_code=403, detail="User has no assigned role")
+            
+        result = await db.execute(select(Role).where(Role.id == user.role_id))
+        role = result.scalars().first()
+        
+        if not role:
+            raise HTTPException(status_code=403, detail="Assigned role not found")
+            
+        if self.required_permission not in role.permissions:
+            raise HTTPException(status_code=403, detail="Permission denied")
+            
         return user

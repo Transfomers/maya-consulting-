@@ -14,6 +14,7 @@ import app.models.event
 import app.models.setting
 
 import app.models.speaker
+import app.models.role
 
 from logging.config import fileConfig
 
