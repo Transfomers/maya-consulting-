@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import AnimatedAvatars from "@/components/AnimatedAvatars";
 import CustomCursor from "@/components/CustomCursor";
+import ChatWidget from "@/components/ChatWidget";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Programs from "@/pages/Programs";
@@ -41,6 +42,14 @@ const ScrollToTop = () => {
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
+};
+
+// Mounted outside the routes so the conversation survives navigation, and kept
+// off the admin panel.
+const PublicChat = () => {
+  const { pathname } = useLocation();
+  if (pathname.startsWith("/admin")) return null;
+  return <ChatWidget />;
 };
 
 const MarketingLayout = ({ children }) => (
@@ -108,6 +117,7 @@ function App() {
           </Route>
 
         </Routes>
+        <PublicChat />
       </BrowserRouter>
     </div>
     </SettingsProvider>
