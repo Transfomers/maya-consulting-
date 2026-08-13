@@ -56,7 +56,6 @@
     "react": "19.0.0",
     "react-day-picker": "8.10.1",
     "react-big-calendar": "^1.17.1",
-    "react-big-calendar/lib/addons/dragAndDrop": "^1.17.1",
     "react-dom": "19.0.0",
     "react-fast-marquee": "^1.6.5",
     "react-helmet-async": "^3.0.0",
