@@ -13,8 +13,8 @@ load_dotenv(ROOT_DIR / '.env')
 
 async def seed_admin():
     async with AsyncSessionLocal() as db:
-        email = os.environ.get("ADMIN_EMAIL", "admin@example.com")
-        password = os.environ.get("ADMIN_PASSWORD", "admin123")
+        email = os.environ.get("ADMIN_EMAIL", "admin@capentrepreneurs.org")
+        password = os.environ.get("ADMIN_PASSWORD", "CAP-Admin-2026!")
         
         result = await db.execute(select(User).where(User.email == email))
         user = result.scalars().first()

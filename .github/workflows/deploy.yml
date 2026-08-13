@@ -76,6 +76,9 @@ jobs:
 
             docker compose up -d --build
 
+            echo "Running database seed..."
+            docker exec cap_backend python seed_admin.py || echo "Warning: Seed script failed, but continuing deployment"
+
             echo "Checking containers..."
 
             docker compose ps
