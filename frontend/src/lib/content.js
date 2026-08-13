@@ -10,46 +10,40 @@ export const IMAGES = {
 
 export const PROGRAMS = [
   {
-    id: "cap-executive",
+    id: "cap-green-lab",
     number: "01",
-    name: "CAP Executive",
-    theme: "Strengthening nonprofit leadership",
-    purpose:
-      "A learning experience that supports nonprofit organizations in improving governance, strategic planning, board engagement and partnership development.",
-    outcomes: [
-      "Stronger governance and board engagement",
-      "Improved organizational sustainability",
-      "Increased collaboration across the sector",
-    ],
-    image: IMAGES.board,
-  },
-  {
-    id: "marketplace-lab",
-    number: "02",
-    name: "Marketplace Lab",
-    theme: "Helping entrepreneurs transform ideas into market-ready businesses",
-    purpose:
-      "Marketplace Lab combines entrepreneurial education, digital commerce, rural innovation and international business exposure. Participants develop practical skills while preparing to access trade fairs, festivals and commercial opportunities through the CAP Entrepreneurs partner network.",
-    outcomes: [
-      "Practical, market-ready business skills",
-      "Access to trade fairs, festivals and commercial opportunities",
-      "International business experience supported through an exposure scholarship of up to CAD $8,000, subject to program eligibility and available funding",
-    ],
+    name: "CAP Green Lab",
+    theme: "Digital solutions for climate and environment.",
+    purpose: "Leveraging technology and digital innovation to address pressing climate and environmental challenges.",
+    outcomes: ["Sustainable digital infrastructure", "Climate-focused innovation", "Environmental impact"],
     image: IMAGES.workshop,
   },
   {
-    id: "cap-global-mobility",
-    number: "03",
-    name: "CAP Global Mobility",
-    theme: "Creating international opportunities",
-    purpose:
-      "This program develops partnerships allowing entrepreneurs, volunteers and nonprofit organizations to participate in international exchanges, volunteering initiatives and collaborative projects.",
-    outcomes: [
-      "International exchanges and volunteering initiatives",
-      "Intercultural learning and collaboration",
-      "Entrepreneurship beyond borders",
-    ],
+    id: "agriconnect",
+    number: "02",
+    name: "Agriconnect",
+    theme: "Tech for sustainable agriculture.",
+    purpose: "Modernizing agricultural practices by introducing smart technologies and digital tools to farmers.",
+    outcomes: ["Smart farming techniques", "Increased yield and sustainability", "Tech-empowered agriculture"],
     image: IMAGES.building,
+  },
+  {
+    id: "safe-vibe-africa",
+    number: "03",
+    name: "Safe Vibe Africa",
+    theme: "Cyber security for NGOs and civil society.",
+    purpose: "Equipping non-governmental organizations and civil society groups with the necessary digital security tools and knowledge.",
+    outcomes: ["Enhanced cyber resilience", "Data protection best practices", "Secure digital environments"],
+    image: IMAGES.board,
+  },
+  {
+    id: "creative-social",
+    number: "04",
+    name: "Creative & Social Entrepreneurship",
+    theme: "Tech for cultural impact.",
+    purpose: "Supporting creative minds in using digital platforms to amplify cultural expression and social entrepreneurship.",
+    outcomes: ["Digital cultural platforms", "Creative business models", "Socially impactful tech"],
+    image: IMAGES.collaboration,
   },
 ];
 
@@ -175,57 +169,48 @@ export const MEMBER_BENEFITS = [
 ];
 
 export const PARTNER_TYPES = [
-  { name: "Educational institutions", detail: "Co-design learning experiences and credential pathways." },
-  { name: "Municipalities", detail: "Build entrepreneurial capacity that strengthens local economies." },
-  { name: "Economic development agencies", detail: "Align programs with regional growth priorities." },
-  { name: "Nonprofit organizations", detail: "Collaborate on shared missions and community impact." },
-  { name: "Corporate sponsors", detail: "Invest in measurable opportunity creation." },
-  { name: "International organizations", detail: "Open exchanges, missions and markets beyond borders." },
-  { name: "Technology partners", detail: "Make entrepreneurial support accessible and scalable." },
+  { name: "Corporate Partners", detail: "Invest in measurable opportunity creation and drive shared value." },
+  { name: "Institutional Partners", detail: "Align programs with regional growth priorities and public impact goals." },
+  { name: "NGO & Social Enterprise Partners", detail: "Collaborate on shared missions and maximize community impact." },
+  { name: "Knowledge & Ecosystem Partners", detail: "Co-design learning experiences, credential pathways, and research." },
 ];
 
 export const PROGRAMS_FR = [
   {
-    id: "cap-executive",
+    id: "cap-green-lab",
     number: "01",
-    name: "CAP Executive",
-    theme: "Renforcer le leadership des organismes \u00e0 but non lucratif",
-    purpose:
-      "Une exp\u00e9rience d'apprentissage qui aide les organismes \u00e0 but non lucratif \u00e0 am\u00e9liorer leur gouvernance, leur planification strat\u00e9gique, l'engagement de leur conseil d'administration et le d\u00e9veloppement de partenariats.",
-    outcomes: [
-      "Gouvernance et engagement du conseil renforc\u00e9s",
-      "Viabilit\u00e9 organisationnelle am\u00e9lior\u00e9e",
-      "Collaboration accrue dans tout le secteur",
-    ],
-    image: IMAGES.board,
-  },
-  {
-    id: "marketplace-lab",
-    number: "02",
-    name: "Marketplace Lab",
-    theme: "Aider les entrepreneurs \u00e0 transformer leurs id\u00e9es en entreprises pr\u00eates pour le march\u00e9",
-    purpose:
-      "Marketplace Lab combine \u00e9ducation entrepreneuriale, commerce num\u00e9rique, innovation rurale et exposition aux affaires internationales. Les participants d\u00e9veloppent des comp\u00e9tences pratiques tout en se pr\u00e9parant \u00e0 acc\u00e9der \u00e0 des foires commerciales, des festivals et des occasions d'affaires gr\u00e2ce au r\u00e9seau de partenaires de CAP Entrepreneurs.",
-    outcomes: [
-      "Comp\u00e9tences pratiques pr\u00eates pour le march\u00e9",
-      "Acc\u00e8s \u00e0 des foires commerciales, festivals et occasions d'affaires",
-      "Exp\u00e9rience d'affaires internationale appuy\u00e9e par une bourse de rayonnement pouvant atteindre 8 000 $ CA, sous r\u00e9serve de l'admissibilit\u00e9 au programme et du financement disponible",
-    ],
+    name: "CAP Green Lab",
+    theme: "Solutions numériques pour le climat et l'environnement.",
+    purpose: "Tirer parti de la technologie et de l'innovation numérique pour relever les défis climatiques et environnementaux urgents.",
+    outcomes: ["Infrastructure numérique durable", "Innovation axée sur le climat", "Impact environnemental"],
     image: IMAGES.workshop,
   },
   {
-    id: "cap-global-mobility",
-    number: "03",
-    name: "CAP Global Mobility",
-    theme: "Cr\u00e9er des d\u00e9bouch\u00e9s internationaux",
-    purpose:
-      "Ce programme d\u00e9veloppe des partenariats permettant aux entrepreneurs, b\u00e9n\u00e9voles et organismes \u00e0 but non lucratif de participer \u00e0 des \u00e9changes internationaux, des initiatives de b\u00e9n\u00e9volat et des projets collaboratifs.",
-    outcomes: [
-      "\u00c9changes internationaux et initiatives de b\u00e9n\u00e9volat",
-      "Apprentissage interculturel et collaboration",
-      "L'entrepreneuriat au-del\u00e0 des fronti\u00e8res",
-    ],
+    id: "agriconnect",
+    number: "02",
+    name: "Agriconnect",
+    theme: "La technologie pour l'agriculture durable.",
+    purpose: "Moderniser les pratiques agricoles en introduisant des technologies intelligentes et des outils numériques aux agriculteurs.",
+    outcomes: ["Techniques agricoles intelligentes", "Augmentation des rendements et de la durabilité", "Agriculture renforcée par la technologie"],
     image: IMAGES.building,
+  },
+  {
+    id: "safe-vibe-africa",
+    number: "03",
+    name: "Safe Vibe Africa",
+    theme: "Cybersécurité pour les ONG et la société civile.",
+    purpose: "Outiller les organisations non gouvernementales et les groupes de la société civile avec les connaissances et les outils de sécurité numérique nécessaires.",
+    outcomes: ["Cyber-résilience renforcée", "Bonnes pratiques de protection des données", "Environnements numériques sécurisés"],
+    image: IMAGES.board,
+  },
+  {
+    id: "creative-social",
+    number: "04",
+    name: "Entrepreneuriat Créatif & Social",
+    theme: "La technologie pour l'impact culturel.",
+    purpose: "Soutenir les esprits créatifs dans l'utilisation des plateformes numériques pour amplifier l'expression culturelle et l'entrepreneuriat social.",
+    outcomes: ["Plateformes culturelles numériques", "Modèles économiques créatifs", "Technologie à impact social"],
+    image: IMAGES.collaboration,
   },
 ];
 
@@ -396,13 +381,10 @@ export const MEMBER_BENEFITS_FR = [
 ];
 
 export const PARTNER_TYPES_FR = [
-  { name: "\u00c9tablissements d'enseignement", detail: "Co-concevoir des exp\u00e9riences d'apprentissage et des parcours de certification." },
-  { name: "Municipalit\u00e9s", detail: "D\u00e9velopper la capacit\u00e9 entrepreneuriale qui renforce les \u00e9conomies locales." },
-  { name: "Agences de d\u00e9veloppement \u00e9conomique", detail: "Aligner les programmes sur les priorit\u00e9s de croissance r\u00e9gionales." },
-  { name: "Organismes \u00e0 but non lucratif", detail: "Collaborer \u00e0 des missions communes et \u00e0 l'impact communautaire." },
-  { name: "Commanditaires d'entreprise", detail: "Investir dans la cr\u00e9ation d'occasions mesurables." },
-  { name: "Organisations internationales", detail: "Ouvrir des \u00e9changes, des missions et des march\u00e9s au-del\u00e0 des fronti\u00e8res." },
-  { name: "Partenaires technologiques", detail: "Rendre le soutien entrepreneurial accessible et \u00e9volutif." },
+  { name: "Partenaires Corporatifs", detail: "Investissez dans la création d'opportunités mesurables et générez une valeur partagée." },
+  { name: "Partenaires Institutionnels", detail: "Alignez les programmes avec les priorités de croissance régionale et les objectifs d'impact public." },
+  { name: "ONG & Entreprises Sociales", detail: "Collaborez sur des missions communes et maximisez l'impact communautaire." },
+  { name: "Partenaires de Connaissances", detail: "Co-concevez des expériences d'apprentissage, des parcours de certification et de la recherche." },
 ];
 
 export const STORIES_AR = STORIES_FR;

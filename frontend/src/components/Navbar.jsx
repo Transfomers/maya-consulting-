@@ -11,22 +11,15 @@ const Navbar = () => {
   const { lang, setLang, t } = useLang();
   const settings = useSettings();
   
-  let dynamicLinks = [];
-  try {
-    if (settings?.navigation?.menu_json) {
-      dynamicLinks = JSON.parse(settings.navigation.menu_json);
-    }
-  } catch(e) {}
-  
-  const LINKS = dynamicLinks.length > 0 ? dynamicLinks.map(l => ({ to: l.url, label: l.label, new_tab: l.new_tab })) : [
+  // Disabled dynamic links to ensure new Information Architecture is always visible
+  const LINKS = [
     { to: "/", label: t.nav.home },
     { to: "/about", label: t.nav.about },
     { to: "/programs", label: t.nav.programs },
-    { to: "/impact-stories", label: t.nav.stories },
-    { to: "/membership", label: t.nav.membership },
+    { to: "/join", label: t.nav.join },
+    { to: "/volunteer", label: t.nav.volunteer },
     { to: "/partners", label: t.nav.partners },
-    { to: "/news-events", label: t.nav.news },
-    { to: "/blog", label: t.nav.blog },
+    { to: "/global-festival", label: t.nav.festival },
     { to: "/contact", label: t.nav.contact },
   ];
 

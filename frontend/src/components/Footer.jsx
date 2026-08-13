@@ -34,9 +34,7 @@ const Footer = () => {
             {[
               [t.nav.about, "/about"],
               [t.nav.programs, "/programs"],
-              [t.nav.stories, "/impact-stories"],
-              [t.nav.news, "/news-events"],
-              [t.nav.blog, "/blog"],
+              [t.nav.festival, "/global-festival"],
             ].map(([label, to]) => (
               <li key={to}>
                 <Link to={to} data-testid={`footer-link-${label.toLowerCase().replace(/[^a-z]+/g, "-")}`} className="text-bone/85 transition-colors hover:text-vivid">
@@ -50,9 +48,9 @@ const Footer = () => {
           <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.25em] text-bone/60">{t.footer.involved}</h4>
           <ul className="space-y-2.5 text-sm">
             {[
-              [t.nav.membership, "/membership"],
+              [t.nav.join, "/join"],
+              [t.nav.volunteer, "/volunteer"],
               [t.nav.partners, "/partners"],
-              [t.nav.donate, "/donate"],
               [t.nav.contact, "/contact"],
             ].map(([label, to]) => (
               <li key={to}>

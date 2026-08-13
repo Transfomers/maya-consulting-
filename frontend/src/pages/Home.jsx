@@ -29,9 +29,9 @@ const Home = () => {
 
   const AUDIENCES = [
     { label: t.home.audiences?.[0] || "Entrepreneurs", to: "/programs" },
-    { label: t.home.audiences?.[1] || "Nonprofit organizations", to: "/programs" },
-    { label: t.home.audiences?.[2] || "Funders & donors", to: "/donate" },
-    { label: t.home.audiences?.[3] || "Volunteers", to: "/membership" },
+    { label: t.home.audiences?.[1] || "Nonprofit organizations", to: "/partners" },
+    { label: t.home.audiences?.[2] || "Funders & donors", to: "/partners" },
+    { label: t.home.audiences?.[3] || "Volunteers", to: "/volunteer" },
     { label: t.home.audiences?.[4] || "Institutional partners", to: "/partners" },
   ];
 
@@ -86,26 +86,42 @@ const Home = () => {
               <RotatingTagline words={t.home.marquee.slice(0,3).map(w=>w.toUpperCase()+".")} className="font-serif text-3xl italic leading-none text-maple md:text-4xl" />
             </p>
           </Reveal>
-          <Reveal delay={0.75} className="mt-10 flex flex-wrap gap-4">
-            <Magnetic>
-              <Link
-                to="/programs"
-                data-testid="hero-cta-programs"
-                className="group flex w-full sm:w-[280px] justify-center items-center gap-2 bg-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-bone transition-colors hover:bg-maple"
-              >
-                {t.home.ctaPrograms}
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
-            </Magnetic>
-            <Magnetic>
-              <Link
-                to="/membership"
-                data-testid="hero-cta-membership"
-                className="flex w-full sm:w-[280px] justify-center items-center gap-2 border border-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-forest hover:text-bone"
-              >
-                {t.home.ctaMember}
-              </Link>
-            </Magnetic>
+          <Reveal delay={0.75} className="mt-10">
+            <h3 className="mb-4 font-heading text-xl font-bold text-forest">{t.home.ctaEngage}</h3>
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+              <Magnetic>
+                <Link
+                  to="/join"
+                  className="group flex w-full sm:w-auto justify-center items-center gap-2 bg-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-bone transition-colors hover:bg-maple"
+                >
+                  {t.home.ctaSkills}
+                </Link>
+              </Magnetic>
+              <Magnetic>
+                <Link
+                  to="/volunteer"
+                  className="flex w-full sm:w-auto justify-center items-center gap-2 border border-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-forest hover:text-bone"
+                >
+                  {t.home.ctaVolunteer}
+                </Link>
+              </Magnetic>
+              <Magnetic>
+                <Link
+                  to="/partners"
+                  className="flex w-full sm:w-auto justify-center items-center gap-2 border border-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-forest hover:text-bone"
+                >
+                  {t.home.ctaNgo}
+                </Link>
+              </Magnetic>
+              <Magnetic>
+                <Link
+                  to="/partners"
+                  className="flex w-full sm:w-auto justify-center items-center gap-2 border border-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-forest hover:text-bone"
+                >
+                  {t.home.ctaPartner}
+                </Link>
+              </Magnetic>
+            </div>
           </Reveal>
         </div>
       </div>
@@ -200,7 +216,7 @@ const Home = () => {
         <div className="mt-14 grid gap-8 lg:grid-cols-12">
           <Reveal className="lg:col-span-7">
             <TiltCard>
-              <Link to="/programs#marketplace-lab" data-testid="home-program-marketplace-lab" className="group block border border-forest/15 bg-white h-full">
+              <Link to={`/programs#${currentPrograms[1].id}`} data-testid={`home-program-${currentPrograms[1].id}`} className="group block border border-forest/15 bg-white h-full">
                 <ParallaxImage
                   src={currentPrograms[1].image}
                   alt={currentPrograms[1].name}
@@ -403,18 +419,18 @@ const Home = () => {
           </h2>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link
-              to="/membership"
+              to="/join"
               data-testid="cta-member-button"
               className="inline-flex items-center gap-2 bg-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-bone transition-colors hover:bg-maple"
             >
-              Become a Member <ArrowUpRight className="h-4 w-4" />
+              Join the Ecosystem <ArrowUpRight className="h-4 w-4" />
             </Link>
             <Link
-              to="/donate"
+              to="/partners"
               data-testid="cta-donate-button"
               className="inline-flex items-center gap-2 border border-forest px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-forest hover:text-bone"
             >
-              Support the Mission
+              Partner with Us
             </Link>
           </div>
         </Reveal>

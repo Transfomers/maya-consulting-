@@ -23,6 +23,9 @@ import Donate from "@/pages/Donate";
 import Contact from "@/pages/Contact";
 import Blog from "@/pages/Blog";
 import Events from "@/pages/Events";
+import Join from "@/pages/Join";
+import Volunteer from "@/pages/Volunteer";
+import GlobalFestival from "@/pages/GlobalFestival";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import BlogPost from "@/pages/BlogPost";
@@ -102,6 +105,9 @@ function App() {
           <Route path="/events" element={page(Events)} />
           <Route path="/donate" element={page(Donate)} />
           <Route path="/contact" element={page(Contact)} />
+          <Route path="/join" element={page(Join)} />
+          <Route path="/volunteer" element={page(Volunteer)} />
+          <Route path="/global-festival" element={page(GlobalFestival)} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/accept-invitation/:token" element={<AcceptInvitation />} />

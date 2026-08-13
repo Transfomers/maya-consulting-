@@ -5,6 +5,7 @@ const STR = {
     nav: {
       home: "Home", about: "About", programs: "Programs", stories: "Impact Stories",
       membership: "Membership", partners: "Partners", news: "News & Events", blog: "Blog", contact: "Contact", donate: "Donate",
+      join: "Join", volunteer: "Volunteer", festival: "Global Festival",
     },
     footer: {
       quote: "\u201cEntrepreneurship should create opportunity for everyone, regardless of where they live.\u201d",
@@ -105,12 +106,15 @@ const STR = {
     },
     home: {
       eyebrow: "A Canadian nonprofit movement",
-      h1a: "Together, we build",
-      h1pre: "", h1accent: "entrepreneurial", h1post: " ecosystems",
-      h1c: "where communities thrive.",
-      sub: "CAP Entrepreneurs designs, delivers and supports innovative programs that help entrepreneurs grow sustainable businesses, strengthen nonprofit organizations and create international opportunity.",
-      ctaPrograms: "Explore Programs",
-      ctaMember: "Become a Member",
+      h1a: "Building",
+      h1pre: "inclusive, ", h1accent: "accessible", h1post: " and sustainable",
+      h1c: "digital economies.",
+      sub: "We help people and social-impact organizations develop the digital skills, tools and partnerships they need to create sustainable opportunities.",
+      ctaEngage: "How would you like to engage?",
+      ctaSkills: "I want to develop my skills",
+      ctaVolunteer: "I want to volunteer",
+      ctaNgo: "I represent an NGO / social enterprise",
+      ctaPartner: "I want to become a partner",
       caption: "From rural roots to global reach",
       marquee: ["Create", "Support", "Propel", "Build", "Connect", "Grow"],
       manifestoTitle: "How we turn learning into lasting impact",
@@ -161,21 +165,41 @@ const STR = {
     about: {
       eyebrow: "About CAP Entrepreneurs",
       h1a: "Why we", h1accent: "exist",
-      intro: "CAP Entrepreneurs is a Canadian nonprofit organization that designs, delivers and supports innovative entrepreneurial programs. We are not a consulting firm \u2014 we are builders of ecosystems.",
-      storyTitleA: "An ecosystem,", storyTitleB: "not isolated projects",
-      storyP1: "CAP Entrepreneurs was founded on a simple observation: talent is everywhere, but opportunity is not. Entrepreneurs in rural and underserved communities \u2014 and the nonprofits that support them \u2014 too often work alone, without the networks, markets or learning experiences that turn effort into impact.",
-      storyP2: "So we build the connective tissue. Through education, collaboration, innovation and international partnerships, our programs help participants progress from learning to implementation to measurable impact \u2014 and keep growing long after a program ends.",
-      storyP3: "Every initiative we deliver answers one question: how can CAP Entrepreneurs help people create opportunities for themselves and their communities?",
-      storyCaption: "Built to connect \u2014 across Canada and beyond",
-      marquee: ["Mission", "Vision", "Promise", "Ecosystem", "Community", "Beyond Borders"],
-      pillars: [
-        { title: "Our Mission", text: "To empower entrepreneurs and nonprofit organizations by developing innovative programs that strengthen local economies, encourage collaboration and expand international opportunities." },
-        { title: "Our Vision", text: "To become a leading entrepreneurial ecosystem connecting communities, organizations and innovators across Canada and internationally." },
-        { title: "Our Promise", text: "We believe entrepreneurship should create opportunity for everyone, regardless of where they live. We develop practical programs that help entrepreneurs grow their businesses, access new markets and become active contributors to stronger communities." },
+      intro: "CAP Entrepreneurs is a Quebec-based non-profit organization dedicated to inclusive and sustainable digital transition.",
+      
+      whoTitleA: "Who we", whoTitleB: "are",
+      whoText: "CAP Entrepreneurs is a Quebec-based non-profit organization dedicated to inclusive and sustainable digital transition.",
+      
+      missionTitleA: "Our", missionTitleB: "Mission",
+      missionText: "Connect people, skills, technology and opportunities.",
+      
+      howTitleA: "How we", howTitleB: "work",
+      howSteps: [
+        { title: "Committees", text: "Governance and strategy" },
+        { title: "Programs", text: "Education and development" },
+        { title: "Volunteers", text: "Community driven action" },
+        { title: "Partners", text: "Shared value creation" },
+        { title: "Impact", text: "Measurable community growth" }
       ],
-      futureTitle: "Our digital future",
-      futureQuote: "\u201cAs CAP Entrepreneurs expands, digital solutions will support the delivery of our programs through online learning, member engagement and partnership collaboration.\u201d",
-      futureText: "Technology will enhance our mission by making entrepreneurial support more accessible, measurable and scalable \u2014 while preserving the human connections that drive community impact.",
+      
+      ecoTitleA: "Our Digital", ecoTitleB: "Ecosystem",
+      ecoIntro: "Charlee is the digital infrastructure supporting this ecosystem.",
+      ecoSteps: [
+        { title: "Join", text: "Find your place", icon: "👋" },
+        { title: "Train", text: "Develop skills", icon: "📚" },
+        { title: "Practice", text: "Apply knowledge", icon: "🛠️" },
+        { title: "Validate", text: "Confirm expertise", icon: "✅" },
+        { title: "Lead", text: "Guide others", icon: "🎯" },
+        { title: "Opportunities", text: "Access the network", icon: "🌍" }
+      ],
+      
+      visionTitle: "Our Vision",
+      visionQuote: "\u201cConnecting communities, organizations and innovators across the globe.\u201d",
+      visionSteps: [
+        { title: "Nairobi 2027", text: "Global gathering for inclusive tech" },
+        { title: "Martinique 2028", text: "Expanding the network" },
+        { title: "International Ecosystem", text: "A borderless community" }
+      ]
     },
     programs: {
       eyebrow: "Our Programs",
@@ -190,6 +214,21 @@ const STR = {
       goalsPh: "What would you like to achieve through this program?",
       submit: "Submit Application",
       success: "Application received \u2014 our team will be in touch soon.",
+    },
+    volunteer: {
+      eyebrow: "Volunteer with Us",
+      h1a: "Make an", h1accent: "impact",
+      intro: "Join our network of professionals dedicating their time and expertise to support entrepreneurs and nonprofits.",
+      journeyTitle: "The Volunteer Journey",
+      journeySteps: [
+        { title: "Apply", text: "Submit your interest via our orientation form" },
+        { title: "Interview", text: "Meet our team to discuss your goals" },
+        { title: "Training", text: "Get onboarded to our tools and methods" },
+        { title: "Match", text: "Connect with a project or organization" },
+        { title: "Impact", text: "Create measurable change in the community" }
+      ],
+      ctaTitle: "Ready to get started?",
+      ctaButton: "Find Your Pathway"
     },
     stories: {
       eyebrow: "Impact Stories",
@@ -226,12 +265,27 @@ const STR = {
       volSubmit: "Volunteer With Us",
       volSuccess: "Thank you for raising your hand \u2014 we'll be in touch.",
     },
+    festival: {
+      eyebrow: "Global Festival",
+      h1a: "International ", h1pre: "", h1accent: "Innovation", h1post: " Festival",
+      intro: "An annual convergence of entrepreneurs, innovators, and changemakers from across the globe, celebrating culture, technology, and social impact.",
+      aboutTitle: "About the Festival",
+      aboutCopy: "The International Innovation Festival is CAP Entrepreneurs' flagship event. It serves as a dynamic platform where our community gathers to showcase projects, pitch ideas to global investors, and build cross-border partnerships. It's more than a conference; it's a celebration of entrepreneurial spirit.",
+      destinationTitle: "2027 Destination",
+      destinationCity: "Nairobi, Kenya",
+      destinationCopy: "We are thrilled to announce that the inaugural festival will take place in Nairobi. Known as the Silicon Savannah, Nairobi's vibrant tech ecosystem and rich cultural heritage make it the perfect backdrop for our global gathering.",
+      ctaTitle: "Join the Waitlist",
+      ctaButton: "Register Interest"
+    },
     partners: {
       eyebrow: "Partners",
       h1a: "Shared value,", h1pre: "", h1accent: "measurable", h1post: " impact",
       intro: "Partnerships are essential to achieving our mission. Every partnership we build demonstrates shared value and measurable community impact.",
       typesTitle: "Who we partner with",
       marquee: ["Co-Design", "Co-Deliver", "Co-Invest", "Grow Together"],
+      ctaTitle: "Become a Founding Partner",
+      ctaCopy: "Join the vanguard of organizations building the CAP ecosystem. Founding partners receive exclusive engagement opportunities and co-design rights for our upcoming programs.",
+      ctaButton: "Contact Us",
       formEyebrow: "Become a Partner",
       formTitle: "Let's build something together",
       formCopy: "From program co-design to international missions, we build partnerships around shared goals and measurable outcomes. Start the conversation below.",
@@ -281,10 +335,15 @@ const STR = {
       ],
       formTitle: "Send us a message",
       topicLabel: "Topic", topicPh: "Select a topic",
-      topicOptions: ["Programs", "Membership", "Partnerships", "Donations", "Volunteering", "Media", "Other"],
+      topicOptions: ["Programs", "Membership", "Donations", "Volunteering", "Other"],
       messageLabel: "Message", messagePh: "How can we help?",
       submit: "Send Message",
       success: "Message sent \u2014 we'll get back to you shortly.",
+      pressTitle: "Media & Press Inquiries",
+      pressCopy: "For press inquiries, interview requests, or media assets, please contact our communications team.",
+      pressEmail: "media@capentrepreneurs.ca",
+      partnerFormTitle: "Partnership Inquiries",
+      partnerFormCopy: "Interested in becoming a partner? Use this form to connect with our partnerships team.",
     },
     blog: {
       eyebrow: "Blog",
@@ -312,6 +371,7 @@ const STR = {
     nav: {
       home: "Accueil", about: "\u00c0 propos", programs: "Nos programmes", stories: "Notre impact",
       membership: "Adh\u00e9sion", partners: "Partenaires", news: "Actualit\u00e9s", blog: "Ressources", contact: "Contact", donate: "Donner",
+      join: "Rejoindre", volunteer: "Bénévolat", festival: "Festival Mondial",
     },
     footer: {
       quote: "\u00ab L'entrepreneuriat devrait cr\u00e9er des opportunités pour tous, peu importe o\u00f9 l'on vit. \u00bb",
@@ -412,12 +472,15 @@ const STR = {
     },
     home: {
       eyebrow: "Un mouvement canadien \u00e0 but non lucratif",
-      h1a: "Ensemble, nous b\u00e2tissons",
-      h1pre: "des \u00e9cosyst\u00e8mes ", h1accent: "entrepreneuriaux", h1post: "",
-      h1c: "o\u00f9 les communaut\u00e9s prosp\u00e8rent.",
-      sub: "CAP Entrepreneurs con\u00e7oit, offre et soutient des programmes novateurs qui aident les entrepreneurs \u00e0 b\u00e2tir des entreprises durables, \u00e0 renforcer les organismes \u00e0 but non lucratif et \u00e0 cr\u00e9er des d\u00e9bouch\u00e9s internationaux.",
-      ctaPrograms: "D\u00e9couvrir nos programmes",
-      ctaMember: "Devenir membre",
+      h1a: "Bâtir des économies",
+      h1pre: "numériques ", h1accent: "inclusives", h1post: ", accessibles et durables.",
+      h1c: "",
+      sub: "Nous aidons les personnes et les organisations à impact social à développer les compétences numériques, les outils et les partenariats dont ils ont besoin pour créer des opportunités durables.",
+      ctaEngage: "Comment souhaitez-vous vous impliquer ?",
+      ctaSkills: "Je veux développer mes compétences",
+      ctaVolunteer: "Je veux faire du bénévolat",
+      ctaNgo: "Je représente une ONG / entreprise sociale",
+      ctaPartner: "Je veux devenir partenaire",
       caption: "De nos racines rurales au rayonnement mondial",
       marquee: ["Cr\u00e9er", "Accompagner", "Propulser", "B\u00e2tir", "Connecter", "Grandir"],
       manifestoTitle: "Comment nous transformons l'apprentissage en impact durable",
@@ -468,35 +531,70 @@ const STR = {
     about: {
       eyebrow: "\u00c0 propos de CAP Entrepreneurs",
       h1a: "Pourquoi nous", h1accent: "existons",
-      intro: "CAP Entrepreneurs est un organisme canadien \u00e0 but non lucratif qui con\u00e7oit, offre et soutient des programmes entrepreneuriaux novateurs. Nous ne sommes pas une firme de consultants \u2014 nous b\u00e2tissons des \u00e9cosyst\u00e8mes.",
-      storyTitleA: "Un \u00e9cosyst\u00e8me,", storyTitleB: "pas des projets isol\u00e9s",
-      storyP1: "CAP Entrepreneurs est n\u00e9 d'un constat simple : le talent est partout, mais les occasions ne le sont pas. Les entrepreneurs des communaut\u00e9s rurales et mal desservies \u2014 et les organismes qui les soutiennent \u2014 travaillent trop souvent seuls, sans les r\u00e9seaux, les march\u00e9s ni les exp\u00e9riences d'apprentissage qui transforment les efforts en impact.",
-      storyP2: "Nous b\u00e2tissons donc les liens qui manquent. Gr\u00e2ce \u00e0 l'\u00e9ducation, la collaboration, l'innovation et les partenariats internationaux, nos programmes font progresser les participants de l'apprentissage \u00e0 la mise en \u0153uvre, puis \u00e0 un impact mesurable \u2014 et continuent de grandir bien apr\u00e8s la fin du programme.",
-      storyP3: "Chaque initiative que nous offrons r\u00e9pond \u00e0 une question : comment CAP Entrepreneurs peut-il aider les gens \u00e0 cr\u00e9er des opportunités pour eux-m\u00eames et leurs communaut\u00e9s ?",
-      storyCaption: "B\u00e2ti pour connecter \u2014 partout au Canada et au-del\u00e0",
-      marquee: ["Mission", "Vision", "Promesse", "\u00c9cosyst\u00e8me", "Communaut\u00e9", "Sans fronti\u00e8res"],
-      pillars: [
-        { title: "Notre mission", text: "Donner aux entrepreneurs et aux organismes \u00e0 but non lucratif les moyens d'agir en d\u00e9veloppant des programmes novateurs qui renforcent les \u00e9conomies locales, encouragent la collaboration et \u00e9largissent les d\u00e9bouch\u00e9s internationaux." },
-        { title: "Notre vision", text: "Devenir un \u00e9cosyst\u00e8me entrepreneurial de premier plan reliant communaut\u00e9s, organismes et innovateurs partout au Canada et \u00e0 l'international." },
-        { title: "Notre promesse", text: "Nous croyons que l'entrepreneuriat devrait cr\u00e9er des opportunités pour tous, peu importe o\u00f9 l'on vit. Nous d\u00e9veloppons des programmes pratiques qui aident les entrepreneurs \u00e0 faire cro\u00eetre leur entreprise, \u00e0 acc\u00e9der \u00e0 de nouveaux march\u00e9s et \u00e0 contribuer activement \u00e0 des communaut\u00e9s plus fortes." },
+      intro: "CAP Entrepreneurs est un organisme à but non lucratif québécois dédié à une transition numérique inclusive et durable.",
+      
+      whoTitleA: "Qui nous", whoTitleB: "sommes",
+      whoText: "CAP Entrepreneurs est un organisme à but non lucratif québécois dédié à une transition numérique inclusive et durable.",
+      
+      missionTitleA: "Notre", missionTitleB: "mission",
+      missionText: "Connecter les personnes, les compétences, la technologie et les opportunités.",
+      
+      howTitleA: "Comment nous", howTitleB: "travaillons",
+      howSteps: [
+        { title: "Comités", text: "Gouvernance et stratégie" },
+        { title: "Programmes", text: "Éducation et développement" },
+        { title: "Bénévoles", text: "Action communautaire" },
+        { title: "Partenaires", text: "Création de valeur partagée" },
+        { title: "Impact", text: "Croissance communautaire mesurable" }
       ],
-      futureTitle: "Notre avenir num\u00e9rique",
-      futureQuote: "\u00ab \u00c0 mesure que CAP Entrepreneurs prend de l'expansion, des solutions num\u00e9riques soutiendront la prestation de nos programmes gr\u00e2ce \u00e0 l'apprentissage en ligne, \u00e0 l'engagement des membres et \u00e0 la collaboration avec les partenaires. \u00bb",
-      futureText: "La technologie rehaussera notre mission en rendant le soutien entrepreneurial plus accessible, mesurable et \u00e9volutif \u2014 tout en pr\u00e9servant les liens humains qui g\u00e9n\u00e8rent l'impact communautaire.",
+      
+      ecoTitleA: "Notre écosystème", ecoTitleB: "numérique",
+      ecoIntro: "Charlee est l'infrastructure numérique qui soutient cet écosystème.",
+      ecoSteps: [
+        { title: "Rejoindre", text: "Trouver sa place", icon: "👋" },
+        { title: "Former", text: "Développer ses compétences", icon: "📚" },
+        { title: "Pratiquer", text: "Appliquer ses connaissances", icon: "🛠️" },
+        { title: "Valider", text: "Confirmer son expertise", icon: "✅" },
+        { title: "Mener", text: "Guider les autres", icon: "🎯" },
+        { title: "Opportunités", text: "Accéder au réseau", icon: "🌍" }
+      ],
+      
+      visionTitle: "Notre vision",
+      visionQuote: "\u201cConnecter les communautés, les organisations et les innovateurs à travers le monde.\u201d",
+      visionSteps: [
+        { title: "Nairobi 2027", text: "Rassemblement mondial pour la technologie inclusive" },
+        { title: "Martinique 2028", text: "Expansion du réseau" },
+        { title: "Écosystème International", text: "Une communauté sans frontières" }
+      ]
     },
     programs: {
       eyebrow: "Nos programmes",
-      h1a: "De l'apprentissage", h1pre: "\u00e0 l'impact ", h1accent: "mesurable", h1post: "",
-      intro: "Les programmes sont au c\u0153ur de CAP Entrepreneurs. Chaque programme fait passer les participants de l'apprentissage \u00e0 la mise en \u0153uvre, puis \u00e0 un impact mesurable.",
+      h1a: "De l'apprentissage \u00e0 un impact", h1pre: "", h1accent: "mesurable", h1post: "",
+      intro: "Les programmes sont au c\u0153ur de CAP Entrepreneurs. Chaque programme fait progresser les participants de l'apprentissage \u00e0 la mise en \u0153uvre, puis \u00e0 un impact mesurable.",
       applyCta: "Postuler \u00e0 ce programme",
-      formEyebrow: "Demande de programme",
+      formEyebrow: "Candidature au programme",
       formTitle: "Commencez votre parcours",
-      formCopy: "Parlez-nous de vous, de votre organisation et du programme qui vous int\u00e9resse. Notre \u00e9quipe examine chaque candidature et communiquera avec vous pour la suite.",
-      programLabel: "Programme", programPh: "Choisissez un programme",
+      formCopy: "Parlez-nous de vous, de votre organisme et du programme qui vous int\u00e9resse. Notre \u00e9quipe examine chaque candidature et vous contactera pour les prochaines \u00e9tapes.",
+      programLabel: "Programme", programPh: "S\u00e9lectionner un programme",
       goalsLabel: "Parlez-nous de vos objectifs",
       goalsPh: "Que souhaitez-vous accomplir gr\u00e2ce \u00e0 ce programme ?",
-      submit: "Soumettre ma candidature",
-      success: "Candidature re\u00e7ue \u2014 notre \u00e9quipe communiquera avec vous bient\u00f4t.",
+      submit: "Soumettre la candidature",
+      success: "Candidature re\u00e7ue \u2014 notre \u00e9quipe communiquera avec vous sous peu.",
+    },
+    volunteer: {
+      eyebrow: "Devenez Bénévole",
+      h1a: "Créez de", h1accent: "l'impact",
+      intro: "Rejoignez notre réseau de professionnels dédiant leur temps et leur expertise pour soutenir les entrepreneurs et les ONG.",
+      journeyTitle: "Le parcours du bénévole",
+      journeySteps: [
+        { title: "Postuler", text: "Soumettez votre intérêt via notre formulaire d'orientation" },
+        { title: "Entrevue", text: "Rencontrez notre équipe pour discuter de vos objectifs" },
+        { title: "Formation", text: "Familiarisez-vous avec nos outils et méthodes" },
+        { title: "Jumelage", text: "Connectez-vous à un projet ou une organisation" },
+        { title: "Impact", text: "Créez un changement mesurable dans la communauté" }
+      ],
+      ctaTitle: "Prêt à commencer ?",
+      ctaButton: "Trouvez votre parcours"
     },
     stories: {
       eyebrow: "Histoires d'impact",
@@ -533,12 +631,27 @@ const STR = {
       volSubmit: "Devenir b\u00e9n\u00e9vole",
       volSuccess: "Merci d'avoir lev\u00e9 la main \u2014 nous communiquerons avec vous.",
     },
+    festival: {
+      eyebrow: "Festival Mondial",
+      h1a: "Festival International de l'", h1pre: "", h1accent: "Innovation", h1post: "",
+      intro: "Une convergence annuelle d'entrepreneurs, d'innovateurs et d'acteurs du changement du monde entier, célébrant la culture, la technologie et l'impact social.",
+      aboutTitle: "À propos du festival",
+      aboutCopy: "Le Festival International de l'Innovation est l'événement phare de CAP Entrepreneurs. Il sert de plateforme dynamique où notre communauté se réunit pour présenter des projets, présenter des idées à des investisseurs mondiaux et nouer des partenariats transfrontaliers. C'est plus qu'une conférence; c'est une célébration de l'esprit d'entreprise.",
+      destinationTitle: "Destination 2027",
+      destinationCity: "Nairobi, Kenya",
+      destinationCopy: "Nous sommes ravis d'annoncer que le festival inaugural aura lieu à Nairobi. Surnommée la « Silicon Savannah », l'écosystème technologique dynamique de Nairobi et son riche patrimoine culturel en font la toile de fond idéale pour notre rassemblement mondial.",
+      ctaTitle: "Rejoindre la liste d'attente",
+      ctaButton: "Manifester mon intérêt"
+    },
     partners: {
       eyebrow: "Partenaires",
       h1a: "Valeur partag\u00e9e,", h1pre: "impact ", h1accent: "mesurable", h1post: "",
       intro: "Les partenariats sont essentiels \u00e0 notre mission. Chaque partenariat que nous b\u00e2tissons d\u00e9montre une valeur partag\u00e9e et un impact communautaire mesurable.",
       typesTitle: "Nos partenaires",
       marquee: ["Concevoir ensemble", "Livrer ensemble", "Investir ensemble", "Grandir ensemble"],
+      ctaTitle: "Devenir un partenaire fondateur",
+      ctaCopy: "Rejoignez l'avant-garde des organisations qui construisent l'écosystème CAP. Les partenaires fondateurs bénéficient d'opportunités d'engagement exclusives et de droits de co-conception pour nos futurs programmes.",
+      ctaButton: "Nous contacter",
       formEyebrow: "Devenir partenaire",
       formTitle: "B\u00e2tissons quelque chose ensemble",
       formCopy: "De la co-conception de programmes aux missions internationales, nous b\u00e2tissons des partenariats autour d'objectifs communs et de r\u00e9sultats mesurables. Lancez la conversation ci-dessous.",
@@ -579,19 +692,24 @@ const STR = {
     },
     contact: {
       eyebrow: "Contact",
-      h1a: "Entamons la", h1accent: "conversation",
-      intro: "Des questions sur les programmes, l'adh\u00e9sion, les partenariats ou les dons ? Nous serions ravis de vous entendre.",
+      h1a: "Lancer la", h1pre: " ", h1accent: "conversation", h1post: "",
+      intro: "Des questions sur les programmes, l'adhésion, les partenariats ou les dons ? Nous serions ravis de vous entendre.",
       info: [
         { label: "Courriel", value: "info@capentrepreneurs.ca" },
-        { label: "Bas\u00e9s", value: "Canada \u2014 au service des communaut\u00e9s partout au pays et \u00e0 l'international" },
-        { label: "Vous cherchez", value: "Programmes, adh\u00e9sion, partenariats, b\u00e9n\u00e9volat ou dons" },
+        { label: "Basé au", value: "Canada — au service des communautés à l'échelle nationale et internationale" },
+        { label: "Recherche", value: "Programmes, adhésion, partenariats, bénévolat ou dons" },
       ],
       formTitle: "Envoyez-nous un message",
-      topicLabel: "Sujet", topicPh: "Choisissez un sujet",
-      topicOptions: ["Programmes", "Adh\u00e9sion", "Partenariats", "Dons", "B\u00e9n\u00e9volat", "M\u00e9dias", "Autre"],
-      messageLabel: "Message", messagePh: "Comment pouvons-nous vous aider ?",
+      topicLabel: "Sujet", topicPh: "Sélectionnez un sujet",
+      topicOptions: ["Programmes", "Adhésion", "Dons", "Bénévolat", "Autre"],
+      messageLabel: "Message", messagePh: "Comment pouvons-nous aider ?",
       submit: "Envoyer le message",
-      success: "Message envoy\u00e9 \u2014 nous vous r\u00e9pondrons sous peu.",
+      success: "Message envoyé — nous vous répondrons sous peu.",
+      pressTitle: "Demandes des médias et de la presse",
+      pressCopy: "Pour toute demande de presse, de médias ou d'entrevue, veuillez contacter notre équipe des communications.",
+      pressEmail: "media@capentrepreneurs.ca",
+      partnerFormTitle: "Demandes de partenariat",
+      partnerFormCopy: "Vous souhaitez devenir partenaire ? Utilisez ce formulaire pour contacter notre équipe des partenariats.",
     },
     blog: {
       eyebrow: "Blogue",
@@ -619,6 +737,7 @@ const STR = {
     nav: {
       home: "الرئيسية", about: "حول", programs: "البرامج", stories: "قصص التأثير",
       membership: "العضوية", partners: "الشركاء", news: "الأخبار والأحداث", blog: "المدونة", contact: "اتصل بنا", donate: "تبرع",
+      join: "انضم", volunteer: "تطوع", festival: "مهرجان عالمي",
     },
     footer: {
       quote: "«يجب أن يخلق ريادة الأعمال فرصاً للجميع، بغض النظر عن مكان عيشهم.»",

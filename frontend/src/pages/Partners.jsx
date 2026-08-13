@@ -3,6 +3,7 @@ import FormShell from "@/components/FormShell";
 import { Reveal, EditorialMarquee } from "@/components/motion";
 import { PARTNER_TYPES, PARTNER_TYPES_FR, PARTNER_TYPES_AR } from "@/lib/content";
 import { useLang } from "@/lib/i18n";
+import { ArrowUpRight } from "lucide-react";
 
 const Partners = () => {
   const { lang, t } = useLang();
@@ -40,6 +41,28 @@ const Partners = () => {
             </div>
           </Reveal>
         ))}
+      </div>
+    </section>
+
+    <section className="border-t border-forest/15 bg-forest py-24 md:py-32" data-testid="founding-partner-cta">
+      <div className="mx-auto max-w-4xl px-5 text-center md:px-10">
+        <Reveal>
+          <h2 className="mb-6 font-heading text-4xl font-black text-bone md:text-5xl lg:text-6xl">
+            {t.partners.ctaTitle}
+          </h2>
+          <p className="mb-10 text-base leading-relaxed text-sage md:text-lg">
+            {t.partners.ctaCopy}
+          </p>
+          <button
+            onClick={() => {
+              document.getElementById("partner-form-section")?.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="group inline-flex items-center gap-2 bg-bone px-8 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-maple hover:text-bone"
+          >
+            {t.partners.ctaButton}
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </button>
+        </Reveal>
       </div>
     </section>
 
