@@ -76,6 +76,9 @@ jobs:
 
             docker compose up -d --build
 
+            echo "Running database migrations..."
+            docker exec cap_backend alembic upgrade head || echo "Warning: Migrations failed"
+
             echo "Running database seed..."
             docker exec cap_backend python seed_admin.py || echo "Warning: Seed script failed, but continuing deployment"
 
