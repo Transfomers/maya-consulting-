@@ -68,7 +68,7 @@ async def get_post(id: str, user = Depends(RequirePermission("articles.view")), 
 @router.post("/", response_model=PostResponse)
 async def create_post(post_data: PostCreate, user = Depends(RequirePermission("articles.view")), db: AsyncSession = Depends(get_db)):
     status = post_data.status
-    if user.role == "AUTHOR" and status in ["published", "scheduled"]:
+    if user.role and user.role.name == "AUTHOR" and status in ["published", "scheduled"]:
         status = "review"
 
     slug = await generate_unique_slug(post_data.slug, db)
@@ -129,11 +129,11 @@ async def update_post(id: str, post_data: PostCreate, user = Depends(RequirePerm
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
         
-    if user.role == "AUTHOR" and post.author_id != user.id:
+    if user.role and user.role.name == "AUTHOR" and post.author_id != user.id:
         raise HTTPException(status_code=403, detail="Not authorized to edit this post")
 
     status = post_data.status
-    if user.role == "AUTHOR" and status in ["published", "scheduled"]:
+    if user.role and user.role.name == "AUTHOR" and status in ["published", "scheduled"]:
         status = "review"
 
     slug = await generate_unique_slug(post_data.slug, db, exclude_id=id)

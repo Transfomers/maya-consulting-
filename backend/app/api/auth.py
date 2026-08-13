@@ -20,14 +20,15 @@ async def login(input: LoginInput, request: Request, response: Response, db: Asy
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     # Create tokens
-    access_token = create_access_token(user_id=user.id, email=user.email, role=user.role)
+    role_name = user.role.name if user.role else "SUPER_ADMIN"
+    access_token = create_access_token(user_id=user.id, email=user.email, role=role_name)
     refresh_token = create_refresh_token(user_id=user.id)
     
     is_prod = "https" in getattr(settings, "FRONTEND_URL", "")
     response.set_cookie(key="access_token", value=access_token, httponly=True, secure=is_prod, samesite="lax", max_age=3600, path="/")
     response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=is_prod, samesite="lax", max_age=604800, path="/")
     
-    return {"id": str(user.id), "email": email, "name": user.name, "role": user.role}
+    return {"id": str(user.id), "email": email, "name": user.name, "role": role_name}
 
 @router.post("/logout")
 async def logout(response: Response):
@@ -37,4 +38,4 @@ async def logout(response: Response):
 
 @router.get("/me")
 async def me(user = Depends(get_current_user)):
-    return {"id": str(user.id), "email": user.email, "name": user.name, "role": user.role}
+    return {"id": str(user.id), "email": user.email, "name": user.name, "role": user.role.name if user.role else "SUPER_ADMIN"}

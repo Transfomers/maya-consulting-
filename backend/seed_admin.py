@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.core.database import AsyncSessionLocal
 from app.models.user import User
+import app.models.role # Ensure Role is in registry
 import os
 from dotenv import load_dotenv
 from pathlib import Path
@@ -20,12 +21,22 @@ async def seed_admin():
         user = result.scalars().first()
         
         if not user:
+            from app.models.role import Role
+            role_result = await db.execute(select(Role).where(Role.name == "SUPER_ADMIN"))
+            role = role_result.scalars().first()
+            
+            if not role:
+                role = Role(name="SUPER_ADMIN", description="Super Administrator", permissions=["*"])
+                db.add(role)
+                await db.commit()
+                await db.refresh(role)
+
             password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
             admin_user = User(
                 email=email,
                 password_hash=password_hash,
                 name="Super Admin",
-                role="SUPER_ADMIN"
+                role_id=role.id
             )
             db.add(admin_user)
             await db.commit()
