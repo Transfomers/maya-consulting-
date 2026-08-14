@@ -20,6 +20,7 @@ const Navbar = () => {
     { to: "/volunteer", label: t.nav.volunteer },
     { to: "/partners", label: t.nav.partners },
     { to: "/global-festival", label: t.nav.festival },
+    { to: "/blog", label: t.nav.blog },
     { to: "/contact", label: t.nav.contact },
   ];
 
