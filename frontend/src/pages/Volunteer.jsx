@@ -4,6 +4,7 @@ import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/motion";
 import PageHero from "@/components/PageHero";
 import TiltCard from "@/components/TiltCard";
+import FormShell from "@/components/FormShell";
 import { useLang } from "@/lib/i18n";
 
 const Volunteer = () => {
@@ -60,6 +61,39 @@ const Volunteer = () => {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="border-t border-forest/15 bg-white py-24 md:py-32">
+        <div className="mx-auto max-w-4xl px-5 md:px-10">
+          <Reveal>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-maple">Volunteer</p>
+            <h2 className="mb-10 font-heading text-3xl font-black text-forest md:text-4xl">Tell us how you can help</h2>
+          </Reveal>
+          <FormShell
+            type="volunteer"
+            testId="volunteer-page-form"
+            submitLabel={t.volunteer.ctaButton}
+            successMessage={t.membership.volSuccess}
+            fields={[
+              { name: "name", label: t.form.name, placeholder: t.form.namePh, required: true },
+              { name: "email", label: t.form.email, kind: "email", placeholder: t.form.emailPh, required: true },
+              {
+                name: "area",
+                label: t.membership.areaLabel,
+                kind: "select",
+                placeholder: t.membership.joinPh,
+                options: t.membership.areaOptions,
+              },
+              { name: "availability", label: t.membership.availLabel, placeholder: t.membership.availPh },
+              {
+                name: "message",
+                label: t.membership.skillsLabel,
+                kind: "textarea",
+                placeholder: t.membership.skillsPh,
+              },
+            ]}
+          />
         </div>
       </section>
 

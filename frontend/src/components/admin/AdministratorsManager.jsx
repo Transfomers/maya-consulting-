@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Loader2, Plus, MoreHorizontal, Edit, Trash2, Key, Shield, ShieldOff, CheckCircle2 } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, Key, Shield, ShieldOff, CheckCircle2, Copy, Mail } from 'lucide-react';
 import api from '@/lib/api';
 
 export default function AdministratorsManager() {
@@ -16,6 +16,7 @@ export default function AdministratorsManager() {
   
   const [formData, setFormData] = useState({ first_name: '', last_name: '', email: '', phone: '', role_id: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [shareLink, setShareLink] = useState(null);
 
   // Filters
   const [roleFilter, setRoleFilter] = useState('All');
@@ -49,19 +50,52 @@ export default function AdministratorsManager() {
     return true;
   });
 
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Link copied.");
+    } catch {
+      toast.error("Could not copy the link.");
+    }
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await api.post('/admin/users', formData);
-      toast.success("Administrator created and invitation sent.");
+      const res = await api.post('/admin/users', formData);
+      toast.success("Administrator created. Copy the invitation link — no email is sent.");
       setShowAddModal(false);
       setFormData({ first_name: '', last_name: '', email: '', phone: '', role_id: '' });
+      if (res.data?.invite_link) {
+        setShareLink({ title: "Invitation link", email: res.data.email, link: res.data.invite_link });
+      }
       fetchData();
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to create administrator");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleResend = async (user) => {
+    try {
+      const res = await api.post(`/admin/users/${user.id}/resend-invitation`);
+      toast.success("A new invitation link is ready.");
+      setShareLink({ title: "Invitation link", email: user.email, link: res.data.invite_link });
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to create a new invitation");
+    }
+  };
+
+  const handleReset = async (user) => {
+    try {
+      const res = await api.post(`/admin/users/${user.id}/reset-password`);
+      toast.success("A password reset link is ready.");
+      setShareLink({ title: "Password reset link", email: user.email, link: res.data.reset_link });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to create a reset link");
     }
   };
 
@@ -221,6 +255,17 @@ export default function AdministratorsManager() {
                 <td className="px-4 py-3 text-right space-x-2">
                   <button onClick={() => openEdit(user)} className="text-sage hover:text-maple p-1"><Edit className="h-4 w-4" /></button>
                   <button onClick={() => openRoleChange(user)} className="text-sage hover:text-forest p-1"><Shield className="h-4 w-4" /></button>
+                  {user.status === 'Pending' && (
+                    <>
+                      {user.invite_link && (
+                        <button onClick={() => copyText(user.invite_link)} className="text-sage hover:text-forest p-1" title="Copy invitation link"><Copy className="h-4 w-4" /></button>
+                      )}
+                      <button onClick={() => handleResend(user)} className="text-sage hover:text-forest p-1" title="New invitation link"><Mail className="h-4 w-4" /></button>
+                    </>
+                  )}
+                  {user.status === 'Active' && (
+                    <button onClick={() => handleReset(user)} className="text-sage hover:text-forest p-1" title="Password reset link"><Key className="h-4 w-4" /></button>
+                  )}
                   {user.status === 'Active' ? (
                     <button onClick={() => handleStatusChange(user, 'Inactive')} className="text-sage hover:text-amber-600 p-1"><ShieldOff className="h-4 w-4" /></button>
                   ) : user.status === 'Inactive' ? (
@@ -277,7 +322,7 @@ export default function AdministratorsManager() {
 
               {!editingUser && (
                 <div className="bg-forest/5 p-4 mt-4 text-sm text-sage border border-forest/10">
-                  <p>An invitation email containing a secure, one-time link will be sent to the administrator to set their password.</p>
+                  <p>No email is sent. You will get a one-time link to copy and share so they can set their password.</p>
                 </div>
               )}
 
@@ -317,6 +362,26 @@ export default function AdministratorsManager() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {shareLink && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-forest/80 backdrop-blur-sm p-4">
+          <div className="bg-white max-w-lg w-full shadow-2xl p-6">
+            <h3 className="text-xl font-bold font-heading text-forest mb-2 border-b border-forest/10 pb-2">
+              {shareLink.title}
+            </h3>
+            <p className="text-sm text-sage mb-4">
+              Share this link with <strong>{shareLink.email}</strong>. It is not sent by email.
+            </p>
+            <input readOnly value={shareLink.link} className="w-full border border-forest/20 px-3 py-2 text-xs text-forest mb-4" />
+            <div className="flex justify-end gap-3">
+              <button type="button" onClick={() => setShareLink(null)} className="px-4 py-2 text-sm font-bold uppercase tracking-wider text-sage hover:bg-forest/5">Close</button>
+              <button type="button" onClick={() => copyText(shareLink.link)} className="flex items-center gap-2 bg-forest text-bone px-6 py-2 font-bold uppercase tracking-wider text-sm hover:bg-maple">
+                <Copy className="h-4 w-4" /> Copy link
+              </button>
+            </div>
           </div>
         </div>
       )}

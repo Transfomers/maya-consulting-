@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
 from pydantic import BaseModel, EmailStr
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import RequirePermission, hash_password
 from app.models.user import User
@@ -13,6 +14,14 @@ from datetime import datetime, timezone, timedelta
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+RESET_TOKEN_HOURS = 48
+
+def invite_url(token: str) -> str:
+    return f"{settings.FRONTEND_URL.rstrip('/')}/admin/accept-invitation/{token}"
+
+def reset_url(token: str) -> str:
+    return f"{settings.FRONTEND_URL.rstrip('/')}/admin/reset-password/{token}"
 
 class RoleResponse(BaseModel):
     id: str
@@ -29,6 +38,8 @@ class UserResponse(BaseModel):
     role_name: str | None = None
     created_at: datetime
     last_login_at: datetime | None = None
+    invite_token: str | None = None
+    invite_link: str | None = None
 
 class UserCreate(BaseModel):
     first_name: str
@@ -69,7 +80,9 @@ async def list_users(db: AsyncSession = Depends(get_db), user = Depends(RequireP
             "role_id": u.role_id,
             "role_name": roles.get(u.role_id, "Unknown"),
             "created_at": u.created_at,
-            "last_login_at": u.last_login_at
+            "last_login_at": u.last_login_at,
+            "invite_token": u.invite_token if u.status == "Pending" else None,
+            "invite_link": invite_url(u.invite_token) if u.status == "Pending" and u.invite_token else None,
         }
         response.append(u_dict)
     return response
@@ -102,13 +115,8 @@ async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db), admi
     await db.commit()
     await db.refresh(new_user)
     
-    # Mock Email Sending
-    invite_link = f"https://capentrepreneurs.org/admin/accept-invitation/{invite_token}"
-    logger.warning(f"--- MOCK EMAIL ---")
-    logger.warning(f"To: {data.email}")
-    logger.warning(f"Subject: You have been invited to manage CAP Entrepreneurs")
-    logger.warning(f"Body: Please click this link to set your password and activate your account: {invite_link}")
-    logger.warning(f"------------------")
+    link = invite_url(invite_token)
+    logger.info("Invitation link for %s: %s", data.email, link)
     
     return {
         "id": new_user.id,
@@ -119,7 +127,9 @@ async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db), admi
         "role_id": new_user.role_id,
         "role_name": role.name,
         "created_at": new_user.created_at,
-        "last_login_at": new_user.last_login_at
+        "last_login_at": new_user.last_login_at,
+        "invite_token": invite_token,
+        "invite_link": link,
     }
 
 async def ensure_not_last_super_admin(user_to_check: User, db: AsyncSession):
@@ -218,12 +228,48 @@ async def delete_user(user_id: str, db: AsyncSession = Depends(get_db), admin = 
     await db.commit()
     return {"message": "Administrator deleted successfully"}
 
+@router.post("/{user_id}/resend-invitation")
+async def resend_invitation(user_id: str, db: AsyncSession = Depends(get_db), admin = Depends(RequirePermission("users.create"))):
+    result = await db.execute(select(User).where(User.id == user_id))
+    target_user = result.scalars().first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if target_user.status != "Pending":
+        raise HTTPException(status_code=400, detail="Only pending administrators can receive a new invitation.")
+
+    invite_token = str(uuid.uuid4())
+    target_user.invite_token = invite_token
+    await db.commit()
+    link = invite_url(invite_token)
+    logger.info("Invitation link for %s: %s", target_user.email, link)
+    return {"invite_token": invite_token, "invite_link": link}
+
+@router.post("/{user_id}/reset-password")
+async def start_password_reset(user_id: str, db: AsyncSession = Depends(get_db), admin = Depends(RequirePermission("users.reset_password"))):
+    result = await db.execute(select(User).where(User.id == user_id))
+    target_user = result.scalars().first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if target_user.status != "Active":
+        raise HTTPException(status_code=400, detail="A reset link can only be created for an active administrator.")
+
+    reset_token = str(uuid.uuid4())
+    target_user.reset_token = reset_token
+    target_user.reset_token_expires = datetime.now(timezone.utc) + timedelta(hours=RESET_TOKEN_HOURS)
+    await db.commit()
+    link = reset_url(reset_token)
+    logger.info("Password reset link for %s: %s", target_user.email, link)
+    return {"reset_token": reset_token, "reset_link": link, "expires_in_hours": RESET_TOKEN_HOURS}
+
 class AcceptInvite(BaseModel):
     token: str
     password: str
 
 @router.post("/accept-invitation")
 async def accept_invitation(data: AcceptInvite, db: AsyncSession = Depends(get_db)):
+    if len(data.password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
+
     result = await db.execute(select(User).where(User.invite_token == data.token))
     target_user = result.scalars().first()
     
@@ -236,3 +282,25 @@ async def accept_invitation(data: AcceptInvite, db: AsyncSession = Depends(get_d
     
     await db.commit()
     return {"message": "Password created and account activated successfully."}
+
+@router.post("/reset-password")
+async def complete_password_reset(data: AcceptInvite, db: AsyncSession = Depends(get_db)):
+    if len(data.password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
+
+    result = await db.execute(select(User).where(User.reset_token == data.token))
+    target_user = result.scalars().first()
+    if not target_user or not target_user.reset_token_expires:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token.")
+
+    expires = target_user.reset_token_expires
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    if expires < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token.")
+
+    target_user.password_hash = hash_password(data.password)
+    target_user.reset_token = None
+    target_user.reset_token_expires = None
+    await db.commit()
+    return {"message": "Password updated successfully."}

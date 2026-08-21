@@ -79,8 +79,8 @@ const Field = ({ field, value, onChange, type }) => {
   );
 };
 
-const FormShell = ({ type, fields, submitLabel, successMessage, testId }) => {
-  const [values, setValues] = useState({});
+const FormShell = ({ type, fields, submitLabel, successMessage, testId, initialValues = {} }) => {
+  const [values, setValues] = useState(initialValues);
   const [submitting, setSubmitting] = useState(false);
   const { t } = useLang();
 

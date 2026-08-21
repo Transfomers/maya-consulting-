@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet, Link, useLocation } from "react-router-dom";
-import { LogOut, LayoutDashboard, FileText, FolderTree, Image as ImageIcon, Calendar, Settings, ChevronRight, Menu, ChevronLeft } from "lucide-react";
+import { LogOut, LayoutDashboard, FileText, FolderTree, Image as ImageIcon, Calendar, Settings, Inbox, ChevronRight, Menu, ChevronLeft } from "lucide-react";
 import api from "@/lib/api";
 
 const NAV_ITEMS = [
-  { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/admin/posts", label: "Articles", icon: FileText },
   { path: "/admin/categories", label: "Categories", icon: FolderTree },
   { path: "/admin/media", label: "Media", icon: ImageIcon },
   { path: "/admin/events", label: "Events", icon: Calendar },
+  { path: "/admin/submissions", label: "Submissions", icon: Inbox },
   { path: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
@@ -69,7 +70,9 @@ export default function AdminDashboard() {
         <nav className="flex-1 overflow-y-auto py-4 overflow-x-hidden">
           <ul className="space-y-1 px-3">
             {NAV_ITEMS.map((item) => {
-              const isActive = item.path === '/admin' ? location.pathname === '/admin' : location.pathname.startsWith(item.path);
+              const isActive = item.path === "/admin/dashboard"
+                ? location.pathname === "/admin/dashboard"
+                : location.pathname.startsWith(item.path);
               return (
                 <li key={item.path}>
                   <Link

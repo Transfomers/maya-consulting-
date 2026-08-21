@@ -30,6 +30,7 @@ import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import BlogPost from "@/pages/BlogPost";
 import AcceptInvitation from "@/pages/admin/AcceptInvitation";
+import ResetPassword from "@/pages/admin/ResetPassword";
 import AdminOverview from "@/pages/admin/Overview";
 import AdminPostList from "@/pages/admin/PostList";
 import AdminPostEditor from "@/pages/admin/PostEditor";
@@ -37,6 +38,7 @@ import AdminEventsList from "@/pages/admin/EventsList";
 import AdminMedia from "@/pages/admin/Media";
 import AdminCategories from "@/pages/admin/Categories";
 import AdminSettings from "@/pages/admin/Settings";
+import AdminSubmissions from "@/pages/admin/Submissions";
 
 
 const ScrollToTop = () => {
@@ -111,14 +113,16 @@ function App() {
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/accept-invitation/:token" element={<AcceptInvitation />} />
+          <Route path="/admin/reset-password/:token" element={<ResetPassword />} />
           <Route path="/admin/*" element={<AdminDashboard />}>
-            <Route index element={<AdminOverview />} />
+            <Route path="dashboard" element={<AdminOverview />} />
             <Route path="posts" element={<AdminPostList />} />
             <Route path="posts/new" element={<AdminPostEditor />} />
             <Route path="posts/:id/edit" element={<AdminPostEditor />} />
             <Route path="categories" element={<AdminCategories />} />
             <Route path="events" element={<AdminEventsList />} />
             <Route path="media" element={<AdminMedia />} />
+            <Route path="submissions" element={<AdminSubmissions />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
 

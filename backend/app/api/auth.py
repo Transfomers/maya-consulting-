@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -16,8 +17,11 @@ async def login(input: LoginInput, request: Request, response: Response, db: Asy
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalars().first()
     
-    if not user or not verify_password(input.password, user.password_hash):
+    if not user or not user.password_hash or not verify_password(input.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    if user.status != "Active":
+        raise HTTPException(status_code=403, detail="User account is deactivated or pending")
 
     # Create tokens
     role_name = user.role.name if user.role else "SUPER_ADMIN"
@@ -27,7 +31,10 @@ async def login(input: LoginInput, request: Request, response: Response, db: Asy
     is_prod = "https" in getattr(settings, "FRONTEND_URL", "")
     response.set_cookie(key="access_token", value=access_token, httponly=True, secure=is_prod, samesite="lax", max_age=3600, path="/")
     response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=is_prod, samesite="lax", max_age=604800, path="/")
-    
+
+    user.last_login_at = datetime.now(timezone.utc)
+    await db.commit()
+
     return {"id": str(user.id), "email": email, "name": user.name, "role": role_name}
 
 @router.post("/logout")

@@ -55,7 +55,7 @@ class PostTranslationResponse(PostTranslationBase):
 
 class PostResponse(PostBase):
     id: str
-    author_id: str
+    author_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     published_at: Optional[datetime] = None

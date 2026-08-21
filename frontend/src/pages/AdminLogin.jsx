@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "@/lib/api";
 
@@ -16,13 +16,25 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const goToDashboardIfSignedIn = async () => {
+      try {
+        await api.get("/auth/me");
+        navigate("/admin/dashboard", { replace: true });
+      } catch {
+        // Stay on the login form when there is no valid session.
+      }
+    };
+    goToDashboardIfSignedIn();
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
       await api.post("/auth/login", { email, password });
-      navigate("/admin");
+      navigate("/admin/dashboard");
     } catch (err) {
       setError(formatDetail(err.response?.data?.detail));
     } finally {

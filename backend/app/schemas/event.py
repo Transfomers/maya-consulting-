@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Optional, Any
 from datetime import datetime
 
@@ -56,13 +56,20 @@ class EventTranslationResponse(EventTranslationBase):
 
 class EventResponse(EventBase):
     id: str
-    author_id: str
+    author_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     translations: List[EventTranslationResponse] = []
     
     # We will just return speaker IDs or basic info for now, let's just do a list of dicts or Any
     speakers: List[Any] = []
+
+    @field_validator("all_day", "timezone", "is_online", "registration_required", "visibility", mode="before")
+    @classmethod
+    def fall_back_to_default(cls, value, info):
+        if value is None:
+            return cls.model_fields[info.field_name].default
+        return value
 
     class Config:
         from_attributes = True

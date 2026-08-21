@@ -1,10 +1,21 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { Reveal } from "@/components/motion";
 import PageHero from "@/components/PageHero";
+import FormShell from "@/components/FormShell";
+import { useLang } from "@/lib/i18n";
+
+const submissionTypeFor = (finalAnswers) => {
+  if (finalAnswers.intent === "Volunteer") return "volunteer";
+  if (finalAnswers.intent === "Develop skills") return "membership";
+  if (finalAnswers.type === "Organization") return "partner";
+  return "contact";
+};
 
 const Join = () => {
+  const { t } = useLang();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({
     type: "",
@@ -12,6 +23,12 @@ const Join = () => {
     location: ""
   });
   const [recommendation, setRecommendation] = useState(null);
+
+  useEffect(() => {
+    if (searchParams.get("intent") !== "volunteer") return;
+    setAnswers({ type: "Individual", intent: "Volunteer", location: "" });
+    setStep(2);
+  }, [searchParams]);
 
   const QUESTIONS = [
     {
@@ -165,6 +182,27 @@ const Join = () => {
                     {recommendation.action}
                     <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </Link>
+                </div>
+                <div className="mt-12 text-left border-t border-forest/10 pt-10">
+                  <h3 className="mb-2 font-heading text-xl font-bold text-forest">Leave your details</h3>
+                  <p className="mb-8 text-sm text-sage">The quiz alone is not stored. This form creates a submission the team can see.</p>
+                  <FormShell
+                    key={`${answers.type}-${answers.intent}-${answers.location}`}
+                    type={submissionTypeFor(answers)}
+                    testId="join-followup-form"
+                    submitLabel={t.contact?.submit || "Send"}
+                    successMessage={t.contact?.success || t.membership.volSuccess}
+                    initialValues={{
+                      intent: answers.intent,
+                      audience: answers.type,
+                      location: answers.location,
+                    }}
+                    fields={[
+                      { name: "name", label: t.form.name, placeholder: t.form.namePh, required: true },
+                      { name: "email", label: t.form.email, kind: "email", placeholder: t.form.emailPh, required: true },
+                      { name: "message", label: t.contact?.messageLabel || "Message", kind: "textarea", placeholder: t.contact?.messagePh || t.form.orgPh },
+                    ]}
+                  />
                 </div>
                 <div className="mt-8">
                   <button onClick={() => { setStep(0); setRecommendation(null); setAnswers({type:"", intent:"", location:""}); }} className="text-xs font-bold uppercase tracking-widest text-sage hover:text-forest">
