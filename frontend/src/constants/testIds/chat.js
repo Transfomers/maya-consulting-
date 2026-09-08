@@ -13,5 +13,6 @@ export const CHAT = {
 	answerLink: 'chat-answer-link',
 	input: 'chat-message-input',
 	sendButton: 'chat-send-button',
+	cancelButton: 'chat-cancel-button',
 	restartButton: 'chat-restart-button',
 };

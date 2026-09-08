@@ -9,6 +9,8 @@ services:
       DATABASE_URL: sqlite+aiosqlite:////app/data/capentrepreneurs.db
       FRONTEND_URL: https://capentrepreneurs.org
       SECRET_KEY: ${SECRET_KEY}
+      CRAFTI_API_KEY: ${CRAFTI_API_KEY}
+      CRAFTI_API_BASE: ${CRAFTI_API_BASE:-https://rag-platform-backend-qt2l.onrender.com}
     volumes:
       - ./backend/data:/app/data
     expose:

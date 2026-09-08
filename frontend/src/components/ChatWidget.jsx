@@ -1,24 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, MessageSquare, RotateCcw, Send, X } from "lucide-react";
+import { ArrowUpRight, MessageSquare, RotateCcw, Send, Square, X } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { useSettings } from "@/lib/SettingsContext";
 import { CHAT } from "@/constants/testIds";
+import {
+  getChatSessionId,
+  resetChatSessionId,
+  streamCraftiAnswer,
+  userMessageForStatus,
+} from "@/lib/craftiChat";
 
 const EASE = [0.16, 1, 0.3, 1];
-const REPLY_DELAY = 700;
 
 let sequence = 0;
 const nextId = () => (sequence += 1);
-
-const matchTopic = (topics, text) => {
-  const query = text.trim().toLowerCase();
-  return (
-    topics.find((topic) => topic.q.toLowerCase() === query) ||
-    topics.find((topic) => topic.keywords.some((keyword) => query.includes(keyword.toLowerCase())))
-  );
-};
 
 const ChatWidget = () => {
   const { t, lang } = useLang();
@@ -30,28 +27,38 @@ const ChatWidget = () => {
   const [answered, setAnswered] = useState([]);
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [streaming, setStreaming] = useState(false);
 
   const listRef = useRef(null);
   const inputRef = useRef(null);
-  const replyTimer = useRef(null);
+  const abortRef = useRef(null);
+
+  const stopReply = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setThinking(false);
+    setStreaming(false);
+  }, []);
 
   const greet = useCallback(() => {
+    stopReply();
+    resetChatSessionId();
     setMessages([{ id: nextId(), from: "bot", text: chat.greeting }]);
     setAnswered([]);
     setDraft("");
-  }, [chat]);
+  }, [chat, stopReply]);
 
   // Switching language restarts the conversation rather than leaving a mixed transcript.
   useEffect(() => {
     greet();
   }, [greet]);
 
-  useEffect(() => () => clearTimeout(replyTimer.current), []);
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   useEffect(() => {
     const list = listRef.current;
     if (list) list.scrollTop = list.scrollHeight;
-  }, [messages, thinking, open]);
+  }, [messages, thinking, streaming, open]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -64,33 +71,72 @@ const ChatWidget = () => {
   }, [open]);
 
   const ask = useCallback(
-    (question) => {
+    async (question, topicId) => {
       const text = question.trim();
       if (!text || thinking) return;
 
-      setMessages((prev) => [...prev, { id: nextId(), from: "user", text }]);
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      const botId = nextId();
+      setMessages((prev) => [
+        ...prev,
+        { id: nextId(), from: "user", text },
+        { id: botId, from: "bot", text: "" },
+      ]);
       setDraft("");
       setThinking(true);
+      setStreaming(false);
+      if (topicId) {
+        setAnswered((prev) => (prev.includes(topicId) ? prev : [...prev, topicId]));
+      }
 
-      // The delay stands in for a request; this is the single place an assistant
-      // endpoint plugs in once one exists.
-      replyTimer.current = setTimeout(() => {
-        const topic = matchTopic(chat.topics, text);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: nextId(),
-            from: "bot",
-            text: topic ? topic.a : chat.fallback,
-            ctaLabel: topic ? topic.ctaLabel : chat.fallbackCta,
-            ctaTo: topic ? topic.ctaTo : "/contact",
+      try {
+        await streamCraftiAnswer(text, {
+          sessionId: getChatSessionId(),
+          language: lang,
+          controller,
+          onToken: (_token, completeAnswer) => {
+            setStreaming(true);
+            setMessages((prev) =>
+              prev.map((message) =>
+                message.id === botId ? { ...message, text: completeAnswer } : message
+              )
+            );
           },
-        ]);
-        if (topic) setAnswered((prev) => (prev.includes(topic.id) ? prev : [...prev, topic.id]));
+        });
+      } catch (error) {
+        if (error?.name === "AbortError") {
+          setMessages((prev) =>
+            prev.map((message) =>
+              message.id === botId && !message.text
+                ? { ...message, text: chat.cancelled }
+                : message
+            )
+          );
+        } else {
+          setMessages((prev) =>
+            prev.map((message) =>
+              message.id === botId
+                ? {
+                    ...message,
+                    text: userMessageForStatus(error?.status, chat.errors),
+                    isError: true,
+                    ctaLabel: chat.fallbackCta,
+                    ctaTo: "/contact",
+                  }
+                : message
+            )
+          );
+        }
+      } finally {
+        if (abortRef.current === controller) abortRef.current = null;
         setThinking(false);
-      }, REPLY_DELAY);
+        setStreaming(false);
+      }
     },
-    [chat, thinking]
+    [chat, lang, thinking]
   );
 
   const suggestions = useMemo(() => {
@@ -105,6 +151,7 @@ const ChatWidget = () => {
 
   const side = lang === "ar" ? "left-5" : "right-5";
   const logo = settings?.branding?.logo_light || "/assets/logo-mark-light.png";
+  const showTyping = thinking && !streaming;
 
   return (
     <>
@@ -163,23 +210,27 @@ const ChatWidget = () => {
               {messages.map((message) =>
                 message.from === "bot" ? (
                   <div key={message.id} className="flex justify-start">
-                    <div
-                      data-testid={CHAT.botMessage}
-                      className="max-w-[88%] border border-forest/15 bg-white px-3.5 py-3"
-                    >
-                      <p className="text-[13px] leading-relaxed text-ink">{message.text}</p>
-                      {message.ctaTo && (
-                        <Link
-                          to={message.ctaTo}
-                          onClick={() => setOpen(false)}
-                          data-testid={CHAT.answerLink}
-                          className="mt-3 inline-flex items-center gap-1 border-b border-maple pb-0.5 font-heading text-[11px] font-bold uppercase tracking-[0.14em] text-maple transition-colors hover:border-forest hover:text-forest"
-                        >
-                          {message.ctaLabel}
-                          <ArrowUpRight className="h-3.5 w-3.5" />
-                        </Link>
-                      )}
-                    </div>
+                    {message.text ? (
+                      <div
+                        data-testid={CHAT.botMessage}
+                        className="max-w-[88%] border border-forest/15 bg-white px-3.5 py-3"
+                      >
+                        <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink">
+                          {message.text}
+                        </p>
+                        {message.ctaTo && (
+                          <Link
+                            to={message.ctaTo}
+                            onClick={() => setOpen(false)}
+                            data-testid={CHAT.answerLink}
+                            className="mt-3 inline-flex items-center gap-1 border-b border-maple pb-0.5 font-heading text-[11px] font-bold uppercase tracking-[0.14em] text-maple transition-colors hover:border-forest hover:text-forest"
+                          >
+                            {message.ctaLabel}
+                            <ArrowUpRight className="h-3.5 w-3.5" />
+                          </Link>
+                        )}
+                      </div>
+                    ) : null}
                   </div>
                 ) : (
                   <div key={message.id} className="flex justify-end">
@@ -193,7 +244,7 @@ const ChatWidget = () => {
                 )
               )}
 
-              {thinking && (
+              {showTyping && (
                 <div className="flex justify-start">
                   <div
                     data-testid={CHAT.typingIndicator}
@@ -222,9 +273,10 @@ const ChatWidget = () => {
                   <button
                     key={topic.id}
                     type="button"
-                    onClick={() => ask(topic.q)}
+                    onClick={() => ask(topic.q, topic.id)}
+                    disabled={thinking}
                     data-testid={CHAT.suggestion}
-                    className="whitespace-nowrap border border-forest/25 px-3 py-1.5 text-[11px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest hover:text-bone"
+                    className="whitespace-nowrap border border-forest/25 px-3 py-1.5 text-[11px] font-semibold text-forest transition-colors hover:border-forest hover:bg-forest hover:text-bone disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {topic.q}
                   </button>
@@ -240,18 +292,32 @@ const ChatWidget = () => {
                 placeholder={chat.placeholder}
                 aria-label={chat.placeholder}
                 data-testid={CHAT.input}
-                className="min-w-0 flex-1 border border-forest/25 bg-bone px-3 py-2.5 text-[13px] text-ink transition-colors placeholder:text-sage/70 focus:border-forest focus:outline-none"
+                disabled={thinking}
+                className="min-w-0 flex-1 border border-forest/25 bg-bone px-3 py-2.5 text-[13px] text-ink transition-colors placeholder:text-sage/70 focus:border-forest focus:outline-none disabled:opacity-60"
               />
-              <button
-                type="submit"
-                disabled={!draft.trim() || thinking}
-                title={chat.sendLabel}
-                aria-label={chat.sendLabel}
-                data-testid={CHAT.sendButton}
-                className="flex items-center justify-center bg-forest px-4 text-bone transition-colors hover:bg-maple disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <Send className="h-4 w-4" />
-              </button>
+              {thinking ? (
+                <button
+                  type="button"
+                  onClick={stopReply}
+                  title={chat.cancelLabel}
+                  aria-label={chat.cancelLabel}
+                  data-testid={CHAT.cancelButton}
+                  className="flex items-center justify-center bg-forest px-4 text-bone transition-colors hover:bg-maple"
+                >
+                  <Square className="h-3.5 w-3.5 fill-current" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={!draft.trim()}
+                  title={chat.sendLabel}
+                  aria-label={chat.sendLabel}
+                  data-testid={CHAT.sendButton}
+                  className="flex items-center justify-center bg-forest px-4 text-bone transition-colors hover:bg-maple disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              )}
             </form>
 
             <p className="bg-white px-4 pb-3 text-[10px] leading-snug text-sage">{chat.note}</p>

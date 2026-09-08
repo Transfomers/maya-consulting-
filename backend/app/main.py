@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from fastapi.staticfiles import StaticFiles
-from app.api import auth, submissions, posts, events, media, seo, stats, taxonomy, public_posts, settings as api_settings, public_taxonomy, public_settings, admin_users
+from app.api import auth, submissions, posts, events, media, seo, stats, taxonomy, public_posts, settings as api_settings, public_taxonomy, public_settings, admin_users, chat
 import os
 
 app = FastAPI(title=settings.PROJECT_NAME)
@@ -26,6 +26,7 @@ app.include_router(public_taxonomy.router, prefix="/api/v1", tags=["public_taxon
 app.include_router(stats.router, prefix="/api/v1/admin/stats", tags=["stats"])
 app.include_router(taxonomy.router, prefix="/api/v1/admin", tags=["taxonomy"])
 app.include_router(submissions.router, prefix="/api/v1/submissions", tags=["submissions"])
+app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 app.include_router(posts.router, prefix="/api/v1/admin/posts", tags=["posts"])
 app.include_router(public_posts.router, prefix="/api/v1/posts", tags=["public_posts"])
 app.include_router(public_taxonomy.router, prefix="/api/v1/taxonomy", tags=["public_taxonomy"])
