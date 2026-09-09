@@ -5,7 +5,7 @@ const STR = {
     nav: {
       home: "Home", about: "About", programs: "Programs", stories: "Impact Stories",
       membership: "Membership", partners: "Partners", news: "News & Events", blog: "Blog", contact: "Contact", donate: "Donate",
-      join: "Join", volunteer: "Volunteer", festival: "Global Festival",
+      join: "Join", volunteer: "Volunteer", festival: "Festivals",
     },
     footer: {
       quote: "\u201cEntrepreneurship should create opportunity for everyone, regardless of where they live.\u201d",
@@ -14,6 +14,32 @@ const STR = {
       involved: "Get Involved",
       bottom1: "CAP Entrepreneurs \u2014 a Canadian nonprofit organization",
       bottom2: "Education \u00b7 Collaboration \u00b7 Innovation \u00b7 International Partnerships",
+      privacy: "Privacy Policy",
+      terms: "Terms of Service",
+      copyright: "All rights reserved.",
+      designedBy: "App Designed by Crafti Studio"
+    },
+    privacy: {
+      title: "Privacy Policy",
+      intro: "How {siteName} protects your data.",
+      sections: [
+        { title: "1. Information We Collect", content: "We collect information you provide directly to us, such as when you create or modify your account, request on-demand services, contact customer support, or otherwise communicate with us." },
+        { title: "2. How We Use Your Information", content: "We use the information we collect about you to provide, maintain, and improve our services, such as to facilitate membership, programs, and donations." },
+        { title: "3. Sharing of Information", content: "We may share the information we collect about you as described in this Statement or as described at the time of collection or sharing, including with our partners for program coordination." },
+        { title: "4. Security", content: "We take reasonable measures to help protect information about you from loss, theft, misuse and unauthorized access, disclosure, alteration and destruction." },
+        { title: "5. Contact Us", content: "If you have any questions about this Privacy Statement, please contact us at contact@capentrepreneurs.org." }
+      ]
+    },
+    terms: {
+      title: "Terms of Service",
+      intro: "Rules and guidelines for using {siteName}.",
+      sections: [
+        { title: "1. Acceptance of Terms", content: "By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement." },
+        { title: "2. Description of Service", content: "{siteName} provides users with access to a collection of resources, including programs, membership details, partnerships, volunteering opportunities, and donation channels (the \"Service\")." },
+        { title: "3. User Conduct", content: "You agree to not use the Service to: upload, post, email, transmit or otherwise make available any content that is unlawful, harmful, threatening, abusive, harassing, or otherwise objectionable." },
+        { title: "4. Modifications to Service", content: "{siteName} reserves the right at any time and from time to time to modify or discontinue, temporarily or permanently, the Service (or any part thereof) with or without notice." },
+        { title: "5. Governing Law", content: "These Terms shall be governed and construed in accordance with the laws of Canada, without regard to its conflict of law provisions." }
+      ]
     },
     form: {
       name: "Full name", namePh: "Your full name",
@@ -108,7 +134,7 @@ const STR = {
           id: "contact",
           q: "How do I reach a person?",
           keywords: ["contact", "human", "someone", "email", "phone", "call", "reach", "talk"],
-          a: "Write to info@capentrepreneurs.ca, or send your message through the contact form and pick the topic \u2014 programs, membership, partnerships, donations, volunteering or media. A member of the team gets back to you.",
+          a: "Write to contact@capentrepreneurs.org, or send your message through the contact form and pick the topic \u2014 programs, membership, partnerships, donations, volunteering or media. A member of the team gets back to you.",
           ctaLabel: "Contact the team",
           ctaTo: "/contact",
         },
@@ -313,6 +339,39 @@ const STR = {
       eventsTitle: "Upcoming events",
       newsTitle: "Latest news",
     },
+    join: {
+      eyebrow: "Join the Ecosystem",
+      h1a: "Find your ",
+      h1accent: "pathway",
+      intro: "Complete this short questionnaire to discover the best way for you or your organization to engage with CAP Entrepreneurs.",
+      q1Title: "Are you an individual or an organization?",
+      optIndividual: "Individual",
+      optOrganization: "Organization",
+      q2IndivTitle: "Are you looking to develop skills or volunteer?",
+      optDevelopSkills: "Develop skills",
+      optVolunteer: "Volunteer",
+      q2OrgTitle: "Are you a nonprofit, startup, or corporate?",
+      optNonprofit: "Nonprofit",
+      optStartup: "Startup",
+      optCorporate: "Corporate",
+      q3Title: "Where are you located?",
+      optQuebec: "Quebec",
+      optCanada: "Rest of Canada",
+      optIntl: "International",
+      back: "← Back",
+      recommendedTitle: "Your Recommended Pathway",
+      retake: "Retake Questionnaire",
+      recGeneral: "We recommend you explore our general programs.",
+      recGeneralAction: "Explore Programs",
+      recVolunteer: "We recommend you check out the Volunteer page.",
+      recVolunteerAction: "Become a Volunteer",
+      recSkills: "We recommend you explore CAP Green Lab and our other skills programs.",
+      recSkillsAction: "View Programs",
+      recPartner: "We recommend you connect with our Partnerships team.",
+      recPartnerAction: "Contact Partnerships",
+      recCorporate: "We recommend you explore Corporate or Startup partnerships.",
+      recCorporateAction: "View Partners"
+    },
     donate: {
       eyebrow: "Donate",
       h1a: "Every contribution", h1pre: "becomes ", h1accent: "opportunity", h1post: "",
@@ -339,8 +398,8 @@ const STR = {
       h1a: "Start a", h1accent: "conversation",
       intro: "Questions about programs, membership, partnerships or donations? We'd love to hear from you.",
       info: [
-        { label: "Email", value: "info@capentrepreneurs.ca" },
-        { label: "Based in", value: "Canada \u2014 serving communities nationwide and internationally" },
+        { label: "Email", value: "contact@capentrepreneurs.org" },
+        { label: "Based in", value: "1265, rue Rachel E, porte 403 Montréal (Québec) H2J 2J9 • Canada" },
         { label: "Looking for", value: "Programs, membership, partnerships, volunteering or donations" },
       ],
       formTitle: "Send us a message",
@@ -351,7 +410,7 @@ const STR = {
       success: "Message sent \u2014 we'll get back to you shortly.",
       pressTitle: "Media & Press Inquiries",
       pressCopy: "For press inquiries, interview requests, or media assets, please contact our communications team.",
-      pressEmail: "media@capentrepreneurs.ca",
+      pressEmail: "contact@capentrepreneurs.org",
       partnerFormTitle: "Partnership Inquiries",
       partnerFormCopy: "Interested in becoming a partner? Use this form to connect with our partnerships team.",
     },
@@ -379,17 +438,43 @@ const STR = {
   },
   fr: {
     nav: {
-      home: "Accueil", about: "\u00c0 propos", programs: "Nos programmes", stories: "Notre impact",
-      membership: "Adh\u00e9sion", partners: "Partenaires", news: "Actualit\u00e9s", blog: "Ressources", contact: "Contact", donate: "Donner",
-      join: "Rejoindre", volunteer: "Bénévolat", festival: "Festival Mondial",
+      home: "Accueil", about: "\u00c0 propos", programs: "Programmes", stories: "Notre impact",
+      membership: "Adh\u00e9sion", partners: "Partenaires", news: "Actualit\u00e9s", blog: "Actualit\u00e9s", contact: "Contact", donate: "Donner",
+      join: "Rejoindre", volunteer: "Bénévolat", festival: "Festivals",
     },
     footer: {
-      quote: "\u00ab L'entrepreneuriat devrait cr\u00e9er des opportunités pour tous, peu importe o\u00f9 l'on vit. \u00bb",
+      quote: "« L'entrepreneuriat devrait créer des opportunités pour tous, peu importe où ils vivent. »",
       support: "Soutenir la mission",
       explore: "Explorer",
       involved: "S'impliquer",
-      bottom1: "CAP Entrepreneurs \u2014 un organisme canadien \u00e0 but non lucratif",
-      bottom2: "\u00c9ducation \u00b7 Collaboration \u00b7 Innovation \u00b7 Partenariats internationaux",
+      bottom1: "CAP Entrepreneurs \u2014 une organisation à but non lucratif canadienne",
+      bottom2: "\u00c9ducation \u00b7 Collaboration \u00b7 Innovation \u00b7 Partenariats Internationaux",
+      privacy: "Politique de confidentialité",
+      terms: "Conditions d'utilisation",
+      copyright: "Tous droits réservés.",
+      designedBy: "Application conçue par Crafti Studio"
+    },
+    privacy: {
+      title: "Politique de confidentialité",
+      intro: "Comment {siteName} protège vos données.",
+      sections: [
+        { title: "1. Informations que nous recueillons", content: "Nous recueillons les informations que vous nous fournissez directement, par exemple lorsque vous créez ou modifiez votre compte, demandez des services à la demande, contactez le support client, ou communiquez avec nous de toute autre manière." },
+        { title: "2. Comment nous utilisons vos informations", content: "Nous utilisons les informations que nous recueillons sur vous pour fournir, maintenir et améliorer nos services, tels que faciliter l'adhésion, les programmes et les dons." },
+        { title: "3. Partage d'informations", content: "Nous pouvons partager les informations que nous recueillons sur vous comme décrit dans cette Déclaration ou au moment de la collecte ou du partage, y compris avec nos partenaires pour la coordination des programmes." },
+        { title: "4. Sécurité", content: "Nous prenons des mesures raisonnables pour aider à protéger les informations vous concernant contre la perte, le vol, l'utilisation abusive et l'accès non autorisé, la divulgation, l'altération et la destruction." },
+        { title: "5. Nous contacter", content: "Si vous avez des questions sur cette Déclaration de confidentialité, veuillez nous contacter à contact@capentrepreneurs.org." }
+      ]
+    },
+    terms: {
+      title: "Conditions d'utilisation",
+      intro: "Règles et directives d'utilisation de {siteName}.",
+      sections: [
+        { title: "1. Acceptation des conditions", content: "En accédant et en utilisant ce site web, vous acceptez d'être lié par les termes et dispositions de cet accord." },
+        { title: "2. Description du service", content: "{siteName} offre aux utilisateurs un accès à une collection de ressources, y compris des programmes, des détails sur l'adhésion, des partenariats, des opportunités de bénévolat et des canaux de don (le « Service »)." },
+        { title: "3. Conduite de l'utilisateur", content: "Vous acceptez de ne pas utiliser le Service pour : télécharger, publier, envoyer par e-mail, transmettre ou rendre autrement disponible tout contenu illégal, nuisible, menaçant, abusif, harcelant ou autrement répréhensible." },
+        { title: "4. Modifications du service", content: "{siteName} se réserve le droit à tout moment et de temps à autre de modifier ou d'interrompre, temporairement ou de façon permanente, le Service (ou toute partie de celui-ci) avec ou sans préavis." },
+        { title: "5. Droit applicable", content: "Ces Conditions seront régies et interprétées conformément aux lois du Canada, sans égard à ses dispositions en matière de conflits de lois." }
+      ]
     },
     form: {
       name: "Nom complet", namePh: "Votre nom complet",
@@ -484,7 +569,7 @@ const STR = {
           id: "contact",
           q: "Comment joindre une personne ?",
           keywords: ["contact", "joindre", "humain", "quelqu'un", "courriel", "t\u00e9l\u00e9phone", "telephone", "appeler", "parler"],
-          a: "\u00c9crivez \u00e0 info@capentrepreneurs.ca, ou passez par le formulaire de contact en choisissant le sujet : programmes, adh\u00e9sion, partenariats, dons, b\u00e9n\u00e9volat ou m\u00e9dias. Un membre de l'\u00e9quipe vous r\u00e9pond.",
+          a: "\u00c9crivez \u00e0 contact@capentrepreneurs.org, ou passez par le formulaire de contact en choisissant le sujet : programmes, adh\u00e9sion, partenariats, dons, b\u00e9n\u00e9volat ou m\u00e9dias. Un membre de l'\u00e9quipe vous r\u00e9pond.",
           ctaLabel: "Contacter l'\u00e9quipe",
           ctaTo: "/contact",
         },
@@ -689,6 +774,39 @@ const STR = {
       eventsTitle: "\u00c9v\u00e9nements \u00e0 venir",
       newsTitle: "Derni\u00e8res nouvelles",
     },
+    join: {
+      eyebrow: "Rejoindre l'écosystème",
+      h1a: "Trouvez votre ",
+      h1accent: "parcours",
+      intro: "Répondez à ce court questionnaire pour découvrir la meilleure façon pour vous ou votre organisation de vous impliquer avec CAP Entrepreneurs.",
+      q1Title: "Êtes-vous un individu ou une organisation ?",
+      optIndividual: "Individu",
+      optOrganization: "Organisation",
+      q2IndivTitle: "Cherchez-vous à développer des compétences ou à faire du bénévolat ?",
+      optDevelopSkills: "Développer des compétences",
+      optVolunteer: "Bénévolat",
+      q2OrgTitle: "Êtes-vous une association, une startup ou une grande entreprise ?",
+      optNonprofit: "Association",
+      optStartup: "Startup",
+      optCorporate: "Grande entreprise",
+      q3Title: "Où êtes-vous situé(e) ?",
+      optQuebec: "Québec",
+      optCanada: "Reste du Canada",
+      optIntl: "International",
+      back: "← Retour",
+      recommendedTitle: "Votre parcours recommandé",
+      retake: "Refaire le questionnaire",
+      recGeneral: "Nous vous recommandons d'explorer nos programmes généraux.",
+      recGeneralAction: "Explorer les programmes",
+      recVolunteer: "Nous vous recommandons de consulter la page Bénévolat.",
+      recVolunteerAction: "Devenir Bénévole",
+      recSkills: "Nous vous recommandons d'explorer CAP Green Lab et nos autres programmes de compétences.",
+      recSkillsAction: "Voir les programmes",
+      recPartner: "Nous vous recommandons de contacter notre équipe des partenariats.",
+      recPartnerAction: "Contacter les partenariats",
+      recCorporate: "Nous vous recommandons d'explorer les partenariats Corporate ou Startup.",
+      recCorporateAction: "Voir les partenaires"
+    },
     donate: {
       eyebrow: "Donner",
       h1a: "Chaque contribution", h1pre: "devient une ", h1accent: "occasion", h1post: "",
@@ -715,8 +833,8 @@ const STR = {
       h1a: "Lancer la", h1pre: " ", h1accent: "conversation", h1post: "",
       intro: "Des questions sur les programmes, l'adhésion, les partenariats ou les dons ? Nous serions ravis de vous entendre.",
       info: [
-        { label: "Courriel", value: "info@capentrepreneurs.ca" },
-        { label: "Basé au", value: "Canada — au service des communautés à l'échelle nationale et internationale" },
+        { label: "Courriel", value: "contact@capentrepreneurs.org" },
+        { label: "Basé au", value: "1265, rue Rachel E, porte 403 Montréal (Québec) H2J 2J9 • Canada" },
         { label: "Recherche", value: "Programmes, adhésion, partenariats, bénévolat ou dons" },
       ],
       formTitle: "Envoyez-nous un message",
@@ -727,7 +845,7 @@ const STR = {
       success: "Message envoyé — nous vous répondrons sous peu.",
       pressTitle: "Demandes des médias et de la presse",
       pressCopy: "Pour toute demande de presse, de médias ou d'entrevue, veuillez contacter notre équipe des communications.",
-      pressEmail: "media@capentrepreneurs.ca",
+      pressEmail: "contact@capentrepreneurs.org",
       partnerFormTitle: "Demandes de partenariat",
       partnerFormCopy: "Vous souhaitez devenir partenaire ? Utilisez ce formulaire pour contacter notre équipe des partenariats.",
     },
@@ -760,12 +878,38 @@ const STR = {
       join: "انضم", volunteer: "تطوع", festival: "مهرجان عالمي",
     },
     footer: {
-      quote: "«يجب أن يخلق ريادة الأعمال فرصاً للجميع، بغض النظر عن مكان عيشهم.»",
-      support: "ادعم المهمة",
+      quote: "\"يجب أن يخلق ريادة الأعمال فرصاً للجميع، بغض النظر عن مكان إقامتهم.\"",
+      support: "دعم المهمة",
       explore: "استكشف",
       involved: "شارك معنا",
       bottom1: "CAP Entrepreneurs — منظمة كندية غير ربحية",
       bottom2: "التعليم · التعاون · الابتكار · الشراكات الدولية",
+      privacy: "سياسة الخصوصية",
+      terms: "شروط الخدمة",
+      copyright: "جميع الحقوق محفوظة.",
+      designedBy: "تم تصميم التطبيق بواسطة Crafti Studio"
+    },
+    privacy: {
+      title: "سياسة الخصوصية",
+      intro: "كيف تحمي {siteName} بياناتك.",
+      sections: [
+        { title: "1. المعلومات التي نجمعها", content: "نقوم بجمع المعلومات التي تقدمها لنا مباشرة، على سبيل المثال عند إنشاء أو تعديل حسابك، أو طلب خدمات عند الطلب، أو الاتصال بدعم العملاء، أو التواصل معنا بطريقة أخرى." },
+        { title: "2. كيف نستخدم معلوماتك", content: "نحن نستخدم المعلومات التي نجمعها عنك لتقديم خدماتنا والحفاظ عليها وتحسينها، مثل تسهيل العضوية والبرامج والتبرعات." },
+        { title: "3. مشاركة المعلومات", content: "قد نشارك المعلومات التي نجمعها عنك كما هو موضح في هذا البيان أو كما هو موضح وقت الجمع أو المشاركة، بما في ذلك مع شركائنا لتنسيق البرامج." },
+        { title: "4. الأمان", content: "نحن نتخذ تدابير معقولة للمساعدة في حماية المعلومات المتعلقة بك من الفقدان والسرقة وسوء الاستخدام والوصول غير المصرح به والإفصاح والتعديل والتدمير." },
+        { title: "5. اتصل بنا", content: "إذا كانت لديك أي أسئلة حول بيان الخصوصية هذا، يرجى الاتصال بنا على contact@capentrepreneurs.org." }
+      ]
+    },
+    terms: {
+      title: "شروط الخدمة",
+      intro: "القواعد والمبادئ التوجيهية لاستخدام {siteName}.",
+      sections: [
+        { title: "1. قبول الشروط", content: "من خلال الوصول إلى هذا الموقع واستخدامه، فإنك تقبل وتوافق على الالتزام بشروط وأحكام هذه الاتفاقية." },
+        { title: "2. وصف الخدمة", content: "توفر {siteName} للمستخدمين إمكانية الوصول إلى مجموعة من الموارد، بما في ذلك البرامج وتفاصيل العضوية والشراكات وفرص التطوع وقنوات التبرع (\"الخدمة\")." },
+        { title: "3. سلوك المستخدم", content: "أنت توافق على عدم استخدام الخدمة من أجل: تحميل أو نشر أو إرسال بالبريد الإلكتروني أو نقل أو إتاحة أي محتوى غير قانوني أو ضار أو مهدد أو مسيء أو مزعج أو غير مرغوب فيه بأي شكل آخر." },
+        { title: "4. تعديلات على الخدمة", content: "تحتفظ {siteName} بالحق في أي وقت ومن وقت لآخر في تعديل أو إيقاف الخدمة (أو أي جزء منها) بشكل مؤقت أو دائم، مع أو بدون إشعار." },
+        { title: "5. القانون المعمول به", content: "تخضع هذه الشروط وتفسر وفقًا لقوانين كندا، دون النظر إلى أحكام تعارض القوانين." }
+      ]
     },
     form: {
       name: "الاسم الكامل", namePh: "اسمك الكامل",
@@ -860,7 +1004,7 @@ const STR = {
           id: "contact",
           q: "كيف أتواصل مع شخص؟",
           keywords: ["اتصال", "تواصل", "بريد", "هاتف", "شخص", "التحدث"],
-          a: "اكتب إلى info@capentrepreneurs.ca، أو استخدم نموذج الاتصال واختر الموضوع: البرامج أو العضوية أو الشراكات أو التبرعات أو التطوع أو الإعلام. سيرد عليك أحد أعضاء الفريق.",
+          a: "اكتب إلى contact@capentrepreneurs.org، أو استخدم نموذج الاتصال واختر الموضوع: البرامج أو العضوية أو الشراكات أو التبرعات أو التطوع أو الإعلام. سيرد عليك أحد أعضاء الفريق.",
           ctaLabel: "اتصل بالفريق",
           ctaTo: "/contact",
         },
@@ -924,21 +1068,41 @@ const STR = {
     about: {
       eyebrow: "حول CAP Entrepreneurs",
       h1a: "لماذا", h1accent: "نحن هنا",
-      intro: "CAP Entrepreneurs هي منظمة كندية غير ربحية تصمم وتقدم وتدعم برامج ريادية مبتكرة. نحن لسنا شركة استشارية — نحن بناة أنظمة بيئية.",
-      storyTitleA: "نظام بيئي،", storyTitleB: "وليس مشاريع معزولة",
-      storyP1: "تأسست CAP Entrepreneurs على ملاحظة بسيطة: الموهبة موجودة في كل مكان، لكن الفرص ليست كذلك. رواد الأعمال في المجتمعات الريفية والمهمشة — والمنظمات غير الربحية التي تدعمهم — يعملون غالبًا بمفردهم، دون الشبكات أو الأسواق أو تجارب التعلم التي تحول الجهد إلى تأثير.",
-      storyP2: "لذا، نحن نبني النسيج الضام. من خلال التعليم والتعاون والابتكار والشراكات الدولية، تساعد برامجنا المشاركين على التقدم من التعلم إلى التنفيذ ثم التأثير الملموس — والاستمرار في النمو بعد انتهاء البرنامج بوقت طويل.",
-      storyP3: "كل مبادرة نقدمها تجيب على سؤال واحد: كيف يمكن لـ CAP Entrepreneurs مساعدة الناس على خلق فرص لأنفسهم ولمجتمعاتهم؟",
-      storyCaption: "مُصمم للتواصل — عبر كندا وما وراءها",
-      marquee: ["المهمة", "الرؤية", "الوعد", "النظام البيئي", "المجتمع", "بلا حدود"],
-      pillars: [
-        { title: "مهمتنا", text: "تمكين رواد الأعمال والمنظمات غير الربحية من خلال تطوير برامج مبتكرة تعزز الاقتصادات المحلية، وتشجع التعاون، وتوسع الفرص الدولية." },
-        { title: "رؤيتنا", text: "أن نصبح نظامًا بيئيًا رياديًا رائدًا يربط المجتمعات والمنظمات والمبتكرين عبر كندا ودوليًا." },
-        { title: "وعدنا", text: "نعتقد أن ريادة الأعمال يجب أن تخلق فرصة للجميع، بغض النظر عن مكان عيشهم. نطور برامج عملية تساعد رواد الأعمال على تنمية أعمالهم والوصول إلى أسواق جديدة وأن يصبحوا مساهمين نشطين في مجتمعات أقوى." },
+      intro: "CAP Entrepreneurs هي منظمة كندية غير ربحية مكرسة للتحول الرقمي الشامل والمستدام.",
+      
+      whoTitleA: "من", whoTitleB: "نحن",
+      whoText: "CAP Entrepreneurs هي منظمة كندية غير ربحية مكرسة للتحول الرقمي الشامل والمستدام.",
+      
+      missionTitleA: "مهمتنا", missionTitleB: "",
+      missionText: "ربط الأشخاص والمهارات والتكنولوجيا والفرص.",
+      
+      howTitleA: "كيف", howTitleB: "نعمل",
+      howSteps: [
+        { title: "اللجان", text: "الحوكمة والاستراتيجية" },
+        { title: "البرامج", text: "التعليم والتطوير" },
+        { title: "المتطوعون", text: "العمل المجتمعي" },
+        { title: "الشركاء", text: "خلق القيمة المشتركة" },
+        { title: "التأثير", text: "نمو مجتمعي ملموس" }
       ],
-      futureTitle: "مستقبلنا الرقمي",
-      futureQuote: "«مع توسع CAP Entrepreneurs، ستدعم الحلول الرقمية تقديم برامجنا من خلال التعلم عبر الإنترنت وإشراك الأعضاء والتعاون مع الشركاء.»",
-      futureText: "ستعزز التكنولوجيا مهمتنا من خلال جعل الدعم الريادي أكثر سهولة وقابلية للقياس والتوسع — مع الحفاظ على الروابط البشرية التي تدفع التأثير المجتمعي.",
+      
+      ecoTitleA: "نظامنا البيئي", ecoTitleB: "الرقمي",
+      ecoIntro: "Charlee هي البنية التحتية الرقمية التي تدعم هذا النظام البيئي.",
+      ecoSteps: [
+        { title: "انضم", text: "ابحث عن مكانك", icon: "👋" },
+        { title: "تدرب", text: "طور مهاراتك", icon: "📚" },
+        { title: "مارس", text: "طبق المعرفة", icon: "🛠️" },
+        { title: "تحقق", text: "أكد خبرتك", icon: "✅" },
+        { title: "قُد", text: "أرشد الآخرين", icon: "🎯" },
+        { title: "الفرص", text: "تواصل مع الشبكة", icon: "🌍" }
+      ],
+      
+      visionTitle: "رؤيتنا",
+      visionQuote: "“ربط المجتمعات والمنظمات والمبتكرين في جميع أنحاء العالم.”",
+      visionSteps: [
+        { title: "نيروبي 2027", text: "تجمع عالمي للتكنولوجيا الشاملة" },
+        { title: "المارتينيك 2028", text: "توسيع الشبكة" },
+        { title: "نظام بيئي دولي", text: "مجتمع بلا حدود" }
+      ]
     },
     programs: {
       eyebrow: "برامجنا",
@@ -953,6 +1117,21 @@ const STR = {
       goalsPh: "ما الذي تود تحقيقه من خلال هذا البرنامج؟",
       submit: "إرسال الطلب",
       success: "تم استلام الطلب — سيتواصل معك فريقنا قريبًا.",
+    },
+    volunteer: {
+      eyebrow: "تطوع معنا",
+      h1a: "اصنع", h1accent: "تأثيرًا",
+      intro: "انضم إلى شبكتنا من المحترفين الذين يكرسون وقتهم وخبراتهم لدعم رواد الأعمال والمنظمات غير الربحية.",
+      journeyTitle: "رحلة المتطوع",
+      journeySteps: [
+        { title: "قدم طلبًا", text: "أرسل اهتمامك عبر نموذج التوجيه الخاص بنا" },
+        { title: "المقابلة", text: "التقِ بفريقنا لمناقشة أهدافك" },
+        { title: "التدريب", text: "احصل على تدريب على أدواتنا وطرقنا" },
+        { title: "المطابقة", text: "تواصل مع مشروع أو منظمة" },
+        { title: "التأثير", text: "اصنع تغييرًا ملموسًا في المجتمع" }
+      ],
+      ctaTitle: "هل أنت مستعد للبدء؟",
+      ctaButton: "ابحث عن مسارك"
     },
     stories: {
       eyebrow: "قصص التأثير",
@@ -1012,6 +1191,39 @@ const STR = {
       eventsTitle: "الأحداث القادمة",
       newsTitle: "أحدث الأخبار",
     },
+    join: {
+      eyebrow: "انضم إلى النظام البيئي",
+      h1a: "اكتشف ",
+      h1accent: "مسارك",
+      intro: "أكمل هذا الاستبيان القصير لاكتشاف أفضل طريقة لك أو لمؤسستك للمشاركة مع رواد أعمال كاب.",
+      q1Title: "هل أنت فرد أم مؤسسة؟",
+      optIndividual: "فرد",
+      optOrganization: "مؤسسة",
+      q2IndivTitle: "هل تتطلع إلى تطوير المهارات أم التطوع؟",
+      optDevelopSkills: "تطوير المهارات",
+      optVolunteer: "تطوع",
+      q2OrgTitle: "هل أنت منظمة غير ربحية، شركة ناشئة، أم شركة كبرى؟",
+      optNonprofit: "غير ربحية",
+      optStartup: "شركة ناشئة",
+      optCorporate: "شركة كبرى",
+      q3Title: "أين تقع؟",
+      optQuebec: "كيبيك",
+      optCanada: "بقية كندا",
+      optIntl: "دولي",
+      back: "← رجوع",
+      recommendedTitle: "المسار الموصى به لك",
+      retake: "إعادة الاستبيان",
+      recGeneral: "نوصيك باستكشاف برامجنا العامة.",
+      recGeneralAction: "استكشاف البرامج",
+      recVolunteer: "نوصيك بالاطلاع على صفحة التطوع.",
+      recVolunteerAction: "كن متطوعًا",
+      recSkills: "نوصيك باستكشاف CAP Green Lab وبرامج المهارات الأخرى.",
+      recSkillsAction: "عرض البرامج",
+      recPartner: "نوصيك بالتواصل مع فريق الشراكات لدينا.",
+      recPartnerAction: "تواصل مع الشراكات",
+      recCorporate: "نوصيك باستكشاف شراكات الشركات أو الشركات الناشئة.",
+      recCorporateAction: "عرض الشركاء"
+    },
     donate: {
       eyebrow: "تبرع",
       h1a: "كل مساهمة", h1pre: "تصبح ", h1accent: "فرصة", h1post: "",
@@ -1033,13 +1245,25 @@ const STR = {
       submit: "تعهد بدعمي",
       success: "شكراً لتعهدك — سنتابع لإكمال مساهمتك.",
     },
+    festival: {
+      eyebrow: "مهرجان عالمي",
+      h1a: "مهرجان الابتكار ", h1pre: "", h1accent: "الدولي", h1post: "",
+      intro: "تجمع سنوي لرواد الأعمال والمبتكرين وصناع التغيير من جميع أنحاء العالم، احتفالًا بالثقافة والتكنولوجيا والتأثير الاجتماعي.",
+      aboutTitle: "عن المهرجان",
+      aboutCopy: "مهرجان الابتكار الدولي هو الحدث الرئيسي لـ CAP Entrepreneurs. إنه بمثابة منصة ديناميكية حيث يتجمع مجتمعنا لعرض المشاريع، وعرض الأفكار على المستثمرين العالميين، وبناء شراكات عبر الحدود. إنه أكثر من مجرد مؤتمر؛ إنه احتفال بروح ريادة الأعمال.",
+      destinationTitle: "وجهة 2027",
+      destinationCity: "نيروبي، كينيا",
+      destinationCopy: "نحن سعداء للإعلان عن أن المهرجان الافتتاحي سيقام في نيروبي. تشتهر نيروبي باسم 'السافانا السيليكونية'، ونظامها البيئي التقني النابض بالحياة وتراثها الثقافي الغني يجعلانها الخلفية المثالية لتجمعنا العالمي.",
+      ctaTitle: "انضم إلى قائمة الانتظار",
+      ctaButton: "سجل اهتمامك"
+    },
     contact: {
       eyebrow: "اتصل بنا",
       h1a: "ابدأ", h1accent: "محادثة",
       intro: "هل لديك أسئلة حول البرامج أو العضوية أو الشراكات أو التبرعات؟ نود أن نسمع منك.",
       info: [
-        { label: "البريد الإلكتروني", value: "info@capentrepreneurs.ca" },
-        { label: "مقرنا في", value: "كندا — نخدم المجتمعات على مستوى البلاد ودولياً" },
+        { label: "البريد الإلكتروني", value: "contact@capentrepreneurs.org" },
+        { label: "مقرنا في", value: "1265, rue Rachel E, porte 403 Montréal (Québec) H2J 2J9 • Canada" },
         { label: "تبحث عن", value: "البرامج، العضوية، الشراكات، التطوع أو التبرعات" },
       ],
       formTitle: "أرسل لنا رسالة",

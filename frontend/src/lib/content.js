@@ -1,11 +1,11 @@
 export const IMAGES = {
-  hero: "https://images.unsplash.com/photo-1502252430442-aac78f397426?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwyfHxjYW5hZGlhbiUyMG5hdHVyZSUyMHBpbmUlMjB0cmVlcyUyMGZvZ3xlbnwwfHx8fDE3ODYxNTI0MDF8MA&ixlib=rb-4.1.0&q=85",
-  collaboration: "https://images.unsplash.com/photo-1568992688065-536aad8a12f6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwzfHxkaXZlcnNlJTIwZW50cmVwcmVuZXVycyUyMGNvbGxhYm9yYXRpbmd8ZW58MHx8fHwxNzg2MTUyMzkxfDA&ixlib=rb-4.1.0&q=85",
-  board: "https://images.unsplash.com/photo-1622675363311-3e1904dc1885?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwZW50cmVwcmVuZXVycyUyMGNvbGxhYm9yYXRpbmd8ZW58MHx8fHwxNzg2MTUyMzkxfDA&ixlib=rb-4.1.0&q=85",
-  workshop: "https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MDV8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjB3b3Jrc2hvcCUyMGV2ZW50fGVufDB8fHx8MTc4NjE1MjM5MHww&ixlib=rb-4.1.0&q=85",
-  building: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNzl8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBhcmNoaXRlY3R1cmUlMjBidWlsZGluZ3xlbnwwfHx8fDE3ODYxNTIzOTB8MA&ixlib=rb-4.1.0&q=85",
-  portraitM: "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMGNvbmZpZGVudHxlbnwwfHx8fDE3ODYxNTI0MDF8MA&ixlib=rb-4.1.0&q=85",
-  portraitF: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdCUyMGNvbmZpZGVudHxlbnwwfHx8fDE3ODYxNTI0MDF8MA&ixlib=rb-4.1.0&q=85",
+  hero: "https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=1600&auto=format&fit=crop",
+  collaboration: "https://images.unsplash.com/photo-1531496730074-83b638c0a7ac?q=80&w=1600&auto=format&fit=crop",
+  board: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1600&auto=format&fit=crop",
+  workshop: "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1600&auto=format&fit=crop",
+  building: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=1600&auto=format&fit=crop",
+  portraitM: "https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=800&auto=format&fit=crop",
+  portraitF: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop",
 };
 
 export const PROGRAMS = [
@@ -391,4 +391,9 @@ export const STORIES_AR = STORIES_FR;
 export const NEWS_AR = NEWS_FR;
 export const EVENTS_AR = EVENTS_FR;
 export const MEMBER_BENEFITS_AR = MEMBER_BENEFITS_FR;
-export const PARTNER_TYPES_AR = PARTNER_TYPES_FR;
+export const PARTNER_TYPES_AR = [
+  { name: "شركاء الشركات", detail: "استثمر في خلق فرص قابلة للقياس وتوليد قيمة مشتركة." },
+  { name: "الشركاء المؤسسيون", detail: "مواءمة البرامج مع أولويات النمو الإقليمي وأهداف التأثير العام." },
+  { name: "المنظمات غير الحكومية والمؤسسات الاجتماعية", detail: "التعاون في المهام المشتركة وتعظيم التأثير المجتمعي." },
+  { name: "شركاء المعرفة", detail: "شارك في تصميم تجارب التعلم ومسارات الشهادات والبحث." },
+];

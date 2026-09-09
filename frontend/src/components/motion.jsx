@@ -69,7 +69,7 @@ export const Reveal = ({ children, delay = 0, y = 40, className = "" }) => (
   </motion.div>
 );
 
-export const KineticLines = ({ lines, className = "", lineClassName = "", delay = 0.1, testId }) => (
+export const KineticLines = ({ lines = [], className = "", lineClassName = "", delay = 0.1, testId }) => (
   <div className={className} data-testid={testId}>
     {lines.map((line, i) => (
       <div key={i} className="overflow-hidden pb-[0.08em] -mb-[0.08em]">

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { Reveal } from "@/components/motion";
+import { useLang } from "@/lib/i18n";
 import PageHero from "@/components/PageHero";
 import FormShell from "@/components/FormShell";
-import { useLang } from "@/lib/i18n";
 
 const submissionTypeFor = (finalAnswers) => {
   if (finalAnswers.intent === "Volunteer") return "volunteer";
@@ -33,22 +33,34 @@ const Join = () => {
   const QUESTIONS = [
     {
       id: "type",
-      title: "Are you an individual or an organization?",
-      options: ["Individual", "Organization"]
+      title: t.join.q1Title,
+      options: [
+        { label: t.join.optIndividual, value: "individual" },
+        { label: t.join.optOrganization, value: "organization" }
+      ]
     },
     {
       id: "intent",
-      title: answers.type === "Individual" 
-        ? "Are you looking to develop skills or volunteer?" 
-        : "Are you a nonprofit, startup, or corporate?",
-      options: answers.type === "Individual" 
-        ? ["Develop skills", "Volunteer"] 
-        : ["Nonprofit", "Startup", "Corporate"]
+      title: answers.type === "individual" ? t.join.q2IndivTitle : t.join.q2OrgTitle,
+      options: answers.type === "individual" 
+        ? [
+            { label: t.join.optDevelopSkills, value: "skills" },
+            { label: t.join.optVolunteer, value: "volunteer" }
+          ]
+        : [
+            { label: t.join.optNonprofit, value: "nonprofit" },
+            { label: t.join.optStartup, value: "startup" },
+            { label: t.join.optCorporate, value: "corporate" }
+          ]
     },
     {
       id: "location",
-      title: "Where are you located?",
-      options: ["Quebec", "Rest of Canada", "International"]
+      title: t.join.q3Title,
+      options: [
+        { label: t.join.optQuebec, value: "quebec" },
+        { label: t.join.optCanada, value: "canada" },
+        { label: t.join.optIntl, value: "international" }
+      ]
     }
   ];
 
@@ -73,37 +85,37 @@ const Join = () => {
 
   const computeRecommendation = (finalAnswers) => {
     let rec = {
-      message: "We recommend you explore our general programs.",
+      message: t.join.recGeneral,
       path: "/programs",
-      action: "Explore Programs"
+      action: t.join.recGeneralAction
     };
 
-    if (finalAnswers.type === "Individual") {
-      if (finalAnswers.intent === "Volunteer") {
+    if (finalAnswers.type === "individual") {
+      if (finalAnswers.intent === "volunteer") {
         rec = {
-          message: "We recommend you check out the Volunteer page.",
+          message: t.join.recVolunteer,
           path: "/volunteer",
-          action: "Become a Volunteer"
+          action: t.join.recVolunteerAction
         };
       } else {
         rec = {
-          message: "We recommend you explore CAP Green Lab and our other skills programs.",
+          message: t.join.recSkills,
           path: "/programs",
-          action: "View Programs"
+          action: t.join.recSkillsAction
         };
       }
     } else {
-      if (finalAnswers.intent === "Nonprofit") {
+      if (finalAnswers.intent === "nonprofit") {
         rec = {
-          message: "We recommend you connect with our Partnerships team.",
+          message: t.join.recPartner,
           path: "/contact",
-          action: "Contact Partnerships"
+          action: t.join.recPartnerAction
         };
       } else {
         rec = {
-          message: "We recommend you explore Corporate or Startup partnerships.",
+          message: t.join.recCorporate,
           path: "/partners",
-          action: "View Partners"
+          action: t.join.recCorporateAction
         };
       }
     }
@@ -114,11 +126,11 @@ const Join = () => {
     <div data-testid="join-page">
       <PageHero
         testId="join-hero"
-        eyebrow="Join the Ecosystem"
+        eyebrow={t.join.eyebrow}
         lines={[
-          <>Find your <span className="font-serif font-medium italic text-maple">pathway</span></>
+          <>{t.join.h1a}<span className="font-serif font-medium italic text-maple">{t.join.h1accent}</span></>
         ]}
-        intro="Complete this short questionnaire to discover the best way for you or your organization to engage with CAP Entrepreneurs."
+        intro={t.join.intro}
       />
 
       <section className="bg-white py-24 md:py-32">
@@ -136,16 +148,16 @@ const Join = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 {QUESTIONS[step].options.map((opt) => (
                   <button
-                    key={opt}
-                    onClick={() => handleSelect(opt)}
+                    key={opt.value}
+                    onClick={() => handleSelect(opt.value)}
                     className={`flex items-center justify-between border p-6 text-left font-bold transition-all ${
-                      answers[QUESTIONS[step].id] === opt
+                      answers[QUESTIONS[step].id] === opt.value
                         ? "border-maple bg-maple/5 text-maple"
                         : "border-forest/15 text-forest hover:border-forest"
                     }`}
                   >
-                    {opt}
-                    {answers[QUESTIONS[step].id] === opt && <CheckCircle2 className="h-5 w-5 text-maple" />}
+                    {opt.label}
+                    {answers[QUESTIONS[step].id] === opt.value && <CheckCircle2 className="h-5 w-5 text-maple" />}
                   </button>
                 ))}
               </div>
@@ -154,7 +166,7 @@ const Join = () => {
                   onClick={() => setStep(step - 1)}
                   className="mt-8 text-sm font-bold uppercase tracking-widest text-sage hover:text-forest"
                 >
-                  ← Back
+                  {t.join.back}
                 </button>
               )}
             </Reveal>
@@ -167,7 +179,7 @@ const Join = () => {
                   </div>
                 </div>
                 <h2 className="mb-6 font-heading text-3xl font-black text-forest md:text-5xl">
-                  Your Recommended Pathway
+                  {t.join.recommendedTitle}
                 </h2>
                 
                 <p className="mb-12 font-serif text-2xl italic text-sage md:text-3xl">
@@ -206,7 +218,7 @@ const Join = () => {
                 </div>
                 <div className="mt-8">
                   <button onClick={() => { setStep(0); setRecommendation(null); setAnswers({type:"", intent:"", location:""}); }} className="text-xs font-bold uppercase tracking-widest text-sage hover:text-forest">
-                    Retake Questionnaire
+                    {t.join.retake}
                   </button>
                 </div>
               </div>

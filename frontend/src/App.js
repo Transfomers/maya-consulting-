@@ -39,6 +39,8 @@ import AdminMedia from "@/pages/admin/Media";
 import AdminCategories from "@/pages/admin/Categories";
 import AdminSettings from "@/pages/admin/Settings";
 import AdminSubmissions from "@/pages/admin/Submissions";
+import Privacy from "@/pages/Privacy";
+import Terms from "@/pages/Terms";
 
 
 const ScrollToTop = () => {
@@ -110,6 +112,8 @@ function App() {
           <Route path="/join" element={page(Join)} />
           <Route path="/volunteer" element={page(Volunteer)} />
           <Route path="/global-festival" element={page(GlobalFestival)} />
+          <Route path="/privacy" element={page(Privacy)} />
+          <Route path="/terms" element={page(Terms)} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/accept-invitation/:token" element={<AcceptInvitation />} />
@@ -124,6 +128,7 @@ function App() {
             <Route path="media" element={<AdminMedia />} />
             <Route path="submissions" element={<AdminSubmissions />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="submissions" element={<AdminSubmissions />} />
           </Route>
 
         </Routes>
