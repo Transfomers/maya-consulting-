@@ -67,7 +67,6 @@ jobs:
 
             echo "Updating repository..."
 
-            git remote set-url origin https://github.com/Transfomers/cap-website.git || true
             git fetch origin
             git reset --hard origin/main
 
