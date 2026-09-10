@@ -46,17 +46,19 @@ const ImpactStories = () => {
               </Reveal>
             </div>
             <div className="lg:col-span-7 lg:col-start-6">
-              <div className="border-t border-forest/15">
-                {t.stories.parts.map(([label, key], j) => (
-                  <Reveal key={key} delay={j * 0.08} y={24}>
-                    <div className="grid gap-3 border-b border-forest/15 py-6 md:grid-cols-12 md:py-7" data-testid={`story-${s.id}-${key}`}>
-                      <span className="text-xs font-bold uppercase tracking-[0.25em] text-maple md:col-span-3">
-                        {label}
-                      </span>
-                      <p className="text-sm leading-relaxed text-ink md:col-span-9 md:text-base">{s[key]}</p>
-                    </div>
-                  </Reveal>
-                ))}
+              <div className="rounded-xl border border-forest/15 bg-white p-6 md:p-8 shadow-md transition-all hover:shadow-lg">
+                <div className="divide-y divide-forest/10">
+                  {t.stories.parts.map(([label, key], j) => (
+                    <Reveal key={key} delay={j * 0.08} y={24}>
+                      <div className="grid gap-3 py-5 md:grid-cols-12 md:py-6" data-testid={`story-${s.id}-${key}`}>
+                        <span className="text-xs font-bold uppercase tracking-[0.25em] text-maple md:col-span-3">
+                          {label}
+                        </span>
+                        <p className="text-sm leading-relaxed text-ink md:col-span-9 md:text-base">{s[key]}</p>
+                      </div>
+                    </Reveal>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

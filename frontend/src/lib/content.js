@@ -93,6 +93,21 @@ export const STORIES = [
     future:
       "The exchange becomes an annual mission, with volunteering placements opening to members next year.",
   },
+  {
+    id: "cheutou-kameni",
+    title: "Cheutou Kameni Firm",
+    place: "2025 – 2026 (Ongoing)",
+    image: IMAGES.collaborating,
+    challenge:
+      "Cheutou Kameni, a premier legal and professional advisory practice, required an authoritative digital presence to match their high-stakes consulting work. The firm needed to transition from traditional advisory methods to a modern, digitally driven framework that builds immediate trust, clearly communicates complex legal and consulting services, and streamlines client intake.",
+    program: "Brand Strategy, Digital Platform & Executive UI",
+    actions:
+      "Engineered an executive-tier digital platform and comprehensive brand strategy tailored specifically for legal and consulting. 1. Discover: Analyzed advisory services and positioning. 2. Structure: Developed brand identity and content hierarchy. 3. Build: Built high-performance responsive platform. 4. Optimize: Interface polish and mobile audits. 5. Scale: Implemented scalable structures.",
+    impact:
+      "Delivered a sophisticated digital platform elevating market positioning with high-value corporate clients, streamlined client consultation intake funnel, and established a scalable brand foundation.",
+    future:
+      "Built with modern web frameworks, executive brand strategy frameworks, and secure hosting protocols.",
+  },
 ];
 
 export const NEWS = [
@@ -301,9 +316,24 @@ export const STORIES_FR = [
     actions:
       "CAP Entrepreneurs a conclu un partenariat d'\u00e9change reliant une cohorte d'entrepreneurs canadiens \u00e0 des organismes pairs \u00e0 l'\u00e9tranger pour une mission d'apprentissage collaborative.",
     impact:
-      "Les participants sont revenus avec de nouveaux contacts de distribution, des comp\u00e9tences interculturelles et deux collaborations transfrontali\u00e8res actives.",
+      "Les participants sont revenus avec de nouveaux contacts de distribution, des compétences interculturelles et deux collaborations transfrontalières actives.",
     future:
-      "L'\u00e9change devient une mission annuelle, avec des placements de b\u00e9n\u00e9volat ouverts aux membres l'an prochain.",
+      "L'échange devient une mission annuelle, avec des placements de bénévolat ouverts aux membres l'an prochain.",
+  },
+  {
+    id: "cheutou-kameni",
+    title: "Cabinet Cheutou Kameni",
+    place: "2025 – 2026 (En cours)",
+    image: IMAGES.collaborating,
+    challenge:
+      "Cheutou Kameni, un cabinet de conseil juridique et professionnel de premier plan, nécessitait une présence numérique autoritaire à la hauteur de ses missions. Le cabinet devait passer d'un modèle traditionnel à une plateforme numérique moderne renforçant la confiance et simplifiant la prise de contact.",
+    program: "Stratégie de marque, Plateforme numérique & UI Exécutif",
+    actions:
+      "Conception d'une plateforme numérique de niveau exécutif et d'une stratégie de marque complète. 1. Découverte: Analyse des services et du positionnement. 2. Structure: Définition de l'identité et de la hiérarchie de contenu. 3. Construction: Développement de la plateforme réactive. 4. Optimisation: Finition de l'interface et audits. 5. Échelle: Mise en place d'infrastructures évolutives.",
+    impact:
+      "Livraison d'une plateforme sophistiquée renforçant la confiance des clients corporatifs à haute valeur, optimisation du tunnel de consultation et établissement d'une marque évolutive.",
+    future:
+      "Propulsé par des frameworks web modernes, une stratégie de marque exécutive et des protocoles d'hébergement sécurisés.",
   },
 ];
 
