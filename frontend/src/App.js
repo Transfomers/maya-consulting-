@@ -76,68 +76,66 @@ import { HelmetProvider } from "react-helmet-async";
 
 function App() {
   return (
-    <HelmetProvider>
-    <LanguageProvider>
-    <SettingsProvider>
-    <SEOHead />
-    <div className="App">
-      <div className="noise-overlay" aria-hidden="true" />
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          style: {
-            borderRadius: 0,
-            border: "1px solid #0D0E0D",
-            background: "#FDFCFD",
-            color: "#0D0E0D",
-            fontFamily: "Manrope, sans-serif",
-          },
-        }}
-      />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={page(Home)} />
-          <Route path="/about" element={page(About)} />
-          <Route path="/programs" element={page(Programs)} />
-          <Route path="/impact-stories" element={page(ImpactStories)} />
-          <Route path="/membership" element={page(Membership)} />
-          <Route path="/partners" element={page(Partners)} />
-          <Route path="/news-events" element={page(NewsEvents)} />
-          <Route path="/blog" element={page(Blog)} />
-          <Route path="/blog/:slug" element={page(BlogPost)} />
-          <Route path="/events" element={page(Events)} />
-          <Route path="/donate" element={page(Donate)} />
-          <Route path="/contact" element={page(Contact)} />
-          <Route path="/join" element={page(Join)} />
-          <Route path="/volunteer" element={page(Volunteer)} />
-          <Route path="/global-festival" element={page(GlobalFestival)} />
-          <Route path="/privacy" element={page(Privacy)} />
-          <Route path="/terms" element={page(Terms)} />
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/accept-invitation/:token" element={<AcceptInvitation />} />
-          <Route path="/admin/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/admin/*" element={<AdminDashboard />}>
-            <Route path="dashboard" element={<AdminOverview />} />
-            <Route path="posts" element={<AdminPostList />} />
-            <Route path="posts/new" element={<AdminPostEditor />} />
-            <Route path="posts/:id/edit" element={<AdminPostEditor />} />
-            <Route path="categories" element={<AdminCategories />} />
-            <Route path="events" element={<AdminEventsList />} />
-            <Route path="media" element={<AdminMedia />} />
-            <Route path="submissions" element={<AdminSubmissions />} />
-            <Route path="settings" element={<AdminSettings />} />
-            <Route path="submissions" element={<AdminSubmissions />} />
-          </Route>
-
-        </Routes>
-        <PublicChat />
-      </BrowserRouter>
-    </div>
-    </SettingsProvider>
-    </LanguageProvider>
-    </HelmetProvider>
+    <BrowserRouter>
+      <HelmetProvider>
+        <LanguageProvider>
+          <SettingsProvider>
+            <SEOHead />
+            <div className="App">
+              <div className="noise-overlay" aria-hidden="true" />
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  style: {
+                    borderRadius: 0,
+                    border: "1px solid #0D0E0D",
+                    background: "#FDFCFD",
+                    color: "#0D0E0D",
+                    fontFamily: "Manrope, sans-serif",
+                  },
+                }}
+              />
+              <ScrollToTop />
+              <Routes>
+                <Route path="/" element={page(Home)} />
+                <Route path="/about" element={page(About)} />
+                <Route path="/programs" element={page(Programs)} />
+                <Route path="/impact-stories" element={page(ImpactStories)} />
+                <Route path="/membership" element={page(Membership)} />
+                <Route path="/partners" element={page(Partners)} />
+                <Route path="/news-events" element={page(NewsEvents)} />
+                <Route path="/blog" element={page(Blog)} />
+                <Route path="/blog/:slug" element={page(BlogPost)} />
+                <Route path="/events" element={page(Events)} />
+                <Route path="/donate" element={page(Donate)} />
+                <Route path="/contact" element={page(Contact)} />
+                <Route path="/join" element={page(Join)} />
+                <Route path="/volunteer" element={page(Volunteer)} />
+                <Route path="/global-festival" element={page(GlobalFestival)} />
+                <Route path="/privacy" element={page(Privacy)} />
+                <Route path="/terms" element={page(Terms)} />
+                <Route path="/admin" element={<AdminLogin />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/accept-invitation/:token" element={<AcceptInvitation />} />
+                <Route path="/admin/reset-password/:token" element={<ResetPassword />} />
+                <Route path="/admin/*" element={<AdminDashboard />}>
+                  <Route path="dashboard" element={<AdminOverview />} />
+                  <Route path="posts" element={<AdminPostList />} />
+                  <Route path="posts/new" element={<AdminPostEditor />} />
+                  <Route path="posts/:id/edit" element={<AdminPostEditor />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="events" element={<AdminEventsList />} />
+                  <Route path="media" element={<AdminMedia />} />
+                  <Route path="submissions" element={<AdminSubmissions />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
+              </Routes>
+              <PublicChat />
+            </div>
+          </SettingsProvider>
+        </LanguageProvider>
+      </HelmetProvider>
+    </BrowserRouter>
   );
 }
 
