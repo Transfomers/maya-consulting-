@@ -31,9 +31,10 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
       - "traefik.http.routers.cap.rule=Host(`capentrepreneurs.org`) || Host(`www.capentrepreneurs.org`)"
-      - "traefik.http.routers.cap.entrypoints=websecure"
+      - "traefik.http.routers.cap.entrypoints=web,websecure"
       - "traefik.http.routers.cap.tls=true"
       - "traefik.http.routers.cap.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.cap.service=cap"
       - "traefik.http.services.cap.loadbalancer.server.port=80"
     networks:
       - cap_network
