@@ -28,7 +28,6 @@ import Scene3D from "@/components/Scene3D";
 import ImageCarousel from "@/components/ImageCarousel";
 import { IMAGES, PROGRAMS, PROGRAMS_FR, PROGRAMS_AR } from "@/lib/content";
 import { useLang } from "@/lib/i18n";
-import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 
 const COMMUNITY_PHOTOS = [
   { src: "/assets/images/cap_green_lab.webp", alt: "Cap Green Lab - Reconditionnement et inclusion tech" },
@@ -1087,9 +1086,6 @@ const Home = () => {
           </Reveal>
         </div>
       </section>
-
-      {/* NEWSLETTER AUTOMATION STRIPE */}
-      <NewsletterSubscribe variant="banner" source="homepage" />
 
       {/* INVOLVEMENT FORM MODAL */}
       <AnimatePresence>

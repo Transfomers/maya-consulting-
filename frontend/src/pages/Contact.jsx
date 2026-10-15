@@ -921,7 +921,7 @@ export default function Contact() {
                       setFormData({ name: "", email: "", message: "" });
                       setIsSubmitted(false);
                     }}
-                    className="bg-[#737373] hover:bg-[#1a1a1a] text-white font-sans text-[11px] font-bold tracking-[0.25em] uppercase px-8 py-3.5 transition-all duration-200 cursor-pointer rounded-none"
+                    className="bg-forest hover:bg-maple text-bone font-heading text-xs font-bold tracking-[0.2em] uppercase px-8 py-3.5 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md rounded-none"
                   >
                     {isFrench ? "Envoyer un autre message" : "Send Another Message"}
                   </button>
@@ -1004,15 +1004,18 @@ export default function Contact() {
                       data-testid="submit-form-button"
                       type="submit"
                       disabled={isSubmitting}
-                      className="bg-[#737373] hover:bg-[#1a1a1a] text-white font-sans text-[11px] font-bold tracking-[0.25em] uppercase px-8 py-3.5 transition-all duration-200 cursor-pointer shadow-sm rounded-none disabled:opacity-50 flex items-center gap-2"
+                      className="group inline-flex items-center gap-2.5 bg-forest hover:bg-maple text-bone font-heading text-xs font-bold tracking-[0.2em] uppercase px-9 py-4 transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg rounded-none disabled:opacity-50"
                     >
                       {isSubmitting ? (
                         <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin" />
                           <span>{isFrench ? "ENVOI EN COURS..." : "SUBMITTING..."}</span>
                         </>
                       ) : (
-                        <span>{isFrench ? "ENVOYER LE FORMULAIRE" : isArabic ? "إرسال النموذج" : "SUBMIT FORM"}</span>
+                        <>
+                          <span>{isFrench ? "ENVOYER LE FORMULAIRE" : isArabic ? "إرسال النموذج" : "SUBMIT FORM"}</span>
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </>
                       )}
                     </button>
                   </div>
@@ -1111,7 +1114,7 @@ export default function Contact() {
 
                     <button
                       onClick={() => setSelectedEventForRsvp(evt)}
-                      className="w-full bg-[#1c1c1c] hover:bg-[#C89255] text-white text-[11px] font-bold uppercase tracking-[0.2em] py-3 transition-colors rounded-none flex items-center justify-center gap-2"
+                      className="w-full bg-forest hover:bg-maple text-bone text-xs font-bold uppercase tracking-[0.18em] py-3.5 transition-all duration-300 rounded-none flex items-center justify-center gap-2 shadow-sm hover:shadow-md cursor-pointer"
                     >
                       <span>{isFrench ? "S'inscrire à la session" : "Register / RSVP"}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -1209,7 +1212,7 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={rsvpSubmitting}
-                className="w-full bg-[#1c1c1c] hover:bg-[#C89255] text-white text-[11px] font-bold uppercase tracking-[0.25em] py-3.5 transition-colors disabled:opacity-50 mt-2"
+                className="w-full bg-forest hover:bg-maple text-bone text-xs font-bold uppercase tracking-[0.2em] py-3.5 transition-all duration-300 disabled:opacity-50 mt-2 shadow-md hover:shadow-lg cursor-pointer"
               >
                 {rsvpSubmitting
                   ? (isFrench ? "Confirmation en cours..." : "Confirming...")
@@ -1241,7 +1244,7 @@ export default function Contact() {
 
           {/* Profile Selector Cards */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-16">
-            {PROFILE_CONFIGS.map((p, i) => {
+            {profileConfigs.map((p, i) => {
               const isSelected = selectedProfileId === p.id;
               return (
                 <Reveal key={p.id} delay={i * 0.04}>

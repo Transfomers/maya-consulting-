@@ -8,7 +8,12 @@ const Footer = () => {
   const { t } = useLang();
   const settings = useSettings();
   
-  const logoSrc = settings?.footer?.logo || settings?.branding?.logo_light || "/assets/logo-mark-light.png";
+  const logoSrc = 
+    (settings?.footer?.logo && settings.footer.logo.trim() !== "") 
+      ? settings.footer.logo 
+      : (settings?.branding?.logo_light && settings.branding.logo_light.trim() !== "")
+      ? settings.branding.logo_light
+      : "/assets/logo-mark-light.png";
   const quoteText = settings?.footer?.description || t.footer.quote;
   const copyrightText = settings?.footer?.copyright_text || `© ${new Date().getFullYear()} CAP Entrepreneurs. ${t.footer.copyright}`;
   
@@ -17,7 +22,15 @@ const Footer = () => {
     <div className="mx-auto max-w-[1600px] px-5 pb-10 pt-20 md:px-10 md:pt-28">
       <div className="grid gap-12 border-b border-bone/15 pb-16 md:grid-cols-12">
         <div className="md:col-span-4">
-          <img src={logoSrc} alt="CAP Entrepreneurs" className="mb-8 h-12 w-auto" data-testid="footer-logo" />
+          <Link to="/" className="inline-block mb-8">
+            <img 
+              src={logoSrc} 
+              alt="CAP Entrepreneurs" 
+              className="h-10 sm:h-12 w-auto object-contain" 
+              onError={(e) => { e.currentTarget.src = "/assets/logo-mark-light.png"; }}
+              data-testid="footer-logo" 
+            />
+          </Link>
           <p className="font-serif text-2xl italic leading-snug text-bone/90 md:text-3xl">
             {quoteText}
           </p>
