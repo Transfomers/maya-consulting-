@@ -40,8 +40,46 @@ const COMMUNITY_PHOTOS = [
   { src: "https://images.unsplash.com/photo-1534430480872-3498386e7856?auto=format&fit=crop&w=600&q=80", alt: "Ouverture sur le monde" },
 ];
 
+const HERO_VERBS = [
+  {
+    word: "CRÉER",
+    wordEn: "CREATE",
+    wordAr: "ابتكار",
+    step: "01",
+    lead: "Initier des solutions concrètes",
+    leadEn: "Initiate concrete solutions",
+    leadAr: "إطلاق حلول ملموسة",
+  },
+  {
+    word: "ACCOMPAGNER",
+    wordEn: "ACCOMPANY",
+    wordAr: "مرافقة",
+    step: "02",
+    lead: "Former, mentorer & outiller",
+    leadEn: "Train, mentor & equip",
+    leadAr: "التدريب والإرشاد والتمكين",
+  },
+  {
+    word: "PROPULSER",
+    wordEn: "PROPEL",
+    wordAr: "تمكين وتسريع",
+    step: "03",
+    lead: "Accélérer l'impact durable",
+    leadEn: "Accelerate sustainable impact",
+    leadAr: "تسريع الأثر المستدام",
+  },
+];
+
 const Home = () => {
   const { lang, t } = useLang();
+  const [heroVerbIndex, setHeroVerbIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroVerbIndex((prev) => (prev + 1) % HERO_VERBS.length);
+    }, 2800);
+    return () => clearInterval(timer);
+  }, []);
 
   const currentPrograms = lang === "fr" ? PROGRAMS_FR : lang === "ar" ? PROGRAMS_AR : PROGRAMS;
 
@@ -336,29 +374,134 @@ const Home = () => {
         <div className="relative z-10 mx-auto max-w-[1600px] px-5 pb-16 pt-24 md:px-10 md:pt-32 lg:pb-24">
           <div className="max-w-5xl">
 
+            {/* OUVRIR DE NOUVEAUX HORIZONS Eyebrow Badge */}
+            <Reveal>
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 mb-6 border border-forest/20 bg-white/85 backdrop-blur-md shadow-xs">
+                <Sparkles className="h-3.5 w-3.5 text-maple" />
+                <span className="font-montserrat text-xs md:text-sm font-bold uppercase tracking-[0.25em] text-forest">
+                  {lang === "fr" ? "OUVRIR DE NOUVEAUX HORIZONS" : lang === "ar" ? "فتح آفاق جديدة" : "OPENING NEW HORIZONS"}
+                </span>
+              </div>
+            </Reveal>
+
             {/* H1 Headline */}
-            <h1 className="sr-only">{t.home.h1}</h1>
+            <h1 className="sr-only">
+              {lang === "fr"
+                ? "Bâtir des économies numériques inclusives, accessibles et durables."
+                : lang === "ar"
+                ? "بناء اقتصادات رقمية شاملة ومتاحة ومستدامة."
+                : "Building inclusive, accessible and sustainable digital economies."}
+            </h1>
             <KineticLines
               testId="hero-heading"
-              lines={[
-                <>{t.home.h1a}</>,
-                <>
-                  <span className="font-serif font-medium italic tracking-tight text-maple">{t.home.h1accent}</span>
-                  {t.home.h1post}
-                </>,
-              ]}
-              className="font-heading text-[10vw] font-black leading-[0.94] tracking-tight text-forest sm:text-6xl md:text-7xl lg:text-[4.6rem] xl:text-[5.4rem]"
+              lines={
+                lang === "fr"
+                  ? [
+                      <>Bâtir des économies numériques</>,
+                      <>
+                        <span className="font-serif font-medium italic tracking-tight text-maple">inclusives</span>
+                        , accessibles et durables.
+                      </>,
+                    ]
+                  : lang === "ar"
+                  ? [
+                      <>بناء اقتصادات رقمية</>,
+                      <>
+                        <span className="font-serif font-medium italic text-maple">شاملة</span>
+                        ، متاحة ومستدامة.
+                      </>,
+                    ]
+                  : [
+                      <>Building</>,
+                      <>
+                        <span className="font-serif font-medium italic tracking-tight text-maple">inclusive</span>
+                        , accessible and sustainable digital economies.
+                      </>,
+                    ]
+              }
+              className="font-heading text-[9vw] font-black leading-[0.96] tracking-tight text-forest sm:text-5xl md:text-6xl lg:text-[4.2rem] xl:text-[4.8rem]"
             />
 
             {/* Mission Subtext */}
-            <Reveal delay={0.25} className="mt-8 max-w-3xl">
-              <p className="text-lg leading-relaxed text-forest/80 sm:text-xl md:text-2xl font-normal" data-testid="hero-subtext">
-                {t.home.intro}
+            <Reveal delay={0.2} className="mt-8 max-w-3xl space-y-4">
+              <p className="text-lg leading-relaxed text-forest/85 sm:text-xl md:text-2xl font-normal" data-testid="hero-subtext">
+                {lang === "fr"
+                  ? "Nous aidons les personnes, les entrepreneurs et les organisations à impact social à développer les compétences numériques, les outils et les partenariats nécessaires pour créer des opportunités durables."
+                  : lang === "ar"
+                  ? "نساعد الأفراد ورواد الأعمال ومنظمات الأثر الاجتماعي على تطوير المهارات الرقمية والأدوات والشراكات اللازمة لخلق فرص مستدامة."
+                  : "We help individuals, entrepreneurs, and social impact organizations develop the digital skills, tools, and partnerships needed to create sustainable opportunities."}
+              </p>
+              <p className="text-base sm:text-lg md:text-xl font-medium text-forest/75 leading-relaxed">
+                {lang === "fr"
+                  ? "Ensemble, transformons le potentiel en possibilités et les idées en impact."
+                  : lang === "ar"
+                  ? "معاً، نحول الإمكانات إلى فرص حقيقية والأفكار إلى أثر ملموس."
+                  : "Together, let's transform potential into possibilities and ideas into impact."}
               </p>
             </Reveal>
 
+            {/* CRÉER, ACCOMPAGNER, PROPULSER. Scrolling Up & Disappearing like Testimonials */}
+            <Reveal delay={0.3}>
+              <div className="mt-8 py-4 px-6 sm:px-8 border border-forest/15 bg-white/70 backdrop-blur-md shadow-xs max-w-2xl">
+                <div className="flex items-center justify-between pb-2.5 border-b border-forest/10 mb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-maple animate-pulse" />
+                    <span className="font-montserrat text-[10.5px] font-bold uppercase tracking-[0.24em] text-forest/70">
+                      {lang === "fr" ? "NOTRE DÉMARCHE D'ACTION" : lang === "ar" ? "منهجية العمل" : "OUR ACTION PILLARS"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {HERO_VERBS.map((verb, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setHeroVerbIndex(idx)}
+                        className={`px-2.5 py-0.5 font-montserrat text-[10px] font-bold tracking-wider transition-all duration-300 ${
+                          heroVerbIndex === idx
+                            ? "bg-forest text-white"
+                            : "text-forest/40 hover:text-forest bg-forest/5"
+                        }`}
+                      >
+                        {verb.step}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Animated Text Scrolling Up & Disappearing like Testimonials */}
+                <div className="h-14 sm:h-16 relative overflow-hidden flex items-center">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={heroVerbIndex}
+                      initial={{ opacity: 0, y: 18 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -18 }}
+                      transition={{ duration: 0.35, ease: "easeOut" }}
+                      className="flex flex-wrap items-baseline gap-2 sm:gap-3.5"
+                    >
+                      <span className="font-heading text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-forest">
+                        {lang === "fr"
+                          ? HERO_VERBS[heroVerbIndex].word
+                          : lang === "ar"
+                          ? HERO_VERBS[heroVerbIndex].wordAr
+                          : HERO_VERBS[heroVerbIndex].wordEn}
+                        <span className="text-maple">.</span>
+                      </span>
+                      <span className="font-serif italic text-sm sm:text-base md:text-lg text-sage">
+                        —{" "}
+                        {lang === "fr"
+                          ? HERO_VERBS[heroVerbIndex].lead
+                          : lang === "ar"
+                          ? HERO_VERBS[heroVerbIndex].leadAr
+                          : HERO_VERBS[heroVerbIndex].leadEn}
+                      </span>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
+            </Reveal>
+
             {/* CTAs */}
-            <Reveal delay={0.35} className="mt-10">
+            <Reveal delay={0.4} className="mt-8">
               <div className="flex flex-col sm:flex-row flex-wrap gap-4">
                 <Magnetic>
                   <Link
