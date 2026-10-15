@@ -28,6 +28,7 @@ import Scene3D from "@/components/Scene3D";
 import ImageCarousel from "@/components/ImageCarousel";
 import { IMAGES, PROGRAMS, PROGRAMS_FR, PROGRAMS_AR } from "@/lib/content";
 import { useLang } from "@/lib/i18n";
+import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 
 const COMMUNITY_PHOTOS = [
   { src: "https://images.unsplash.com/photo-1476820865390-c52aeebb9891?auto=format&fit=crop&w=600&q=80", alt: "Arbre et renouveau" },
@@ -1113,6 +1114,9 @@ const Home = () => {
           </Reveal>
         </div>
       </section>
+
+      {/* NEWSLETTER AUTOMATION STRIPE */}
+      <NewsletterSubscribe variant="banner" source="homepage" />
 
       {/* INVOLVEMENT FORM MODAL */}
       <AnimatePresence>

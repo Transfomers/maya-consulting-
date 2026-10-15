@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, delete
 from sqlalchemy.orm import selectinload
@@ -6,6 +6,8 @@ from app.core.database import get_db
 from app.core.security import get_current_user, RequirePermission
 from app.schemas.post import PostCreate, PostResponse, ReferenceCreate
 from app.models.post import Post, PostTranslation, Reference
+from app.models.newsletter import NewsletterCampaign
+from app.models.setting import Setting
 from datetime import datetime, timezone
 from typing import List, Optional
 import re
@@ -66,8 +68,62 @@ async def get_post(id: str, user = Depends(RequirePermission("articles.view")), 
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
+async def trigger_post_publication_newsletter(post_id: str, author_id: str, background_tasks: BackgroundTasks, db: AsyncSession):
+    from app.api.admin_newsletter import process_campaign_dispatch
+    try:
+        s_res = await db.execute(select(Setting).where(Setting.key == "newsletter_auto_send"))
+        s_row = s_res.scalars().first()
+        if s_row and s_row.value.lower() in ("false", "0", "no"):
+            return
+
+        c_res = await db.execute(select(NewsletterCampaign).where(NewsletterCampaign.article_id == post_id))
+        existing_campaign = c_res.scalars().first()
+        if existing_campaign:
+            return
+
+        p_res = await db.execute(
+            select(Post).where(Post.id == post_id).options(selectinload(Post.translations))
+        )
+        post = p_res.scalars().first()
+        if not post or post.status != "published":
+            return
+
+        title = "Nouvel article sur CAP Entrepreneurs"
+        excerpt = "Découvrez notre dernière publication sur capentrepreneurs.org"
+        for t in (post.translations or []):
+            if t.language == "fr" and t.title:
+                title = t.title
+                excerpt = t.excerpt or excerpt
+                break
+            elif t.title:
+                title = t.title
+                excerpt = t.excerpt or excerpt
+
+        campaign = NewsletterCampaign(
+            title=f"Publication : {title}",
+            subject=f"CAP Entrepreneurs — {title}",
+            preview_text=excerpt,
+            article_id=post.id,
+            recipient_segment="all_active",
+            status="draft",
+            created_by_id=author_id
+        )
+        db.add(campaign)
+        await db.commit()
+        await db.refresh(campaign)
+
+        background_tasks.add_task(process_campaign_dispatch, campaign.id)
+    except Exception as e:
+        import logging
+        logging.getLogger("posts").warning(f"Could not trigger publication newsletter: {e}")
+
 @router.post("/", response_model=PostResponse)
-async def create_post(post_data: PostCreate, user = Depends(RequirePermission("articles.view")), db: AsyncSession = Depends(get_db)):
+async def create_post(
+    post_data: PostCreate,
+    background_tasks: BackgroundTasks,
+    user = Depends(RequirePermission("articles.view")),
+    db: AsyncSession = Depends(get_db)
+):
     status = post_data.status
     if user.role and user.role.name == "AUTHOR" and status in ["published", "scheduled"]:
         status = "review"
@@ -119,12 +175,21 @@ async def create_post(post_data: PostCreate, user = Depends(RequirePermission("a
             db.add(ref)
             
     await db.commit()
+
+    if status == "published":
+        await trigger_post_publication_newsletter(post.id, user.id, background_tasks, db)
     
     result = await db.execute(select(Post).where(Post.id == post.id).options(selectinload(Post.translations), selectinload(Post.references)))
     return result.scalars().first()
 
 @router.put("/{id}", response_model=PostResponse)
-async def update_post(id: str, post_data: PostCreate, user = Depends(RequirePermission("articles.view")), db: AsyncSession = Depends(get_db)):
+async def update_post(
+    id: str,
+    post_data: PostCreate,
+    background_tasks: BackgroundTasks,
+    user = Depends(RequirePermission("articles.view")),
+    db: AsyncSession = Depends(get_db)
+):
     result = await db.execute(select(Post).where(Post.id == id).options(selectinload(Post.translations), selectinload(Post.references)))
     post = result.scalars().first()
     if not post:
@@ -133,6 +198,7 @@ async def update_post(id: str, post_data: PostCreate, user = Depends(RequirePerm
     if user.role and user.role.name == "AUTHOR" and post.author_id != user.id:
         raise HTTPException(status_code=403, detail="Not authorized to edit this post")
 
+    was_published = post.status == "published"
     status = post_data.status
     if user.role and user.role.name == "AUTHOR" and status in ["published", "scheduled"]:
         status = "review"
@@ -185,6 +251,9 @@ async def update_post(id: str, post_data: PostCreate, user = Depends(RequirePerm
             db.add(ref)
             
     await db.commit()
+
+    if status == "published" and not was_published:
+        await trigger_post_publication_newsletter(post.id, user.id, background_tasks, db)
     
     result = await db.execute(select(Post).where(Post.id == post.id).options(selectinload(Post.translations), selectinload(Post.references)))
     return result.scalars().first()

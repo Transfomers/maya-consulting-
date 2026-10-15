@@ -6,6 +6,7 @@ import { Reveal } from "@/components/motion";
 import { ArrowLeft } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { IMAGES } from "@/lib/content";
+import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 
 export default function BlogPost() {
   const { slug } = useParams();
@@ -149,6 +150,13 @@ export default function BlogPost() {
             className="prose prose-lg max-w-none text-forest/85 leading-relaxed font-sans prose-headings:font-serif prose-headings:font-normal prose-headings:tracking-tight prose-headings:text-forest prose-a:text-maple prose-a:font-semibold hover:prose-a:underline prose-blockquote:border-maple prose-blockquote:text-forest prose-img:rounded-2xl prose-img:shadow-md"
             dangerouslySetInnerHTML={{ __html: trans.content }}
           />
+        </Reveal>
+
+        {/* Article Newsletter Subscription */}
+        <Reveal delay={0.3}>
+          <div className="my-12">
+            <NewsletterSubscribe variant="card" source="blog_post" />
+          </div>
         </Reveal>
 
         {/* Share & Back Bottom Bar */}

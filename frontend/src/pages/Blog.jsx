@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import { Reveal } from "@/components/motion";
 import { ArrowRight, Search, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 
 export default function Blog() {
   const { lang } = useLang();
@@ -342,44 +343,8 @@ export default function Blog() {
               </p>
             </div>
 
-            {/* 2. NEWSLETTER BOX ("follow / NEWSLETTER") */}
-            <div className="border border-neutral-200/80 bg-[#FAFAFA] p-6 sm:p-7 text-center">
-              <span className="font-serif italic text-3xl sm:text-4xl text-neutral-300 block select-none mb-1">
-                follow
-              </span>
-              <span className="font-montserrat text-[10px] font-bold uppercase tracking-[0.28em] text-[#1a1a1a] block mb-2">
-                NEWSLETTER
-              </span>
-              <p className="font-montserrat text-[9.5px] font-semibold uppercase tracking-wider text-neutral-600 max-w-[220px] mx-auto mb-4 leading-relaxed">
-                {isFrench
-                  ? "LE MEILLEUR DE CAP ENTREPRENEURS DIRECTEMENT DANS VOTRE BOÎTE COURRIEL."
-                  : "BEST OF CAP ENTREPRENEURS STRAIGHT TO YOUR INBOX."}
-              </p>
-
-              {subscribed ? (
-                <div className="flex items-center justify-center gap-2 text-xs font-bold text-maple py-3">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{isFrench ? "Inscrit avec succès !" : "Successfully subscribed!"}</span>
-                </div>
-              ) : (
-                <form onSubmit={handleSubscribe} className="flex flex-col gap-2.5">
-                  <input
-                    type="email"
-                    value={newsletterEmail}
-                    onChange={(e) => setNewsletterEmail(e.target.value)}
-                    placeholder={isFrench ? "Adresse courriel" : "Email"}
-                    className="w-full border border-neutral-300 bg-white px-3.5 py-2.5 text-xs text-neutral-800 placeholder:text-neutral-400 focus:border-maple focus:outline-none transition-colors text-center"
-                  />
-                  <button
-                    type="submit"
-                    disabled={subscribing}
-                    className="w-full bg-[#111111] hover:bg-maple text-white font-montserrat text-[10.5px] font-bold tracking-[0.22em] py-3 uppercase transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {subscribing ? (isFrench ? "ENVOI..." : "SENDING...") : (isFrench ? "S'ABONNER" : "SUBSCRIBE")}
-                  </button>
-                </form>
-              )}
-            </div>
+            {/* 2. NEWSLETTER BOX */}
+            <NewsletterSubscribe variant="card" source="blog_sidebar" className="shadow-xs" />
 
             {/* 3. DON'T MISS (TRENDING POSTS FROM BACKEND) */}
             {trendingPosts.length > 0 && (
@@ -498,6 +463,9 @@ export default function Blog() {
         </div>
 
       </div>
+
+      {/* Full Width Newsletter Strip */}
+      <NewsletterSubscribe variant="banner" source="blog_landing" />
     </div>
   );
 }

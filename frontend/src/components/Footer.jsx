@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight, Facebook, Instagram, Linkedin } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { useSettings } from "@/lib/SettingsContext";
+import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 
 const Footer = () => {
   const { t } = useLang();
@@ -15,7 +16,7 @@ const Footer = () => {
   <footer className="bg-forest text-bone" data-testid="site-footer">
     <div className="mx-auto max-w-[1600px] px-5 pb-10 pt-20 md:px-10 md:pt-28">
       <div className="grid gap-12 border-b border-bone/15 pb-16 md:grid-cols-12">
-        <div className="md:col-span-5">
+        <div className="md:col-span-4">
           <img src={logoSrc} alt="CAP Entrepreneurs" className="mb-8 h-12 w-auto" data-testid="footer-logo" />
           <p className="font-serif text-2xl italic leading-snug text-bone/90 md:text-3xl">
             {quoteText}
@@ -40,7 +41,7 @@ const Footer = () => {
             </a>
           </div>
         </div>
-        <div className="md:col-span-3 md:col-start-7">
+        <div className="md:col-span-2 md:col-start-5">
           <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.25em] text-bone/60">{t.footer.explore}</h4>
           <ul className="space-y-2.5 text-sm">
             {[
@@ -57,7 +58,7 @@ const Footer = () => {
             ))}
           </ul>
         </div>
-        <div className="md:col-span-3">
+        <div className="md:col-span-2">
           <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.25em] text-bone/60">{t.footer.involved}</h4>
           <ul className="space-y-2.5 text-sm">
             {[
@@ -73,6 +74,15 @@ const Footer = () => {
               </li>
             ))}
           </ul>
+        </div>
+        <div className="md:col-span-4">
+          <h4 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-bone/60">
+            {t.footer?.newsletter || "Infolettre & Parutions"}
+          </h4>
+          <p className="text-xs text-bone/70 mb-4 leading-relaxed">
+            Recevez nos derniers articles, initiatives et opportunités d'impact directement par courriel.
+          </p>
+          <NewsletterSubscribe variant="footer" source="footer" />
         </div>
       </div>
 

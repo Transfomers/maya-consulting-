@@ -79,7 +79,7 @@ class RequirePermission:
         if not role:
             raise HTTPException(status_code=403, detail="Assigned role not found")
             
-        if self.required_permission not in role.permissions:
-            raise HTTPException(status_code=403, detail="Permission denied")
+        if role.name == "Super Administrator" or self.required_permission in (role.permissions or []):
+            return user
             
-        return user
+        raise HTTPException(status_code=403, detail="Permission denied")

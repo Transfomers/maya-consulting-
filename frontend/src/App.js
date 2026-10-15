@@ -41,6 +41,9 @@ import AdminCategories from "@/pages/admin/Categories";
 import AdminSettings from "@/pages/admin/Settings";
 import AdminSubmissions from "@/pages/admin/Submissions";
 import AdminResources from "@/pages/admin/Resources";
+import AdminNewsletter from "@/pages/admin/AdminNewsletter";
+import ConfirmSubscription from "@/pages/ConfirmSubscription";
+import Unsubscribe from "@/pages/Unsubscribe";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import { HelmetProvider } from "react-helmet-async";
@@ -120,6 +123,8 @@ function App() {
                 <Route path="/global-festival" element={page(GlobalFestival)} />
                 <Route path="/privacy" element={page(Privacy)} />
                 <Route path="/terms" element={page(Terms)} />
+                <Route path="/confirm-subscription" element={page(ConfirmSubscription)} />
+                <Route path="/unsubscribe" element={page(Unsubscribe)} />
                 <Route path="/admin" element={<AdminLogin />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/accept-invitation/:token" element={<AcceptInvitation />} />
@@ -129,6 +134,7 @@ function App() {
                   <Route path="posts" element={<AdminPostList />} />
                   <Route path="posts/new" element={<AdminPostEditor />} />
                   <Route path="posts/:id/edit" element={<AdminPostEditor />} />
+                  <Route path="newsletter" element={<AdminNewsletter />} />
                   <Route path="categories" element={<AdminCategories />} />
                   <Route path="events" element={<AdminEventsList />} />
                   <Route path="media" element={<AdminMedia />} />

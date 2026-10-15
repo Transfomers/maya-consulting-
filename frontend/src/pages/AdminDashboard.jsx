@@ -3,13 +3,14 @@ import { useNavigate, Outlet, Link, useLocation } from "react-router-dom";
 import {
   LogOut, LayoutDashboard, FileText, FolderTree,
   Image as ImageIcon, Calendar, Settings, Inbox,
-  ChevronRight, Menu, ChevronLeft, X, BookOpen
+  ChevronRight, Menu, ChevronLeft, X, BookOpen, Mail
 } from "lucide-react";
 import api from "@/lib/api";
 
 const NAV_ITEMS = [
   { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/admin/posts", label: "Articles", icon: FileText },
+  { path: "/admin/newsletter", label: "Infolettre", icon: Mail },
   { path: "/admin/categories", label: "Categories", icon: FolderTree },
   { path: "/admin/resources", label: "Ressources & Cours", icon: BookOpen },
   { path: "/admin/media", label: "Media", icon: ImageIcon },

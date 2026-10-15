@@ -8,6 +8,7 @@ from app.models.resource import Resource
 from app.models.setting import Setting
 from app.models.submission import Submission
 from app.models.conversation import ChatConversation
+from app.models.newsletter import NewsletterSubscriber, NewsletterCampaign, NewsletterDelivery, NewsletterTemplate
 from sqlalchemy.orm import configure_mappers
 
 # Ensure all SQLAlchemy mappers are configured across all models
@@ -34,4 +35,8 @@ __all__ = [
     "Setting",
     "Submission",
     "ChatConversation",
+    "NewsletterSubscriber",
+    "NewsletterCampaign",
+    "NewsletterDelivery",
+    "NewsletterTemplate",
 ]

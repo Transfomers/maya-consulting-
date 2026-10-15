@@ -3202,4 +3202,5 @@ export const useLang = () => {
   return context;
 };
 
+export const useLanguage = useLang;
 export default STR;
