@@ -375,11 +375,11 @@ const Home = () => {
         <div className="relative z-10 mx-auto max-w-[1600px] px-5 pb-16 pt-24 md:px-10 md:pt-32 lg:pb-24">
           <div className="max-w-5xl">
 
-            {/* OUVRIR DE NOUVEAUX HORIZONS Eyebrow Badge */}
+            {/* OUVRIR DE NOUVEAUX HORIZONS Eyebrow */}
             <Reveal>
-              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 mb-6 border border-forest/20 bg-white/85 backdrop-blur-md shadow-xs">
-                <Sparkles className="h-3.5 w-3.5 text-maple" />
-                <span className="font-montserrat text-xs md:text-sm font-bold uppercase tracking-[0.25em] text-forest">
+              <div className="inline-flex items-center gap-2.5 mb-6">
+                <Sparkles className="h-4 w-4 text-maple" />
+                <span className="font-montserrat text-xs md:text-sm font-bold uppercase tracking-[0.28em] text-forest">
                   {lang === "fr" ? "OUVRIR DE NOUVEAUX HORIZONS" : lang === "ar" ? "فتح آفاق جديدة" : "OPENING NEW HORIZONS"}
                 </span>
               </div>
@@ -441,63 +441,36 @@ const Home = () => {
               </p>
             </Reveal>
 
-            {/* CRÉER, ACCOMPAGNER, PROPULSER. Scrolling Up & Disappearing like Testimonials */}
-            <Reveal delay={0.3}>
-              <div className="mt-8 py-4 px-6 sm:px-8 border border-forest/15 bg-white/70 backdrop-blur-md shadow-xs max-w-2xl">
-                <div className="flex items-center justify-between pb-2.5 border-b border-forest/10 mb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-maple animate-pulse" />
-                    <span className="font-montserrat text-[10.5px] font-bold uppercase tracking-[0.24em] text-forest/70">
-                      {lang === "fr" ? "NOTRE DÉMARCHE D'ACTION" : lang === "ar" ? "منهجية العمل" : "OUR ACTION PILLARS"}
+            {/* CRÉER, ACCOMPAGNER, PROPULSER. Scrolling Up & Disappearing like Testimonials (without card/box) */}
+            <Reveal delay={0.3} className="mt-8">
+              <div className="h-14 sm:h-16 relative overflow-hidden flex items-center">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={heroVerbIndex}
+                    initial={{ opacity: 0, y: 22 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -22 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    className="flex flex-wrap items-baseline gap-2 sm:gap-3.5"
+                  >
+                    <span className="font-heading text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-forest">
+                      {lang === "fr"
+                        ? HERO_VERBS[heroVerbIndex].word
+                        : lang === "ar"
+                        ? HERO_VERBS[heroVerbIndex].wordAr
+                        : HERO_VERBS[heroVerbIndex].wordEn}
+                      <span className="text-maple">.</span>
                     </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {HERO_VERBS.map((verb, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setHeroVerbIndex(idx)}
-                        className={`px-2.5 py-0.5 font-montserrat text-[10px] font-bold tracking-wider transition-all duration-300 ${
-                          heroVerbIndex === idx
-                            ? "bg-forest text-white"
-                            : "text-forest/40 hover:text-forest bg-forest/5"
-                        }`}
-                      >
-                        {verb.step}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Animated Text Scrolling Up & Disappearing like Testimonials */}
-                <div className="h-14 sm:h-16 relative overflow-hidden flex items-center">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={heroVerbIndex}
-                      initial={{ opacity: 0, y: 18 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -18 }}
-                      transition={{ duration: 0.35, ease: "easeOut" }}
-                      className="flex flex-wrap items-baseline gap-2 sm:gap-3.5"
-                    >
-                      <span className="font-heading text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-forest">
-                        {lang === "fr"
-                          ? HERO_VERBS[heroVerbIndex].word
-                          : lang === "ar"
-                          ? HERO_VERBS[heroVerbIndex].wordAr
-                          : HERO_VERBS[heroVerbIndex].wordEn}
-                        <span className="text-maple">.</span>
-                      </span>
-                      <span className="font-serif italic text-sm sm:text-base md:text-lg text-sage">
-                        —{" "}
-                        {lang === "fr"
-                          ? HERO_VERBS[heroVerbIndex].lead
-                          : lang === "ar"
-                          ? HERO_VERBS[heroVerbIndex].leadAr
-                          : HERO_VERBS[heroVerbIndex].leadEn}
-                      </span>
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
+                    <span className="font-serif italic text-base sm:text-lg md:text-xl text-sage">
+                      —{" "}
+                      {lang === "fr"
+                        ? HERO_VERBS[heroVerbIndex].lead
+                        : lang === "ar"
+                        ? HERO_VERBS[heroVerbIndex].leadAr
+                        : HERO_VERBS[heroVerbIndex].leadEn}
+                    </span>
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </Reveal>
 

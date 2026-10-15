@@ -1071,7 +1071,7 @@ const STR = {
       "support": "Soutenir notre mission sociale",
       "explore": "Explorer",
       "involved": "S'impliquer",
-      "bottom1": "Cap Entrepreneurs — Organisme canadien à but non lucratif",
+      "bottom1": "Cap Entrepreneurs • Organisme canadien à but non lucratif",
       "bottom2": "Enraciné au Québec. Connecté au Canada. Ouvert sur le monde.",
       "privacy": "Politique de confidentialité",
       "terms": "Conditions d'utilisation",
@@ -3194,8 +3194,8 @@ export const useLang = () => {
   if (!context) {
     return {
       lang: "fr",
-      setLang: () => {},
-      toggle: () => {},
+      setLang: () => { },
+      toggle: () => { },
       t: STR.fr
     };
   }
