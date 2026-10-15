@@ -127,8 +127,12 @@ async def confirm_subscription(
         # Check if already active
         raise HTTPException(status_code=404, detail="Ce lien de confirmation est invalide ou a déjà été utilisé.")
 
-    if sub.confirmation_token_expires_at and sub.confirmation_token_expires_at < now:
-        raise HTTPException(status_code=400, detail="Ce lien de confirmation a expiré. Veuillez vous réinscrire.")
+    expires_at = sub.confirmation_token_expires_at
+    if expires_at:
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at < now:
+            raise HTTPException(status_code=400, detail="Ce lien de confirmation a expiré. Veuillez vous réinscrire.")
 
     sub.status = "active"
     sub.confirmed_at = now
