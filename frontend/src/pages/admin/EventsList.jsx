@@ -43,7 +43,7 @@ export default function AdminEventsList() {
       const res = await api.get("/admin/events");
       const formatted = res.data.map((evt) => ({
         ...evt,
-        title: evt.translations?.find(t => t.language === 'en')?.title || evt.slug,
+        title: evt.translations?.find(t => t.language === 'fr')?.title || evt.translations?.find(t => t.language === 'en')?.title || evt.translations?.[0]?.title || evt.slug,
         start: new Date(evt.start_date || new Date()),
         end: new Date(evt.end_date || new Date()),
       }));

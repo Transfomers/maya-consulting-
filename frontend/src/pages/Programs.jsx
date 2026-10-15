@@ -30,13 +30,10 @@ import { toast } from "sonner";
 
 // Photo assets matching the reference magazine editorial
 const PROGRAM_ASSETS = {
-  // Dramatic high-contrast black turtleneck portrait for header right
-  heroPortrait: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=1200&q=80",
-
-  // Triad of 3 vertical photos matching reference image
-  triad1: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
-  triad2: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80",
-  triad3: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80",
+  heroPortrait: "/assets/images/women_social_innovators.webp",
+  triad1: "/assets/images/cap_green_lab.webp",
+  triad2: "/assets/images/agriconnect_farming.webp",
+  triad3: "/assets/images/safe_vibe_media.webp",
 };
 
 const FALLBACK_RESOURCES = [

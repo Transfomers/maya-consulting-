@@ -7,14 +7,14 @@ import { PARTNER_TYPES, PARTNER_TYPES_FR, PARTNER_TYPES_AR } from "@/lib/content
 import { useLang } from "@/lib/i18n";
 import { ArrowUpRight, ArrowRight, CheckCircle2, Download, Handshake, Globe2, Building2, Check, ChevronDown, ChevronUp } from "lucide-react";
 
-// Curated editorial assets matching the reference fashion/lifestyle design
+// Curated editorial assets matching CAP Entrepreneurs mission
 const EDITORIAL_PARTNER_ASSETS = {
-  mainTallPortrait: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
-  floatingPortrait: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80",
-  card1BlackDress: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80",
-  card2WhiteDress: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80",
-  card3MintDress: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80",
-  card4ColorblockDress: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=800&q=80",
+  mainTallPortrait: "/assets/images/cap_green_lab.webp",
+  floatingPortrait: "/assets/images/agriconnect_farming.webp",
+  card1Summit: "/assets/images/diaspora_global_summit.webp",
+  card2Women: "/assets/images/women_social_innovators.webp",
+  card3Bootcamp: "/assets/images/youth_tech_bootcamp.webp",
+  card4Hub: "/assets/images/cap_ecosystem_collaboration.webp",
 };
 
 const Partners = () => {
@@ -31,7 +31,7 @@ const Partners = () => {
         : lang === "ar"
         ? "حفل ما قبل المهرجان والمهرجان العالمي للتكنولوجيا الشاملة والمستدامة."
         : "Pre-Festival Brunch & Global Festival for inclusive and sustainable tech.",
-      image: EDITORIAL_PARTNER_ASSETS.card1BlackDress,
+      image: EDITORIAL_PARTNER_ASSETS.card1Summit,
     },
     {
       title: "Marrakech 2027",
@@ -41,7 +41,7 @@ const Partners = () => {
         : lang === "ar"
         ? "برنامج التوريد الإبداعي الأفريقي والمشترين الدوليين والوفود الرسمية."
         : "African creative sourcing programme, global buyers, and delegations.",
-      image: EDITORIAL_PARTNER_ASSETS.card2WhiteDress,
+      image: EDITORIAL_PARTNER_ASSETS.card2Women,
     },
     {
       title: lang === "fr" ? "Comités & Programmes" : lang === "ar" ? "اللجان والبرامج" : "Committees & Programs",
@@ -51,7 +51,7 @@ const Partners = () => {
         : lang === "ar"
         ? "المشاركة المباشرة في لجان التوجيه والتحالف الاستراتيجي."
         : "Direct involvement in steering committees and strategic co-design.",
-      image: EDITORIAL_PARTNER_ASSETS.card3MintDress,
+      image: EDITORIAL_PARTNER_ASSETS.card3Bootcamp,
     },
     {
       title: lang === "fr" ? "Soutien & Mécénat" : lang === "ar" ? "الدعم والرعاية" : "Support & Patronage",
@@ -61,7 +61,7 @@ const Partners = () => {
         : lang === "ar"
         ? "شراكات مخصصة ومساهمات عينية وتمويل مشترك للأثر الاجتماعي."
         : "Custom partnership tracks, in-kind contributions, and social impact co-funding.",
-      image: EDITORIAL_PARTNER_ASSETS.card4ColorblockDress,
+      image: EDITORIAL_PARTNER_ASSETS.card4Hub,
     },
   ];
 
@@ -76,8 +76,8 @@ const Partners = () => {
         subtitle={t.partners.intro}
         ctaLabel={lang === "fr" ? "Collaborer avec nous" : lang === "ar" ? "تعاون معنا" : "Partner With Us"}
         ctaTarget="#partner-types-section"
-        bgImage="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80"
-        fgImage="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80"
+        bgImage="/assets/images/cap_ecosystem_collaboration.webp"
+        fgImage="/assets/images/women_social_innovators.webp"
       />
 
       {/* WHO DO WE PARTNER WITH? (5 PARTNER TYPES) */}

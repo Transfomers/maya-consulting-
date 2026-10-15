@@ -1,11 +1,13 @@
 export const IMAGES = {
-  hero: "https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=1600&auto=format&fit=crop",
-  collaboration: "https://images.unsplash.com/photo-1531496730074-83b638c0a7ac?q=80&w=1600&auto=format&fit=crop",
-  board: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1600&auto=format&fit=crop",
-  workshop: "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1600&auto=format&fit=crop",
-  building: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=1600&auto=format&fit=crop",
-  portraitM: "https://images.unsplash.com/photo-1556157382-97eda2d62296?q=80&w=800&auto=format&fit=crop",
-  portraitF: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop",
+  hero: "/assets/images/cap_ecosystem_collaboration.webp",
+  collaboration: "/assets/images/women_social_innovators.webp",
+  board: "/assets/images/safe_vibe_media.webp",
+  workshop: "/assets/images/cap_green_lab.webp",
+  building: "/assets/images/agriconnect_farming.webp",
+  bootcamp: "/assets/images/youth_tech_bootcamp.webp",
+  summit: "/assets/images/diaspora_global_summit.webp",
+  portraitM: "https://images.unsplash.com/photo-1556157382-97eda2d62296?fm=webp&q=75&w=800",
+  portraitF: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?fm=webp&q=75&w=800",
 };
 
 export const PROGRAMS = [

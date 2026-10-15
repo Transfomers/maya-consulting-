@@ -23,6 +23,7 @@ import NewsEvents from "@/pages/NewsEvents";
 import Donate from "@/pages/Donate";
 import Contact from "@/pages/Contact";
 import Blog from "@/pages/Blog";
+import Resources from "@/pages/Resources";
 import Events from "@/pages/Events";
 import Join from "@/pages/Join";
 import Volunteer from "@/pages/Volunteer";
@@ -113,6 +114,8 @@ function App() {
                 <Route path="/membership" element={page(Membership)} />
                 <Route path="/partners" element={page(Partners)} />
                 <Route path="/news-events" element={page(NewsEvents)} />
+                <Route path="/resources" element={page(Resources)} />
+                <Route path="/programs/resources" element={page(Resources)} />
                 <Route path="/blog" element={page(Blog)} />
                 <Route path="/blog/:slug" element={page(BlogPost)} />
                 <Route path="/events" element={page(Events)} />

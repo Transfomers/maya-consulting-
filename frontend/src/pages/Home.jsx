@@ -31,14 +31,14 @@ import { useLang } from "@/lib/i18n";
 import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 
 const COMMUNITY_PHOTOS = [
-  { src: "https://images.unsplash.com/photo-1476820865390-c52aeebb9891?auto=format&fit=crop&w=600&q=80", alt: "Arbre et renouveau" },
-  { src: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=600&q=80", alt: "Partenariat et cœur" },
-  { src: "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=600&q=80", alt: "Apprentissage et transmission" },
-  { src: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=600&q=80", alt: "Route vers l'horizon" },
-  { src: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=600&q=80", alt: "Mobilité et proximité" },
-  { src: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80", alt: "Structure et architecture" },
-  { src: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80", alt: "Partage et convivialité" },
-  { src: "https://images.unsplash.com/photo-1534430480872-3498386e7856?auto=format&fit=crop&w=600&q=80", alt: "Ouverture sur le monde" },
+  { src: "/assets/images/cap_green_lab.webp", alt: "Cap Green Lab - Reconditionnement et inclusion tech" },
+  { src: "/assets/images/agriconnect_farming.webp", alt: "AgriConnect - Agriculture durable et circuits courts" },
+  { src: "/assets/images/safe_vibe_media.webp", alt: "Safe Vibe - Studio média et éducation numérique" },
+  { src: "/assets/images/women_social_innovators.webp", alt: "Femmes Entrepreneures & Innovation Sociale" },
+  { src: "/assets/images/youth_tech_bootcamp.webp", alt: "Bootcamp Compétences Numériques Jeunesse" },
+  { src: "/assets/images/diaspora_global_summit.webp", alt: "Sommet Global Festival Canada-Afrique" },
+  { src: "/assets/images/cap_ecosystem_collaboration.webp", alt: "Écosystème Collaboratif CAP Entrepreneurs" },
+  { src: "/assets/images/cap_green_lab.webp", alt: "Atelier circulaire et transition numérique durable" },
 ];
 
 const HERO_VERBS = [

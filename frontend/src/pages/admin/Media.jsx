@@ -72,6 +72,13 @@ export default function AdminMedia() {
     }
   };
 
+  const getMediaUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    const origin = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/api.*$/, "") : "";
+    return `${origin}${url.startsWith("/") ? "" : "/"}${url}`;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -85,7 +92,7 @@ export default function AdminMedia() {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {media.map(m => (
           <div key={m.id} className="relative group border border-forest/15 bg-white aspect-square flex flex-col items-center justify-center overflow-hidden">
-            <img src={api.defaults.baseURL.replace('/api', '') + m.url} alt={m.alt_text || "Media"} className="object-cover w-full h-full" />
+            <img src={getMediaUrl(m.url)} alt={m.alt_text || "Media"} className="object-cover w-full h-full" />
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
               <p className="text-white text-xs truncate break-all font-bold">{m.filename}</p>
               <div className="flex justify-end gap-2">

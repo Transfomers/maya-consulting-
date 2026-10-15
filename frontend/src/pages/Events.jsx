@@ -13,47 +13,60 @@ export default function Events() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        // Mocking public API endpoint for now
-        const res = await api.get(`/admin/events`);
-        setEvents(res.data.filter(e => e.status === "published" || e.status === "scheduled"));
+        const res = await api.get(`/events?lang=${lang || "fr"}`);
+        if (res.data && Array.isArray(res.data)) {
+          setEvents(res.data);
+        } else {
+          setEvents([]);
+        }
       } catch (err) {
         console.error("Failed to fetch events", err);
+        setEvents([]);
       } finally {
         setLoading(false);
       }
     };
     fetchEvents();
-  }, []);
+  }, [lang]);
 
   return (
     <div className="bg-bone min-h-screen pt-32 pb-24" data-testid="events-page">
       <div className="mx-auto max-w-[1200px] px-5">
         <Reveal>
           <h1 className="font-heading text-4xl md:text-5xl lg:text-7xl font-black tracking-tight text-forest mb-6">
-            Events & Workshops
+            {lang === "fr" ? "Événements & Ateliers" : lang === "ar" ? "الفعاليات وورش العمل" : "Events & Workshops"}
           </h1>
           <p className="max-w-[600px] text-lg text-sage">
-            Join our upcoming events, hackathons, and workshops designed to accelerate your entrepreneurial journey.
+            {lang === "fr" 
+              ? "Rejoignez nos prochains événements, hackathons et ateliers pour accélérer votre parcours entrepreneurial."
+              : lang === "ar"
+              ? "انضم إلى فعالياتنا القادمة وورش العمل لتسريع مسارك الريادي."
+              : "Join our upcoming events, hackathons, and workshops designed to accelerate your entrepreneurial journey."}
           </p>
         </Reveal>
 
         <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {loading ? (
-            <div className="col-span-full py-12 text-center text-sage">Loading events...</div>
+            <div className="col-span-full py-12 text-center text-sage">
+              {lang === "fr" ? "Chargement des événements..." : "Loading events..."}
+            </div>
           ) : events.length === 0 ? (
-            <div className="col-span-full py-12 text-center text-sage">No upcoming events at this time. Check back later!</div>
+            <div className="col-span-full py-12 text-center text-sage">
+              {lang === "fr" ? "Aucun événement prévu pour le moment. Revenez bientôt !" : "No upcoming events at this time. Check back later!"}
+            </div>
           ) : (
             events.map((evt, i) => {
-              const trans = evt.translations.find(t => t.language === lang) || evt.translations[0] || { title: evt.slug, excerpt: "" };
+              const title = evt.title || evt.translations?.find(t => t.language === lang)?.title || evt.translations?.[0]?.title || evt.slug;
+              const excerpt = evt.excerpt || evt.translations?.find(t => t.language === lang)?.excerpt || evt.translations?.[0]?.excerpt || "";
               
               return (
                 <Reveal key={evt.id} delay={0.1 * i}>
                   <div className="group flex h-full flex-col bg-white border border-forest/15 hover:border-forest transition-colors">
-                    <div className="aspect-[4/3] bg-forest/5 flex items-center justify-center border-b border-forest/15">
+                    <div className="aspect-[4/3] bg-forest/5 flex items-center justify-center border-b border-forest/15 overflow-hidden">
                        {evt.featured_image_id ? (
-                          <img src={`/api/v1/admin/media/${evt.featured_image_id}`} alt="Event" className="w-full h-full object-cover" />
+                          <img src={`/api/v1/admin/media/${evt.featured_image_id}`} alt={title} className="w-full h-full object-cover" />
                        ) : (
-                          <span className="text-forest/20 font-serif italic text-xl">No Image</span>
+                          <img src="/assets/images/cap_ecosystem_collaboration.webp" alt={title} className="w-full h-full object-cover" />
                        )}
                     </div>
                     <div className="flex flex-1 flex-col p-6">

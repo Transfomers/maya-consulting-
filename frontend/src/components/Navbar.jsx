@@ -36,8 +36,8 @@ const Navbar = () => {
           label: lang === "fr" ? "Nos 4 programmes structurants" : lang === "ar" ? "برامجنا الهيكلية الأربعة" : "Our 4 Structuring Programs",
         },
         {
-          to: "/programs#resources",
-          label: lang === "fr" ? "Guides & Cours à télécharger" : lang === "ar" ? "أدلة ودورات قابلة للتحميل" : "Downloadable Guides & Courses",
+          to: "/resources",
+          label: lang === "fr" ? "Ressources : Guides & Cours" : lang === "ar" ? "الموارد : أدلة ودورات للتحميل" : "Resources: Guides & Courses",
         },
         { to: "/global-festival", label: t.nav.festival },
       ],
