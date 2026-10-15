@@ -141,7 +141,7 @@ export default function EventModal({ event, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/50">
-      <div className="w-full max-w-2xl bg-bone h-full flex flex-col shadow-2xl overflow-hidden relative animate-in slide-in-from-right">
+      <div className="w-full sm:max-w-2xl bg-bone h-full flex flex-col shadow-2xl overflow-hidden relative animate-in slide-in-from-right">
         
         {/* Header */}
         <div className="bg-forest text-bone px-6 py-4 flex items-center justify-between shrink-0">
@@ -156,22 +156,24 @@ export default function EventModal({ event, onClose, onSaved }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-forest/15 bg-white shrink-0 overflow-x-auto">
+        <div className="flex border-b border-forest/15 bg-white shrink-0 overflow-x-auto scrollbar-none">
           {[
             { id: "basic", label: "Basic Info", icon: Info },
             { id: "date", label: "Date & Time", icon: Clock },
             { id: "location", label: "Location", icon: MapPin },
-            { id: "registration", label: "Registration", icon: Users },
+            { id: "registration", label: "Register", icon: Users },
             { id: "extra", label: "Settings", icon: Settings },
           ].map(t => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-bold uppercase tracking-wider transition-colors whitespace-nowrap
+              title={t.label}
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors whitespace-nowrap flex-shrink-0
                 ${tab === t.id ? "text-forest border-b-2 border-forest bg-forest/5" : "text-sage hover:text-forest hover:bg-bone"}
               `}
             >
-              <t.icon className="h-4 w-4" /> {t.label}
+              <t.icon className="h-4 w-4 flex-shrink-0" />
+              <span className="hidden sm:inline">{t.label}</span>
             </button>
           ))}
         </div>
@@ -431,39 +433,42 @@ export default function EventModal({ event, onClose, onSaved }) {
         </div>
 
         {/* Footer Actions */}
-        <div className="bg-bone border-t border-forest/15 p-4 flex items-center justify-between shrink-0">
+        <div className="bg-bone border-t border-forest/15 p-3 sm:p-4 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between shrink-0">
+          {/* Destructive actions */}
           <div className="flex gap-2">
             {!isNew && (
               <>
                 <button
                   onClick={handleDelete}
                   disabled={loading}
-                  className="px-4 py-2 border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-colors flex items-center gap-2 text-sm font-bold uppercase tracking-widest disabled:opacity-50"
+                  className="flex-1 sm:flex-none px-3 py-2 border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-colors flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest disabled:opacity-50"
                 >
-                  <Trash2 className="h-4 w-4" /> Delete
+                  <Trash2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Delete</span>
                 </button>
                 <button
                   onClick={handleDuplicate}
                   disabled={loading}
-                  className="px-4 py-2 border border-forest/15 bg-white text-forest hover:bg-bone transition-colors text-sm font-bold uppercase tracking-widest disabled:opacity-50"
+                  className="flex-1 sm:flex-none px-3 py-2 border border-forest/15 bg-white text-forest hover:bg-bone transition-colors text-xs font-bold uppercase tracking-widest disabled:opacity-50"
                 >
                   Duplicate
                 </button>
               </>
             )}
           </div>
+          {/* Primary actions */}
           <div className="flex gap-2">
             <button
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 text-sage hover:text-forest transition-colors text-sm font-bold uppercase tracking-widest disabled:opacity-50"
+              className="px-3 py-2 text-sage hover:text-forest transition-colors text-xs font-bold uppercase tracking-widest disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={loading}
-              className="px-6 py-2 bg-forest text-bone hover:bg-forest/90 transition-colors flex items-center gap-2 text-sm font-bold uppercase tracking-widest disabled:opacity-50"
+              className="flex-1 sm:flex-none px-4 py-2 bg-forest text-bone hover:bg-forest/90 transition-colors flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest disabled:opacity-50"
             >
               <Save className="h-4 w-4" /> {loading ? "Saving..." : "Save Event"}
             </button>

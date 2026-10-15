@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Manrope:wght@400;500;600;700;800&family=Alex+Brush&display=swap");
 @import url("https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&display=swap");
 
 @tailwind base;
@@ -34,17 +34,20 @@
     * {
         @apply border-border;
     }
+
     html {
         scroll-behavior: auto;
     }
+
     body {
         @apply bg-bone text-ink font-sans;
         margin: 0;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
+
     ::selection {
-        background: #6725EB;
+        background: #7322F7;
         color: #FDFCFD;
     }
 }
@@ -63,30 +66,50 @@
     -webkit-text-stroke: 1px #0D0E0D;
 }
 
+.font-script {
+    font-family: 'Alex Brush', cursive;
+}
+
+.drop-cap-editorial {
+    float: left;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 5.75rem;
+    line-height: 0.8;
+    padding-top: 0.25rem;
+    padding-right: 1rem;
+    padding-bottom: 0.2rem;
+    color: #0D0E0D;
+    font-weight: 400;
+}
+
 .text-outline-bone {
     color: transparent;
     -webkit-text-stroke: 1px rgba(253, 252, 253, 0.35);
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
     border-radius: 0 !important;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
     outline: none;
     border-color: #0D0E0D !important;
     box-shadow: none;
 }
 
 .text-gradient {
-    background: linear-gradient(90deg, #6725EB 0%, #7A3EF0 50%, #8F65DD 100%);
+    background: linear-gradient(90deg, #7322F7 0%, #9055FA 50%, #C89255 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
 }
 
 .bg-brand-gradient {
-    background: linear-gradient(90deg, #6725EB 0%, #7A3EF0 50%, #8F65DD 100%);
+    background: linear-gradient(90deg, #7322F7 0%, #9055FA 100%);
 }
 
 .glass-panel {
@@ -102,7 +125,7 @@ input:focus, textarea:focus, select:focus {
         display: contents !important;
     }
 
-    [data-debug-wrapper="true"] > * {
+    [data-debug-wrapper="true"]>* {
         margin-left: inherit;
         margin-right: inherit;
         margin-top: inherit;

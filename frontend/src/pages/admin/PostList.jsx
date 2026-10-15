@@ -105,7 +105,7 @@ export default function AdminPostList() {
               <tr key={post.id} className="hover:bg-bone/30">
                 <td className="px-6 py-4 font-medium">{getTitle(post)}</td>
                 <td className="px-6 py-4">
-                  <span className={`inline-block px-2 py-1 text-xs font-bold uppercase tracking-wider ${post.status === 'published' ? 'bg-[#4CA743]/10 text-[#4CA743]' : 'bg-sage/10 text-sage'}`}>
+                  <span className={`inline-block px-2 py-1 text-xs font-bold uppercase tracking-wider ${post.status === 'published' ? 'bg-maple/10 text-maple' : 'bg-sage/10 text-sage'}`}>
                     {post.status}
                   </span>
                 </td>

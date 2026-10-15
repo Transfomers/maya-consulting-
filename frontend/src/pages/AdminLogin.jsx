@@ -96,6 +96,23 @@ const AdminLogin = () => {
           >
             {loading ? "Signing in…" : "Sign In"}
           </button>
+
+          <div className="mt-6 border border-forest/15 bg-neutral-50 p-4 text-xs text-forest/80">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-bold uppercase tracking-wider text-forest text-[11px]">Identifiants administrateur :</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail("admin@capentrepreneurs.ca");
+                  setPassword("admin123");
+                }}
+                className="font-bold text-maple hover:underline uppercase text-[10px] tracking-wider"
+              >
+                Remplir automatiquement
+              </button>
+            </div>
+
+          </div>
         </form>
       </div>
     </div>

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet, Link, useLocation } from "react-router-dom";
-import { LogOut, LayoutDashboard, FileText, FolderTree, Image as ImageIcon, Calendar, Settings, Inbox, ChevronRight, Menu, ChevronLeft } from "lucide-react";
+import {
+  LogOut, LayoutDashboard, FileText, FolderTree,
+  Image as ImageIcon, Calendar, Settings, Inbox,
+  ChevronRight, Menu, ChevronLeft, X
+} from "lucide-react";
 import api from "@/lib/api";
 
 const NAV_ITEMS = [
@@ -16,9 +20,16 @@ const NAV_ITEMS = [
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Desktop: sidebar expanded/collapsed; Mobile: sidebar open/closed as overlay
+  const [isDesktopExpanded, setIsDesktopExpanded] = useState(true);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const load = async () => {
@@ -50,71 +61,120 @@ export default function AdminDashboard() {
     );
   }
 
-  // Breadcrumbs generation
   const pathnames = location.pathname.split("/").filter((x) => x);
+
+  const SidebarContent = ({ compact = false }) => (
+    <>
+      <nav className="flex-1 overflow-y-auto py-4 overflow-x-hidden">
+        <ul className="space-y-1 px-3">
+          {NAV_ITEMS.map((item) => {
+            const isActive = item.path === "/admin/dashboard"
+              ? location.pathname === "/admin/dashboard"
+              : location.pathname.startsWith(item.path);
+            return (
+              <li key={item.path}>
+                <Link
+                  to={item.path}
+                  className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+                    isActive ? "bg-forest text-bone" : "text-forest hover:bg-forest/5"
+                  }`}
+                  title={compact ? item.label : ""}
+                >
+                  <item.icon className="h-5 w-5 flex-shrink-0" />
+                  {!compact && <span className="truncate">{item.label}</span>}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+      <div className="p-4 border-t border-forest/15">
+        {!compact && <p className="text-xs text-sage mb-3 truncate">{user?.email}</p>}
+        <button
+          onClick={handleLogout}
+          className={`flex w-full items-center justify-center gap-2 border border-forest/25 px-2 py-2 text-xs font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-forest hover:text-bone`}
+          title={compact ? "Logout" : ""}
+        >
+          <LogOut className="h-4 w-4 flex-shrink-0" />
+          {!compact && <span>Logout</span>}
+        </button>
+      </div>
+    </>
+  );
 
   return (
     <div className="flex h-screen overflow-hidden bg-bone">
-      {/* Sidebar */}
-      <aside className={`${isSidebarOpen ? "w-64" : "w-20"} flex-shrink-0 border-r border-forest/15 bg-white flex flex-col transition-all duration-300 z-20`}>
-        <div className={`p-6 border-b border-forest/15 flex items-center ${isSidebarOpen ? 'justify-between' : 'justify-center'} h-20`}>
-          {isSidebarOpen && (
-            <div>
-              <span className="font-heading text-xl font-black tracking-tight text-forest block truncate">CAP Admin</span>
-            </div>
-          )}
-          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-forest hover:text-maple transition-colors flex-shrink-0" aria-label="Toggle Sidebar">
-            {isSidebarOpen ? <ChevronLeft className="h-5 w-5" /> : <Menu className="h-6 w-6" />}
+
+      {/* ── Mobile sidebar overlay ─────────────────────────────── */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+      <aside
+        className={`
+          fixed top-0 left-0 h-full z-50 w-72 bg-white border-r border-forest/15 flex flex-col
+          transform transition-transform duration-300
+          lg:hidden
+          ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
+        <div className="p-5 border-b border-forest/15 flex items-center justify-between h-16">
+          <span className="font-heading text-lg font-black tracking-tight text-forest">CAP Admin</span>
+          <button onClick={() => setIsMobileOpen(false)} className="text-forest hover:text-maple">
+            <X className="h-5 w-5" />
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto py-4 overflow-x-hidden">
-          <ul className="space-y-1 px-3">
-            {NAV_ITEMS.map((item) => {
-              const isActive = item.path === "/admin/dashboard"
-                ? location.pathname === "/admin/dashboard"
-                : location.pathname.startsWith(item.path);
-              return (
-                <li key={item.path}>
-                  <Link
-                    to={item.path}
-                    className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
-                      isActive ? "bg-forest text-bone" : "text-forest hover:bg-forest/5"
-                    }`}
-                    title={!isSidebarOpen ? item.label : ""}
-                  >
-                    <item.icon className="h-5 w-5 flex-shrink-0" />
-                    {isSidebarOpen && <span className="truncate">{item.label}</span>}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-        <div className="p-4 border-t border-forest/15">
-          {isSidebarOpen && <p className="text-xs text-sage mb-3 truncate">{user?.email}</p>}
-          <button
-            onClick={handleLogout}
-            className={`flex w-full items-center ${isSidebarOpen ? 'justify-center' : 'justify-center'} gap-2 border border-forest/25 px-2 py-2 text-xs font-bold uppercase tracking-[0.15em] text-forest transition-colors hover:bg-forest hover:text-bone`}
-            title={!isSidebarOpen ? "Logout" : ""}
-          >
-            <LogOut className="h-4 w-4 flex-shrink-0" /> 
-            {isSidebarOpen && <span>Logout</span>}
-          </button>
-        </div>
+        <SidebarContent compact={false} />
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
-        {/* Top Header with Breadcrumbs */}
-        <header className="h-20 bg-white border-b border-forest/15 px-8 flex items-center shrink-0">
-          <nav className="flex items-center text-sm font-medium text-forest/70">
+      {/* ── Desktop sidebar ────────────────────────────────────── */}
+      <aside
+        className={`
+          hidden lg:flex flex-col flex-shrink-0
+          ${isDesktopExpanded ? "w-64" : "w-20"}
+          border-r border-forest/15 bg-white transition-all duration-300 z-20
+        `}
+      >
+        <div className={`p-6 border-b border-forest/15 flex items-center ${isDesktopExpanded ? 'justify-between' : 'justify-center'} h-20`}>
+          {isDesktopExpanded && (
+            <span className="font-heading text-xl font-black tracking-tight text-forest block truncate">CAP Admin</span>
+          )}
+          <button
+            onClick={() => setIsDesktopExpanded(!isDesktopExpanded)}
+            className="text-forest hover:text-maple transition-colors flex-shrink-0"
+            aria-label="Toggle Sidebar"
+          >
+            {isDesktopExpanded ? <ChevronLeft className="h-5 w-5" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+        <SidebarContent compact={!isDesktopExpanded} />
+      </aside>
+
+      {/* ── Main Content ────────────────────────────────────────── */}
+      <main className="flex-1 flex flex-col overflow-hidden relative min-w-0">
+
+        {/* Top Header */}
+        <header className="h-16 lg:h-20 bg-white border-b border-forest/15 px-4 lg:px-8 flex items-center gap-4 shrink-0">
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setIsMobileOpen(true)}
+            className="lg:hidden text-forest hover:text-maple flex-shrink-0"
+            aria-label="Open menu"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+
+          {/* Breadcrumbs */}
+          <nav className="flex items-center text-sm font-medium text-forest/70 overflow-x-auto scrollbar-none gap-0 flex-1">
             {pathnames.map((value, index) => {
               const to = `/${pathnames.slice(0, index + 1).join("/")}`;
               const isLast = index === pathnames.length - 1;
               const title = value.charAt(0).toUpperCase() + value.slice(1);
               return (
-                <div key={to} className="flex items-center">
-                  {index > 0 && <ChevronRight className="h-4 w-4 mx-2 opacity-50" />}
+                <div key={to} className="flex items-center flex-shrink-0">
+                  {index > 0 && <ChevronRight className="h-4 w-4 mx-2 opacity-50 flex-shrink-0" />}
                   {isLast ? (
                     <span className="text-forest font-bold">{title}</span>
                   ) : (
@@ -129,7 +189,7 @@ export default function AdminDashboard() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto p-8 relative">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative">
           <Outlet />
         </div>
       </main>

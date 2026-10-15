@@ -53,11 +53,10 @@ const Field = ({ field, value, onChange, type }) => {
             type="button"
             data-testid={`${id}-${o.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
             onClick={() => onChange(field.name, o)}
-            className={`border px-5 py-2.5 text-sm font-semibold transition-colors ${
-              value === o
+            className={`border px-5 py-2.5 text-sm font-semibold transition-colors ${value === o
                 ? "border-forest bg-forest text-bone"
                 : "border-forest/25 bg-white text-forest hover:border-forest"
-            }`}
+              }`}
           >
             {o}
           </button>
@@ -91,7 +90,7 @@ const FormShell = ({ type, fields, submitLabel, successMessage, testId, initialV
     setSubmitting(true);
     try {
       await api.post("/submissions", { type, payload: values });
-      toast.success(successMessage || "Thank you — we have received your submission.");
+      toast.success(successMessage || "Thank you-we have received your submission.");
       setValues({});
       e.target.reset?.();
     } catch (err) {

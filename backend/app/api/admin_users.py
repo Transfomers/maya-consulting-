@@ -1,7 +1,8 @@
+from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, EmailStr
 from app.core.config import settings
 from app.core.database import get_db
@@ -32,27 +33,27 @@ class UserResponse(BaseModel):
     id: str
     email: str
     name: str
-    phone: str | None = None
+    phone: Optional[str] = None
     status: str
     role_id: str
-    role_name: str | None = None
+    role_name: Optional[str] = None
     created_at: datetime
-    last_login_at: datetime | None = None
-    invite_token: str | None = None
-    invite_link: str | None = None
+    last_login_at: Optional[datetime] = None
+    invite_token: Optional[str] = None
+    invite_link: Optional[str] = None
 
 class UserCreate(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    phone: str | None = None
+    phone: Optional[str] = None
     role_id: str
 
 class UserUpdate(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    phone: str | None = None
+    phone: Optional[str] = None
 
 @router.get("/roles", response_model=List[RoleResponse])
 async def list_roles(db: AsyncSession = Depends(get_db), user = Depends(RequirePermission("users.view"))):

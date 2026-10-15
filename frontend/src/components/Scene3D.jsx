@@ -37,7 +37,7 @@ const Globe = ({ mouse }) => {
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[outer, 3]} />
         </bufferGeometry>
-        <pointsMaterial size={0.03} color="#4CA743" sizeAttenuation transparent opacity={0.5} />
+        <pointsMaterial size={0.03} color="#7322F7" sizeAttenuation transparent opacity={0.5} />
       </points>
       <mesh rotation={[Math.PI / 2.4, 0, 0.4]}>
         <torusGeometry args={[1.35, 0.0025, 8, 160]} />

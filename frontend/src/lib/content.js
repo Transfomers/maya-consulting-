@@ -12,37 +12,62 @@ export const PROGRAMS = [
   {
     id: "cap-green-lab",
     number: "01",
-    name: "CAP Green Lab",
-    theme: "Digital solutions for climate and environment.",
-    purpose: "Leveraging technology and digital innovation to address pressing climate and environmental challenges.",
-    outcomes: ["Sustainable digital infrastructure", "Climate-focused innovation", "Environmental impact"],
+    name: "Cap Green Lab",
+    theme: "Inclusive Technology & Circular Economy",
+    purpose: "Cap Green Lab is our laboratory dedicated to the convergence of digital transition, accessibility, technical skills and circular economy.",
+    target: "People in career transition, technicians, volunteers, NGOs, communities.",
+    outcomes: [
+      "Refurbishment and reuse of digital equipment",
+      "Technological accessibility for people with disabilities",
+      "Training in diagnostics, maintenance and refurbishment",
+      "IT engineering and fleet management",
+      "Reducing the digital divide"
+    ],
     image: IMAGES.workshop,
   },
   {
     id: "agriconnect",
     number: "02",
-    name: "Agriconnect",
-    theme: "Tech for sustainable agriculture.",
-    purpose: "Modernizing agricultural practices by introducing smart technologies and digital tools to farmers.",
-    outcomes: ["Smart farming techniques", "Increased yield and sustainability", "Tech-empowered agriculture"],
+    name: "AgriConnect",
+    theme: "Rural Entrepreneurship & Digital Agriculture",
+    purpose: "AgriConnect supports rural entrepreneurship and digital agriculture by connecting cooperatives, women entrepreneurs and young farmers to tools and markets.",
+    target: "Cooperatives, farmers, rural women, agricultural entrepreneurs.",
+    outcomes: [
+      "Training in digital agricultural tools",
+      "Support for cooperatives and rural women",
+      "Access to markets and financing",
+      "Development of digital solutions adapted to rural contexts"
+    ],
     image: IMAGES.building,
   },
   {
-    id: "safe-vibe-africa",
+    id: "safe-vibe",
     number: "03",
-    name: "Safe Vibe Africa",
-    theme: "Cyber security for NGOs and civil society.",
-    purpose: "Equipping non-governmental organizations and civil society groups with the necessary digital security tools and knowledge.",
-    outcomes: ["Enhanced cyber resilience", "Data protection best practices", "Secure digital environments"],
+    name: "Safe Vibe",
+    theme: "Digital Media & Education",
+    purpose: "Safe Vibe is our digital education and media production program. It equips young people and communities to become responsible content creators and informed digital citizens.",
+    target: "Youth, schools, associations, content creators.",
+    outcomes: [
+      "Media and information literacy",
+      "Content creation (video, podcast, social media)",
+      "Basic and advanced digital skills",
+      "Online safety awareness"
+    ],
     image: IMAGES.board,
   },
   {
     id: "creative-social",
     number: "04",
     name: "Creative & Social Entrepreneurship",
-    theme: "Tech for cultural impact.",
-    purpose: "Supporting creative minds in using digital platforms to amplify cultural expression and social entrepreneurship.",
-    outcomes: ["Digital cultural platforms", "Creative business models", "Socially impactful tech"],
+    theme: "Women, Arts & Social Innovation",
+    purpose: "This program supports women's entrepreneurship, arts and social innovation. It accompanies women and creatives in structuring their projects and creating sustainable economic models.",
+    target: "Women entrepreneurs, artists, creatives, social project leaders.",
+    outcomes: [
+      "Support for women's entrepreneurship",
+      "Development of the creative economy",
+      "Training in management and project development",
+      "Networking and access to opportunities"
+    ],
     image: IMAGES.collaboration,
   },
 ];
@@ -81,7 +106,7 @@ export const STORIES = [
   {
     id: "global-exchange",
     title: "Entrepreneurs Without Borders",
-    place: "Canada — International",
+    place: "Canada-International",
     image: IMAGES.collaboration,
     challenge:
       "Early-stage entrepreneurs in small communities rarely get the chance to see how businesses operate in other markets, limiting their ambition and their networks.",
@@ -184,93 +209,138 @@ export const MEMBER_BENEFITS = [
 ];
 
 export const PARTNER_TYPES = [
-  { name: "Corporate Partners", detail: "Invest in measurable opportunity creation and drive shared value." },
-  { name: "Institutional Partners", detail: "Align programs with regional growth priorities and public impact goals." },
-  { name: "NGO & Social Enterprise Partners", detail: "Collaborate on shared missions and maximize community impact." },
-  { name: "Knowledge & Ecosystem Partners", detail: "Co-design learning experiences, credential pathways, and research." },
+  { name: "Corporate Partners", detail: "Associate your company with a high-impact social project and gain visibility among an engaged audience." },
+  { name: "Institutional Partners", detail: "Collaborate with us to align your priorities (SDGs, digital inclusion, sustainable development, fair trade) with concrete actions on the ground." },
+  { name: "NGO & Social Enterprise Partners", detail: "Let's join forces to develop joint programs, share resources and amplify our impact." },
+  { name: "Knowledge & Ecosystem Partners", detail: "Universities, research centers, incubators, networks: join our ecosystem to co-create and innovate." },
+  { name: "Creative Sourcing Programme Partners", detail: "International buyers, concept stores, architects, stylists, distributors, cultural institutions: join the African Creative Sourcing & Buyer Programme." },
 ];
 
 export const PROGRAMS_FR = [
   {
     id: "cap-green-lab",
     number: "01",
-    name: "CAP Green Lab",
-    theme: "Solutions numériques pour le climat et l'environnement.",
-    purpose: "Tirer parti de la technologie et de l'innovation numérique pour relever les défis climatiques et environnementaux urgents.",
-    outcomes: ["Infrastructure numérique durable", "Innovation axée sur le climat", "Impact environnemental"],
+    name: "Cap Green Lab",
+    theme: "Technologie inclusive & économie circulaire",
+    purpose: "Cap Green Lab est notre laboratoire dédié à la convergence de la transition numérique, de l'accessibilité, des compétences techniques et de l'économie circulaire.",
+    target: "Personnes en transition professionnelle, techniciens, bénévoles, ONG, collectivités.",
+    outcomes: [
+      "Reconditionnement et réemploi des équipements numériques",
+      "Accessibilité technologique pour les personnes en situation de handicap",
+      "Formation au diagnostic, à la maintenance et au reconditionnement",
+      "Ingénierie informatique et gestion de parcs",
+      "Réduction de la fracture numérique"
+    ],
     image: IMAGES.workshop,
   },
   {
     id: "agriconnect",
     number: "02",
-    name: "Agriconnect",
-    theme: "La technologie pour l'agriculture durable.",
-    purpose: "Moderniser les pratiques agricoles en introduisant des technologies intelligentes et des outils numériques aux agriculteurs.",
-    outcomes: ["Techniques agricoles intelligentes", "Augmentation des rendements et de la durabilité", "Agriculture renforcée par la technologie"],
+    name: "AgriConnect",
+    theme: "Entrepreneuriat rural & agriculture numérique",
+    purpose: "AgriConnect soutient l'entrepreneuriat rural et l'agriculture numérique en connectant coopératives, femmes entrepreneures et jeunes agriculteurs aux outils et aux marchés.",
+    target: "Coopératives, agriculteurs, femmes rurales, entrepreneurs agricoles.",
+    outcomes: [
+      "Formation aux outils agricoles numériques",
+      "Accompagnement des coopératives et des femmes rurales",
+      "Accès aux marchés et aux financements",
+      "Développement de solutions numériques adaptées aux contextes ruraux"
+    ],
     image: IMAGES.building,
   },
   {
-    id: "safe-vibe-africa",
+    id: "safe-vibe",
     number: "03",
-    name: "Safe Vibe Africa",
-    theme: "Cybersécurité pour les ONG et la société civile.",
-    purpose: "Outiller les organisations non gouvernementales et les groupes de la société civile avec les connaissances et les outils de sécurité numérique nécessaires.",
-    outcomes: ["Cyber-résilience renforcée", "Bonnes pratiques de protection des données", "Environnements numériques sécurisés"],
+    name: "Safe Vibe",
+    theme: "Médias numériques & éducation",
+    purpose: "Safe Vibe est notre programme d'éducation numérique et de production médiatique. Il outille les jeunes et les communautés pour devenir des créateurs de contenu responsables et des citoyens numériques éclairés.",
+    target: "Jeunes, écoles, associations, créateurs de contenu.",
+    outcomes: [
+      "Éducation aux médias et à l'information",
+      "Création de contenu (vidéo, podcast, réseaux sociaux)",
+      "Compétences numériques de base et avancées",
+      "Sensibilisation à la sécurité en ligne"
+    ],
     image: IMAGES.board,
   },
   {
     id: "creative-social",
     number: "04",
     name: "Entrepreneuriat Créatif & Social",
-    theme: "La technologie pour l'impact culturel.",
-    purpose: "Soutenir les esprits créatifs dans l'utilisation des plateformes numériques pour amplifier l'expression culturelle et l'entrepreneuriat social.",
-    outcomes: ["Plateformes culturelles numériques", "Modèles économiques créatifs", "Technologie à impact social"],
+    theme: "Femmes, arts & innovation sociale",
+    purpose: "Ce programme soutient l'entrepreneuriat féminin, les arts et l'innovation sociale. Il accompagne les femmes et les créatifs dans la structuration de leurs projets et la création de modèles économiques durables.",
+    target: "Femmes entrepreneures, artistes, créatifs, porteurs de projets sociaux.",
+    outcomes: [
+      "Soutien à l'entrepreneuriat féminin",
+      "Développement de l'économie créative",
+      "Formation en gestion et développement de projets",
+      "Réseautage et accès aux opportunités"
+    ],
     image: IMAGES.collaboration,
   },
 ];
 
 export const PROGRAMS_AR = [
   {
-    id: "cap-executive",
+    id: "cap-green-lab",
     number: "01",
-    name: "CAP Executive",
-    theme: "تعزيز القيادة غير الربحية",
-    purpose:
-      "تجربة تعليمية تدعم المنظمات غير الربحية في تحسين الحوكمة والتخطيط الاستراتيجي وإشراك مجلس الإدارة وتطوير الشراكات.",
+    name: "Cap Green Lab",
+    theme: "التكنولوجيا الشاملة والاقتصاد الدائري",
+    purpose: "مختبرنا المخصص لتقارب التحول الرقمي وإمكانية الوصول والمهارات التقنية والاقتصاد الدائري.",
+    target: "الأشخاص في مرحلة الانتقال المهني، التقنيون، المتطوعون، المنظمات غير الحكومية، والمجتمعات.",
     outcomes: [
-      "حوكمة أقوى وإشراك لمجلس الإدارة",
-      "استدامة تنظيمية محسنة",
-      "زيادة التعاون عبر القطاع",
-    ],
-    image: IMAGES.board,
-  },
-  {
-    id: "marketplace-lab",
-    number: "02",
-    name: "Marketplace Lab",
-    theme: "مساعدة رواد الأعمال على تحويل الأفكار إلى أعمال جاهزة للسوق",
-    purpose:
-      "يجمع Marketplace Lab بين التعليم الريادي والتجارة الرقمية والابتكار الريفي والتعرض للأعمال الدولية. يطور المشاركون مهارات عملية أثناء الاستعداد للوصول إلى المعارض التجارية والمهرجانات والفرص التجارية من خلال شبكة شركاء CAP Entrepreneurs.",
-    outcomes: [
-      "مهارات أعمال عملية وجاهزة للسوق",
-      "الوصول إلى المعارض التجارية والمهرجانات والفرص التجارية",
-      "خبرة أعمال دولية مدعومة بمنحة تعرض تصل إلى 8,000 دولار كندي، تخضع لأهلية البرنامج والتمويل المتاح",
+      "تجديد وإعادة استخدام المعدات الرقمية",
+      "إمكانية الوصول التكنولوجي للأشخاص ذوي الإعاقة",
+      "التدريب على التشخيص والصيانة والتجديد",
+      "هندسة تكنولوجيا المعلومات وإدارة الأجهزة",
+      "تقليص الفجوة الرقمية"
     ],
     image: IMAGES.workshop,
   },
   {
-    id: "cap-global-mobility",
-    number: "03",
-    name: "CAP Global Mobility",
-    theme: "خلق فرص دولية",
-    purpose:
-      "يطور هذا البرنامج شراكات تسمح لرواد الأعمال والمتطوعين والمنظمات غير الربحية بالمشاركة في التبادلات الدولية ومبادرات التطوع والمشاريع التعاونية.",
+    id: "agriconnect",
+    number: "02",
+    name: "AgriConnect",
+    theme: "ريادة الأعمال الريفية والزراعة الرقمية",
+    purpose: "يدعم ريادة الأعمال الريفية والزراعة الرقمية من خلال ربط التعاونيات ورائدات الأعمال والمزارعين الشباب بالأدوات والأسواق.",
+    target: "التعاونيات، المزارعون، النساء الريفيات، رواد الأعمال الزراعيون.",
     outcomes: [
-      "التبادلات الدولية ومبادرات التطوع",
-      "التعلم والتعاون بين الثقافات",
-      "ريادة الأعمال عبر الحدود",
+      "التدريب على الأدوات الزراعية الرقمية",
+      "دعم التعاونيات والنساء في المناطق الريفية",
+      "الوصول إلى الأسواق والتمويل",
+      "تطوير حلول رقمية ملائمة للسياقات الريفية"
     ],
     image: IMAGES.building,
+  },
+  {
+    id: "safe-vibe",
+    number: "03",
+    name: "Safe Vibe",
+    theme: "الإعلام الرقمي والتعليم",
+    purpose: "برنامجنا للتعليم الرقمي والإنتاج الإعلامي، لتأهيل الشباب والمجتمعات كصناع محتوى مسؤولين ومواطنين رقميين واعين.",
+    target: "الشباب، المدارس، الجمعيات، صناع المحتوى.",
+    outcomes: [
+      "محو الأمية الإعلامية والمعلوماتية",
+      "صناعة المحتوى (فيديو، بودكاست، وسائل التواصل)",
+      "المهارات الرقمية الأساسية والمتقدمة",
+      "التوعية بالأمان والسلامة الرقمية"
+    ],
+    image: IMAGES.board,
+  },
+  {
+    id: "creative-social",
+    number: "04",
+    name: "ريادة الأعمال الإبداعية والاجتماعية",
+    theme: "المرأة، الفنون والابتكار الاجتماعي",
+    purpose: "يدعم هذا البرنامج ريادة الأعمال النسائية والفنون والابتكار الاجتماعي لمرافقة المشاريع وبناء نماذج اقتصادية مستدامة.",
+    target: "رائدات الأعمال، الفنانون، المبدعون، قادة المشاريع الاجتماعية.",
+    outcomes: [
+      "دعم ريادة الأعمال النسائية",
+      "تطوير الاقتصاد الإبداعي",
+      "التدريب على الإدارة وتطوير المشاريع",
+      "بناء الشبكات والوصول إلى الفرص"
+    ],
+    image: IMAGES.collaboration,
   },
 ];
 
@@ -411,10 +481,11 @@ export const MEMBER_BENEFITS_FR = [
 ];
 
 export const PARTNER_TYPES_FR = [
-  { name: "Partenaires Corporatifs", detail: "Investissez dans la création d'opportunités mesurables et générez une valeur partagée." },
-  { name: "Partenaires Institutionnels", detail: "Alignez les programmes avec les priorités de croissance régionale et les objectifs d'impact public." },
-  { name: "ONG & Entreprises Sociales", detail: "Collaborez sur des missions communes et maximisez l'impact communautaire." },
-  { name: "Partenaires de Connaissances", detail: "Co-concevez des expériences d'apprentissage, des parcours de certification et de la recherche." },
+  { name: "Partenaires Corporatifs", detail: "Associez votre entreprise à un projet social à fort impact et gagnez en visibilité auprès d'un public engagé." },
+  { name: "Partenaires Institutionnels", detail: "Collaborez avec nous pour aligner vos priorités (ODD, inclusion numérique, développement durable) sur des actions concrètes sur le terrain." },
+  { name: "ONG & Entreprises Sociales", detail: "Unissons nos forces pour développer des programmes conjoints, mutualiser nos ressources et amplifier notre impact." },
+  { name: "Partenaires de Connaissances & Écosystème", detail: "Universités, centres de recherche, incubateurs, réseaux : rejoignez notre écosystème pour co-créer et innover." },
+  { name: "Partenaires du Programme Sourcing Créatif", detail: "Acheteurs internationaux, concept stores, architectes, stylistes, distributeurs, institutions culturelles : rejoignez le programme African Creative Sourcing & Buyer." },
 ];
 
 export const STORIES_AR = STORIES_FR;
@@ -422,8 +493,9 @@ export const NEWS_AR = NEWS_FR;
 export const EVENTS_AR = EVENTS_FR;
 export const MEMBER_BENEFITS_AR = MEMBER_BENEFITS_FR;
 export const PARTNER_TYPES_AR = [
-  { name: "شركاء الشركات", detail: "استثمر في خلق فرص قابلة للقياس وتوليد قيمة مشتركة." },
-  { name: "الشركاء المؤسسيون", detail: "مواءمة البرامج مع أولويات النمو الإقليمي وأهداف التأثير العام." },
-  { name: "المنظمات غير الحكومية والمؤسسات الاجتماعية", detail: "التعاون في المهام المشتركة وتعظيم التأثير المجتمعي." },
-  { name: "شركاء المعرفة", detail: "شارك في تصميم تجارب التعلم ومسارات الشهادات والبحث." },
+  { name: "شركاء الشركات", detail: "اربط شركتك بمشروع اجتماعي عالي التأثير واكتسب رؤية واسعة لدى جمهور متفاعل." },
+  { name: "الشركاء المؤسسيون", detail: "تعاون معنا لمواءمة أولوياتك (أهداف التنمية المستدامة، الإدماج الرقمي) مع إجراءات ملموسة على أرض الواقع." },
+  { name: "المنظمات غير الحكومية والمؤسسات الاجتماعية", detail: "دعنا نوحد جهودنا لتطوير برامج مشتركة ومشاركة الموارد وتعظيم الأثر المجتمعي." },
+  { name: "شركاء المعرفة والمنظومة", detail: "الجامعات ومراكز الأبحاث والحاضنات والشبكات: انضم إلى منظومتنا للابتكار والإنشاء المشترك." },
+  { name: "شركاء برنامج التوريد الإبداعي", detail: "المشترون الدوليون والمتاجر والمصممون والمؤسسات الثقافية: انضم إلى برنامج التوريد الإبداعي الإفريقي." },
 ];

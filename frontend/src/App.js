@@ -12,6 +12,7 @@ import SEOHead from "@/components/SEOHead";
 import AnimatedAvatars from "@/components/AnimatedAvatars";
 import CustomCursor from "@/components/CustomCursor";
 import ChatWidget from "@/components/ChatWidget";
+import SiteModalPopup from "@/components/SiteModalPopup";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Programs from "@/pages/Programs";
@@ -41,7 +42,7 @@ import AdminSettings from "@/pages/admin/Settings";
 import AdminSubmissions from "@/pages/admin/Submissions";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
-
+import { HelmetProvider } from "react-helmet-async";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -59,6 +60,12 @@ const PublicChat = () => {
   return <ChatWidget />;
 };
 
+const PublicPopup = () => {
+  const { pathname } = useLocation();
+  if (pathname.startsWith("/admin")) return null;
+  return <SiteModalPopup />;
+};
+
 const MarketingLayout = ({ children }) => (
   <SmoothScroll>
     <CustomCursor />
@@ -71,8 +78,6 @@ const MarketingLayout = ({ children }) => (
 );
 
 const page = (Component) => <MarketingLayout><Component /></MarketingLayout>;
-
-import { HelmetProvider } from "react-helmet-async";
 
 function App() {
   return (
@@ -131,6 +136,7 @@ function App() {
                 </Route>
               </Routes>
               <PublicChat />
+              <PublicPopup />
             </div>
           </SettingsProvider>
         </LanguageProvider>
