@@ -221,15 +221,29 @@ export default function Blog() {
     fetchApiPosts();
   }, [lang]);
 
-  const handleSubscribe = (e) => {
+  const [subscribing, setSubscribing] = useState(false);
+
+  const handleSubscribe = async (e) => {
     e.preventDefault();
     if (!newsletterEmail || !newsletterEmail.includes("@")) {
       toast.error(isFrench ? "Veuillez entrer une adresse courriel valide." : "Please enter a valid email address.");
       return;
     }
-    setSubscribed(true);
-    toast.success(isFrench ? "Merci ! Vous êtes inscrit à l'infolettre." : "Thank you! You are subscribed to our newsletter.");
-    setNewsletterEmail("");
+    setSubscribing(true);
+    try {
+      await api.post("/submissions", {
+        type: "newsletter",
+        payload: { email: newsletterEmail, name: newsletterEmail.split("@")[0] }
+      });
+      setSubscribed(true);
+      toast.success(isFrench ? "Merci ! Vous êtes inscrit à l'infolettre." : "Thank you! You are subscribed to our newsletter.");
+      setNewsletterEmail("");
+    } catch (err) {
+      const detail = err?.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : isFrench ? "Une erreur est survenue. Veuillez réessayer." : "An error occurred. Please try again.");
+    } finally {
+      setSubscribing(false);
+    }
   };
 
   const filteredPosts = posts.filter((post) => {
@@ -429,9 +443,10 @@ export default function Blog() {
                   />
                   <button
                     type="submit"
-                    className="w-full bg-[#111111] hover:bg-maple text-white font-montserrat text-[10.5px] font-bold tracking-[0.22em] py-3 uppercase transition-colors"
+                    disabled={subscribing}
+                    className="w-full bg-[#111111] hover:bg-maple text-white font-montserrat text-[10.5px] font-bold tracking-[0.22em] py-3 uppercase transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {isFrench ? "S'ABONNER" : "SUBSCRIBE"}
+                    {subscribing ? (isFrench ? "ENVOI..." : "SENDING...") : (isFrench ? "S'ABONNER" : "SUBSCRIBE")}
                   </button>
                 </form>
               )}

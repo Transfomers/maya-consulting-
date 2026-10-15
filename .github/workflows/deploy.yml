@@ -66,6 +66,9 @@ jobs:
             echo "SSH CONNECTION SUCCESSFUL"
             echo "======================================"
 
+            # Fix git safe.directory if needed
+            git config --global --add safe.directory /var/www/capentrepreneurs || true
+
             cd /var/www/capentrepreneurs
 
             echo "Current directory:"
@@ -83,10 +86,10 @@ jobs:
             docker compose up -d --build
 
             echo "Running database migrations..."
-            docker exec cap_backend alembic upgrade head || echo "Warning: Migrations failed"
+            docker exec cap_backend alembic upgrade head || echo "Warning: Migrations failed or already up to date"
 
-            echo "Running database seed..."
-            docker exec cap_backend python seed_admin.py || echo "Warning: Seed script failed, but continuing deployment"
+            echo "Seeding admin accounts..."
+            docker exec cap_backend python seed_admin.py
 
             echo "Checking containers..."
 
