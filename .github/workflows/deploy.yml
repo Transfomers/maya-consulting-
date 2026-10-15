@@ -91,6 +91,9 @@ jobs:
             echo "Seeding admin accounts..."
             docker exec cap_backend python seed_admin.py
 
+            echo "Seeding blog posts and categories..."
+            docker exec cap_backend python seed_blogs.py
+
             echo "Checking containers..."
 
             docker compose ps

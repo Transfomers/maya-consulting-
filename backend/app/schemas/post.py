@@ -53,6 +53,21 @@ class PostTranslationResponse(PostTranslationBase):
     class Config:
         from_attributes = True
 
+class CategorySimpleResponse(BaseModel):
+    id: str
+    name: str
+    slug: str
+
+    class Config:
+        from_attributes = True
+
+class MediaSimpleResponse(BaseModel):
+    id: str
+    url: str
+
+    class Config:
+        from_attributes = True
+
 class PostResponse(PostBase):
     id: str
     author_id: Optional[str] = None
@@ -61,6 +76,8 @@ class PostResponse(PostBase):
     published_at: Optional[datetime] = None
     translations: List[PostTranslationResponse] = []
     references: List[ReferenceResponse] = []
+    category: Optional[CategorySimpleResponse] = None
+    featured_image: Optional[MediaSimpleResponse] = None
 
     class Config:
         from_attributes = True

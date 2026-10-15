@@ -4,6 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from fastapi.staticfiles import StaticFiles
 from app.api import auth, submissions, posts, events, media, seo, stats, taxonomy, public_posts, settings as api_settings, public_taxonomy, public_settings, admin_users, chat, resources, public_resources, public_events
+import app.models
 import os
 
 app = FastAPI(title=settings.PROJECT_NAME)

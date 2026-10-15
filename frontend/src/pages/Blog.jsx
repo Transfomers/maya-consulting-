@@ -184,6 +184,35 @@ export default function Blog() {
   const [subscribed, setSubscribed] = useState(false);
 
   const isFrench = lang === "fr";
+  const isArabic = lang === "ar";
+
+  const getPostTitle = (post) => {
+    if (!post) return "";
+    if (isFrench && post.titleFr) return post.titleFr;
+    if (isArabic && post.titleAr) return post.titleAr;
+    return post.title || post.titleEn || "";
+  };
+
+  const getPostExcerpt = (post) => {
+    if (!post) return "";
+    if (isFrench && post.excerptFr) return post.excerptFr;
+    if (isArabic && post.excerptAr) return post.excerptAr;
+    return post.excerpt || post.excerptEn || "";
+  };
+
+  const getPostDate = (post) => {
+    if (!post) return "";
+    if (isFrench && post.dateFr) return post.dateFr;
+    if (isArabic && post.dateAr) return post.dateAr;
+    return post.date || post.dateEn || "8 MAY";
+  };
+
+  const getPostCategory = (post) => {
+    if (!post) return "";
+    if (isFrench && post.categoryFr) return post.categoryFr;
+    if (isArabic && post.categoryAr) return post.categoryAr;
+    return post.category || "";
+  };
 
   useEffect(() => {
     const fetchApiPosts = async () => {
@@ -193,15 +222,30 @@ export default function Blog() {
         if (pub.length > 0) {
           const apiFormatted = pub.map((p, idx) => {
             const trans = (p.translations || []).find((tr) => tr.language === lang) || p.translations?.[0] || {};
+            const transFr = (p.translations || []).find((tr) => tr.language === "fr");
+            const transEn = (p.translations || []).find((tr) => tr.language === "en");
+            const transAr = (p.translations || []).find((tr) => tr.language === "ar");
+            const fallbackCurated = CURATED_EDITORIAL_POSTS[idx % CURATED_EDITORIAL_POSTS.length];
             return {
               id: p.id,
               slug: p.slug,
               title: trans.title || p.slug,
+              titleEn: transEn?.title || trans.title || p.slug,
+              titleFr: transFr?.title || trans.title || p.slug,
+              titleAr: transAr?.title || trans.title || p.slug,
               excerpt: trans.excerpt || "Read more about this project.",
-              category: p.category?.name || (idx % 2 === 0 ? "Tech Inclusive" : "Impact Social"),
-              author: p.author_name || "Cap Entrepreneurs",
+              excerptEn: transEn?.excerpt || trans.excerpt,
+              excerptFr: transFr?.excerpt || trans.excerpt,
+              excerptAr: transAr?.excerpt || trans.excerpt,
+              category: p.category?.name || fallbackCurated.category,
+              categoryFr: p.category?.name || fallbackCurated.categoryFr,
+              categoryAr: p.category?.name || fallbackCurated.categoryAr,
+              author: p.author_name || "Murielle A. & Équipe éditoriale",
               date: "8 MAY",
-              image: p.featured_image || CURATED_EDITORIAL_POSTS[idx % CURATED_EDITORIAL_POSTS.length].image,
+              dateEn: "8 MAY",
+              dateFr: "8 MAI",
+              dateAr: "8 مايو",
+              image: p.featured_image?.url || p.featured_image || fallbackCurated.image,
               ratio: idx % 2 === 0 ? "aspect-[3/4]" : "aspect-[4/3]"
             };
           });
@@ -247,13 +291,16 @@ export default function Blog() {
   };
 
   const filteredPosts = posts.filter((post) => {
+    const title = getPostTitle(post);
+    const excerpt = getPostExcerpt(post);
+    const category = getPostCategory(post).toLowerCase();
     const matchesCategory =
       selectedCategory === "All" ||
-      post.category.toLowerCase().includes(selectedCategory.toLowerCase());
+      category.includes(selectedCategory.toLowerCase());
     const matchesSearch =
       !searchQuery ||
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      excerpt.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 

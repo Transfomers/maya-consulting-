@@ -35,6 +35,7 @@ async def generate_unique_slug(base_slug: str, db: AsyncSession, exclude_id: str
             return new_slug
         counter += 1
 
+@router.get("", response_model=List[PostResponse])
 @router.get("/", response_model=List[PostResponse])
 async def list_posts(
     status: Optional[str] = None,
