@@ -1,13 +1,22 @@
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.database import engine, Base
 from fastapi.staticfiles import StaticFiles
 from app.api import auth, submissions, posts, events, media, seo, stats, taxonomy, public_posts, settings as api_settings, public_taxonomy, public_settings, admin_users, chat, resources, public_resources, public_events
 import app.models
 import os
 
-app = FastAPI(title=settings.PROJECT_NAME)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Ensure all declared models (including resources) have tables created
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
 origins = list({settings.FRONTEND_URL, "http://localhost:3000", "http://127.0.0.1:3000"})
 app.add_middleware(

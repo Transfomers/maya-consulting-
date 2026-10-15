@@ -5,10 +5,11 @@ Run via: docker exec cap_backend python seed_blogs.py
 import asyncio
 from datetime import datetime, timezone
 from sqlalchemy import select, delete
-from app.core.database import AsyncSessionLocal
+from app.core.database import AsyncSessionLocal, engine, Base
 import app.models
 from app.models.user import User
 from app.models.post import Post, PostTranslation, Category
+from app.models.resource import Resource
 
 CATEGORIES_DATA = [
     {"name": "Community", "slug": "community"},
@@ -18,6 +19,11 @@ CATEGORIES_DATA = [
     {"name": "Mentorat", "slug": "mentorat"},
     {"name": "Circularity", "slug": "circularity"},
     {"name": "International", "slug": "international"},
+    {"name": "Cap Green Lab", "slug": "cap-green-lab"},
+    {"name": "AgriConnect", "slug": "agriconnect"},
+    {"name": "Safe Vibe", "slug": "safe-vibe"},
+    {"name": "Créatif & Social", "slug": "creatif-social"},
+    {"name": "Global Festival", "slug": "global-festival"},
 ]
 
 ARTICLES_DATA = [
@@ -268,8 +274,119 @@ async def seed_blogs():
             )
             session.add_all([t_en, t_fr])
 
+        # Ensure resources table exists
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+        RESOURCES_DATA = [
+            {
+                "title": "Manuel de Reconditionnement Circulaire & Éco-Conception Numérique",
+                "slug": "manuel-reconditionnement-circulaire-eco-conception",
+                "category_slug": "cap-green-lab",
+                "resource_type": "course",
+                "description": "Guide technique et pédagogique pour la mise en place d'ateliers de réemploi informatique, le diagnostic matériel, le cycle de vie des équipements et les filières solidaires de seconde vie.",
+                "author": "Équipe Pédagogique Cap Green Lab",
+                "tags": "Économie Circulaire, Reconditionnement, Matériel, Tech Inclusive",
+                "file_size": "4.2 Mo",
+                "mime_type": "application/pdf",
+                "file_url": "/assets/guides/cap-green-lab-reconditionnement.pdf",
+                "is_featured": True,
+                "is_published": True,
+            },
+            {
+                "title": "Guide Pratique AgriConnect : Solutions Mobiles & Circuits Courts Ruraux",
+                "slug": "guide-pratique-agriconnect-solutions-mobiles-circuits-courts",
+                "category_slug": "agriconnect",
+                "resource_type": "guide",
+                "description": "Méthodologie de terrain pour les coopératives agricoles et entrepreneurs ruraux : intégration d'outils numériques simples, logistique de proximité et valorisation locale des récoltes.",
+                "author": "Pôle Agro-Innovation & Ruralité",
+                "tags": "Agriculture Numérique, Circuits Courts, Ruralité, Outils Mobiles",
+                "file_size": "3.8 Mo",
+                "mime_type": "application/pdf",
+                "file_url": "/assets/guides/agriconnect-solutions-mobiles.pdf",
+                "is_featured": True,
+                "is_published": True,
+            },
+            {
+                "title": "Toolkit Pédagogique Safe Vibe : Éducation aux Médias & Citoyenneté Numérique",
+                "slug": "toolkit-pedagogique-safe-vibe-education-medias",
+                "category_slug": "safe-vibe",
+                "resource_type": "toolkit",
+                "description": "Boîte à outils complète pour enseignants, médiateurs jeunesse et éducateurs : 12 fiches d'ateliers interactifs sur la lutte contre la désinformation, l'esprit critique et la sécurité en ligne.",
+                "author": "Département Médias & Éducation Numérique",
+                "tags": "Médias, Cybersécurité, Éducation, Jeunesse, Esprit Critique",
+                "file_size": "5.1 Mo",
+                "mime_type": "application/pdf",
+                "file_url": "/assets/guides/safe-vibe-kit-pedagogique.pdf",
+                "is_featured": True,
+                "is_published": True,
+            },
+            {
+                "title": "Guide d'Incubation : Femmes, Artisanat & Entrepreneuriat Créatif Durable",
+                "slug": "guide-incubation-femmes-artisanat-entrepreneuriat-creatif",
+                "category_slug": "creatif-social",
+                "resource_type": "course",
+                "description": "Module de formation structurant pour transformer un savoir-faire artisanal ou artistique en marque durable, de la formalisation financière au marketing digital éthique.",
+                "author": "Collectif Femmes & Innovation Sociale",
+                "tags": "Femmes Entrepreneures, Artisanat, Modèle Économique, Économie Sociale",
+                "file_size": "3.4 Mo",
+                "mime_type": "application/pdf",
+                "file_url": "/assets/guides/femmes-entrepreneuriat-creatif.pdf",
+                "is_featured": True,
+                "is_published": True,
+            },
+            {
+                "title": "Livre Blanc & Guide de Coopération : Global Festival Nairobi 2027",
+                "slug": "livre-blanc-cooperation-internationale-nairobi-2027",
+                "category_slug": "global-festival",
+                "resource_type": "report",
+                "description": "Cadre d'orientation et opportunités de partenariats transfrontaliers : cartographie des écosystèmes d'innovation inclusive Canada-Afrique et préparation des délégations.",
+                "author": "Comité de Pilotage International",
+                "tags": "Nairobi 2027, Coopération Internationale, Partenariats, Sourcing",
+                "file_size": "2.9 Mo",
+                "mime_type": "application/pdf",
+                "file_url": "/assets/guides/nairobi-2027-guide-cooperation.pdf",
+                "is_featured": False,
+                "is_published": True,
+            },
+        ]
+
+        for res_item in RESOURCES_DATA:
+            cat_id = category_map.get(res_item["category_slug"])
+            r_query = await session.execute(select(Resource).where(Resource.slug == res_item["slug"]))
+            existing_res = r_query.scalars().first()
+
+            if not existing_res:
+                new_res = Resource(
+                    title=res_item["title"],
+                    slug=res_item["slug"],
+                    description=res_item["description"],
+                    category_id=cat_id,
+                    resource_type=res_item["resource_type"],
+                    file_url=res_item["file_url"],
+                    file_size=res_item["file_size"],
+                    mime_type=res_item["mime_type"],
+                    author=res_item["author"],
+                    tags=res_item["tags"],
+                    is_published=res_item["is_published"],
+                    is_featured=res_item["is_featured"],
+                )
+                session.add(new_res)
+            else:
+                existing_res.title = res_item["title"]
+                existing_res.description = res_item["description"]
+                existing_res.category_id = cat_id
+                existing_res.resource_type = res_item["resource_type"]
+                existing_res.file_url = res_item["file_url"]
+                existing_res.file_size = res_item["file_size"]
+                existing_res.mime_type = res_item["mime_type"]
+                existing_res.author = res_item["author"]
+                existing_res.tags = res_item["tags"]
+                existing_res.is_published = res_item["is_published"]
+                existing_res.is_featured = res_item["is_featured"]
+
         await session.commit()
-        print("Successfully seeded categories, published posts, and translations!")
+        print("Successfully seeded categories, published posts, translations, and downloadable resources!")
 
 
 if __name__ == "__main__":

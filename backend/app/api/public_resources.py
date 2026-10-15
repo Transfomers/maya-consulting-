@@ -9,6 +9,7 @@ from app.schemas.resource import ResourceResponse
 
 router = APIRouter()
 
+@router.get("", response_model=List[ResourceResponse])
 @router.get("/", response_model=List[ResourceResponse])
 async def list_public_resources(
     category_id: Optional[str] = None,

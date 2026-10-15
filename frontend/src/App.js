@@ -40,6 +40,7 @@ import AdminMedia from "@/pages/admin/Media";
 import AdminCategories from "@/pages/admin/Categories";
 import AdminSettings from "@/pages/admin/Settings";
 import AdminSubmissions from "@/pages/admin/Submissions";
+import AdminResources from "@/pages/admin/Resources";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
 import { HelmetProvider } from "react-helmet-async";
@@ -131,6 +132,7 @@ function App() {
                   <Route path="categories" element={<AdminCategories />} />
                   <Route path="events" element={<AdminEventsList />} />
                   <Route path="media" element={<AdminMedia />} />
+                  <Route path="resources" element={<AdminResources />} />
                   <Route path="submissions" element={<AdminSubmissions />} />
                   <Route path="settings" element={<AdminSettings />} />
                 </Route>

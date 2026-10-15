@@ -24,6 +24,7 @@ def slugify(text: str) -> str:
     text = re.sub(r'[\s-]+', '-', text)
     return text or "resource"
 
+@router.get("", response_model=List[ResourceResponse])
 @router.get("/", response_model=List[ResourceResponse])
 async def list_resources(
     category_id: Optional[str] = None,
@@ -53,6 +54,7 @@ async def list_resources(
     result = await db.execute(query)
     return result.scalars().all()
 
+@router.post("", response_model=ResourceResponse)
 @router.post("/", response_model=ResourceResponse)
 async def create_resource(
     data: ResourceCreate,

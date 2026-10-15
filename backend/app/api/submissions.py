@@ -15,7 +15,8 @@ router = APIRouter()
 ALLOWED_SUBMISSION_TYPES = {
     "pledge", "membership", "application", "partner", "volunteer", 
     "contact", "newsletter", "review", "program", "join", 
-    "buyer", "sourcing", "festival", "festival_sponsor", "press", "donate"
+    "buyer", "sourcing", "festival", "festival_sponsor", "press", "donate",
+    "resource_download", "guide", "course"
 }
 
 @router.post("")
@@ -28,6 +29,11 @@ async def create_submission(input: SubmissionInput, db: AsyncSession = Depends(g
     payload = {k: (v.strip() if isinstance(v, str) else v) for k, v in input.payload.items()}
     
     if form_type == "newsletter":
+        if not payload.get("email"):
+            raise HTTPException(status_code=422, detail="Email is required")
+        if not payload.get("name"):
+            payload["name"] = payload.get("email").split("@")[0]
+    elif form_type in ("resource_download", "guide", "course"):
         if not payload.get("email"):
             raise HTTPException(status_code=422, detail="Email is required")
         if not payload.get("name"):

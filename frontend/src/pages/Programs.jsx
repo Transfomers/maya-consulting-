@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   Check,
   ArrowRight,
@@ -10,7 +10,18 @@ import {
   Twitter,
   Linkedin,
   Mail,
-  CheckCircle2
+  CheckCircle2,
+  Download,
+  BookOpen,
+  FileText,
+  X,
+  ExternalLink,
+  Layers,
+  HelpCircle,
+  FileCheck,
+  Send,
+  Clock,
+  Tag
 } from "lucide-react";
 import { Reveal } from "@/components/motion";
 import { useLang } from "@/lib/i18n";
@@ -28,8 +39,87 @@ const PROGRAM_ASSETS = {
   triad3: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80",
 };
 
+const FALLBACK_RESOURCES = [
+  {
+    id: "res-1",
+    title: "Manuel de Reconditionnement Circulaire & Éco-Conception Numérique",
+    slug: "manuel-reconditionnement-circulaire-eco-conception",
+    program: "Cap Green Lab",
+    category: { name: "Cap Green Lab", slug: "cap-green-lab" },
+    resource_type: "course",
+    description: "Guide technique et pédagogique pour la mise en place d'ateliers de réemploi informatique, le diagnostic matériel, le cycle de vie des équipements et les filières solidaires.",
+    author: "Équipe Pédagogique Cap Green Lab",
+    tags: "Économie Circulaire, Reconditionnement, Matériel, Tech Inclusive",
+    file_size: "4.2 Mo",
+    mime_type: "application/pdf",
+    file_url: "/assets/guides/cap-green-lab-reconditionnement.pdf",
+    is_featured: true,
+  },
+  {
+    id: "res-2",
+    title: "Guide Pratique AgriConnect : Solutions Mobiles & Circuits Courts Ruraux",
+    slug: "guide-pratique-agriconnect-solutions-mobiles-circuits-courts",
+    program: "AgriConnect",
+    category: { name: "AgriConnect", slug: "agriconnect" },
+    resource_type: "guide",
+    description: "Méthodologie de terrain pour les coopératives agricoles et entrepreneurs ruraux : intégration d'outils numériques simples, logistique de proximité et valorisation locale.",
+    author: "Pôle Agro-Innovation & Ruralité",
+    tags: "Agriculture Numérique, Circuits Courts, Ruralité, Outils Mobiles",
+    file_size: "3.8 Mo",
+    mime_type: "application/pdf",
+    file_url: "/assets/guides/agriconnect-solutions-mobiles.pdf",
+    is_featured: true,
+  },
+  {
+    id: "res-3",
+    title: "Toolkit Pédagogique Safe Vibe : Éducation aux Médias & Citoyenneté Numérique",
+    slug: "toolkit-pedagogique-safe-vibe-education-medias",
+    program: "Safe Vibe",
+    category: { name: "Safe Vibe", slug: "safe-vibe" },
+    resource_type: "toolkit",
+    description: "Boîte à outils complète pour enseignants et médiateurs jeunesse : 12 fiches d'ateliers interactifs sur la lutte contre la désinformation, l'esprit critique et la sécurité en ligne.",
+    author: "Département Médias & Éducation Numérique",
+    tags: "Médias, Cybersécurité, Éducation, Jeunesse, Esprit Critique",
+    file_size: "5.1 Mo",
+    mime_type: "application/pdf",
+    file_url: "/assets/guides/safe-vibe-kit-pedagogique.pdf",
+    is_featured: true,
+  },
+  {
+    id: "res-4",
+    title: "Guide d'Incubation : Femmes, Artisanat & Entrepreneuriat Créatif Durable",
+    slug: "guide-incubation-femmes-artisanat-entrepreneuriat-creatif",
+    program: "Créatif & Social",
+    category: { name: "Créatif & Social", slug: "creatif-social" },
+    resource_type: "course",
+    description: "Module de formation structurant pour transformer un savoir-faire artisanal ou artistique en marque durable, de la formalisation financière au marketing digital éthique.",
+    author: "Collectif Femmes & Innovation Sociale",
+    tags: "Femmes Entrepreneures, Artisanat, Modèle Économique, Économie Sociale",
+    file_size: "3.4 Mo",
+    mime_type: "application/pdf",
+    file_url: "/assets/guides/femmes-entrepreneuriat-creatif.pdf",
+    is_featured: true,
+  },
+  {
+    id: "res-5",
+    title: "Livre Blanc & Guide de Coopération : Global Festival Nairobi 2027",
+    slug: "livre-blanc-cooperation-internationale-nairobi-2027",
+    program: "Global Festival",
+    category: { name: "Global Festival", slug: "global-festival" },
+    resource_type: "report",
+    description: "Cadre d'orientation et opportunités de partenariats transfrontaliers : cartographie des écosystèmes d'innovation inclusive Canada-Afrique et préparation des délégations.",
+    author: "Comité de Pilotage International",
+    tags: "Nairobi 2027, Coopération Internationale, Partenariats, Sourcing",
+    file_size: "2.9 Mo",
+    mime_type: "application/pdf",
+    file_url: "/assets/guides/nairobi-2027-guide-cooperation.pdf",
+    is_featured: false,
+  },
+];
+
 const Programs = () => {
   const { lang, t } = useLang();
+  const location = useLocation();
   const formRef = useRef(null);
 
   // Form State
@@ -42,6 +132,114 @@ const Programs = () => {
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Resources State
+  const [resources, setResources] = useState(FALLBACK_RESOURCES);
+  const [resourceFilter, setResourceFilter] = useState("all");
+
+  // Download Lead Modal State
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
+  const [downloadForm, setDownloadForm] = useState({
+    name: "",
+    email: "",
+    organization: "",
+    aim: "",
+    feedback: "",
+    requestCompleteGuide: true,
+  });
+  const [submittingDownload, setSubmittingDownload] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+
+  // Hash anchor scrolling listener
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace("#", "");
+      const timer = setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash]);
+
+  // Fetch Public Resources from CMS backend
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        const res = await api.get("/resources");
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setResources(res.data);
+        }
+      } catch (err) {
+        console.warn("Using fallback resources:", err);
+      }
+    };
+    fetchResources();
+  }, []);
+
+  const openDownloadModal = (res) => {
+    setSelectedResource(res);
+    setDownloadSuccess(false);
+    setDownloadModalOpen(true);
+  };
+
+  const handleDownloadChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setDownloadForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleDownloadSubmit = async (e) => {
+    e.preventDefault();
+    if (!downloadForm.name || !downloadForm.email || !downloadForm.aim) {
+      toast.error("Veuillez renseigner votre nom, courriel et objectif d'utilisation (*)");
+      return;
+    }
+
+    setSubmittingDownload(true);
+    try {
+      await api.post("/submissions", {
+        type: "resource_download",
+        payload: {
+          name: downloadForm.name,
+          email: downloadForm.email,
+          organization: downloadForm.organization || "Particulier / Non précisé",
+          aim: downloadForm.aim,
+          feedback: downloadForm.feedback || "Aucun commentaire spécifique",
+          request_complete_guide: downloadForm.requestCompleteGuide ? "Oui" : "Non",
+          resource_id: selectedResource?.id,
+          resource_title: selectedResource?.title,
+          resource_type: selectedResource?.resource_type || "Guide / Cours",
+          program: selectedResource?.category?.name || selectedResource?.program || "Cap Entrepreneurs",
+          downloaded_at: new Date().toISOString(),
+        },
+      });
+
+      setDownloadSuccess(true);
+      toast.success("Demande enregistrée avec succès ! Le téléchargement a démarré.");
+
+      // Initiate download
+      const targetUrl =
+        selectedResource?.file_url ||
+        selectedResource?.external_url ||
+        "/assets/guides/cap-green-lab-reconditionnement.pdf";
+      const a = document.createElement("a");
+      a.href = targetUrl;
+      a.download = `${selectedResource?.slug || "guide-cap-entrepreneurs"}.pdf`;
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error(err);
+      toast.error("Une erreur est survenue lors de l'enregistrement de votre demande.");
+    } finally {
+      setSubmittingDownload(false);
+    }
+  };
 
   const scrollToApply = (programName) => {
     if (programName) {
@@ -173,8 +371,9 @@ const Programs = () => {
                     { num: "3", title: "Safe Vibe", id: "safe-vibe" },
                     { num: "4", title: "Créatif & Social", id: "creatif-social" },
                     { num: "5", title: "Global Festival", id: "global-festival" },
-                    { num: "6", title: "Notre Calendrier", id: "calendrier" },
-                    { num: "7", title: "Candidature", id: "apply" }
+                    { num: "6", title: lang === "fr" ? "Guides & Cours à télécharger" : "Downloadable Guides & Courses", id: "resources" },
+                    { num: "7", title: "Notre Calendrier", id: "calendrier" },
+                    { num: "8", title: "Candidature", id: "apply" }
                   ].map((item) => (
                     <li key={item.id}>
                       <button
@@ -598,6 +797,168 @@ const Programs = () => {
               </Reveal>
             </section>
 
+            {/* SECTION : GUIDES & COURS À TÉLÉCHARGER */}
+            <section id="resources" className="scroll-mt-28 space-y-8 pt-12 border-t border-[#0D0E0D]/10">
+              <Reveal>
+                <div className="text-center max-w-2xl mx-auto mb-8">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-maple font-montserrat block mb-1">
+                    {lang === "fr"
+                      ? "RESSOURCES PÉDAGOGIQUES & GUIDES PRATIQUES"
+                      : lang === "ar"
+                      ? "موارد تعليمية وأدلة عملية"
+                      : "EDUCATIONAL RESOURCES & PRACTICAL GUIDES"}
+                  </span>
+                  <h3 className="font-serif text-3xl sm:text-4xl font-medium text-[#0D0E0D]">
+                    {lang === "fr"
+                      ? "Guides & Cours à télécharger"
+                      : lang === "ar"
+                      ? "أدلة ودورات تدريبية قابلة للتحميل"
+                      : "Downloadable Guides & Courses"}
+                  </h3>
+                  <div className="mx-auto mt-3 mb-4 h-[2px] w-12 bg-maple" />
+                  <p className="font-serif italic text-sm text-sage leading-relaxed">
+                    {lang === "fr"
+                      ? "Accédez librement aux modules de formation, fiches d'action et manuels de nos programmes structurants conçus pour accélérer l'impact de vos initiatives sur le terrain."
+                      : lang === "ar"
+                      ? "احصل على المواد التدريبية والكتيبات المنهجية لبرامجنا المصممة لتسريع أثر مبادراتك."
+                      : "Free access to training modules, action toolkits, and practical manuals from our programs designed to accelerate grassroots impact."}
+                  </p>
+                </div>
+
+                {/* Filter Pills */}
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+                  {[
+                    { id: "all", label: lang === "fr" ? "Tous les programmes" : lang === "ar" ? "جميع البرامج" : "All Programs" },
+                    { id: "cap-green-lab", label: "Cap Green Lab" },
+                    { id: "agriconnect", label: "AgriConnect" },
+                    { id: "safe-vibe", label: "Safe Vibe" },
+                    { id: "creatif-social", label: lang === "fr" ? "Créatif & Social" : "Creative & Social" },
+                    { id: "global-festival", label: "Global Festival" },
+                  ].map((filter) => {
+                    const active = resourceFilter === filter.id;
+                    return (
+                      <button
+                        key={filter.id}
+                        type="button"
+                        onClick={() => setResourceFilter(filter.id)}
+                        className={`px-3.5 py-1.5 font-montserrat text-[11px] font-bold uppercase tracking-[0.1em] border transition-all ${
+                          active
+                            ? "bg-[#0D0E0D] text-white border-[#0D0E0D] shadow-sm"
+                            : "bg-[#FAF9F6] text-sage hover:text-[#0D0E0D] border-[#0D0E0D]/10 hover:border-[#0D0E0D]/30"
+                        }`}
+                      >
+                        {filter.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Cards Grid */}
+                {(() => {
+                  const filtered = resources.filter((r) => {
+                    if (resourceFilter === "all") return true;
+                    const catSlug = r.category?.slug || "";
+                    const catName = (r.category?.name || r.program || "").toLowerCase();
+                    if (resourceFilter === "cap-green-lab") return catSlug.includes("green") || catName.includes("green");
+                    if (resourceFilter === "agriconnect") return catSlug.includes("agri") || catName.includes("agri");
+                    if (resourceFilter === "safe-vibe") return catSlug.includes("safe") || catName.includes("safe") || catName.includes("vibe");
+                    if (resourceFilter === "creatif-social") return catSlug.includes("creatif") || catName.includes("créatif") || catName.includes("femme");
+                    if (resourceFilter === "global-festival") return catSlug.includes("festival") || catName.includes("festival");
+                    return true;
+                  });
+
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="border border-[#0D0E0D]/10 bg-[#FAF9F6] p-8 text-center text-sage text-sm italic">
+                        {lang === "fr"
+                          ? "Aucune ressource disponible pour cette sélection pour l'instant."
+                          : "No resources found in this category yet."}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid gap-6 md:grid-cols-2">
+                      {filtered.map((res) => {
+                        const typeLabel =
+                          res.resource_type === "course"
+                            ? lang === "fr" ? "COURS COMPLET" : "COURSE"
+                            : res.resource_type === "toolkit"
+                            ? lang === "fr" ? "BOÎTE À OUTILS" : "TOOLKIT"
+                            : res.resource_type === "report"
+                            ? lang === "fr" ? "LIVRE BLANC" : "REPORT"
+                            : lang === "fr" ? "GUIDE PRATIQUE" : "PRACTICAL GUIDE";
+
+                        const programBadge = res.category?.name || res.program || "Cap Entrepreneurs";
+
+                        return (
+                          <div
+                            key={res.id || res.slug}
+                            className="group flex flex-col justify-between border border-[#0D0E0D]/15 bg-white p-6 sm:p-7 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all duration-300 hover:border-maple hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+                          >
+                            <div>
+                              {/* Top badges bar */}
+                              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#0D0E0D]/10 pb-3 mb-4">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-montserrat text-[10px] font-bold uppercase tracking-[0.15em] bg-stone-100 text-[#0D0E0D] px-2 py-0.5 border border-[#0D0E0D]/10">
+                                    {typeLabel}
+                                  </span>
+                                  <span className="font-montserrat text-[10px] font-bold uppercase tracking-wider text-maple">
+                                    {programBadge}
+                                  </span>
+                                </div>
+                                <span className="font-montserrat text-[10px] font-medium uppercase tracking-wider text-sage/80">
+                                  {res.file_size || "PDF • GUIDE"}
+                                </span>
+                              </div>
+
+                              {/* Title */}
+                              <h4 className="font-serif text-xl sm:text-[22px] font-bold text-[#0D0E0D] leading-snug group-hover:text-maple transition-colors">
+                                {res.title}
+                              </h4>
+
+                              {/* Description */}
+                              <p className="mt-3 text-xs sm:text-[13px] text-sage font-sans leading-relaxed">
+                                {res.description}
+                              </p>
+
+                              {/* Tags or author */}
+                              <div className="mt-4 flex flex-wrap items-center gap-1.5 text-[10.5px] font-montserrat text-sage">
+                                {res.author && (
+                                  <span className="font-semibold text-[#0D0E0D]/80">
+                                    {res.author} •
+                                  </span>
+                                )}
+                                <span>Édition 2026-2027</span>
+                              </div>
+                            </div>
+
+                            {/* Action Button */}
+                            <div className="mt-6 pt-4 border-t border-[#0D0E0D]/10">
+                              <button
+                                type="button"
+                                onClick={() => openDownloadModal(res)}
+                                className="w-full inline-flex items-center justify-center gap-2.5 bg-[#232724] group-hover:bg-maple text-white px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] font-montserrat transition-all duration-200"
+                              >
+                                <Download className="h-4 w-4 stroke-[2.2]" />
+                                <span>
+                                  {lang === "fr"
+                                    ? "Télécharger le cours / guide"
+                                    : lang === "ar"
+                                    ? "تحميل الدليل / الدورة"
+                                    : "Download Guide / Course"}
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </Reveal>
+            </section>
+
             {/* SECTION : NOTRE CALENDRIER */}
             <section id="calendrier" className="scroll-mt-28 space-y-6 pt-10 border-t border-[#0D0E0D]/10">
               <Reveal>
@@ -788,6 +1149,227 @@ const Programs = () => {
 
         </div>
       </main>
+
+      {/* POP-UP MODAL: TÉLÉCHARGEMENT DE RESSOURCE & RETOURS D'EXPÉRIENCE */}
+      {downloadModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-sm"
+        >
+          <div
+            className="relative w-full max-w-xl max-h-[92vh] overflow-y-auto bg-white border border-[#0D0E0D] p-6 sm:p-8 shadow-2xl"
+          >
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setDownloadModalOpen(false)}
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-sage hover:text-[#0D0E0D] border border-transparent hover:border-[#0D0E0D]/20 transition-colors"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {downloadSuccess ? (
+              <div className="py-6 text-center space-y-4">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-maple text-white shadow-md">
+                  <CheckCircle2 className="h-8 w-8" />
+                </div>
+                <h4 className="font-serif text-2xl sm:text-3xl font-bold text-[#0D0E0D]">
+                  {lang === "fr" ? "Téléchargement en cours !" : lang === "ar" ? "جاري بدء التحميل!" : "Download in Progress!"}
+                </h4>
+                <p className="text-xs sm:text-sm text-sage leading-relaxed max-w-md mx-auto">
+                  {lang === "fr"
+                    ? `Merci ${downloadForm.name || ""} ! Votre demande pour « ${selectedResource?.title || "ce guide"} » a bien été enregistrée. Le fichier devrait s'ouvrir ou se télécharger automatiquement.`
+                    : `Thank you! Your request for "${selectedResource?.title || "this resource"}" has been confirmed. The file is downloading.`}
+                </p>
+
+                <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <a
+                    href={selectedResource?.file_url || selectedResource?.external_url || "/assets/guides/cap-green-lab-reconditionnement.pdf"}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-maple px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-[#0D0E0D] transition-colors"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span>{lang === "fr" ? "Relancer le téléchargement" : "Re-download"}</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setDownloadModalOpen(false)}
+                    className="w-full sm:w-auto border border-[#0D0E0D] px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-[#0D0E0D] hover:bg-[#FAF9F6] transition-colors"
+                  >
+                    {lang === "fr" ? "Fermer" : "Close"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                {/* Modal Header */}
+                <div className="border-b border-[#0D0E0D]/10 pb-4 mb-5">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-maple font-montserrat block mb-1">
+                    {lang === "fr"
+                      ? "ACCÈS IMMÉDIAT • RESSOURCE DE FORMATION"
+                      : lang === "ar"
+                      ? "تحميل مباشر • موارد تدريبية"
+                      : "DIRECT ACCESS • TRAINING RESOURCE"}
+                  </span>
+                  <h3 className="font-serif text-2xl sm:text-[26px] font-bold text-[#0D0E0D] leading-tight">
+                    {lang === "fr" ? "Télécharger le document" : "Download Resource"}
+                  </h3>
+                  <div className="mt-3 bg-[#FAF9F6] border border-[#0D0E0D]/10 p-3 flex items-start gap-3">
+                    <BookOpen className="h-5 w-5 text-maple shrink-0 mt-0.5" />
+                    <div>
+                      <h5 className="font-serif text-sm font-bold text-[#0D0E0D] leading-snug">
+                        {selectedResource?.title}
+                      </h5>
+                      <span className="text-[11px] font-montserrat uppercase tracking-wider text-sage block mt-0.5">
+                        {selectedResource?.category?.name || selectedResource?.program} • {selectedResource?.file_size || "PDF"}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs text-sage leading-relaxed font-sans">
+                    {lang === "fr"
+                      ? "Veuillez préciser vos coordonnées et l'usage prévu afin de nous aider à enrichir nos modules et vous faire parvenir les mises à jour."
+                      : "Please tell us who you are and your learning aim to help us tailor future materials."}
+                  </p>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleDownloadSubmit} className="space-y-4">
+                  {/* Nom & Courriel */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-[0.18em] text-[#0D0E0D]">
+                        {lang === "fr" ? "NOM COMPLET *" : "FULL NAME *"}
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        placeholder={lang === "fr" ? "Votre nom et prénom" : "Your full name"}
+                        value={downloadForm.name}
+                        onChange={handleDownloadChange}
+                        className="w-full border border-[#0D0E0D]/20 bg-white px-3.5 py-2.5 text-xs text-[#0D0E0D] placeholder:text-sage/50 focus:border-maple focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-[0.18em] text-[#0D0E0D]">
+                        {lang === "fr" ? "COURRIEL *" : "EMAIL ADDRESS *"}
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        placeholder={lang === "fr" ? "nom@exemple.com" : "you@example.com"}
+                        value={downloadForm.email}
+                        onChange={handleDownloadChange}
+                        className="w-full border border-[#0D0E0D]/20 bg-white px-3.5 py-2.5 text-xs text-[#0D0E0D] placeholder:text-sage/50 focus:border-maple focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Organisation */}
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-[0.18em] text-[#0D0E0D]">
+                      {lang === "fr" ? "ORGANISATION / STRUCTURE / STATUT" : "ORGANIZATION / STATUS"}
+                    </label>
+                    <input
+                      type="text"
+                      name="organization"
+                      placeholder={lang === "fr" ? "OBNL, coopérative, entreprise, indépendant, étudiant..." : "NGO, cooperative, company, individual..."}
+                      value={downloadForm.organization}
+                      onChange={handleDownloadChange}
+                      className="w-full border border-[#0D0E0D]/20 bg-white px-3.5 py-2.5 text-xs text-[#0D0E0D] placeholder:text-sage/50 focus:border-maple focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Objectif / Aim */}
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-[0.18em] text-[#0D0E0D]">
+                      {lang === "fr"
+                        ? "OBJECTIF D'UTILISATION (AIM) *"
+                        : "AIM & PURPOSE OF USE *"}
+                    </label>
+                    <textarea
+                      name="aim"
+                      required
+                      rows={2}
+                      placeholder={lang === "fr"
+                        ? "Dans quel cadre comptez-vous utiliser cette ressource ? (ex: projet d'atelier local, formation d'équipe, mémoire...)"
+                        : "What is your main aim for using this guide? (e.g., team training, project kickoff, research...)"}
+                      value={downloadForm.aim}
+                      onChange={handleDownloadChange}
+                      className="w-full border border-[#0D0E0D]/20 bg-white px-3.5 py-2 text-xs text-[#0D0E0D] placeholder:text-sage/50 focus:border-maple focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Feedback / Besoins complémentaires */}
+                  <div>
+                    <label className="mb-1 block text-[11px] font-bold uppercase tracking-[0.18em] text-[#0D0E0D]">
+                      {lang === "fr"
+                        ? "RETOURS & ATTENTES DE FORMATION (FEEDBACK)"
+                        : "FEEDBACK & SPECIFIC NEEDS"}
+                    </label>
+                    <textarea
+                      name="feedback"
+                      rows={2}
+                      placeholder={lang === "fr"
+                        ? "Quels thèmes ou outils aimeriez-vous voir approfondis par nos formateurs ?"
+                        : "Any specific topics, challenges, or tools you would like our trainers to address?"}
+                      value={downloadForm.feedback}
+                      onChange={handleDownloadChange}
+                      className="w-full border border-[#0D0E0D]/20 bg-white px-3.5 py-2 text-xs text-[#0D0E0D] placeholder:text-sage/50 focus:border-maple focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Checkbox Complete Guide */}
+                  <div className="pt-1">
+                    <label className="flex items-start gap-3 cursor-pointer select-none bg-[#FAF9F6] border border-[#0D0E0D]/10 p-3 hover:border-maple/50 transition-colors">
+                      <input
+                        type="checkbox"
+                        name="requestCompleteGuide"
+                        checked={downloadForm.requestCompleteGuide}
+                        onChange={handleDownloadChange}
+                        className="mt-0.5 h-4 w-4 rounded-none border-[#0D0E0D]/30 accent-[#0D0E0D] focus:ring-0 cursor-pointer"
+                      />
+                      <span className="text-xs text-[#0D0E0D] font-medium leading-relaxed">
+                        {lang === "fr"
+                          ? "Oui, je souhaite recevoir gratuitement le guide complet augmenté, les supports pratiques par courriel et être informé des prochaines cohortes."
+                          : "Yes, I would like to receive the complete guide edition, practical worksheets, and upcoming cohort updates."}
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={submittingDownload}
+                      className="w-full inline-flex items-center justify-center gap-2 bg-[#232724] hover:bg-maple text-white px-6 py-3.5 text-xs font-bold uppercase tracking-[0.22em] font-montserrat transition-all disabled:opacity-50"
+                    >
+                      <Download className="h-4 w-4" />
+                      <span>
+                        {submittingDownload
+                          ? (lang === "fr" ? "ENREGISTREMENT..." : "SUBMITTING...")
+                          : (lang === "fr" ? "ENVOYER ET TÉLÉCHARGER LE GUIDE" : "SUBMIT & DOWNLOAD GUIDE")}
+                      </span>
+                    </button>
+                  </div>
+
+                  <p className="text-[10px] text-center text-sage/80 pt-1">
+                    {lang === "fr"
+                      ? "Vos données sont traitées en toute confidentialité par Cap Entrepreneurs conformément à notre politique de respect de la vie privée."
+                      : "Your data is handled securely by Cap Entrepreneurs."}
+                  </p>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );

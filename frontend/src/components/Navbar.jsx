@@ -31,7 +31,14 @@ const Navbar = () => {
       label: t.nav.programs,
       key: "programs",
       subpages: [
-        { to: "/programs", label: t.nav.allPrograms || t.nav.programs },
+        {
+          to: "/programs",
+          label: lang === "fr" ? "Nos 4 programmes structurants" : lang === "ar" ? "برامجنا الهيكلية الأربعة" : "Our 4 Structuring Programs",
+        },
+        {
+          to: "/programs#resources",
+          label: lang === "fr" ? "Guides & Cours à télécharger" : lang === "ar" ? "أدلة ودورات قابلة للتحميل" : "Downloadable Guides & Courses",
+        },
         { to: "/global-festival", label: t.nav.festival },
       ],
     },
@@ -44,7 +51,7 @@ const Navbar = () => {
 
   const isItemActive = (item) => {
     if (location.pathname === item.to) return true;
-    if (item.subpages && item.subpages.some((s) => location.pathname === s.to)) {
+    if (item.subpages && item.subpages.some((s) => location.pathname === s.to.split("#")[0])) {
       return true;
     }
     return false;
@@ -88,11 +95,20 @@ const Navbar = () => {
                     <div className="absolute left-0 top-full pt-2 opacity-0 -translate-y-1 invisible pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible group-hover:pointer-events-auto transition-all duration-200 ease-out z-50">
                       <div className="min-w-[230px] bg-white border border-[#E5E5E5] shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
                         {item.subpages.map((sub) => {
-                          const isSubActive = location.pathname === sub.to;
+                          const isSubActive =
+                            location.pathname + location.hash === sub.to ||
+                            (location.pathname === sub.to && !location.hash && !sub.to.includes("#"));
                           return (
                             <NavLink
                               key={sub.to}
                               to={sub.to}
+                              onClick={() => {
+                                if (sub.to.includes("#")) {
+                                  const id = sub.to.split("#")[1];
+                                  const el = document.getElementById(id);
+                                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                                }
+                              }}
                               data-testid={`nav-sublink-${sub.label.toLowerCase().replace(/[^a-z]+/g, "-")}`}
                               className={`block px-6 py-3.5 font-montserrat text-[11.5px] font-semibold uppercase tracking-[0.08em] border-b border-[#EEEEEE] last:border-b-0 whitespace-nowrap transition-colors duration-150 ${
                                 isSubActive
@@ -251,21 +267,33 @@ const Navbar = () => {
                           </div>
                           {isExpanded && (
                             <div className="ml-3 my-2 flex flex-col gap-1.5 pl-3 border-l border-bone/20">
-                              {l.subpages.map((sub) => (
-                                <NavLink
-                                  key={sub.to}
-                                  to={sub.to}
-                                  onClick={() => setOpen(false)}
-                                  data-testid={`nav-mobile-sublink-${sub.label.toLowerCase().replace(/[^a-z]+/g, "-")}`}
-                                  className={`py-1 font-montserrat text-sm md:text-base font-semibold uppercase tracking-wider transition-colors ${
-                                    location.pathname === sub.to
-                                      ? "text-maple"
-                                      : "text-bone/75 hover:text-maple"
-                                  }`}
-                                >
-                                  {sub.label}
-                                </NavLink>
-                              ))}
+                              {l.subpages.map((sub) => {
+                                const isSubActive =
+                                  location.pathname + location.hash === sub.to ||
+                                  (location.pathname === sub.to && !location.hash && !sub.to.includes("#"));
+                                return (
+                                  <NavLink
+                                    key={sub.to}
+                                    to={sub.to}
+                                    onClick={() => {
+                                      setOpen(false);
+                                      if (sub.to.includes("#")) {
+                                        const id = sub.to.split("#")[1];
+                                        const el = document.getElementById(id);
+                                        if (el) el.scrollIntoView({ behavior: "smooth" });
+                                      }
+                                    }}
+                                    data-testid={`nav-mobile-sublink-${sub.label.toLowerCase().replace(/[^a-z]+/g, "-")}`}
+                                    className={`py-1 font-montserrat text-sm md:text-base font-semibold uppercase tracking-wider transition-colors ${
+                                      isSubActive
+                                        ? "text-maple"
+                                        : "text-bone/75 hover:text-maple"
+                                    }`}
+                                  >
+                                    {sub.label}
+                                  </NavLink>
+                                );
+                              })}
                             </div>
                           )}
                         </div>

@@ -126,6 +126,7 @@ export default function AdminSubmissions() {
             <option value="festival">Festival Global & Inscription Session</option>
             <option value="donate">Promesse de don</option>
             <option value="newsletter">Abonnement Infolettre</option>
+            <option value="resource_download">Téléchargement de ressource / cours</option>
             <option value="review">Avis & Témoignages</option>
           </select>
         </div>
