@@ -197,6 +197,9 @@ ARTICLES_DATA = [
 
 
 async def seed_blogs():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     async with AsyncSessionLocal() as session:
         # 1. Ensure author exists
         user_res = await session.execute(select(User).order_by(User.created_at.asc()))
@@ -273,10 +276,6 @@ async def seed_blogs():
                 allow_follow=True,
             )
             session.add_all([t_en, t_fr])
-
-        # Ensure resources table exists
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
 
         RESOURCES_DATA = [
             {
