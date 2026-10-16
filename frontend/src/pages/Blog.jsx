@@ -50,12 +50,13 @@ export default function Blog() {
           const transAr = (p.translations || []).find((tr) => tr.language === "ar");
 
           const defaultImages = [
-            "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600&q=80",
-            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
-            "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80",
-            "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
-            "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80",
-            "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80"
+            "/assets/images/cap_ecosystem_collaboration.webp",
+            "/assets/images/youth_tech_bootcamp.webp",
+            "/assets/images/agriconnect_farming.webp",
+            "/assets/images/safe_vibe_media.webp",
+            "/assets/images/cap_green_lab.webp",
+            "/assets/images/women_social_innovators.webp",
+            "/assets/images/diaspora_global_summit.webp"
           ];
 
           return {
@@ -71,7 +72,7 @@ export default function Blog() {
             excerptAr: transAr?.excerpt || trans.excerpt || "",
             category: p.category?.name || "Communauté",
             categorySlug: p.category?.slug || "",
-            author: p.author_name || "Murielle A. & Équipe éditoriale",
+            author: p.author_name || "Équipe CAP",
             date: formatPostDate(p.published_at || p.created_at),
             image: p.featured_image?.url || p.featured_image || defaultImages[idx % defaultImages.length],
             ratio: idx % 2 === 0 ? "aspect-[3/4]" : "aspect-[4/3]"
@@ -330,15 +331,15 @@ export default function Blog() {
             <div className="text-center pt-2">
               <img
                 src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80"
-                alt="Murielle & Cap Team"
+                alt="Équipe CAP"
                 className="w-28 h-28 sm:w-32 sm:h-32 rounded-full mx-auto object-cover ring-4 ring-[#FAF8F5] shadow-sm"
               />
               <h3 className="font-serif text-2xl font-normal text-[#1a1a1a] mt-4">
-                Murielle & Cap Team
+                Équipe CAP
               </h3>
               <p className="font-sans text-xs text-neutral-500 max-w-[260px] mx-auto mt-2 leading-relaxed">
                 {isFrench
-                  ? "Ce blogue est notre espace pour partager des réflexions, des guides d'impact, des opportunités d'affaires et des inspirations quotidiennes."
+                  ? "Nos articles partagent des réflexions, des guides d'impact, des opportunités d'affaires et des inspirations quotidiennes."
                   : "This blog is our curated space to share insights, impact guides, community spotlights, and daily ecosystem inspirations."}
               </p>
             </div>
@@ -463,9 +464,6 @@ export default function Blog() {
         </div>
 
       </div>
-
-      {/* Full Width Newsletter Strip */}
-      <NewsletterSubscribe variant="banner" source="blog_landing" />
     </div>
   );
 }

@@ -33,13 +33,16 @@ const Navbar = () => {
       subpages: [
         {
           to: "/programs",
-          label: lang === "fr" ? "Nos 4 programmes structurants" : lang === "ar" ? "برامجنا الهيكلية الأربعة" : "Our 4 Structuring Programs",
+          label: lang === "fr" ? "Nos programmes" : lang === "ar" ? "برامجنا" : "Our Programs",
         },
         {
           to: "/resources",
-          label: lang === "fr" ? "Ressources : Guides & Cours" : lang === "ar" ? "الموارد : أدلة ودورات للتحميل" : "Resources: Guides & Courses",
+          label: lang === "fr" ? "Nos ressources" : lang === "ar" ? "مواردنا" : "Our Resources",
         },
-        { to: "/global-festival", label: t.nav.festival },
+        {
+          to: "/global-festival",
+          label: lang === "fr" ? "Notre festival" : lang === "ar" ? "مهرجاننا" : "Our Festival",
+        },
       ],
     },
     { to: "/blog", label: t.nav.blog },

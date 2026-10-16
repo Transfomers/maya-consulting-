@@ -5,7 +5,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
-  Sparkles,
+  Lightbulb,
   Send,
   HelpCircle,
   Layers,
@@ -606,7 +606,7 @@ const Join = () => {
                 <div className="grid gap-6 sm:grid-cols-3">
                   <div className="border border-[#0D0E0D]/10 bg-[#FAF9F6] p-6 text-center">
                     <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-maple/10 text-maple">
-                      <Sparkles className="h-6 w-6" />
+                      <Lightbulb className="h-6 w-6" />
                     </div>
                     <h4 className="font-heading text-lg font-black tracking-wider text-[#0D0E0D]">
                       {isFr ? "CRÉER" : isAr ? "ابتكار" : "CREATE"}

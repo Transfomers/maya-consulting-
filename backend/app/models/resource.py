@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, Text, ForeignKey, Boolean
+from sqlalchemy import Column, String, DateTime, Text, ForeignKey, Boolean, Integer
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ class Resource(Base):
     slug = Column(String, nullable=False, index=True)
     description = Column(Text, nullable=True)
     category_id = Column(String, ForeignKey("categories.id"), nullable=True)
-    resource_type = Column(String, default="document", nullable=False) # document, media, guide, report, toolkit, video, link
+    resource_type = Column(String, default="document", nullable=False) # course, guide, toolkit, report, template, video, external
     file_url = Column(String, nullable=True)
     external_url = Column(String, nullable=True)
     file_size = Column(String, nullable=True)
@@ -20,6 +20,13 @@ class Resource(Base):
     tags = Column(String, nullable=True) # Comma-separated tags
     is_published = Column(Boolean, default=True)
     is_featured = Column(Boolean, default=False)
+    downloads_count = Column(Integer, default=0)
+    language = Column(String, default="fr")
+    skill_level = Column(String, nullable=True) # Débutant, Intermédiaire, Avancé
+    duration = Column(String, nullable=True)
+    target_audience = Column(String, nullable=True)
+    learning_objectives = Column(Text, nullable=True)
+    prerequisites = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

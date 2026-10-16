@@ -7,13 +7,13 @@ export default function AdministratorsManager() {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Modals
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [changingRoleUser, setChangingRoleUser] = useState(null);
   const [deletingUser, setDeletingUser] = useState(null);
-  
+
   const [formData, setFormData] = useState({ first_name: '', last_name: '', email: '', phone: '', role_id: '' });
   const [submitting, setSubmitting] = useState(false);
   const [shareLink, setShareLink] = useState(null);
@@ -64,7 +64,7 @@ export default function AdministratorsManager() {
     setSubmitting(true);
     try {
       const res = await api.post('/admin/users', formData);
-      toast.success("Administrator created. Copy the invitation link — no email is sent.");
+      toast.success("Administrator created. Copy the invitation link - no email is sent.");
       setShowAddModal(false);
       setFormData({ first_name: '', last_name: '', email: '', phone: '', role_id: '' });
       if (res.data?.invite_link) {
@@ -160,11 +160,11 @@ export default function AdministratorsManager() {
 
   const openEdit = (user) => {
     const parts = user.name.split(' ');
-    setFormData({ 
-      first_name: parts[0] || '', 
-      last_name: parts.slice(1).join(' ') || '', 
-      email: user.email, 
-      phone: user.phone || '' 
+    setFormData({
+      first_name: parts[0] || '',
+      last_name: parts.slice(1).join(' ') || '',
+      email: user.email,
+      phone: user.phone || ''
     });
     setEditingUser(user);
   };
@@ -195,14 +195,14 @@ export default function AdministratorsManager() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <input 
-          type="text" 
-          placeholder="Search administrators..." 
+        <input
+          type="text"
+          placeholder="Search administrators..."
           className="flex-1 rounded-none border border-forest/20 px-4 py-2 text-sm focus:border-forest focus:outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select 
+        <select
           className="rounded-none border border-forest/20 px-4 py-2 text-sm focus:border-forest focus:outline-none"
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
@@ -210,7 +210,7 @@ export default function AdministratorsManager() {
           <option value="All">All Roles</option>
           {roles.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
         </select>
-        <select 
+        <select
           className="rounded-none border border-forest/20 px-4 py-2 text-sm focus:border-forest focus:outline-none"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -243,10 +243,9 @@ export default function AdministratorsManager() {
                   <span className="bg-forest/10 text-forest px-2 py-1 text-[10px] uppercase font-bold tracking-wider">{user.role_name}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`inline-flex items-center gap-1.5 px-2 py-1 text-[10px] uppercase font-bold tracking-wider ${
-                    user.status === 'Active' ? 'bg-green-100 text-green-800' :
-                    user.status === 'Pending' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
-                  }`}>
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-1 text-[10px] uppercase font-bold tracking-wider ${user.status === 'Active' ? 'bg-green-100 text-green-800' :
+                      user.status === 'Pending' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                    }`}>
                     {user.status === 'Active' && <CheckCircle2 className="h-3 w-3" />}
                     {user.status}
                   </span>
@@ -295,26 +294,26 @@ export default function AdministratorsManager() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-1">First Name</label>
-                  <input required type="text" value={formData.first_name} onChange={e => setFormData({...formData, first_name: e.target.value})} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest" />
+                  <input required type="text" value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-1">Last Name</label>
-                  <input required type="text" value={formData.last_name} onChange={e => setFormData({...formData, last_name: e.target.value})} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest" />
+                  <input required type="text" value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest" />
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-1">Email</label>
-                <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest" />
+                <input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest" />
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-1">Phone (Optional)</label>
-                <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest" />
+                <input type="text" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest" />
               </div>
-              
+
               {!editingUser && (
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-1">Role</label>
-                  <select required value={formData.role_id} onChange={e => setFormData({...formData, role_id: e.target.value})} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest bg-white">
+                  <select required value={formData.role_id} onChange={e => setFormData({ ...formData, role_id: e.target.value })} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest bg-white">
                     {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                   </select>
                 </div>
@@ -327,7 +326,7 @@ export default function AdministratorsManager() {
               )}
 
               <div className="flex justify-end gap-3 pt-4 border-t border-forest/10">
-                <button type="button" onClick={() => {setShowAddModal(false); setEditingUser(null);}} className="px-4 py-2 text-sm font-bold uppercase tracking-wider text-sage hover:bg-forest/5">Cancel</button>
+                <button type="button" onClick={() => { setShowAddModal(false); setEditingUser(null); }} className="px-4 py-2 text-sm font-bold uppercase tracking-wider text-sage hover:bg-forest/5">Cancel</button>
                 <button type="submit" disabled={submitting} className="flex items-center gap-2 bg-forest text-bone px-6 py-2 font-bold uppercase tracking-wider text-sm hover:bg-maple disabled:opacity-50">
                   {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
                   {editingUser ? 'Update' : 'Send Invitation'}
@@ -351,7 +350,7 @@ export default function AdministratorsManager() {
             <form onSubmit={handleRoleChange}>
               <div className="mb-6">
                 <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-1">New Role</label>
-                <select required value={formData.role_id} onChange={e => setFormData({...formData, role_id: e.target.value})} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest bg-white">
+                <select required value={formData.role_id} onChange={e => setFormData({ ...formData, role_id: e.target.value })} className="w-full border border-forest/20 px-3 py-2 outline-none focus:border-forest bg-white">
                   {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                 </select>
               </div>

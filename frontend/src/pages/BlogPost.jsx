@@ -91,7 +91,7 @@ export default function BlogPost() {
             className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-forest/70 hover:bg-forest hover:text-white transition-all mb-8 shadow-sm"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isFrench ? "Retour au blogue" : "Back to Blog"}</span>
+            <span>{isFrench ? "Retour aux articles" : "Back to Blog"}</span>
           </Link>
 
           <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -116,13 +116,13 @@ export default function BlogPost() {
           {/* Author Block */}
           <div className="flex items-center gap-4 border-y border-forest/10 py-5">
             <img
-              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80"
-              alt={post.author_name || "Murielle & Équipe éditoriale"}
+              src="/assets/murielle-portrait.webp"
+              alt={post.author_name || "Équipe CAP"}
               className="h-12 w-12 rounded-full object-cover ring-2 ring-forest/10"
             />
             <div>
               <p className="font-bold text-sm text-forest">
-                {isFrench ? "Rédigé par" : "Written by"} {post.author_name || "Murielle & Équipe éditoriale"}
+                {isFrench ? "Rédigé par" : "Written by"} {post.author_name || "Équipe CAP"}
               </p>
               <p className="text-xs text-forest/60">Cap Entrepreneurs • Écosystème Solidaire</p>
             </div>

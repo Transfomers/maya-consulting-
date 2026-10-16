@@ -11,7 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
   MapPin,
-  Sparkles,
+ 
   Compass,
   KeyRound,
   Eye,
@@ -51,10 +51,10 @@ const GlobalFestival = () => {
 
   const handleShareQuote = () => {
     const text = isEn
-      ? "« CAP Entrepreneurs connects people, skills, technology and opportunities to build inclusive, accessible and sustainable digital economies. » — CAP Entrepreneurs"
+      ? "« CAP Entrepreneurs connects people, skills, technology and opportunities to build inclusive, accessible and sustainable digital economies. » - CAP Entrepreneurs"
       : isAr
-      ? "« تربط كاب رواد الأعمال بين الأفراد والمهارات والتكنولوجيا والفرص لبناء اقتصادات رقمية شاملة ومستدامة. » — كاب رواد الأعمال"
-      : "« CAP Entrepreneurs connecte les individus, les compétences, les technologies et les opportunités pour bâtir des économies numériques inclusives, accessibles et durables. » — CAP Entrepreneurs";
+        ? "« تربط كاب رواد الأعمال بين الأفراد والمهارات والتكنولوجيا والفرص لبناء اقتصادات رقمية شاملة ومستدامة. » - كاب رواد الأعمال"
+        : "« CAP Entrepreneurs connecte les individus, les compétences, les technologies et les opportunités pour bâtir des économies numériques inclusives, accessibles et durables. » - CAP Entrepreneurs";
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);
@@ -566,12 +566,12 @@ const GlobalFestival = () => {
                         {isEn ? "International Roadmap (2026-2028):" : "Feuille de Route Internationale (2026-2028) :"}
                       </h4>
                       <ul className="space-y-1.5 font-mono text-[11px]">
-                        <li>• <strong>{isFr ? "2026 Bâtir" : isAr ? "2026 البناء" : "2026 Build"}</strong> — {isFr ? "Structuration des programmes et comités de travail" : isAr ? "هيكلة البرامج ولجان العمل المتخصصة" : "Structuring programs and advisory working committees"}</li>
-                        <li>• <strong>{isFr ? "2027 Connecter" : isAr ? "2027 التواصل" : "2027 Connect"}</strong> — {isFr ? "Déploiement des programmes et mobilisation communautaire" : isAr ? "إطلاق البرامج وتعبئة المبادرات المجتمعية" : "Program deployment and community mobilization"}</li>
-                        <li>• <strong>2027 Paris</strong> — {isFr ? "Brunch Pré-Festival & partenariats européens" : isAr ? "حفل ما قبل المهرجان والشراكات الأوروبية" : "Pre-Festival Brunch & European institutional partnerships"}</li>
-                        <li>• <strong>2027 Nairobi</strong> — {isFr ? "Le Global Festival pour la tech inclusive & durable" : isAr ? "المهرجان العالمي للتكنولوجيا الشاملة والمستدامة" : "The Global Festival for inclusive & sustainable tech"}</li>
-                        <li>• <strong>2027 Marrakech</strong> — {isFr ? "Sourcing Créatif Africain & acheteurs internationaux" : isAr ? "التوريد الإبداعي الأفريقي والمشترون الدوليون" : "African Creative Sourcing & international buyers market"}</li>
-                        <li>• <strong>2028 Martinique</strong> — {isFr ? "Expansion internationale & coopération caribéenne" : isAr ? "التوسع الدولي والتعاون في منطقة الكاريبي" : "International expansion & Caribbean regional cooperation"}</li>
+                        <li>• <strong>{isFr ? "2026 Bâtir" : isAr ? "2026 البناء" : "2026 Build"}</strong> - {isFr ? "Structuration des programmes et comités de travail" : isAr ? "هيكلة البرامج ولجان العمل المتخصصة" : "Structuring programs and advisory working committees"}</li>
+                        <li>• <strong>{isFr ? "2027 Connecter" : isAr ? "2027 التواصل" : "2027 Connect"}</strong> - {isFr ? "Déploiement des programmes et mobilisation communautaire" : isAr ? "إطلاق البرامج وتعبئة المبادرات المجتمعية" : "Program deployment and community mobilization"}</li>
+                        <li>• <strong>2027 Paris</strong> - {isFr ? "Brunch Pré-Festival & partenariats européens" : isAr ? "حفل ما قبل المهرجان والشراكات الأوروبية" : "Pre-Festival Brunch & European institutional partnerships"}</li>
+                        <li>• <strong>2027 Nairobi</strong> - {isFr ? "Le Global Festival pour la tech inclusive & durable" : isAr ? "المهرجان العالمي للتكنولوجيا الشاملة والمستدامة" : "The Global Festival for inclusive & sustainable tech"}</li>
+                        <li>• <strong>2027 Marrakech</strong> - {isFr ? "Sourcing Créatif Africain & acheteurs internationaux" : isAr ? "التوريد الإبداعي الأفريقي والمشترون الدوليون" : "African Creative Sourcing & international buyers market"}</li>
+                        <li>• <strong>2028 Martinique</strong> - {isFr ? "Expansion internationale & coopération caribéenne" : isAr ? "التوسع الدولي والتعاون في منطقة الكاريبي" : "International expansion & Caribbean regional cooperation"}</li>
                       </ul>
                     </div>
 

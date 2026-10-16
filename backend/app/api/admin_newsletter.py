@@ -797,7 +797,7 @@ async def test_smtp_configuration(
     settings_map = await get_all_settings_map(db)
     smtp_cfg = get_smtp_config_from_db(settings_map)
 
-    subject = "CAP Entrepreneurs — Test de configuration SMTP Hostinger"
+    subject = "CAP Entrepreneurs - Test de configuration SMTP Hostinger"
     body = """
       <div style="font-family: Arial, sans-serif; padding: 20px;">
         <h2 style="color: #0D0E0D;">Test de configuration SMTP réussi !</h2>

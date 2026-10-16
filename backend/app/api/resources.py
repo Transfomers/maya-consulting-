@@ -80,7 +80,14 @@ async def create_resource(
         author=data.author,
         tags=data.tags,
         is_published=data.is_published,
-        is_featured=data.is_featured
+        is_featured=data.is_featured,
+        language=data.language or "fr",
+        skill_level=data.skill_level,
+        duration=data.duration,
+        target_audience=data.target_audience,
+        learning_objectives=data.learning_objectives,
+        prerequisites=data.prerequisites,
+        downloads_count=data.downloads_count or 0
     )
     db.add(resource)
     await db.commit()

@@ -14,7 +14,7 @@ from app.models.role import Role
 
 SUPER_ADMIN_ROLE_NAME = "Super Administrator"
 
-# All three admin accounts — password is set/reset on every deploy
+# All three admin accounts - password is set/reset on every deploy
 ADMINS = [
     {"email": "ajana@capentrepreneurs.org",     "name": "A. Jana"},
     {"email": "contact@capentrepreneurs.org",   "name": "Contact Admin"},
@@ -33,7 +33,7 @@ async def seed_admins():
         role = role_result.scalars().first()
         if not role:
             print(
-                f"ERROR: '{SUPER_ADMIN_ROLE_NAME}' role not found — "
+                f"ERROR: '{SUPER_ADMIN_ROLE_NAME}' role not found - "
                 "run `alembic upgrade head` first."
             )
             return

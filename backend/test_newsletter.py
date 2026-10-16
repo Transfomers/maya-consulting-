@@ -145,7 +145,7 @@ async def run_tests():
 
         campaign = NewsletterCampaign(
             title=f"Avis: {trans.title}",
-            subject=f"CAP Entrepreneurs — {trans.title}",
+            subject=f"CAP Entrepreneurs - {trans.title}",
             preview_text=trans.excerpt,
             article_id=post.id,
             recipient_segment="all_active",

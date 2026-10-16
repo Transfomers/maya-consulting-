@@ -16,6 +16,9 @@ class Category(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, unique=True, nullable=False)
     slug = Column(String, unique=True, nullable=False)
+    description = Column(Text, nullable=True)
+    display_order = Column(Integer, default=0)
+    is_archived = Column(Boolean, default=False)
 
 class Tag(Base):
     __tablename__ = "tags"

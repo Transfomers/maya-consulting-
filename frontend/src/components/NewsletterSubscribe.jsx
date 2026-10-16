@@ -85,76 +85,9 @@ export default function NewsletterSubscribe({
     );
   }
 
-  // Banner variant (Full-width clean stripe)
+  // Banner variant disabled
   if (variant === "banner") {
-    return (
-      <section className={`bg-forest text-bone py-14 px-6 md:px-12 border-y border-forest-light/20 ${className}`}>
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8">
-          <div className="lg:max-w-xl text-center lg:text-left">
-            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#B84A39]">
-              {isEn ? "STAY CONNECTED" : "RESTEZ CONNECTÉ"}
-            </span>
-            <h3 className="font-heading text-2xl md:text-3xl font-bold tracking-tight text-bone mt-1 mb-2">
-              {isEn ? "Receive our latest insights & initiatives" : "Recevez nos derniers articles & initiatives"}
-            </h3>
-            <p className="text-sm text-bone/70 leading-relaxed">
-              {isEn
-                ? "Join our community advancing inclusive, accessible, and sustainable digital economies."
-                : "Rejoignez notre réseau engagé pour bâtir des économies numériques inclusives et durables."}
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="w-full lg:max-w-md space-y-3">
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={isEn ? "Your email address..." : "Votre adresse courriel..."}
-                className="flex-1 bg-bone text-forest px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#B84A39]"
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-[#B84A39] hover:bg-[#a03e30] text-bone font-heading text-xs font-bold uppercase tracking-widest px-6 py-3 transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isEn ? "Subscribe" : "S'abonner")}
-              </button>
-            </div>
-
-            <div className="flex items-start gap-2 pt-1 text-left">
-              <input
-                id={`consent-banner-${source}`}
-                type="checkbox"
-                required
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                className="mt-1 h-3.5 w-3.5 rounded border-forest-light text-[#B84A39] focus:ring-[#B84A39]"
-              />
-              <label htmlFor={`consent-banner-${source}`} className="text-xs text-bone/60 leading-tight">
-                {isEn ? (
-                  <>
-                    I agree to receive updates from CAP Entrepreneurs. You may <Link to="/unsubscribe" className="underline hover:text-bone">unsubscribe</Link> anytime. Read our <Link to="/privacy" className="underline hover:text-bone">Privacy Policy</Link>.
-                  </>
-                ) : (
-                  <>
-                    J'accepte de recevoir l'infolettre de CAP Entrepreneurs. Désabonnement possible à tout moment. Consultez notre <Link to="/privacy" className="underline hover:text-bone">Politique de confidentialité</Link>.
-                  </>
-                )}
-              </label>
-            </div>
-
-            {errorMsg && (
-              <p className="text-xs text-red-400 flex items-center gap-1.5 pt-1">
-                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                {errorMsg}
-              </p>
-            )}
-          </form>
-        </div>
-      </section>
-    );
+    return null;
   }
 
   // Footer compact variant
@@ -168,12 +101,12 @@ export default function NewsletterSubscribe({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={isEn ? "Your email address..." : "Votre courriel..."}
-            className="w-full bg-forest/40 border border-bone/25 px-3.5 py-2.5 text-xs text-bone placeholder:text-bone/40 focus:outline-none focus:border-[#B84A39]"
+            className="w-full bg-forest/40 border border-bone/25 px-3.5 py-2.5 text-xs text-bone placeholder:text-bone/40 focus:outline-none focus:border-emerald-500"
           />
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#B84A39] hover:bg-[#a03e30] text-bone font-heading text-xs font-bold uppercase tracking-wider py-2.5 transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-emerald-700 hover:bg-emerald-800 text-bone font-heading text-xs font-bold uppercase tracking-wider py-2.5 transition-colors flex items-center justify-center gap-2 shadow-xs"
           >
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (isEn ? "Subscribe" : "S'abonner")}
           </button>
@@ -285,7 +218,7 @@ export default function NewsletterSubscribe({
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-forest hover:bg-[#B84A39] text-bone font-heading text-xs font-bold uppercase tracking-[0.2em] py-3.5 px-6 transition-colors flex items-center justify-center gap-2 shadow-sm"
+          className="w-full bg-forest hover:bg-[#153426] text-bone font-heading text-xs font-bold uppercase tracking-[0.2em] py-3.5 px-6 transition-colors flex items-center justify-center gap-2 shadow-sm"
         >
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin" />

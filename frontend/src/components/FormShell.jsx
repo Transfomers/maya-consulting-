@@ -64,6 +64,22 @@ const Field = ({ field, value, onChange, type }) => {
       </div>
     );
   }
+  if (field.kind === "checkbox") {
+    return (
+      <label className="flex items-start gap-3 cursor-pointer pt-1">
+        <input
+          id={id}
+          data-testid={id}
+          type="checkbox"
+          required={field.required}
+          checked={Boolean(value)}
+          onChange={(e) => onChange(field.name, e.target.checked)}
+          className="h-4 w-4 rounded-none border-forest/30 text-maple focus:ring-maple mt-0.5 accent-[#701EF8] cursor-pointer"
+        />
+        <span className="text-xs text-forest/85 leading-relaxed font-sans select-none">{field.text || field.placeholder || field.label}</span>
+      </label>
+    );
+  }
   return (
     <input
       id={id}

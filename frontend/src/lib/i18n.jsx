@@ -5,21 +5,21 @@ const STR = {
     "nav": {
       "home": "Home",
       "about": "About",
-      "programs": "Programs",
+      "programs": "Our Programs",
       "join": "Join",
       "volunteer": "Volunteer",
       "partners": "Partners",
-      "festival": "Global Festival",
-      "blog": "The Windows of CAP",
+      "festival": "Our Festival",
+      "blog": "Blog",
       "contact": "Contact",
       "donate": "Donate"
     },
     "footer": {
-      "quote": "“Cap Entrepreneurs — Building inclusive, accessible and sustainable digital economies.”",
+      "quote": "“Cap Entrepreneurs - Building inclusive, accessible and sustainable digital economies.”",
       "support": "Support the Mission",
       "explore": "Explore",
       "involved": "Get Involved",
-      "bottom1": "Cap Entrepreneurs — A Canadian non-profit organization",
+      "bottom1": "Cap Entrepreneurs - A Canadian non-profit organization",
       "bottom2": "Rooted in Quebec. Connected to Canada. Open to the world.",
       "privacy": "Privacy Policy",
       "terms": "Terms of Service",
@@ -204,21 +204,21 @@ const STR = {
       "ctas": {
         "learn": {
           "badge": "🎓 Learn",
-          "title": "LEARN — Build your capabilities",
+          "title": "LEARN - Build your capabilities",
           "text": "Develop digital skills, gain practical experience and discover new ways to grow through training, mentorship and hands-on projects.",
           "action": "Explore Learning Opportunities",
           "link": "/join"
         },
         "build": {
           "badge": "🤝 Build",
-          "title": "BUILD — Turn ideas into action",
+          "title": "BUILD - Turn ideas into action",
           "text": "Bring your expertise, creativity and energy to initiatives that address real challenges in communities and territories.",
           "action": "Get Involved",
           "link": "/volunteer"
         },
         "impact": {
           "badge": "🏢 Create Impact",
-          "title": "CREATE IMPACT — Make change possible",
+          "title": "CREATE IMPACT - Make change possible",
           "text": "Partner with us to develop inclusive technologies, sustainable programs and opportunities that create lasting social, environmental and economic value.",
           "action": "Partner With Us",
           "link": "/partners"
@@ -253,7 +253,7 @@ const STR = {
       "communitySectionTitle": "Meet the Community Behind CAP",
       "communitySectionSub": "We are building an ecosystem of people who identify opportunities, open doors and create connections.",
       "signalSeekersTitle": "The Signal Seekers",
-      "signalSeekersDesc": "We observe, explore and identify emerging trends, needs, technologies and opportunities. We help our community understand what is changing — and what could come next.",
+      "signalSeekersDesc": "We observe, explore and identify emerging trends, needs, technologies and opportunities. We help our community understand what is changing - and what could come next.",
       "doorOpenersTitle": "The Door Openers",
       "doorOpenersDesc": "We connect people, organizations and ecosystems. We help transform discoveries into relationships, collaborations and practical opportunities.",
       "communityQuote": "“These are complementary roles within one international community. Whether you are a student, entrepreneur, volunteer, professional, organization or institutional partner, there is a place for you.”",
@@ -465,7 +465,7 @@ const STR = {
       "h1accent": "measurable impact",
       "h1post": "",
       "editionTag": "EDITION 2026-2027 • CAP ENTREPRENEURS",
-      "intro": "Cap Entrepreneurs deploys four structuring programs that address the concrete needs of individuals, organizations and territories. Each program combines learning, support, hands-on experimentation and deployment — connected to our international initiatives.",
+      "intro": "Cap Entrepreneurs deploys four structuring programs that address the concrete needs of individuals, organizations and territories. Each program combines learning, support, hands-on experimentation and deployment - connected to our international initiatives.",
       "tocTitle": "IN THIS ARTICLE",
       "shareTitle": "SHARE",
       "exploreCta": "Explore Programs",
@@ -478,7 +478,7 @@ const STR = {
           "name": "Cap Green Lab",
           "theme": "Inclusive Technology, Accessibility and Circular Economy",
           "subtitle": "Digital Inclusion & Environmental Responsibility",
-          "purpose": "Technology should be accessible to everyone — and respectful of our planet. Cap Green Lab is our laboratory dedicated to the intersection of digital inclusion, technical training, assistive technology and the circular economy.",
+          "purpose": "Technology should be accessible to everyone - and respectful of our planet. Cap Green Lab is our laboratory dedicated to the intersection of digital inclusion, technical training, assistive technology and the circular economy.",
           "whatWeDo": [
             "Refurbish and extend the life of digital equipment for community distribution.",
             "Promote accessible technologies and universal design for people with disabilities.",
@@ -513,7 +513,7 @@ const STR = {
           "name": "Safe Vibe",
           "theme": "Digital Media, Education and Responsible Digital Citizenship",
           "subtitle": "Media Literacy & Creative Expression",
-          "purpose": "The digital world is a powerful space for expression, learning and connection — but it also presents real challenges around safety, disinformation and wellbeing. Safe Vibe equips youth, educators, content creators and community organizations with the skills to navigate the digital world safely, critically and creatively.",
+          "purpose": "The digital world is a powerful space for expression, learning and connection - but it also presents real challenges around safety, disinformation and wellbeing. Safe Vibe equips youth, educators, content creators and community organizations with the skills to navigate the digital world safely, critically and creatively.",
           "whatWeDo": [
             "Deliver media literacy and critical-thinking workshops.",
             "Provide training in creative content production (video, audio, podcasting, storytelling).",
@@ -542,7 +542,7 @@ const STR = {
           "cta": "Explore Creative & Social Entrepreneurship"
         }
       ],
-      "festivalTitle": "The Global Festival — Nairobi 2027",
+      "festivalTitle": "The Global Festival - Nairobi 2027",
       "festivalSub": "A Global Gathering for Inclusive, Accessible and Sustainable Tech",
       "festivalIntro": "The Global Festival Nairobi 2027 is planned as an international gathering bringing together innovators, entrepreneurs, institutions and communities around shared challenges and opportunities across four focus areas:",
       "festivalSpaces": [
@@ -605,7 +605,7 @@ const STR = {
       "goalsLabel": "Your Goals",
       "goalsPh": "What do you hope to accomplish through this program?",
       "submit": "Submit Application",
-      "success": "Application received — our team will be in touch shortly."
+      "success": "Application received - our team will be in touch shortly."
     },
     "join": {
       "eyebrow": "Join the Community",
@@ -650,7 +650,7 @@ const STR = {
       "formTitle": "Join the CAP Ecosystem",
       "formCopy": "Tell us a little about yourself so we can direct you to the most relevant pathway. Your next CAP could begin with a conversation.",
       "submit": "Send Message",
-      "success": "Thank you for reaching out — our team will direct you to the right pathway."
+      "success": "Thank you for reaching out - our team will direct you to the right pathway."
     },
     "volunteer": {
       "eyebrow": "Volunteer With Us",
@@ -702,23 +702,23 @@ const STR = {
       "journeyIntro": "We match your skills, interests and availability with projects where you can contribute meaningfully:",
       "steps": [
         {
-          "title": "Step 1 — Apply",
+          "title": "Step 1 - Apply",
           "text": "Tell us about your experience, interests and the time you can contribute."
         },
         {
-          "title": "Step 2 — Learn",
+          "title": "Step 2 - Learn",
           "text": "Access training or guidance suited to your role and development goals."
         },
         {
-          "title": "Step 3 — Connect",
+          "title": "Step 3 - Connect",
           "text": "Find a program or project aligned with your skills and interests."
         },
         {
-          "title": "Step 4 — Contribute",
+          "title": "Step 4 - Contribute",
           "text": "Work with other members of the ecosystem to support practical initiatives."
         },
         {
-          "title": "Step 5 — Grow",
+          "title": "Step 5 - Grow",
           "text": "Build experience, develop new capabilities and document your contribution through certificates or badges."
         }
       ],
@@ -737,7 +737,7 @@ const STR = {
       "formTitle": "Tell us how you would like to help",
       "formCopy": "Complete this short form and our volunteer coordination team will contact you.",
       "submit": "Submit Volunteer Profile",
-      "success": "Thank you for getting involved — our volunteer team will be in touch shortly."
+      "success": "Thank you for getting involved - our volunteer team will be in touch shortly."
     },
     "partners": {
       "eyebrow": "Partnerships",
@@ -788,7 +788,7 @@ const STR = {
       "formTitle": "Let's Build Together",
       "formCopy": "Tell us about your organization and how you envision collaborating with CAP Entrepreneurs.",
       "formSubmit": "Submit Partnership Proposal",
-      "formSuccess": "Thank you for reaching out — our partnerships team will review your proposal promptly.",
+      "formSuccess": "Thank you for reaching out - our partnerships team will review your proposal promptly.",
       "typeLabel": "Partnership Type",
       "typePh": "Select partnership category",
       "orgLabel": "Organization Name",
@@ -800,7 +800,7 @@ const STR = {
       "eyebrow": "The Global Festival",
       "h1a": "One Movement. Multiple Windows. ",
       "h1accent": "A World of Possibilities.",
-      "intro": "The CAP Entrepreneurs Global Festival is more than an event. It is a meeting point for ideas, people, cultures, and opportunities — bringing together entrepreneurs, innovators, organizations, and communities committed to building more inclusive, accessible, and sustainable digital economies. Rooted in Canadian know-how and open to the world, the Global Festival creates space for collaboration across borders, disciplines, and generations.",
+      "intro": "The CAP Entrepreneurs Global Festival is more than an event. It is a meeting point for ideas, people, cultures, and opportunities - bringing together entrepreneurs, innovators, organizations, and communities committed to building more inclusive, accessible, and sustainable digital economies. Rooted in Canadian know-how and open to the world, the Global Festival creates space for collaboration across borders, disciplines, and generations.",
       "subIntro": "A Global Journey, Built Together. Our international journey unfolds through a series of strategic encounters, each opening a new window onto the world.",
       "destinationsTitle": "One Vision. Many Connections.",
       "destinations": [
@@ -825,7 +825,7 @@ const STR = {
           "desc": "A new step in our international development, strengthening connections across the Caribbean, Canada, and wider international networks."
         }
       ],
-      "spacesTitle": "What Brings Us Together — Four Interconnected Areas:",
+      "spacesTitle": "What Brings Us Together - Four Interconnected Areas:",
       "spaces": [
         {
           "title": "Inclusive Technology",
@@ -853,13 +853,13 @@ const STR = {
         "Contribute to conversations about the future of the digital economy.",
         "Explore opportunities for international creative trade and collaboration."
       ],
-      "closingText": "The world is not one destination. It is a network of possibilities waiting to be connected. CAP Entrepreneurs — Opening New Horizons.",
+      "closingText": "The world is not one destination. It is a network of possibilities waiting to be connected. CAP Entrepreneurs - Opening New Horizons.",
       "ctaWaitlist": "Join the Waitlist",
       "ctaPartners": "Explore Partnership Opportunities"
     },
     "blog": {
       "eyebrow": "Editorial Space",
-      "h1a": "The Windows of CAP — ",
+      "h1a": "The Windows of CAP - ",
       "h1accent": "Discover What's Possible Beyond Your Horizon",
       "intro": "The Windows of CAP is our editorial space for sharing ideas, people, places and opportunities that can help our community see further. Here, the Signal Seekers identify what is emerging. The Door Openers share the connections and pathways that can help turn discovery into action.",
       "subIntro": "From digital innovation to international ecosystems, from community stories to upcoming events, each window offers a new perspective.",
@@ -906,43 +906,43 @@ const STR = {
       "profiles": [
         {
           "icon": "🎓",
-          "text": "I want to join the community — Discover how you can learn, contribute and connect.",
+          "text": "I want to join the community - Discover how you can learn, contribute and connect.",
           "cta": "Join CAP Entrepreneurs",
           "link": "/join"
         },
         {
           "icon": "🤝",
-          "text": "I want to volunteer — Put your skills and experience to work on meaningful initiatives.",
+          "text": "I want to volunteer - Put your skills and experience to work on meaningful initiatives.",
           "cta": "Explore Volunteering",
           "link": "/volunteer"
         },
         {
           "icon": "🏢",
-          "text": "I represent a nonprofit organization — Explore program collaboration and shared initiatives.",
+          "text": "I represent a nonprofit organization - Explore program collaboration and shared initiatives.",
           "cta": "Discuss a Partnership",
           "link": "#contact-form"
         },
         {
           "icon": "💼",
-          "text": "I represent a company or institution — Discover sponsorship, strategic partnership and collaboration opportunities.",
+          "text": "I represent a company or institution - Discover sponsorship, strategic partnership and collaboration opportunities.",
           "cta": "Become a Partner",
           "link": "/partners"
         },
         {
           "icon": "🛍️",
-          "text": "I am an international buyer or creative professional — Learn more about the African Creative Sourcing & Buyer Programme.",
+          "text": "I am an international buyer or creative professional - Learn more about the African Creative Sourcing & Buyer Programme.",
           "cta": "Explore Creative Sourcing",
           "link": "#contact-form"
         },
         {
           "icon": "🌍",
-          "text": "I want to support the Global Festival or an international initiative — Discuss potential sponsorship or collaboration.",
+          "text": "I want to support the Global Festival or an international initiative - Discuss potential sponsorship or collaboration.",
           "cta": "Explore Opportunities",
           "link": "/partners"
         },
         {
           "icon": "📰",
-          "text": "I am a journalist or institutional representative — Contact us about media, communications or institutional matters.",
+          "text": "I am a journalist or institutional representative - Contact us about media, communications or institutional matters.",
           "cta": "Contact the CAP Team",
           "link": "mailto:contact@capentrepreneurs.org"
         }
@@ -975,7 +975,7 @@ const STR = {
       "messageLabel": "Message",
       "messagePh": "How can we collaborate? Tell us about your project or questions...",
       "submit": "Send Message",
-      "success": "Message sent — our team will reply shortly.",
+      "success": "Message sent - our team will reply shortly.",
       "info": [
         {
           "label": "Email",
@@ -1003,7 +1003,7 @@ const STR = {
       "tagline": "One contribution. Shared commitment. New possibilities.",
       "ctaDonate": "Donate Now",
       "submit": "Complete My Pledge",
-      "success": "Thank you for your generous pledge — our team will follow up promptly with your confirmation and receipt details."
+      "success": "Thank you for your generous pledge - our team will follow up promptly with your confirmation and receipt details."
     },
     "stories": {
       "eyebrow": "Impact Stories",
@@ -1037,7 +1037,7 @@ const STR = {
       "ctaMember": "Join the Ecosystem"
     },
     "membership": {
-      "volSuccess": "Thank you for getting involved — our team will be in touch.",
+      "volSuccess": "Thank you for getting involved - our team will be in touch.",
       "areaLabel": "Area of interest",
       "areaOptions": [
         "Digital skills",
@@ -1057,17 +1057,17 @@ const STR = {
     "nav": {
       "home": "Accueil",
       "about": "À propos",
-      "programs": "Programmes",
+      "programs": "Nos programmes",
       "join": "Rejoindre",
       "volunteer": "Bénévolat",
       "partners": "Partenaires",
-      "festival": "Global Festival",
-      "blog": "Les Fenêtres de CAP",
+      "festival": "Notre festival",
+      "blog": "Articles",
       "contact": "Contact",
       "donate": "Faire un don"
     },
     "footer": {
-      "quote": "« Cap Entrepreneurs — Bâtir des économies numériques inclusives, accessibles et durables. »",
+      "quote": "« Cap Entrepreneurs - Bâtir des économies numériques inclusives, accessibles et durables. »",
       "support": "Soutenir notre mission sociale",
       "explore": "Explorer",
       "involved": "S'impliquer",
@@ -1256,21 +1256,21 @@ const STR = {
       "ctas": {
         "learn": {
           "badge": "🎓 Apprendre",
-          "title": "APPRENDRE — Développez vos compétences",
+          "title": "APPRENDRE - Développez vos compétences",
           "text": "Acquérez des compétences numériques concrètes et recherchées grâce à des formations appliquées, du mentorat et des projets d'utilité collective.",
           "action": "Découvrir les formations",
           "link": "/join"
         },
         "build": {
           "badge": "🤝 Bâtir",
-          "title": "BÂTIR — Passez de l'idée à l'action",
+          "title": "BÂTIR - Passez de l'idée à l'action",
           "text": "Mettez votre expertise, votre créativité et votre énergie au service d'initiatives qui répondent aux défis réels des territoires.",
           "action": "S'impliquer activement",
           "link": "/volunteer"
         },
         "impact": {
           "badge": "🏢 Créer l'impact",
-          "title": "CRÉER DE L'IMPACT — Accompagnez le changement",
+          "title": "CRÉER DE L'IMPACT - Accompagnez le changement",
           "text": "Devenez partenaire pour co-concevoir des technologies inclusives, des programmes durables et des retombées sociales mesurables.",
           "action": "Devenir partenaire",
           "link": "/partners"
@@ -1517,7 +1517,7 @@ const STR = {
       "h1accent": "l'impact mesurable",
       "h1post": "",
       "editionTag": "ÉDITION 2026-2027 • CAP ENTREPRENEURS",
-      "intro": "Cap Entrepreneurs déploie quatre programmes structurants qui répondent aux besoins concrets des individus, des organisations et des territoires. Chaque programme combine apprentissage pratique, accompagnement, expérimentation sur le terrain et déploiement solidaire — en lien avec nos initiatives internationales.",
+      "intro": "Cap Entrepreneurs déploie quatre programmes structurants qui répondent aux besoins concrets des individus, des organisations et des territoires. Chaque programme combine apprentissage pratique, accompagnement, expérimentation sur le terrain et déploiement solidaire - en lien avec nos initiatives internationales.",
       "tocTitle": "DANS CET ARTICLE",
       "shareTitle": "PARTAGER",
       "exploreCta": "Explorer les programmes",
@@ -1530,7 +1530,7 @@ const STR = {
           "name": "Cap Green Lab",
           "theme": "Technologie inclusive, accessibilité et économie circulaire",
           "subtitle": "Inclusion numérique & responsabilité environnementale",
-          "purpose": "La technologie doit être accessible à tous — et respectueuse de notre planète. Cap Green Lab est notre laboratoire dédié à la convergence de l'inclusion numérique, de la formation technique, de l'accessibilité technologique et de l'économie circulaire.",
+          "purpose": "La technologie doit être accessible à tous - et respectueuse de notre planète. Cap Green Lab est notre laboratoire dédié à la convergence de l'inclusion numérique, de la formation technique, de l'accessibilité technologique et de l'économie circulaire.",
           "whatWeDo": [
             "Reconditionner et prolonger la durée de vie des équipements informatiques pour les redistribuer aux communautés dans le besoin.",
             "Promouvoir les technologies d'accessibilité et le design universel pour les personnes en situation de handicap.",
@@ -1594,7 +1594,7 @@ const STR = {
           "cta": "Découvrir Entrepreneuriat Créatif & Social"
         }
       ],
-      "festivalTitle": "Le Global Festival — Nairobi 2027",
+      "festivalTitle": "Le Global Festival - Nairobi 2027",
       "festivalSub": "Rassemblement mondial pour une tech inclusive, accessible et durable",
       "festivalIntro": "Le Global Festival Nairobi 2027 réunira innovateurs, entrepreneurs sociaux, institutions et communautés autour de quatre espaces thématiques :",
       "festivalSpaces": [
@@ -1657,7 +1657,7 @@ const STR = {
       "goalsLabel": "Vos objectifs et motivations",
       "goalsPh": "Que souhaitez-vous accomplir grâce à ce programme ?",
       "submit": "Soumettre ma candidature",
-      "success": "Candidature reçue avec succès — notre équipe prendra contact avec vous très rapidement."
+      "success": "Candidature reçue avec succès - notre équipe prendra contact avec vous très rapidement."
     },
     "join": {
       "eyebrow": "Rejoindre l'écosystème",
@@ -1702,7 +1702,7 @@ const STR = {
       "formTitle": "Rejoindre la communauté CAP",
       "formCopy": "Dites-nous qui vous êtes afin que nous puissions vous orienter vers la démarche la plus adaptée. Votre prochain CAP commence par un premier échange.",
       "submit": "Transmettre ma demande",
-      "success": "Merci pour votre message — notre équipe vous répondra dans les plus brefs délais."
+      "success": "Merci pour votre message - notre équipe vous répondra dans les plus brefs délais."
     },
     "volunteer": {
       "eyebrow": "S'impliquer en bénévolat",
@@ -1754,23 +1754,23 @@ const STR = {
       "journeyIntro": "Nous harmonisons vos compétences, vos champs d'intérêt et votre disponibilité avec des projets où votre action aura un sens réel :",
       "steps": [
         {
-          "title": "Étape 1 — Candidature",
+          "title": "Étape 1 - Candidature",
           "text": "Partagez votre parcours, vos motivations et le temps que vous souhaitez offrir."
         },
         {
-          "title": "Étape 2 — Accueil & Formation",
+          "title": "Étape 2 - Accueil & Formation",
           "text": "Bénéficiez d'une séance d'orientation et de formations adaptées à votre mission."
         },
         {
-          "title": "Étape 3 — Jumelage",
+          "title": "Étape 3 - Jumelage",
           "text": "Rejoignez un projet ou un programme aligné avec vos aspirations."
         },
         {
-          "title": "Étape 4 — Contribution",
+          "title": "Étape 4 - Contribution",
           "text": "Collaborez activement avec l'équipe et les participants de l'écosystème."
         },
         {
-          "title": "Étape 5 — Reconnaissance",
+          "title": "Étape 5 - Reconnaissance",
           "text": "Développez votre réseau et faites reconnaître vos contributions via des attestations officielles."
         }
       ],
@@ -1789,7 +1789,7 @@ const STR = {
       "formTitle": "Dites-nous comment vous souhaitez vous impliquer",
       "formCopy": "Remplissez ce court formulaire et notre responsable du bénévolat prendra contact avec vous.",
       "submit": "Soumettre ma candidature bénévole",
-      "success": "Merci pour votre engagement généreux — notre équipe vous contactera sous peu."
+      "success": "Merci pour votre engagement généreux - notre équipe vous contactera sous peu."
     },
     "partners": {
       "eyebrow": "Partenariats à mission sociale",
@@ -1840,7 +1840,7 @@ const STR = {
       "formTitle": "Bâtissons ensemble",
       "formCopy": "Présentez-nous votre organisation et votre vision d'une collaboration avec Cap Entrepreneurs.",
       "formSubmit": "Transmettre notre proposition",
-      "formSuccess": "Merci pour votre démarche — notre équipe des partenariats communiquera avec vous rapidement.",
+      "formSuccess": "Merci pour votre démarche - notre équipe des partenariats communiquera avec vous rapidement.",
       "typeLabel": "Catégorie de partenariat",
       "typePh": "Sélectionnez une catégorie",
       "orgLabel": "Nom de l'organisation",
@@ -1905,13 +1905,13 @@ const STR = {
         "Contribuer aux réflexions sur l'avenir éthique de l'économie numérique.",
         "Explorer de nouveaux débouchés pour le commerce équitable et créatif."
       ],
-      "closingText": "Le monde n'est pas une destination unique. C'est un réseau de possibilités prêtes à être reliées. Cap Entrepreneurs — Ouvrir de nouveaux horizons.",
+      "closingText": "Le monde n'est pas une destination unique. C'est un réseau de possibilités prêtes à être reliées. Cap Entrepreneurs - Ouvrir de nouveaux horizons.",
       "ctaWaitlist": "Rejoindre la liste d'attente",
       "ctaPartners": "Explorer les partenariats du Festival"
     },
     "blog": {
       "eyebrow": "Espace Éditorial",
-      "h1a": "Les Fenêtres de CAP — ",
+      "h1a": "Les Fenêtres de CAP - ",
       "h1accent": "Découvrez ce qui est possible au-delà de votre horizon",
       "intro": "Les Fenêtres de CAP est notre publication éditoriale pour partager les idées, les personnes, les initiatives et les opportunités qui permettent à notre communauté de voir plus loin. Les Éclaireurs y décryptent les tendances émergentes, tandis que les Bâtisseurs de Passerelles partagent les maillages propices à l'action.",
       "subIntro": "De l'innovation solidaire aux écosystèmes internationaux, des récits de nos bénéficiaires aux événements à venir, chaque fenêtre offre une perspective stimulante.",
@@ -1958,43 +1958,43 @@ const STR = {
       "profiles": [
         {
           "icon": "🎓",
-          "text": "Je veux rejoindre la communauté — Découvrir nos formations et opportunités d'apprentissage.",
+          "text": "Je veux rejoindre la communauté - Découvrir nos formations et opportunités d'apprentissage.",
           "cta": "Rejoindre Cap Entrepreneurs",
           "link": "/join"
         },
         {
           "icon": "🤝",
-          "text": "Je veux faire du bénévolat — Mettre mes compétences au service d'initiatives utiles.",
+          "text": "Je veux faire du bénévolat - Mettre mes compétences au service d'initiatives utiles.",
           "cta": "Découvrir le bénévolat",
           "link": "/volunteer"
         },
         {
           "icon": "🏢",
-          "text": "Je représente un organisme à but non lucratif — Échanger sur des projets communs ou du maillage.",
+          "text": "Je représente un organisme à but non lucratif - Échanger sur des projets communs ou du maillage.",
           "cta": "Discuter d'un partenariat",
           "link": "#contact-form"
         },
         {
           "icon": "💼",
-          "text": "Je représente une entreprise ou institution — Explorer les opportunités de commandite ou de mécénat.",
+          "text": "Je représente une entreprise ou institution - Explorer les opportunités de commandite ou de mécénat.",
           "cta": "Devenir partenaire",
           "link": "/partners"
         },
         {
           "icon": "🛍️",
-          "text": "Je suis acheteur international ou créateur — En savoir plus sur le programme de sourcing éthique.",
+          "text": "Je suis acheteur international ou créateur - En savoir plus sur le programme de sourcing éthique.",
           "cta": "Rejoindre le sourcing",
           "link": "#contact-form"
         },
         {
           "icon": "🌍",
-          "text": "Je veux soutenir le Global Festival — Discuter d'un soutien ou d'une participation.",
+          "text": "Je veux soutenir le Global Festival - Discuter d'un soutien ou d'une participation.",
           "cta": "Soutenir le festival",
           "link": "/partners"
         },
         {
           "icon": "📰",
-          "text": "Je suis journaliste ou représentant institutionnel — Contacter notre bureau de presse.",
+          "text": "Je suis journaliste ou représentant institutionnel - Contacter notre bureau de presse.",
           "cta": "Contact relations médias",
           "link": "mailto:contact@capentrepreneurs.org"
         }
@@ -2027,7 +2027,7 @@ const STR = {
       "messageLabel": "Votre message",
       "messagePh": "Parlez-nous de vos besoins, de vos questions ou de votre projet de collaboration...",
       "submit": "Envoyer mon message",
-      "success": "Message envoyé avec succès — notre équipe vous répondra dans les plus brefs délais.",
+      "success": "Message envoyé avec succès - notre équipe vous répondra dans les plus brefs délais.",
       "info": [
         {
           "label": "Courriel officiel",
@@ -2055,7 +2055,7 @@ const STR = {
       "tagline": "Un don. Un engagement partagé. De nouvelles possibilités.",
       "ctaDonate": "Faire un don maintenant",
       "submit": "Confirmer ma promesse de don",
-      "success": "Merci chaleureusement pour votre générosité — notre équipe vous fera parvenir la confirmation officielle et les détails de votre reçu."
+      "success": "Merci chaleureusement pour votre générosité - notre équipe vous fera parvenir la confirmation officielle et les détails de votre reçu."
     },
     "stories": {
       "eyebrow": "Récits d'impact",
@@ -2089,7 +2089,7 @@ const STR = {
       "ctaMember": "Rejoindre l'écosystème"
     },
     "membership": {
-      "volSuccess": "Merci pour votre engagement généreux — notre équipe prendra contact avec vous.",
+      "volSuccess": "Merci pour votre engagement généreux - notre équipe prendra contact avec vous.",
       "areaLabel": "Domaine d'intérêt",
       "areaOptions": [
         "Compétences numériques",
@@ -2109,21 +2109,21 @@ const STR = {
     "nav": {
       "home": "الرئيسية",
       "about": "من نحن",
-      "programs": "البرامج",
+      "programs": "برامجنا",
       "join": "انضم إلينا",
       "volunteer": "التطوع",
       "partners": "الشركاء",
-      "festival": "المهرجان الدولي",
-      "blog": "نوافذ كاب",
+      "festival": "مهرجاننا",
+      "blog": "مقالات",
       "contact": "اتصل بنا",
       "donate": "تبرع"
     },
     "footer": {
-      "quote": "« رواد أعمال كاب — بناء اقتصادات رقمية شاملة ومتاحة ومستدامة. »",
+      "quote": "« رواد أعمال كاب - بناء اقتصادات رقمية شاملة ومتاحة ومستدامة. »",
       "support": "ادعم مهمتنا المجتمعية",
       "explore": "استكشف",
       "involved": "شارك معنا",
-      "bottom1": "رواد أعمال كاب — منظمة كندية غير ربحية",
+      "bottom1": "رواد أعمال كاب - منظمة كندية غير ربحية",
       "bottom2": "متجذرة في كيبيك. متصلة بكندا. منفتحة على العالم.",
       "privacy": "سياسة الخصوصية",
       "terms": "شروط الخدمة",
@@ -2296,7 +2296,7 @@ const STR = {
       "h1accent": "آفاق جديدة",
       "h1post": "",
       "h2": "العالم مليء بالإمكانات. مهمتنا هي مساعدة المزيد من رواد الأعمال على الوصول إليها.",
-      "intro": "رواد أعمال كاب هي منظمة كندية غير ربحية تعمل عند تقاطع الشمول الرقمي والتكنولوجيا وريادة الأعمال والابتكار الاجتماعي. نؤمن بأن التكنولوجيا يجب أن تخلق فرصاً للجميع — وليس فقط لمن يملكون الأدوات أو الشبكات أو الموارد. متجذرون في كيبيك، ومتصلون عبر كندا، ومنفتحون على العالم، نطور برامج عملية وجسوراً دولية تحول الأفكار إلى مهارات، والمهارات إلى مشاريع، والمشاريع إلى أثر مستدام.",
+      "intro": "رواد أعمال كاب هي منظمة كندية غير ربحية تعمل عند تقاطع الشمول الرقمي والتكنولوجيا وريادة الأعمال والابتكار الاجتماعي. نؤمن بأن التكنولوجيا يجب أن تخلق فرصاً للجميع - وليس فقط لمن يملكون الأدوات أو الشبكات أو الموارد. متجذرون في كيبيك، ومتصلون عبر كندا، ومنفتحون على العالم، نطور برامج عملية وجسوراً دولية تحول الأفكار إلى مهارات، والمهارات إلى مشاريع، والمشاريع إلى أثر مستدام.",
       "missionHeading": "مهمتنا",
       "missionStatement": "ربط الناس والمهارات والتكنولوجيا والفرص لبناء اقتصادات رقمية أكثر شمولاً وملاءمة واستدامة.",
       "discoveryTitle": "اكتشف مسارك",
@@ -2304,21 +2304,21 @@ const STR = {
       "ctas": {
         "learn": {
           "badge": "🎓 تعلّم",
-          "title": "تعلّم — طوّر قدراتك",
+          "title": "تعلّم - طوّر قدراتك",
           "text": "اكتسب مهارات رقمية مطلوبة وتجارب عملية من خلال التدريب والتوجيه والمشاريع الواقعية.",
           "action": "استكشف فرص التعلم",
           "link": "/join"
         },
         "build": {
           "badge": "🤝 ابنِ",
-          "title": "ابنِ — حوّل الأفكار إلى واقع",
+          "title": "ابنِ - حوّل الأفكار إلى واقع",
           "text": "ساهم بخبرتك وإبداعك وطاقتك في مبادرات تعالج التحديات الحقيقية للمجتمعات.",
           "action": "شارك معنا",
           "link": "/volunteer"
         },
         "impact": {
           "badge": "🏢 اصنع الأثر",
-          "title": "اصنع الأثر — ادعم التغيير الإيجابي",
+          "title": "اصنع الأثر - ادعم التغيير الإيجابي",
           "text": "شاركنا لتطوير تقنيات شاملة وبرامج مستدامة تصنع قيمة اجتماعية وبيئية واقتصادية دائمة.",
           "action": "كن شريكاً معنا",
           "link": "/partners"
@@ -2642,7 +2642,7 @@ const STR = {
           "cta": "استكشف ريادة الأعمال الإبداعية"
         }
       ],
-      "festivalTitle": "المهرجان الدولي — نيروبي 2027",
+      "festivalTitle": "المهرجان الدولي - نيروبي 2027",
       "festivalSub": "تجمع عالمي للتكنولوجيا الشاملة والمتاحة والمستدامة",
       "festivalIntro": "المهرجان الدولي نيروبي 2027 هو ملتقى دولي يجمع المبتكرين ورواد الأعمال والمؤسسات حول أربعة مجالات حيوية:",
       "festivalSpaces": [
@@ -2705,7 +2705,7 @@ const STR = {
       "goalsLabel": "أهدافك وتطلعاتك",
       "goalsPh": "ماذا تود أن تحقق من خلال المشاركة في هذا البرنامج؟",
       "submit": "إرسال طلب الانضمام",
-      "success": "تم استلام طلبك بنجاح — سيتواصل فريقنا معك في أقرب وقت."
+      "success": "تم استلام طلبك بنجاح - سيتواصل فريقنا معك في أقرب وقت."
     },
     "join": {
       "eyebrow": "انضم إلى المنظومة",
@@ -2750,7 +2750,7 @@ const STR = {
       "formTitle": "الانضمام لمنظومة كاب",
       "formCopy": "أخبرنا بالقليل عن نفسك لنرشدك إلى المسار الأنسب. مسارك القادم يبدأ بحوار.",
       "submit": "إرسال الطلب",
-      "success": "شكراً لتواصلك — سيقوم فريقنا بإرشادك إلى المسار الأنسب."
+      "success": "شكراً لتواصلك - سيقوم فريقنا بإرشادك إلى المسار الأنسب."
     },
     "volunteer": {
       "eyebrow": "تطوع معنا",
@@ -2802,23 +2802,23 @@ const STR = {
       "journeyIntro": "نعمل على مواءمة مهاراتك واهتماماتك مع مشاريع ومبادرات تترك أثراً حقيقياً:",
       "steps": [
         {
-          "title": "المرحلة 1 — التقديم",
+          "title": "المرحلة 1 - التقديم",
           "text": "أخبرنا عن خبراتك واهتماماتك والوقت الذي يمكنك المساهمة به."
         },
         {
-          "title": "المرحلة 2 — التأهيل والتدريب",
+          "title": "المرحلة 2 - التأهيل والتدريب",
           "text": "احصل على تدريب وتوجيه ملائم لمسؤولياتك التطوعية."
         },
         {
-          "title": "المرحلة 3 — التواصل والمواءمة",
+          "title": "المرحلة 3 - التواصل والمواءمة",
           "text": "انضم إلى برنامج أو مشروع يتوافق مع مهاراتك وشغفك."
         },
         {
-          "title": "المرحلة 4 — المساهمة العملية",
+          "title": "المرحلة 4 - المساهمة العملية",
           "text": "اعمل مع أعضاء المنظومة لدعم المبادرات الميدانية."
         },
         {
-          "title": "المرحلة 5 — التقدير والنمو",
+          "title": "المرحلة 5 - التقدير والنمو",
           "text": "طور قدراتك المهنية ووثق مساهماتك بشهادات وشارات رسمية."
         }
       ],
@@ -2837,7 +2837,7 @@ const STR = {
       "formTitle": "أخبرنا كيف يمكنك المساعدة",
       "formCopy": "املأ هذا النموذج البسيط وسيتواصل معك منسق شؤون المتطوعين.",
       "submit": "إرسال ملف التطوع",
-      "success": "شكراً لتطوعك واستعدادك للمساهمة — سيتواصل فريقنا معك قريباً."
+      "success": "شكراً لتطوعك واستعدادك للمساهمة - سيتواصل فريقنا معك قريباً."
     },
     "partners": {
       "eyebrow": "الشراكات المجتمعية",
@@ -2888,7 +2888,7 @@ const STR = {
       "formTitle": "دعنا نبني معاً",
       "formCopy": "أخبرنا عن مؤسستك ورؤيتك للتعاون المثمر مع رواد أعمال كاب.",
       "formSubmit": "إرسال مقترح الشراكة",
-      "formSuccess": "شكراً لمبادرتك — سيتواصل فريق الشراكات معك في أقرب وقت.",
+      "formSuccess": "شكراً لمبادرتك - سيتواصل فريق الشراكات معك في أقرب وقت.",
       "typeLabel": "فئة الشراكة",
       "typePh": "اختر فئة الشراكة",
       "orgLabel": "اسم المؤسسة",
@@ -2925,7 +2925,7 @@ const STR = {
           "desc": "محطة جديدة في تطورنا الدولي لتعزيز الروابط بين منطقة الكاريبي وكندا والشبكات الدولية."
         }
       ],
-      "spacesTitle": "محاورنا المشتركة — أربع مساحات مترابطة:",
+      "spacesTitle": "محاورنا المشتركة - أربع مساحات مترابطة:",
       "spaces": [
         {
           "title": "التكنولوجيا الشاملة",
@@ -2953,13 +2953,13 @@ const STR = {
         "المساهمة في رسم ملامح مستقبل الاقتصاد الرقمي.",
         "استكشاف فرص التبادل التجاري الإبداعي والإنساني."
       ],
-      "closingText": "العالم ليس وجهة واحدة، بل شبكة من الإمكانات التي تنتظر من يربط بينها. رواد أعمال كاب — فتح آفاق جديدة.",
+      "closingText": "العالم ليس وجهة واحدة، بل شبكة من الإمكانات التي تنتظر من يربط بينها. رواد أعمال كاب - فتح آفاق جديدة.",
       "ctaWaitlist": "انضم لقائمة الانتظار",
       "ctaPartners": "استكشف شراكات المهرجان"
     },
     "blog": {
       "eyebrow": "المساحة الفكرية والإعلامية",
-      "h1a": "نوافذ كاب — ",
+      "h1a": "نوافذ كاب - ",
       "h1accent": "اكتشف ما هو ممكن وراء أفقك الحالي",
       "intro": "نوافذ كاب هي مساحتنا التحريرية لمشاركة الأفكار والشخصيات والمبادرات والفرص التي تساعد مجتمعنا على الرؤية أبعد. هنا يرصد المستكشفون الاتجاهات الصاعدة، بينما يشارك صناع الجسور المسارات والشراكات التي تحول الاستكشاف إلى عمل واقعي.",
       "subIntro": "من الابتكار الرقمي إلى المنظومات الدولية، ومن قصص الأثر إلى الفعاليات القادمة، كل نافذة تقدم رؤية جديدة.",
@@ -3006,43 +3006,43 @@ const STR = {
       "profiles": [
         {
           "icon": "🎓",
-          "text": "أريد الانضمام للمجتمع — التعرف على فرص التعلم والتواصل.",
+          "text": "أريد الانضمام للمجتمع - التعرف على فرص التعلم والتواصل.",
           "cta": "انضم لرواد أعمال كاب",
           "link": "/join"
         },
         {
           "icon": "🤝",
-          "text": "أريد التطوع — وضع مهاراتي وخبراتي في خدمة مبادرات هادفة.",
+          "text": "أريد التطوع - وضع مهاراتي وخبراتي في خدمة مبادرات هادفة.",
           "cta": "اكتشف التطوع",
           "link": "/volunteer"
         },
         {
           "icon": "🏢",
-          "text": "أمثل منظمة غير ربحية — بحث فرص التعاون والمشاريع المشتركة.",
+          "text": "أمثل منظمة غير ربحية - بحث فرص التعاون والمشاريع المشتركة.",
           "cta": "ناقش شراكة معنا",
           "link": "#contact-form"
         },
         {
           "icon": "💼",
-          "text": "أمثل شركة أو مؤسسة — استكشاف الرعاية والشراكات الاستراتيجية.",
+          "text": "أمثل شركة أو مؤسسة - استكشاف الرعاية والشراكات الاستراتيجية.",
           "cta": "كن شريكاً",
           "link": "/partners"
         },
         {
           "icon": "🛍️",
-          "text": "أنا مشترٍ دولي أو مبدع — معرفة المزيد عن برنامج التوريد الإبداعي.",
+          "text": "أنا مشترٍ دولي أو مبدع - معرفة المزيد عن برنامج التوريد الإبداعي.",
           "cta": "انضم لبرنامج التوريد",
           "link": "#contact-form"
         },
         {
           "icon": "🌍",
-          "text": "أريد دعم المهرجان الدولي — مناقشة الرعاية والمشاركة في الفعاليات.",
+          "text": "أريد دعم المهرجان الدولي - مناقشة الرعاية والمشاركة في الفعاليات.",
           "cta": "ادعم المهرجان",
           "link": "/partners"
         },
         {
           "icon": "📰",
-          "text": "أنا صحفي أو ممثل مؤسسي — التواصل مع المكتب الإعلامي للمنظمة.",
+          "text": "أنا صحفي أو ممثل مؤسسي - التواصل مع المكتب الإعلامي للمنظمة.",
           "cta": "اتصال إعلامي",
           "link": "mailto:contact@capentrepreneurs.org"
         }
@@ -3075,7 +3075,7 @@ const STR = {
       "messageLabel": "رسالتك",
       "messagePh": "أخبرنا عن مشروعك أو استفسارك وكيف يمكننا التعاون معاً...",
       "submit": "إرسال الرسالة",
-      "success": "تم إرسال الرسالة بنجاح — سيتواصل فريقنا معك في أقرب وقت.",
+      "success": "تم إرسال الرسالة بنجاح - سيتواصل فريقنا معك في أقرب وقت.",
       "info": [
         {
           "label": "البريد الإلكتروني",
@@ -3103,7 +3103,7 @@ const STR = {
       "tagline": "مساهمة واحدة. التزام مشترك. وإمكانات جديدة.",
       "ctaDonate": "تبرع الآن",
       "submit": "تأكيد التعهد بالتبرع",
-      "success": "شكراً جزيلاً لكرمك ولدعمك لمهمتنا — سيتواصل فريقنا معك لتأكيد التبرع وإرسال تفاصيل الإيصال الرسمي."
+      "success": "شكراً جزيلاً لكرمك ولدعمك لمهمتنا - سيتواصل فريقنا معك لتأكيد التبرع وإرسال تفاصيل الإيصال الرسمي."
     },
     "stories": {
       "eyebrow": "قصص التأثير",
@@ -3137,7 +3137,7 @@ const STR = {
       "ctaMember": "انضم إلى المنظومة"
     },
     "membership": {
-      "volSuccess": "شكراً لاهتمامك ومشاركتك — سيتواصل فريقنا معك قريباً.",
+      "volSuccess": "شكراً لاهتمامك ومشاركتك - سيتواصل فريقنا معك قريباً.",
       "areaLabel": "مجال الاهتمام",
       "areaOptions": [
         "المهارات الرقمية",

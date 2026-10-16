@@ -4,7 +4,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Globe2,
-  Sparkles,
+ 
   ArrowUpRight,
   Facebook,
   Instagram,

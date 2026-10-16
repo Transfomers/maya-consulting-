@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
   BookOpen, Plus, Search, Filter, Download, ExternalLink,
   Edit2, Trash2, CheckCircle, Clock, X, UploadCloud, FileText,
-  Tag, Layers, Award, Sparkles, Check
+  Tag, Layers, Award, Check
 } from "lucide-react";
 
 const RESOURCE_TYPES = [
@@ -42,6 +42,12 @@ export default function AdminResources() {
     mime_type: "",
     author: "Cap Entrepreneurs",
     tags: "",
+    language: "fr",
+    skill_level: "Tous niveaux",
+    duration: "",
+    target_audience: "",
+    learning_objectives: "",
+    prerequisites: "",
     is_published: true,
     is_featured: false,
   });
@@ -92,6 +98,12 @@ export default function AdminResources() {
       mime_type: "",
       author: "Cap Entrepreneurs",
       tags: "Programme, Formation, Transition Numérique",
+      language: "fr",
+      skill_level: "Tous niveaux",
+      duration: "4 semaines",
+      target_audience: "Entrepreneurs, coopératives, porteurs de projet",
+      learning_objectives: "",
+      prerequisites: "Aucun prérequis",
       is_published: true,
       is_featured: false,
     });
@@ -112,6 +124,12 @@ export default function AdminResources() {
       mime_type: res.mime_type || "",
       author: res.author || "Cap Entrepreneurs",
       tags: res.tags || "",
+      language: res.language || "fr",
+      skill_level: res.skill_level || "Tous niveaux",
+      duration: res.duration || "",
+      target_audience: res.target_audience || "",
+      learning_objectives: res.learning_objectives || "",
+      prerequisites: res.prerequisites || "",
       is_published: Boolean(res.is_published),
       is_featured: Boolean(res.is_featured),
     });
@@ -265,6 +283,7 @@ export default function AdminResources() {
                   <th className="py-3.5 px-4 font-bold">Programme</th>
                   <th className="py-3.5 px-4 font-bold">Type</th>
                   <th className="py-3.5 px-4 font-bold">Fichier</th>
+                  <th className="py-3.5 px-4 font-bold">Téléchargements</th>
                   <th className="py-3.5 px-4 font-bold">Statut</th>
                   <th className="py-3.5 px-4 font-bold text-right">Actions</th>
                 </tr>
@@ -275,18 +294,25 @@ export default function AdminResources() {
                   return (
                     <tr key={res.id} className="hover:bg-bone/20 transition-colors">
                       <td className="py-4 px-4 max-w-sm">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-heading font-bold text-sm text-forest leading-snug">{res.title}</span>
+                          <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-forest/5 text-forest border border-forest/15">
+                            {(res.language || "FR").toUpperCase()}
+                          </span>
                           {res.is_featured && (
                             <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
-                              <Sparkles className="w-2.5 h-2.5" /> Vedette
+                              <Award className="w-2.5 h-2.5" /> Vedette
                             </span>
                           )}
                         </div>
                         {res.description && (
                           <p className="text-[11px] text-sage line-clamp-2 mt-1 leading-relaxed">{res.description}</p>
                         )}
-                        <span className="text-[10px] text-forest/40 mt-1 block">Auteur : {res.author || "Cap Entrepreneurs"}</span>
+                        <div className="flex items-center gap-3 text-[10px] text-forest/40 mt-1">
+                          <span>Auteur : {res.author || "Cap Entrepreneurs"}</span>
+                          {res.duration && <span>• Durée : {res.duration}</span>}
+                          {res.skill_level && <span>• {res.skill_level}</span>}
+                        </div>
                       </td>
 
                       <td className="py-4 px-4 whitespace-nowrap">
@@ -329,6 +355,13 @@ export default function AdminResources() {
                       </td>
 
                       <td className="py-4 px-4 whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-stone-100 border border-stone-200 text-stone-700 text-xs font-mono font-bold">
+                          <Download className="w-3 h-3 text-forest" />
+                          {res.downloads_count || 0}
+                        </span>
+                      </td>
+
+                      <td className="py-4 px-4 whitespace-nowrap">
                         {res.is_published ? (
                           <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold text-[11px]">
                             <CheckCircle className="w-3.5 h-3.5" /> Publié
@@ -342,6 +375,15 @@ export default function AdminResources() {
 
                       <td className="py-4 px-4 whitespace-nowrap text-right">
                         <div className="inline-flex items-center gap-2">
+                          <a
+                            href="/resources"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-1.5 text-forest/60 hover:text-forest transition-colors"
+                            title="Voir sur le site public"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
                           <button
                             onClick={() => openEditModal(res)}
                             className="p-1.5 text-forest/60 hover:text-maple transition-colors"
@@ -435,15 +477,86 @@ export default function AdminResources() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-forest mb-1.5">
-                  Description / Objectifs d'apprentissage
+                  Description générale
                 </label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   placeholder="Expliquez ce que le lecteur apprendra et comment cette ressource l'aidera..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-3 py-2 text-xs border border-forest/20 focus:border-maple outline-none"
                 />
+              </div>
+
+              {/* Paramètres Pédagogiques & Cours */}
+              <div className="p-3 bg-forest/5 border border-forest/15 space-y-3">
+                <span className="block text-xs font-bold uppercase tracking-wider text-forest">
+                  Informations Pédagogiques & Format
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-forest/80 mb-1">Langue</label>
+                    <select
+                      value={formData.language}
+                      onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                      className="w-full px-2.5 py-1.5 text-xs border border-forest/20 bg-white"
+                    >
+                      <option value="fr">Français (FR)</option>
+                      <option value="en">English (EN)</option>
+                      <option value="ar">العربية (AR)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-forest/80 mb-1">Niveau</label>
+                    <select
+                      value={formData.skill_level}
+                      onChange={(e) => setFormData({ ...formData, skill_level: e.target.value })}
+                      className="w-full px-2.5 py-1.5 text-xs border border-forest/20 bg-white"
+                    >
+                      <option value="Tous niveaux">Tous niveaux</option>
+                      <option value="Débutant">Débutant</option>
+                      <option value="Intermédiaire">Intermédiaire</option>
+                      <option value="Avancé">Avancé</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-forest/80 mb-1">Durée estimée</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: 2 heures, 4 semaines"
+                      value={formData.duration}
+                      onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                      className="w-full px-2.5 py-1.5 text-xs border border-forest/20 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-forest/80 mb-1">Public cible</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Artisanes, porteurs de projet, PME"
+                      value={formData.target_audience}
+                      onChange={(e) => setFormData({ ...formData, target_audience: e.target.value })}
+                      className="w-full px-2.5 py-1.5 text-xs border border-forest/20 bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-forest/80 mb-1">Prérequis</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: Aucun prérequis technique"
+                      value={formData.prerequisites}
+                      onChange={(e) => setFormData({ ...formData, prerequisites: e.target.value })}
+                      className="w-full px-2.5 py-1.5 text-xs border border-forest/20 bg-white"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* File Attachment */}

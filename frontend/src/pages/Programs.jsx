@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   Check,
   ArrowRight,
-  Sparkles,
+ 
   Globe2,
   Calendar,
   Share2,
@@ -441,7 +441,7 @@ const Programs = () => {
               <Reveal>
                 <div className="border-b border-[#0D0E0D]/10 pb-4">
                   <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-maple font-montserrat block mb-1">
-                    01 • TECHNOLOGIE INCLUSIVE & ÉCONOMIE CIRCULAIRE
+                    {lang === "fr" ? "01 • TECHNOLOGIE INCLUSIVE & ÉCONOMIE CIRCULAIRE" : lang === "ar" ? "01 • تكنولوجيا شاملة واقتصاد دائري" : "01 • INCLUSIVE TECHNOLOGY & CIRCULAR ECONOMY"}
                   </span>
                   <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-medium text-[#0D0E0D]">
                     Cap Green Lab
@@ -449,7 +449,11 @@ const Programs = () => {
                 </div>
 
                 <p className="font-serif italic text-base sm:text-lg text-sage leading-relaxed">
-                  Cap Green Lab est notre laboratoire dédié à la convergence de la transition numérique, de l'accessibilité, des compétences techniques et de l'économie circulaire.
+                  {lang === "fr"
+                    ? "Cap Green Lab est notre laboratoire dédié à la convergence de la transition numérique, de l'accessibilité, des compétences techniques et de l'économie circulaire."
+                    : lang === "ar"
+                    ? "مختبر كاب الأخضر هو مختبرنا المخصص لتقارب التحول الرقمي وإمكانية الوصول والمهارات التقنية والاقتصاد الدائري."
+                    : "Cap Green Lab is our laboratory dedicated to the convergence of digital transition, accessibility, technical skills, and circular economy."}
                 </p>
 
                 {/* Ce que nous faisons */}
@@ -703,38 +707,42 @@ const Programs = () => {
               <Reveal>
                 <div className="border-b border-[#0D0E0D]/10 pb-4">
                   <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-maple font-montserrat block mb-1">
-                    04 • FEMMES, ARTS & INNOVATION SOCIALE
+                    {lang === "fr" ? "04 • FEMMES, ARTS & INNOVATION SOCIALE" : lang === "ar" ? "04 • النساء والفنون والابتكار الاجتماعي" : "04 • WOMEN, ARTS & SOCIAL INNOVATION"}
                   </span>
                   <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-medium text-[#0D0E0D]">
-                    Entrepreneuriat Créatif & Social
+                    {lang === "fr" ? "Entrepreneuriat Créatif & Social" : lang === "ar" ? "ريادة الأعمال الإبداعية والاجتماعية" : "Creative & Social Entrepreneurship"}
                   </h2>
                 </div>
 
                 <p className="font-serif italic text-base sm:text-lg text-sage leading-relaxed">
-                  Ce programme soutient l'entrepreneuriat féminin, les arts et l'innovation sociale. Il accompagne les femmes et les créatifs dans la structuration de leurs projets et la création de modèles économiques durables.
+                  {lang === "fr"
+                    ? "Ce programme soutient l'entrepreneuriat féminin, les arts et l'innovation sociale. Il accompagne les femmes et les créatifs dans la structuration de leurs projets et la création de modèles économiques durables."
+                    : lang === "ar"
+                    ? "يدعم هذا البرنامج ريادة الأعمال النسائية والفنون والابتكار الاجتماعي. يرافق النساء والمبدعين في هيكلة مشاريعهم وبناء نماذج اقتصادية مستدامة."
+                    : "This program supports women's entrepreneurship, the arts, and social innovation. It assists women and creatives in structuring their ventures and building sustainable business models."}
                 </p>
 
                 {/* Ce que nous faisons */}
                 <div className="pt-2">
                   <h3 className="font-serif text-lg font-bold text-[#0D0E0D] mb-3">
-                    Ce que nous faisons :
+                    {lang === "fr" ? "Ce que nous faisons :" : lang === "ar" ? "ما نقوم به:" : "What We Do:"}
                   </h3>
                   <ul className="space-y-2 text-xs sm:text-sm text-sage leading-relaxed font-sans">
                     <li className="flex items-start gap-2.5">
                       <span className="text-maple font-bold mt-0.5">•</span>
-                      <span>Soutien à l'entrepreneuriat féminin</span>
+                      <span>{lang === "fr" ? "Soutien à l'entrepreneuriat féminin" : lang === "ar" ? "دعم ريادة الأعمال النسائية" : "Support for women's entrepreneurship"}</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-maple font-bold mt-0.5">•</span>
-                      <span>Développement de l'économie créative</span>
+                      <span>{lang === "fr" ? "Développement de l'économie créative" : lang === "ar" ? "تطوير الاقتصاد الإبداعي" : "Creative economy development"}</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-maple font-bold mt-0.5">•</span>
-                      <span>Formation en gestion et développement de projets</span>
+                      <span>{lang === "fr" ? "Formation en gestion et développement de projets" : lang === "ar" ? "التدريب على إدارة وتطوير المشاريع" : "Project management and venture development training"}</span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="text-maple font-bold mt-0.5">•</span>
-                      <span>Réseautage et accès aux opportunités</span>
+                      <span>{lang === "fr" ? "Réseautage et accès aux opportunités" : lang === "ar" ? "التشبيك وتيسير الوصول للفرص" : "Networking and access to international opportunities"}</span>
                     </li>
                   </ul>
                 </div>
@@ -742,19 +750,23 @@ const Programs = () => {
                 {/* Pour qui */}
                 <div className="pt-2">
                   <h4 className="font-serif text-sm font-bold text-[#0D0E0D] mb-1">
-                    Pour qui ?
+                    {lang === "fr" ? "Pour qui ?" : lang === "ar" ? "الفئات المستهدفة:" : "Who Is This For?"}
                   </h4>
                   <p className="text-xs sm:text-sm text-sage font-sans">
-                    Femmes entrepreneures, artistes, créatifs, porteurs de projets sociaux.
+                    {lang === "fr"
+                      ? "Femmes entrepreneures, artistes, créatifs, porteurs de projets sociaux."
+                      : lang === "ar"
+                      ? "رائدات الأعمال، والفنانون، والمبدعون، وحاملو المشاريع الاجتماعية."
+                      : "Women entrepreneurs, artists, creatives, social innovators."}
                   </p>
                 </div>
 
                 <div className="pt-3">
                   <button
-                    onClick={() => scrollToApply("Entrepreneuriat Créatif & Social")}
+                    onClick={() => scrollToApply(lang === "fr" ? "Entrepreneuriat Créatif & Social" : "Creative & Social Entrepreneurship")}
                     className="group inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#0D0E0D] hover:text-maple transition-colors"
                   >
-                    <span>Postuler à ce programme</span>
+                    <span>{lang === "fr" ? "Postuler à ce programme" : lang === "ar" ? "التقديم لهذا البرنامج" : "Apply to this program"}</span>
                     <span className="transition-transform group-hover:translate-x-1.5">→</span>
                   </button>
                 </div>

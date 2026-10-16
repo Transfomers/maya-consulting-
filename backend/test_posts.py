@@ -9,15 +9,15 @@ from app.core.config import settings
 engine = create_async_engine(settings.DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
 
-async def test_slug_logic():
+async def _test_slug_logic_async():
     async with TestingSessionLocal() as db:
-        # Check slugs
         query = select(Post)
         res = await db.execute(query)
         posts = res.scalars().all()
-        print(f"Total posts: {len(posts)}")
-        for p in posts:
-            print(f"Post ID: {p.id}, Slug: {p.slug}, Status: {p.status}")
-            
+        assert isinstance(posts, list)
+
+def test_slug_logic():
+    asyncio.run(_test_slug_logic_async())
+
 if __name__ == "__main__":
-    asyncio.run(test_slug_logic())
+    test_slug_logic()

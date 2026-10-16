@@ -111,7 +111,7 @@ const Membership = () => {
             <FormShell
               type="volunteer"
               testId="volunteer-form"
-              submitLabel="{t.membership.volEyebrow} With Us"
+              submitLabel={`${t.membership.volEyebrow} With Us`}
               successMessage={t.membership.volSuccess}
               fields={[
                 { name: "name", label: t.form.name, placeholder: t.form.namePh, required: true },

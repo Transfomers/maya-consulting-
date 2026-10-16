@@ -6,8 +6,8 @@ export const IMAGES = {
   building: "/assets/images/agriconnect_farming.webp",
   bootcamp: "/assets/images/youth_tech_bootcamp.webp",
   summit: "/assets/images/diaspora_global_summit.webp",
-  portraitM: "https://images.unsplash.com/photo-1556157382-97eda2d62296?fm=webp&q=75&w=800",
-  portraitF: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?fm=webp&q=75&w=800",
+  portraitM: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=800",
+  portraitF: "/assets/murielle-portrait.webp",
 };
 
 export const PROGRAMS = [

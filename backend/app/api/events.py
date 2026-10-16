@@ -17,6 +17,7 @@ class MoveEventRequest(BaseModel):
     start_date: datetime
     end_date: datetime
 
+@router.get("", response_model=List[EventResponse])
 @router.get("/", response_model=List[EventResponse])
 async def list_events(
     start: Optional[datetime] = Query(None),
@@ -83,6 +84,7 @@ async def _set_event_fields(event: Event, data: EventCreate, db: AsyncSession):
         else:
             event.speakers = []
 
+@router.post("", response_model=EventResponse)
 @router.post("/", response_model=EventResponse)
 async def create_event(event_data: EventCreate, user = Depends(RequirePermission("events.edit")), db: AsyncSession = Depends(get_db)):
     event = Event(author_id=user.id)

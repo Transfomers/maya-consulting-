@@ -220,7 +220,7 @@ export default function SiteModalPopup() {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="px-6 py-3 bg-[#0D0E0D] hover:bg-maple text-white text-xs font-bold uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center"
+                        className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider transition-colors shrink-0 flex items-center justify-center"
                       >
                         {loading ? "..." : "Subscribe"}
                       </button>

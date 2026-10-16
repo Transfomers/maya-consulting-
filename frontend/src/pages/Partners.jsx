@@ -10,7 +10,7 @@ import { ArrowUpRight, ArrowRight, CheckCircle2, Download, Handshake, Globe2, Bu
 // Curated editorial assets matching CAP Entrepreneurs mission
 const EDITORIAL_PARTNER_ASSETS = {
   mainTallPortrait: "/assets/images/cap_green_lab.webp",
-  floatingPortrait: "/assets/images/agriconnect_farming.webp",
+  floatingPortrait: "/assets/murielle-portrait.webp",
   card1Summit: "/assets/images/diaspora_global_summit.webp",
   card2Women: "/assets/images/women_social_innovators.webp",
   card3Bootcamp: "/assets/images/youth_tech_bootcamp.webp",
@@ -86,7 +86,7 @@ const Partners = () => {
           <div className="max-w-3xl mb-16">
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-maple font-montserrat">{lang === "fr" ? "CADRE DE COLLABORATION" : lang === "ar" ? "إطار التعاون والشراكة" : "COLLABORATION FRAMEWORK"}</p>
             <h2 className="mt-4 font-heading text-4xl font-black tracking-tight text-forest md:text-5xl">
-              {t.partners.typesTitle}
+              {t.partners?.typesTitle || t.partners?.whoTitle || (lang === "fr" ? "Avec qui collaborons-nous ?" : "Who Do We Partner With?")}
             </h2>
           </div>
         </Reveal>
@@ -188,12 +188,12 @@ const Partners = () => {
                 <div className="overflow-hidden bg-[#FAF9F6] border border-[#0D0E0D]/10 shadow-sm">
                   <img
                     src={EDITORIAL_PARTNER_ASSETS.floatingPortrait}
-                    alt="Vision Partenaire"
+                    alt="Murielle Kouadio • Fondatrice Cap Entrepreneurs"
                     className="aspect-[3/4] w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
                   />
                 </div>
                 <p className="mt-2 text-right text-[10px] uppercase font-bold tracking-widest text-sage font-serif italic">
-                  {lang === "fr" ? "Édition Fondateurs 2026-2027" : lang === "ar" ? "نسخة المؤسسين 2026-2027" : "Founders Edition 2026-2027"}
+                  {lang === "fr" ? "Murielle Kouadio • Fondatrice" : "Murielle Kouadio • Founder"}
                 </p>
               </Reveal>
             </div>
@@ -290,7 +290,14 @@ const Partners = () => {
 
       <EditorialMarquee
         testId="partners-marquee"
-        items={t.partners.marquee}
+        items={t.partners?.marquee || [
+          lang === "fr" ? "PARTENARIATS STRATÉGIQUES" : "STRATEGIC PARTNERSHIPS",
+          lang === "fr" ? "INNOVATION SOCIALE" : "SOCIAL INNOVATION",
+          lang === "fr" ? "TECH INCLUSIVE & DURABLE" : "INCLUSIVE TECH",
+          lang === "fr" ? "ÉCONOMIE CIRCULAIRE" : "CIRCULAR ECONOMY",
+          lang === "fr" ? "PASSERELLES MONDIALES" : "GLOBAL BRIDGES",
+          "CAP ENTREPRENEURS"
+        ]}
       />
 
       {/* PARTNER FORM */}

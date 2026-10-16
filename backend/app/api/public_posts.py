@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.schemas.post import PostResponse
 from app.models.post import Post, PostTranslation
 from typing import List, Optional
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -16,9 +17,13 @@ async def list_public_posts(
     limit: int = 50,
     db: AsyncSession = Depends(get_db)
 ):
+    now = datetime.now(timezone.utc)
     query = (
         select(Post)
-        .where(Post.status == "published")
+        .where(
+            (Post.status == "published") & 
+            (or_(Post.published_at == None, Post.published_at <= now))
+        )
         .options(
             selectinload(Post.translations),
             selectinload(Post.references),
@@ -38,11 +43,13 @@ async def list_public_posts(
 @router.get("/{slug}", response_model=PostResponse)
 async def get_public_post(slug: str, db: AsyncSession = Depends(get_db)):
     clean_slug = slug.strip().lower()
+    now = datetime.now(timezone.utc)
     query = (
         select(Post)
         .join(Post.translations, isouter=True)
         .where(
             (Post.status == "published") & 
+            (or_(Post.published_at == None, Post.published_at <= now)) &
             (
                 (func.lower(Post.slug) == clean_slug) |
                 (Post.id == slug) |

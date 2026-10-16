@@ -35,7 +35,7 @@ ARTICLES_DATA = [
         "excerpt_en": "How collaborative laboratories, circular economy, and inclusive entrepreneurship empower creators across Canada and global hubs.",
         "excerpt_fr": "Comment les laboratoires partagés, l'économie circulaire et l'inclusion numérique renforcent l'autonomie des créateurs au Canada et dans nos hubs partenaires.",
         "content_en": """
-          <p class="lead">Building a collaborative entrepreneurial ecosystem is not about erecting rigid hierarchies — it is about cultivating fertile ground where skills, solidarity, and social purpose meet naturally.</p>
+          <p class="lead">Building a collaborative entrepreneurial ecosystem is not about erecting rigid hierarchies - it is about cultivating fertile ground where skills, solidarity, and social purpose meet naturally.</p>
           <h2>1. The Art of Open Collaborative Spaces</h2>
           <p>Whether designing a community workshop in Quebec or facilitating virtual exchanges across Montreal, Paris, Nairobi, and Port-au-Prince, space shapes trust.</p>
           <blockquote>Ecosystems do not grow by decree; they thrive because people find tangible, active solidarity in them every day.</blockquote>
@@ -45,7 +45,7 @@ ARTICLES_DATA = [
           <p>Connecting Canadian social innovators with global changemakers multiplies impact perspectives while safeguarding ethical governance.</p>
         """,
         "content_fr": """
-          <p class="lead">Bâtir un écosystème entrepreneurial et solidaire ne consiste pas à ériger des hiérarchies rigides — c'est cultiver un terrain fertile où les compétences, la solidarité et l'ambition d'intérêt général se rencontrent naturellement.</p>
+          <p class="lead">Bâtir un écosystème entrepreneurial et solidaire ne consiste pas à ériger des hiérarchies rigides - c'est cultiver un terrain fertile où les compétences, la solidarité et l'ambition d'intérêt général se rencontrent naturellement.</p>
           <h2>1. L'art des espaces collaboratifs ouverts</h2>
           <p>Qu'il s'agisse de concevoir un atelier communautaire au Québec ou d'animer des échanges virtuels entre Montréal, Paris, Nairobi et Port-au-Prince, l'espace façonne la confiance. La transparence, le partage des ressources et l'accessibilité encouragent une véritable émancipation collective.</p>
           <blockquote>"Les écosystèmes ne grandissent pas par décret ; ils prospèrent parce que des personnes y trouvent une solidarité tangible et active au quotidien."</blockquote>

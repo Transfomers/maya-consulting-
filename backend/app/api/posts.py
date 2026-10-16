@@ -60,6 +60,7 @@ async def list_posts(
     return result.scalars().unique().all()
 
 @router.get("/{id}", response_model=PostResponse)
+@router.get("/{id}/", response_model=PostResponse)
 async def get_post(id: str, user = Depends(RequirePermission("articles.view")), db: AsyncSession = Depends(get_db)):
     query = select(Post).where(Post.id == id).options(selectinload(Post.translations), selectinload(Post.references))
     result = await db.execute(query)
@@ -101,7 +102,7 @@ async def trigger_post_publication_newsletter(post_id: str, author_id: str, back
 
         campaign = NewsletterCampaign(
             title=f"Publication : {title}",
-            subject=f"CAP Entrepreneurs — {title}",
+            subject=f"CAP Entrepreneurs - {title}",
             preview_text=excerpt,
             article_id=post.id,
             recipient_segment="all_active",
@@ -117,6 +118,7 @@ async def trigger_post_publication_newsletter(post_id: str, author_id: str, back
         import logging
         logging.getLogger("posts").warning(f"Could not trigger publication newsletter: {e}")
 
+@router.post("", response_model=PostResponse)
 @router.post("/", response_model=PostResponse)
 async def create_post(
     post_data: PostCreate,
@@ -130,13 +132,15 @@ async def create_post(
 
     slug = await generate_unique_slug(post_data.slug, db)
 
+    published_at = post_data.published_at if post_data.published_at else (datetime.now(timezone.utc) if status == "published" else None)
+
     post = Post(
         slug=slug,
         status=status,
         author_id=user.id,
         category_id=post_data.category_id,
         featured_image_id=post_data.featured_image_id,
-        published_at=datetime.now(timezone.utc) if status == "published" else None
+        published_at=published_at
     )
     db.add(post)
     await db.commit()
@@ -183,6 +187,7 @@ async def create_post(
     return result.scalars().first()
 
 @router.put("/{id}", response_model=PostResponse)
+@router.put("/{id}/", response_model=PostResponse)
 async def update_post(
     id: str,
     post_data: PostCreate,
@@ -210,7 +215,9 @@ async def update_post(
     post.category_id = post_data.category_id
     post.featured_image_id = post_data.featured_image_id
     post.updated_at = datetime.now(timezone.utc)
-    if status == "published" and post.published_at is None:
+    if post_data.published_at:
+        post.published_at = post_data.published_at
+    elif status == "published" and post.published_at is None:
         post.published_at = datetime.now(timezone.utc)
 
     # Delete existing translations and references to replace
@@ -257,6 +264,73 @@ async def update_post(
     
     result = await db.execute(select(Post).where(Post.id == post.id).options(selectinload(Post.translations), selectinload(Post.references)))
     return result.scalars().first()
+
+@router.post("/{id}/duplicate", response_model=PostResponse)
+async def duplicate_post(
+    id: str,
+    user = Depends(RequirePermission("articles.view")),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Post)
+        .where(Post.id == id)
+        .options(selectinload(Post.translations), selectinload(Post.references))
+    )
+    original = result.scalars().first()
+    if not original:
+        raise HTTPException(status_code=404, detail="Original post not found")
+
+    new_slug = await generate_unique_slug(f"{original.slug}-copie", db)
+    new_post = Post(
+        slug=new_slug,
+        status="draft",
+        author_id=user.id,
+        category_id=original.category_id,
+        featured_image_id=original.featured_image_id,
+        published_at=None
+    )
+    db.add(new_post)
+    await db.commit()
+
+    for tr in original.translations:
+        new_tr = PostTranslation(
+            post_id=new_post.id,
+            language=tr.language,
+            title=f"{tr.title} (Copie)",
+            slug=f"{tr.slug}-copie" if tr.slug else None,
+            excerpt=tr.excerpt,
+            content=tr.content,
+            seo_title=tr.seo_title,
+            seo_description=tr.seo_description,
+            focus_keyword=tr.focus_keyword,
+            canonical_url=tr.canonical_url,
+            og_title=tr.og_title,
+            og_description=tr.og_description,
+            og_image_id=tr.og_image_id,
+            allow_index=tr.allow_index,
+            allow_follow=tr.allow_follow
+        )
+        db.add(new_tr)
+
+    for rf in original.references:
+        new_rf = Reference(
+            post_id=new_post.id,
+            title=rf.title,
+            publisher=rf.publisher,
+            author=rf.author,
+            url=rf.url,
+            publication_date=rf.publication_date,
+            description=rf.description
+        )
+        db.add(new_rf)
+
+    await db.commit()
+    res = await db.execute(
+        select(Post)
+        .where(Post.id == new_post.id)
+        .options(selectinload(Post.translations), selectinload(Post.references))
+    )
+    return res.scalars().first()
 
 @router.delete("/{id}")
 async def delete_post(id: str, user = Depends(RequirePermission("articles.edit")), db: AsyncSession = Depends(get_db)):

@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
   ArrowRight,
-  Sparkles,
   Globe2,
   Users2,
   Leaf,
@@ -37,7 +36,7 @@ const COMMUNITY_PHOTOS = [
   { src: "/assets/images/youth_tech_bootcamp.webp", alt: "Bootcamp Compétences Numériques Jeunesse" },
   { src: "/assets/images/diaspora_global_summit.webp", alt: "Sommet Global Festival Canada-Afrique" },
   { src: "/assets/images/cap_ecosystem_collaboration.webp", alt: "Écosystème Collaboratif CAP Entrepreneurs" },
-  { src: "/assets/images/cap_green_lab.webp", alt: "Atelier circulaire et transition numérique durable" },
+  { src: "/assets/images/community_partnership.webp", alt: "Solidarité et partenariats communautaires" },
 ];
 
 const HERO_VERBS = [
@@ -152,6 +151,19 @@ const Home = () => {
   const [formValues, setFormValues] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Home Contact form state
+  const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
+  const [contactSubmitting, setContactSubmitting] = useState(false);
+  const [contactSubmitted, setContactSubmitted] = useState(false);
+
+  // Home Engagement Dossier state (Profiles 01-07)
+  const [activeEngagementProfile, setActiveEngagementProfile] = useState("01");
+  const [engagementForm, setEngagementForm] = useState({
+    name: "", email: "", location: "", program: "", goals: "", signature: "", accord: false
+  });
+  const [engagementSubmitting, setEngagementSubmitting] = useState(false);
+  const [engagementSubmitted, setEngagementSubmitted] = useState(false);
 
   const openInvolvementModal = (card) => {
     setActiveInvolvementCard(card);
@@ -377,7 +389,6 @@ const Home = () => {
             {/* OUVRIR DE NOUVEAUX HORIZONS Eyebrow */}
             <Reveal>
               <div className="inline-flex items-center gap-2.5 mb-6">
-                <Sparkles className="h-4 w-4 text-maple" />
                 <span className="font-montserrat text-xs md:text-sm font-bold uppercase tracking-[0.28em] text-forest">
                   {lang === "fr" ? "OUVRIR DE NOUVEAUX HORIZONS" : lang === "ar" ? "فتح آفاق جديدة" : "OPENING NEW HORIZONS"}
                 </span>
@@ -389,29 +400,29 @@ const Home = () => {
               {lang === "fr"
                 ? "Bâtir des économies numériques inclusives, accessibles et durables."
                 : lang === "ar"
-                ? "بناء اقتصادات رقمية شاملة ومتاحة ومستدامة."
-                : "Building inclusive, accessible and sustainable digital economies."}
+                  ? "بناء اقتصادات رقمية شاملة ومتاحة ومستدامة."
+                  : "Building inclusive, accessible and sustainable digital economies."}
             </h1>
             <KineticLines
               testId="hero-heading"
               lines={
                 lang === "fr"
                   ? [
-                      <>Bâtir des économies numériques</>,
-                      <>
-                        <span className="font-serif font-medium italic tracking-tight text-maple">inclusives</span>
-                        , accessibles et durables.
-                      </>,
-                    ]
+                    <>Bâtir des économies numériques</>,
+                    <>
+                      <span className="font-serif font-medium italic tracking-tight text-maple">inclusives</span>
+                      , accessibles et durables.
+                    </>,
+                  ]
                   : lang === "ar"
-                  ? [
+                    ? [
                       <>بناء اقتصادات رقمية</>,
                       <>
                         <span className="font-serif font-medium italic text-maple">شاملة</span>
                         ، متاحة ومستدامة.
                       </>,
                     ]
-                  : [
+                    : [
                       <>Building</>,
                       <>
                         <span className="font-serif font-medium italic tracking-tight text-maple">inclusive</span>
@@ -428,15 +439,15 @@ const Home = () => {
                 {lang === "fr"
                   ? "Nous aidons les personnes, les entrepreneurs et les organisations à impact social à développer les compétences numériques, les outils et les partenariats nécessaires pour créer des opportunités durables."
                   : lang === "ar"
-                  ? "نساعد الأفراد ورواد الأعمال ومنظمات الأثر الاجتماعي على تطوير المهارات الرقمية والأدوات والشراكات اللازمة لخلق فرص مستدامة."
-                  : "We help individuals, entrepreneurs, and social impact organizations develop the digital skills, tools, and partnerships needed to create sustainable opportunities."}
+                    ? "نساعد الأفراد ورواد الأعمال ومنظمات الأثر الاجتماعي على تطوير المهارات الرقمية والأدوات والشراكات اللازمة لخلق فرص مستدامة."
+                    : "We help individuals, entrepreneurs, and social impact organizations develop the digital skills, tools, and partnerships needed to create sustainable opportunities."}
               </p>
               <p className="text-base sm:text-lg md:text-xl font-medium text-forest/75 leading-relaxed">
                 {lang === "fr"
                   ? "Ensemble, transformons le potentiel en possibilités et les idées en impact."
                   : lang === "ar"
-                  ? "معاً، نحول الإمكانات إلى فرص حقيقية والأفكار إلى أثر ملموس."
-                  : "Together, let's transform potential into possibilities and ideas into impact."}
+                    ? "معاً، نحول الإمكانات إلى فرص حقيقية والأفكار إلى أثر ملموس."
+                    : "Together, let's transform potential into possibilities and ideas into impact."}
               </p>
             </Reveal>
 
@@ -456,17 +467,17 @@ const Home = () => {
                       {lang === "fr"
                         ? HERO_VERBS[heroVerbIndex].word
                         : lang === "ar"
-                        ? HERO_VERBS[heroVerbIndex].wordAr
-                        : HERO_VERBS[heroVerbIndex].wordEn}
+                          ? HERO_VERBS[heroVerbIndex].wordAr
+                          : HERO_VERBS[heroVerbIndex].wordEn}
                       <span className="text-maple">.</span>
                     </span>
                     <span className="font-serif italic text-base sm:text-lg md:text-xl text-sage">
-                      —{" "}
+                      -{" "}
                       {lang === "fr"
                         ? HERO_VERBS[heroVerbIndex].lead
                         : lang === "ar"
-                        ? HERO_VERBS[heroVerbIndex].leadAr
-                        : HERO_VERBS[heroVerbIndex].leadEn}
+                          ? HERO_VERBS[heroVerbIndex].leadAr
+                          : HERO_VERBS[heroVerbIndex].leadEn}
                     </span>
                   </motion.div>
                 </AnimatePresence>
@@ -663,13 +674,21 @@ const Home = () => {
             <Reveal>
               <div className="flex items-center gap-2 font-montserrat text-xs font-bold uppercase tracking-[0.25em] text-maple mb-3">
                 <Layers className="h-4 w-4" />
-                <span>STRUCTURING PROGRAMS</span>
+                <span>{lang === "fr" ? "NOS PROGRAMMES" : lang === "ar" ? "برامجنا" : "OUR PROGRAMS"}</span>
               </div>
               <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal tracking-tight text-forest leading-tight max-w-3xl">
-                Les programmes sont au cœur de Cap Entrepreneurs
+                {lang === "fr"
+                  ? "Les programmes sont au cœur de Cap Entrepreneurs"
+                  : lang === "ar"
+                  ? "البرامج في قلب كاب للمقاولين"
+                  : "Programs are at the heart of Cap Entrepreneurs"}
               </h2>
               <p className="mt-4 max-w-2xl text-base md:text-lg leading-relaxed text-sage font-normal">
-                Nos quatre programmes structurants transforment l'apprentissage en impact mesurable :
+                {lang === "fr"
+                  ? "Nos quatre programmes structurants transforment l'apprentissage en impact mesurable :"
+                  : lang === "ar"
+                  ? "برامجنا الهيكلية الأربعة تحول التعلم إلى أثر ملموس:"
+                  : "Our four structuring programs turn learning into measurable impact:"}
               </p>
             </Reveal>
             <Reveal delay={0.15}>
@@ -691,8 +710,12 @@ const Home = () => {
                 id: "cap-green-lab",
                 number: "01",
                 name: "Cap Green Lab",
-                theme: "TECHNOLOGIE INCLUSIVE & ÉCONOMIE CIRCULAIRE",
-                purpose: "Cap Green Lab est notre laboratoire dédié à la convergence de la transition numérique, de l'accessibilité, des compétences techniques et de l'économie circulaire.",
+                theme: lang === "fr" ? "TECHNOLOGIE INCLUSIVE & ÉCONOMIE CIRCULAIRE" : lang === "ar" ? "تكنولوجيا شاملة واقتصاد دائري" : "INCLUSIVE TECHNOLOGY & CIRCULAR ECONOMY",
+                purpose: lang === "fr"
+                  ? "Cap Green Lab est notre laboratoire dédié à la convergence de la transition numérique, de l'accessibilité, des compétences techniques et de l'économie circulaire."
+                  : lang === "ar"
+                  ? "مختبر كاب الأخضر هو مختبرنا المخصص لتقارب التحول الرقمي وإمكانية الوصول والمهارات التقنية والاقتصاد الدائري."
+                  : "Cap Green Lab is our laboratory dedicated to the convergence of digital transition, accessibility, technical skills, and circular economy.",
                 link: "/programs#cap-green-lab",
                 image: "https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=800",
                 aspect: "aspect-[4/3]"
@@ -701,8 +724,12 @@ const Home = () => {
                 id: "agriconnect",
                 number: "02",
                 name: "AgriConnect",
-                theme: "ENTREPRENEURIAT RURAL & AGRICULTURE NUMÉRIQUE",
-                purpose: "AgriConnect soutient l'entrepreneuriat rural et l'agriculture numérique en connectant coopératives, femmes entrepreneures et jeunes agriculteurs aux outils et aux marchés.",
+                theme: lang === "fr" ? "ENTREPRENEURIAT RURAL & AGRICULTURE NUMÉRIQUE" : lang === "ar" ? "ريادة الأعمال الريفية والزراعة الرقمية" : "RURAL ENTREPRENEURSHIP & DIGITAL AGRICULTURE",
+                purpose: lang === "fr"
+                  ? "AgriConnect soutient l'entrepreneuriat rural et l'agriculture numérique en connectant coopératives, femmes entrepreneures et jeunes agriculteurs aux outils et aux marchés."
+                  : lang === "ar"
+                  ? "يدعم أجري كونكت ريادة الأعمال الريفية والزراعة الرقمية من خلال ربط التعاونيات ورائدات الأعمال والمزارعين الشباب بالأدوات والأسواق."
+                  : "AgriConnect supports rural entrepreneurship and digital agriculture by connecting cooperatives, women entrepreneurs, and young farmers to digital tools and markets.",
                 link: "/programs#agriconnect",
                 image: "https://images.pexels.com/photos/2165688/pexels-photo-2165688.jpeg?auto=compress&cs=tinysrgb&w=800",
                 aspect: "aspect-[3/4]"
@@ -711,8 +738,12 @@ const Home = () => {
                 id: "safe-vibe",
                 number: "03",
                 name: "Safe Vibe",
-                theme: "MÉDIAS NUMÉRIQUES & ÉDUCATION",
-                purpose: "Safe Vibe est notre programme d'éducation numérique et de production médiatique. Il outille les jeunes et les communautés pour devenir des créateurs de contenu responsables et des citoyens numériques éclairés.",
+                theme: lang === "fr" ? "MÉDIAS NUMÉRIQUES & ÉDUCATION" : lang === "ar" ? "الإعلام الرقمي والتعليم" : "DIGITAL MEDIA & EDUCATION",
+                purpose: lang === "fr"
+                  ? "Safe Vibe est notre programme d'éducation numérique et de production médiatique. Il outille les jeunes et les communautés pour devenir des créateurs de contenu responsables et des citoyens numériques éclairés."
+                  : lang === "ar"
+                  ? "سيف فايب هو برنامجنا للتعليم الرقمي والإنتاج الإعلامي. إنه يمكّن الشباب والمجتمعات ليصبحوا صناع محتوى مسؤولين ومواطنين رقميين واعين."
+                  : "Safe Vibe is our digital education and media production program. It equips youth and communities to become responsible content creators and informed digital citizens.",
                 link: "/programs#safe-vibe",
                 image: "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800",
                 aspect: "aspect-[3/4]"
@@ -720,9 +751,13 @@ const Home = () => {
               {
                 id: "creative-social",
                 number: "04",
-                name: "Entrepreneuriat Créatif & Social",
-                theme: "FEMMES, ARTS & INNOVATION SOCIALE",
-                purpose: "Ce programme soutient l'entrepreneuriat féminin, les arts et l'innovation sociale. Il accompagne les femmes et les créatifs dans la structuration de leurs projets et la création de modèles économiques durables.",
+                name: lang === "fr" ? "Entrepreneuriat Créatif & Social" : lang === "ar" ? "ريادة الأعمال الإبداعية والاجتماعية" : "Creative & Social Entrepreneurship",
+                theme: lang === "fr" ? "FEMMES, ARTS & INNOVATION SOCIALE" : lang === "ar" ? "النساء والفنون والابتكار الاجتماعي" : "WOMEN, ARTS & SOCIAL INNOVATION",
+                purpose: lang === "fr"
+                  ? "Ce programme soutient l'entrepreneuriat féminin, les arts et l'innovation sociale. Il accompagne les femmes et les créatifs dans la structuration de leurs projets et la création de modèles économiques durables."
+                  : lang === "ar"
+                  ? "يدعم هذا البرنامج ريادة الأعمال النسائية والفنون والابتكار الاجتماعي. يرافق النساء والمبدعين في هيكلة مشاريعهم وبناء نماذج اقتصادية مستدامة."
+                  : "This program supports women's entrepreneurship, the arts, and social innovation. It assists women and creatives in structuring their ventures and building sustainable business models.",
                 link: "/programs#creative-social",
                 image: "https://images.pexels.com/photos/12903148/pexels-photo-12903148.jpeg?auto=compress&cs=tinysrgb&w=800",
                 aspect: "aspect-[4/3]"
@@ -797,7 +832,11 @@ const Home = () => {
                     )}
                   </h3>
                   <p className="mt-4 text-sm md:text-base text-sage leading-relaxed font-normal">
-                    {t.home.h4International || "Des délégations d'envergure, des hubs régionaux et des rencontres intercontinentales pour connecter les entrepreneurs d'Afrique, d'Europe, des Caraïbes et d'Amérique du Nord."}
+                    {lang === "fr"
+                      ? "Chaque programme contribue à un objectif collectif : rendre la transition numérique plus inclusive, utile et solidaire."
+                      : lang === "ar"
+                      ? "يساهم كل برنامج في هدف جماعي: جعل التحول الرقمي أكثر شمولاً وفائدة وتضامناً."
+                      : "Each program contributes to a collective goal: making the digital transition more inclusive, useful, and supportive."}
                   </p>
                   <div className="mt-6">
                     <Link
@@ -1012,8 +1051,8 @@ const Home = () => {
                       key={idx}
                       onClick={() => setCurrentTestimonialIndex(idx)}
                       className={`h-2.5 rounded-full transition-all duration-300 ${currentTestimonialIndex === idx
-                          ? "w-8 bg-maple"
-                          : "w-2.5 bg-forest/20 hover:bg-forest/40"
+                        ? "w-8 bg-maple"
+                        : "w-2.5 bg-forest/20 hover:bg-forest/40"
                         }`}
                       aria-label={`Témoignage ${idx + 1}`}
                     />
@@ -1044,6 +1083,148 @@ const Home = () => {
         </div>
       </section>
 
+      {/* ===================== CONTACT + ENGAGEMENT SECTION ===================== */}
+      <section className="border-t border-forest/15 bg-[#FAF9F6]" data-testid="home-join-section" id="rejoindre">
+
+        {/* ---- ENTRONS EN CONTACT ---- */}
+        <div className="mx-auto max-w-[1600px] px-5 md:px-10 py-20 md:py-28">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+
+            {/* Left: Contact info */}
+            <div className="lg:col-span-5">
+              <Reveal>
+                <span className="font-montserrat text-[10px] font-bold uppercase tracking-[0.3em] text-maple block mb-3">
+                  {lang === "fr" ? "ENTRONS EN CONTACT" : lang === "ar" ? "تواصل معنا" : "GET IN TOUCH"}
+                </span>
+                <h2 className="font-serif text-4xl sm:text-5xl font-normal tracking-tight text-forest leading-tight">
+                  {lang === "fr"
+                    ? <>Entrons en<br /><span className="italic font-light">Contact</span></>
+                    : lang === "ar"
+                    ? <>دعنا<br /><span className="italic font-light">نتواصل</span></>
+                    : <>Let's get<br /><span className="italic font-light">in touch</span></>}
+                </h2>
+                <div className="w-10 h-[2px] bg-maple mt-5 mb-6" />
+                <p className="text-sm text-sage leading-relaxed mb-8">
+                  {lang === "fr"
+                    ? "Que vous soyez un individu souhaitant s'impliquer, une organisation cherchant un partenaire, un acheteur international ou une institution voulant soutenir notre mission, nous sommes à votre écoute."
+                    : lang === "ar"
+                    ? "سواء كنت فرداً يسعى للمشاركة، أو منظمة تبحث عن شريك، أو مشترياً دولياً، أو مؤسسة تريد دعم مهمتنا، نحن هنا للاستماع."
+                    : "Whether you are an individual seeking involvement, an organization looking for a partner, an international buyer, or an institution wishing to support our mission, we are here to listen."}
+                </p>
+                <div className="space-y-3 text-sm text-sage">
+                  <div className="flex items-center gap-2">
+                    <span className="text-maple font-bold">✉</span>
+                    <a href="mailto:contact@capentrepreneurs.org" className="hover:text-forest transition-colors">contact@capentrepreneurs.org</a>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-maple font-bold mt-0.5">📍</span>
+                    <span>1265, rue Rachel E, porte 403<br />Montréal (Québec) H2J 2J9 • Canada</span>
+                  </div>
+                </div>
+
+                {/* À PROPOS block */}
+                <div className="mt-10 border-t border-forest/10 pt-8">
+                  <span className="font-montserrat text-[10px] font-bold uppercase tracking-[0.25em] text-maple block mb-3">
+                    {lang === "fr" ? "À PROPOS" : lang === "ar" ? "عن كاب" : "ABOUT"}
+                  </span>
+                  <p className="text-xs text-sage leading-relaxed">
+                    {lang === "fr"
+                      ? "Cap Entrepreneurs rassemble créateurs, mentors et partenaires pour bâtir des écosystèmes entrepreneuriaux inclusifs et durables. Enracinés au Québec et rayonnant à l'international, nous accompagnons les projets à fort impact social."
+                      : lang === "ar"
+                      ? "تجمع كاب رواد الأعمال المبدعين والموجهين والشركاء لبناء منظومات ريادية شاملة ومستدامة. متجذرون في كيبيك ومنفتحون على العالم، نرافق المشاريع ذات الأثر الاجتماعي العالي."
+                      : "Cap Entrepreneurs brings together creators, mentors and partners to build inclusive and sustainable entrepreneurial ecosystems. Rooted in Québec and internationally connected, we accompany high-impact social projects."}
+                  </p>
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Right: Contact form */}
+            <div className="lg:col-span-7">
+              <Reveal delay={0.1}>
+                <div className="bg-white border border-forest/10 p-8 sm:p-10 shadow-sm">
+                  {contactSubmitted ? (
+                    <div className="py-10 text-center flex flex-col items-center">
+                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-maple text-white">
+                        <CheckCircle2 className="h-7 w-7" />
+                      </div>
+                      <h3 className="font-serif text-2xl font-bold text-forest">
+                        {lang === "fr" ? "Message envoyé !" : lang === "ar" ? "تم إرسال الرسالة!" : "Message Sent!"}
+                      </h3>
+                      <p className="mt-2 text-sm text-sage max-w-sm mx-auto">
+                        {lang === "fr" ? "Notre équipe vous répondra rapidement." : lang === "ar" ? "سيرد فريقنا عليك قريباً." : "Our team will get back to you shortly."}
+                      </p>
+                      <button type="button" onClick={() => { setContactSubmitted(false); setContactForm({ name: "", email: "", message: "" }); }}
+                        className="mt-5 inline-flex items-center gap-2 border border-forest px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-forest hover:bg-forest hover:text-bone transition-colors">
+                        {lang === "fr" ? "Envoyer un autre message" : lang === "ar" ? "إرسال رسالة أخرى" : "Send Another Message"}
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (!contactForm.name || !contactForm.email || !contactForm.message) return;
+                      setContactSubmitting(true);
+                      try {
+                        await api.post("/submissions", { type: "contact", payload: { ...contactForm, source: "home_contact_form" } });
+                        setContactSubmitted(true);
+                        toast.success(lang === "fr" ? "Message envoyé avec succès !" : lang === "ar" ? "تم إرسال الرسالة بنجاح!" : "Message sent successfully!");
+                      } catch (err) {
+                        console.error(err);
+                        toast.error(lang === "fr" ? "Erreur lors de l'envoi. Veuillez réessayer." : lang === "ar" ? "خطأ في الإرسال. يرجى المحاولة مرة أخرى." : "Error sending. Please try again.");
+                      } finally { setContactSubmitting(false); }
+                    }} className="space-y-5" data-testid="home-contact-form">
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-[0.22em] text-forest mb-2">
+                          {lang === "fr" ? "NOM *" : lang === "ar" ? "الاسم *" : "NAME *"}
+                        </label>
+                        <input type="text" required
+                          placeholder={lang === "fr" ? "Votre nom complet" : lang === "ar" ? "اسمك الكامل" : "Your full name"}
+                          value={contactForm.name}
+                          onChange={(e) => setContactForm(p => ({ ...p, name: e.target.value }))}
+                          className="w-full border border-forest/20 bg-[#FAF9F6] px-4 py-3 text-sm text-forest focus:border-maple focus:outline-none" />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-[0.22em] text-forest mb-2">
+                          {lang === "fr" ? "COURRIEL *" : lang === "ar" ? "البريد الإلكتروني *" : "EMAIL *"}
+                        </label>
+                        <input type="email" required
+                          placeholder={lang === "fr" ? "vous@exemple.com" : lang === "ar" ? "name@example.com" : "you@example.com"}
+                          value={contactForm.email}
+                          onChange={(e) => setContactForm(p => ({ ...p, email: e.target.value }))}
+                          className="w-full border border-forest/20 bg-[#FAF9F6] px-4 py-3 text-sm text-forest focus:border-maple focus:outline-none" />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-[0.22em] text-forest mb-2">
+                          {lang === "fr" ? "MESSAGE *" : lang === "ar" ? "الرسالة *" : "MESSAGE *"}
+                        </label>
+                        <textarea required rows={5}
+                          placeholder={lang === "fr" ? "Remplissez simplement le formulaire ci-dessous et notre équipe vous répondra rapidement." : lang === "ar" ? "اكتب رسالتك هنا..." : "Tell us how we can help or collaborate..."}
+                          value={contactForm.message}
+                          onChange={(e) => setContactForm(p => ({ ...p, message: e.target.value }))}
+                          className="w-full border border-forest/20 bg-[#FAF9F6] px-4 py-3 text-sm text-forest focus:border-maple focus:outline-none resize-none" />
+                      </div>
+
+                      <button type="submit" disabled={contactSubmitting}
+                        className="w-full inline-flex items-center justify-center gap-2 bg-forest px-8 py-4 font-montserrat text-xs font-bold uppercase tracking-[0.2em] text-white shadow-md transition-all hover:bg-maple disabled:opacity-50">
+                        {contactSubmitting ? (
+                          <><Loader2 className="h-4 w-4 animate-spin" /><span>{lang === "fr" ? "Envoi..." : lang === "ar" ? "جاري الإرسال..." : "Sending..."}</span></>
+                        ) : (
+                          <><span>{lang === "fr" ? "ENVOYER LE FORMULAIRE" : lang === "ar" ? "إرسال النموذج" : "SEND THE FORM"}</span><ArrowRight className="h-4 w-4" /></>
+                        )}
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </Reveal>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
       {/* ===================== FINAL CALL TO ACTION ===================== */}
       <section className="relative overflow-hidden border-t border-forest/15 bg-[#0D0E0D] text-bone" data-testid="home-cta-section">
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
@@ -1059,7 +1240,7 @@ const Home = () => {
               {t.home.h6Title || "Prêt à ouvrir de nouveaux horizons ?"}
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-bone/80 md:text-xl font-sans">
-              {t.home.h6Sub || "Que vous souhaitiez apprendre, bâtir ou investir dans le changement — il y a une place pour vous ici."}
+              {t.home.h6Sub || "Que vous souhaitiez apprendre, bâtir ou investir dans le changement - il y a une place pour vous ici."}
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Magnetic>
@@ -1133,8 +1314,8 @@ const Home = () => {
                     {lang === "fr"
                       ? "Votre formulaire a bien été transmis à l'équipe CAP Entrepreneurs et est désormais enregistré dans notre système. Nous reviendrons vers vous très rapidement."
                       : lang === "ar"
-                      ? "تم استلام طلبك بنجاح وسيتواصل معك فريق كاب رواد الأعمال قريباً لمتابعة الخطوات التالية."
-                      : "Your inquiry has been successfully received by the CAP Entrepreneurs team. We will get back to you shortly."}
+                        ? "تم استلام طلبك بنجاح وسيتواصل معك فريق كاب رواد الأعمال قريباً لمتابعة الخطوات التالية."
+                        : "Your inquiry has been successfully received by the CAP Entrepreneurs team. We will get back to you shortly."}
                   </p>
                   <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center">
                     <button

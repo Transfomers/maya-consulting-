@@ -102,15 +102,24 @@ export const ParallaxImage = ({ src, alt, className = "", speed = 0.12, testId }
   );
 };
 
-export const EditorialMarquee = ({ items, dark = false, testId }) => (
-  <div
-    className={`overflow-hidden border-y py-5 md:py-7 ${
-      dark ? "border-bone/20 bg-forest" : "border-forest/15 bg-bone"
-    }`}
-    data-testid={testId}
-  >
-    <Marquee speed={28} gradient={false} pauseOnHover>
-      {items.map((item, i) => (
+export const EditorialMarquee = ({ items = [], dark = false, testId }) => {
+  const safeItems = Array.isArray(items) && items.length > 0 ? items : [
+    "PARTENARIATS STRATÉGIQUES",
+    "INNOVATION SOCIALE",
+    "TECH INCLUSIVE & DURABLE",
+    "ÉCONOMIE CIRCULAIRE",
+    "PASSERELLES MONDIALES",
+    "CAP ENTREPRENEURS"
+  ];
+  return (
+    <div
+      className={`overflow-hidden border-y py-5 md:py-7 ${
+        dark ? "border-bone/20 bg-forest" : "border-forest/15 bg-bone"
+      }`}
+      data-testid={testId}
+    >
+      <Marquee speed={28} gradient={false} pauseOnHover>
+        {safeItems.map((item, i) => (
         <span key={i} className="mx-6 flex items-center gap-12 md:mx-10">
           <span
             className={`whitespace-nowrap font-heading text-3xl font-bold uppercase tracking-tight md:text-5xl ${

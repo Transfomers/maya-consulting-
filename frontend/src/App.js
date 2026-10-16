@@ -59,11 +59,7 @@ const ScrollToTop = () => {
 
 // Mounted outside the routes so the conversation survives navigation, and kept
 // off the admin panel.
-const PublicChat = () => {
-  const { pathname } = useLocation();
-  if (pathname.startsWith("/admin")) return null;
-  return <ChatWidget />;
-};
+const PublicChat = () => null;
 
 const PublicPopup = () => {
   const { pathname } = useLocation();
@@ -146,7 +142,6 @@ function App() {
                   <Route path="settings" element={<AdminSettings />} />
                 </Route>
               </Routes>
-              <PublicChat />
               <PublicPopup />
             </div>
           </SettingsProvider>

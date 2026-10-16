@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { 
-  CheckCircle2, 
-  Loader2, 
-  Mail, 
-  MapPin, 
-  ArrowRight, 
-  Calendar, 
-  Clock, 
-  Sparkles, 
+import {
+  CheckCircle2,
+  Loader2,
+  Mail,
+  MapPin,
+  ArrowRight,
+  Calendar,
+  Clock,
   ChevronDown,
   ChevronUp
 } from "lucide-react";
@@ -20,7 +19,7 @@ import FormShell from "@/components/FormShell";
 import TiltCard from "@/components/TiltCard";
 
 const HERO_HEADER_IMG = "/assets/contact-header.png";
-const SIDEBAR_PORTRAIT_IMG = "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=800&auto=format&fit=crop";
+const SIDEBAR_PORTRAIT_IMG = "/assets/murielle-portrait.webp";
 
 const PROFILE_CONFIGS_EN = [
   {
@@ -273,7 +272,7 @@ const PROFILE_CONFIGS_FR = [
     id: "learn",
     number: "01",
     title: "Je souhaite rejoindre Cap Entrepreneurs",
-    subtitle: "Particulier — Développer mes compétences",
+    subtitle: "Particulier - Développer mes compétences",
     type: "application",
     submitLabel: "Signer & Transmettre ma candidature",
     successMsg: "Candidature reçue ! Notre équipe de coordination examinera votre profil et prendra contact avec vous.",
@@ -286,10 +285,10 @@ const PROFILE_CONFIGS_FR = [
         label: "Programme structurant d'intérêt",
         kind: "select",
         options: [
-          "Cap Green Lab — Technologie inclusive & économie circulaire",
-          "AgriConnect — Entrepreneuriat rural & agriculture numérique",
-          "Safe Vibe — Médias numériques & citoyenneté",
-          "Entrepreneuriat Créatif & Social — Femmes, arts & innovation sociale"
+          "Cap Green Lab - Technologie inclusive & économie circulaire",
+          "AgriConnect - Entrepreneuriat rural & agriculture numérique",
+          "Safe Vibe - Médias numériques & citoyenneté",
+          "Entrepreneuriat Créatif & Social - Femmes, arts & innovation sociale"
         ],
         placeholder: "Sélectionnez un programme",
         required: true
@@ -303,7 +302,7 @@ const PROFILE_CONFIGS_FR = [
     id: "volunteer",
     number: "02",
     title: "Je souhaite faire du bénévolat",
-    subtitle: "Particulier — Contribution citoyenne & bénévole",
+    subtitle: "Particulier - Contribution citoyenne & bénévole",
     type: "volunteer",
     submitLabel: "Signer & Transmettre ma demande bénévole",
     successMsg: "Merci de tout cœur pour votre dévouement bénévole ! Notre coordonnateur communiquera avec vous rapidement.",
@@ -437,10 +436,10 @@ const PROFILE_CONFIGS_FR = [
         label: "Délégation internationale visée",
         kind: "select",
         options: [
-          "Marrakech 2027 — African Creative Sourcing",
-          "Paris 2027 — Brunch Pré-Festival",
-          "Nairobi 2027 — Global Festival pour la tech inclusive",
-          "Martinique 2028 — Expansion Caraïbes",
+          "Marrakech 2027 - African Creative Sourcing",
+          "Paris 2027 - Brunch Pré-Festival",
+          "Nairobi 2027 - Global Festival pour la tech inclusive",
+          "Martinique 2028 - Expansion Caraïbes",
           "Toutes les délégations internationales"
         ],
         placeholder: "Sélectionnez votre événement prioritaire",
@@ -519,7 +518,7 @@ const PROFILE_CONFIGS_AR = [
     id: "learn",
     number: "01",
     title: "أرغب في الانضمام إلى كاب رواد الأعمال",
-    subtitle: "أفراد — التعلم وتطوير المهارات",
+    subtitle: "أفراد - التعلم وتطوير المهارات",
     type: "application",
     submitLabel: "توقيع وإرسال طلب التعلم",
     successMsg: "تم استلام طلبك! سيقوم منسق التعلم بمراجعة طلبك والتواصل معك.",
@@ -532,10 +531,10 @@ const PROFILE_CONFIGS_AR = [
         label: "البرنامج الهيكلي المطلوب",
         kind: "select",
         options: [
-          "مختبر كاب الأخضر — تكنولوجيا شاملة واقتصاد دائري",
-          "أجري كونكت — ريادة الأعمال الريفية والزراعة الرقمية",
-          "سيف فايب — الإعلام الرقمي والمواطنة",
-          "ريادة الأعمال الإبداعية والاجتماعية — المرأة والفنون"
+          "مختبر كاب الأخضر - تكنولوجيا شاملة واقتصاد دائري",
+          "أجري كونكت - ريادة الأعمال الريفية والزراعة الرقمية",
+          "سيف فايب - الإعلام الرقمي والمواطنة",
+          "ريادة الأعمال الإبداعية والاجتماعية - المرأة والفنون"
         ],
         placeholder: "اختر برنامجاً",
         required: true
@@ -549,7 +548,7 @@ const PROFILE_CONFIGS_AR = [
     id: "volunteer",
     number: "02",
     title: "أرغب في التطوع",
-    subtitle: "أفراد — مساهمة تطوعية مجتمعية",
+    subtitle: "أفراد - مساهمة تطوعية مجتمعية",
     type: "volunteer",
     submitLabel: "توقيع وإرسال طلب التطوع",
     successMsg: "شكراً لتطوعك! سيتواصل معك منسق المتطوعين لتنسيق انضمامك.",
@@ -683,10 +682,10 @@ const PROFILE_CONFIGS_AR = [
         label: "الوفد الدولي المستهدف",
         kind: "select",
         options: [
-          "مراكش 2027 — التوريد الإبداعي الأفريقي",
-          "باريس 2027 — حفل ما قبل المهرجان",
-          "نيروبي 2027 — المهرجان العالمي للتكنولوجيا الشاملة",
-          "مارتينيك 2028 — التوسع الكاريبي",
+          "مراكش 2027 - التوريد الإبداعي الأفريقي",
+          "باريس 2027 - حفل ما قبل المهرجان",
+          "نيروبي 2027 - المهرجان العالمي للتكنولوجيا الشاملة",
+          "مارتينيك 2028 - التوسع الكاريبي",
           "جميع الوفود الدولية"
         ],
         placeholder: "اختر الفعالية الأساسية",
@@ -876,7 +875,7 @@ export default function Contact() {
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-normal tracking-tight text-[#1c1c1c]">
             {isFrench ? "Contactez-nous" : isArabic ? "اتصل بنا" : "Contact Us"}
           </h1>
-          <div className="w-12 h-[2px] bg-[#C89255] mx-auto my-3.5" />
+          <div className="w-12 h-[2px] bg-[#701EF8] mx-auto my-3.5" />
           <p className="font-sans text-[11px] sm:text-[12px] font-semibold tracking-[0.28em] text-[#767676] uppercase">
             {isFrench ? "ENTRONS EN CONTACT" : isArabic ? "دعنا نبقى على تواصل" : "LETS GET INTOUCH"}
           </p>
@@ -893,8 +892,8 @@ export default function Contact() {
                 {isFrench
                   ? "Que vous soyez un individu souhaitant s'impliquer, une organisation cherchant un partenaire, un acheteur international ou une institution voulant soutenir notre mission, nous sommes à votre écoute. Remplissez simplement le formulaire ci-dessous et notre équipe vous répondra rapidement."
                   : isArabic
-                  ? "سواء كنت ترغب في المشاركة، أو تبحث عن شراكة، يسعدنا دائماً التواصل معك. يرجى ملء النموذج أدناه وسيقوم فريقنا بالرد عليك قريباً."
-                  : "Whether you are looking to get involved, explore partnership opportunities, inquire about our programs, or simply say hello, we would love to hear from you. Please fill out the form below and we will be in touch shortly."}
+                    ? "سواء كنت ترغب في المشاركة، أو تبحث عن شراكة، يسعدنا دائماً التواصل معك. يرجى ملء النموذج أدناه وسيقوم فريقنا بالرد عليك قريباً."
+                    : "Whether you are looking to get involved, explore partnership opportunities, inquire about our programs, or simply say hello, we would love to hear from you. Please fill out the form below and we will be in touch shortly."}
               </p>
             </Reveal>
 
@@ -1050,20 +1049,20 @@ export default function Contact() {
                   {isFrench
                     ? "Cap Entrepreneurs rassemble créateurs, mentors et partenaires pour bâtir des écosystèmes entrepreneuriaux inclusifs et durables. Enracinés au Québec et rayonnant à l'international, nous accompagnons les projets à fort impact social."
                     : isArabic
-                    ? "تجمع رواد أعمال كاب بين المبدعين والموجهين والشركاء لبناء نظم بيئية ريادية شاملة ومستدامة، تهدف لتمكين الجيل القادم من قادة التغيير."
-                    : "Cap Entrepreneurs brings together visionaries, changemakers, and creators committed to building inclusive and sustainable entrepreneurial ecosystems. Rooted in Quebec and active globally, we support high-impact projects that empower communities to thrive."}
+                      ? "تجمع رواد أعمال كاب بين المبدعين والموجهين والشركاء لبناء نظم بيئية ريادية شاملة ومستدامة، تهدف لتمكين الجيل القادم من قادة التغيير."
+                      : "Cap Entrepreneurs brings together visionaries, changemakers, and creators committed to building inclusive and sustainable entrepreneurial ecosystems. Rooted in Quebec and active globally, we support high-impact projects that empower communities to thrive."}
                 </p>
 
                 {/* QUICK CONTACT METADATA */}
                 <div className="w-full border-t border-[#e2dfd7] pt-5 mt-2 flex flex-col gap-2.5 text-left text-xs text-[#666]">
                   <div className="flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-[#C89255] shrink-0" />
+                    <Mail className="w-3.5 h-3.5 text-[#701EF8] shrink-0" />
                     <a href={`mailto:${contactEmail}`} className="hover:text-[#111] transition-colors truncate">
                       {contactEmail}
                     </a>
                   </div>
                   <div className="flex items-start gap-2">
-                    <MapPin className="w-3.5 h-3.5 text-[#C89255] shrink-0 mt-0.5" />
+                    <MapPin className="w-3.5 h-3.5 text-[#701EF8] shrink-0 mt-0.5" />
                     <span className="leading-snug">{contactAddress}</span>
                   </div>
                 </div>
@@ -1080,30 +1079,30 @@ export default function Contact() {
             <Reveal>
               <div className="flex items-center justify-between mb-10 pb-4 border-b border-forest/10">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#C89255]">
+                  <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#701EF8]">
                     {isFrench ? "CALENDRIER & SESSIONS" : "CALENDAR & SESSIONS"}
                   </span>
                   <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl text-[#1c1c1c] mt-1">
                     {isFrench ? "Événements & Programmes Publics" : "Upcoming Events & Programs"}
                   </h2>
                 </div>
-                <Calendar className="w-8 h-8 text-[#C89255] hidden sm:block opacity-70" />
+                <Calendar className="w-8 h-8 text-[#701EF8] hidden sm:block opacity-70" />
               </div>
             </Reveal>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {events.map((evt, i) => (
                 <Reveal key={evt.id} delay={i * 0.05}>
-                  <div className="bg-[#FAF9F6] border border-[#E8E6E1] p-6 flex flex-col justify-between h-full hover:border-[#C89255] transition-all">
+                  <div className="bg-[#FAF9F6] border border-[#E8E6E1] p-6 flex flex-col justify-between h-full hover:border-[#701EF8] transition-all">
                     <div>
-                      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-[#C89255] mb-2">
+                      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-[#701EF8] mb-2">
                         <Calendar className="w-3.5 h-3.5" />
                         <span>{evt.start_date ? new Date(evt.start_date).toLocaleDateString() : "Session 2026-2027"}</span>
                       </div>
                       <h3 className="font-serif text-xl font-medium text-[#1c1c1c] mb-2">{evt.title}</h3>
                       {evt.location && (
                         <p className="text-xs text-[#666] flex items-center gap-1.5 mb-3">
-                          <MapPin className="w-3 h-3 text-[#C89255]" />
+                          <MapPin className="w-3 h-3 text-[#701EF8]" />
                           <span>{evt.location}</span>
                         </p>
                       )}
@@ -1137,7 +1136,7 @@ export default function Contact() {
             >
               ✕
             </button>
-            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#C89255] block mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#701EF8] block mb-1">
               {isFrench ? "INSCRIPTION À L'ÉVÉNEMENT" : "EVENT REGISTRATION"}
             </span>
             <h3 className="font-serif text-2xl text-[#1c1c1c] mb-4">{selectedEventForRsvp.title}</h3>
@@ -1228,7 +1227,7 @@ export default function Contact() {
         <div className="max-w-[1600px] mx-auto px-5 sm:px-8 lg:px-12">
           <Reveal>
             <div className="max-w-3xl mb-12">
-              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#C89255]">
+              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#701EF8]">
                 {isFrench ? "FORMULAIRES D'ENGAGEMENT SPÉCIALISÉS" : "TAILORED ENGAGEMENT PATHS"}
               </span>
               <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-black text-forest mt-2">
@@ -1254,18 +1253,17 @@ export default function Contact() {
                         setSelectedProfileId(p.id);
                         document.getElementById("profile-form-container")?.scrollIntoView({ behavior: "smooth" });
                       }}
-                      className={`flex h-full flex-col justify-between border p-6 rounded-none cursor-pointer transition-all ${
-                        isSelected
-                          ? "border-[#C89255] bg-forest text-bone shadow-xl scale-[1.02]"
+                      className={`flex h-full flex-col justify-between border p-6 rounded-none cursor-pointer transition-all ${isSelected
+                          ? "border-[#701EF8] bg-forest text-bone shadow-xl scale-[1.02]"
                           : "border-forest/15 bg-white text-forest hover:border-forest"
-                      }`}
+                        }`}
                     >
                       <div>
                         <div className="flex items-center justify-between mb-4">
-                          <span className="font-serif text-2xl italic text-[#C89255]">{p.number}</span>
-                          {isSelected && <CheckCircle2 className="h-5 w-5 text-[#C89255]" />}
+                          <span className="font-serif text-2xl italic text-[#701EF8]">{p.number}</span>
+                          {isSelected && <CheckCircle2 className="h-5 w-5 text-[#701EF8]" />}
                         </div>
-                        <p className={`text-[10.5px] font-bold uppercase tracking-wider mb-2 ${isSelected ? "text-[#C89255]" : "text-sage"}`}>
+                        <p className={`text-[10.5px] font-bold uppercase tracking-wider mb-2 ${isSelected ? "text-[#701EF8]" : "text-sage"}`}>
                           {p.subtitle}
                         </p>
                         <h3 className={`font-heading text-base font-bold ${isSelected ? "text-bone" : "text-forest"}`}>
@@ -1274,10 +1272,10 @@ export default function Contact() {
                       </div>
 
                       <div className="pt-4 border-t border-current/10 mt-6 flex items-center justify-between">
-                        <span className={`text-[11px] font-bold uppercase tracking-wider ${isSelected ? "text-[#C89255]" : "text-forest"}`}>
+                        <span className={`text-[11px] font-bold uppercase tracking-wider ${isSelected ? "text-[#701EF8]" : "text-forest"}`}>
                           {isSelected ? "Formulaire Actif" : "Ouvrir Formulaire"}
                         </span>
-                        <ArrowRight className={`h-4 w-4 ${isSelected ? "text-[#C89255]" : "text-forest"}`} />
+                        <ArrowRight className={`h-4 w-4 ${isSelected ? "text-[#701EF8]" : "text-forest"}`} />
                       </div>
                     </div>
                   </TiltCard>
@@ -1289,8 +1287,8 @@ export default function Contact() {
           {/* Active Profile Dynamic Form Shell */}
           <div id="profile-form-container" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-4 bg-white border border-forest/15 p-8 shadow-sm">
-              <span className="font-serif text-4xl italic text-[#C89255] mb-2 block">{activeConfig.number}</span>
-              <p className="text-xs font-bold uppercase tracking-widest text-[#C89255]">{activeConfig.subtitle}</p>
+              <span className="font-serif text-4xl italic text-[#701EF8] mb-2 block">{activeConfig.number}</span>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#701EF8]">{activeConfig.subtitle}</p>
               <h3 className="font-heading text-2xl font-black text-forest mt-2 mb-4">{activeConfig.title}</h3>
               <p className="text-sm text-sage leading-relaxed font-serif">
                 {isFrench
@@ -1298,22 +1296,21 @@ export default function Contact() {
                   : "This official dossier is tailored specifically for your profile. Please complete the fields and sign below."}
               </p>
               <div className="mt-6 pt-6 border-t border-forest/10 text-xs font-bold text-forest flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#C89255]" />
-                <span>{isFrench ? "Signature et horodatage certifiés" : "Includes digital signature & verification"}</span>
+                                <span>{isFrench ? "Signature et horodatage certifiés" : "Includes digital signature & verification"}</span>
               </div>
             </div>
 
             <div className="lg:col-span-8 bg-white border border-forest/15 p-8 sm:p-12 shadow-sm">
               <div className="flex items-center justify-between border-b border-forest/10 pb-6 mb-8">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#C89255]">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#701EF8]">
                     {isFrench ? "DOSSIER D'ENGAGEMENT" : "DEDICATED REGISTRATION"}
                   </span>
                   <h2 className="font-heading text-2xl md:text-3xl font-black text-forest mt-1">
                     {activeConfig.subtitle} Form
                   </h2>
                 </div>
-                <span className="font-serif text-3xl italic text-[#C89255]">{activeConfig.number}</span>
+                <span className="font-serif text-3xl italic text-[#701EF8]">{activeConfig.number}</span>
               </div>
 
               <FormShell

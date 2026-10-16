@@ -142,7 +142,7 @@ export default function AdminEventsList() {
 
         {/* Actions */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Search — expandable on mobile */}
+          {/* Search - expandable on mobile */}
           <div className={`relative transition-all duration-300 ${showSearch ? "w-full sm:w-auto" : "w-auto"}`}>
             {showSearch ? (
               <div className="flex items-center gap-2 w-full sm:w-64">
@@ -193,7 +193,7 @@ export default function AdminEventsList() {
         </div>
       </div>
 
-      {/* Statistics — 2 cols on mobile, 5 on desktop */}
+      {/* Statistics - 2 cols on mobile, 5 on desktop */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {statCards.map((stat, i) => (
           <div key={i} className="bg-white border border-forest/15 p-3 sm:p-4 flex items-center gap-3">

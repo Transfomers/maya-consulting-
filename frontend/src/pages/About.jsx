@@ -184,8 +184,8 @@ const About = () => {
                       {lang === "fr"
                         ? "Démocratiser les compétences et outils numériques pour les populations sous-représentées."
                         : lang === "ar"
-                        ? "إتاحة المهارات والأدوات الرقمية للفئات المجتمعية الأقل تمثيلاً."
-                        : "Democratizing digital tools and practical skills for underrepresented communities."}
+                          ? "إتاحة المهارات والأدوات الرقمية للفئات المجتمعية الأقل تمثيلاً."
+                          : "Democratizing digital tools and practical skills for underrepresented communities."}
                     </p>
                   </div>
                   <div className="p-4 bg-[#FDFCFD] border border-[#0D0E0D]/10">
@@ -197,8 +197,8 @@ const About = () => {
                       {lang === "fr"
                         ? "Exporter des pratiques éthiques, transparentes et pérennes fondées sur la confiance."
                         : lang === "ar"
-                        ? "تصدير ممارسات أخلاقية وشفافة ومستدامة قائمة على الثقة والمسؤولية المجتمعية."
-                        : "Exporting ethical, transparent, and sustainable practices rooted in community trust."}
+                          ? "تصدير ممارسات أخلاقية وشفافة ومستدامة قائمة على الثقة والمسؤولية المجتمعية."
+                          : "Exporting ethical, transparent, and sustainable practices rooted in community trust."}
                     </p>
                   </div>
                   <div className="p-4 bg-[#FDFCFD] border border-[#0D0E0D]/10">
@@ -210,8 +210,8 @@ const About = () => {
                       {lang === "fr"
                         ? "Créer des connexions stratégiques entre le Canada, l'Europe, l'Afrique et les Caraïbes."
                         : lang === "ar"
-                        ? "بناء روابط استراتيجية متينة بين كندا وأوروبا وإفريقيا ومنطقة الكاريبي."
-                        : "Forging high-trust strategic bridges across Canada, Europe, Africa, and the Caribbean."}
+                          ? "بناء روابط استراتيجية متينة بين كندا وأوروبا وإفريقيا ومنطقة الكاريبي."
+                          : "Forging high-trust strategic bridges across Canada, Europe, Africa, and the Caribbean."}
                     </p>
                   </div>
                 </div>
@@ -444,8 +444,8 @@ const About = () => {
                   {lang === "fr"
                     ? "Groupes de travail thématiques (Conseil Cap Green Lab, Conseil Inclusion Numérique & Accessibilité, Conseil Partenaires Internationaux) qui définissent les orientations."
                     : lang === "ar"
-                    ? "مجموعات عمل متخصصة تحدد التوجهات الاستراتيجية للبرامج والمبادرات المجتمعية."
-                    : "Thematic advisory working groups (Cap Green Lab Council, Digital Inclusion Council, International Council) guiding strategic priorities."}
+                      ? "مجموعات عمل متخصصة تحدد التوجهات الاستراتيجية للبرامج والمبادرات المجتمعية."
+                      : "Thematic advisory working groups (Cap Green Lab Council, Digital Inclusion Council, International Council) guiding strategic priorities."}
                 </p>
               </div>
             </Reveal>
@@ -472,8 +472,8 @@ const About = () => {
                   {lang === "fr"
                     ? "Organisations, institutions et bailleurs qui soutiennent notre mission financièrement, techniquement ou stratégiquement pour démultiplier l'impact."
                     : lang === "ar"
-                    ? "منظمات ومؤسسات ومانحون يدعمون مهمتنا مادياً وتقنياً واستراتيجياً لمضاعفة الأثر."
-                    : "Organizations, institutions, and funders supporting our mission with capital, expertise, and operational resources."}
+                      ? "منظمات ومؤسسات ومانحون يدعمون مهمتنا مادياً وتقنياً واستراتيجياً لمضاعفة الأثر."
+                      : "Organizations, institutions, and funders supporting our mission with capital, expertise, and operational resources."}
                 </p>
               </div>
             </Reveal>
@@ -503,8 +503,8 @@ const About = () => {
                   {lang === "fr"
                     ? "Quatre programmes structurants qui répondent à des besoins concrets : Cap Green Lab, AgriConnect, Safe Vibe et Créatif & Social."
                     : lang === "ar"
-                    ? "أربعة برامج هيكلية تلبي احتياجات ملموسة: مختبر كاب الأخضر، أجري كونكت، سيف فايب، وريادة الأعمال الإبداعية والاجتماعية."
-                    : "Four pillar programs serving concrete needs: Cap Green Lab, AgriConnect, Safe Vibe, and Creative & Social."}
+                      ? "أربعة برامج هيكلية تلبي احتياجات ملموسة: مختبر كاب الأخضر، أجري كونكت، سيف فايب، وريادة الأعمال الإبداعية والاجتماعية."
+                      : "Four pillar programs serving concrete needs: Cap Green Lab, AgriConnect, Safe Vibe, and Creative & Social."}
                 </p>
               </div>
             </Reveal>
@@ -531,8 +531,8 @@ const About = () => {
                   {lang === "fr"
                     ? "Résultats concrets et mesurables qui transforment durablement les communautés, au Canada et à travers le monde."
                     : lang === "ar"
-                    ? "نتائج ملموسة وقابلة للقياس تحدث تحولاً إيجابياً ومستداماً في المجتمعات المحلية والدولية."
-                    : "Tangible, verifiable social outcomes that create lasting improvements for communities in Canada and abroad."}
+                      ? "نتائج ملموسة وقابلة للقياس تحدث تحولاً إيجابياً ومستداماً في المجتمعات المحلية والدولية."
+                      : "Tangible, verifiable social outcomes that create lasting improvements for communities in Canada and abroad."}
                 </p>
               </div>
             </Reveal>
@@ -562,8 +562,8 @@ const About = () => {
                   {lang === "fr"
                     ? "Membres engagés qui contribuent quotidiennement à la mise en œuvre des projets, au mentorat et au partage des compétences."
                     : lang === "ar"
-                    ? "أعضاء ملتزمون يشاركون يومياً في تنفيذ المشاريع والإرشاد وتبادل المعرفة والمهارات."
-                    : "Committed community members contributing daily to program operations, peer mentoring, and knowledge exchange."}
+                      ? "أعضاء ملتزمون يشاركون يومياً في تنفيذ المشاريع والإرشاد وتبادل المعرفة والمهارات."
+                      : "Committed community members contributing daily to program operations, peer mentoring, and knowledge exchange."}
                 </p>
               </div>
             </Reveal>
@@ -588,10 +588,10 @@ const About = () => {
                 </div>
                 <p className="text-xs sm:text-[13px] leading-relaxed text-sage max-w-[320px] mx-auto font-sans">
                   {lang === "fr"
-                    ? "Exportation des meilleures pratiques canadiennes — gouvernance éthique, inclusion et durabilité — à travers nos initiatives internationales."
+                    ? "Exportation des meilleures pratiques canadiennes - gouvernance éthique, inclusion et durabilité - à travers nos initiatives internationales."
                     : lang === "ar"
-                    ? "مشاركة أفضل الممارسات الكندية — الحوكمة الأخلاقية، والشمول، والاستدامة — عبر مبادراتنا الدولية."
-                    : "Sharing Canadian best practices — ethical governance, accessibility, and environmental responsibility — globally."}
+                      ? "مشاركة أفضل الممارسات الكندية - الحوكمة الأخلاقية، والشمول، والاستدامة - عبر مبادراتنا الدولية."
+                      : "Sharing Canadian best practices - ethical governance, accessibility, and environmental responsibility - globally."}
                 </p>
               </div>
             </Reveal>
@@ -719,8 +719,8 @@ const About = () => {
                       key={idx}
                       onMouseEnter={() => setActiveVision(idx)}
                       className={`group relative cursor-pointer border p-4 sm:p-5 transition-all duration-300 ${activeVision === idx
-                          ? "border-maple bg-white/20 shadow-lg translate-x-1"
-                          : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/15"
+                        ? "border-maple bg-white/20 shadow-lg translate-x-1"
+                        : "border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/15"
                         }`}
                     >
                       <div className="flex items-start gap-4">

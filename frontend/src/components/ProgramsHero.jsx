@@ -52,7 +52,7 @@ const ProgramsHero = () => {
             />
           </motion.div>
 
-          {/* Glass Card 1 — Cap Green Lab */}
+          {/* Glass Card 1 - Cap Green Lab */}
           <motion.div
             whileHover={{ scale: 1.05, zIndex: 30 }}
             className="absolute -left-6 top-[10%] rounded-2xl border border-white/60 bg-white/90 p-4 px-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] backdrop-blur-xl sm:-left-10"
@@ -61,7 +61,7 @@ const ProgramsHero = () => {
             <p className="text-[10px] font-bold text-maple uppercase tracking-wider">Circular Tech</p>
           </motion.div>
 
-          {/* Glass Card 2 — AgriConnect */}
+          {/* Glass Card 2 - AgriConnect */}
           <motion.div
             whileHover={{ scale: 1.05, zIndex: 30 }}
             className="absolute -left-2 bottom-[15%] rounded-2xl border border-white/60 bg-white/90 p-4 px-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] backdrop-blur-xl sm:-left-6"
@@ -70,7 +70,7 @@ const ProgramsHero = () => {
             <p className="text-[10px] font-bold text-maple uppercase tracking-wider">Digital Agriculture</p>
           </motion.div>
 
-          {/* Glass Card 3 — Safe Vibe */}
+          {/* Glass Card 3 - Safe Vibe */}
           <motion.div
             whileHover={{ scale: 1.05, zIndex: 30 }}
             className="absolute -bottom-6 right-[5%] rounded-2xl border border-white/60 bg-white/90 p-4 px-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] backdrop-blur-xl sm:-bottom-4 sm:right-[10%]"

@@ -22,6 +22,7 @@ const NAV_ITEMS = [
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [newSubmissionsCount, setNewSubmissionsCount] = useState(0);
   // Desktop: sidebar expanded/collapsed; Mobile: sidebar open/closed as overlay
   const [isDesktopExpanded, setIsDesktopExpanded] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -46,6 +47,18 @@ export default function AdminDashboard() {
     };
     load();
   }, [navigate]);
+
+  useEffect(() => {
+    const fetchSubStats = async () => {
+      try {
+        const res = await api.get("/submissions/stats");
+        if (res.data?.new_total !== undefined) {
+          setNewSubmissionsCount(res.data.new_total);
+        }
+      } catch (_) {}
+    };
+    fetchSubStats();
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     try {
@@ -73,17 +86,26 @@ export default function AdminDashboard() {
             const isActive = item.path === "/admin/dashboard"
               ? location.pathname === "/admin/dashboard"
               : location.pathname.startsWith(item.path);
+            const isSubmissions = item.path === "/admin/submissions";
+
             return (
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
-                    isActive ? "bg-forest text-bone" : "text-forest hover:bg-forest/5"
+                  className={`flex items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+                    isActive ? "bg-forest text-bone" : "text-forest hover:bg-[#701EF8]/10 hover:text-[#701EF8]"
                   }`}
                   title={compact ? item.label : ""}
                 >
-                  <item.icon className="h-5 w-5 flex-shrink-0" />
-                  {!compact && <span className="truncate">{item.label}</span>}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <item.icon className="h-5 w-5 flex-shrink-0" />
+                    {!compact && <span className="truncate">{item.label}</span>}
+                  </div>
+                  {!compact && isSubmissions && newSubmissionsCount > 0 && (
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold bg-[#701EF8] text-white rounded-none">
+                      {newSubmissionsCount}
+                    </span>
+                  )}
                 </Link>
               </li>
             );
@@ -123,8 +145,11 @@ export default function AdminDashboard() {
         `}
       >
         <div className="p-5 border-b border-forest/15 flex items-center justify-between h-16">
-          <span className="font-heading text-lg font-black tracking-tight text-forest">CAP Admin</span>
-          <button onClick={() => setIsMobileOpen(false)} className="text-forest hover:text-maple">
+          <div className="flex items-center gap-2.5">
+            <img src="/assets/logo-mark.png" alt="CAP" className="h-7 w-auto" />
+            <span className="font-heading text-lg font-black tracking-tight text-forest">CAP Admin</span>
+          </div>
+          <button onClick={() => setIsMobileOpen(false)} className="text-forest hover:text-[#701EF8]">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -141,11 +166,14 @@ export default function AdminDashboard() {
       >
         <div className={`p-6 border-b border-forest/15 flex items-center ${isDesktopExpanded ? 'justify-between' : 'justify-center'} h-20`}>
           {isDesktopExpanded && (
-            <span className="font-heading text-xl font-black tracking-tight text-forest block truncate">CAP Admin</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <img src="/assets/logo-mark.png" alt="CAP" className="h-8 w-auto flex-shrink-0" />
+              <span className="font-heading text-lg font-black tracking-tight text-forest block truncate">CAP Admin</span>
+            </div>
           )}
           <button
             onClick={() => setIsDesktopExpanded(!isDesktopExpanded)}
-            className="text-forest hover:text-maple transition-colors flex-shrink-0"
+            className="text-forest hover:text-[#701EF8] transition-colors flex-shrink-0"
             aria-label="Toggle Sidebar"
           >
             {isDesktopExpanded ? <ChevronLeft className="h-5 w-5" /> : <Menu className="h-6 w-6" />}

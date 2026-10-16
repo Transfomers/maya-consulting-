@@ -7,7 +7,7 @@ import {
   Globe2,
   Sprout,
   Radio,
-  Sparkles,
+  Palette,
   ArrowRight,
   CheckCircle2,
   HelpCircle,
@@ -24,13 +24,13 @@ import api from "@/lib/api";
 const DONATE_AMOUNTS = [25, 50, 100, 250];
 
 const GALLERY_PHOTOS = [
-  "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=500&q=80",
+  "/assets/images/cap_green_lab.webp",
+  "/assets/images/agriconnect_farming.webp",
+  "/assets/images/safe_vibe_media.webp",
+  "/assets/images/women_social_innovators.webp",
+  "/assets/images/youth_tech_bootcamp.webp",
+  "/assets/images/diaspora_global_summit.webp",
+  "/assets/images/cap_ecosystem_collaboration.webp"
 ];
 
 export default function Donate() {
@@ -72,9 +72,10 @@ export default function Donate() {
     setSubmitting(true);
     try {
       await api.post("/submissions", {
-        type: "donation",
-        data: {
-          fullName: donorName || "Anonyme",
+        type: "donate",
+        payload: {
+          name: donorName || "Donateur Anonyme",
+          fullName: donorName || "Donateur Anonyme",
           email: donorEmail,
           amount: effectiveAmount,
           currency: "CAD",
@@ -178,8 +179,8 @@ export default function Donate() {
             {isFrench
               ? "Votre soutien contribue à connecter les talents, les compétences, la technologie et les opportunités afin de bâtir des économies numériques plus inclusives, accessibles et durables."
               : isArabic
-              ? "يساعد دعمك في ربط الأفراد والمهارات والتكنولوجيا والفرص لبناء اقتصادات رقمية أكثر شمولاً واستدامة."
-              : "Your support helps connect people, skills, technology and opportunities to build more inclusive, accessible and sustainable digital economies."}
+                ? "يساعد دعمك في ربط الأفراد والمهارات والتكنولوجيا والفرص لبناء اقتصادات رقمية أكثر شمولاً واستدامة."
+                : "Your support helps connect people, skills, technology and opportunities to build more inclusive, accessible and sustainable digital economies."}
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -375,7 +376,7 @@ export default function Donate() {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="font-serif text-2xl italic font-bold text-maple">04</span>
-                    <Sparkles className="h-6 w-6 text-maple" />
+                    <Palette className="h-6 w-6 text-maple" />
                   </div>
                   <h3 className="font-heading text-xl sm:text-2xl font-bold text-forest mb-1">
                     {isFrench ? "Entrepreneuriat Créatif & Social" : "Creative & Social Entrepreneurship"}
@@ -569,22 +570,20 @@ export default function Donate() {
                     <button
                       type="button"
                       onClick={() => setFrequency("one-time")}
-                      className={`py-3 text-xs font-montserrat font-bold uppercase tracking-wider transition-all border ${
-                        frequency === "one-time"
+                      className={`py-3 text-xs font-montserrat font-bold uppercase tracking-wider transition-all border ${frequency === "one-time"
                           ? "bg-forest text-white border-forest shadow-xs"
                           : "bg-white text-forest/70 border-forest/20 hover:border-forest"
-                      }`}
+                        }`}
                     >
                       {isFrench ? "Don ponctuel" : "One-time donation"}
                     </button>
                     <button
                       type="button"
                       onClick={() => setFrequency("monthly")}
-                      className={`py-3 text-xs font-montserrat font-bold uppercase tracking-wider transition-all border ${
-                        frequency === "monthly"
+                      className={`py-3 text-xs font-montserrat font-bold uppercase tracking-wider transition-all border ${frequency === "monthly"
                           ? "bg-forest text-white border-forest shadow-xs"
                           : "bg-white text-forest/70 border-forest/20 hover:border-forest"
-                      }`}
+                        }`}
                     >
                       {isFrench ? "Don mensuel" : "Monthly donation"}
                     </button>
@@ -605,11 +604,10 @@ export default function Donate() {
                           setSelectedAmount(amt);
                           setCustomAmount("");
                         }}
-                        className={`py-3.5 font-serif text-xl sm:text-2xl transition-all border ${
-                          selectedAmount === amt && !customAmount
+                        className={`py-3.5 font-serif text-xl sm:text-2xl transition-all border ${selectedAmount === amt && !customAmount
                             ? "bg-maple text-white border-maple shadow-sm font-bold"
                             : "bg-white text-forest border-forest/20 hover:border-forest"
-                        }`}
+                          }`}
                       >
                         ${amt}
                       </button>
@@ -645,7 +643,7 @@ export default function Donate() {
                     className="w-full border border-forest/20 bg-white px-4 py-3 text-xs sm:text-sm text-forest focus:border-maple outline-none"
                   >
                     <option value="General Support / Mission Globale">
-                      {isFrench ? "Soutien général — Mission globale de Cap Entrepreneurs" : "General Support — Cap Entrepreneurs core mission"}
+                      {isFrench ? "Soutien général - Mission globale de Cap Entrepreneurs" : "General Support - Cap Entrepreneurs core mission"}
                     </option>
                     <option value="CAP Green Lab">CAP Green Lab (Tech inclusive & Circularité)</option>
                     <option value="AgriConnect">AgriConnect (Entrepreneuriat rural & AgriTech)</option>
@@ -788,9 +786,8 @@ export default function Donate() {
                       {isFrench ? faq.qFr : faq.qEn}
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-forest/60 transition-transform duration-300 shrink-0 ${
-                        isOpen ? "rotate-180 text-maple" : ""
-                      }`}
+                      className={`w-4 h-4 text-forest/60 transition-transform duration-300 shrink-0 ${isOpen ? "rotate-180 text-maple" : ""
+                        }`}
                     />
                   </button>
                   {isOpen && (
@@ -836,7 +833,7 @@ export default function Donate() {
               </Link>
             </div>
             <p className="mt-6 font-serif italic text-sm text-bone/60">
-              CAP Entrepreneurs — Opening New Horizons.
+              CAP Entrepreneurs - Opening New Horizons.
             </p>
           </Reveal>
         </div>

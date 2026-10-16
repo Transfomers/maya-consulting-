@@ -135,7 +135,7 @@ async def send_email(
 def render_base_email(body_html: str, unsubscribe_url: Optional[str] = None, preview_text: Optional[str] = None) -> str:
     logo_url = "https://capentrepreneurs.org/assets/logo-mark.png"
     unsub_link = unsubscribe_url or "https://capentrepreneurs.org/unsubscribe"
-    preview = preview_text or "CAP Entrepreneurs — Bâtir des économies numériques inclusives et durables."
+    preview = preview_text or "CAP Entrepreneurs - Bâtir des économies numériques inclusives et durables."
 
     return f"""<!DOCTYPE html>
 <html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
@@ -304,7 +304,7 @@ Veuillez confirmer votre inscription à notre infolettre en cliquant sur le lien
 
 Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer ce message.
 
-CAP Entrepreneurs — Bâtir des économies numériques inclusives, accessibles et durables.
+CAP Entrepreneurs - Bâtir des économies numériques inclusives, accessibles et durables.
 https://capentrepreneurs.org
 """
 
@@ -362,7 +362,7 @@ def render_article_notification_email(
         image_url = "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80"
 
     subject = f"Nouvel article : {title} | CAP Entrepreneurs"
-    preview = f"{title} — {excerpt[:120]}..."
+    preview = f"{title} - {excerpt[:120]}..."
 
     heading_text = template.heading if template and template.heading else "Découvrez notre nouvel article"
 

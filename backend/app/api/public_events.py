@@ -10,6 +10,7 @@ from app.models.submission import Submission
 
 router = APIRouter()
 
+@router.get("")
 @router.get("/")
 async def list_public_events(
     category_id: Optional[str] = None,
@@ -21,7 +22,7 @@ async def list_public_events(
         selectinload(Event.speakers),
         selectinload(Event.category)
     ).where(
-        Event.status == "published"
+        Event.status.in_(["published", "registration_open", "full", "completed"])
     ).order_by(Event.start_date.asc())
     
     if category_id:
@@ -67,7 +68,7 @@ async def get_public_event(id_or_slug: str, lang: Optional[str] = "fr", db: Asyn
     ).where(
         and_(
             or_(Event.id == id_or_slug, Event.slug == id_or_slug),
-            Event.status == "published"
+            Event.status.in_(["published", "registration_open", "full", "completed"])
         )
     )
     result = await db.execute(query)

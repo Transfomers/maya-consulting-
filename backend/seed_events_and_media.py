@@ -92,12 +92,12 @@ INITIAL_EVENTS = [
         "registration_url": "mailto:contact@capentrepreneurs.org",
         "max_participants": 120,
         "fr": {
-            "title": "Brunch Pré-Festival & Table Ronde Partenaires — Paris 2026",
+            "title": "Brunch Pré-Festival & Table Ronde Partenaires - Paris 2026",
             "excerpt": "Rencontre stratégique pour co-construire les délégations officielles et les axes de mécénat pour Nairobi 2027.",
             "content": "<p>Session de travail exclusive avec les partenaires fondateurs, investisseurs d'impact et institutions pour définir les engagements conjoints du Global Festival.</p>"
         },
         "en": {
-            "title": "Pre-Festival Brunch & Strategic Round Table — Paris 2026",
+            "title": "Pre-Festival Brunch & Strategic Round Table - Paris 2026",
             "excerpt": "Strategic gathering to co-design official delegations and patronage tracks for Nairobi 2027.",
             "content": "<p>Exclusive working session with founding partners, impact investors, and institutional leaders to align joint initiatives for the Global Festival.</p>"
         }

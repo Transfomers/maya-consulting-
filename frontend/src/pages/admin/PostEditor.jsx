@@ -27,6 +27,7 @@ export default function AdminPostEditor() {
     category_id: "",
     featured_image_id: null,
     featured_image_url: null, // UI only
+    published_at: "",
     references: [],
     translations: defaultTranslations
   });
@@ -62,6 +63,7 @@ export default function AdminPostEditor() {
       setFormData({
         slug: post.slug || "",
         status: post.status || "draft",
+        published_at: post.published_at ? post.published_at.substring(0, 16) : "",
         category_id: post.category_id || "",
         featured_image_id: post.featured_image_id || null,
         featured_image_url: post.featured_image?.url || null,
@@ -69,7 +71,7 @@ export default function AdminPostEditor() {
         translations: newTranslations
       });
     } catch (err) {
-      toast.error("Failed to load article");
+      toast.error("Erreur lors du chargement de l'article");
       console.error(err);
     }
   };
@@ -128,18 +130,21 @@ export default function AdminPostEditor() {
         featured_image_id: res.data.id,
         featured_image_url: res.data.url
       });
-      toast.success("Image uploaded!");
+      toast.success("Image téléversée avec succès !");
     } catch (err) {
-      toast.error("Image upload failed");
+      toast.error("Échec du téléversement de l'image");
     }
   };
 
-  const handleSave = async (status) => {
+  const handleSave = async (targetStatus) => {
     setIsSaving(true);
     try {
+      const activeStatus = targetStatus || formData.status || "draft";
+      const slugVal = formData.slug || (formData.translations.fr.title || formData.translations.en.title || "article").toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const payload = {
-        slug: formData.slug || formData.translations.en.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        status,
+        slug: slugVal,
+        status: activeStatus,
+        published_at: formData.published_at ? new Date(formData.published_at).toISOString() : null,
         category_id: formData.category_id || null,
         featured_image_id: formData.featured_image_id,
         references: formData.references.filter(r => r.title.trim() !== ""),
@@ -149,34 +154,40 @@ export default function AdminPostEditor() {
       };
       
       if (payload.translations.length === 0) {
-        toast.error("At least one language title is required.");
+        toast.error("Veuillez renseigner au moins un titre d'article.");
         setIsSaving(false);
-        return;
+        return null;
       }
 
+      let savedSlug = slugVal;
       if (isEditing) {
-        await api.put(`/admin/posts/${id}`, payload);
-        toast.success("Post updated successfully!");
+        const res = await api.put(`/admin/posts/${id}`, payload);
+        savedSlug = res.data?.slug || slugVal;
+        toast.success(`Article enregistré avec le statut « ${activeStatus} » !`);
       } else {
         const res = await api.post("/admin/posts", payload);
-        toast.success("Post created successfully!");
+        savedSlug = res.data?.slug || slugVal;
+        toast.success(`Article créé avec le statut « ${activeStatus} » !`);
         navigate(`/admin/posts/${res.data.id}/edit`);
       }
+      setFormData(prev => ({ ...prev, status: activeStatus }));
       setLastSaved(new Date());
+      return savedSlug;
     } catch (err) {
-      toast.error("Failed to save post");
+      toast.error(err.response?.data?.detail || "Erreur lors de l'enregistrement");
       console.error(err);
+      return null;
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handlePreview = () => {
-    // In a real app we'd save draft and open preview mode or new tab
-    handleSave('draft').then(() => {
-      // Mock open preview
-      toast.success("Preview opened in new window (Mock)");
-    });
+  const handlePreview = async () => {
+    const slug = await handleSave(formData.status || 'draft');
+    if (slug) {
+      window.open(`/blog/${slug}`, '_blank');
+      toast.success("Aperçu ouvert dans un nouvel onglet");
+    }
   };
 
   // Google SEO Preview Logic
@@ -192,9 +203,9 @@ export default function AdminPostEditor() {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h1 className="font-heading text-3xl font-black tracking-tight text-forest">
-            {isEditing ? "Edit Article" : "Create Article"}
+            {isEditing ? "Modifier l'Article" : "Nouvel Article"}
           </h1>
-          {lastSaved && <span className="text-xs text-sage ml-4">Last saved: {lastSaved.toLocaleTimeString()}</span>}
+          {lastSaved && <span className="text-xs text-sage ml-4">Dernier enregistrement : {lastSaved.toLocaleTimeString()}</span>}
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -202,21 +213,21 @@ export default function AdminPostEditor() {
             disabled={isSaving}
             className="px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-forest border border-forest/25 hover:bg-forest hover:text-bone transition-colors disabled:opacity-50 flex items-center gap-2"
           >
-            <Eye className="h-4 w-4" /> Preview
+            <Eye className="h-4 w-4" /> Aperçu Réel
           </button>
           <button
             onClick={() => handleSave('draft')}
             disabled={isSaving}
             className="px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-forest border border-forest/25 hover:bg-forest hover:text-bone transition-colors disabled:opacity-50"
           >
-            {isSaving ? "Saving..." : "Save Draft"}
+            {isSaving ? "Sauvegarde..." : "Brouillon"}
           </button>
           <button
-            onClick={() => handleSave('published')}
+            onClick={() => handleSave(formData.status === 'scheduled' ? 'scheduled' : 'published')}
             disabled={isSaving}
-            className="px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-bone bg-forest hover:bg-forest/90 transition-colors flex items-center gap-2 disabled:opacity-50"
+            className="px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-white bg-[#701EF8] hover:bg-[#5f17d3] transition-colors flex items-center gap-2 disabled:opacity-50 shadow-xs"
           >
-            <Save className="h-4 w-4" /> {isSaving ? "Publishing..." : "Publish"}
+            <Save className="h-4 w-4" /> {isSaving ? "Enregistrement..." : formData.status === 'scheduled' ? "Programmer" : "Publier"}
           </button>
         </div>
       </div>
@@ -428,6 +439,36 @@ export default function AdminPostEditor() {
           <div className="bg-white border border-forest/15 p-6 space-y-4">
             <h3 className="text-sm font-bold uppercase tracking-widest text-forest border-b border-forest/15 pb-2">Global Settings</h3>
             
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Statut de Publication</label>
+              <select
+                name="status"
+                value={formData.status || "draft"}
+                onChange={handleChange}
+                className="w-full border border-forest/15 bg-white px-4 py-2 text-sm focus:border-[#701EF8] focus:outline-none font-bold"
+              >
+                <option value="draft">Brouillon (Draft)</option>
+                <option value="review">En Révision (Review)</option>
+                <option value="scheduled">Programmé (Scheduled)</option>
+                <option value="published">Publié (Published)</option>
+                <option value="archived">Archivé (Archived)</option>
+              </select>
+            </div>
+
+            {formData.status === "scheduled" && (
+              <div className="bg-blue-50/50 border border-blue-200 p-3 rounded">
+                <label className="block text-xs font-bold uppercase tracking-wider text-blue-800 mb-1">Date & Heure de Publication</label>
+                <input
+                  type="datetime-local"
+                  name="published_at"
+                  value={formData.published_at || ""}
+                  onChange={handleChange}
+                  className="w-full border border-blue-300 bg-white px-3 py-1.5 text-xs focus:border-[#701EF8] focus:outline-none font-medium"
+                />
+                <p className="text-[10.5px] text-blue-700 mt-1.5">L'article sera rendu visible sur le site public dès cette échéance.</p>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-sage mb-2">Global Slug</label>
               <input

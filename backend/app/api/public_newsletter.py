@@ -7,6 +7,7 @@ import re
 
 from app.core.database import get_db
 from app.models.newsletter import NewsletterSubscriber
+from app.models.submission import Submission
 from app.models.setting import Setting
 from app.schemas.newsletter import SubscribeRequest, SubscribeResponse
 from app.services.email_service import (
@@ -78,6 +79,19 @@ async def subscribe_newsletter(
             consent_timestamp=now
         )
         db.add(sub)
+        
+    # Also record in submissions table so CMS Submissions displays all visitor subscriptions
+    db.add(Submission(
+        type="newsletter",
+        payload={
+            "name": req.first_name or clean_email.split("@")[0],
+            "email": clean_email,
+            "source": req.source or "website",
+            "language": req.language or "fr",
+            "status": "new",
+            "notes": []
+        }
+    ))
 
     await db.commit()
     await db.refresh(sub)

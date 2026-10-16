@@ -16,38 +16,92 @@ ALLOWED_SUBMISSION_TYPES = {
     "pledge", "membership", "application", "partner", "volunteer", 
     "contact", "newsletter", "review", "program", "join", 
     "buyer", "sourcing", "festival", "festival_sponsor", "press", "donate",
-    "resource_download", "guide", "course"
+    "donation", "resource_download", "guide", "course", "partenaire", "benevolat"
+}
+
+TYPE_ALIASES = {
+    "donation": "donate",
+    "don": "donate",
+    "partenaire": "partner",
+    "partenariat": "partner",
+    "partners": "partner",
+    "benevole": "volunteer",
+    "benevolat": "volunteer",
+    "volunteers": "volunteer",
+    "applications": "application",
+    "formation": "application",
+    "guide": "resource_download",
+    "course": "resource_download",
+    "cours": "resource_download",
 }
 
 @router.post("")
 @router.post("/")
 async def create_submission(input: SubmissionInput, db: AsyncSession = Depends(get_db)):
-    form_type = input.type.strip().lower()
-    if form_type not in ALLOWED_SUBMISSION_TYPES:
+    raw_type = (input.type or input.form_type or "").strip().lower()
+    form_type = TYPE_ALIASES.get(raw_type, raw_type)
+    
+    if not form_type:
+        raise HTTPException(status_code=422, detail="Submission type is required")
+        
+    if form_type not in ALLOWED_SUBMISSION_TYPES and raw_type not in ALLOWED_SUBMISSION_TYPES:
         raise HTTPException(status_code=422, detail=f"Unknown submission type: {form_type}")
         
-    payload = {k: (v.strip() if isinstance(v, str) else v) for k, v in input.payload.items()}
+    raw_data = input.payload if input.payload is not None else (input.data or {})
+    payload = {k: (v.strip() if isinstance(v, str) else v) for k, v in raw_data.items()}
     
+    # Smart extraction of contact info across variations in field names
+    name = (
+        payload.get("name") or 
+        payload.get("fullName") or 
+        payload.get("full_name") or 
+        payload.get("nom") or 
+        payload.get("prenom") or
+        payload.get("organization") or 
+        payload.get("company") or
+        payload.get("org")
+    )
+    email = payload.get("email") or payload.get("courriel") or payload.get("mail")
+    if isinstance(email, str):
+        email = email.strip()
+    if isinstance(name, str):
+        name = name.strip()
+        
     if form_type == "newsletter":
-        if not payload.get("email"):
+        if not email:
             raise HTTPException(status_code=422, detail="Email is required")
-        if not payload.get("name"):
-            payload["name"] = payload.get("email").split("@")[0]
+        if not name:
+            name = email.split("@")[0]
     elif form_type in ("resource_download", "guide", "course"):
-        if not payload.get("email"):
+        if not email:
             raise HTTPException(status_code=422, detail="Email is required")
-        if not payload.get("name"):
-            payload["name"] = payload.get("email").split("@")[0]
+        if not name:
+            name = email.split("@")[0]
     elif form_type == "review":
         if not payload.get("message") and not payload.get("comment") and not payload.get("review"):
             raise HTTPException(status_code=422, detail="Review message is required")
-        if not payload.get("name"):
-            payload["name"] = "Visiteur"
-        if not payload.get("email"):
-            payload["email"] = "anonyme@capentrepreneurs.org"
+        if not name:
+            name = "Visiteur"
+        if not email:
+            email = "anonyme@capentrepreneurs.org"
+    elif form_type == "donate":
+        if not name:
+            name = "Donateur Anonyme"
+        if not email:
+            email = "don@capentrepreneurs.org"
+    elif form_type == "partner":
+        if not email:
+            raise HTTPException(status_code=422, detail="Email is required for partnership inquiries")
+        if not name:
+            name = payload.get("organization") or "Partenaire"
     else:
-        if not payload.get("name") or not payload.get("email"):
-            raise HTTPException(status_code=422, detail="Name and email are required")
+        if not email:
+            raise HTTPException(status_code=422, detail="Email is required")
+        if not name:
+            name = "Visiteur"
+            
+    payload["name"] = name
+    payload["email"] = email
         
     # Ensure default status and conversation notes array
     if "status" not in payload:
@@ -62,6 +116,7 @@ async def create_submission(input: SubmissionInput, db: AsyncSession = Depends(g
     
     return {"ok": True, "id": str(submission.id)}
 
+@router.get("")
 @router.get("/")
 async def list_submissions(
     type: Optional[str] = None,
@@ -71,8 +126,12 @@ async def list_submissions(
     db: AsyncSession = Depends(get_db)
 ):
     query = select(Submission).order_by(Submission.created_at.desc())
-    if type:
-        query = query.where(Submission.type == type)
+    if type and type != "all" and type != "":
+        # Handle grouped categories (e.g. program group)
+        if type == "programs_all":
+            query = query.where(Submission.type.in_(["application", "program", "join"]))
+        else:
+            query = query.where(Submission.type == type)
         
     result = await db.execute(query)
     submissions = result.scalars().all()
@@ -82,17 +141,23 @@ async def list_submissions(
         sub_status = s.payload.get("status", "new") if isinstance(s.payload, dict) else "new"
         
         # Filter by status if requested
-        if status and sub_status != status:
+        if status and status != "all" and sub_status != status:
             continue
             
         # Search in payload
         if search:
             search_lower = search.lower()
-            name = str(s.payload.get("name", "")).lower()
+            name = str(s.payload.get("name", s.payload.get("fullName", ""))).lower()
             email = str(s.payload.get("email", "")).lower()
             org = str(s.payload.get("organization", s.payload.get("company", ""))).lower()
-            msg = str(s.payload.get("message", s.payload.get("goals", ""))).lower()
-            if search_lower not in name and search_lower not in email and search_lower not in org and search_lower not in msg and search_lower not in s.type.lower():
+            msg = str(s.payload.get("message", s.payload.get("goals", s.payload.get("partnerType", "")))).lower()
+            if (
+                search_lower not in name and 
+                search_lower not in email and 
+                search_lower not in org and 
+                search_lower not in msg and 
+                search_lower not in s.type.lower()
+            ):
                 continue
                 
         items.append({
@@ -120,6 +185,9 @@ async def get_submission_stats(user = Depends(get_current_user), db: AsyncSessio
         
     return {
         "total": len(all_subs),
+        "partners_total": by_type.get("partner", 0),
+        "new_total": by_status.get("new", 0),
+        "in_review_total": by_status.get("in_review", 0),
         "by_type": by_type,
         "by_status": by_status
     }
@@ -179,6 +247,48 @@ async def get_submission(id: str, user = Depends(get_current_user), db: AsyncSes
         "created_at": submission.created_at
     }
 
+@router.get("/export")
+async def export_submissions(
+    type: Optional[str] = None,
+    status: Optional[str] = None,
+    user = Depends(RequirePermission("submissions.view")),
+    db: AsyncSession = Depends(get_db)
+):
+    from fastapi.responses import Response
+    import csv
+    import io
+
+    query = select(Submission).order_by(Submission.created_at.desc())
+    if type and type != "all":
+        query = query.where(Submission.type == type)
+
+    result = await db.execute(query)
+    submissions = result.scalars().all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["ID", "Type", "Status", "Nom / Organisation", "Email", "Assigné à", "Date Réception"])
+
+    for s in submissions:
+        p = s.payload if isinstance(s.payload, dict) else {}
+        sub_status = p.get("status", "new")
+        if status and status != "all" and sub_status != status:
+            continue
+
+        name = p.get("name") or p.get("fullName") or p.get("organization") or "N/A"
+        email = p.get("email") or "N/A"
+        assigned = p.get("assigned_to") or "Non assigné"
+        date_str = s.created_at.strftime("%Y-%m-%d %H:%M") if s.created_at else ""
+
+        writer.writerow([s.id, s.type, sub_status, name, email, assigned, date_str])
+
+    content = output.getvalue()
+    return Response(
+        content=content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=submissions_cap_{datetime.now().strftime('%Y%m%d')}.csv"}
+    )
+
 @router.put("/{id}")
 async def update_submission(
     id: str,
@@ -192,10 +302,24 @@ async def update_submission(
         raise HTTPException(status_code=404, detail="Submission not found")
         
     current_payload = dict(submission.payload) if isinstance(submission.payload, dict) else {}
+    old_status = current_payload.get("status", "new")
     
-    # Update status if provided
-    if "status" in body:
-        current_payload["status"] = body["status"]
+    # Update status and log transition history
+    if "status" in body and body["status"] != old_status:
+        new_status = body["status"]
+        current_payload["status"] = new_status
+        history = list(current_payload.get("status_history", []))
+        history.append({
+            "from": old_status,
+            "to": new_status,
+            "changed_by": getattr(user, "name", getattr(user, "email", "Admin")),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        })
+        current_payload["status_history"] = history
+        
+    # Update assigned reviewer
+    if "assigned_to" in body:
+        current_payload["assigned_to"] = body["assigned_to"]
         
     # Add note / conversation entry if provided
     if "new_note" in body and body["new_note"].strip():

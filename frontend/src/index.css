@@ -19,13 +19,13 @@
         --secondary-foreground: 120 3% 5%;
         --muted: 0 0% 94%;
         --muted-foreground: 120 2% 37%;
-        --accent: 253 84% 53%;
+        --accent: 263 94% 55%;
         --accent-foreground: 300 33% 99%;
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 98%;
         --border: 0 0% 86%;
         --input: 0 0% 86%;
-        --ring: 253 84% 53%;
+        --ring: 263 94% 55%;
         --radius: 0rem;
     }
 }
@@ -47,7 +47,7 @@
     }
 
     ::selection {
-        background: #7322F7;
+        background: #701EF8;
         color: #FDFCFD;
     }
 }
@@ -102,14 +102,14 @@ select:focus {
 }
 
 .text-gradient {
-    background: linear-gradient(90deg, #7322F7 0%, #9055FA 50%, #C89255 100%);
+    background: linear-gradient(90deg, #701EF8 0%, #9055FA 50%, #B085FF 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
 }
 
 .bg-brand-gradient {
-    background: linear-gradient(90deg, #7322F7 0%, #9055FA 100%);
+    background: linear-gradient(90deg, #701EF8 0%, #9055FA 100%);
 }
 
 .glass-panel {

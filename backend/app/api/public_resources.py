@@ -48,3 +48,24 @@ async def get_public_resource(id_or_slug: str, db: AsyncSession = Depends(get_db
     if not res:
         raise HTTPException(status_code=404, detail="Resource not found")
     return res
+
+@router.post("/{id_or_slug}/download")
+async def track_resource_download(id_or_slug: str, db: AsyncSession = Depends(get_db)):
+    query = select(Resource).where(
+        or_(Resource.id == id_or_slug, Resource.slug == id_or_slug)
+    )
+    result = await db.execute(query)
+    res = result.scalars().first()
+    if not res:
+        raise HTTPException(status_code=404, detail="Resource not found")
+    
+    res.downloads_count = (res.downloads_count or 0) + 1
+    await db.commit()
+    await db.refresh(res)
+    
+    return {
+        "ok": True,
+        "id": res.id,
+        "downloads_count": res.downloads_count,
+        "download_url": res.file_url or res.external_url
+    }

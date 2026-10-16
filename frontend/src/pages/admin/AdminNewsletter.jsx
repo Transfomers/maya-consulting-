@@ -43,11 +43,10 @@ export default function AdminNewsletter() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 text-xs font-heading font-bold uppercase tracking-wider rounded transition-colors whitespace-nowrap ${
-                  isActive
+                className={`flex items-center gap-2 px-3.5 py-2 text-xs font-heading font-bold uppercase tracking-wider rounded transition-colors whitespace-nowrap ${isActive
                     ? "bg-forest text-bone shadow-sm"
                     : "text-forest/70 hover:text-forest hover:bg-forest/10"
-                }`}
+                  }`}
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
@@ -165,13 +164,12 @@ function NewsletterOverviewTab({ onNavigate }) {
                   </div>
                   <div className="flex items-center gap-3">
                     <span
-                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
-                        c.status === "sent"
+                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${c.status === "sent"
                           ? "bg-emerald-100 text-emerald-800"
                           : c.status === "processing"
-                          ? "bg-amber-100 text-amber-800 animate-pulse"
-                          : "bg-forest/10 text-forest"
-                      }`}
+                            ? "bg-amber-100 text-amber-800 animate-pulse"
+                            : "bg-forest/10 text-forest"
+                        }`}
                     >
                       {c.status}
                     </span>
@@ -432,25 +430,24 @@ function NewsletterSubscribersTab() {
               subscribers.map((s) => (
                 <tr key={s.id} className="hover:bg-forest/5 transition-colors">
                   <td className="py-3 px-4 font-mono font-medium text-forest">{s.email}</td>
-                  <td className="py-3 px-4 text-forest/80">{s.first_name || "—"}</td>
+                  <td className="py-3 px-4 text-forest/80">{s.first_name || "-"}</td>
                   <td className="py-3 px-4">
                     <span
-                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
-                        s.status === "active"
+                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${s.status === "active"
                           ? "bg-emerald-100 text-emerald-800"
                           : s.status === "pending"
-                          ? "bg-amber-100 text-amber-800"
-                          : s.status === "unsubscribed"
-                          ? "bg-rose-100 text-rose-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+                            ? "bg-amber-100 text-amber-800"
+                            : s.status === "unsubscribed"
+                              ? "bg-rose-100 text-rose-800"
+                              : "bg-gray-100 text-gray-800"
+                        }`}
                     >
                       {s.status}
                     </span>
                   </td>
                   <td className="py-3 px-4 text-forest/60 text-[11px] font-mono">{s.source}</td>
                   <td className="py-3 px-4 text-forest/60">
-                    {s.created_at ? new Date(s.created_at).toLocaleDateString("fr-CA") : "—"}
+                    {s.created_at ? new Date(s.created_at).toLocaleDateString("fr-CA") : "-"}
                   </td>
                   <td className="py-3 px-4 text-right">
                     <button
@@ -675,13 +672,12 @@ function NewsletterCampaignsTab() {
                   <div className="flex items-center gap-2">
                     <h4 className="font-heading font-bold text-base text-forest">{c.title}</h4>
                     <span
-                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
-                        c.status === "sent"
+                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${c.status === "sent"
                           ? "bg-emerald-100 text-emerald-800"
                           : c.status === "processing"
-                          ? "bg-amber-100 text-amber-800 animate-pulse"
-                          : "bg-forest/10 text-forest"
-                      }`}
+                            ? "bg-amber-100 text-amber-800 animate-pulse"
+                            : "bg-forest/10 text-forest"
+                        }`}
                     >
                       {c.status}
                     </span>
@@ -891,9 +887,8 @@ function NewsletterTemplatesTab() {
       {/* Live Email Preview Box */}
       <div className="bg-forest/5 border border-forest/15 p-6 rounded-sm flex justify-center">
         <div
-          className={`bg-white border border-forest/20 shadow-md transition-all ${
-            deviceMode === "mobile" ? "w-[360px]" : "w-[600px]"
-          }`}
+          className={`bg-white border border-forest/20 shadow-md transition-all ${deviceMode === "mobile" ? "w-[360px]" : "w-[600px]"
+            }`}
         >
           {/* Header */}
           <div className="p-6 text-center border-b border-forest/10 bg-[#FDFCFD]">
@@ -1018,11 +1013,10 @@ function NewsletterLogsTab() {
                   <td className="py-3 px-4 font-mono font-medium text-forest">{log.email}</td>
                   <td className="py-3 px-4">
                     <span
-                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
-                        log.status === "sent"
+                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${log.status === "sent"
                           ? "bg-emerald-100 text-emerald-800"
                           : "bg-rose-100 text-rose-800"
-                      }`}
+                        }`}
                     >
                       {log.status}
                     </span>
@@ -1031,7 +1025,7 @@ function NewsletterLogsTab() {
                     {log.error_message || "Accepté par le serveur SMTP"}
                   </td>
                   <td className="py-3 px-4 text-forest/60">
-                    {log.created_at ? new Date(log.created_at).toLocaleString("fr-CA") : "—"}
+                    {log.created_at ? new Date(log.created_at).toLocaleString("fr-CA") : "-"}
                   </td>
                 </tr>
               ))

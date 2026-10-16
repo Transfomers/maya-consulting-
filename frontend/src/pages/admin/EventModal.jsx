@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Trash2, Save, Calendar as CalendarIcon, MapPin, Users, Info, Settings, Clock, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
+import { X, Trash2, Save, Calendar as CalendarIcon, MapPin, Users, Info, Settings, Clock, Link as LinkIcon, Image as ImageIcon, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import TipTap from "@/components/TipTap";
@@ -78,10 +78,18 @@ export default function EventModal({ event, onClose, onSaved }) {
     
     setLoading(true);
     try {
+      const autoSlug = formData.slug?.trim() || 
+        formData.translations[0].title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || 
+        `event-${Date.now()}`;
+
       const payload = {
         ...formData,
-        start_date: formData.start_date.toISOString(),
-        end_date: formData.end_date.toISOString(),
+        slug: autoSlug,
+        category_id: formData.category_id || null,
+        featured_image_id: formData.featured_image_id || null,
+        max_participants: formData.max_participants ? parseInt(formData.max_participants, 10) : null,
+        start_date: new Date(formData.start_date).toISOString(),
+        end_date: new Date(formData.end_date).toISOString(),
         registration_deadline: formData.registration_deadline ? new Date(formData.registration_deadline).toISOString() : null,
       };
 
@@ -396,11 +404,12 @@ export default function EventModal({ event, onClose, onSaved }) {
                     onChange={e => setFormData({ ...formData, status: e.target.value })}
                     className="w-full border border-forest/15 bg-white px-3 py-2 text-forest focus:border-forest focus:outline-none"
                   >
-                    <option value="draft">Draft (Hidden)</option>
-                    <option value="scheduled">Scheduled</option>
-                    <option value="published">Published (Visible)</option>
-                    <option value="cancelled">Cancelled</option>
-                    <option value="completed">Completed</option>
+                    <option value="draft">Brouillon (Draft)</option>
+                    <option value="published">Publié (Published)</option>
+                    <option value="registration_open">Inscriptions ouvertes (Registration Open)</option>
+                    <option value="full">Complet (Full)</option>
+                    <option value="completed">Terminé (Completed)</option>
+                    <option value="cancelled">Annulé (Cancelled)</option>
                   </select>
                 </div>
                 <div>
@@ -453,6 +462,17 @@ export default function EventModal({ event, onClose, onSaved }) {
                 >
                   Duplicate
                 </button>
+                {formData.slug && (
+                  <a
+                    href={`/events/${formData.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 sm:flex-none px-3 py-2 border border-forest/15 bg-white text-forest hover:bg-bone transition-colors text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-1.5"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Preview</span>
+                  </a>
+                )}
               </>
             )}
           </div>

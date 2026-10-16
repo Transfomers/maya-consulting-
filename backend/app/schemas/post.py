@@ -42,6 +42,7 @@ class PostBase(BaseModel):
     status: str = "draft"
     category_id: Optional[str] = None
     featured_image_id: Optional[str] = None
+    published_at: Optional[datetime] = None
 
 class PostCreate(PostBase):
     translations: List[PostTranslationBase]
