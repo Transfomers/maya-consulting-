@@ -3,6 +3,7 @@ Seed or update published blog articles and categories in Cap Entrepreneurs datab
 Run via: docker exec cap_backend python seed_blogs.py
 """
 import asyncio
+import os
 from datetime import datetime, timezone
 from sqlalchemy import select, delete
 from app.core.database import AsyncSessionLocal, engine, Base
@@ -216,6 +217,12 @@ async def seed_blogs():
                 session.add(cat)
                 await session.flush()
             category_map[cat_data["slug"]] = cat.id
+
+        seed_sample = os.getenv("SEED_SAMPLE_CONTENT", "false").lower() in ("true", "1")
+        if not seed_sample:
+            await session.commit()
+            print("Successfully ensured categories exist (skipping sample articles/resources).")
+            return
 
         now = datetime.now(timezone.utc)
 
