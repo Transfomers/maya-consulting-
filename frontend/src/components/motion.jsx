@@ -131,6 +131,7 @@ export const EditorialMarquee = ({ items = [], dark = false, testId }) => {
           <Asterisk className={`h-6 w-6 md:h-8 md:w-8 ${dark ? "text-vivid" : "text-maple"}`} strokeWidth={1.5} />
         </span>
       ))}
-    </Marquee>
-  </div>
-);
+      </Marquee>
+    </div>
+  );
+};
