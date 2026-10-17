@@ -10,7 +10,7 @@ export default function AdminPostEditor() {
   const navigate = useNavigate();
   const isEditing = !!id;
   
-  const [lang, setLang] = useState("en"); // en, fr, ar
+  const [lang, setLang] = useState("fr"); // fr, en, ar
   const [categories, setCategories] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
@@ -140,17 +140,29 @@ export default function AdminPostEditor() {
     setIsSaving(true);
     try {
       const activeStatus = targetStatus || formData.status || "draft";
-      const slugVal = formData.slug || (formData.translations.fr.title || formData.translations.en.title || "article").toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const baseTitle = formData.translations[lang]?.title || formData.translations.fr?.title || formData.translations.en?.title || formData.translations.ar?.title || "article";
+      const slugVal = (formData.slug || baseTitle)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || "article";
+
       const payload = {
         slug: slugVal,
         status: activeStatus,
         published_at: formData.published_at ? new Date(formData.published_at).toISOString() : null,
-        category_id: formData.category_id || null,
-        featured_image_id: formData.featured_image_id,
-        references: formData.references.filter(r => r.title.trim() !== ""),
+        category_id: formData.category_id && formData.category_id.trim() !== "" ? formData.category_id : null,
+        featured_image_id: formData.featured_image_id && formData.featured_image_id.trim() !== "" ? formData.featured_image_id : null,
+        references: (formData.references || []).filter(r => r && r.title && r.title.trim() !== ""),
         translations: Object.entries(formData.translations)
-          .filter(([_, t]) => t.title.trim() !== '')
-          .map(([l, t]) => ({ language: l, ...t }))
+          .filter(([_, t]) => t && t.title && t.title.trim() !== '')
+          .map(([l, t]) => ({
+            language: l,
+            ...t,
+            slug: (t.slug && t.slug.trim()) ? t.slug.trim() : slugVal,
+            og_image_id: (t.og_image_id && t.og_image_id.trim()) ? t.og_image_id.trim() : null
+          }))
       };
       
       if (payload.translations.length === 0) {
@@ -174,8 +186,10 @@ export default function AdminPostEditor() {
       setLastSaved(new Date());
       return savedSlug;
     } catch (err) {
-      toast.error(err.response?.data?.detail || "Erreur lors de l'enregistrement");
-      console.error(err);
+      const detail = err.response?.data?.detail;
+      const msg = typeof detail === "string" ? detail : (Array.isArray(detail) ? detail.map(d => d.msg || d).join(", ") : "Erreur lors de l'enregistrement");
+      toast.error(msg);
+      console.error("Save article error:", err);
       return null;
     } finally {
       setIsSaving(false);

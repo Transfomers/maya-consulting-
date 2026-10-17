@@ -37,6 +37,14 @@ async def generate_unique_slug(base_slug: str, db: AsyncSession, exclude_id: str
             return new_slug
         counter += 1
 
+def post_eager_options():
+    return (
+        selectinload(Post.translations),
+        selectinload(Post.references),
+        selectinload(Post.category),
+        selectinload(Post.featured_image),
+    )
+
 @router.get("", response_model=List[PostResponse])
 @router.get("/", response_model=List[PostResponse])
 async def list_posts(
@@ -46,7 +54,7 @@ async def list_posts(
     user = Depends(RequirePermission("articles.view")), 
     db: AsyncSession = Depends(get_db)
 ):
-    query = select(Post).options(selectinload(Post.translations), selectinload(Post.references)).order_by(Post.created_at.desc())
+    query = select(Post).options(*post_eager_options()).order_by(Post.created_at.desc())
     
     if status:
         query = query.where(Post.status == status)
@@ -62,7 +70,7 @@ async def list_posts(
 @router.get("/{id}", response_model=PostResponse)
 @router.get("/{id}/", response_model=PostResponse)
 async def get_post(id: str, user = Depends(RequirePermission("articles.view")), db: AsyncSession = Depends(get_db)):
-    query = select(Post).where(Post.id == id).options(selectinload(Post.translations), selectinload(Post.references))
+    query = select(Post).where(Post.id == id).options(*post_eager_options())
     result = await db.execute(query)
     post = result.scalars().first()
     if not post:
@@ -134,23 +142,28 @@ async def create_post(
 
     published_at = post_data.published_at if post_data.published_at else (datetime.now(timezone.utc) if status == "published" else None)
 
+    category_id = post_data.category_id.strip() if post_data.category_id and post_data.category_id.strip() else None
+    featured_image_id = post_data.featured_image_id.strip() if post_data.featured_image_id and post_data.featured_image_id.strip() else None
+
     post = Post(
         slug=slug,
         status=status,
         author_id=user.id,
-        category_id=post_data.category_id,
-        featured_image_id=post_data.featured_image_id,
+        category_id=category_id,
+        featured_image_id=featured_image_id,
         published_at=published_at
     )
     db.add(post)
     await db.commit()
     
     for t in post_data.translations:
+        og_image_id = t.og_image_id.strip() if t.og_image_id and t.og_image_id.strip() else None
+        trans_slug = t.slug.strip() if t.slug and t.slug.strip() else None
         trans = PostTranslation(
             post_id=post.id,
             language=t.language,
             title=t.title,
-            slug=t.slug,
+            slug=trans_slug,
             excerpt=t.excerpt,
             content=t.content,
             seo_title=t.seo_title,
@@ -159,7 +172,7 @@ async def create_post(
             canonical_url=t.canonical_url,
             og_title=t.og_title,
             og_description=t.og_description,
-            og_image_id=t.og_image_id,
+            og_image_id=og_image_id,
             allow_index=t.allow_index,
             allow_follow=t.allow_follow
         )
@@ -183,7 +196,7 @@ async def create_post(
     if status == "published":
         await trigger_post_publication_newsletter(post.id, user.id, background_tasks, db)
     
-    result = await db.execute(select(Post).where(Post.id == post.id).options(selectinload(Post.translations), selectinload(Post.references)))
+    result = await db.execute(select(Post).where(Post.id == post.id).options(*post_eager_options()))
     return result.scalars().first()
 
 @router.put("/{id}", response_model=PostResponse)
@@ -195,7 +208,7 @@ async def update_post(
     user = Depends(RequirePermission("articles.view")),
     db: AsyncSession = Depends(get_db)
 ):
-    result = await db.execute(select(Post).where(Post.id == id).options(selectinload(Post.translations), selectinload(Post.references)))
+    result = await db.execute(select(Post).where(Post.id == id).options(*post_eager_options()))
     post = result.scalars().first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -210,10 +223,13 @@ async def update_post(
 
     slug = await generate_unique_slug(post_data.slug, db, exclude_id=id)
 
+    category_id = post_data.category_id.strip() if post_data.category_id and post_data.category_id.strip() else None
+    featured_image_id = post_data.featured_image_id.strip() if post_data.featured_image_id and post_data.featured_image_id.strip() else None
+
     post.slug = slug
     post.status = status
-    post.category_id = post_data.category_id
-    post.featured_image_id = post_data.featured_image_id
+    post.category_id = category_id
+    post.featured_image_id = featured_image_id
     post.updated_at = datetime.now(timezone.utc)
     if post_data.published_at:
         post.published_at = post_data.published_at
@@ -225,11 +241,13 @@ async def update_post(
     await db.execute(delete(Reference).where(Reference.post_id == id))
     
     for t in post_data.translations:
+        og_image_id = t.og_image_id.strip() if t.og_image_id and t.og_image_id.strip() else None
+        trans_slug = t.slug.strip() if t.slug and t.slug.strip() else None
         trans = PostTranslation(
             post_id=post.id,
             language=t.language,
             title=t.title,
-            slug=t.slug,
+            slug=trans_slug,
             excerpt=t.excerpt,
             content=t.content,
             seo_title=t.seo_title,
@@ -238,7 +256,7 @@ async def update_post(
             canonical_url=t.canonical_url,
             og_title=t.og_title,
             og_description=t.og_description,
-            og_image_id=t.og_image_id,
+            og_image_id=og_image_id,
             allow_index=t.allow_index,
             allow_follow=t.allow_follow
         )
@@ -262,7 +280,7 @@ async def update_post(
     if status == "published" and not was_published:
         await trigger_post_publication_newsletter(post.id, user.id, background_tasks, db)
     
-    result = await db.execute(select(Post).where(Post.id == post.id).options(selectinload(Post.translations), selectinload(Post.references)))
+    result = await db.execute(select(Post).where(Post.id == post.id).options(*post_eager_options()))
     return result.scalars().first()
 
 @router.post("/{id}/duplicate", response_model=PostResponse)
@@ -274,7 +292,7 @@ async def duplicate_post(
     result = await db.execute(
         select(Post)
         .where(Post.id == id)
-        .options(selectinload(Post.translations), selectinload(Post.references))
+        .options(*post_eager_options())
     )
     original = result.scalars().first()
     if not original:
@@ -293,11 +311,13 @@ async def duplicate_post(
     await db.commit()
 
     for tr in original.translations:
+        og_image_id = tr.og_image_id.strip() if tr.og_image_id and tr.og_image_id.strip() else None
+        trans_slug = f"{tr.slug}-copie" if tr.slug and tr.slug.strip() else None
         new_tr = PostTranslation(
             post_id=new_post.id,
             language=tr.language,
             title=f"{tr.title} (Copie)",
-            slug=f"{tr.slug}-copie" if tr.slug else None,
+            slug=trans_slug,
             excerpt=tr.excerpt,
             content=tr.content,
             seo_title=tr.seo_title,
@@ -306,7 +326,7 @@ async def duplicate_post(
             canonical_url=tr.canonical_url,
             og_title=tr.og_title,
             og_description=tr.og_description,
-            og_image_id=tr.og_image_id,
+            og_image_id=og_image_id,
             allow_index=tr.allow_index,
             allow_follow=tr.allow_follow
         )
@@ -328,7 +348,7 @@ async def duplicate_post(
     res = await db.execute(
         select(Post)
         .where(Post.id == new_post.id)
-        .options(selectinload(Post.translations), selectinload(Post.references))
+        .options(*post_eager_options())
     )
     return res.scalars().first()
 

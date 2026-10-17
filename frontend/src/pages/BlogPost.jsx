@@ -61,8 +61,13 @@ export default function BlogPost() {
 
   const getTranslation = (p) => {
     if (!p.translations || p.translations.length === 0) return { title: p.title || p.slug, excerpt: "", content: p.content || "" };
-    const localized = p.translations.find((t) => t.language === lang);
-    return localized || p.translations.find((t) => t.language === "fr") || p.translations[0];
+    const localized = p.translations.find((t) => t.language === lang && (t.title || t.content));
+    if (localized) return localized;
+    const fr = p.translations.find((t) => t.language === "fr" && (t.title || t.content));
+    if (fr) return fr;
+    const en = p.translations.find((t) => t.language === "en" && (t.title || t.content));
+    if (en) return en;
+    return p.translations[0];
   };
 
   const trans = getTranslation(post);

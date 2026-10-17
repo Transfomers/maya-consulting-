@@ -41,13 +41,14 @@ export default function Blog() {
 
         const formatted = pub.map((p, idx) => {
           const trans =
-            (p.translations || []).find((tr) => tr.language === lang) ||
-            (p.translations || []).find((tr) => tr.language === "fr") ||
+            (p.translations || []).find((tr) => tr.language === lang && tr.title) ||
+            (p.translations || []).find((tr) => tr.language === "fr" && tr.title) ||
+            (p.translations || []).find((tr) => tr.language === "en" && tr.title) ||
             p.translations?.[0] ||
             {};
-          const transFr = (p.translations || []).find((tr) => tr.language === "fr");
-          const transEn = (p.translations || []).find((tr) => tr.language === "en");
-          const transAr = (p.translations || []).find((tr) => tr.language === "ar");
+          const transFr = (p.translations || []).find((tr) => tr.language === "fr" && tr.title);
+          const transEn = (p.translations || []).find((tr) => tr.language === "en" && tr.title);
+          const transAr = (p.translations || []).find((tr) => tr.language === "ar" && tr.title);
 
           const defaultImages = [
             "/assets/images/cap_ecosystem_collaboration.webp",
@@ -93,16 +94,18 @@ export default function Blog() {
 
   const getPostTitle = (post) => {
     if (!post) return "";
-    if (isFrench && post.titleFr) return post.titleFr;
-    if (isArabic && post.titleAr) return post.titleAr;
-    return post.title || post.titleEn || "";
+    if (isFrench && post.titleFr && post.titleFr !== post.slug) return post.titleFr;
+    if (isArabic && post.titleAr && post.titleAr !== post.slug) return post.titleAr;
+    if (!isFrench && !isArabic && post.titleEn && post.titleEn !== post.slug) return post.titleEn;
+    return post.title || post.titleFr || post.titleEn || post.titleAr || post.slug;
   };
 
   const getPostExcerpt = (post) => {
     if (!post) return "";
     if (isFrench && post.excerptFr) return post.excerptFr;
     if (isArabic && post.excerptAr) return post.excerptAr;
-    return post.excerpt || post.excerptEn || "";
+    if (!isFrench && !isArabic && post.excerptEn) return post.excerptEn;
+    return post.excerpt || post.excerptFr || post.excerptEn || post.excerptAr || "";
   };
 
   const handleSubscribe = async (e) => {
