@@ -284,6 +284,31 @@ async def seed_blogs():
             )
             session.add_all([t_en, t_fr])
 
+            try:
+                from app.services.translation_service import translate_blog_post
+                ar_data = await translate_blog_post(
+                    title=art["title_fr"],
+                    excerpt=art["excerpt_fr"],
+                    content=art["content_fr"],
+                    target_lang="ar",
+                    source_lang="fr"
+                )
+                t_ar = PostTranslation(
+                    post_id=post.id,
+                    language="ar",
+                    title=ar_data["title"],
+                    slug=art["slug"],
+                    excerpt=ar_data["excerpt"],
+                    content=ar_data["content"].strip(),
+                    seo_title=f"{ar_data['title']} | CAP Entrepreneurs",
+                    seo_description=ar_data["excerpt"],
+                    allow_index=True,
+                    allow_follow=True,
+                )
+                session.add(t_ar)
+            except Exception as e:
+                print(f"Warning: could not translate to Arabic for {art['slug']}: {e}")
+
         RESOURCES_DATA = [
             {
                 "title": "Manuel de Reconditionnement Circulaire & Éco-Conception Numérique",

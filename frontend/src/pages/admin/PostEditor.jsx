@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "@/lib/api";
 import TipTap from "@/components/TipTap";
-import { Save, ArrowLeft, Plus, Trash2, Image as ImageIcon, Eye } from "lucide-react";
+import { Save, ArrowLeft, Plus, Trash2, Image as ImageIcon, Eye, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminPostEditor() {
@@ -13,6 +13,7 @@ export default function AdminPostEditor() {
   const [lang, setLang] = useState("fr"); // fr, en, ar
   const [categories, setCategories] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
   
   const defaultTranslations = {
@@ -93,6 +94,55 @@ export default function AdminPostEditor() {
 
   const handleCheckboxChange = (field, e) => {
     handleTranslationChange(field, e.target.checked);
+  };
+
+  const handleAutoTranslate = async () => {
+    const active = formData.translations[lang];
+    if (!active || !active.title || !active.title.trim()) {
+      toast.error("Veuillez d'abord saisir au moins un titre dans l'onglet actuel pour pouvoir traduire.");
+      return;
+    }
+
+    setIsTranslating(true);
+    const targetLangs = ["en", "fr", "ar"].filter((l) => l !== lang);
+    toast.info(`Traduction automatique en cours vers ${targetLangs.map((l) => l.toUpperCase()).join(" & ")}...`);
+
+    try {
+      const updatedTranslations = { ...formData.translations };
+
+      for (const target of targetLangs) {
+        const res = await api.post("/translate/post", {
+          title: active.title,
+          excerpt: active.excerpt || "",
+          content: active.content || "",
+          target_lang: target,
+          source_lang: lang,
+        });
+
+        if (res.data) {
+          updatedTranslations[target] = {
+            ...updatedTranslations[target],
+            title: res.data.title,
+            excerpt: res.data.excerpt || updatedTranslations[target].excerpt,
+            content: res.data.content || updatedTranslations[target].content,
+            seo_title: res.data.title?.slice(0, 70),
+            seo_description: res.data.excerpt?.slice(0, 160) || active.seo_description,
+          };
+        }
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        translations: updatedTranslations,
+      }));
+
+      toast.success("Traductions générées avec succès ! Vous pouvez maintenant vérifier les onglets.");
+    } catch (err) {
+      console.error("Auto-translation error:", err);
+      toast.error("Erreur lors de la traduction automatique. Veuillez réessayer.");
+    } finally {
+      setIsTranslating(false);
+    }
   };
 
   const addReference = () => {
@@ -249,19 +299,41 @@ export default function AdminPostEditor() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           {/* Language Switcher */}
-          <div className="flex border-b border-forest/15">
-            {["en", "fr", "ar"].map(l => (
-              <button
-                key={l}
-                onClick={() => setLang(l)}
-                className={`flex items-center gap-2 px-6 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${
-                  lang === l ? "border-b-2 border-forest text-forest" : "text-sage hover:text-forest"
-                }`}
-              >
-                {l === 'en' ? 'English' : l === 'fr' ? 'Français' : 'العربية'}
-                {formData.translations[l].title && <span className="text-green-500 text-lg leading-none">✓</span>}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center justify-between border-b border-forest/15 gap-2">
+            <div className="flex">
+              {["en", "fr", "ar"].map(l => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`flex items-center gap-2 px-6 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${
+                    lang === l ? "border-b-2 border-forest text-forest" : "text-sage hover:text-forest"
+                  }`}
+                >
+                  {l === 'en' ? 'English' : l === 'fr' ? 'Français' : 'العربية'}
+                  {formData.translations[l].title && <span className="text-green-500 text-lg leading-none">✓</span>}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleAutoTranslate}
+              disabled={isTranslating}
+              title="Traduit automatiquement le contenu vers les autres langues"
+              className="my-1 mr-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-[#701EF8] bg-[#701EF8]/10 hover:bg-[#701EF8] hover:text-white transition-all rounded disabled:opacity-50"
+            >
+              {isTranslating ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span>Traduction en cours...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>Auto-Traduire ({lang.toUpperCase()} → Autres)</span>
+                </>
+              )}
+            </button>
           </div>
 
           <div className="space-y-4">

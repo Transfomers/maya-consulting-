@@ -126,6 +126,41 @@ async def trigger_post_publication_newsletter(post_id: str, author_id: str, back
         import logging
         logging.getLogger("posts").warning(f"Could not trigger publication newsletter: {e}")
 
+async def ensure_all_translations(post_id: str, submitted_translations: list, db: AsyncSession, slug: str):
+    langs_present = {t.language.lower(): t for t in submitted_translations if t.title and t.title.strip()}
+    if not langs_present:
+        return
+    base = langs_present.get("fr") or langs_present.get("en") or next(iter(langs_present.values()))
+    base_lang = base.language.lower()
+    
+    for target in ["en", "fr", "ar"]:
+        if target not in langs_present:
+            from app.services.translation_service import translate_blog_post
+            try:
+                trans = await translate_blog_post(
+                    title=base.title,
+                    excerpt=base.excerpt,
+                    content=base.content,
+                    target_lang=target,
+                    source_lang=base_lang
+                )
+                new_t = PostTranslation(
+                    post_id=post_id,
+                    language=target,
+                    title=trans["title"],
+                    slug=slug,
+                    excerpt=trans["excerpt"],
+                    content=trans["content"],
+                    seo_title=trans["title"][:70],
+                    seo_description=trans["excerpt"][:160] if trans["excerpt"] else "",
+                    allow_index=True,
+                    allow_follow=True
+                )
+                db.add(new_t)
+            except Exception as e:
+                import logging
+                logging.getLogger("posts").warning(f"Could not auto-translate missing lang {target}: {e}")
+
 @router.post("", response_model=PostResponse)
 @router.post("/", response_model=PostResponse)
 async def create_post(
@@ -194,6 +229,8 @@ async def create_post(
     await db.commit()
 
     if status == "published":
+        await ensure_all_translations(post.id, post_data.translations, db, slug)
+        await db.commit()
         await trigger_post_publication_newsletter(post.id, user.id, background_tasks, db)
     
     result = await db.execute(select(Post).where(Post.id == post.id).options(*post_eager_options()))
@@ -276,6 +313,10 @@ async def update_post(
             db.add(ref)
             
     await db.commit()
+
+    if status == "published":
+        await ensure_all_translations(post.id, post_data.translations, db, post.slug)
+        await db.commit()
 
     if status == "published" and not was_published:
         await trigger_post_publication_newsletter(post.id, user.id, background_tasks, db)

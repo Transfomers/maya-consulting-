@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { useLang } from "@/lib/i18n";
 import api from "@/lib/api";
 import { Reveal } from "@/components/motion";
-import { ArrowRight, Search, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Search, CheckCircle2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import NewsletterSubscribe from "@/components/NewsletterSubscribe";
+import { translateText } from "@/lib/translator";
 
 export default function Blog() {
   const { lang } = useLang();
@@ -66,11 +67,11 @@ export default function Blog() {
             title: trans.title || p.slug,
             titleEn: transEn?.title || trans.title || p.slug,
             titleFr: transFr?.title || trans.title || p.slug,
-            titleAr: transAr?.title || trans.title || p.slug,
+            titleAr: transAr?.title || "",
             excerpt: trans.excerpt || "",
-            excerptEn: transEn?.excerpt || trans.excerpt || "",
-            excerptFr: transFr?.excerpt || trans.excerpt || "",
-            excerptAr: transAr?.excerpt || trans.excerpt || "",
+            excerptEn: transEn?.excerpt || "",
+            excerptFr: transFr?.excerpt || "",
+            excerptAr: transAr?.excerpt || "",
             category: p.category?.name || "Communauté",
             categorySlug: p.category?.slug || "",
             author: p.author_name || "Équipe CAP",
@@ -81,6 +82,27 @@ export default function Blog() {
         });
 
         setPosts(formatted);
+
+        // Auto-translate on the fly for any card missing title in the active language
+        formatted.forEach(async (postItem) => {
+          const targetKey = isFrench ? "titleFr" : isArabic ? "titleAr" : "titleEn";
+          const excerptKey = isFrench ? "excerptFr" : isArabic ? "excerptAr" : "excerptEn";
+          if (!postItem[targetKey]) {
+            const baseText = postItem.titleFr || postItem.titleEn || postItem.title;
+            const baseExcerpt = postItem.excerptFr || postItem.excerptEn || postItem.excerpt;
+            const [tTitle, tExcerpt] = await Promise.all([
+              translateText(baseText, lang),
+              translateText(baseExcerpt, lang),
+            ]);
+            setPosts((prev) =>
+              prev.map((pi) =>
+                pi.id === postItem.id
+                  ? { ...pi, [targetKey]: tTitle, [excerptKey]: tExcerpt }
+                  : pi
+              )
+            );
+          }
+        });
       } catch (err) {
         console.error("Error fetching posts exclusively from backend:", err);
         setPosts([]);
@@ -90,6 +112,7 @@ export default function Blog() {
     };
 
     fetchApiPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
 
   const getPostTitle = (post) => {

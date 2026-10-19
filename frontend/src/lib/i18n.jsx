@@ -311,6 +311,150 @@ const STR = {
       "involvementTitle": "How would you like to get involved?",
       "involvementKicker": "GET INVOLVED",
       "involvementCta": "Get Started",
+      "involvementCards": [
+        {
+          "id": "skills",
+          "number": "01",
+          "tag": "Training & Skills",
+          "title": "I want to develop my skills",
+          "link": "/join",
+          "submissionType": "application",
+          "intro": "Join a structured journey to acquire digital, entrepreneurial, and technical skills tailored to market realities.",
+          "fields": [
+            {
+              "name": "program",
+              "label": "Desired Program",
+              "kind": "select",
+              "options": [
+                "Cap Green Lab - Inclusive technology & circular economy",
+                "AgriConnect - Rural entrepreneurship & digital agriculture",
+                "Safe Vibe - Digital media & education",
+                "Creative & Social Entrepreneurship - Women, arts & innovation",
+                "Other / General Orientation"
+              ],
+              "required": true
+            },
+            {
+              "name": "message",
+              "label": "Your goals and skills to develop",
+              "kind": "textarea",
+              "placeholder": "Tell us about your project, goals, and current skills...",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "volunteer",
+          "number": "02",
+          "tag": "Civic Engagement",
+          "title": "I want to volunteer",
+          "link": "/volunteer",
+          "submissionType": "volunteer",
+          "intro": "Share your skills and energy in service of entrepreneurial and social initiatives supported by CAP Entrepreneurs.",
+          "fields": [
+            {
+              "name": "area",
+              "label": "Area of Contribution",
+              "kind": "select",
+              "options": [
+                "Digital Skills & Development",
+                "Communication & Content Creation",
+                "Business Development & Strategy",
+                "Training, Workshops & Mentoring",
+                "Arts, Culture & Events",
+                "Project Management & Operations"
+              ],
+              "required": true
+            },
+            {
+              "name": "availability",
+              "label": "Availability",
+              "kind": "select",
+              "options": [
+                "2 hrs / week",
+                "4–6 hrs / week",
+                "7–10 hrs / week",
+                "Occasional / By project"
+              ],
+              "required": true
+            },
+            {
+              "name": "message",
+              "label": "Your skills & motivations",
+              "kind": "textarea",
+              "placeholder": "Describe your professional skills and how you would like to contribute...",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "ngo",
+          "number": "03",
+          "tag": "Organizations",
+          "title": "I represent an NGO / social enterprise",
+          "link": "/partners",
+          "submissionType": "partner",
+          "intro": "Let's build bridges of action and co-develop concrete solutions for your communities and beneficiaries.",
+          "fields": [
+            {
+              "name": "organization",
+              "label": "Name of the NGO / Social Enterprise",
+              "required": true,
+              "placeholder": "Official name of your organization"
+            },
+            {
+              "name": "country",
+              "label": "Country / Region of Operation",
+              "required": true,
+              "placeholder": "e.g., Canada, Ivory Coast, Morocco, Senegal..."
+            },
+            {
+              "name": "message",
+              "label": "Nature of Desired Collaboration",
+              "kind": "textarea",
+              "placeholder": "Describe the challenges of your beneficiaries and the collaboration envisioned...",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "partner",
+          "number": "04",
+          "tag": "Partnerships",
+          "title": "I want to become a partner",
+          "link": "/partners",
+          "submissionType": "partner",
+          "intro": "Co-build impactful programs, support sustainable economic development, and amplify your territorial impact.",
+          "fields": [
+            {
+              "name": "organization",
+              "label": "Name of Organization / Company",
+              "required": true,
+              "placeholder": "Name of your company or institution"
+            },
+            {
+              "name": "partnerType",
+              "label": "Type of Partnership Desired",
+              "kind": "select",
+              "options": [
+                "Corporate Partner / Skills Sponsorship",
+                "Funder / Foundation",
+                "Public Institution / Government",
+                "Innovation Hub / Partner Incubator",
+                "University / Research Center"
+              ],
+              "required": true
+            },
+            {
+              "name": "message",
+              "label": "Partnership Project or Message",
+              "kind": "textarea",
+              "placeholder": "Share your vision or request for contact...",
+              "required": true
+            }
+          ]
+        }
+      ],
       "voicesKicker": "TESTIMONIALS • VOICES OF THE COMMUNITY",
       "voicesTitle": "Supported by over 500+ participants, partners and communities.",
       "testimonials": [
@@ -1363,6 +1507,150 @@ const STR = {
       "involvementTitle": "Comment souhaitez-vous vous impliquer ?",
       "involvementKicker": "S'ENGAGER",
       "involvementCta": "Commencer",
+      "involvementCards": [
+        {
+          "id": "skills",
+          "number": "01",
+          "tag": "Formation & Compétences",
+          "title": "Je veux développer mes compétences",
+          "link": "/join",
+          "submissionType": "application",
+          "intro": "Rejoignez un parcours structurant pour acquérir des compétences numériques, entrepreneuriales et techniques adaptées aux réalités du marché.",
+          "fields": [
+            {
+              "name": "program",
+              "label": "Programme souhaité",
+              "kind": "select",
+              "options": [
+                "Cap Green Lab - Technologie inclusive & économie circulaire",
+                "AgriConnect - Entrepreneuriat rural & agriculture numérique",
+                "Safe Vibe - Médias numériques & éducation",
+                "Entrepreneuriat Créatif & Social - Femmes, arts & innovation",
+                "Autre / Orientation générale"
+              ],
+              "required": true
+            },
+            {
+              "name": "message",
+              "label": "Vos objectifs et compétences à développer",
+              "kind": "textarea",
+              "placeholder": "Parlez-nous de votre projet, vos objectifs et vos compétences actuelles...",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "volunteer",
+          "number": "02",
+          "tag": "Engagement citoyen",
+          "title": "Je veux faire du bénévolat",
+          "link": "/volunteer",
+          "submissionType": "volunteer",
+          "intro": "Partagez vos compétences et votre énergie au service des initiatives entrepreneuriales et sociales accompagnées par CAP Entrepreneurs.",
+          "fields": [
+            {
+              "name": "area",
+              "label": "Domaine de contribution",
+              "kind": "select",
+              "options": [
+                "Compétences numériques & Développement",
+                "Communication & Création de contenu",
+                "Développement d'affaires & Stratégie",
+                "Formation, Ateliers & Mentorat",
+                "Arts, Culture & Événementiel",
+                "Gestion de projet & Opérations"
+              ],
+              "required": true
+            },
+            {
+              "name": "availability",
+              "label": "Disponibilité",
+              "kind": "select",
+              "options": [
+                "2 h / semaine",
+                "4–6 h / semaine",
+                "7–10 h / semaine",
+                "Ponctuel / Par projet"
+              ],
+              "required": true
+            },
+            {
+              "name": "message",
+              "label": "Vos compétences & motivations",
+              "kind": "textarea",
+              "placeholder": "Décrivez vos compétences professionnelles et la manière dont vous aimeriez contribuer...",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "ngo",
+          "number": "03",
+          "tag": "Organisations",
+          "title": "Je représente une ONG / entreprise sociale",
+          "link": "/partners",
+          "submissionType": "partner",
+          "intro": "Bâtissons des passerelles d'action et co-développons des solutions concrètes pour vos communautés et bénéficiaires.",
+          "fields": [
+            {
+              "name": "organization",
+              "label": "Nom de l'ONG / Entreprise sociale",
+              "required": true,
+              "placeholder": "Nom officiel de votre organisation"
+            },
+            {
+              "name": "country",
+              "label": "Pays / Région d'opération",
+              "required": true,
+              "placeholder": "Ex: Canada, Côte d'Ivoire, Maroc, Sénégal..."
+            },
+            {
+              "name": "message",
+              "label": "Nature de la collaboration souhaitée",
+              "kind": "textarea",
+              "placeholder": "Décrivez les défis de vos bénéficiaires et la collaboration envisagée...",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "partner",
+          "number": "04",
+          "tag": "Partenariats",
+          "title": "Je veux devenir partenaire",
+          "link": "/partners",
+          "submissionType": "partner",
+          "intro": "Co-construisez des programmes d'envergure, soutenez le développement économique durable et amplifiez votre impact territorial.",
+          "fields": [
+            {
+              "name": "organization",
+              "label": "Nom de l'organisation / Entreprise",
+              "required": true,
+              "placeholder": "Nom de votre société ou institution"
+            },
+            {
+              "name": "partnerType",
+              "label": "Type de partenariat souhaité",
+              "kind": "select",
+              "options": [
+                "Partenaire Entreprise / Mécénat de compétences",
+                "Bailleur de fonds / Fondation",
+                "Institution publique / Gouvernement",
+                "Hub d'innovation / Incubateur partenaire",
+                "Université / Centre de recherche"
+              ],
+              "required": true
+            },
+            {
+              "name": "message",
+              "label": "Projet de partenariat ou message",
+              "kind": "textarea",
+              "placeholder": "Partagez votre vision ou votre demande de prise de contact...",
+              "required": true
+            }
+          ]
+        }
+      ],
       "voicesKicker": "TÉMOIGNAGES • LA VOIX DE LA COMMUNAUTÉ",
       "voicesTitle": "Porté par plus de 500+ participants, partenaires et communautés engagées.",
       "testimonials": [
@@ -2411,6 +2699,150 @@ const STR = {
       "involvementTitle": "كيف تود المشاركة معنا؟",
       "involvementKicker": "المشاركة",
       "involvementCta": "ابدأ الآن",
+      "involvementCards": [
+        {
+          "id": "skills",
+          "number": "01",
+          "tag": "التدريب والمهارات",
+          "title": "أريد تطوير مهاراتي",
+          "link": "/join",
+          "submissionType": "application",
+          "intro": "انضم إلى مسار منظم لاكتساب مهارات رقمية وريادية وتقنية تتناسب مع متطلبات السوق.",
+          "fields": [
+            {
+              "name": "program",
+              "label": "البرنامج المطلوب",
+              "kind": "select",
+              "options": [
+                "كاب غرين لاب - التكنولوجيا الشاملة والاقتصاد الدائري",
+                "أغري كونيكت - ريادة الأعمال الريفية والزراعة الرقمية",
+                "سيف فايب - الإعلام الرقمي والتعليم",
+                "ريادة الأعمال الإبداعية والاجتماعية - النساء والفنون والابتكار",
+                "أخرى / توجيه عام"
+              ],
+              "required": true
+            },
+            {
+              "name": "message",
+              "label": "أهدافك والمهارات التي ترغب في تطويرها",
+              "kind": "textarea",
+              "placeholder": "أخبرنا عن مشروعك وأهدافك ومهاراتك الحالية...",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "volunteer",
+          "number": "02",
+          "tag": "المشاركة المدنية",
+          "title": "أريد التطوع",
+          "link": "/volunteer",
+          "submissionType": "volunteer",
+          "intro": "شارك مهاراتك وطاقتك في خدمة المبادرات الريادية والاجتماعية التي ترافقها كاب رياديون.",
+          "fields": [
+            {
+              "name": "area",
+              "label": "مجال المساهمة",
+              "kind": "select",
+              "options": [
+                "المهارات الرقمية والتطوير",
+                "التواصل وصناعة المحتوى",
+                "تطوير الأعمال والاستراتيجية",
+                "التدريب وورش العمل والإرشاد",
+                "الفنون والثقافة والفعاليات",
+                "إدارة المشاريع والعمليات"
+              ],
+              "required": true
+            },
+            {
+              "name": "availability",
+              "label": "الوقت المتاح",
+              "kind": "select",
+              "options": [
+                "ساعتان / أسبوعياً",
+                "4–6 ساعات / أسبوعياً",
+                "7–10 ساعات / أسبوعياً",
+                "مؤقت / حسب المشروع"
+              ],
+              "required": true
+            },
+            {
+              "name": "message",
+              "label": "مهاراتك ودوافعك",
+              "kind": "textarea",
+              "placeholder": "صف مهاراتك المهنية وكيف تود المساهمة...",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "ngo",
+          "number": "03",
+          "tag": "المنظمات",
+          "title": "أنا أمثل منظمة غير حكومية / مؤسسة اجتماعية",
+          "link": "/partners",
+          "submissionType": "partner",
+          "intro": "لنبني جسوراً من العمل ونشارك في تطوير حلول ملموسة لمجتمعاتكم والمستفيدين.",
+          "fields": [
+            {
+              "name": "organization",
+              "label": "اسم المنظمة غير الحكومية / المؤسسة الاجتماعية",
+              "required": true,
+              "placeholder": "الاسم الرسمي لمنظمتك"
+            },
+            {
+              "name": "country",
+              "label": "البلد / منطقة العمل",
+              "required": true,
+              "placeholder": "مثال: كندا، ساحل العاج، المغرب، السنغال..."
+            },
+            {
+              "name": "message",
+              "label": "طبيعة التعاون المنشود",
+              "kind": "textarea",
+              "placeholder": "صف التحديات التي يواجهها المستفيدون ونوع التعاون المقترح...",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "partner",
+          "number": "04",
+          "tag": "الشراكات",
+          "title": "أريد أن أصبح شريكاً",
+          "link": "/partners",
+          "submissionType": "partner",
+          "intro": "شارك في بناء برامج واسعة النطاق، وادعم التنمية الاقتصادية المستدامة وعزز أثرك الإقليمي.",
+          "fields": [
+            {
+              "name": "organization",
+              "label": "اسم المؤسسة / الشركة",
+              "required": true,
+              "placeholder": "اسم شركتك أو مؤسستك"
+            },
+            {
+              "name": "partnerType",
+              "label": "نوع الشراكة المطلوب",
+              "kind": "select",
+              "options": [
+                "شريك مؤسسي / رعاية مهارات",
+                "جهة مانحة / مؤسسة خيرية",
+                "مؤسسة عامة / حكومية",
+                "مركز ابتكار / حاضنة أعمال شريكة",
+                "جامعة / مركز أبحاث"
+              ],
+              "required": true
+            },
+            {
+              "name": "message",
+              "label": "مشروع الشراكة أو الرسالة",
+              "kind": "textarea",
+              "placeholder": "شاركنا رؤيتك أو طلب التواصل الخاص بك...",
+              "required": true
+            }
+          ]
+        }
+      ],
       "voicesKicker": "شهادات • صوت المجتمع",
       "voicesTitle": "بدعم وثقة أكثر من 500+ مشارك وشريك ومجتمع محلي.",
       "testimonials": [

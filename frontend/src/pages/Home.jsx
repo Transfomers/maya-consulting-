@@ -213,150 +213,200 @@ const Home = () => {
     }
   };
 
-  const involvementCards = [
-    {
-      id: "skills",
-      number: "01",
-      title: "Je veux développer mes compétences",
-      link: "/join",
-      tag: "Formation & Compétences",
-      submissionType: "application",
-      intro: "Rejoignez un parcours structurant pour acquérir des compétences numériques, entrepreneuriales et techniques adaptées aux réalités du marché.",
-      fields: [
-        {
-          name: "program",
-          label: "Programme souhaité",
-          kind: "select",
-          options: [
-            "Cap Green Lab- Technologie inclusive & économie circulaire",
-            "AgriConnect- Entrepreneuriat rural & agriculture numérique",
-            "Safe Vibe- Médias numériques & éducation",
-            "Entrepreneuriat Créatif & Social- Femmes, arts & innovation",
-            "Autre / Orientation générale"
-          ],
-          required: true,
-        },
-        {
-          name: "message",
-          label: "Vos objectifs et compétences à développer",
-          kind: "textarea",
-          placeholder: "Parlez-nous de votre projet, vos objectifs et vos compétences actuelles...",
-          required: true,
-        },
-      ],
-    },
-    {
-      id: "volunteer",
-      number: "02",
-      title: "Je veux faire du bénévolat",
-      link: "/volunteer",
-      tag: "Engagement citoyen",
-      submissionType: "volunteer",
-      intro: "Partagez vos compétences et votre énergie au service des initiatives entrepreneuriales et sociales accompagnées par CAP Entrepreneurs.",
-      fields: [
-        {
-          name: "area",
-          label: "Domaine de contribution",
-          kind: "select",
-          options: [
-            "Compétences numériques & Développement",
-            "Communication & Création de contenu",
-            "Développement d'affaires & Stratégie",
-            "Formation, Ateliers & Mentorat",
-            "Arts, Culture & Événementiel",
-            "Gestion de projet & Opérations"
-          ],
-          required: true,
-        },
-        {
-          name: "availability",
-          label: "Disponibilité",
-          kind: "select",
-          options: [
-            "2 h / semaine",
-            "4–6 h / semaine",
-            "7–10 h / semaine",
-            "Ponctuel / Par projet"
-          ],
-          required: true,
-        },
-        {
-          name: "message",
-          label: "Vos compétences & motivations",
-          kind: "textarea",
-          placeholder: "Décrivez vos compétences professionnelles et la manière dont vous aimeriez contribuer...",
-          required: true,
-        },
-      ],
-    },
-    {
-      id: "ngo",
-      number: "03",
-      title: "Je représente une ONG / entreprise sociale",
-      link: "/partners",
-      tag: "Organisations",
-      submissionType: "partner",
-      intro: "Bâtissons des passerelles d'action et co-développons des solutions concrètes pour vos communautés et bénéficiaires.",
-      fields: [
-        {
-          name: "organization",
-          label: "Nom de l'ONG / Entreprise sociale",
-          required: true,
-          placeholder: "Nom officiel de votre organisation",
-        },
-        {
-          name: "country",
-          label: "Pays / Région d'opération",
-          required: true,
-          placeholder: "Ex: Canada, Côte d'Ivoire, Maroc, Sénégal...",
-        },
-        {
-          name: "message",
-          label: "Nature de la collaboration souhaitée",
-          kind: "textarea",
-          placeholder: "Décrivez les défis de vos bénéficiaires et la collaboration envisagée...",
-          required: true,
-        },
-      ],
-    },
-    {
-      id: "partner",
-      number: "04",
-      title: "Je veux devenir partenaire",
-      link: "/partners",
-      tag: "Partenariats",
-      submissionType: "partner",
-      intro: "Co-construisez des programmes d'envergure, soutenez le développement économique durable et amplifiez votre impact territorial.",
-      fields: [
-        {
-          name: "organization",
-          label: "Nom de l'organisation / Entreprise",
-          required: true,
-          placeholder: "Nom de votre société ou institution",
-        },
-        {
-          name: "partnerType",
-          label: "Type de partenariat souhaité",
-          kind: "select",
-          options: [
-            "Partenaire Entreprise / Mécénat de compétences",
-            "Bailleur de fonds / Fondation",
-            "Institution publique / Gouvernement",
-            "Hub d'innovation / Incubateur partenaire",
-            "Université / Centre de recherche"
-          ],
-          required: true,
-        },
-        {
-          name: "message",
-          label: "Projet de partenariat ou message",
-          kind: "textarea",
-          placeholder: "Partagez votre vision ou votre demande de prise de contact...",
-          required: true,
-        },
-      ],
-    },
-  ].map((card, i) => ({
+  const involvementCards = (
+    t.home?.involvementCards || [
+      {
+        id: "skills",
+        number: "01",
+        title: lang === "fr" ? "Je veux développer mes compétences" : lang === "ar" ? "أريد تطوير مهاراتي" : "I want to develop my skills",
+        link: "/join",
+        tag: lang === "fr" ? "Formation & Compétences" : lang === "ar" ? "التدريب والمهارات" : "Training & Skills",
+        submissionType: "application",
+        intro: lang === "fr" ? "Rejoignez un parcours structurant pour acquérir des compétences numériques, entrepreneuriales et techniques adaptées aux réalités du marché." : lang === "ar" ? "انضم إلى مسار منظم لاكتساب مهارات رقمية وريادية وتقنية تتناسب مع متطلبات السوق." : "Join a structured journey to acquire digital, entrepreneurial, and technical skills tailored to market realities.",
+        fields: [
+          {
+            name: "program",
+            label: lang === "fr" ? "Programme souhaité" : lang === "ar" ? "البرنامج المطلوب" : "Desired Program",
+            kind: "select",
+            options: lang === "fr" ? [
+              "Cap Green Lab - Technologie inclusive & économie circulaire",
+              "AgriConnect - Entrepreneuriat rural & agriculture numérique",
+              "Safe Vibe - Médias numériques & éducation",
+              "Entrepreneuriat Créatif & Social - Femmes, arts & innovation",
+              "Autre / Orientation générale"
+            ] : lang === "ar" ? [
+              "كاب غرين لاب - التكنولوجيا الشاملة والاقتصاد الدائري",
+              "أغري كونيكت - ريادة الأعمال الريفية والزراعة الرقمية",
+              "سيف فايب - الإعلام الرقمي والتعليم",
+              "ريادة الأعمال الإبداعية والاجتماعية - النساء والفنون والابتكار",
+              "أخرى / توجيه عام"
+            ] : [
+              "Cap Green Lab - Inclusive technology & circular economy",
+              "AgriConnect - Rural entrepreneurship & digital agriculture",
+              "Safe Vibe - Digital media & education",
+              "Creative & Social Entrepreneurship - Women, arts & innovation",
+              "Other / General Orientation"
+            ],
+            required: true,
+          },
+          {
+            name: "message",
+            label: lang === "fr" ? "Vos objectifs et compétences à développer" : lang === "ar" ? "أهدافك والمهارات التي ترغب في تطويرها" : "Your goals and skills to develop",
+            kind: "textarea",
+            placeholder: lang === "fr" ? "Parlez-nous de votre projet, vos objectifs et vos compétences actuelles..." : lang === "ar" ? "أخبرنا عن مشروعك وأهدافك ومهاراتك الحالية..." : "Tell us about your project, goals, and current skills...",
+            required: true,
+          },
+        ],
+      },
+      {
+        id: "volunteer",
+        number: "02",
+        title: lang === "fr" ? "Je veux faire du bénévolat" : lang === "ar" ? "أريد التطوع" : "I want to volunteer",
+        link: "/volunteer",
+        tag: lang === "fr" ? "Engagement citoyen" : lang === "ar" ? "المشاركة المدنية" : "Civic Engagement",
+        submissionType: "volunteer",
+        intro: lang === "fr" ? "Partagez vos compétences et votre énergie au service des initiatives entrepreneuriales et sociales accompagnées par CAP Entrepreneurs." : lang === "ar" ? "شارك مهاراتك وطاقتك في خدمة المبادرات الريادية والاجتماعية التي ترافقها كاب رياديون." : "Share your skills and energy in service of entrepreneurial and social initiatives supported by CAP Entrepreneurs.",
+        fields: [
+          {
+            name: "area",
+            label: lang === "fr" ? "Domaine de contribution" : lang === "ar" ? "مجال المساهمة" : "Area of Contribution",
+            kind: "select",
+            options: lang === "fr" ? [
+              "Compétences numériques & Développement",
+              "Communication & Création de contenu",
+              "Développement d'affaires & Stratégie",
+              "Formation, Ateliers & Mentorat",
+              "Arts, Culture & Événementiel",
+              "Gestion de projet & Opérations"
+            ] : lang === "ar" ? [
+              "المهارات الرقمية والتطوير",
+              "التواصل وصناعة المحتوى",
+              "تطوير الأعمال والاستراتيجية",
+              "التدريب وورش العمل والإرشاد",
+              "الفنون والثقافة والفعاليات",
+              "إدارة المشاريع والعمليات"
+            ] : [
+              "Digital Skills & Development",
+              "Communication & Content Creation",
+              "Business Development & Strategy",
+              "Training, Workshops & Mentoring",
+              "Arts, Culture & Events",
+              "Project Management & Operations"
+            ],
+            required: true,
+          },
+          {
+            name: "availability",
+            label: lang === "fr" ? "Disponibilité" : lang === "ar" ? "الوقت المتاح" : "Availability",
+            kind: "select",
+            options: lang === "fr" ? [
+              "2 h / semaine",
+              "4–6 h / semaine",
+              "7–10 h / semaine",
+              "Ponctuel / Par projet"
+            ] : lang === "ar" ? [
+              "ساعتان / أسبوعياً",
+              "4–6 ساعات / أسبوعياً",
+              "7–10 ساعات / أسبوعياً",
+              "مؤقت / حسب المشروع"
+            ] : [
+              "2 hrs / week",
+              "4–6 hrs / week",
+              "7–10 hrs / week",
+              "Occasional / By project"
+            ],
+            required: true,
+          },
+          {
+            name: "message",
+            label: lang === "fr" ? "Vos compétences & motivations" : lang === "ar" ? "مهاراتك ودوافعك" : "Your skills & motivations",
+            kind: "textarea",
+            placeholder: lang === "fr" ? "Décrivez vos compétences professionnelles et la manière dont vous aimeriez contribuer..." : lang === "ar" ? "صف مهاراتك المهنية وكيف تود المساهمة..." : "Describe your professional skills and how you would like to contribute...",
+            required: true,
+          },
+        ],
+      },
+      {
+        id: "ngo",
+        number: "03",
+        title: lang === "fr" ? "Je représente une ONG / entreprise sociale" : lang === "ar" ? "أنا أمثل منظمة غير حكومية / مؤسسة اجتماعية" : "I represent an NGO / social enterprise",
+        link: "/partners",
+        tag: lang === "fr" ? "Organisations" : lang === "ar" ? "المنظمات" : "Organizations",
+        submissionType: "partner",
+        intro: lang === "fr" ? "Bâtissons des passerelles d'action et co-développons des solutions concrètes pour vos communautés et bénéficiaires." : lang === "ar" ? "لنبني جسوراً من العمل ونشارك في تطوير حلول ملموسة لمجتمعاتكم والمستفيدين." : "Let's build bridges of action and co-develop concrete solutions for your communities and beneficiaries.",
+        fields: [
+          {
+            name: "organization",
+            label: lang === "fr" ? "Nom de l'ONG / Entreprise sociale" : lang === "ar" ? "اسم المنظمة غير الحكومية / المؤسسة الاجتماعية" : "Name of the NGO / Social Enterprise",
+            required: true,
+            placeholder: lang === "fr" ? "Nom officiel de votre organisation" : lang === "ar" ? "الاسم الرسمي لمنظمتك" : "Official name of your organization",
+          },
+          {
+            name: "country",
+            label: lang === "fr" ? "Pays / Région d'opération" : lang === "ar" ? "البلد / منطقة العمل" : "Country / Region of Operation",
+            required: true,
+            placeholder: lang === "fr" ? "Ex: Canada, Côte d'Ivoire, Maroc, Sénégal..." : lang === "ar" ? "مثال: كندا، ساحل العاج، المغرب، السنغال..." : "e.g., Canada, Ivory Coast, Morocco, Senegal...",
+          },
+          {
+            name: "message",
+            label: lang === "fr" ? "Nature de la collaboration souhaitée" : lang === "ar" ? "طبيعة التعاون المنشود" : "Nature of Desired Collaboration",
+            kind: "textarea",
+            placeholder: lang === "fr" ? "Décrivez les défis de vos bénéficiaires et la collaboration envisagée..." : lang === "ar" ? "صف التحديات التي يواجهها المستفيدون ونوع التعاون المقترح..." : "Describe the challenges of your beneficiaries and the collaboration envisioned...",
+            required: true,
+          },
+        ],
+      },
+      {
+        id: "partner",
+        number: "04",
+        title: lang === "fr" ? "Je veux devenir partenaire" : lang === "ar" ? "أريد أن أصبح شريكاً" : "I want to become a partner",
+        link: "/partners",
+        tag: lang === "fr" ? "Partenariats" : lang === "ar" ? "الشراكات" : "Partnerships",
+        submissionType: "partner",
+        intro: lang === "fr" ? "Co-construisez des programmes d'envergure, soutenez le développement économique durable et amplifiez votre impact territorial." : lang === "ar" ? "شارك في بناء برامج واسعة النطاق، وادعم التنمية الاقتصادية المستدامة وعزز أثرك الإقليمي." : "Co-build impactful programs, support sustainable economic development, and amplify your territorial impact.",
+        fields: [
+          {
+            name: "organization",
+            label: lang === "fr" ? "Nom de l'organisation / Entreprise" : lang === "ar" ? "اسم المؤسسة / الشركة" : "Name of Organization / Company",
+            required: true,
+            placeholder: lang === "fr" ? "Nom de votre société ou institution" : lang === "ar" ? "اسم شركتك أو مؤسستك" : "Name of your company or institution",
+          },
+          {
+            name: "partnerType",
+            label: lang === "fr" ? "Type de partenariat souhaité" : lang === "ar" ? "نوع الشراكة المطلوب" : "Type of Partnership Desired",
+            kind: "select",
+            options: lang === "fr" ? [
+              "Partenaire Entreprise / Mécénat de compétences",
+              "Bailleur de fonds / Fondation",
+              "Institution publique / Gouvernement",
+              "Hub d'innovation / Incubateur partenaire",
+              "Université / Centre de recherche"
+            ] : lang === "ar" ? [
+              "شريك مؤسسي / رعاية مهارات",
+              "جهة مانحة / مؤسسة خيرية",
+              "مؤسسة عامة / حكومية",
+              "مركز ابتكار / حاضنة أعمال شريكة",
+              "جامعة / مركز أبحاث"
+            ] : [
+              "Corporate Partner / Skills Sponsorship",
+              "Funder / Foundation",
+              "Public Institution / Government",
+              "Innovation Hub / Partner Incubator",
+              "University / Research Center"
+            ],
+            required: true,
+          },
+          {
+            name: "message",
+            label: lang === "fr" ? "Projet de partenariat ou message" : lang === "ar" ? "مشروع الشراكة أو الرسالة" : "Partnership Project or Message",
+            kind: "textarea",
+            placeholder: lang === "fr" ? "Partagez votre vision ou votre demande de prise de contact..." : lang === "ar" ? "شاركنا رؤيتك أو طلب التواصل الخاص بك..." : "Share your vision or request for contact...",
+            required: true,
+          },
+        ],
+      },
+    ]
+  ).map((card, i) => ({
     ...card,
     image: INVOLVEMENT_IMAGES[i % INVOLVEMENT_IMAGES.length],
   }));
@@ -601,10 +651,10 @@ const Home = () => {
           <Reveal delay={0.1}>
             <div className="mb-12 text-center max-w-3xl mx-auto">
               <span className="font-montserrat text-xs font-semibold uppercase tracking-[0.25em] text-maple">
-                {lang === "fr" ? "S'ENGAGER" : "GET INVOLVED"}
+                {t.home?.involvementKicker || (lang === "fr" ? "S'ENGAGER" : lang === "ar" ? "المشاركة" : "GET INVOLVED")}
               </span>
               <h3 className="mt-3 font-heading text-3xl font-black tracking-tight text-forest sm:text-4xl md:text-5xl">
-                {lang === "fr" ? "Comment souhaitez-vous vous impliquer ?" : "How would you like to get involved?"}
+                {t.home?.involvementTitle || (lang === "fr" ? "Comment souhaitez-vous vous impliquer ?" : lang === "ar" ? "كيف تود المشاركة معنا؟" : "How would you like to get involved?")}
               </h3>
             </div>
           </Reveal>
@@ -651,7 +701,7 @@ const Home = () => {
                     <div className="w-8 h-[2px] bg-maple/50 my-3.5 transition-all duration-300 group-hover:w-12 group-hover:bg-maple" />
 
                     <span className="inline-flex items-center gap-1.5 font-montserrat text-xs font-semibold uppercase tracking-[0.14em] text-forest/70 group-hover:text-maple transition-colors">
-                      <span>{t.home.involvementCta || (lang === "fr" ? "Commencer" : "Get Started")}</span>
+                      <span>{card.cta || t.home?.involvementCta || (lang === "fr" ? "Commencer" : lang === "ar" ? "ابدأ الآن" : "Get Started")}</span>
                       <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                     </span>
                   </div>
