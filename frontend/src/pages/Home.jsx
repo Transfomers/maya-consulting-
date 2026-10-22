@@ -1,1542 +1,1008 @@
-import { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowUpRight,
-  ArrowRight,
-  Globe2,
-  Users2,
-  Leaf,
-  Radio,
-  Layers,
-  HeartHandshake,
-  Award,
+  Car,
+  Key,
+  Home as HomeIcon,
+  Phone,
+  MessageSquare,
+  Search,
+  Filter,
   CheckCircle2,
-  GraduationCap,
-  Building2,
-  Handshake,
-  X,
-  Loader2,
-  ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck,
+  Star,
+  MapPin,
+  Calendar,
+  Fuel,
+  Gauge,
+  Users,
+  Sparkles,
+  ArrowRight,
+  SlidersHorizontal,
+  ExternalLink
 } from "lucide-react";
 import { toast } from "sonner";
-import { AnimatePresence, motion } from "framer-motion";
-import api from "@/lib/api";
-import { KineticLines, Reveal, EditorialMarquee, Magnetic } from "@/components/motion";
-import Scene3D from "@/components/Scene3D";
-import ImageCarousel from "@/components/ImageCarousel";
-import { IMAGES, PROGRAMS, PROGRAMS_FR, PROGRAMS_AR } from "@/lib/content";
-import { useLang } from "@/lib/i18n";
+import { CATALOG_INFO, CATALOG_SECTIONS, VEHICLES, APARTMENTS } from "@/data/catalogVehicles";
+import VehicleDetailModal from "@/components/VehicleDetailModal";
+import CustomOrderModal from "@/components/CustomOrderModal";
+import ApartmentModal from "@/components/ApartmentModal";
 
-const COMMUNITY_PHOTOS = [
-  { src: "/assets/images/cap_green_lab.webp", alt: "Cap Green Lab - Reconditionnement et inclusion tech" },
-  { src: "/assets/images/agriconnect_farming.webp", alt: "AgriConnect - Agriculture durable et circuits courts" },
-  { src: "/assets/images/safe_vibe_media.webp", alt: "Safe Vibe - Studio média et éducation numérique" },
-  { src: "/assets/images/women_social_innovators.webp", alt: "Femmes Entrepreneures & Innovation Sociale" },
-  { src: "/assets/images/youth_tech_bootcamp.webp", alt: "Bootcamp Compétences Numériques Jeunesse" },
-  { src: "/assets/images/diaspora_global_summit.webp", alt: "Sommet Global Festival Canada-Afrique" },
-  { src: "/assets/images/cap_ecosystem_collaboration.webp", alt: "Écosystème Collaboratif CAP Entrepreneurs" },
-  { src: "/assets/images/community_partnership.webp", alt: "Solidarité et partenariats communautaires" },
-];
+export default function Home() {
+  const [selectedSection, setSelectedSection] = useState("all");
+  const [conditionFilter, setConditionFilter] = useState("all"); // "all" | "Neuve" | "Occasion"
+  const [transmissionFilter, setTransmissionFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Modals state
+  const [activeVehicle, setActiveVehicle] = useState(null);
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  const [isCustomOrderOpen, setIsCustomOrderOpen] = useState(false);
+  const [activeApartment, setActiveApartment] = useState(null);
+  const [isApartmentModalOpen, setIsApartmentModalOpen] = useState(false);
 
-const HERO_VERBS = [
-  {
-    word: "CRÉER",
-    wordEn: "CREATE",
-    wordAr: "ابتكار",
-    step: "01",
-    lead: "Initier des solutions concrètes",
-    leadEn: "Initiate concrete solutions",
-    leadAr: "إطلاق حلول ملموسة",
-  },
-  {
-    word: "ACCOMPAGNER",
-    wordEn: "ACCOMPANY",
-    wordAr: "مرافقة",
-    step: "02",
-    lead: "Former, mentorer & outiller",
-    leadEn: "Train, mentor & equip",
-    leadAr: "التدريب والإرشاد والتمكين",
-  },
-  {
-    word: "PROPULSER",
-    wordEn: "PROPEL",
-    wordAr: "تمكين وتسريع",
-    step: "03",
-    lead: "Accélérer l'impact durable",
-    leadEn: "Accelerate sustainable impact",
-    leadAr: "تسريع الأثر المستدام",
-  },
-];
-
-const Home = () => {
-  const { lang, t } = useLang();
-  const [heroVerbIndex, setHeroVerbIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setHeroVerbIndex((prev) => (prev + 1) % HERO_VERBS.length);
-    }, 2800);
-    return () => clearInterval(timer);
-  }, []);
-
-  const currentPrograms = lang === "fr" ? PROGRAMS_FR : lang === "ar" ? PROGRAMS_AR : PROGRAMS;
-
-  const AUDIENCES = [
-    { label: t.home.audiences?.[0] || "Entrepreneurs", to: "/programs" },
-    { label: t.home.audiences?.[1] || "Non-profit organizations", to: "/partners" },
-    { label: t.home.audiences?.[2] || "Funders & donors", to: "/partners" },
-    { label: t.home.audiences?.[3] || "Volunteers", to: "/volunteer" },
-    { label: t.home.audiences?.[4] || "Institutional partners", to: "/partners" },
-    { label: t.home.audiences?.[5] || "Creative & social innovators", to: "/join" },
-  ];
-
-  const PROGRAM_ICONS = [Leaf, Globe2, Radio, HeartHandshake];
-  const INVOLVEMENT_IMAGES = [
-    "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/6646918/pexels-photo-6646918.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800",
-    "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=800",
-  ];
-
-  const COMMUNITY_TESTIMONIALS = [
-    {
-      id: "sarah-j",
-      quoteFr: "Cap Green Lab a permis à notre communauté de réduire la fracture numérique tout en reconditionnant des équipements informatiques.",
-      quoteEn: "Cap Green Lab enabled our community to reduce the digital divide while refurbishing vital computer hardware.",
-      quoteAr: "مكّن مختبر كاب الأخضر مجتمعنا من تقليص الفجوة الرقمية مع تجديد المعدات الحاسوبية الأساسية.",
-      author: "Sarah J.",
-      roleFr: "Innovatrice Sociale",
-      roleEn: "Social Innovator",
-      roleAr: "مبتكرة اجتماعية",
-      organization: "Cap Green Lab",
-      rating: 5,
-    },
-    {
-      id: "aminata-d",
-      quoteFr: "AgriConnect a relié notre coopérative agricole féminine aux outils numériques modernes et aux marchés équitables.",
-      quoteEn: "AgriConnect connected our women-led farming cooperative with modern digital tools and fair international markets.",
-      quoteAr: "ربط برنامج أجري كونكت تعاونيتنا الزراعية النسائية بالأدوات الرقمية الحديثة والأسواق العادلة.",
-      author: "Aminata D.",
-      roleFr: "Responsable Coopérative",
-      roleEn: "Cooperative Lead",
-      roleAr: "مسؤولة تعاونية",
-      organization: "AgriConnect",
-      rating: 5,
-    },
-    {
-      id: "elena-r",
-      quoteFr: "Collaborer avec Cap Entrepreneurs au Canada et à l'international crée des opportunités économiques tangibles et durables.",
-      quoteEn: "Collaborating with Cap Entrepreneurs across Canada and globally creates tangible and sustainable economic opportunities.",
-      quoteAr: "التعاون مع كاب رواد الأعمال في كندا ودولياً يخلق فرصاً اقتصادية ملموسة ومستدامة.",
-      author: "Elena R.",
-      roleFr: "Partenaire Institutionnel",
-      roleEn: "Institutional Partner",
-      roleAr: "شريك مؤسسي",
-      organization: "Alliances & Impact",
-      rating: 5,
-    },
-  ];
-
-  const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTestimonialIndex((prev) => (prev + 1) % COMMUNITY_TESTIMONIALS.length);
-    }, 7000);
-    return () => clearInterval(timer);
-  }, [COMMUNITY_TESTIMONIALS.length]);
-
-  const [activeInvolvementCard, setActiveInvolvementCard] = useState(null);
-  const [formValues, setFormValues] = useState({});
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  // Home Contact form state
-  const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
-  const [contactSubmitting, setContactSubmitting] = useState(false);
-  const [contactSubmitted, setContactSubmitted] = useState(false);
-
-  // Home Engagement Dossier state (Profiles 01-07)
-  const [activeEngagementProfile, setActiveEngagementProfile] = useState("01");
-  const [engagementForm, setEngagementForm] = useState({
-    name: "", email: "", location: "", program: "", goals: "", signature: "", accord: false
-  });
-  const [engagementSubmitting, setEngagementSubmitting] = useState(false);
-  const [engagementSubmitted, setEngagementSubmitted] = useState(false);
-
-  const openInvolvementModal = (card) => {
-    setActiveInvolvementCard(card);
-    setFormValues({
-      name: "",
-      email: "",
-      phone: "",
-      message: "",
-      program: card.fields?.find((f) => f.name === "program")?.options?.[0] || "",
-      area: card.fields?.find((f) => f.name === "area")?.options?.[0] || "",
-      availability: card.fields?.find((f) => f.name === "availability")?.options?.[0] || "",
-      organization: "",
-      partnerType: card.fields?.find((f) => f.name === "partnerType")?.options?.[0] || "",
-      country: "",
+  // Filtered vehicles
+  const filteredVehicles = useMemo(() => {
+    return VEHICLES.filter((item) => {
+      // Section filter
+      if (selectedSection !== "all" && item.section !== selectedSection) {
+        return false;
+      }
+      // Condition filter
+      if (conditionFilter !== "all") {
+        if (conditionFilter === "Neuve" && item.condition !== "Neuve" && item.mileage !== "0 km") return false;
+        if (conditionFilter === "Occasion" && item.condition !== "Occasion" && item.mileage === "0 km") return false;
+      }
+      // Transmission filter
+      if (transmissionFilter !== "all") {
+        if (!item.transmission.toLowerCase().includes(transmissionFilter.toLowerCase())) {
+          return false;
+        }
+      }
+      // Search query
+      if (searchQuery.trim() !== "") {
+        const q = searchQuery.toLowerCase().trim();
+        const matchModel = item.model.toLowerCase().includes(q);
+        const matchBrand = item.brand.toLowerCase().includes(q);
+        const matchSection = item.sectionTitle.toLowerCase().includes(q);
+        const matchEngine = item.engine.toLowerCase().includes(q);
+        if (!matchModel && !matchBrand && !matchSection && !matchEngine) {
+          return false;
+        }
+      }
+      return true;
     });
-    setSubmitted(false);
-  };
+  }, [selectedSection, conditionFilter, transmissionFilter, searchQuery]);
 
-  const closeInvolvementModal = () => {
-    setActiveInvolvementCard(null);
-    setSubmitted(false);
-    setFormValues({});
-  };
-
-  const handleInvolvementSubmit = async (e) => {
-    e.preventDefault();
-    if (!activeInvolvementCard) return;
-
-    setSubmitting(true);
-    try {
-      await api.post("/submissions", {
-        type: activeInvolvementCard.submissionType,
-        payload: {
-          ...formValues,
-          track: activeInvolvementCard.tag,
-          cardTitle: activeInvolvementCard.title,
-          source: `Involvement Card ${activeInvolvementCard.number}`,
-        },
-      });
-      setSubmitted(true);
-      toast.success("Votre demande a bien été transmise à l'équipe !");
-    } catch (err) {
-      console.error(err);
-      toast.error("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
-    } finally {
-      setSubmitting(false);
+  const openVehicleModal = (veh) => {
+    if (veh.section === "12") {
+      setIsCustomOrderOpen(true);
+    } else {
+      setActiveVehicle(veh);
+      setIsVehicleModalOpen(true);
     }
   };
 
-  const involvementCards = (
-    t.home?.involvementCards || [
-      {
-        id: "skills",
-        number: "01",
-        title: lang === "fr" ? "Je veux développer mes compétences" : lang === "ar" ? "أريد تطوير مهاراتي" : "I want to develop my skills",
-        link: "/join",
-        tag: lang === "fr" ? "Formation & Compétences" : lang === "ar" ? "التدريب والمهارات" : "Training & Skills",
-        submissionType: "application",
-        intro: lang === "fr" ? "Rejoignez un parcours structurant pour acquérir des compétences numériques, entrepreneuriales et techniques adaptées aux réalités du marché." : lang === "ar" ? "انضم إلى مسار منظم لاكتساب مهارات رقمية وريادية وتقنية تتناسب مع متطلبات السوق." : "Join a structured journey to acquire digital, entrepreneurial, and technical skills tailored to market realities.",
-        fields: [
-          {
-            name: "program",
-            label: lang === "fr" ? "Programme souhaité" : lang === "ar" ? "البرنامج المطلوب" : "Desired Program",
-            kind: "select",
-            options: lang === "fr" ? [
-              "Cap Green Lab - Technologie inclusive & économie circulaire",
-              "AgriConnect - Entrepreneuriat rural & agriculture numérique",
-              "Safe Vibe - Médias numériques & éducation",
-              "Entrepreneuriat Créatif & Social - Femmes, arts & innovation",
-              "Autre / Orientation générale"
-            ] : lang === "ar" ? [
-              "كاب غرين لاب - التكنولوجيا الشاملة والاقتصاد الدائري",
-              "أغري كونيكت - ريادة الأعمال الريفية والزراعة الرقمية",
-              "سيف فايب - الإعلام الرقمي والتعليم",
-              "ريادة الأعمال الإبداعية والاجتماعية - النساء والفنون والابتكار",
-              "أخرى / توجيه عام"
-            ] : [
-              "Cap Green Lab - Inclusive technology & circular economy",
-              "AgriConnect - Rural entrepreneurship & digital agriculture",
-              "Safe Vibe - Digital media & education",
-              "Creative & Social Entrepreneurship - Women, arts & innovation",
-              "Other / General Orientation"
-            ],
-            required: true,
-          },
-          {
-            name: "message",
-            label: lang === "fr" ? "Vos objectifs et compétences à développer" : lang === "ar" ? "أهدافك والمهارات التي ترغب في تطويرها" : "Your goals and skills to develop",
-            kind: "textarea",
-            placeholder: lang === "fr" ? "Parlez-nous de votre projet, vos objectifs et vos compétences actuelles..." : lang === "ar" ? "أخبرنا عن مشروعك وأهدافك ومهاراتك الحالية..." : "Tell us about your project, goals, and current skills...",
-            required: true,
-          },
-        ],
-      },
-      {
-        id: "volunteer",
-        number: "02",
-        title: lang === "fr" ? "Je veux faire du bénévolat" : lang === "ar" ? "أريد التطوع" : "I want to volunteer",
-        link: "/volunteer",
-        tag: lang === "fr" ? "Engagement citoyen" : lang === "ar" ? "المشاركة المدنية" : "Civic Engagement",
-        submissionType: "volunteer",
-        intro: lang === "fr" ? "Partagez vos compétences et votre énergie au service des initiatives entrepreneuriales et sociales accompagnées par CAP Entrepreneurs." : lang === "ar" ? "شارك مهاراتك وطاقتك في خدمة المبادرات الريادية والاجتماعية التي ترافقها كاب رياديون." : "Share your skills and energy in service of entrepreneurial and social initiatives supported by CAP Entrepreneurs.",
-        fields: [
-          {
-            name: "area",
-            label: lang === "fr" ? "Domaine de contribution" : lang === "ar" ? "مجال المساهمة" : "Area of Contribution",
-            kind: "select",
-            options: lang === "fr" ? [
-              "Compétences numériques & Développement",
-              "Communication & Création de contenu",
-              "Développement d'affaires & Stratégie",
-              "Formation, Ateliers & Mentorat",
-              "Arts, Culture & Événementiel",
-              "Gestion de projet & Opérations"
-            ] : lang === "ar" ? [
-              "المهارات الرقمية والتطوير",
-              "التواصل وصناعة المحتوى",
-              "تطوير الأعمال والاستراتيجية",
-              "التدريب وورش العمل والإرشاد",
-              "الفنون والثقافة والفعاليات",
-              "إدارة المشاريع والعمليات"
-            ] : [
-              "Digital Skills & Development",
-              "Communication & Content Creation",
-              "Business Development & Strategy",
-              "Training, Workshops & Mentoring",
-              "Arts, Culture & Events",
-              "Project Management & Operations"
-            ],
-            required: true,
-          },
-          {
-            name: "availability",
-            label: lang === "fr" ? "Disponibilité" : lang === "ar" ? "الوقت المتاح" : "Availability",
-            kind: "select",
-            options: lang === "fr" ? [
-              "2 h / semaine",
-              "4–6 h / semaine",
-              "7–10 h / semaine",
-              "Ponctuel / Par projet"
-            ] : lang === "ar" ? [
-              "ساعتان / أسبوعياً",
-              "4–6 ساعات / أسبوعياً",
-              "7–10 ساعات / أسبوعياً",
-              "مؤقت / حسب المشروع"
-            ] : [
-              "2 hrs / week",
-              "4–6 hrs / week",
-              "7–10 hrs / week",
-              "Occasional / By project"
-            ],
-            required: true,
-          },
-          {
-            name: "message",
-            label: lang === "fr" ? "Vos compétences & motivations" : lang === "ar" ? "مهاراتك ودوافعك" : "Your skills & motivations",
-            kind: "textarea",
-            placeholder: lang === "fr" ? "Décrivez vos compétences professionnelles et la manière dont vous aimeriez contribuer..." : lang === "ar" ? "صف مهاراتك المهنية وكيف تود المساهمة..." : "Describe your professional skills and how you would like to contribute...",
-            required: true,
-          },
-        ],
-      },
-      {
-        id: "ngo",
-        number: "03",
-        title: lang === "fr" ? "Je représente une ONG / entreprise sociale" : lang === "ar" ? "أنا أمثل منظمة غير حكومية / مؤسسة اجتماعية" : "I represent an NGO / social enterprise",
-        link: "/partners",
-        tag: lang === "fr" ? "Organisations" : lang === "ar" ? "المنظمات" : "Organizations",
-        submissionType: "partner",
-        intro: lang === "fr" ? "Bâtissons des passerelles d'action et co-développons des solutions concrètes pour vos communautés et bénéficiaires." : lang === "ar" ? "لنبني جسوراً من العمل ونشارك في تطوير حلول ملموسة لمجتمعاتكم والمستفيدين." : "Let's build bridges of action and co-develop concrete solutions for your communities and beneficiaries.",
-        fields: [
-          {
-            name: "organization",
-            label: lang === "fr" ? "Nom de l'ONG / Entreprise sociale" : lang === "ar" ? "اسم المنظمة غير الحكومية / المؤسسة الاجتماعية" : "Name of the NGO / Social Enterprise",
-            required: true,
-            placeholder: lang === "fr" ? "Nom officiel de votre organisation" : lang === "ar" ? "الاسم الرسمي لمنظمتك" : "Official name of your organization",
-          },
-          {
-            name: "country",
-            label: lang === "fr" ? "Pays / Région d'opération" : lang === "ar" ? "البلد / منطقة العمل" : "Country / Region of Operation",
-            required: true,
-            placeholder: lang === "fr" ? "Ex: Canada, Côte d'Ivoire, Maroc, Sénégal..." : lang === "ar" ? "مثال: كندا، ساحل العاج، المغرب، السنغال..." : "e.g., Canada, Ivory Coast, Morocco, Senegal...",
-          },
-          {
-            name: "message",
-            label: lang === "fr" ? "Nature de la collaboration souhaitée" : lang === "ar" ? "طبيعة التعاون المنشود" : "Nature of Desired Collaboration",
-            kind: "textarea",
-            placeholder: lang === "fr" ? "Décrivez les défis de vos bénéficiaires et la collaboration envisagée..." : lang === "ar" ? "صف التحديات التي يواجهها المستفيدون ونوع التعاون المقترح..." : "Describe the challenges of your beneficiaries and the collaboration envisioned...",
-            required: true,
-          },
-        ],
-      },
-      {
-        id: "partner",
-        number: "04",
-        title: lang === "fr" ? "Je veux devenir partenaire" : lang === "ar" ? "أريد أن أصبح شريكاً" : "I want to become a partner",
-        link: "/partners",
-        tag: lang === "fr" ? "Partenariats" : lang === "ar" ? "الشراكات" : "Partnerships",
-        submissionType: "partner",
-        intro: lang === "fr" ? "Co-construisez des programmes d'envergure, soutenez le développement économique durable et amplifiez votre impact territorial." : lang === "ar" ? "شارك في بناء برامج واسعة النطاق، وادعم التنمية الاقتصادية المستدامة وعزز أثرك الإقليمي." : "Co-build impactful programs, support sustainable economic development, and amplify your territorial impact.",
-        fields: [
-          {
-            name: "organization",
-            label: lang === "fr" ? "Nom de l'organisation / Entreprise" : lang === "ar" ? "اسم المؤسسة / الشركة" : "Name of Organization / Company",
-            required: true,
-            placeholder: lang === "fr" ? "Nom de votre société ou institution" : lang === "ar" ? "اسم شركتك أو مؤسستك" : "Name of your company or institution",
-          },
-          {
-            name: "partnerType",
-            label: lang === "fr" ? "Type de partenariat souhaité" : lang === "ar" ? "نوع الشراكة المطلوب" : "Type of Partnership Desired",
-            kind: "select",
-            options: lang === "fr" ? [
-              "Partenaire Entreprise / Mécénat de compétences",
-              "Bailleur de fonds / Fondation",
-              "Institution publique / Gouvernement",
-              "Hub d'innovation / Incubateur partenaire",
-              "Université / Centre de recherche"
-            ] : lang === "ar" ? [
-              "شريك مؤسسي / رعاية مهارات",
-              "جهة مانحة / مؤسسة خيرية",
-              "مؤسسة عامة / حكومية",
-              "مركز ابتكار / حاضنة أعمال شريكة",
-              "جامعة / مركز أبحاث"
-            ] : [
-              "Corporate Partner / Skills Sponsorship",
-              "Funder / Foundation",
-              "Public Institution / Government",
-              "Innovation Hub / Partner Incubator",
-              "University / Research Center"
-            ],
-            required: true,
-          },
-          {
-            name: "message",
-            label: lang === "fr" ? "Projet de partenariat ou message" : lang === "ar" ? "مشروع الشراكة أو الرسالة" : "Partnership Project or Message",
-            kind: "textarea",
-            placeholder: lang === "fr" ? "Partagez votre vision ou votre demande de prise de contact..." : lang === "ar" ? "شاركنا رؤيتك أو طلب التواصل الخاص بك..." : "Share your vision or request for contact...",
-            required: true,
-          },
-        ],
-      },
-    ]
-  ).map((card, i) => ({
-    ...card,
-    image: INVOLVEMENT_IMAGES[i % INVOLVEMENT_IMAGES.length],
-  }));
+  const openApartmentModal = (apt) => {
+    setActiveApartment(apt);
+    setIsApartmentModalOpen(true);
+  };
 
   return (
-    <div data-testid="home-page" className="relative selection:bg-maple selection:text-white">
-      {/* ===================== HERO SECTION ===================== */}
-      <section className="relative overflow-hidden border-b border-forest/15 bg-gradient-to-b from-bone via-white to-bone/60">
-        {/* Ambient Gradient Glows */}
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute -left-[10%] top-[5%] h-[600px] w-[600px] rounded-full bg-purple-400/15 mix-blend-multiply blur-[140px]" />
-          <div className="absolute right-[5%] top-[-10%] h-[550px] w-[550px] rounded-full bg-blue-300/20 mix-blend-multiply blur-[140px]" />
-          <div className="absolute -bottom-[20%] left-[25%] h-[600px] w-[600px] rounded-full bg-amber-200/25 mix-blend-multiply blur-[150px]" />
-        </div>
+    <div className="min-h-screen bg-bone text-forest selection:bg-maple selection:text-white" data-testid="home-page">
+      
+      {/* HERO BANNER SECTION */}
+      <section className="relative overflow-hidden border-b border-forest/15 bg-gradient-to-b from-[#FAF9F5] via-bone to-white pt-24 pb-20 md:pt-32 md:pb-28">
+        <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#0D0E0D_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
 
-        {/* Huge Outline Brand Watermark */}
-        <span
-          aria-hidden="true"
-          className="text-outline pointer-events-none absolute -right-8 top-12 hidden select-none font-heading text-[28vw] font-black leading-none opacity-10 lg:block"
-        >
-          CAP
-        </span>
-
-        {/* Interactive 3D Canvas */}
-        <Scene3D className="absolute inset-0 z-0 opacity-80" />
-
-        <div className="relative z-10 mx-auto max-w-[1600px] px-5 pb-16 pt-24 md:px-10 md:pt-32 lg:pb-24">
-          <div className="max-w-5xl">
-
-            {/* OUVRIR DE NOUVEAUX HORIZONS Eyebrow */}
-            <Reveal>
-              <div className="inline-flex items-center gap-2.5 mb-6">
-                <span className="font-montserrat text-xs md:text-sm font-bold uppercase tracking-[0.28em] text-forest">
-                  {lang === "fr" ? "OUVRIR DE NOUVEAUX HORIZONS" : lang === "ar" ? "فتح آفاق جديدة" : "OPENING NEW HORIZONS"}
-                </span>
+        <div className="mx-auto max-w-[1440px] px-5 md:px-10 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Column: Heading & Vision */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-forest text-bone text-xs font-bold uppercase tracking-[0.2em]">
+                <ShieldCheck className="h-3.5 w-3.5 text-maple-light" />
+                <span>3M SERVICES • YAOUNDÉ, CAMEROUN</span>
               </div>
-            </Reveal>
 
-            {/* H1 Headline */}
-            <h1 className="sr-only">
-              {lang === "fr"
-                ? "Bâtir des économies numériques inclusives, accessibles et durables."
-                : lang === "ar"
-                  ? "بناء اقتصادات رقمية شاملة ومتاحة ومستدامة."
-                  : "Building inclusive, accessible and sustainable digital economies."}
-            </h1>
-            <KineticLines
-              testId="hero-heading"
-              lines={
-                lang === "fr"
-                  ? [
-                    <>Bâtir des économies numériques</>,
-                    <>
-                      <span className="font-serif font-medium italic tracking-tight text-maple">inclusives</span>
-                      , accessibles et durables.
-                    </>,
-                  ]
-                  : lang === "ar"
-                    ? [
-                      <>بناء اقتصادات رقمية</>,
-                      <>
-                        <span className="font-serif font-medium italic text-maple">شاملة</span>
-                        ، متاحة ومستدامة.
-                      </>,
-                    ]
-                    : [
-                      <>Building</>,
-                      <>
-                        <span className="font-serif font-medium italic tracking-tight text-maple">inclusive</span>
-                        , accessible and sustainable digital economies.
-                      </>,
-                    ]
-              }
-              className="font-heading text-[9vw] font-black leading-[0.96] tracking-tight text-forest sm:text-5xl md:text-6xl lg:text-[4.2rem] xl:text-[4.8rem]"
-            />
+              <h1 className="font-heading font-black text-4xl sm:text-6xl lg:text-7xl tracking-tighter text-forest leading-[0.95]">
+                CATALOGUE <br />
+                <span className="text-maple italic font-serif font-normal">AUTOMOBILE</span> <br />
+                2025.
+              </h1>
 
-            {/* Mission Subtext */}
-            <Reveal delay={0.2} className="mt-8 max-w-3xl space-y-4">
-              <p className="text-lg leading-relaxed text-forest/85 sm:text-xl md:text-2xl font-normal" data-testid="hero-subtext">
-                {lang === "fr"
-                  ? "Nous aidons les personnes, les entrepreneurs et les organisations à impact social à développer les compétences numériques, les outils et les partenariats nécessaires pour créer des opportunités durables."
-                  : lang === "ar"
-                    ? "نساعد الأفراد ورواد الأعمال ومنظمات الأثر الاجتماعي على تطوير المهارات الرقمية والأدوات والشراكات اللازمة لخلق فرص مستدامة."
-                    : "We help individuals, entrepreneurs, and social impact organizations develop the digital skills, tools, and partnerships needed to create sustainable opportunities."}
-              </p>
-              <p className="text-base sm:text-lg md:text-xl font-medium text-forest/75 leading-relaxed">
-                {lang === "fr"
-                  ? "Ensemble, transformons le potentiel en possibilités et les idées en impact."
-                  : lang === "ar"
-                    ? "معاً، نحول الإمكانات إلى فرص حقيقية والأفكار إلى أثر ملموس."
-                    : "Together, let's transform potential into possibilities and ideas into impact."}
-              </p>
-            </Reveal>
-
-            {/* CRÉER, ACCOMPAGNER, PROPULSER. Scrolling Up & Disappearing like Testimonials (without card/box) */}
-            <Reveal delay={0.3} className="mt-8">
-              <div className="h-14 sm:h-16 relative overflow-hidden flex items-center">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={heroVerbIndex}
-                    initial={{ opacity: 0, y: 22 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -22 }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                    className="flex flex-wrap items-baseline gap-2 sm:gap-3.5"
-                  >
-                    <span className="font-heading text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-forest">
-                      {lang === "fr"
-                        ? HERO_VERBS[heroVerbIndex].word
-                        : lang === "ar"
-                          ? HERO_VERBS[heroVerbIndex].wordAr
-                          : HERO_VERBS[heroVerbIndex].wordEn}
-                      <span className="text-maple">.</span>
-                    </span>
-                    <span className="font-serif italic text-base sm:text-lg md:text-xl text-sage">
-                      -{" "}
-                      {lang === "fr"
-                        ? HERO_VERBS[heroVerbIndex].lead
-                        : lang === "ar"
-                          ? HERO_VERBS[heroVerbIndex].leadAr
-                          : HERO_VERBS[heroVerbIndex].leadEn}
-                    </span>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </Reveal>
-
-            {/* CTAs */}
-            <Reveal delay={0.4} className="mt-8">
-              <div className="flex flex-col sm:flex-row flex-wrap gap-4">
-                <Magnetic>
-                  <Link
-                    to="/join"
-                    className="group relative flex w-full sm:w-auto justify-center items-center gap-3 overflow-hidden rounded-none bg-forest px-9 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-bone shadow-lg transition-all duration-300 hover:bg-maple hover:shadow-maple/20"
-                  >
-                    <span>{t.home.ctaJoin}</span>
-                    <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </Link>
-                </Magnetic>
-                <Magnetic>
-                  <Link
-                    to="/partners"
-                    className="group flex w-full sm:w-auto justify-center items-center gap-3 rounded-none border-2 border-forest bg-white/40 px-9 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-forest backdrop-blur-sm transition-all duration-300 hover:bg-forest hover:text-bone"
-                  >
-                    <span>{t.home.ctaPartner}</span>
-                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </Link>
-                </Magnetic>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== MARQUEE ===================== */}
-      <EditorialMarquee
-        dark
-        testId="home-marquee"
-        items={t.home.marquee}
-      />
-
-      {/* ===================== OUR COMMUNITY / NOTRE COMMUNAUTÉ ===================== */}
-      <section className="mx-auto max-w-[1600px] px-5 py-24 md:px-10 md:py-32" data-testid="our-community-section">
-        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16">
-          <Reveal>
-            <span className="font-montserrat text-xs font-bold uppercase tracking-[0.25em] text-maple">
-              {lang === "fr" ? "NOTRE COMMUNAUTÉ" : "OUR COMMUNITY"}
-            </span>
-            <h2 className="mt-3 font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-forest leading-tight">
-              {lang === "fr"
-                ? "Une communauté bâtie pour tous ceux qui créent des opportunités"
-                : "A community built for everyone who creates opportunity"}
-            </h2>
-            <p className="mt-4 text-base md:text-lg text-sage font-medium">
-              {lang === "fr" ? "Cap Entrepreneurs rassemble :" : "Cap Entrepreneurs brings together:"}
-            </p>
-          </Reveal>
-        </div>
-
-        {/* 8-Photo Mosaic Grid (2 rows of 4 columns matching reference image) */}
-        <Reveal delay={0.15}>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-[1360px] mx-auto overflow-hidden">
-            {COMMUNITY_PHOTOS.map((photo, idx) => (
-              <div key={idx} className="relative aspect-square overflow-hidden bg-forest/5 group shadow-xs">
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                />
-              </div>
-            ))}
-          </div>
-        </Reveal>
-
-        {/* Central Editorial Quote */}
-        <Reveal delay={0.25}>
-          <div className="max-w-4xl mx-auto my-12 md:my-16 text-center px-4">
-            <div className="w-12 h-px bg-maple mx-auto mb-6" />
-            <blockquote className="font-serif italic text-xl sm:text-2xl md:text-3xl text-forest font-normal leading-relaxed">
-              {lang === "fr"
-                ? "« Ensemble, nous formons un écosystème où les compétences deviennent des projets, les projets deviennent de l'impact, et l'impact devient un changement durable. »"
-                : "“Together, we form an ecosystem where skills become projects, projects become impact, and impact becomes lasting change.”"}
-            </blockquote>
-            <div className="w-12 h-px bg-maple mx-auto mt-6" />
-          </div>
-        </Reveal>
-
-        {/* 6 Community Stakeholder Pathway Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-[1360px] mx-auto">
-          {[
-            { num: "01", fr: "Entrepreneurs", en: "Entrepreneurs", ar: "رواد الأعمال", to: "/programs" },
-            { num: "02", fr: "Organismes à but non lucratif", en: "Non-profit organizations", ar: "المنظمات غير الربحية", to: "/partners" },
-            { num: "03", fr: "Bailleurs de fonds & donateurs", en: "Funders & donors", ar: "الممولون والمانحون", to: "/partners" },
-            { num: "04", fr: "Bénévoles", en: "Volunteers", ar: "المتطوعون", to: "/volunteer" },
-            { num: "05", fr: "Partenaires institutionnels", en: "Institutional partners", ar: "الشركاء المؤسسيون", to: "/partners" },
-            { num: "06", fr: "Innovateurs créatifs & sociaux", en: "Creative & social innovators", ar: "المبتكرون المبدعون والاجتماعيون", to: "/join" },
-          ].map((stk, i) => (
-            <Reveal key={i} delay={0.1 + i * 0.05}>
-              <Link
-                to={stk.to}
-                className="group flex items-center justify-between p-6 bg-[#FAFAFA] border border-forest/10 hover:border-maple hover:bg-white transition-all shadow-xs"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="font-serif text-2xl italic font-bold text-maple">
-                    {stk.num}
-                  </span>
-                  <span className="font-heading text-base font-bold text-forest group-hover:text-maple transition-colors">
-                    {lang === "fr" ? stk.fr : lang === "ar" ? stk.ar : stk.en}
-                  </span>
-                </div>
-                <span className="inline-flex items-center gap-1 font-montserrat text-xs font-bold uppercase tracking-wider text-forest/60 group-hover:text-maple transition-colors">
-                  <span>{lang === "fr" ? "Découvrir" : lang === "ar" ? "استكشف" : "Explore"}</span>
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                </span>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-
-        {/* ===================== INVOLVEMENT CARDS: COMMENT SOUHAITEZ-VOUS VOUS IMPLIQUER ? ===================== */}
-        <div className="mt-20 border-t border-forest/15 pt-16 md:mt-28 md:pt-20" data-testid="involvement-cards-section">
-          <Reveal delay={0.1}>
-            <div className="mb-12 text-center max-w-3xl mx-auto">
-              <span className="font-montserrat text-xs font-semibold uppercase tracking-[0.25em] text-maple">
-                {t.home?.involvementKicker || (lang === "fr" ? "S'ENGAGER" : lang === "ar" ? "المشاركة" : "GET INVOLVED")}
-              </span>
-              <h3 className="mt-3 font-heading text-3xl font-black tracking-tight text-forest sm:text-4xl md:text-5xl">
-                {t.home?.involvementTitle || (lang === "fr" ? "Comment souhaitez-vous vous impliquer ?" : lang === "ar" ? "كيف تود المشاركة معنا؟" : "How would you like to get involved?")}
-              </h3>
-            </div>
-          </Reveal>
-
-          {/* 4 Cards on a single line on desktop */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 items-start">
-            {involvementCards.map((card, i) => (
-              <Reveal key={i} delay={0.15 + i * 0.08} className="w-full">
-                <div
-                  onClick={() => openInvolvementModal(card)}
-                  data-testid={`involvement-card-${i + 1}`}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      openInvolvementModal(card);
-                    }
-                  }}
-                  className="group flex flex-col items-center text-center transition-all duration-300 cursor-pointer focus:outline-none"
-                >
-                  {/* Photo on top with zoom effect */}
-                  <div className="relative w-full aspect-[4/3] overflow-hidden bg-forest/5 shadow-sm">
-                    <img
-                      src={card.image}
-                      alt={card.title}
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-0.5 font-serif text-xs italic font-bold text-maple shadow-sm">
-                      {card.number}
-                    </div>
-                  </div>
-
-                  {/* Text details */}
-                  <div className="mt-6 flex flex-col items-center w-full px-2">
-                    <span className="font-montserrat text-[10.5px] font-bold uppercase tracking-[0.22em] text-maple mb-2">
-                      {card.tag}
-                    </span>
-                    <h4 className="font-heading text-lg font-bold leading-snug text-forest group-hover:text-maple transition-colors md:text-xl">
-                      {card.title}
-                    </h4>
-
-                    {/* Small center divider line */}
-                    <div className="w-8 h-[2px] bg-maple/50 my-3.5 transition-all duration-300 group-hover:w-12 group-hover:bg-maple" />
-
-                    <span className="inline-flex items-center gap-1.5 font-montserrat text-xs font-semibold uppercase tracking-[0.14em] text-forest/70 group-hover:text-maple transition-colors">
-                      <span>{card.cta || t.home?.involvementCta || (lang === "fr" ? "Commencer" : lang === "ar" ? "ابدأ الآن" : "Get Started")}</span>
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== IMAGE SLIDER ===================== */}
-      <ImageCarousel />
-
-      {/* ===================== {lang === "fr" ? "PROGRAMMES STRUCTURANTS" : lang === "ar" ? "برامج هيكلية" : "STRUCTURING PROGRAMS"} (EDITORIAL SHOWCASE) ===================== */}
-      <section className="border-y border-forest/15 bg-white py-24 md:py-32" data-testid="home-programs-section">
-        <div className="mx-auto max-w-[1600px] px-5 md:px-10">
-
-          {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-12 border-b border-forest/10">
-            <Reveal>
-              <div className="flex items-center gap-2 font-montserrat text-xs font-bold uppercase tracking-[0.25em] text-maple mb-3">
-                <Layers className="h-4 w-4" />
-                <span>{lang === "fr" ? "NOS PROGRAMMES" : lang === "ar" ? "برامجنا" : "OUR PROGRAMS"}</span>
-              </div>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal tracking-tight text-forest leading-tight max-w-3xl">
-                {lang === "fr"
-                  ? "Les programmes sont au cœur de Cap Entrepreneurs"
-                  : lang === "ar"
-                  ? "البرامج في قلب كاب للمقاولين"
-                  : "Programs are at the heart of Cap Entrepreneurs"}
-              </h2>
-              <p className="mt-4 max-w-2xl text-base md:text-lg leading-relaxed text-sage font-normal">
-                {lang === "fr"
-                  ? "Nos quatre programmes structurants transforment l'apprentissage en impact mesurable :"
-                  : lang === "ar"
-                  ? "برامجنا الهيكلية الأربعة تحول التعلم إلى أثر ملموس:"
-                  : "Our four structuring programs turn learning into measurable impact:"}
-              </p>
-            </Reveal>
-            <Reveal delay={0.15}>
-              <Link
-                to="/programs"
-                data-testid="home-programs-view-all"
-                className="group inline-flex items-center gap-2 bg-forest px-8 py-4 font-montserrat text-xs font-bold uppercase tracking-[0.16em] text-bone transition-all duration-300 hover:bg-maple"
-              >
-                <span>{lang === "fr" ? "DÉCOUVRIR NOS PROGRAMMES" : lang === "ar" ? "اكتشف برامجنا" : "EXPLORE OUR PROGRAMS"}</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Reveal>
-          </div>
-
-          {/* 4 Editorial Program Cards in Staggered Lifestyle Magazine Grid */}
-          <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 xl:gap-10 items-start">
-            {[
-              {
-                id: "cap-green-lab",
-                number: "01",
-                name: "Cap Green Lab",
-                theme: lang === "fr" ? "TECHNOLOGIE INCLUSIVE & ÉCONOMIE CIRCULAIRE" : lang === "ar" ? "تكنولوجيا شاملة واقتصاد دائري" : "INCLUSIVE TECHNOLOGY & CIRCULAR ECONOMY",
-                purpose: lang === "fr"
-                  ? "Cap Green Lab est notre laboratoire dédié à la convergence de la transition numérique, de l'accessibilité, des compétences techniques et de l'économie circulaire."
-                  : lang === "ar"
-                  ? "مختبر كاب الأخضر هو مختبرنا المخصص لتقارب التحول الرقمي وإمكانية الوصول والمهارات التقنية والاقتصاد الدائري."
-                  : "Cap Green Lab is our laboratory dedicated to the convergence of digital transition, accessibility, technical skills, and circular economy.",
-                link: "/programs#cap-green-lab",
-                image: "https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=800",
-                aspect: "aspect-[4/3]"
-              },
-              {
-                id: "agriconnect",
-                number: "02",
-                name: "AgriConnect",
-                theme: lang === "fr" ? "ENTREPRENEURIAT RURAL & AGRICULTURE NUMÉRIQUE" : lang === "ar" ? "ريادة الأعمال الريفية والزراعة الرقمية" : "RURAL ENTREPRENEURSHIP & DIGITAL AGRICULTURE",
-                purpose: lang === "fr"
-                  ? "AgriConnect soutient l'entrepreneuriat rural et l'agriculture numérique en connectant coopératives, femmes entrepreneures et jeunes agriculteurs aux outils et aux marchés."
-                  : lang === "ar"
-                  ? "يدعم أجري كونكت ريادة الأعمال الريفية والزراعة الرقمية من خلال ربط التعاونيات ورائدات الأعمال والمزارعين الشباب بالأدوات والأسواق."
-                  : "AgriConnect supports rural entrepreneurship and digital agriculture by connecting cooperatives, women entrepreneurs, and young farmers to digital tools and markets.",
-                link: "/programs#agriconnect",
-                image: "https://images.pexels.com/photos/2165688/pexels-photo-2165688.jpeg?auto=compress&cs=tinysrgb&w=800",
-                aspect: "aspect-[3/4]"
-              },
-              {
-                id: "safe-vibe",
-                number: "03",
-                name: "Safe Vibe",
-                theme: lang === "fr" ? "MÉDIAS NUMÉRIQUES & ÉDUCATION" : lang === "ar" ? "الإعلام الرقمي والتعليم" : "DIGITAL MEDIA & EDUCATION",
-                purpose: lang === "fr"
-                  ? "Safe Vibe est notre programme d'éducation numérique et de production médiatique. Il outille les jeunes et les communautés pour devenir des créateurs de contenu responsables et des citoyens numériques éclairés."
-                  : lang === "ar"
-                  ? "سيف فايب هو برنامجنا للتعليم الرقمي والإنتاج الإعلامي. إنه يمكّن الشباب والمجتمعات ليصبحوا صناع محتوى مسؤولين ومواطنين رقميين واعين."
-                  : "Safe Vibe is our digital education and media production program. It equips youth and communities to become responsible content creators and informed digital citizens.",
-                link: "/programs#safe-vibe",
-                image: "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=800",
-                aspect: "aspect-[3/4]"
-              },
-              {
-                id: "creative-social",
-                number: "04",
-                name: lang === "fr" ? "Entrepreneuriat Créatif & Social" : lang === "ar" ? "ريادة الأعمال الإبداعية والاجتماعية" : "Creative & Social Entrepreneurship",
-                theme: lang === "fr" ? "FEMMES, ARTS & INNOVATION SOCIALE" : lang === "ar" ? "النساء والفنون والابتكار الاجتماعي" : "WOMEN, ARTS & SOCIAL INNOVATION",
-                purpose: lang === "fr"
-                  ? "Ce programme soutient l'entrepreneuriat féminin, les arts et l'innovation sociale. Il accompagne les femmes et les créatifs dans la structuration de leurs projets et la création de modèles économiques durables."
-                  : lang === "ar"
-                  ? "يدعم هذا البرنامج ريادة الأعمال النسائية والفنون والابتكار الاجتماعي. يرافق النساء والمبدعين في هيكلة مشاريعهم وبناء نماذج اقتصادية مستدامة."
-                  : "This program supports women's entrepreneurship, the arts, and social innovation. It assists women and creatives in structuring their ventures and building sustainable business models.",
-                link: "/programs#creative-social",
-                image: "https://images.pexels.com/photos/12903148/pexels-photo-12903148.jpeg?auto=compress&cs=tinysrgb&w=800",
-                aspect: "aspect-[4/3]"
-              }
-            ].map((p, i) => (
-              <Reveal key={p.id} delay={i * 0.1} className="w-full">
-                <Link
-                  to={p.link}
-                  data-testid={`home-program-${p.id}`}
-                  className="group flex flex-col items-center text-center transition-all duration-300"
-                >
-                  {/* Photo with dynamic editorial aspect ratio matching reference */}
-                  <div className={`relative w-full overflow-hidden bg-forest/5 shadow-sm ${p.aspect}`}>
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-0.5 font-serif text-xs italic font-bold text-maple shadow-sm">
-                      {p.number}
-                    </div>
-                  </div>
-
-                  {/* Centered Editorial Content */}
-                  <div className="mt-6 flex flex-col items-center w-full px-2">
-                    <span className="font-montserrat text-[10px] font-bold uppercase tracking-[0.2em] text-maple mb-2">
-                      {p.theme}
-                    </span>
-                    <h3 className="font-serif text-2xl md:text-[26px] font-normal tracking-tight text-forest group-hover:text-maple transition-colors leading-snug">
-                      {p.name}
-                    </h3>
-                    <p className="mt-3 text-xs sm:text-sm leading-relaxed text-sage font-normal max-w-xs">
-                      {p.purpose}
-                    </p>
-                    <span className="mt-4 inline-flex items-center gap-1.5 font-montserrat text-xs font-semibold uppercase tracking-[0.14em] text-forest/80 group-hover:text-maple transition-colors">
-                      <span>{lang === "fr" ? "EN SAVOIR PLUS" : lang === "ar" ? "اعرف المزيد" : "LEARN MORE"}</span>
-                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-
-          {/* ===================== GLOBAL HORIZON & INTERNATIONAL SUMMITS (EDITORIAL FORMAT) ===================== */}
-          <Reveal delay={0.25} className="mt-20 md:mt-28">
-            <div className="border border-forest/10 bg-[#F6F3EE] p-8 md:p-12 lg:p-14">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-
-                {/* Left: Editorial Horizon Description */}
-                <div className="lg:col-span-5">
-                  <div className="flex items-center gap-2 font-montserrat text-[11px] font-bold uppercase tracking-[0.25em] text-maple mb-3">
-                    <Globe2 className="h-3.5 w-3.5" />
-                    <span>{lang === "fr" ? "HORIZON MONDIAL" : lang === "ar" ? "أفق عالمي" : "GLOBAL HORIZON"}</span>
-                  </div>
-                  <h3 className="font-serif text-3xl sm:text-4xl font-normal tracking-tight text-forest leading-tight">
-                    {lang === "fr" ? (
-                      <>
-                        Horizon Mondial &<br />
-                        <span className="italic font-light">Sommets Internationaux</span>
-                      </>
-                    ) : lang === "ar" ? (
-                      <>
-                        أفق عالمي &<br />
-                        <span className="italic font-light">قمم دولية</span>
-                      </>
-                    ) : (
-                      <>
-                        Global Horizon &<br />
-                        <span className="italic font-light">International Summits</span>
-                      </>
-                    )}
-                  </h3>
-                  <p className="mt-4 text-sm md:text-base text-sage leading-relaxed font-normal">
-                    {lang === "fr"
-                      ? "Chaque programme contribue à un objectif collectif : rendre la transition numérique plus inclusive, utile et solidaire."
-                      : lang === "ar"
-                      ? "يساهم كل برنامج في هدف جماعي: جعل التحول الرقمي أكثر شمولاً وفائدة وتضامناً."
-                      : "Each program contributes to a collective goal: making the digital transition more inclusive, useful, and supportive."}
-                  </p>
-                  <div className="mt-6">
-                    <Link
-                      to="/global-festival"
-                      className="inline-flex items-center gap-2 font-montserrat text-xs font-bold uppercase tracking-[0.16em] text-forest hover:text-maple transition-colors border-b border-forest/30 pb-1"
-                    >
-                      <span>{lang === "fr" ? "DÉCOUVRIR LE GLOBAL FESTIVAL" : lang === "ar" ? "اكتشف المهرجان العالمي" : "DISCOVER THE GLOBAL FESTIVAL"}</span>
-                      <ArrowUpRight className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Right: 4 Editorial Summit Destination Cards */}
-                <div className="lg:col-span-7">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {[
-                      {
-                        city: "Paris",
-                        year: "2027",
-                        tag: lang === "fr" ? "Lancement & Pré-Festival" : lang === "ar" ? "الإطلاق وما قبل المهرجان" : "Launch & Pre-Festival",
-                        desc: lang === "fr" ? "Plateforme d'échanges euro-africains & partenariats institutionnels" : lang === "ar" ? "منصة تبادل أوروبية أفريقية وشراكات مؤسسية" : "Euro-African exchange platform & institutional partnerships"
-                      },
-                      {
-                        city: "Nairobi",
-                        year: "2027",
-                        tag: lang === "fr" ? "Global Festival Afrique" : lang === "ar" ? "المهرجان العالمي إفريقيا" : "Global Festival Africa",
-                        desc: lang === "fr" ? "Grand rassemblement tech, climat & innovation inclusive" : lang === "ar" ? "تجمع رئيسي للتكنولوجيا والمناخ والابتكار الشامل" : "Flagship tech, climate & inclusive innovation summit"
-                      },
-                      {
-                        city: "Marrakech",
-                        year: "2027",
-                        tag: lang === "fr" ? "African Creative Sourcing" : lang === "ar" ? "التوريد الإبداعي الأفريقي" : "African Creative Sourcing",
-                        desc: lang === "fr" ? "Marché international des créateurs & acheteurs culturels" : lang === "ar" ? "سوق دولية للمبدعين والمشترين الثقافيين" : "International marketplace for creatives & cultural buyers"
-                      },
-                      {
-                        city: "Martinique",
-                        year: "2028",
-                        tag: lang === "fr" ? "Expansion Caraïbes" : lang === "ar" ? "توسع الكاريبي" : "Caribbean Expansion",
-                        desc: lang === "fr" ? "Passerelle atlantique pour l'économie bleue & l'entrepreneuriat insulaire" : lang === "ar" ? "جسر أطلسي للاقتصاد الأزرق وريادة الأعمال الجزرية" : "Atlantic gateway for blue economy & island entrepreneurship"
-                      },
-                    ].map((summit, idx) => (
-                      <div
-                        key={idx}
-                        className="bg-white border border-forest/10 p-5 shadow-sm transition-all duration-300 hover:border-maple hover:shadow-md group"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-montserrat text-xs font-bold uppercase tracking-wider text-forest group-hover:text-maple transition-colors">
-                            📍 {summit.city}
-                          </span>
-                          <span className="font-serif text-sm italic font-bold text-maple">
-                            {summit.year}
-                          </span>
-                        </div>
-                        <span className="block font-montserrat text-[10px] font-bold uppercase tracking-wider text-maple mb-1">
-                          {summit.tag}
-                        </span>
-                        <p className="text-xs text-sage leading-relaxed">
-                          {summit.desc}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </Reveal>
-
-        </div>
-      </section>
-
-      {/* ===================== TESTIMONIALS{/* ===================== TESTIMONIALS / VOICES (EDITORIAL MOSAIC & SLIDER) ===================== */}
-      <section className="relative overflow-hidden bg-white border-t border-forest/15" data-testid="home-testimonials-section">
-        {/* Top Yellow Accent Bar (Matching Reference Screenshot) */}
-        <div className="h-1.5 w-full bg-maple" />
-
-        {/* Emerald Mosaic Top Banner */}
-        <div className="relative overflow-hidden bg-maple text-white py-16 md:py-24">
-          {/* Multi-face portrait mosaic background */}
-          <div className="absolute inset-0 grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 opacity-20 filter grayscale mix-blend-luminosity pointer-events-none">
-            {[
-              "https://images.pexels.com/photos/12903148/pexels-photo-12903148.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903144/pexels-photo-12903144.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903145/pexels-photo-12903145.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903147/pexels-photo-12903147.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903143/pexels-photo-12903143.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/6646918/pexels-photo-6646918.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903149/pexels-photo-12903149.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903150/pexels-photo-12903150.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903148/pexels-photo-12903148.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903144/pexels-photo-12903144.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903145/pexels-photo-12903145.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903147/pexels-photo-12903147.jpeg?auto=compress&cs=tinysrgb&w=400",
-              "https://images.pexels.com/photos/12903143/pexels-photo-12903143.jpeg?auto=compress&cs=tinysrgb&w=400",
-            ].map((src, idx) => (
-              <div key={idx} className="aspect-square overflow-hidden">
-                <img src={src} alt="Community Member" className="h-full w-full object-cover" />
-              </div>
-            ))}
-          </div>
-
-          {/* Deep logo green overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#1B053A]/95 via-[#3B0764]/90 to-[#7322F7]/85" />
-
-          {/* Content container */}
-          <div className="relative z-10 mx-auto max-w-[1500px] px-6 md:px-12">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-
-              {/* Left Side: Headline */}
-              <div className="lg:col-span-7">
-                <span className="text-[10.5px] font-bold uppercase tracking-[0.3em] text-[#E5B53A] font-montserrat block mb-3">
-                  {t.home.voicesKicker || (lang === "fr" ? "TÉMOIGNAGES • LA VOIX DE LA COMMUNAUTÉ" : "TESTIMONIALS • VOICES OF THE COMMUNITY")}
-                </span>
-                <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-normal leading-[1.18] tracking-tight text-white max-w-2xl font-serif">
-                  {lang === "fr" ? (
-                    <>
-                      Porté par plus de 500+
-                      <span className="block mt-1">participants et partenaires qui cheminent avec nous.</span>
-                    </>
-                  ) : lang === "ar" ? (
-                    <>
-                      بدعم وثقة أكثر من 500+
-                      <span className="block mt-1">مشارك وشريك ومجتمع محلي.</span>
-                    </>
-                  ) : (
-                    <>
-                      Supported by over 500+
-                      <span className="block mt-1">participants and partners who journey with us.</span>
-                    </>
-                  )}
-                </h2>
-                <p className="mt-4 text-[11px] font-mono tracking-wider text-white/75 uppercase">
-                  VIA CAP ENTREPRENEURS • CANADA & INTERNATIONAL
+              {/* Tagline from User */}
+              <div className="border-l-4 border-maple pl-4 py-1">
+                <p className="font-serif italic text-2xl sm:text-3xl text-forest/90 font-medium">
+                  « Le confort de votre foyer, dans nos véhicules »
+                </p>
+                <p className="text-xs uppercase tracking-widest text-maple font-bold mt-1">
+                  Vente de voitures • Location de véhicules et d’appartements
                 </p>
               </div>
 
-              {/* Right Side: Key Stats Metrics with Hairlines */}
-              <div className="lg:col-span-5 grid grid-cols-2 gap-x-8 gap-y-6 pt-6 lg:pt-0 border-t lg:border-t-0 lg:border-l border-white/20 lg:pl-10">
-                <div>
-                  <div className="h-px w-full bg-white/35 mb-2.5" />
-                  <p className="text-2xl sm:text-3xl font-light text-white tracking-tight">98%</p>
-                  <p className="text-[11px] uppercase tracking-wider text-white/75 mt-0.5 font-montserrat">{lang === "fr" ? "Taux de satisfaction" : lang === "ar" ? "نسبة الرضا" : "Satisfaction Rate"}</p>
-                </div>
-                <div>
-                  <div className="h-px w-full bg-white/35 mb-2.5" />
-                  <p className="text-2xl sm:text-3xl font-light text-white tracking-tight">250+</p>
-                  <p className="text-[11px] uppercase tracking-wider text-white/75 mt-0.5 font-montserrat">{lang === "fr" ? "Équipements reconditionnés" : lang === "ar" ? "أجهزة مجددة" : "Refurbished Devices"}</p>
-                </div>
-                <div>
-                  <div className="h-px w-full bg-white/35 mb-2.5" />
-                  <p className="text-2xl sm:text-3xl font-light text-white tracking-tight">40+</p>
-                  <p className="text-[11px] uppercase tracking-wider text-white/75 mt-0.5 font-montserrat">{lang === "fr" ? "Coopératives soutenues" : lang === "ar" ? "تعاونيات مدعومة" : "Cooperatives Supported"}</p>
-                </div>
-                <div>
-                  <div className="h-px w-full bg-white/35 mb-2.5" />
-                  <p className="text-2xl sm:text-3xl font-light text-white tracking-tight">15+</p>
-                  <p className="text-[11px] uppercase tracking-wider text-white/75 mt-0.5 font-montserrat">{lang === "fr" ? "Alliances mondiales" : lang === "ar" ? "تحالفات عالمية" : "Global Alliances"}</p>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Speech bubble pointer notch extending into the white testimonial slide below */}
-          <div className="absolute -bottom-5 left-10 sm:left-24 z-20 w-0 h-0 border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-t-[20px] border-t-maple" />
-        </div>
-
-        {/* White Testimonial Slider Container */}
-        <div className="bg-white py-16 md:py-24">
-          <div className="mx-auto max-w-[1500px] px-6 md:px-12">
-            <div className="max-w-4xl pl-2 sm:pl-8">
-
-              {/* Author name lead-in */}
-              <p className="text-sm font-semibold text-[#0D0E0D] mb-4 font-sans tracking-wide">
-                - {COMMUNITY_TESTIMONIALS[currentTestimonialIndex].author}
+              {/* Short Description */}
+              <p className="text-base sm:text-lg text-sage leading-relaxed max-w-xl">
+                {CATALOG_INFO.aboutShort} Retrouvez notre sélection complète de plus de 55 véhicules rigoureusement vérifiés : SUV tout-terrain, berlines Mercedes de prestige, gamme Kia neuve 0 km, légendaires Toyota et crossovers Hyundai.
               </p>
 
-              {/* Animated Quote Slide */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentTestimonialIndex}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <a
+                  href="#catalogue"
+                  className="px-7 py-4 bg-forest hover:bg-maple text-white text-xs font-bold uppercase tracking-[0.15em] transition-all flex items-center gap-3 shadow-lg"
                 >
-                  <blockquote className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] text-[#0D0E0D] font-light leading-relaxed">
-                    “{lang === "fr" ? COMMUNITY_TESTIMONIALS[currentTestimonialIndex].quoteFr : lang === "ar" ? COMMUNITY_TESTIMONIALS[currentTestimonialIndex].quoteAr : COMMUNITY_TESTIMONIALS[currentTestimonialIndex].quoteEn}”
-                  </blockquote>
+                  <span>Explorer le Catalogue</span>
+                  <ChevronRight className="h-4 w-4" />
+                </a>
 
-                  {/* Role / Org */}
-                  <p className="mt-6 text-xs font-bold uppercase tracking-[0.22em] text-maple font-montserrat">
-                    {(lang === "fr" ? COMMUNITY_TESTIMONIALS[currentTestimonialIndex].roleFr : lang === "ar" ? COMMUNITY_TESTIMONIALS[currentTestimonialIndex].roleAr : COMMUNITY_TESTIMONIALS[currentTestimonialIndex].roleEn)} • {COMMUNITY_TESTIMONIALS[currentTestimonialIndex].organization}
-                  </p>
+                <button
+                  onClick={() => setIsCustomOrderOpen(true)}
+                  className="px-7 py-4 bg-white border border-forest/30 hover:border-maple hover:text-maple text-forest text-xs font-bold uppercase tracking-[0.15em] transition-all flex items-center gap-2"
+                >
+                  <Sparkles className="h-4 w-4 text-maple" />
+                  <span>Commander sur Mesure</span>
+                </button>
 
-                  {/* 5 Stars */}
-                  <div className="mt-3 flex items-center gap-1 text-amber-400 text-lg">
-                    ★★★★★
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Slider Controls: Dots + Arrows */}
-              <div className="mt-10 flex items-center justify-between pt-6 border-t border-forest/10 max-w-xl">
-                {/* Dots Pagination */}
-                <div className="flex items-center gap-2.5">
-                  {COMMUNITY_TESTIMONIALS.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentTestimonialIndex(idx)}
-                      className={`h-2.5 rounded-full transition-all duration-300 ${currentTestimonialIndex === idx
-                        ? "w-8 bg-maple"
-                        : "w-2.5 bg-forest/20 hover:bg-forest/40"
-                        }`}
-                      aria-label={`Témoignage ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-
-                {/* Prev / Next Arrow Controls */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setCurrentTestimonialIndex((prev) => (prev - 1 + COMMUNITY_TESTIMONIALS.length) % COMMUNITY_TESTIMONIALS.length)}
-                    className="p-2 border border-forest/20 hover:border-maple hover:text-maple text-[#0D0E0D] transition-colors"
-                    aria-label="Témoignage précédent"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => setCurrentTestimonialIndex((prev) => (prev + 1) % COMMUNITY_TESTIMONIALS.length)}
-                    className="p-2 border border-forest/20 hover:border-maple hover:text-maple text-[#0D0E0D] transition-colors"
-                    aria-label="Témoignage suivant"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
+                <a
+                  href="https://wa.me/237677000000?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20des%20renseignements%20sur%20le%20Catalogue%20Automobile%202025"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow"
+                  title="WhatsApp 3M Services"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <span>WhatsApp Direct</span>
+                </a>
               </div>
 
+              {/* Quick Stat Bar */}
+              <div className="pt-6 grid grid-cols-3 gap-4 border-t border-forest/10 max-w-lg">
+                <div>
+                  <p className="font-heading font-black text-2xl sm:text-3xl text-forest">12</p>
+                  <p className="text-[11px] uppercase tracking-wider text-sage font-bold">Catégories Ciblées</p>
+                </div>
+                <div>
+                  <p className="font-heading font-black text-2xl sm:text-3xl text-forest">0 KM</p>
+                  <p className="text-[11px] uppercase tracking-wider text-sage font-bold">Gamme Neuve Kia/Toyota</p>
+                </div>
+                <div>
+                  <p className="font-heading font-black text-2xl sm:text-3xl text-forest">100%</p>
+                  <p className="text-[11px] uppercase tracking-wider text-sage font-bold">Inspectés & Révisés</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ===================== CONTACT + ENGAGEMENT SECTION ===================== */}
-      <section className="border-t border-forest/15 bg-[#FAF9F6]" data-testid="home-join-section" id="rejoindre">
-
-        {/* ---- ENTRONS EN CONTACT ---- */}
-        <div className="mx-auto max-w-[1600px] px-5 md:px-10 py-20 md:py-28">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-
-            {/* Left: Contact info */}
+            {/* Right Column: Featured Showcase Card */}
             <div className="lg:col-span-5">
-              <Reveal>
-                <span className="font-montserrat text-[10px] font-bold uppercase tracking-[0.3em] text-maple block mb-3">
-                  {lang === "fr" ? "ENTRONS EN CONTACT" : lang === "ar" ? "تواصل معنا" : "GET IN TOUCH"}
-                </span>
-                <h2 className="font-serif text-4xl sm:text-5xl font-normal tracking-tight text-forest leading-tight">
-                  {lang === "fr"
-                    ? <>Entrons en<br /><span className="italic font-light">Contact</span></>
-                    : lang === "ar"
-                    ? <>دعنا<br /><span className="italic font-light">نتواصل</span></>
-                    : <>Let's get<br /><span className="italic font-light">in touch</span></>}
-                </h2>
-                <div className="w-10 h-[2px] bg-maple mt-5 mb-6" />
-                <p className="text-sm text-sage leading-relaxed mb-8">
-                  {lang === "fr"
-                    ? "Que vous soyez un individu souhaitant s'impliquer, une organisation cherchant un partenaire, un acheteur international ou une institution voulant soutenir notre mission, nous sommes à votre écoute."
-                    : lang === "ar"
-                    ? "سواء كنت فرداً يسعى للمشاركة، أو منظمة تبحث عن شريك، أو مشترياً دولياً، أو مؤسسة تريد دعم مهمتنا، نحن هنا للاستماع."
-                    : "Whether you are an individual seeking involvement, an organization looking for a partner, an international buyer, or an institution wishing to support our mission, we are here to listen."}
-                </p>
-                <div className="space-y-3 text-sm text-sage">
-                  <div className="flex items-center gap-2">
-                    <span className="text-maple font-bold">✉</span>
-                    <a href="mailto:contact@capentrepreneurs.org" className="hover:text-forest transition-colors">contact@capentrepreneurs.org</a>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-maple font-bold mt-0.5">📍</span>
-                    <span>1265, rue Rachel E, porte 403<br />Montréal (Québec) H2J 2J9 • Canada</span>
+              <div className="relative border border-forest/20 bg-white p-4 sm:p-6 shadow-2xl">
+                <div className="absolute -top-3 -right-3 bg-maple text-white text-[10px] font-black uppercase tracking-widest py-1 px-3">
+                  ARRIVAGE 2025
+                </div>
+
+                <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-forest/10 mb-5">
+                  <img
+                    src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=compress&cs=tinysrgb&w=1200"
+                    alt="Mercedes Maybach & SUV 3M Services"
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-maple-light">
+                      PRESTIGE & CONFORT
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-heading font-bold text-white leading-tight">
+                      MERCEDES-BENZ & SUV 4x4
+                    </h3>
+                    <p className="text-xs text-white/80 mt-1">
+                      Disponibles immédiatement à l'achat et en location à Yaoundé.
+                    </p>
                   </div>
                 </div>
 
-                {/* À PROPOS block */}
-                <div className="mt-10 border-t border-forest/10 pt-8">
-                  <span className="font-montserrat text-[10px] font-bold uppercase tracking-[0.25em] text-maple block mb-3">
-                    {lang === "fr" ? "À PROPOS" : lang === "ar" ? "عن كاب" : "ABOUT"}
-                  </span>
-                  <p className="text-xs text-sage leading-relaxed">
-                    {lang === "fr"
-                      ? "Cap Entrepreneurs rassemble créateurs, mentors et partenaires pour bâtir des écosystèmes entrepreneuriaux inclusifs et durables. Enracinés au Québec et rayonnant à l'international, nous accompagnons les projets à fort impact social."
-                      : lang === "ar"
-                      ? "تجمع كاب رواد الأعمال المبدعين والموجهين والشركاء لبناء منظومات ريادية شاملة ومستدامة. متجذرون في كيبيك ومنفتحون على العالم، نرافق المشاريع ذات الأثر الاجتماعي العالي."
-                      : "Cap Entrepreneurs brings together creators, mentors and partners to build inclusive and sustainable entrepreneurial ecosystems. Rooted in Québec and internationally connected, we accompany high-impact social projects."}
-                  </p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs py-2 border-b border-forest/10">
+                    <span className="text-sage font-medium">Fournisseur :</span>
+                    <span className="font-bold text-forest">3M SERVICES SARL</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs py-2 border-b border-forest/10">
+                    <span className="text-sage font-medium">Localisation :</span>
+                    <span className="font-bold text-forest">Yaoundé, Région du Centre</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs py-2 border-b border-forest/10">
+                    <span className="text-sage font-medium">Services phares :</span>
+                    <span className="font-bold text-maple">Vente • Location Véhicules & Appartements</span>
+                  </div>
                 </div>
-              </Reveal>
-            </div>
 
-            {/* Right: Contact form */}
-            <div className="lg:col-span-7">
-              <Reveal delay={0.1}>
-                <div className="bg-white border border-forest/10 p-8 sm:p-10 shadow-sm">
-                  {contactSubmitted ? (
-                    <div className="py-10 text-center flex flex-col items-center">
-                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-maple text-white">
-                        <CheckCircle2 className="h-7 w-7" />
-                      </div>
-                      <h3 className="font-serif text-2xl font-bold text-forest">
-                        {lang === "fr" ? "Message envoyé !" : lang === "ar" ? "تم إرسال الرسالة!" : "Message Sent!"}
-                      </h3>
-                      <p className="mt-2 text-sm text-sage max-w-sm mx-auto">
-                        {lang === "fr" ? "Notre équipe vous répondra rapidement." : lang === "ar" ? "سيرد فريقنا عليك قريباً." : "Our team will get back to you shortly."}
-                      </p>
-                      <button type="button" onClick={() => { setContactSubmitted(false); setContactForm({ name: "", email: "", message: "" }); }}
-                        className="mt-5 inline-flex items-center gap-2 border border-forest px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-forest hover:bg-forest hover:text-bone transition-colors">
-                        {lang === "fr" ? "Envoyer un autre message" : lang === "ar" ? "إرسال رسالة أخرى" : "Send Another Message"}
-                      </button>
-                    </div>
-                  ) : (
-                    <form onSubmit={async (e) => {
-                      e.preventDefault();
-                      if (!contactForm.name || !contactForm.email || !contactForm.message) return;
-                      setContactSubmitting(true);
-                      try {
-                        await api.post("/submissions", { type: "contact", payload: { ...contactForm, source: "home_contact_form" } });
-                        setContactSubmitted(true);
-                        toast.success(lang === "fr" ? "Message envoyé avec succès !" : lang === "ar" ? "تم إرسال الرسالة بنجاح!" : "Message sent successfully!");
-                      } catch (err) {
-                        console.error(err);
-                        toast.error(lang === "fr" ? "Erreur lors de l'envoi. Veuillez réessayer." : lang === "ar" ? "خطأ في الإرسال. يرجى المحاولة مرة أخرى." : "Error sending. Please try again.");
-                      } finally { setContactSubmitting(false); }
-                    }} className="space-y-5" data-testid="home-contact-form">
-
-                      <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-[0.22em] text-forest mb-2">
-                          {lang === "fr" ? "NOM *" : lang === "ar" ? "الاسم *" : "NAME *"}
-                        </label>
-                        <input type="text" required
-                          placeholder={lang === "fr" ? "Votre nom complet" : lang === "ar" ? "اسمك الكامل" : "Your full name"}
-                          value={contactForm.name}
-                          onChange={(e) => setContactForm(p => ({ ...p, name: e.target.value }))}
-                          className="w-full border border-forest/20 bg-[#FAF9F6] px-4 py-3 text-sm text-forest focus:border-maple focus:outline-none" />
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-[0.22em] text-forest mb-2">
-                          {lang === "fr" ? "COURRIEL *" : lang === "ar" ? "البريد الإلكتروني *" : "EMAIL *"}
-                        </label>
-                        <input type="email" required
-                          placeholder={lang === "fr" ? "vous@exemple.com" : lang === "ar" ? "name@example.com" : "you@example.com"}
-                          value={contactForm.email}
-                          onChange={(e) => setContactForm(p => ({ ...p, email: e.target.value }))}
-                          className="w-full border border-forest/20 bg-[#FAF9F6] px-4 py-3 text-sm text-forest focus:border-maple focus:outline-none" />
-                      </div>
-
-                      <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-[0.22em] text-forest mb-2">
-                          {lang === "fr" ? "MESSAGE *" : lang === "ar" ? "الرسالة *" : "MESSAGE *"}
-                        </label>
-                        <textarea required rows={5}
-                          placeholder={lang === "fr" ? "Remplissez simplement le formulaire ci-dessous et notre équipe vous répondra rapidement." : lang === "ar" ? "اكتب رسالتك هنا..." : "Tell us how we can help or collaborate..."}
-                          value={contactForm.message}
-                          onChange={(e) => setContactForm(p => ({ ...p, message: e.target.value }))}
-                          className="w-full border border-forest/20 bg-[#FAF9F6] px-4 py-3 text-sm text-forest focus:border-maple focus:outline-none resize-none" />
-                      </div>
-
-                      <button type="submit" disabled={contactSubmitting}
-                        className="w-full inline-flex items-center justify-center gap-2 bg-forest px-8 py-4 font-montserrat text-xs font-bold uppercase tracking-[0.2em] text-white shadow-md transition-all hover:bg-maple disabled:opacity-50">
-                        {contactSubmitting ? (
-                          <><Loader2 className="h-4 w-4 animate-spin" /><span>{lang === "fr" ? "Envoi..." : lang === "ar" ? "جاري الإرسال..." : "Sending..."}</span></>
-                        ) : (
-                          <><span>{lang === "fr" ? "ENVOYER LE FORMULAIRE" : lang === "ar" ? "إرسال النموذج" : "SEND THE FORM"}</span><ArrowRight className="h-4 w-4" /></>
-                        )}
-                      </button>
-                    </form>
-                  )}
+                <div className="mt-5 pt-3">
+                  <a
+                    href="#a-propos"
+                    className="w-full py-3 bg-forest hover:bg-forest/90 text-white text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <span>Découvrir QUI SOMMES-NOUS ?</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </a>
                 </div>
-              </Reveal>
+              </div>
             </div>
 
           </div>
         </div>
-
       </section>
 
-      {/* ===================== FINAL CALL TO ACTION ===================== */}
-      <section className="relative overflow-hidden border-t border-forest/15 bg-[#0D0E0D] text-bone" data-testid="home-cta-section">
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[800px] rounded-full bg-maple/15 blur-[160px]" />
-        </div>
 
-        <div className="relative z-10 mx-auto max-w-[1500px] px-5 py-24 text-center md:px-10 md:py-32">
-          <Reveal>
-            <span className="mb-4 inline-block rounded-full border border-bone/20 bg-white/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] text-bone backdrop-blur-md font-montserrat">
-              {lang === "fr" ? "ENGAGEZ-VOUS DÈS AUJOURD'HUI" : lang === "ar" ? "ابدأ مسارك اليوم" : "START YOUR JOURNEY TODAY"}
-            </span>
-            <h2 className="mx-auto mt-4 max-w-4xl font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-normal leading-tight tracking-tight text-white">
-              {t.home.h6Title || "Prêt à ouvrir de nouveaux horizons ?"}
-            </h2>
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-bone/80 md:text-xl font-sans">
-              {t.home.h6Sub || "Que vous souhaitiez apprendre, bâtir ou investir dans le changement - il y a une place pour vous ici."}
-            </p>
-            <div className="mt-10 flex flex-wrap justify-center gap-4">
-              <Magnetic>
-                <Link
-                  to="/join"
-                  data-testid="cta-member-button"
-                  className="group inline-flex items-center gap-3 bg-maple hover:bg-purple-700 px-9 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-white shadow-xl transition-all duration-300"
-                >
-                  <span>{t.home.ctaJoin || "Rejoindre la communauté"}</span>
-                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </Link>
-              </Magnetic>
-              <Magnetic>
-                <Link
-                  to="/partners"
-                  data-testid="cta-partner-button"
-                  className="group inline-flex items-center gap-3 border-2 border-bone/80 bg-transparent px-9 py-4 font-heading text-sm font-bold uppercase tracking-[0.15em] text-bone backdrop-blur-sm transition-all duration-300 hover:bg-bone hover:text-[#0D0E0D]"
-                >
-                  <span>{t.home.ctaPartner || "Devenir partenaire"}</span>
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Magnetic>
+      {/* SECTION QUI SOMMES NOUS ? */}
+      <section id="a-propos" className="py-20 md:py-28 bg-[#F7F5F0] border-b border-forest/15 relative">
+        <div className="mx-auto max-w-[1440px] px-5 md:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Visual Box */}
+            <div className="lg:col-span-5 order-2 lg:order-1">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div className="border border-forest/20 overflow-hidden h-48 sm:h-56 bg-white shadow-sm">
+                    <img
+                      src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=compress&cs=tinysrgb&w=600"
+                      alt="SUV 3M Services"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="p-4 bg-forest text-bone border border-forest">
+                    <p className="font-serif italic text-lg leading-snug">
+                      « Le confort de votre foyer, dans nos véhicules »
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wider text-maple mt-2 font-mono">
+                      Devise Officielle 3M SERVICES
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-6">
+                  <div className="p-4 bg-white border border-forest/15 shadow-sm">
+                    <Car className="h-6 w-6 text-maple mb-2" />
+                    <p className="text-xs font-bold uppercase tracking-wider text-forest">Vente de voitures</p>
+                    <p className="text-[11px] text-sage mt-1">Neuves 0 km & occasions certifiées prêtes à rouler.</p>
+                  </div>
+                  <div className="border border-forest/20 overflow-hidden h-48 sm:h-56 bg-white shadow-sm">
+                    <img
+                      src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=compress&cs=tinysrgb&w=600"
+                      alt="Appartement meublé Yaoundé"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          </Reveal>
+
+            {/* Editorial Content */}
+            <div className="lg:col-span-7 order-1 lg:order-2 space-y-6">
+              <div className="flex items-center gap-2">
+                <span className="h-px w-8 bg-maple" />
+                <span className="text-xs font-bold uppercase tracking-[0.25em] text-maple font-mono">
+                  QUI SOMMES NOUS ?
+                </span>
+              </div>
+
+              <h2 className="font-heading font-black text-3xl sm:text-4xl md:text-5xl text-forest tracking-tight leading-tight">
+                3M SERVICES : L'Excellence Automobile & Immobilière à Yaoundé.
+              </h2>
+
+              <p className="font-serif text-xl sm:text-2xl italic text-forest/90 leading-snug border-l-2 border-maple pl-4">
+                3M services est un fournisseur expérimenté de services automobiles basé dans la région du centre, plus précisément dans la ville de Yaoundé.
+              </p>
+
+              <p className="text-sm sm:text-base text-sage leading-relaxed">
+                Forts d'une connaissance intime des exigences du réseau routier camerounais et des attentes de notre clientèle privée et institutionnelle, nous sélectionnons chaque modèle pour sa fiabilité mécanique, sa climatisation irréprochable et son confort souverain.
+              </p>
+
+              {/* 3 Pillars from Prompt */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="p-5 bg-white border border-forest/15 shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-8 w-8 bg-maple/10 text-maple flex items-center justify-center font-bold text-xs">
+                      01
+                    </div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-forest">
+                      Location de Véhicules & d'Appartements
+                    </h3>
+                  </div>
+                  <p className="text-xs text-sage leading-relaxed">
+                    Mise à disposition de véhicules avec ou sans chauffeur pour séjours, cortèges, missions dans les 10 régions, ainsi que des appartements meublés grand standing à Yaoundé.
+                  </p>
+                </div>
+
+                <div className="p-5 bg-white border border-forest/15 shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-8 w-8 bg-forest text-bone flex items-center justify-center font-bold text-xs">
+                      02
+                    </div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-forest">
+                      Vente de Voitures
+                    </h3>
+                  </div>
+                  <p className="text-xs text-sage leading-relaxed">
+                    Parc de véhicules neufs (0 km) sous garantie constructeur et occasions rigoureusement contrôlées : SUV, berlines, pick-up utilitaires et citadines économiques.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-wrap gap-4">
+                <a
+                  href="#contact"
+                  className="px-6 py-3.5 bg-forest hover:bg-maple text-white text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center gap-2"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span>Nous Contacter à Yaoundé</span>
+                </a>
+                <a
+                  href="#appartements"
+                  className="px-6 py-3.5 bg-white border border-forest/20 hover:border-forest text-forest text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center gap-2"
+                >
+                  <HomeIcon className="h-4 w-4 text-maple" />
+                  <span>Voir les Appartements Meublés</span>
+                </a>
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
-      {/* INVOLVEMENT FORM MODAL */}
-      <AnimatePresence>
-        {activeInvolvementCard && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={closeInvolvementModal}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
-            />
 
-            {/* Modal Dialog */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full max-w-xl bg-white border border-forest/15 shadow-2xl p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto"
-            >
-              {/* Close Button */}
+      {/* MAIN CATALOGUE SECTION */}
+      <section id="catalogue" className="py-20 md:py-28 bg-bone relative border-b border-forest/15">
+        <div className="mx-auto max-w-[1440px] px-5 md:px-10">
+          
+          {/* Section Title */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-forest/15">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2.5 py-1 bg-maple text-white text-[11px] font-bold uppercase tracking-wider">
+                  ÉDITION 2025
+                </span>
+                <span className="text-xs font-mono text-sage uppercase tracking-widest">
+                  TOUTES MARQUES & MODÈLES
+                </span>
+              </div>
+              <h2 className="font-heading font-black text-3xl sm:text-5xl text-forest tracking-tight">
+                LE CATALOGUE AUTOMOBILE
+              </h2>
+              <p className="font-serif italic text-lg sm:text-xl text-sage mt-1">
+                Explorez nos 12 sections : SUV, Mercedes, Kia, Toyota, Hyundai et commandes spéciales.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-forest font-mono">
+                {filteredVehicles.length} Véhicules trouvés
+              </span>
               <button
-                type="button"
-                onClick={closeInvolvementModal}
-                className="absolute top-5 right-5 p-2 text-forest/60 hover:text-forest transition-colors"
-                aria-label={lang === "fr" ? "Fermer" : lang === "ar" ? "إغلاق" : "Close"}
+                onClick={() => setIsCustomOrderOpen(true)}
+                className="px-4 py-2 bg-maple text-white text-xs font-bold uppercase tracking-wider hover:bg-forest transition-colors flex items-center gap-1.5"
               >
-                <X className="h-5 w-5" />
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Section 12 : Sur Commande</span>
+              </button>
+            </div>
+          </div>
+
+          {/* FILTER TOOLBAR */}
+          <div className="py-6 space-y-4">
+            
+            {/* Search Input & Condition Pills */}
+            <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
+              
+              {/* Search Bar */}
+              <div className="relative flex-1 max-w-lg">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-forest/40" />
+                <input
+                  type="text"
+                  placeholder="Rechercher par modèle (ex: RAV4, Maybach, Hilux, Seltos, Prado, Kona...)"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-forest/20 text-xs font-medium text-forest placeholder:text-sage/60 focus:outline-none focus:border-maple"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-sage hover:text-forest"
+                  >
+                    Effacer
+                  </button>
+                )}
+              </div>
+
+              {/* Quick Filter Buttons */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-forest mr-1 flex items-center gap-1">
+                  <SlidersHorizontal className="h-3.5 w-3.5" /> État :
+                </span>
+                {[
+                  { label: "Tous", val: "all" },
+                  { label: "Neuves (0 km)", val: "Neuve" },
+                  { label: "Occasions Certifiées", val: "Occasion" }
+                ].map((btn) => (
+                  <button
+                    key={btn.val}
+                    onClick={() => setConditionFilter(btn.val)}
+                    className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors border ${
+                      conditionFilter === btn.val
+                        ? "bg-forest text-white border-forest"
+                        : "bg-white text-forest border-forest/20 hover:border-forest"
+                    }`}
+                  >
+                    {btn.label}
+                  </button>
+                ))}
+
+                <span className="text-xs font-bold uppercase tracking-wider text-forest ml-2 mr-1">
+                  Boîte :
+                </span>
+                {[
+                  { label: "Toutes", val: "all" },
+                  { label: "Auto", val: "auto" },
+                  { label: "Manuelle", val: "manuelle" },
+                  { label: "4*4", val: "4*" }
+                ].map((btn) => (
+                  <button
+                    key={btn.val}
+                    onClick={() => setTransmissionFilter(btn.val)}
+                    className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors border ${
+                      transmissionFilter === btn.val
+                        ? "bg-maple text-white border-maple"
+                        : "bg-white text-forest border-forest/20 hover:border-maple"
+                    }`}
+                  >
+                    {btn.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* SECTIONS TABS (01 to 12) */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-2 scrollbar-none">
+              <button
+                onClick={() => setSelectedSection("all")}
+                className={`px-4 py-2 whitespace-nowrap text-xs font-bold uppercase tracking-wider transition-colors border ${
+                  selectedSection === "all"
+                    ? "bg-forest text-white border-forest shadow-sm"
+                    : "bg-white text-forest border-forest/20 hover:border-forest hover:bg-forest/5"
+                }`}
+              >
+                Toutes les Catégories ({VEHICLES.length})
               </button>
 
-              {submitted ? (
-                <div className="py-8 text-center flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-full bg-maple/10 flex items-center justify-center mb-4">
-                    <CheckCircle2 className="h-10 w-10 text-maple" />
-                  </div>
-                  <span className="font-montserrat text-xs font-bold uppercase tracking-[0.2em] text-maple mb-2">
-                    {lang === "fr" ? "Demande Enregistrée" : lang === "ar" ? "تم تسجيل الطلب" : "Inquiry Received"}
-                  </span>
-                  <h3 className="font-heading text-2xl font-black text-forest mb-3">
-                    {lang === "fr" ? "Merci pour votre engagement !" : lang === "ar" ? "شكراً لمشاركتك!" : "Thank You For Getting Involved!"}
-                  </h3>
-                  <p className="text-sage text-sm leading-relaxed max-w-md mb-8">
-                    {lang === "fr"
-                      ? "Votre formulaire a bien été transmis à l'équipe CAP Entrepreneurs et est désormais enregistré dans notre système. Nous reviendrons vers vous très rapidement."
-                      : lang === "ar"
-                        ? "تم استلام طلبك بنجاح وسيتواصل معك فريق كاب رواد الأعمال قريباً لمتابعة الخطوات التالية."
-                        : "Your inquiry has been successfully received by the CAP Entrepreneurs team. We will get back to you shortly."}
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center">
-                    <button
-                      type="button"
-                      onClick={closeInvolvementModal}
-                      className="w-full sm:w-auto px-8 py-3.5 bg-forest text-white font-montserrat text-xs font-bold uppercase tracking-[0.16em] hover:bg-maple transition-colors"
-                    >
-                      Fermer
-                    </button>
-                    <Link
-                      to={activeInvolvementCard.link}
-                      onClick={closeInvolvementModal}
-                      className="w-full sm:w-auto px-8 py-3.5 border border-forest/20 text-forest font-montserrat text-xs font-bold uppercase tracking-[0.16em] hover:bg-forest hover:text-white transition-colors"
-                    >
-                      Consulter la page dédiée ↗
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="mb-6 pr-8">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-montserrat text-[11px] font-bold uppercase tracking-[0.2em] text-maple">
-                        {activeInvolvementCard.number} • {activeInvolvementCard.tag}
+              {CATALOG_SECTIONS.map((sec) => (
+                <button
+                  key={sec.number}
+                  onClick={() => setSelectedSection(sec.number)}
+                  className={`px-4 py-2 whitespace-nowrap text-xs font-bold uppercase tracking-wider transition-colors border ${
+                    selectedSection === sec.number
+                      ? "bg-maple text-white border-maple shadow-sm"
+                      : "bg-white text-forest border-forest/20 hover:border-maple hover:bg-maple/5"
+                  }`}
+                >
+                  <span className="opacity-70 font-mono mr-1.5">{sec.number}</span>
+                  {sec.title}
+                </button>
+              ))}
+            </div>
+
+          </div>
+
+          {/* ACTIVE SECTION BANNER IF SPECIFIC SECTION SELECTED */}
+          {selectedSection !== "all" && (
+            <div className="my-6 p-4 sm:p-6 bg-forest text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-forest">
+              <div>
+                <span className="text-xs font-mono font-bold text-maple uppercase tracking-widest">
+                  SECTION {selectedSection}
+                </span>
+                <h3 className="text-xl sm:text-2xl font-heading font-black text-white mt-0.5">
+                  {CATALOG_SECTIONS.find((s) => s.number === selectedSection)?.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-white/70 mt-1">
+                  {CATALOG_SECTIONS.find((s) => s.number === selectedSection)?.subtitle}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setSelectedSection("all")}
+                className="text-xs underline text-maple-light hover:text-white"
+              >
+                Afficher tout le catalogue (Toutes sections)
+              </button>
+            </div>
+          )}
+
+          {/* VEHICLES GRID */}
+          {filteredVehicles.length === 0 ? (
+            <div className="py-20 text-center bg-white border border-forest/15 p-8">
+              <Car className="h-12 w-12 text-forest/30 mx-auto mb-4" />
+              <h4 className="text-xl font-bold font-heading text-forest">Aucun véhicule ne correspond aux filtres</h4>
+              <p className="text-sm text-sage max-w-md mx-auto mt-2">
+                Essayez d'ajuster votre recherche ou utilisez notre service de commande sur mesure pour trouver exactement le véhicule de vos rêves.
+              </p>
+              <div className="mt-6 flex justify-center gap-3">
+                <button
+                  onClick={() => {
+                    setSelectedSection("all");
+                    setConditionFilter("all");
+                    setTransmissionFilter("all");
+                    setSearchQuery("");
+                  }}
+                  className="px-5 py-2.5 bg-forest text-white text-xs font-bold uppercase tracking-wider"
+                >
+                  Réinitialiser les filtres
+                </button>
+                <button
+                  onClick={() => setIsCustomOrderOpen(true)}
+                  className="px-5 py-2.5 bg-maple text-white text-xs font-bold uppercase tracking-wider"
+                >
+                  Passer une commande sur mesure
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {filteredVehicles.map((veh) => {
+                const isNew = veh.condition === "Neuve" || veh.mileage === "0 km";
+
+                return (
+                  <div
+                    key={veh.id}
+                    className="group flex flex-col justify-between bg-white border border-forest/20 hover:border-maple transition-all duration-300 hover:shadow-xl relative overflow-hidden"
+                  >
+                    {/* Top Image Container */}
+                    <div className="relative h-56 sm:h-64 w-full overflow-hidden bg-forest/10">
+                      <img
+                        src={veh.image}
+                        alt={veh.model}
+                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+                      {/* Top Badges */}
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
+                        <span className="px-2 py-0.5 bg-forest/90 text-white text-[10px] font-bold font-mono uppercase tracking-wider">
+                          {veh.section} • {veh.brand}
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
+                            isNew ? "bg-emerald-500 text-white" : "bg-amber-400 text-black"
+                          }`}
+                        >
+                          {veh.condition}
+                        </span>
+                      </div>
+
+                      {/* Mileage / Year Tag */}
+                      <div className="absolute top-3 right-3 z-10">
+                        <span className="px-2 py-0.5 bg-black/70 text-white text-[10px] font-mono font-bold">
+                          {veh.mileage || (isNew ? "0 km" : "Occasion")}
+                        </span>
+                      </div>
+
+                      {/* Bottom Title on Image */}
+                      <div className="absolute bottom-3 left-3 right-3 text-white">
+                        <p className="text-[10px] font-mono uppercase tracking-widest text-maple-light">
+                          {veh.sectionTitle}
+                        </p>
+                        <h4 className="text-lg sm:text-xl font-heading font-black text-white leading-tight mt-0.5 drop-shadow">
+                          {veh.model}
+                        </h4>
+                      </div>
+                    </div>
+
+                    {/* Specifications Body */}
+                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                      
+                      {/* Specs Matrix */}
+                      <div className="grid grid-cols-2 gap-2.5 text-xs border-b border-forest/10 pb-4">
+                        <div className="flex items-center gap-2">
+                          <Fuel className="h-3.5 w-3.5 text-maple flex-shrink-0" />
+                          <span className="text-sage">Moteur :</span>
+                          <span className="font-bold text-forest">{veh.engine}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Gauge className="h-3.5 w-3.5 text-maple flex-shrink-0" />
+                          <span className="text-sage">Boîte :</span>
+                          <span className="font-bold text-forest truncate" title={veh.transmission}>
+                            {veh.transmission}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Users className="h-3.5 w-3.5 text-maple flex-shrink-0" />
+                          <span className="text-sage">Places :</span>
+                          <span className="font-bold text-forest">{veh.seats || "5 places"}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-3.5 w-3.5 text-maple flex-shrink-0" />
+                          <span className="text-sage">Compteur :</span>
+                          <span className="font-bold text-forest">{veh.mileage || (isNew ? "0 km" : "Certifié")}</span>
+                        </div>
+                      </div>
+
+                      {/* Short Description */}
+                      <p className="text-xs text-sage line-clamp-2 leading-relaxed">
+                        {veh.description}
+                      </p>
+
+                      {/* Action CTA Buttons */}
+                      <div className="pt-2 flex items-center gap-2">
+                        <button
+                          onClick={() => openVehicleModal(veh)}
+                          className="flex-1 py-2.5 px-3 bg-forest hover:bg-maple text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                          <span>Fiche & Devis</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </button>
+
+                        <a
+                          href={`https://wa.me/237677000000?text=${encodeURIComponent(
+                            `Bonjour 3M SERVICES, je souhaite réserver ou commander : ${veh.model} (Moteur: ${veh.engine}, Boite: ${veh.transmission}, Section: ${veh.section})`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
+                          title="Commander sur WhatsApp"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Footer strip */}
+                    <div className="px-5 py-2 bg-[#F9F8F6] border-t border-forest/10 flex items-center justify-between text-[10px] text-sage font-mono">
+                      <span>RÉF : {veh.id.toUpperCase()}</span>
+                      <span className="text-emerald-700 font-bold flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> Yaoundé Disponible
                       </span>
                     </div>
-                    <h3 className="font-heading text-2xl sm:text-3xl font-black text-forest leading-tight">
-                      {activeInvolvementCard.title}
-                    </h3>
-                    <p className="mt-2 text-xs sm:text-sm text-sage leading-relaxed">
-                      {activeInvolvementCard.intro}
-                    </p>
+
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+        </div>
+      </section>
+
+
+      {/* SECTION 12: COMMANDES SPÉCIALES & AUTRES MARQUES FEATURED */}
+      <section className="py-20 bg-forest text-bone relative overflow-hidden border-b border-forest/30">
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+
+        <div className="mx-auto max-w-[1440px] px-5 md:px-10 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            
+            <div className="lg:col-span-8 space-y-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-maple text-white text-xs font-bold font-mono uppercase tracking-widest">
+                SECTION 12 • SERVICE SUR MESURE
+              </div>
+
+              <h2 className="font-heading font-black text-3xl sm:text-5xl text-white tracking-tight leading-tight">
+                ET BIEN D'AUTRES MARQUES SUR COMMANDES...
+              </h2>
+
+              <p className="font-serif italic text-xl sm:text-2xl text-bone/90">
+                Vous recherchez une BMW, une Audi, un Lexus, un Land Rover Defender, un Range Rover ou tout autre véhicule spécifique ?
+              </p>
+
+              <p className="text-sm sm:text-base text-bone/70 max-w-2xl leading-relaxed">
+                3M SERVICES déploie son réseau de sourcing international (Europe, Émirats Arabes Unis, Amérique, Asie) pour vous livrer le véhicule exact de votre configuration avec garantie d'inspection certifiée, acheminement maritime sécurisé et formalités douanières complètes à Yaoundé.
+              </p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
+                {[
+                  { title: "Sourcing Vérifié", desc: "Inspection 150 points" },
+                  { title: "Dédouanement", desc: "Clé en main Yaoundé" },
+                  { title: "Toutes Marques", desc: "Luxe, 4x4, Berline" },
+                  { title: "Garantie 3M", desc: "Transparence totale" }
+                ].map((item, idx) => (
+                  <div key={idx} className="p-3 bg-white/5 border border-white/10">
+                    <p className="text-xs font-bold uppercase tracking-wider text-maple-light">{item.title}</p>
+                    <p className="text-[11px] text-bone/60 mt-0.5">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="lg:col-span-4 flex flex-col gap-4">
+              <div className="p-6 bg-white/10 border border-white/20 backdrop-blur-sm text-center">
+                <Sparkles className="h-8 w-8 text-maple-light mx-auto mb-3" />
+                <h4 className="text-lg font-bold font-heading text-white">Votre Projet Automobile</h4>
+                <p className="text-xs text-bone/70 mt-1 mb-5">
+                  Indiquez-nous la marque, l'année et le budget souhaité. Devis gratuit sous 24h.
+                </p>
+                <button
+                  onClick={() => setIsCustomOrderOpen(true)}
+                  className="w-full py-3.5 px-6 bg-maple hover:bg-white hover:text-forest text-white text-xs font-bold uppercase tracking-widest transition-all shadow-lg"
+                >
+                  Remplir le Formulaire Commande
+                </button>
+              </div>
+
+              <a
+                href="https://wa.me/237677000000?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20commander%20une%20voiture%20sur%20mesure%20(Section%2012)"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider text-center flex items-center justify-center gap-2 transition-colors"
+              >
+                <MessageSquare className="h-4 w-4" />
+                <span>Discuter de ma commande sur WhatsApp</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      {/* SECTION APPARTEMENTS MEUBLÉS À YAOUNDÉ */}
+      <section id="appartements" className="py-20 md:py-28 bg-[#FAF9F5] border-b border-forest/15">
+        <div className="mx-auto max-w-[1440px] px-5 md:px-10">
+          
+          <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+            <span className="text-xs font-bold uppercase tracking-[0.25em] text-maple font-mono">
+              3M SERVICES IMMOBILIER
+            </span>
+            <h2 className="font-heading font-black text-3xl sm:text-5xl text-forest tracking-tight">
+              LOCATION D’APPARTEMENTS MEUBLÉS
+            </h2>
+            <p className="font-serif italic text-lg sm:text-xl text-sage">
+              « Le confort de votre foyer » au cœur de la capitale politique du Cameroun.
+            </p>
+            <p className="text-xs sm:text-sm text-sage leading-relaxed">
+              Pour vos séjours d'affaires, missions professionnelles ou vacances en famille à Yaoundé, profitez de résidences haut standing, sécurisées 24h/24, climatisées et entièrement équipées.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {APARTMENTS.map((apt) => (
+              <div
+                key={apt.id}
+                className="bg-white border border-forest/20 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+              >
+                <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-forest/10">
+                  <img
+                    src={apt.image}
+                    alt={apt.title}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+                  
+                  <div className="absolute top-4 left-4">
+                    <span className="px-3 py-1 bg-forest text-white text-xs font-bold uppercase tracking-wider">
+                      {apt.type}
+                    </span>
                   </div>
 
-                  <form onSubmit={handleInvolvementSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-forest mb-1.5">
-                        {lang === "fr" ? "Nom complet" : lang === "ar" ? "الاسم الكامل" : "Full Name"} <span className="text-maple">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder={lang === "fr" ? "Ex: Amara Traoré" : lang === "ar" ? "مثال: أمارا تراوري" : "e.g., Alex Tremblay"}
-                        value={formValues.name || ""}
-                        onChange={(e) => setFormValues({ ...formValues, name: e.target.value })}
-                        className="w-full border border-forest/20 px-3.5 py-2.5 text-sm focus:outline-none focus:border-forest"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-forest mb-1.5">
-                        {lang === "fr" ? "Adresse courriel" : lang === "ar" ? "البريد الإلكتروني" : "Email Address"} <span className="text-maple">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder={lang === "fr" ? "vous@exemple.com" : lang === "ar" ? "name@example.com" : "you@example.com"}
-                        value={formValues.email || ""}
-                        onChange={(e) => setFormValues({ ...formValues, email: e.target.value })}
-                        className="w-full border border-forest/20 px-3.5 py-2.5 text-sm focus:outline-none focus:border-forest"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-forest mb-1.5">
-                        {lang === "fr" ? "Numéro de téléphone" : lang === "ar" ? "رقم الهاتف" : "Phone Number"} <span className="text-sage text-[10px] font-normal">{lang === "fr" ? "(optionnel)" : lang === "ar" ? "(اختياري)" : "(optional)"}</span>
-                      </label>
-                      <input
-                        type="tel"
-                        placeholder="+1 (514) 000-0000"
-                        value={formValues.phone || ""}
-                        onChange={(e) => setFormValues({ ...formValues, phone: e.target.value })}
-                        className="w-full border border-forest/20 px-3.5 py-2.5 text-sm focus:outline-none focus:border-forest"
-                      />
-                    </div>
-
-                    {activeInvolvementCard.fields?.map((f) => {
-                      if (f.kind === "select") {
-                        return (
-                          <div key={f.name}>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-forest mb-1.5">
-                              {f.label} {f.required && <span className="text-maple">*</span>}
-                            </label>
-                            <select
-                              required={f.required}
-                              value={formValues[f.name] || ""}
-                              onChange={(e) => setFormValues({ ...formValues, [f.name]: e.target.value })}
-                              className="w-full border border-forest/20 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-forest"
-                            >
-                              {f.options.map((opt) => (
-                                <option key={opt} value={opt}>
-                                  {opt}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        );
-                      }
-                      if (f.kind === "textarea") {
-                        return (
-                          <div key={f.name}>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-forest mb-1.5">
-                              {f.label} {f.required && <span className="text-maple">*</span>}
-                            </label>
-                            <textarea
-                              rows={3}
-                              required={f.required}
-                              placeholder={f.placeholder}
-                              value={formValues[f.name] || ""}
-                              onChange={(e) => setFormValues({ ...formValues, [f.name]: e.target.value })}
-                              className="w-full border border-forest/20 px-3.5 py-2.5 text-sm focus:outline-none focus:border-forest"
-                            />
-                          </div>
-                        );
-                      }
-                      return (
-                        <div key={f.name}>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-forest mb-1.5">
-                            {f.label} {f.required && <span className="text-maple">*</span>}
-                          </label>
-                          <input
-                            type="text"
-                            required={f.required}
-                            placeholder={f.placeholder}
-                            value={formValues[f.name] || ""}
-                            onChange={(e) => setFormValues({ ...formValues, [f.name]: e.target.value })}
-                            className="w-full border border-forest/20 px-3.5 py-2.5 text-sm focus:outline-none focus:border-forest"
-                          />
-                        </div>
-                      );
-                    })}
-
-                    <div className="pt-2">
-                      <button
-                        type="submit"
-                        disabled={submitting}
-                        className="w-full inline-flex items-center justify-center gap-2 bg-forest px-8 py-4 font-montserrat text-xs font-bold uppercase tracking-[0.16em] text-white shadow-md transition-all hover:bg-maple disabled:opacity-50"
-                      >
-                        {submitting ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            <span>{lang === "fr" ? "Transmission en cours..." : lang === "ar" ? "جاري الإرسال..." : "Submitting..."}</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>{lang === "fr" ? "Transmettre mon dossier à l'équipe" : lang === "ar" ? "إرسال طلبي للفريق" : "Submit to the Team"}</span>
-                            <ArrowRight className="h-4 w-4" />
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    <div className="pt-2 text-center">
-                      <Link
-                        to={activeInvolvementCard.link}
-                        onClick={closeInvolvementModal}
-                        className="text-xs text-sage hover:text-forest underline transition-colors"
-                      >
-                        {lang === "fr" ? "Ou consulter la page complète" : lang === "ar" ? "أو استعراض الصفحة الكاملة" : "Or explore the full page"} ({activeInvolvementCard.tag}) →
-                      </Link>
-                    </div>
-                  </form>
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <p className="text-xs text-white/80 flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5 text-maple-light" />
+                      {apt.location}
+                    </p>
+                    <h3 className="text-xl sm:text-2xl font-heading font-bold text-white mt-0.5">
+                      {apt.title}
+                    </h3>
+                  </div>
                 </div>
-              )}
-            </motion.div>
+
+                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-maple uppercase tracking-wider mb-1">
+                      {apt.rooms}
+                    </p>
+                    <p className="text-xs sm:text-sm text-sage leading-relaxed mb-4">
+                      {apt.description}
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs text-forest border-t border-forest/10 pt-3">
+                      {apt.amenities.map((amenity, i) => (
+                        <div key={i} className="flex items-center gap-1.5">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                          <span>{amenity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-forest/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] text-sage uppercase tracking-wider">Tarification :</p>
+                      <p className="text-xs font-bold text-forest">{apt.price}</p>
+                    </div>
+
+                    <button
+                      onClick={() => openApartmentModal(apt)}
+                      className="py-2.5 px-5 bg-forest hover:bg-maple text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
+                    >
+                      <span>Réserver / Visiter</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
-      </AnimatePresence>
+
+        </div>
+      </section>
+
+
+      {/* CONTACT & LOCALISATION SECTION */}
+      <section id="contact" className="py-20 md:py-28 bg-white relative">
+        <div className="mx-auto max-w-[1440px] px-5 md:px-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            
+            {/* Info Column */}
+            <div className="lg:col-span-5 space-y-6">
+              <span className="text-xs font-bold uppercase tracking-[0.25em] text-maple font-mono">
+                COORDONNÉES & ACCÈS
+              </span>
+
+              <h2 className="font-heading font-black text-3xl sm:text-4xl text-forest tracking-tight">
+                CONTACTEZ 3M SERVICES À YAOUNDÉ
+              </h2>
+
+              <p className="text-sm text-sage leading-relaxed">
+                Notre showroom et nos conseillers commerciaux sont à votre écoute pour toute demande d'achat de véhicule neuf ou d'occasion, devis de location automobile ou réservation d'appartement meublé.
+              </p>
+
+              <div className="space-y-4 pt-2">
+                <div className="flex items-start gap-3 p-4 bg-[#F8F7F4] border border-forest/10">
+                  <MapPin className="h-5 w-5 text-maple flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-forest">Adresse Principale :</p>
+                    <p className="text-xs text-sage mt-0.5">Yaoundé, Région du Centre, Cameroun</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 bg-[#F8F7F4] border border-forest/10">
+                  <Phone className="h-5 w-5 text-maple flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-forest">Ligne Téléphonique Directe :</p>
+                    <a href="tel:+237677000000" className="text-xs font-bold text-forest hover:text-maple mt-0.5 block">
+                      +237 6 77 00 00 00
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 bg-emerald-50 border border-emerald-200">
+                  <MessageSquare className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-950">Service Client WhatsApp :</p>
+                    <a
+                      href="https://wa.me/237677000000?text=Bonjour%203M%20SERVICES"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-bold text-emerald-800 hover:underline mt-0.5 block"
+                    >
+                      +237 6 77 00 00 00 (Disponible 7j/7)
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Form Column */}
+            <div className="lg:col-span-7 bg-[#FAF9F5] border border-forest/15 p-6 sm:p-10 shadow-sm">
+              <h3 className="text-xl font-heading font-bold text-forest mb-2">
+                Envoyez-nous un Message Direct
+              </h3>
+              <p className="text-xs text-sage mb-6">
+                Remplissez ce formulaire et notre équipe vous recontactera sous quelques heures.
+              </p>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  toast.success("Merci ! Votre message a bien été envoyé à l'équipe 3M SERVICES.");
+                  e.target.reset();
+                }}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-forest mb-1">
+                      Votre Nom & Prénom *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="ex: Jean Mballa"
+                      className="w-full px-4 py-2.5 text-xs bg-white border border-forest/20 focus:outline-none focus:border-maple"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-forest mb-1">
+                      Téléphone / WhatsApp *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="+237 6..."
+                      className="w-full px-4 py-2.5 text-xs bg-white border border-forest/20 focus:outline-none focus:border-maple"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-forest mb-1">
+                      Service concerné
+                    </label>
+                    <select className="w-full px-4 py-2.5 text-xs bg-white border border-forest/20 focus:outline-none focus:border-maple">
+                      <option>Achat Véhicule Neuf (0 km)</option>
+                      <option>Achat Véhicule Occasion Certifiée</option>
+                      <option>Commande Spéciale sur Mesure</option>
+                      <option>Location de Véhicule</option>
+                      <option>Location d'Appartement Meublé</option>
+                      <option>Autre Renseignement</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-forest mb-1">
+                      Modèle ou Localisation
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="ex: RAV4, Mercedes, Bastos..."
+                      className="w-full px-4 py-2.5 text-xs bg-white border border-forest/20 focus:outline-none focus:border-maple"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-forest mb-1">
+                    Votre Message
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Précisez votre demande, budget ou dates souhaitées..."
+                    className="w-full px-4 py-2.5 text-xs bg-white border border-forest/20 focus:outline-none focus:border-maple resize-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-4 bg-forest hover:bg-maple text-white text-xs font-bold uppercase tracking-[0.15em] transition-colors flex items-center justify-center gap-2 shadow"
+                >
+                  <span>Transmettre à 3M SERVICES</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* MODALS */}
+      <VehicleDetailModal
+        vehicle={activeVehicle}
+        isOpen={isVehicleModalOpen}
+        onClose={() => setIsVehicleModalOpen(false)}
+      />
+
+      <CustomOrderModal
+        isOpen={isCustomOrderOpen}
+        onClose={() => setIsCustomOrderOpen(false)}
+      />
+
+      <ApartmentModal
+        apartment={activeApartment}
+        isOpen={isApartmentModalOpen}
+        onClose={() => setIsApartmentModalOpen(false)}
+      />
+
     </div>
   );
-};
-
-export default Home;
-
+}
