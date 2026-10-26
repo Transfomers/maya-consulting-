@@ -258,15 +258,15 @@ export default function Resources() {
   });
 
   return (
-    <div className="bg-[#FAF9F6] min-h-screen text-[#1c1c1c] selection:bg-[#701EF8] selection:text-white">
+    <div className="bg-[#FAF9F6] min-h-screen text-[#1c1c1c] selection:bg-[#E20713] selection:text-white">
 
       {/* Hero Header Section */}
       <section className="border-b border-forest/10 pt-16 pb-12 px-5 md:px-10 lg:px-16 bg-white">
         <div className="max-w-7xl mx-auto">
           <Reveal>
             <div className="flex items-center gap-2 mb-3">
-              <span className="h-2 w-2 rounded-full bg-[#701EF8]" />
-              <span className="font-montserrat text-[10.5px] font-bold uppercase tracking-[0.28em] text-[#701EF8]">
+              <span className="h-2 w-2 rounded-full bg-[#E20713]" />
+              <span className="font-montserrat text-[10.5px] font-bold uppercase tracking-[0.28em] text-[#E20713]">
                 {isEn ? "PROGRAMS & KNOWLEDGE • DOWNLOADABLE LIBRARY" : "PROGRAMMES & SAVOIR-FAIRE • BIBLIOTHÈQUE TÉLÉCHARGEABLE"}
               </span>
             </div>
@@ -279,7 +279,7 @@ export default function Resources() {
           </Reveal>
 
           <Reveal delay={0.15}>
-            <div className="w-12 h-[2px] bg-[#701EF8] mb-4" />
+            <div className="w-12 h-[2px] bg-[#E20713] mb-4" />
             <p className="max-w-3xl text-sm md:text-base text-sage leading-relaxed font-sans">
               {isEn
                 ? "Access our complete library of practical guides, circular technical manuals, and digital frameworks designed to empower entrepreneurs, cooperatives, and community organizations."
@@ -299,7 +299,7 @@ export default function Resources() {
 
               {/* SEARCH BOX */}
               <div className="bg-white border border-forest/15 p-5 shadow-xs">
-                <label className="block text-[10px] font-bold uppercase tracking-[0.25em] text-[#701EF8] font-montserrat mb-2.5">
+                <label className="block text-[10px] font-bold uppercase tracking-[0.25em] text-[#E20713] font-montserrat mb-2.5">
                   {isEn ? "SEARCH RESOURCES" : "RECHERCHER UN GUIDE"}
                 </label>
                 <div className="relative">
@@ -309,7 +309,7 @@ export default function Resources() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={isEn ? "Keywords..." : "Mots-clés, thèmes..."}
-                    className="w-full pl-9 pr-8 py-2.5 text-xs bg-[#FAF9F6] border border-forest/15 text-forest focus:outline-none focus:border-[#701EF8] transition-colors"
+                    className="w-full pl-9 pr-8 py-2.5 text-xs bg-[#FAF9F6] border border-forest/15 text-forest focus:outline-none focus:border-[#E20713] transition-colors"
                   />
                   {searchQuery && (
                     <button
@@ -344,12 +344,12 @@ export default function Resources() {
                         onClick={() => setSelectedCategory(cat.id)}
                         className={`w-full text-left px-3 py-2 text-xs font-medium transition-all flex items-center justify-between rounded-xs ${
                           isSelected
-                            ? "bg-[#701EF8]/10 text-[#701EF8] font-bold border-l-2 border-[#701EF8]"
+                            ? "bg-[#E20713]/10 text-[#E20713] font-bold border-l-2 border-[#E20713]"
                             : "text-forest/75 hover:bg-forest/5 hover:text-forest"
                         }`}
                       >
                         <span className="truncate">{cat.label}</span>
-                        <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${isSelected ? "bg-[#701EF8] text-white" : "bg-forest/5 text-sage"}`}>
+                        <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${isSelected ? "bg-[#E20713] text-white" : "bg-forest/5 text-sage"}`}>
                           {count}
                         </span>
                       </button>
@@ -375,12 +375,12 @@ export default function Resources() {
                         onClick={() => setSelectedType(type.id)}
                         className={`w-full text-left px-3 py-1.5 text-xs transition-colors flex items-center justify-between ${
                           isSelected
-                            ? "text-[#701EF8] font-bold"
+                            ? "text-[#E20713] font-bold"
                             : "text-sage hover:text-forest"
                         }`}
                       >
                         <span>{type.label}</span>
-                        {isSelected && <span className="text-[#701EF8] font-bold">✓</span>}
+                        {isSelected && <span className="text-[#E20713] font-bold">✓</span>}
                       </button>
                     );
                   })}
@@ -389,7 +389,7 @@ export default function Resources() {
                 {(selectedCategory !== "all" || selectedType !== "all" || searchQuery) && (
                   <button
                     onClick={() => { setSelectedCategory("all"); setSelectedType("all"); setSearchQuery(""); }}
-                    className="mt-4 w-full pt-3 border-t border-forest/10 text-[11px] font-bold text-[#701EF8] hover:underline text-center block"
+                    className="mt-4 w-full pt-3 border-t border-forest/10 text-[11px] font-bold text-[#E20713] hover:underline text-center block"
                   >
                     {isEn ? "Reset all filters" : "Réinitialiser les filtres"}
                   </button>
@@ -403,7 +403,7 @@ export default function Resources() {
 
               {loading ? (
                 <div className="py-24 text-center bg-white border border-forest/15">
-                  <Loader2 className="w-8 h-8 animate-spin text-[#701EF8] mx-auto mb-3" />
+                  <Loader2 className="w-8 h-8 animate-spin text-[#E20713] mx-auto mb-3" />
                   <p className="font-montserrat text-xs font-bold uppercase tracking-widest text-sage">
                     {isEn ? "Loading resources..." : "Chargement de la bibliothèque..."}
                   </p>
@@ -421,7 +421,7 @@ export default function Resources() {
                   </p>
                   <button
                     onClick={() => { setSelectedCategory("all"); setSelectedType("all"); setSearchQuery(""); }}
-                    className="bg-[#701EF8] text-white font-montserrat text-xs font-bold uppercase tracking-wider px-5 py-2.5 shadow-sm hover:bg-[#5b14ce] transition-colors"
+                    className="bg-[#E20713] text-white font-montserrat text-xs font-bold uppercase tracking-wider px-5 py-2.5 shadow-sm hover:bg-[#5b14ce] transition-colors"
                   >
                     {isEn ? "Reset filters" : "Réinitialiser les filtres"}
                   </button>
@@ -433,7 +433,7 @@ export default function Resources() {
                     const coverImg = res.image_url || DEFAULT_RESOURCES[index % DEFAULT_RESOURCES.length].image_url;
                     return (
                       <Reveal key={res.id || index} delay={0.04 * (index % 6)}>
-                        <article className="bg-white border border-forest/15 flex flex-col justify-between h-full group hover:border-[#701EF8] transition-all duration-300 shadow-xs hover:shadow-md">
+                        <article className="bg-white border border-forest/15 flex flex-col justify-between h-full group hover:border-[#E20713] transition-all duration-300 shadow-xs hover:shadow-md">
 
                           <div>
                             {/* Card Image Cover (Editorial Photo) */}
@@ -445,7 +445,7 @@ export default function Resources() {
                                 loading="lazy"
                               />
                               <div className="absolute top-3 left-3">
-                                <span className="bg-white/95 text-[#701EF8] text-[9.5px] font-bold uppercase tracking-[0.18em] px-2.5 py-1 shadow-xs border border-forest/10 font-montserrat">
+                                <span className="bg-white/95 text-[#E20713] text-[9.5px] font-bold uppercase tracking-[0.18em] px-2.5 py-1 shadow-xs border border-forest/10 font-montserrat">
                                   {res.program || res.category_name?.split("&")[0] || "CAP"}
                                 </span>
                               </div>
@@ -462,12 +462,12 @@ export default function Resources() {
                               </div>
 
                               {/* Editorial Serif Title */}
-                              <h2 className="font-serif text-lg sm:text-xl font-bold text-forest leading-snug mb-3 group-hover:text-[#701EF8] transition-colors line-clamp-2">
+                              <h2 className="font-serif text-lg sm:text-xl font-bold text-forest leading-snug mb-3 group-hover:text-[#E20713] transition-colors line-clamp-2">
                                 {res.title}
                               </h2>
 
                               {/* Subtle underline accent in logo violet */}
-                              <div className="w-8 h-[1.5px] bg-[#701EF8]/40 mx-auto mb-3" />
+                              <div className="w-8 h-[1.5px] bg-[#E20713]/40 mx-auto mb-3" />
 
                               {/* Excerpt */}
                               <p className="text-xs text-sage leading-relaxed line-clamp-3 font-sans text-left">
@@ -494,7 +494,7 @@ export default function Resources() {
                           <div className="p-5 pt-0">
                             <button
                               onClick={() => openDownloadModal(res)}
-                              className="w-full inline-flex items-center justify-center gap-2 bg-forest text-white hover:bg-[#701EF8] py-3 font-montserrat text-xs font-bold uppercase tracking-[0.18em] transition-all duration-300 shadow-xs group-hover:shadow-md"
+                              className="w-full inline-flex items-center justify-center gap-2 bg-forest text-white hover:bg-[#E20713] py-3 font-montserrat text-xs font-bold uppercase tracking-[0.18em] transition-all duration-300 shadow-xs group-hover:shadow-md"
                             >
                               <Download className="w-3.5 h-3.5" />
                               <span>{isEn ? "DOWNLOAD GUIDE" : "TÉLÉCHARGER LE GUIDE"}</span>
@@ -527,7 +527,7 @@ export default function Resources() {
 
             {downloadSuccess ? (
               <div className="text-center py-4 space-y-4">
-                <div className="w-14 h-14 bg-[#701EF8]/10 text-[#701EF8] rounded-full flex items-center justify-center mx-auto border border-[#701EF8]/30">
+                <div className="w-14 h-14 bg-[#E20713]/10 text-[#E20713] rounded-full flex items-center justify-center mx-auto border border-[#E20713]/30">
                   <CheckCircle2 className="w-7 h-7" />
                 </div>
                 <h3 className="font-serif text-2xl font-bold text-forest">
@@ -541,7 +541,7 @@ export default function Resources() {
                   <a
                     href={activeResource.file_url || "#"}
                     download
-                    className="inline-flex items-center justify-center gap-2 bg-[#701EF8] hover:bg-[#5b14ce] text-white font-montserrat text-xs font-bold uppercase tracking-wider px-6 py-3 transition-colors shadow-sm"
+                    className="inline-flex items-center justify-center gap-2 bg-[#E20713] hover:bg-[#5b14ce] text-white font-montserrat text-xs font-bold uppercase tracking-wider px-6 py-3 transition-colors shadow-sm"
                   >
                     <Download className="w-4 h-4" />
                     <span>Relancer le téléchargement</span>
@@ -558,7 +558,7 @@ export default function Resources() {
               </div>
             ) : (
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#701EF8] block mb-1 font-montserrat">
+                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#E20713] block mb-1 font-montserrat">
                   ACCÈS AU DOCUMENT
                 </span>
                 <h3 className="font-serif text-xl font-bold text-forest mb-1 leading-snug">
@@ -579,7 +579,7 @@ export default function Resources() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="ex. Murielle Kouadio"
-                      className="w-full bg-[#FAF9F6] border border-forest/20 px-3.5 py-2.5 text-forest focus:outline-none focus:border-[#701EF8]"
+                      className="w-full bg-[#FAF9F6] border border-forest/20 px-3.5 py-2.5 text-forest focus:outline-none focus:border-[#E20713]"
                     />
                   </div>
 
@@ -593,7 +593,7 @@ export default function Resources() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="vous@organisation.org"
-                      className="w-full bg-[#FAF9F6] border border-forest/20 px-3.5 py-2.5 text-forest focus:outline-none focus:border-[#701EF8]"
+                      className="w-full bg-[#FAF9F6] border border-forest/20 px-3.5 py-2.5 text-forest focus:outline-none focus:border-[#E20713]"
                     />
                   </div>
 
@@ -604,7 +604,7 @@ export default function Resources() {
                     <select
                       value={profileType}
                       onChange={(e) => setProfileType(e.target.value)}
-                      className="w-full bg-[#FAF9F6] border border-forest/20 px-3.5 py-2.5 text-forest focus:outline-none focus:border-[#701EF8]"
+                      className="w-full bg-[#FAF9F6] border border-forest/20 px-3.5 py-2.5 text-forest focus:outline-none focus:border-[#E20713]"
                     >
                       <option value="entrepreneur">Entrepreneur / Entrepreneure</option>
                       <option value="obnl">Organisme à but non lucratif (OBNL)</option>
@@ -620,7 +620,7 @@ export default function Resources() {
                       type="checkbox"
                       checked={newsletterConsent}
                       onChange={(e) => setNewsletterConsent(e.target.checked)}
-                      className="mt-0.5 h-3.5 w-3.5 rounded border-forest/30 text-[#701EF8] focus:ring-[#701EF8] accent-[#701EF8]"
+                      className="mt-0.5 h-3.5 w-3.5 rounded border-forest/30 text-[#E20713] focus:ring-[#E20713] accent-[#E20713]"
                     />
                     <label htmlFor="resource-newsletter-optin" className="text-[11px] text-sage leading-tight cursor-pointer">
                       Je souhaite recevoir les prochaines parutions, avis de publication et guides d'impact de CAP Entrepreneurs.
@@ -631,7 +631,7 @@ export default function Resources() {
                     <button
                       type="submit"
                       disabled={submittingDownload}
-                      className="w-full bg-forest hover:bg-[#701EF8] text-white font-montserrat text-xs font-bold uppercase tracking-wider py-3.5 px-6 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                      className="w-full bg-forest hover:bg-[#E20713] text-white font-montserrat text-xs font-bold uppercase tracking-wider py-3.5 px-6 transition-colors flex items-center justify-center gap-2 shadow-sm"
                     >
                       {submittingDownload ? (
                         <Loader2 className="w-4 h-4 animate-spin" />

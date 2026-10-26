@@ -1,363 +1,202 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useLang } from "@/lib/i18n";
-import api from "@/lib/api";
-import { Reveal } from "@/components/motion";
-import { ArrowLeft, Sparkles, Loader2, Globe, Languages, Check } from "lucide-react";
-import { Helmet } from "react-helmet-async";
-import { IMAGES } from "@/lib/content";
-import NewsletterSubscribe from "@/components/NewsletterSubscribe";
-import { translateBlogPost } from "@/lib/translator";
+import { ArrowLeft, Car, Fuel, Gauge, Users, Calendar, Check, MessageSquare, Phone, ShieldCheck, Sparkles } from "lucide-react";
+import { getCarById, getCars } from "@/data/catalogStorage";
+import VehicleDetailModal from "@/components/VehicleDetailModal";
 
 export default function BlogPost() {
   const { slug } = useParams();
-  const { lang, setLang } = useLang();
-  const [post, setPost] = useState(null);
+  const [vehicle, setVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Auto-translation states
-  const [activeTranslation, setActiveTranslation] = useState(null);
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [showOriginal, setShowOriginal] = useState(false);
-  const [isAutoTranslated, setIsAutoTranslated] = useState(false);
-  const [originalLang, setOriginalLang] = useState("fr");
-
-  const isFrench = lang === "fr";
-  const isArabic = lang === "ar";
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    let isCancelled = false;
-
-    const fetchPost = async () => {
-      setLoading(true);
-      try {
-        const res = await api.get(`/posts/${slug}`);
-        if (!isCancelled) {
-          setPost(res.data);
-          resolveTranslation(res.data, lang);
-        }
-      } catch (err) {
-        console.warn("Post not found on backend:", err);
-        if (!isCancelled) setPost(null);
-      } finally {
-        if (!isCancelled) setLoading(false);
-      }
-    };
-
-    fetchPost();
-
-    return () => {
-      isCancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const found = getCarById(slug) || getCars().find(c => c.slug === slug || c.id === slug);
+    setVehicle(found || null);
+    setLoading(false);
   }, [slug]);
-
-  // When language changes, update or perform instant translation
-  useEffect(() => {
-    if (post) {
-      resolveTranslation(post, lang);
-    }
-  }, [lang, post]);
-
-  const resolveTranslation = async (p, targetLang) => {
-    if (!p) return;
-
-    setShowOriginal(false);
-
-    // 1. Check if a human translation exists for targetLang
-    const native = (p.translations || []).find(
-      (t) => t.language === targetLang && (t.title || t.content)
-    );
-
-    // Base fallback translation
-    const fallback =
-      (p.translations || []).find((t) => t.language === "fr" && (t.title || t.content)) ||
-      (p.translations || []).find((t) => t.language === "en" && (t.title || t.content)) ||
-      (p.translations || [])[0] || {
-        title: p.title || p.slug,
-        excerpt: p.excerpt || "",
-        content: p.content || "",
-        language: "fr",
-      };
-
-    setOriginalLang(fallback.language || "fr");
-
-    if (native) {
-      setActiveTranslation(native);
-      setIsAutoTranslated(false);
-      setIsTranslating(false);
-      return;
-    }
-
-    // 2. No native translation: show fallback immediately, then trigger instant translation
-    setActiveTranslation(fallback);
-    setIsAutoTranslated(true);
-    setIsTranslating(true);
-
-    try {
-      const translated = await translateBlogPost(p, targetLang, fallback.language);
-      if (translated) {
-        setActiveTranslation(translated);
-      }
-    } catch (e) {
-      console.warn("Instant translation failed:", e);
-    } finally {
-      setIsTranslating(false);
-    }
-  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center text-forest/60 font-montserrat uppercase tracking-widest text-sm font-bold">
-        {isFrench ? "Chargement de l'article..." : isArabic ? "جاري تحميل المقال..." : "Loading story..."}
+      <div className="min-h-screen bg-bone flex items-center justify-center p-8">
+        <Car className="h-8 w-8 text-maple animate-bounce" />
       </div>
     );
   }
 
-  if (!post) {
+  if (!vehicle) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center font-montserrat px-4 text-center">
-        <h1 className="text-3xl font-black text-forest">
-          {isFrench ? "Article non trouvé" : isArabic ? "المقال غير موجود" : "Article Not Found"}
-        </h1>
-        <p className="mt-2 text-sm text-forest/60 max-w-md">
-          {isFrench
-            ? "Cet article n'est pas disponible ou a été archivé."
-            : "This article is either not published or has been moved."}
+      <div className="min-h-screen bg-bone text-forest flex flex-col items-center justify-center p-8 text-center">
+        <Car className="h-16 w-16 text-forest/20 mb-4" />
+        <h2 className="text-2xl font-heading font-black text-forest">Véhicule introuvable</h2>
+        <p className="text-xs text-sage mt-1 max-w-sm">
+          Le véhicule recherché n'est plus répertorié ou a été mis à jour par l'administration 3M SERVICES.
         </p>
-        <Link to="/blog" className="mt-6 text-maple font-bold hover:underline uppercase tracking-wider text-xs">
-          {isFrench ? "← Retourner à la liste des articles" : "← Back to all articles"}
+        <Link
+          to="/blog"
+          className="mt-6 px-6 py-2.5 bg-forest text-white text-xs font-bold uppercase tracking-wider"
+        >
+          Voir la sélection de voitures
         </Link>
       </div>
     );
   }
 
-  // Get original fallback if user toggles "View Original"
-  const originalTranslation =
-    (post.translations || []).find((t) => t.language === originalLang) ||
-    (post.translations || [])[0] ||
-    activeTranslation;
-
-  const currentContent = showOriginal ? originalTranslation : (activeTranslation || originalTranslation);
-
-  const title = currentContent?.seo_title || currentContent?.title || post.slug || "CAP Entrepreneurs Story";
-  const description = currentContent?.seo_description || currentContent?.excerpt || "Read our latest article.";
-  const canonicalUrl = currentContent?.canonical_url || `https://capentrepreneurs.org/${lang}/blog/${post.slug}`;
-  const displayImage = post.featured_image?.url || post.image || IMAGES.collaboration;
-  const categoryName = post.category?.name || (isArabic ? "مجتمع" : "Communauté");
-  const publishedDate = post.published_at
-    ? new Date(post.published_at).toLocaleDateString(isFrench ? "fr-CA" : isArabic ? "ar-EG" : "en-US", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-    : "";
-
-  const isRtl = isArabic && !showOriginal;
+  const isNew = vehicle.condition === "Neuve" || vehicle.mileage === "0 km";
 
   return (
-    <article
-      className="min-h-screen bg-[#FAF9F6] font-montserrat text-forest pb-32 pt-28 antialiased"
-      data-testid="blog-post-page"
-      dir={isRtl ? "rtl" : "ltr"}
-    >
-      <Helmet>
-        <title>{title} | CAP Entrepreneurs</title>
-        <meta name="description" content={description} />
-        <link rel="canonical" href={canonicalUrl} />
-      </Helmet>
+    <div className="min-h-screen bg-bone text-forest pt-12 pb-24 font-sans">
+      
+      {/* Top Breadcrumb */}
+      <div className="mx-auto max-w-[1440px] px-5 md:px-10 py-6 border-b border-forest/10 flex items-center justify-between">
+        <Link
+          to="/blog"
+          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-forest hover:text-maple transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Retour à la sélection de voitures</span>
+        </Link>
 
-      {/* Header Container */}
-      <div className="mx-auto max-w-[900px] px-5">
-        <Reveal>
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-            <Link
-              to="/blog"
-              className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-forest/70 hover:bg-forest hover:text-white transition-all shadow-sm"
-            >
-              <ArrowLeft className={`h-3.5 w-3.5 ${isRtl ? "rotate-180" : ""}`} />
-              <span>{isFrench ? "Retour aux articles" : isArabic ? "العودة إلى المقالات" : "Back to Blog"}</span>
-            </Link>
+        <span className="text-xs font-mono text-sage">
+          RÉF : {vehicle.id}
+        </span>
+      </div>
 
-            {/* In-Article Instant Language Selector */}
-            <div className="flex items-center gap-1.5 bg-white border border-forest/15 rounded-full px-3 py-1 shadow-xs text-xs font-semibold">
-              <Languages className="h-3.5 w-3.5 text-forest/60 mr-1" />
-              {[
-                { code: "fr", label: "FR" },
-                { code: "en", label: "EN" },
-                { code: "ar", label: "عربي" },
-              ].map((item) => (
-                <button
-                  key={item.code}
-                  onClick={() => setLang(item.code)}
-                  className={`px-2 py-0.5 rounded-full transition-all ${
-                    lang === item.code
-                      ? "bg-forest text-white font-bold"
-                      : "text-forest/60 hover:text-forest"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Instant Translation Banner */}
-          {isAutoTranslated && (
-            <div className="mb-6 rounded-xl border border-maple/25 bg-amber-500/5 p-4 text-xs shadow-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-1 rounded-full bg-maple/10 text-maple">
-                    {isTranslating ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-maple" />
-                    ) : (
-                      <Sparkles className="h-4 w-4 text-maple" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-bold text-forest">
-                      {isTranslating
-                        ? isFrench
-                          ? "Traduction instantanée en cours..."
-                          : isArabic
-                          ? "جاري الترجمة الفورية عبر الإنترنت..."
-                          : "Instant online translation in progress..."
-                        : isFrench
-                        ? "Article traduit automatiquement en Français via le traducteur en ligne."
-                        : isArabic
-                        ? "تمت ترجمة هذا المقال فورياً إلى العربية بواسطة المترجم الفوري عبر الإنترنت."
-                        : "This article was translated into English using our online instant translator."}
-                    </p>
-                    <p className="text-[11px] text-forest/60">
-                      {isFrench
-                        ? `Langue d'origine : ${originalLang.toUpperCase()}`
-                        : isArabic
-                        ? `اللغة الأصلية للمقال: ${originalLang.toUpperCase()}`
-                        : `Original article language: ${originalLang.toUpperCase()}`}
-                    </p>
-                  </div>
-                </div>
-
-                {!isTranslating && (
-                  <button
-                    onClick={() => setShowOriginal(!showOriginal)}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-md border border-maple/30 bg-white px-3 py-1.5 font-bold uppercase tracking-wider text-[11px] text-maple hover:bg-maple hover:text-white transition-all self-start sm:self-auto shadow-2xs"
-                  >
-                    <Globe className="h-3 w-3" />
-                    <span>
-                      {showOriginal
-                        ? isFrench
-                          ? "Afficher la traduction"
-                          : isArabic
-                          ? "عرض الترجمة"
-                          : "Show Translation"
-                        : isFrench
-                        ? `Voir l'original (${originalLang.toUpperCase()})`
-                        : isArabic
-                        ? `عرض النص الأصلي (${originalLang.toUpperCase()})`
-                        : `View Original (${originalLang.toUpperCase()})`}
-                    </span>
-                  </button>
-                )}
+      {/* Main Showcase */}
+      <div className="mx-auto max-w-[1440px] px-5 md:px-10 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          
+          {/* Left Media */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="relative h-80 sm:h-[450px] w-full overflow-hidden bg-forest/10 border border-forest/20 shadow-lg">
+              <img
+                src={vehicle.image}
+                alt={vehicle.model}
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute top-4 left-4 flex gap-2">
+                <span className="px-3 py-1 bg-forest text-white text-xs font-bold font-mono uppercase">
+                  SECTION {vehicle.section} • {vehicle.sectionTitle}
+                </span>
+                <span className={`px-3 py-1 text-xs font-extrabold uppercase ${
+                  isNew ? "bg-emerald-500 text-white" : "bg-amber-400 text-black"
+                }`}>
+                  {vehicle.condition}
+                </span>
               </div>
             </div>
-          )}
 
-          <div className="flex flex-wrap items-center gap-3 mb-6">
-            <span className="rounded-full bg-maple/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-maple">
-              {categoryName}
-            </span>
-            {publishedDate && (
-              <span className="text-xs font-medium text-forest/50">
-                {publishedDate}
-              </span>
-            )}
-            <span className="text-xs text-forest/30">•</span>
-            <span className="text-xs font-medium text-forest/50">
-              5 min read
-            </span>
-            {isAutoTranslated && !isTranslating && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-forest/5 border border-forest/10 px-2.5 py-0.5 text-[10px] font-semibold text-forest/70">
-                <Sparkles className="h-2.5 w-2.5 text-maple" />
-                {isFrench ? "Traduit" : isArabic ? "مترجم" : "Translated"}
-              </span>
-            )}
-          </div>
+            {/* Quick Specs Strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-4 border border-forest/15">
+              <div className="flex items-center gap-2">
+                <Fuel className="h-4 w-4 text-maple" />
+                <div>
+                  <p className="text-[10px] uppercase text-sage">Moteur</p>
+                  <p className="text-xs font-bold text-forest">{vehicle.engine}</p>
+                </div>
+              </div>
 
-          <h1 className={`font-serif text-3xl md:text-5xl font-normal leading-tight tracking-tight text-forest mb-8 ${isRtl ? "text-right" : "text-left"}`}>
-            {currentContent?.title}
-          </h1>
+              <div className="flex items-center gap-2">
+                <Gauge className="h-4 w-4 text-maple" />
+                <div>
+                  <p className="text-[10px] uppercase text-sage">Boîte</p>
+                  <p className="text-xs font-bold text-forest">{vehicle.transmission}</p>
+                </div>
+              </div>
 
-          {/* Author Block */}
-          <div className="flex items-center gap-4 border-y border-forest/10 py-5">
-            <img
-              src="/assets/murielle-portrait.webp"
-              alt={post.author_name || "Équipe CAP"}
-              className="h-12 w-12 rounded-full object-cover ring-2 ring-forest/10"
-            />
-            <div>
-              <p className="font-bold text-sm text-forest">
-                {isFrench ? "Rédigé par" : isArabic ? "كتب بواسطة" : "Written by"} {post.author_name || "Équipe CAP"}
-              </p>
-              <p className="text-xs text-forest/60">
-                {isArabic ? "كاب رواد الأعمال • المنظومة التضامنية" : "Cap Entrepreneurs • Écosystème Solidaire"}
-              </p>
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-maple" />
+                <div>
+                  <p className="text-[10px] uppercase text-sage">Places</p>
+                  <p className="text-xs font-bold text-forest">{vehicle.seats || "5 places"}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-maple" />
+                <div>
+                  <p className="text-[10px] uppercase text-sage">Compteur</p>
+                  <p className="text-xs font-bold text-forest">{vehicle.mileage || (isNew ? "0 km" : "Certifié")}</p>
+                </div>
+              </div>
             </div>
           </div>
-        </Reveal>
-      </div>
 
-      {/* Cover Image */}
-      <Reveal delay={0.15}>
-        <div className="mx-auto max-w-[1100px] px-5 my-10">
-          <div className="overflow-hidden rounded-2xl border border-forest/10 shadow-lg bg-forest/5 aspect-[21/10]">
-            <img
-              src={displayImage}
-              alt={currentContent?.title || post.slug}
-              className="w-full h-full object-cover"
-            />
+          {/* Right Details & Direct Actions */}
+          <div className="lg:col-span-5 bg-white p-6 sm:p-8 border border-forest/20 shadow-sm space-y-6">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-maple font-mono">
+                {vehicle.brand} • CATALOGUE 2025
+              </span>
+              <h1 className="text-3xl font-heading font-black text-forest mt-1">
+                {vehicle.model}
+              </h1>
+              <p className="text-sm font-serif italic text-sage mt-1">
+                Disponible pour vente immédiate ou réservation à Yaoundé.
+              </p>
+            </div>
+
+            <div className="border-t border-forest/10 pt-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-forest mb-2">
+                Présentation :
+              </h3>
+              <p className="text-xs sm:text-sm text-sage leading-relaxed">
+                {vehicle.description || "Ce véhicule sélectionné par 3M SERVICES bénéficie d'un contrôle technique poussé et garantit une fiabilité exemplaire sur les axes urbains et régionaux du Cameroun."}
+              </p>
+            </div>
+
+            {vehicle.features && vehicle.features.length > 0 && (
+              <div className="border-t border-forest/10 pt-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-forest mb-3">
+                  Équipements & Options :
+                </h3>
+                <div className="space-y-1.5">
+                  {vehicle.features.map((feat, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs text-forest">
+                      <Check className="h-3.5 w-3.5 text-maple flex-shrink-0" />
+                      <span>{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="pt-4 border-t border-forest/10 space-y-3">
+              <a
+                href={`https://wa.me/237691786447?text=${encodeURIComponent(
+                  `Bonjour 3M SERVICES, je souhaite commander ou avoir des détails sur : ${vehicle.model} (Réf: ${vehicle.id})`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors shadow-sm"
+              >
+                <MessageSquare className="h-4 w-4" />
+                <span>Commander sur WhatsApp</span>
+              </a>
+
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="w-full py-3.5 px-4 bg-forest hover:bg-maple text-white text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>Demander un Devis Formel</span>
+              </button>
+            </div>
+
+            <div className="pt-2 text-center text-[11px] text-sage">
+              <ShieldCheck className="inline h-3.5 w-3.5 text-emerald-600 mr-1" />
+              Inspection certifiée • Yaoundé, Région du Centre
+            </div>
           </div>
+
         </div>
-      </Reveal>
-
-      {/* Article Content */}
-      <div className="mx-auto max-w-[840px] px-5">
-        <Reveal delay={0.25}>
-          <div
-            className={`prose prose-lg max-w-none text-forest/85 leading-relaxed font-sans prose-headings:font-serif prose-headings:font-normal prose-headings:tracking-tight prose-headings:text-forest prose-a:text-maple prose-a:font-semibold hover:prose-a:underline prose-blockquote:border-maple prose-blockquote:text-forest prose-img:rounded-2xl prose-img:shadow-md ${
-              isRtl ? "text-right" : "text-left"
-            }`}
-            dangerouslySetInnerHTML={{ __html: currentContent?.content || "" }}
-          />
-        </Reveal>
-
-        {/* Article Newsletter Subscription */}
-        <Reveal delay={0.3}>
-          <div className="my-12">
-            <NewsletterSubscribe variant="card" source="blog_post" />
-          </div>
-        </Reveal>
-
-        {/* Share & Back Bottom Bar */}
-        <Reveal delay={0.35}>
-          <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-forest/15 pt-8">
-            <Link
-              to="/blog"
-              className="inline-flex items-center gap-2 font-bold text-xs uppercase tracking-wider text-forest hover:text-maple transition-colors"
-            >
-              <ArrowLeft className={`h-4 w-4 ${isRtl ? "rotate-180" : ""}`} />
-              <span>{isFrench ? "Explorer plus d'articles" : isArabic ? "استكشف المزيد من المقالات" : "Explore More Articles"}</span>
-            </Link>
-
-            <Link
-              to="/join"
-              className="inline-flex items-center gap-2 rounded-full bg-forest px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-maple transition-all"
-            >
-              <span>{isFrench ? "Rejoindre l'écosystème" : isArabic ? "انضم إلى المنظومة" : "Join Our Ecosystem"}</span>
-            </Link>
-          </div>
-        </Reveal>
       </div>
-    </article>
+
+      <VehicleDetailModal
+        vehicle={vehicle}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+
+    </div>
   );
 }

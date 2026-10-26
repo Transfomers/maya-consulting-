@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Phone, MessageSquare, MapPin, Mail, Clock, ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import api from "@/lib/api";
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
@@ -15,6 +16,10 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
+    api.post("/submissions", {
+      type: "contact",
+      payload: formData
+    }).catch(console.warn);
     toast.success("Votre demande a bien été envoyée à l'équipe 3M SERVICES !");
   };
 
@@ -64,12 +69,12 @@ export default function Contact() {
                   <MessageSquare className="h-5 w-5" />
                   <span className="text-xs font-bold uppercase tracking-wider font-mono">WhatsApp 7j/7</span>
                 </div>
-                <h3 className="text-lg font-heading font-bold text-emerald-950">+237 6 77 00 00 00</h3>
+                <h3 className="text-lg font-heading font-bold text-emerald-950">+237 691 78 64 47</h3>
                 <p className="text-xs text-emerald-800">
                   Réponse instantanée de notre équipe commerciale pour tarifs, disponibilités et photos complémentaires.
                 </p>
                 <a
-                  href="https://wa.me/237677000000?text=Bonjour%203M%20SERVICES"
+                  href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-emerald-700 transition-colors"
@@ -79,12 +84,25 @@ export default function Contact() {
               </div>
 
               <div className="p-6 bg-white border border-forest/15 shadow-sm space-y-3">
-                <div className="flex items-center gap-2 text-maple">
+                <div className="flex items-center gap-2 text-[#E20713]">
                   <Phone className="h-5 w-5" />
-                  <span className="text-xs font-bold uppercase tracking-wider font-mono">Appel Téléphonique</span>
+                  <span className="text-xs font-bold uppercase tracking-wider font-mono">Lignes Téléphoniques Directes</span>
                 </div>
-                <h3 className="text-lg font-heading font-bold text-forest">+237 6 77 00 00 00</h3>
-                <p className="text-xs text-sage">
+                <div className="space-y-1.5">
+                  <a href="tel:+237691786447" className="text-base font-heading font-bold text-forest hover:text-[#E20713] transition-colors flex items-center gap-2">
+                    <span className="text-[#E20713]">•</span>
+                    <span>+237 691 78 64 47</span>
+                  </a>
+                  <a href="tel:+237653761728" className="text-base font-heading font-bold text-forest hover:text-[#E20713] transition-colors flex items-center gap-2">
+                    <span className="text-[#E20713]">•</span>
+                    <span>+237 653 76 17 28</span>
+                  </a>
+                  <a href="tel:+237691786447" className="text-base font-heading font-bold text-forest hover:text-[#E20713] transition-colors flex items-center gap-2">
+                    <span className="text-[#E20713]">•</span>
+                    <span>+237 691 78 64 47</span>
+                  </a>
+                </div>
+                <p className="text-xs text-sage pt-1 border-t border-gray-100">
                   Du Lundi au Samedi : 08h00 - 19h00 • Dimanche sur rendez-vous.
                 </p>
               </div>

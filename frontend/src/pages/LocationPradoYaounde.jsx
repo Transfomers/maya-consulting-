@@ -34,7 +34,7 @@ export default function LocationPradoYaounde() {
         "Toit ouvrant et vitres arrière surteintées pour discrétion",
       ],
       idealFor: "Cortèges officiels, escortes de personnalités, mariages, voyages d'affaires vers Douala, Kribi, Bafoussam.",
-      image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=compress&cs=tinysrgb&w=800",
+      image: "/images/cars/toyota-prado-txl-front.webp",
       badge: "Modèle Vedette VIP",
     },
     {
@@ -48,7 +48,7 @@ export default function LocationPradoYaounde() {
         "Chauffeur certifié conduite défensive et pistes",
       ],
       idealFor: "Missions de terrain d'ONG, audits miniers, visites d'infrastructures et délégations internationales.",
-      image: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=compress&cs=tinysrgb&w=800",
+      image: "/images/cars/toyota-prado-rear.webp",
       badge: "Prêt pour les Pistes",
     },
   ];

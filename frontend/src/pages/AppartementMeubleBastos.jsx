@@ -23,10 +23,11 @@ export default function AppartementMeubleBastos() {
   const PHONE_DISPLAY = "+237 691 78 64 47";
 
   const PHOTOS = [
-    "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=compress&cs=tinysrgb&w=1200",
-    "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=compress&cs=tinysrgb&w=1200",
-    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=compress&cs=tinysrgb&w=1200",
-    "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=compress&cs=tinysrgb&w=1200",
+    "/Asset/appartements/appartement-meuble-suite-parentale.webp",
+    "/Asset/appartements/appartement-meuble-cuisine-equipee.webp",
+    "/Asset/appartements/appartement-meuble-chambre-bleue.webp",
+    "/Asset/appartements/appartement-meuble-salle-de-bain.webp",
+    "/Asset/appartements/appartement-meuble-chambre-confort.webp",
   ];
 
   const AMENITIES = [

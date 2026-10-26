@@ -1,0 +1,258 @@
+[
+  {
+    "id": "suv-00-jeep",
+    "section": "01",
+    "sectionTitle": "LES SUV",
+    "model": "JEEP GRAND CHEROKEE V6 (ÉDITION MUPOCAM)",
+    "brand": "Jeep",
+    "year": 2022,
+    "engine": "Essence V6 3.6L Pentastar",
+    "transmission": "Automatique 8 rapports 4x4",
+    "seats": "5 places cuir premium",
+    "condition": "Occasion Révisée",
+    "mileage": "Certifié Faible Km",
+    "interior": "Sellerie cuir perforé & finitions luxe",
+    "image": "/images/cars/jeep-grand-cherokee-front.webp",
+    "photos": [
+      "/images/cars/jeep-grand-cherokee-front.webp",
+      "/images/cars/jeep-grand-cherokee-rear.webp"
+    ],
+    "description": "Modèle vedette de l'affiche officielle MUPOCAM (Mutuelle du Personnel Orange Cameroun). SUV de prestige tout-terrain, disponible immédiatement à la vente au comptant ou en formule leasing / paiement échelonné à l'agence 3M Services Nouvelle route - Omnisports.",
+    "features": [
+      "Programme Leasing conventionné MUPOCAM (Orange Cameroun)",
+      "Transmission intégrale Quadra-Trac 4x4 tout-terrain",
+      "Écran tactile Uconnect avec navigation GPS",
+      "Toit ouvrant panoramique",
+      "Caméra de recul et capteurs 360°",
+      "Garantie révision 3M Services"
+    ],
+    "price": "Sur devis • Éligible Leasing MUPOCAM",
+    "isMupocam": true,
+    "status": "Disponible"
+  },
+  {
+    "id": "suv-02-prado",
+    "section": "01",
+    "sectionTitle": "LES SUV",
+    "model": "TOYOTA LAND CRUISER PRADO TXL (VIP 4X4)",
+    "brand": "Toyota",
+    "year": 2022,
+    "engine": "V6 4.0L Essence / D-4D Diesel",
+    "transmission": "Automatique 6 rapports 4x4",
+    "seats": "7 places en cuir",
+    "condition": "Occasion Certifiée",
+    "mileage": "Certifié",
+    "interior": "Cuir intégral haut de gamme 7 places",
+    "image": "/images/cars/toyota-prado-txl-front.webp",
+    "photos": [
+      "/images/cars/toyota-prado-txl-front.webp",
+      "/images/cars/toyota-prado-rear.webp"
+    ],
+    "description": "Le SUV 4x4 de référence absolue à Yaoundé pour missions officielles, cortèges de mariage, délégations diplomatiques et voyages tout-terrain au Cameroun. Confort royal, robustesse légendaire et sécurité maximale.",
+    "features": [
+      "Véhicule officiel VIP pour cortèges et délégations",
+      "Transmission intégrale 4x4 baroudeur avec blocage différentiel",
+      "Climatisation tri-zone indépendante avant/arrière",
+      "7 vraies places avec sièges cuir modulables",
+      "Disponible avec ou sans chauffeur expérimenté",
+      "Réservation prioritaire WhatsApp 3M Services"
+    ],
+    "price": "À partir de 90 000 FCFA / jour • Vente sur devis",
+    "status": "Disponible"
+  },
+  {
+    "id": "suv-01",
+    "section": "01",
+    "sectionTitle": "LES SUV",
+    "model": "TOYOTA RAV4 2021",
+    "brand": "Toyota",
+    "year": 2021,
+    "engine": "Essence 2.5L Dynamic Force",
+    "transmission": "Automatique",
+    "seats": "5 places",
+    "condition": "Occasion Récente",
+    "mileage": "Certifié",
+    "interior": "Confort supérieur",
+    "image": "/images/cars/toyota-rav4-front.webp",
+    "photos": [
+      "/images/cars/toyota-rav4-front.webp"
+    ],
+    "description": "SUV moderne, économique et dynamique, parfait pour la circulation à Yaoundé et les voyages en famille.",
+    "features": [
+      "Climatisation automatique bizone",
+      "Caméra de recul haute définition",
+      "Écran tactile multimédia CarPlay / Android",
+      "Sécurité active Toyota Safety Sense",
+      "Consommation maîtrisée et grand coffre"
+    ],
+    "price": "Sur devis • Location dès 50 000 FCFA / jour",
+    "status": "Disponible"
+  },
+  {
+    "id": "merc-01",
+    "section": "02",
+    "sectionTitle": "LES MERCEDES-BENZ",
+    "model": "MERCEDES CLASSE E 2011 (W212)",
+    "brand": "Mercedes-Benz",
+    "year": 2011,
+    "engine": "Diesel BlueTEC",
+    "transmission": "Automatique 7G-Tronic",
+    "seats": "5 places",
+    "condition": "Occasion",
+    "mileage": "Inspecté & Garanti",
+    "interior": "Sellerie cuir & inserts ronce de noyer",
+    "image": "/images/cars/mercedes-classe-e-front.webp",
+    "photos": [
+      "/images/cars/mercedes-classe-e-front.webp",
+      "/images/cars/mercedes-classe-e-rear.webp"
+    ],
+    "description": "Berline routière de référence alliant standing, insonorisation remarquable et grande sécurité routière.",
+    "features": [
+      "Intérieur cuir luxueux et boiseries nobles",
+      "Boîte automatique 7G-Tronic fluide",
+      "Climatisation automatique Thermatic",
+      "Système audio haute fidélité",
+      "Régulateur et limiteur de vitesse Tempomat"
+    ],
+    "price": "Sur devis • Vente & Location",
+    "status": "Disponible"
+  },
+  {
+    "id": "merc-02-ml350",
+    "section": "02",
+    "sectionTitle": "LES MERCEDES-BENZ",
+    "model": "MERCEDES ML 350 4MATIC (W166)",
+    "brand": "Mercedes-Benz",
+    "year": 2013,
+    "engine": "Essence V6 3.5L / Diesel BlueTEC",
+    "transmission": "Automatique 7G-Tronic 4MATIC",
+    "seats": "5 places cuir luxe",
+    "condition": "Occasion Certifiée",
+    "mileage": "Certifié",
+    "interior": "Intérieur cuir noir surpiqué & toit ouvrant",
+    "image": "/images/cars/mercedes-ml350-front.webp",
+    "photos": [
+      "/images/cars/mercedes-ml350-front.webp"
+    ],
+    "description": "Grand SUV de luxe allemand avec transmission 4MATIC intégrale permanente. Puissance, présence statutaire et confort de première classe pour vos déplacements d'affaires.",
+    "features": [
+      "Transmission intégrale permanente 4MATIC",
+      "Suspension pneumatique grand confort",
+      "Pack multimédia Comand avec caméra de recul",
+      "Hayon arrière électrique motorisé",
+      "Sécurité et prestige Mercedes-Benz"
+    ],
+    "price": "Sur devis • Location VIP & Vente",
+    "status": "Disponible"
+  },
+  {
+    "id": "suv-03-fortuner",
+    "section": "01",
+    "sectionTitle": "LES SUV",
+    "model": "TOYOTA FORTUNER EX 4X4 (2023)",
+    "brand": "Toyota",
+    "year": 2023,
+    "engine": "2.4L / 2.8L Diesel Turbo D-4D",
+    "transmission": "Automatique 6 rapports 4x4",
+    "seats": "7 places tout confort",
+    "condition": "Neuve (0 km)",
+    "mileage": "0 km",
+    "interior": "Sellerie cuir d'origine & climatisation arrière",
+    "image": "/images/cars/toyota-fortuner-front.webp",
+    "photos": [
+      "/images/cars/toyota-fortuner-front.webp"
+    ],
+    "description": "SUV baroudeur 7 places de dernière génération, neuf 0 km. Conçu pour surmonter tous les défis routiers camerounais avec robustesse, élégance et climatisation intégrale renforcée.",
+    "features": [
+      "Véhicule neuf 0 KM disponible en commande sur mesure",
+      "Vrai châssis baroudeur tout-terrain 7 places",
+      "Système tactile multimédia avec Bluetooth",
+      "Feux bi-LED et jantes alliage 18 pouces",
+      "Accompagnement leasing bancaire ou MUPOCAM"
+    ],
+    "price": "Sur devis • Éligible Leasing",
+    "status": "Disponible"
+  },
+  {
+    "id": "kia-01-sportage",
+    "section": "05",
+    "sectionTitle": "LES KIA (NEUVES - PARTIE 3)",
+    "model": "KIA SPORTAGE GT-LINE 2024 (NQ5)",
+    "brand": "Kia",
+    "year": 2024,
+    "engine": "Essence Turbo Smartstream",
+    "transmission": "Automatique DCT",
+    "seats": "5 places",
+    "condition": "Neuve (0 km)",
+    "mileage": "0 km",
+    "interior": "Double écran incurvé panoramique & sièges baquets cuir/alcantara",
+    "image": "/images/cars/kia-sportage-front.webp",
+    "photos": [
+      "/images/cars/kia-sportage-front.webp"
+    ],
+    "description": "Le SUV compact le plus futuriste du marché, neuf 0 KM garanti. Design avant-gardiste, technologie embarquée de pointe et confort digne des berlines de luxe.",
+    "features": [
+      "Véhicule neuf 0 km sous garantie constructeur",
+      "Double écran incurvé 12.3 pouces avec navigation",
+      "Caméras 360° et aides à la conduite Drive Wise",
+      "Finitions sport GT-Line noir laqué et chrome",
+      "Livrable à Yaoundé ou Douala"
+    ],
+    "price": "Sur devis • Vente Véhicule Neuf Garanti",
+    "status": "Disponible"
+  },
+  {
+    "id": "hyundai-01-santafe",
+    "section": "10",
+    "sectionTitle": "LES HYUNDAI (PARTIE 1)",
+    "model": "HYUNDAI SANTA FE 4X4",
+    "brand": "Hyundai",
+    "year": 2019,
+    "engine": "Essence 2.4L / Diesel CRDi",
+    "transmission": "Automatique HTRAC 4x4",
+    "seats": "7 places familiales",
+    "condition": "Occasion Révisée",
+    "mileage": "Inspecté",
+    "interior": "Confort familial 7 places climatisées",
+    "image": "/images/cars/hyundai-santafe-front.webp",
+    "photos": [
+      "/images/cars/hyundai-santafe-front.webp"
+    ],
+    "description": "SUV familial par excellence, grand standing avec transmission 4x4 HTRAC. Espace généreux pour 7 passagers et bagages, idéal pour voyages interurbains au Cameroun.",
+    "features": [
+      "Système 4 roues motrices intelligent HTRAC",
+      "Grand espace habitable 7 places modulables",
+      "Climatisation bizone avec diffuseurs arrières",
+      "Sécurité SmartSense et freinage d'urgence"
+    ],
+    "price": "Sur devis • Location & Vente",
+    "status": "Disponible"
+  },
+  {
+    "id": "toyota-01-camry",
+    "section": "07",
+    "sectionTitle": "LES TOYOTA (PARTIE 1)",
+    "model": "TOYOTA CAMRY LUXURY 2.5V",
+    "brand": "Toyota",
+    "year": 2019,
+    "engine": "Essence 2.5L Dual VVT-i",
+    "transmission": "Automatique Direct Shift",
+    "seats": "5 places prestige",
+    "condition": "Occasion Prestige",
+    "mileage": "Certifié",
+    "interior": "Sellerie cuir noir & finitions chromées",
+    "image": "/images/cars/toyota-camry-front.webp",
+    "photos": [
+      "/images/cars/toyota-camry-front.webp"
+    ],
+    "description": "La grande berline de référence mondiale. Fiabilité Toyota inégalée, confort acoustique souverain et présence statutaire élégante pour dirigeants et missions d'affaires.",
+    "features": [
+      "Berline statutaire de prestige mondial",
+      "Suspension grand confort sur goudron et chaussée dégradée",
+      "Système audio premium et climatisation puissante",
+      "Disponible pour missions professionnelles à Yaoundé"
+    ],
+    "price": "Sur devis • Vente & Location avec Chauffeur",
+    "status": "Disponible"
+  }
+]

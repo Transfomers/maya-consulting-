@@ -15,7 +15,7 @@ export default function About() {
               QUI SOMMES NOUS ?
             </span>
             <h1 className="font-heading font-black text-4xl sm:text-6xl text-forest tracking-tight">
-              3M SERVICES SARL
+              3M SERVICES
             </h1>
             <p className="font-serif italic text-2xl sm:text-3xl text-forest/90">
               « Le confort de votre foyer, dans nos véhicules »
@@ -81,7 +81,7 @@ export default function About() {
                   Consulter le Catalogue 2025
                 </Link>
                 <a
-                  href="https://wa.me/237677000000?text=Bonjour%203M%20SERVICES"
+                  href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center gap-2"

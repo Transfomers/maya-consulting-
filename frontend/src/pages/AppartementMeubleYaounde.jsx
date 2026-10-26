@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import {
@@ -25,7 +26,7 @@ export default function AppartementMeubleYaounde() {
       price: "Dès 65 000 FCFA / nuitée",
       desc: "Idéal pour diplomates, cadres de multinationales et familles. À proximité des ambassades, supermarchés et restaurants huppés. Résidence ultra-sécurisée avec groupe électrogène automatique.",
       link: "/appartement-meuble-bastos",
-      image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=compress&cs=tinysrgb&w=800",
+      image: "/Asset/appartements/appartement-meuble-suite-parentale.webp",
       features: ["T3 2 Chambres", "Wifi Fibre", "Groupe Automatique", "Gardien 24/7"],
     },
     {
@@ -34,7 +35,7 @@ export default function AppartementMeubleYaounde() {
       price: "Dès 40 000 FCFA / nuitée",
       desc: "Parfait pour les séjours professionnels et touristiques nécessitant un accès rapide à tous les points névralgiques de Yaoundé. Commerces et taxis immédiats.",
       link: "#reserver",
-      image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=compress&cs=tinysrgb&w=800",
+      image: "/Asset/appartements/appartement-meuble-chambre-bleue.webp",
       features: ["Studio & T2", "Climatisé", "Eau permanente", "Smart TV"],
     },
     {
@@ -43,7 +44,7 @@ export default function AppartementMeubleYaounde() {
       price: "Dès 40 000 FCFA / nuitée",
       desc: "Situé à 2 minutes de l'agence principale 3M SERVICES et des grands axes routiers de Yaoundé. Idéal pour combiner location automobile et hébergement.",
       link: "/boutique?tab=appartements",
-      image: "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=compress&cs=tinysrgb&w=800",
+      image: "/Asset/appartements/appartement-meuble-cuisine-equipee.webp",
       features: ["T2 Contemporain", "Parking fermé", "Fibre optique", "Accès goudronné"],
     },
     {
@@ -52,7 +53,7 @@ export default function AppartementMeubleYaounde() {
       price: "Dès 90 000 FCFA / nuitée",
       desc: "Un penthouse d'exception avec grande terrasse et vue imprenable sur Yaoundé. Finitions luxueuses, 3 chambres spacieuses et service conciergerie privée.",
       link: "/boutique?tab=appartements",
-      image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=compress&cs=tinysrgb&w=800",
+      image: "/Asset/appartements/appartement-meuble-chambre-confort.webp",
       features: ["T4 Penthouse", "Terrasse Privée", "3 Salles de bain", "Service 5 étoiles"],
     },
   ];

@@ -18,31 +18,24 @@ const STATUS_BADGES = {
 };
 
 const TYPE_CONFIG = {
-  partner: { label: "Partenaire", color: "bg-[#701EF8]/10 text-[#701EF8] border-[#701EF8]/30" },
-  contact: { label: "Contact", color: "bg-blue-50 text-blue-700 border-blue-200" },
-  application: { label: "Candidature Programme", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
-  program: { label: "Programme", color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-  join: { label: "Rejoindre", color: "bg-teal-50 text-teal-800 border-teal-200" },
-  volunteer: { label: "Bénévolat", color: "bg-rose-50 text-rose-800 border-rose-200" },
-  donate: { label: "Don / Mécénat", color: "bg-amber-50 text-amber-800 border-amber-200" },
-  donation: { label: "Don / Mécénat", color: "bg-amber-50 text-amber-800 border-amber-200" },
-  resource_download: { label: "Téléchargement Guide", color: "bg-sky-50 text-sky-800 border-sky-200" },
-  newsletter: { label: "Infolettre", color: "bg-purple-50 text-purple-700 border-purple-200" },
-  festival: { label: "Festival / RSVP", color: "bg-fuchsia-50 text-fuchsia-800 border-fuchsia-200" },
-  review: { label: "Avis & Témoignage", color: "bg-amber-50 text-amber-900 border-amber-300" },
+  quote: { label: "Devis Véhicule", color: "bg-[#E20713]/10 text-[#E20713] border-[#E20713]/30" },
+  car_inquiry: { label: "Demande Véhicule", color: "bg-[#E20713]/10 text-[#E20713] border-[#E20713]/30" },
+  custom_order: { label: "Commande Spéciale", color: "bg-amber-50 text-amber-800 border-amber-200" },
+  apartment: { label: "Réservation Appartement", color: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+  mupocam: { label: "Leasing MUPOCAM", color: "bg-orange-50 text-orange-800 border-orange-200" },
+  contact: { label: "Contact Général", color: "bg-blue-50 text-blue-700 border-blue-200" },
+  partner: { label: "Partenaire / Entreprise", color: "bg-purple-50 text-purple-700 border-purple-200" },
+  application: { label: "Dossier Client", color: "bg-teal-50 text-teal-800 border-teal-200" },
 };
 
 const TABS = [
-  { id: "", label: "Tous", countKey: "all" },
-  { id: "partner", label: "Partenaires", countKey: "partner", highlight: true },
-  { id: "contact", label: "Contact", countKey: "contact" },
-  { id: "application", label: "Candidatures", countKey: "application" },
-  { id: "volunteer", label: "Bénévolat", countKey: "volunteer" },
-  { id: "donate", label: "Dons", countKey: "donate" },
-  { id: "resource_download", label: "Guides & Téléchargements", countKey: "resource_download" },
-  { id: "newsletter", label: "Infolettre", countKey: "newsletter" },
-  { id: "festival", label: "Festival & RSVP", countKey: "festival" },
-  { id: "review", label: "Avis", countKey: "review" },
+  { id: "", label: "Toutes les demandes", countKey: "all" },
+  { id: "quote", label: "Devis Véhicules", countKey: "quote" },
+  { id: "apartment", label: "Réservations Appartements", countKey: "apartment" },
+  { id: "custom_order", label: "Commandes Spéciales", countKey: "custom_order" },
+  { id: "mupocam", label: "Leasing MUPOCAM", countKey: "mupocam" },
+  { id: "contact", label: "Messages & Contacts", countKey: "contact" },
+  { id: "partner", label: "Partenariats", countKey: "partner" },
 ];
 
 export default function AdminSubmissions() {
@@ -194,7 +187,7 @@ export default function AdminSubmissions() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `soumissions_cap_entrepreneurs_${typeFilter || "tous"}_${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute("download", `crm_3m_services_${typeFilter || "tous"}_${new Date().toISOString().split("T")[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -203,7 +196,12 @@ export default function AdminSubmissions() {
 
   const getName = (sub) => {
     const p = sub.payload || {};
-    return p.name || p.fullName || p.full_name || p.nom || p.organization || "Visiteur";
+    return p.name || p.fullName || p.full_name || p.nom || p.organization || "Client 3M";
+  };
+
+  const getPhone = (sub) => {
+    const p = sub.payload || {};
+    return p.phone || p.telephone || p.tel || p.mobile || p.whatsapp || null;
   };
 
   const getOrg = (sub) => {
@@ -224,7 +222,7 @@ export default function AdminSubmissions() {
       const typeStr = p.partnerType ? `[${p.partnerType}] ` : "";
       return typeStr + (p.message || p.idea || "Demande de partenariat");
     }
-    return p.message || p.goals || p.aim || p.feedback || p.program || p.subject || "-";
+    return p.message || p.notes || p.vehicle || p.apartment || p.model || p.subject || "-";
   };
 
   return (
@@ -234,19 +232,18 @@ export default function AdminSubmissions() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-heading text-3xl font-black tracking-tight text-forest">
-              Dossiers & Formulaires
+              CRM 3M SERVICES • Devis & Réservations
             </h1>
-
           </div>
           <p className="text-xs text-sage mt-1">
-            Centralisation de tous les formulaires soumis par les visiteurs du site web (Partenaires, Contact, Inscriptions, Bénévolat, Dons, Guides).
+            Gestion centralisée des demandes de devis véhicules, réservations d'appartements et contacts clients 3M SERVICES.
           </p>
         </div>
 
         <div className="flex items-center gap-2 self-stretch sm:self-auto">
           <button
             onClick={handleExportCSV}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-forest/20 bg-white text-forest hover:border-[#701EF8] hover:text-[#701EF8] text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-forest/20 bg-white text-forest hover:border-[#E20713] hover:text-[#E20713] text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
             title="Exporter les données actuelles au format CSV"
           >
             <Download className="w-3.5 h-3.5" />
@@ -254,10 +251,10 @@ export default function AdminSubmissions() {
           </button>
           <button
             onClick={() => { fetchSubmissions(); fetchStats(); }}
-            className="p-2 border border-forest/20 bg-white text-forest hover:text-[#701EF8] hover:border-[#701EF8] transition-colors"
+            className="p-2 border border-forest/20 bg-white text-forest hover:text-[#E20713] hover:border-[#E20713] transition-colors"
             title="Rafraîchir"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[#701EF8]" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[#E20713]" : ""}`} />
           </button>
         </div>
       </div>
@@ -280,20 +277,20 @@ export default function AdminSubmissions() {
         {/* HIGHLIGHTED PARTNERS CARD */}
         <div 
           onClick={() => handleSelectTab("partner")}
-          className={`p-4 bg-white border cursor-pointer transition-all relative overflow-hidden ${typeFilter === "partner" ? "border-[#701EF8] ring-2 ring-[#701EF8]/20 shadow-md" : "border-[#701EF8]/30 hover:border-[#701EF8]"}`}
+          className={`p-4 bg-white border cursor-pointer transition-all relative overflow-hidden ${typeFilter === "partner" ? "border-[#E20713] ring-2 ring-[#E20713]/20 shadow-md" : "border-[#E20713]/30 hover:border-[#E20713]"}`}
         >
-          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#701EF8] mb-2">
+          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#E20713] mb-2">
             <span className="flex items-center gap-1.5 font-bold">
               
               Partenaires (Partners)
             </span>
-            <span className="h-2 w-2 rounded-full bg-[#701EF8] animate-pulse" />
+            <span className="h-2 w-2 rounded-full bg-[#E20713] animate-pulse" />
           </div>
           <div className="flex items-baseline justify-between">
-            <p className="font-heading text-2xl sm:text-3xl font-black text-[#701EF8]">
+            <p className="font-heading text-2xl sm:text-3xl font-black text-[#E20713]">
               {stats.partners_total || stats.by_type?.partner || 0}
             </p>
-            <span className="text-[10px] font-bold text-[#701EF8] uppercase tracking-wider bg-[#701EF8]/10 px-2 py-0.5">
+            <span className="text-[10px] font-bold text-[#E20713] uppercase tracking-wider bg-[#E20713]/10 px-2 py-0.5">
               Prioritaire
             </span>
           </div>
@@ -332,17 +329,17 @@ export default function AdminSubmissions() {
               className={`px-3.5 py-2.5 text-xs font-bold whitespace-nowrap transition-all border-b-2 flex items-center gap-2 ${
                 isActive
                   ? tab.highlight 
-                    ? "border-[#701EF8] text-[#701EF8] bg-[#701EF8]/5"
+                    ? "border-[#E20713] text-[#E20713] bg-[#E20713]/5"
                     : "border-forest text-forest bg-forest/5"
                   : tab.highlight
-                    ? "border-transparent text-[#701EF8] hover:bg-[#701EF8]/5"
+                    ? "border-transparent text-[#E20713] hover:bg-[#E20713]/5"
                     : "border-transparent text-sage hover:text-forest hover:bg-forest/5"
               }`}
             >
               <span>{tab.label}</span>
               <span className={`text-[10px] px-1.5 py-0.2 rounded-none ${
                 isActive 
-                  ? tab.highlight ? "bg-[#701EF8] text-white" : "bg-forest text-bone"
+                  ? tab.highlight ? "bg-[#E20713] text-white" : "bg-forest text-bone"
                   : "bg-forest/10 text-forest"
               }`}>
                 {count}
@@ -361,7 +358,7 @@ export default function AdminSubmissions() {
             placeholder="Rechercher par nom, organisation, courriel, mot-clé dans les messages..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-forest/15 bg-white text-xs focus:outline-none focus:border-[#701EF8] shadow-sm"
+            className="w-full pl-10 pr-4 py-2 border border-forest/15 bg-white text-xs focus:outline-none focus:border-[#E20713] shadow-sm"
           />
         </div>
 
@@ -369,7 +366,7 @@ export default function AdminSubmissions() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-3 py-2 border border-forest/15 bg-white text-xs focus:outline-none focus:border-[#701EF8] cursor-pointer shadow-sm"
+            className="w-full px-3 py-2 border border-forest/15 bg-white text-xs focus:outline-none focus:border-[#E20713] cursor-pointer shadow-sm"
           >
             <option value="">Tous les statuts de suivi</option>
             <option value="new">Nouveau (New)</option>
@@ -400,7 +397,7 @@ export default function AdminSubmissions() {
               <tr>
                 <td colSpan="7" className="px-6 py-12 text-center text-sage">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <RefreshCw className="w-5 h-5 animate-spin text-[#701EF8]" />
+                    <RefreshCw className="w-5 h-5 animate-spin text-[#E20713]" />
                     <span>Chargement des dossiers en cours...</span>
                   </div>
                 </td>
@@ -418,7 +415,7 @@ export default function AdminSubmissions() {
                     {typeFilter && (
                       <button 
                         onClick={() => handleSelectTab("")} 
-                        className="text-xs text-[#701EF8] font-bold underline pt-1 inline-block"
+                        className="text-xs text-[#E20713] font-bold underline pt-1 inline-block"
                       >
                         Afficher tous les dossiers
                       </button>
@@ -466,7 +463,7 @@ export default function AdminSubmissions() {
                       <a 
                         href={`mailto:${getEmail(sub)}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="hover:text-[#701EF8] hover:underline"
+                        className="hover:text-[#E20713] hover:underline"
                       >
                         {getEmail(sub)}
                       </a>
@@ -509,7 +506,7 @@ export default function AdminSubmissions() {
                       <div className="inline-flex items-center gap-2">
                         <button
                           onClick={() => setSelectedSubmission(sub)}
-                          className="inline-flex items-center gap-1 text-forest hover:text-[#701EF8] font-bold transition-colors p-1"
+                          className="inline-flex items-center gap-1 text-forest hover:text-[#E20713] font-bold transition-colors p-1"
                           title="Voir le dossier"
                         >
                           <Eye className="h-3.5 w-3.5" />
@@ -546,7 +543,7 @@ export default function AdminSubmissions() {
 
             {/* MODAL HEADER */}
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#701EF8]">
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#E20713]">
                 Dossier de soumission
               </span>
               <span className="text-xs text-sage">• ID: {selectedSubmission.id.substring(0, 8)}</span>
@@ -559,15 +556,28 @@ export default function AdminSubmissions() {
                 <span>{TYPE_CONFIG[selectedSubmission.type]?.label || selectedSubmission.type}</span>
               </h2>
 
-              {selectedSubmission.payload?.email && (
-                <a
-                  href={`mailto:${selectedSubmission.payload.email}?subject=Cap%20Entrepreneurs%20-%20Votre%20demande%20${selectedSubmission.type}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#701EF8] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#701EF8]/90 transition-colors"
-                >
-                  <Mail className="w-3.5 h-3.5" />
-                  <span>Contacter par courriel</span>
-                </a>
-              )}
+              <div className="flex items-center gap-2 flex-wrap">
+                {getPhone(selectedSubmission) && (
+                  <a
+                    href={`https://wa.me/${getPhone(selectedSubmission).replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Bonjour ${getName(selectedSubmission)}, nous vous contactons depuis 3M SERVICES concernant votre demande.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>WhatsApp ({getPhone(selectedSubmission)})</span>
+                  </a>
+                )}
+                {selectedSubmission.payload?.email && (
+                  <a
+                    href={`mailto:${selectedSubmission.payload.email}?subject=3M%20SERVICES%20-%20Votre%20demande%20${selectedSubmission.type}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E20713] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#E20713]/90 transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Contacter par courriel</span>
+                  </a>
+                )}
+              </div>
             </div>
 
             {/* STATUS & ASSIGNMENT ACTION BAR */}
@@ -589,8 +599,8 @@ export default function AdminSubmissions() {
                       disabled={updatingStatus}
                       className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors border ${
                         getSubStatus(selectedSubmission) === st
-                          ? "bg-[#701EF8] text-white border-[#701EF8]"
-                          : "bg-white text-forest border-forest/15 hover:border-[#701EF8]"
+                          ? "bg-[#E20713] text-white border-[#E20713]"
+                          : "bg-white text-forest border-forest/15 hover:border-[#E20713]"
                       }`}
                     >
                       {STATUS_BADGES[st]?.label || st}
@@ -618,7 +628,7 @@ export default function AdminSubmissions() {
                       toast.error("Échec de l'assignation");
                     }
                   }}
-                  className="px-3 py-1.5 border border-forest/20 bg-white text-forest text-xs font-medium outline-none focus:border-[#701EF8]"
+                  className="px-3 py-1.5 border border-forest/20 bg-white text-forest text-xs font-medium outline-none focus:border-[#E20713]"
                 >
                   <option value="">Non assigné</option>
                   <option value="Équipe CAP">Équipe CAP</option>
@@ -656,7 +666,7 @@ export default function AdminSubmissions() {
               {/* ADMIN NOTES & FOLLOW-UP TIMELINE */}
               <div className="mt-8 border-t border-forest/15 pt-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <MessageSquare className="w-4 h-4 text-[#701EF8]" />
+                  <MessageSquare className="w-4 h-4 text-[#E20713]" />
                   <h3 className="text-xs uppercase tracking-wider text-forest font-bold">
                     Notes internes & Historique de suivi
                   </h3>
@@ -684,11 +694,11 @@ export default function AdminSubmissions() {
                     value={newNote}
                     onChange={(e) => setNewNote(e.target.value)}
                     placeholder="Ajouter une note de suivi interne..."
-                    className="flex-1 border border-forest/20 px-3 py-2 text-xs outline-none focus:border-[#701EF8]"
+                    className="flex-1 border border-forest/20 px-3 py-2 text-xs outline-none focus:border-[#E20713]"
                   />
                   <button
                     type="submit"
-                    className="bg-[#701EF8] hover:bg-[#701EF8]/90 text-white px-5 py-2 text-xs font-bold uppercase tracking-wider transition-colors"
+                    className="bg-[#E20713] hover:bg-[#E20713]/90 text-white px-5 py-2 text-xs font-bold uppercase tracking-wider transition-colors"
                   >
                     Ajouter
                   </button>

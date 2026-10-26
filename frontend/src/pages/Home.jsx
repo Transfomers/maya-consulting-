@@ -617,8 +617,8 @@ export default function Home() {
                 <div className="space-y-4">
                   <div className="border border-forest/20 overflow-hidden h-48 sm:h-56 bg-white shadow-sm">
                     <img
-                      src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=compress&cs=tinysrgb&w=600"
-                      alt="SUV 3M Services"
+                      src="/images/cars/toyota-prado-txl-front.webp"
+                      alt="Toyota Prado 4x4 3M Services Yaoundé"
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -640,8 +640,8 @@ export default function Home() {
                   </div>
                   <div className="border border-forest/20 overflow-hidden h-48 sm:h-56 bg-white shadow-sm">
                     <img
-                      src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=compress&cs=tinysrgb&w=600"
-                      alt="Appartement meublé Yaoundé"
+                      src="/Asset/appartements/appartement-meuble-suite-parentale.webp"
+                      alt="Appartement meublé Bastos Yaoundé 3M Services"
                       className="h-full w-full object-cover"
                     />
                   </div>

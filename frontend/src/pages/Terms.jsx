@@ -5,7 +5,7 @@ import { useLang } from "@/lib/i18n";
 
 const Terms = () => {
   const settings = useSettings();
-  const siteName = settings?.general?.site_name || "CAP Entrepreneurs";
+  const siteName = settings?.general?.site_name || "3M SERVICES";
   const { t, lang: language } = useLang();
 
   const title = t.terms.title;

@@ -108,7 +108,7 @@ export default function AdminCategories() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-forest/15 pb-4">
         <div>
           <h1 className="flex items-center gap-2.5 font-heading text-3xl font-black tracking-tight text-forest">
-            <FolderTree className="h-7 w-7 text-[#701EF8]" />
+            <FolderTree className="h-7 w-7 text-[#E20713]" />
             Catégories & Taxonomies
           </h1>
           <p className="text-xs text-sage mt-1">Classification transversale pour les articles, cours/ressources et événements.</p>
@@ -142,7 +142,7 @@ export default function AdminCategories() {
                 value={formData.name}
                 onChange={handleNameChange}
                 placeholder="Ex. Transition Numérique"
-                className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs focus:border-[#701EF8] focus:bg-white focus:outline-none"
+                className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs focus:border-[#E20713] focus:bg-white focus:outline-none"
               />
             </div>
 
@@ -154,7 +154,7 @@ export default function AdminCategories() {
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                 placeholder="transition-numerique"
-                className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs font-mono focus:border-[#701EF8] focus:bg-white focus:outline-none"
+                className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs font-mono focus:border-[#E20713] focus:bg-white focus:outline-none"
               />
             </div>
 
@@ -165,7 +165,7 @@ export default function AdminCategories() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Courte description de l'axe thématique..."
-                className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs focus:border-[#701EF8] focus:bg-white focus:outline-none resize-none"
+                className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs focus:border-[#E20713] focus:bg-white focus:outline-none resize-none"
               />
             </div>
 
@@ -176,7 +176,7 @@ export default function AdminCategories() {
                   type="number"
                   value={formData.display_order}
                   onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
-                  className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs focus:border-[#701EF8] focus:bg-white focus:outline-none"
+                  className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs focus:border-[#E20713] focus:bg-white focus:outline-none"
                 />
               </div>
 
@@ -186,7 +186,7 @@ export default function AdminCategories() {
                     type="checkbox"
                     checked={formData.is_archived}
                     onChange={(e) => setFormData({ ...formData, is_archived: e.target.checked })}
-                    className="accent-[#701EF8]"
+                    className="accent-[#E20713]"
                   />
                   <span className="font-bold text-forest text-xs">Archivée</span>
                 </label>
@@ -196,7 +196,7 @@ export default function AdminCategories() {
             <div className="flex gap-2 pt-2">
               <button
                 type="submit"
-                className="flex-1 bg-[#701EF8] hover:bg-[#5f17d3] px-4 py-2.5 font-bold uppercase tracking-wider text-white text-xs transition-colors shadow-xs"
+                className="flex-1 bg-[#E20713] hover:bg-[#C4050F] px-4 py-2.5 font-bold uppercase tracking-wider text-white text-xs transition-colors shadow-xs"
               >
                 {isEditing ? "Enregistrer" : "Créer la catégorie"}
               </button>
@@ -225,7 +225,7 @@ export default function AdminCategories() {
               placeholder="Filtrer les catégories..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-forest/15 bg-white text-xs focus:outline-none focus:border-[#701EF8]"
+              className="w-full pl-9 pr-4 py-2 border border-forest/15 bg-white text-xs focus:outline-none focus:border-[#E20713]"
             />
           </div>
 

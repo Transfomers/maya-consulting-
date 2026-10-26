@@ -130,7 +130,7 @@ export default function AdminMedia() {
             <span>{media.length} fichiers</span>
             {totalBytes > 0 && <span>• {formatBytes(totalBytes)}</span>}
           </span>
-          <label className="cursor-pointer px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-[#701EF8] hover:bg-[#5f17d3] transition-colors shadow-xs inline-flex items-center gap-1.5">
+          <label className="cursor-pointer px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-[#E20713] hover:bg-[#C4050F] transition-colors shadow-xs inline-flex items-center gap-1.5">
             <span>+ Téléverser un Fichier</span>
             <input type="file" accept="image/*,.pdf,.mp4" className="hidden" onChange={handleUpload} />
           </label>
@@ -146,7 +146,7 @@ export default function AdminMedia() {
             placeholder="Rechercher par nom de fichier, texte alternatif ou légende..." 
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-forest/15 bg-white text-xs focus:outline-none focus:border-[#701EF8]"
+            className="w-full pl-9 pr-4 py-2 border border-forest/15 bg-white text-xs focus:outline-none focus:border-[#E20713]"
           />
         </div>
         <div className="relative sm:col-span-4">
@@ -154,7 +154,7 @@ export default function AdminMedia() {
           <select 
             value={filterType}
             onChange={e => setFilterType(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-forest/15 bg-white text-xs focus:outline-none focus:border-[#701EF8] cursor-pointer"
+            className="w-full pl-9 pr-4 py-2 border border-forest/15 bg-white text-xs focus:outline-none focus:border-[#E20713] cursor-pointer"
           >
             <option value="all">Tous les médias ({media.length})</option>
             <option value="referenced">Utilisés par des articles/événements</option>
@@ -175,7 +175,7 @@ export default function AdminMedia() {
           </div>
         ) : (
           filteredMedia.map(m => (
-            <div key={m.id} className="relative group border border-forest/15 bg-white aspect-square flex flex-col justify-between overflow-hidden shadow-xs hover:border-[#701EF8] transition-all">
+            <div key={m.id} className="relative group border border-forest/15 bg-white aspect-square flex flex-col justify-between overflow-hidden shadow-xs hover:border-[#E20713] transition-all">
               <img src={getMediaUrl(m.url)} alt={m.alt_text || "Media"} className="object-cover w-full h-full" />
               
               {/* Badges */}
@@ -264,7 +264,7 @@ export default function AdminMedia() {
                   type="text" 
                   value={editingMedia.alt_text || ""}
                   onChange={e => setEditingMedia({...editingMedia, alt_text: e.target.value})}
-                  className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs focus:border-[#701EF8] focus:bg-white focus:outline-none"
+                  className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs focus:border-[#E20713] focus:bg-white focus:outline-none"
                   placeholder="Description du contenu de l'image pour l'accessibilité..."
                 />
                 <p className="text-[10px] text-sage mt-1">Requis pour l'accessibilité RGAA / WCAG et le SEO Google.</p>
@@ -276,7 +276,7 @@ export default function AdminMedia() {
                   value={editingMedia.caption || ""}
                   onChange={e => setEditingMedia({...editingMedia, caption: e.target.value})}
                   rows={2}
-                  className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs focus:border-[#701EF8] focus:bg-white focus:outline-none resize-none"
+                  className="w-full border border-forest/20 bg-[#FAFAFA] px-3.5 py-2 text-xs focus:border-[#E20713] focus:bg-white focus:outline-none resize-none"
                   placeholder="Légende affichée sous l'image..."
                 />
               </div>
@@ -284,7 +284,7 @@ export default function AdminMedia() {
               <div className="pt-2 flex gap-2">
                 <button 
                   type="submit"
-                  className="flex-1 bg-[#701EF8] hover:bg-[#5f17d3] text-white py-2 text-xs font-bold uppercase tracking-wider transition-colors shadow-xs"
+                  className="flex-1 bg-[#E20713] hover:bg-[#C4050F] text-white py-2 text-xs font-bold uppercase tracking-wider transition-colors shadow-xs"
                 >
                   Enregistrer
                 </button>

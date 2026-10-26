@@ -10,12 +10,12 @@ import { Reveal } from "@/components/motion";
 
 export const PRIVACY_POLICY_EN = {
   title: "Privacy Policy",
-  organization: "CAP Entrepreneurs",
+  organization: "3M SERVICES",
   effectiveDate: "15 October 2026",
   lastUpdated: "15 October 2026",
-  website: "https://capentrepreneurs.org",
-  contactEmail: "contact@capentrepreneurs.org",
-  intro: "CAP Entrepreneurs is committed to respecting your privacy and protecting the personal information entrusted to us. This Privacy Policy explains our practices regarding the collection, use, retention, and protection of your personal information.",
+  website: "https://3mservice.shop",
+  contactEmail: "contact@3mservices.cm",
+  intro: "3M SERVICES est engagé à respecter votre vie privée et à protéger vos données personnelles. Cette politique de confidentialité détaille nos engagements concernant le traitement de vos informations pour nos services automobiles et locations à Yaoundé.",
   sections: [
     {
       id: "section-1",

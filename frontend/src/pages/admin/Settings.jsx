@@ -30,9 +30,9 @@ const DEFAULT_SETTINGS = {
     timezone: 'UTC', date_format: 'DD/MM/YYYY', default_currency: 'XAF'
   },
   organization: {
-    org_name: 'CAP Entrepreneurs', legal_name: '', description: '',
-    address: '', city: '', country: '', postal_code: '',
-    phone: '', email: '', website: '', registration_info: ''
+    org_name: '3M SERVICES', legal_name: '3M SERVICES', description: 'Fournisseur expérimenté de services automobiles à Yaoundé',
+    address: 'Nouvelle route - OMNISPORTS', city: 'Yaoundé', country: 'Cameroun', postal_code: '',
+    phone: '+237 691 78 64 47', email: 'contact@3mservices.cm', website: 'https://3mservice.shop', registration_info: ''
   },
   branding: {
     logo_main: '', logo_light: '', logo_dark: '', favicon: '',
@@ -70,11 +70,11 @@ const DEFAULT_SETTINGS = {
     menu_json: '[]'
   },
   footer: {
-    description: '', logo: '', copyright_text: '© 2026 CAP Entrepreneurs. All rights reserved.',
+    description: '', logo: '', copyright_text: '© 2026 3M SERVICES. Tous droits réservés.',
     privacy_url: '', terms_url: ''
   },
   email: {
-    sender_name: 'CAP Entrepreneurs', sender_email: 'noreply@capentrepreneurs.org',
+    sender_name: '3M SERVICES', sender_email: 'contact@3mservices.cm',
     reply_to: '', form_recipient: '', newsletter_recipient: '',
     smtp_host: '', smtp_port: '', smtp_username: '', smtp_password: '', smtp_encryption: 'tls'
   },
