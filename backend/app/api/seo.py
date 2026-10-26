@@ -43,6 +43,11 @@ async def get_sitemap(db: AsyncSession = Depends(get_db)):
     # Static pages with metadata
     pages = [
         {"url": f"{base_url}/", "priority": "1.0", "changefreq": "daily"},
+        {"url": f"{base_url}/location-voiture-yaounde", "priority": "0.98", "changefreq": "daily"},
+        {"url": f"{base_url}/location-prado-yaounde", "priority": "0.98", "changefreq": "daily"},
+        {"url": f"{base_url}/appartement-meuble-bastos", "priority": "0.98", "changefreq": "daily"},
+        {"url": f"{base_url}/appartement-meuble-yaounde", "priority": "0.98", "changefreq": "daily"},
+        {"url": f"{base_url}/vente-voiture-leasing-cameroun", "priority": "0.95", "changefreq": "daily"},
         {"url": f"{base_url}/boutique", "priority": "0.95", "changefreq": "daily"},
         {"url": f"{base_url}/boutique?tab=vehicules", "priority": "0.90", "changefreq": "daily"},
         {"url": f"{base_url}/boutique?tab=appartements", "priority": "0.90", "changefreq": "daily"},

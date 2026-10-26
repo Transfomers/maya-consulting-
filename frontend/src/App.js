@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { LanguageProvider } from "@/lib/i18n";
 import { SettingsProvider } from "@/lib/SettingsContext";
@@ -36,6 +36,8 @@ import ResetPassword from "@/pages/admin/ResetPassword";
 import AdminOverview from "@/pages/admin/Overview";
 import AdminPostList from "@/pages/admin/PostList";
 import AdminPostEditor from "@/pages/admin/PostEditor";
+import AdminApartmentsList from "@/pages/admin/ApartmentsList";
+import AdminApartmentEditor from "@/pages/admin/ApartmentEditor";
 import AdminEventsList from "@/pages/admin/EventsList";
 import AdminMedia from "@/pages/admin/Media";
 import AdminCategories from "@/pages/admin/Categories";
@@ -47,6 +49,14 @@ import ConfirmSubscription from "@/pages/ConfirmSubscription";
 import Unsubscribe from "@/pages/Unsubscribe";
 import Privacy from "@/pages/Privacy";
 import Terms from "@/pages/Terms";
+import Boutique from "@/pages/Boutique";
+import Panier from "@/pages/Panier";
+import LocationVoitureYaounde from "@/pages/LocationVoitureYaounde";
+import LocationPradoYaounde from "@/pages/LocationPradoYaounde";
+import AppartementMeubleBastos from "@/pages/AppartementMeubleBastos";
+import AppartementMeubleYaounde from "@/pages/AppartementMeubleYaounde";
+import VenteVoitureLeasing from "@/pages/VenteVoitureLeasing";
+import { CartProvider } from "@/context/CartContext";
 import { HelmetProvider } from "react-helmet-async";
 
 const ScrollToTop = () => {
@@ -70,7 +80,6 @@ const PublicPopup = () => {
 const MarketingLayout = ({ children }) => (
   <SmoothScroll>
     <CustomCursor />
-    <ScrollProgress />
     <Navbar />
     <main>{children}</main>
     <AnimatedAvatars />
@@ -78,7 +87,7 @@ const MarketingLayout = ({ children }) => (
   </SmoothScroll>
 );
 
-const page = (Component) => <MarketingLayout><Component /></MarketingLayout>;
+const page = (Component, props = {}) => <MarketingLayout><Component {...props} /></MarketingLayout>;
 
 function App() {
   return (
@@ -86,24 +95,37 @@ function App() {
       <HelmetProvider>
         <LanguageProvider>
           <SettingsProvider>
-            <SEOHead />
-            <div className="App">
-              <div className="noise-overlay" aria-hidden="true" />
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  style: {
-                    borderRadius: 0,
-                    border: "1px solid #0D0E0D",
-                    background: "#FDFCFD",
-                    color: "#0D0E0D",
-                    fontFamily: "Manrope, sans-serif",
-                  },
-                }}
-              />
-              <ScrollToTop />
-              <Routes>
-                <Route path="/" element={page(Home)} />
+            <CartProvider>
+              <SEOHead />
+              <div className="App">
+                <div className="noise-overlay" aria-hidden="true" />
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    style: {
+                      borderRadius: 0,
+                      border: "1px solid #0D0E0D",
+                      background: "#FDFCFD",
+                      color: "#0D0E0D",
+                      fontFamily: "Manrope, sans-serif",
+                    },
+                  }}
+                />
+                <ScrollToTop />
+                <Routes>
+                  <Route path="/" element={page(Home)} />
+                  <Route path="/boutique" element={page(Boutique)} />
+                  <Route path="/appartements" element={page(Boutique, { defaultTab: "appartements" })} />
+                  <Route path="/location-voiture-yaounde" element={page(LocationVoitureYaounde)} />
+                  <Route path="/location-de-voiture-yaounde" element={page(LocationVoitureYaounde)} />
+                  <Route path="/location-prado-yaounde" element={page(LocationPradoYaounde)} />
+                  <Route path="/location-toyota-prado-yaounde" element={page(LocationPradoYaounde)} />
+                  <Route path="/appartement-meuble-bastos" element={page(AppartementMeubleBastos)} />
+                  <Route path="/appartement-meuble-yaounde" element={page(AppartementMeubleYaounde)} />
+                  <Route path="/appartement-meuble-essos" element={page(AppartementMeubleYaounde)} />
+                  <Route path="/vente-voiture-leasing-cameroun" element={page(VenteVoitureLeasing)} />
+                  <Route path="/vente-voiture-yaounde" element={page(VenteVoitureLeasing)} />
+                  <Route path="/panier" element={page(Panier)} />
                 <Route path="/about" element={page(About)} />
                 <Route path="/programs" element={page(Programs)} />
                 <Route path="/impact-stories" element={page(ImpactStories)} />
@@ -133,7 +155,14 @@ function App() {
                   <Route path="posts" element={<AdminPostList />} />
                   <Route path="posts/new" element={<AdminPostEditor />} />
                   <Route path="posts/:id/edit" element={<AdminPostEditor />} />
-                  <Route path="newsletter" element={<AdminNewsletter />} />
+                  <Route path="vehicles" element={<AdminPostList />} />
+                  <Route path="vehicles/new" element={<AdminPostEditor />} />
+                  <Route path="vehicles/:id/edit" element={<AdminPostEditor />} />
+                  <Route path="apartments" element={<AdminApartmentsList />} />
+                  <Route path="apartments/new" element={<AdminApartmentEditor />} />
+                  <Route path="apartments/:id" element={<AdminApartmentEditor />} />
+                  <Route path="apartments/:id/edit" element={<AdminApartmentEditor />} />
+                  <Route path="newsletter" element={<Navigate to="/admin/dashboard" replace />} />
                   <Route path="categories" element={<AdminCategories />} />
                   <Route path="events" element={<AdminEventsList />} />
                   <Route path="media" element={<AdminMedia />} />
@@ -144,6 +173,7 @@ function App() {
               </Routes>
               <PublicPopup />
             </div>
+            </CartProvider>
           </SettingsProvider>
         </LanguageProvider>
       </HelmetProvider>

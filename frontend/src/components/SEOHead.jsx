@@ -4,8 +4,44 @@ import { useSettings } from "@/lib/SettingsContext";
 
 const ROUTE_SEO = {
   "/": {
-    title: "3M SERVICE Shop | Vente de Voitures & Appartements Meublés à Yaoundé - 3M SERVICES",
-    desc: "3M SERVICES Shop Yaoundé (+237 691 78 64 47) : Fournisseur de référence à Yaoundé (Bastos & Omnisports). Vente de véhicules 0 km et occasions certifiées, location automobile, appartements meublés grand standing et leasing MUPOCAM Orange Cameroun.",
+    title: "3M Services Yaoundé | Location de Voitures, Prado et Appartements Meublés",
+    desc: "Découvrez 3M Services à Yaoundé : location de voitures, Toyota Prado, véhicules avec chauffeur, appartements meublés, vente de véhicules et solutions de leasing au Cameroun. Consultez notre catalogue et contactez-nous pour réserver.",
+  },
+  "/location-voiture-yaounde": {
+    title: "Location de Voiture à Yaoundé (Avec ou Sans Chauffeur) | 3M Services",
+    desc: "Agence de location de voiture à Yaoundé : Toyota Prado, SUV 4x4, berlines de luxe. Formules avec ou sans chauffeur, transfert aéroport Nsimalen. Meilleurs tarifs et réservation WhatsApp (+237 691 78 64 47).",
+  },
+  "/location-de-voiture-yaounde": {
+    title: "Location de Voiture à Yaoundé (Avec ou Sans Chauffeur) | 3M Services",
+    desc: "Agence de location de voiture à Yaoundé : Toyota Prado, SUV 4x4, berlines de luxe. Formules avec ou sans chauffeur, transfert aéroport Nsimalen. Meilleurs tarifs et réservation WhatsApp (+237 691 78 64 47).",
+  },
+  "/location-prado-yaounde": {
+    title: "Location Toyota Prado à Yaoundé | Location 4x4 & SUV VIP - 3M Services",
+    desc: "Location de Toyota Land Cruiser Prado à Yaoundé : SUV 4x4 de prestige avec chauffeur VIP pour cortèges, réceptions officielles, mariages et missions au Cameroun. Réservez chez 3M Services (+237 691 78 64 47).",
+  },
+  "/location-toyota-prado-yaounde": {
+    title: "Location Toyota Prado à Yaoundé | Location 4x4 & SUV VIP - 3M Services",
+    desc: "Location de Toyota Land Cruiser Prado à Yaoundé : SUV 4x4 de prestige avec chauffeur VIP pour cortèges, réceptions officielles, mariages et missions au Cameroun. Réservez chez 3M Services (+237 691 78 64 47).",
+  },
+  "/appartement-meuble-bastos": {
+    title: "Appartement Meublé à Bastos, Yaoundé | 3M Services",
+    desc: "Trouvez votre appartement meublé à Bastos, Yaoundé, avec 3M Services. Découvrez les logements disponibles, les équipements, les tarifs et les conditions de réservation.",
+  },
+  "/appartement-meuble-yaounde": {
+    title: "Location Appartement Meublé Yaoundé | Bastos, Essos, Omnisports - 3M Services",
+    desc: "Location d'appartements et studios meublés à Yaoundé : Bastos, Essos, Omnisports, Le Golfe. Logements climatisés avec groupe électrogène permanent, Wifi fibre optique et sécurité 24/7. Réservation WhatsApp (+237 691 78 64 47).",
+  },
+  "/appartement-meuble-essos": {
+    title: "Appartement Meublé à Essos & Yaoundé | 3M Services",
+    desc: "Location d'appartements et studios meublés à Essos et Yaoundé. Logements tout confort, climatisés, sécurisés pour court et long séjour.",
+  },
+  "/vente-voiture-leasing-cameroun": {
+    title: "Vente de Voitures & Leasing MUPOCAM à Yaoundé | 3M Services Cameroun",
+    desc: "Achat et vente de voitures à Yaoundé : véhicules neufs 0 km et occasions certifiées. Programme exclusif de vente en leasing et facilités de paiement échelonné avec la convention MUPOCAM Orange Cameroun.",
+  },
+  "/vente-voiture-yaounde": {
+    title: "Vente de Voitures & Véhicules d'Occasion à Yaoundé | 3M Services",
+    desc: "Achetez votre véhicule au meilleur prix à Yaoundé : SUV, berlines, 4x4 garantis et révisés chez 3M Services.",
   },
   "/boutique": {
     title: "Boutique & Catalogue | Voitures Neuves, Occasions & Appartements Meublés - 3M SERVICES Yaoundé",
@@ -33,7 +69,7 @@ const ROUTE_SEO = {
   },
 };
 
-const DEFAULT_KEYWORDS = "3mservice shop, 3m service, 3m services, 3m service yaounde, 3m services yaounde, 3m service cameroun, 3m services bastos, 3m services omnisport yaounde, 3m services oyomabang, vente de voiture yaounde, achat voiture yaounde, location voiture yaounde, appartements meubles yaounde, bastos yaounde, leasing mupocam orange cameroun, concessionnaire automobile yaounde, 3m consulting";
+const DEFAULT_KEYWORDS = "location de voiture yaounde, location voiture yaounde, agence de location de voiture yaounde, louer une voiture a yaounde, location voiture avec chauffeur yaounde, location voiture sans chauffeur yaounde, prix location voiture yaounde, location voiture pas chere yaounde, location prado yaounde, location toyota prado yaounde, louer prado a yaounde, prix location prado yaounde, location 4x4 yaounde, location suv yaounde, location voiture vip yaounde, location land cruiser yaounde, appartement meuble yaounde, location appartement meuble yaounde, studio meuble yaounde, appartement meuble a louer yaounde, appartement meuble courte duree yaounde, prix appartement meuble yaounde, appartement meuble bastos, location appartement meuble bastos, studio meuble bastos yaounde, appartement meuble essos, vente de voiture yaounde, voiture a vendre yaounde, achat voiture a credit cameroun, vente voiture en leasing cameroun, voiture paiement echelonne yaounde, vehicule en leasing cameroun, 3mservice shop, 3m service yaounde, 3m services";
 
 export default function SEOHead() {
   const settings = useSettings();
