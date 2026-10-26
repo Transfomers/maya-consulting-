@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Car,
@@ -20,15 +20,26 @@ import {
   Sparkles,
   ArrowRight,
   SlidersHorizontal,
-  ExternalLink
+  ExternalLink,
+  FileText,
+  Download,
+  CreditCard,
+  Building2,
+  ShoppingCart,
+  Check
 } from "lucide-react";
 import { toast } from "sonner";
-import { CATALOG_INFO, CATALOG_SECTIONS, VEHICLES, APARTMENTS } from "@/data/catalogVehicles";
+import { CATALOG_INFO, CATALOG_SECTIONS } from "@/data/catalogVehicles";
+import { getCars } from "@/data/catalogStorage";
+import { getApartments, subscribeApartments } from "@/data/apartmentStorage";
+import { useCart } from "@/context/CartContext";
 import VehicleDetailModal from "@/components/VehicleDetailModal";
 import CustomOrderModal from "@/components/CustomOrderModal";
 import ApartmentModal from "@/components/ApartmentModal";
 
 export default function Home() {
+  const [cars, setCars] = useState([]);
+  const { addToCart, isInCart } = useCart();
   const [selectedSection, setSelectedSection] = useState("all");
   const [conditionFilter, setConditionFilter] = useState("all"); // "all" | "Neuve" | "Occasion"
   const [transmissionFilter, setTransmissionFilter] = useState("all");
@@ -40,10 +51,38 @@ export default function Home() {
   const [isCustomOrderOpen, setIsCustomOrderOpen] = useState(false);
   const [activeApartment, setActiveApartment] = useState(null);
   const [isApartmentModalOpen, setIsApartmentModalOpen] = useState(false);
+  const [apartments, setApartments] = useState(getApartments());
+
+  const loadCars = () => {
+    setCars(getCars());
+  };
+
+  useEffect(() => {
+    setApartments(getApartments());
+    const unsubApts = subscribeApartments((updated) => setApartments(updated));
+    return unsubApts;
+  }, []);
+
+  useEffect(() => {
+    loadCars();
+    const handleUpdate = () => loadCars();
+    window.addEventListener("3m_cars_updated", handleUpdate);
+    return () => window.removeEventListener("3m_cars_updated", handleUpdate);
+  }, []);
+
+  // Exactly 3 featured vehicles for the simplified homepage
+  const featuredVehicles = useMemo(() => {
+    if (!cars || cars.length === 0) return [];
+    const jeep = cars.find((c) => c.id === "suv-00-jeep") || cars[0];
+    const rav4 = cars.find((c) => c.id === "suv-01") || cars[1];
+    const flagship = cars.find((c) => c.brand?.toLowerCase().includes("mercedes") || c.id === "suv-04-prado" || c.id === "toyota-03-hilux") || cars[2];
+    const list = [jeep, rav4, flagship].filter(Boolean);
+    return list.slice(0, 3);
+  }, [cars]);
 
   // Filtered vehicles
   const filteredVehicles = useMemo(() => {
-    return VEHICLES.filter((item) => {
+    return cars.filter((item) => {
       // Section filter
       if (selectedSection !== "all" && item.section !== selectedSection) {
         return false;
@@ -72,7 +111,7 @@ export default function Home() {
       }
       return true;
     });
-  }, [selectedSection, conditionFilter, transmissionFilter, searchQuery]);
+  }, [cars, selectedSection, conditionFilter, transmissionFilter, searchQuery]);
 
   const openVehicleModal = (veh) => {
     if (veh.section === "12") {
@@ -136,19 +175,11 @@ export default function Home() {
                   <ChevronRight className="h-4 w-4" />
                 </a>
 
-                <button
-                  onClick={() => setIsCustomOrderOpen(true)}
-                  className="px-7 py-4 bg-white border border-forest/30 hover:border-maple hover:text-maple text-forest text-xs font-bold uppercase tracking-[0.15em] transition-all flex items-center gap-2"
-                >
-                  <Sparkles className="h-4 w-4 text-maple" />
-                  <span>Commander sur Mesure</span>
-                </button>
-
                 <a
-                  href="https://wa.me/237677000000?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20des%20renseignements%20sur%20le%20Catalogue%20Automobile%202025"
+                  href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20des%20renseignements%20sur%20le%20Catalogue%20Automobile%202025"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-5 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow"
+                  className="px-6 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow"
                   title="WhatsApp 3M Services"
                 >
                   <MessageSquare className="h-4 w-4" />
@@ -203,7 +234,7 @@ export default function Home() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs py-2 border-b border-forest/10">
                     <span className="text-sage font-medium">Fournisseur :</span>
-                    <span className="font-bold text-forest">3M SERVICES SARL</span>
+                    <span className="font-bold text-forest">3M SERVICES</span>
                   </div>
                   <div className="flex items-center justify-between text-xs py-2 border-b border-forest/10">
                     <span className="text-sage font-medium">Localisation :</span>
@@ -228,6 +259,349 @@ export default function Home() {
             </div>
 
           </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION SERVICES PHARES & RÉFÉRENCEMENT LOCAL YAOUNDÉ
+          ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-16 md:py-20 bg-white border-b border-gray-200 relative">
+        <div className="mx-auto max-w-[1440px] px-5 md:px-10">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#E20713]">
+              Fournisseur Automobile &amp; Immobilier à Yaoundé
+            </span>
+            <h2 className="font-heading font-black text-2xl sm:text-4xl text-gray-900 mt-2">
+              Nos Pôles d'Excellence à Yaoundé
+            </h2>
+            <p className="text-sm text-gray-600 mt-2">
+              Découvrez nos services dédiés : location de véhicules avec ou sans chauffeur, 4x4 Toyota Prado VIP, appartements meublés grand standing à Bastos et Essos, vente et leasing conventionné MUPOCAM.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Card 1: Location de voiture Yaoundé */}
+            <Link
+              to="/location-voiture-yaounde"
+              className="group bg-gray-50 hover:bg-white border border-gray-200 hover:border-[#E20713] p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                <div className="h-12 w-12 rounded bg-[#E20713]/10 text-[#E20713] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Car className="h-6 w-6" />
+                </div>
+                <h3 className="font-heading font-extrabold text-lg text-gray-900 group-hover:text-[#E20713] transition-colors">
+                  Location de Voiture à Yaoundé
+                </h3>
+                <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                  Véhicules récents avec ou sans chauffeur professionnel. Tarifs dégressifs, formule aéroport Nsimalen 24/7 et liberté totale de déplacement.
+                </p>
+              </div>
+              <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-[#E20713] uppercase tracking-wider">
+                <span>Découvrir la flotte</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Card 2: Location Toyota Prado */}
+            <Link
+              to="/location-prado-yaounde"
+              className="group bg-gray-50 hover:bg-white border border-gray-200 hover:border-[#FF7900] p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                <div className="h-12 w-12 rounded bg-[#FF7900]/10 text-[#FF7900] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Key className="h-6 w-6" />
+                </div>
+                <h3 className="font-heading font-extrabold text-lg text-gray-900 group-hover:text-[#FF7900] transition-colors">
+                  Location Toyota Prado Yaoundé
+                </h3>
+                <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                  Toyota Land Cruiser Prado TXL 4x4 tout-terrain avec chauffeur VIP. Le choix numéro 1 pour missions officielles, cortèges et mariages.
+                </p>
+              </div>
+              <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-[#FF7900] uppercase tracking-wider">
+                <span>Offre Toyota Prado</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Card 3: Appartement Meublé Bastos */}
+            <Link
+              to="/appartement-meuble-bastos"
+              className="group bg-gray-50 hover:bg-white border border-gray-200 hover:border-emerald-600 p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                <div className="h-12 w-12 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Building2 className="h-6 w-6" />
+                </div>
+                <h3 className="font-heading font-extrabold text-lg text-gray-900 group-hover:text-emerald-600 transition-colors">
+                  Appartement Meublé à Bastos
+                </h3>
+                <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                  Résidence haut standing au cœur du quartier diplomatique. Groupe électrogène automatique, Wifi fibre optique et gardiennage 24h/24.
+                </p>
+              </div>
+              <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-emerald-600 uppercase tracking-wider">
+                <span>Voir la résidence Bastos</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Card 4: Appartements Meublés Yaoundé & Essos */}
+            <Link
+              to="/appartement-meuble-yaounde"
+              className="group bg-gray-50 hover:bg-white border border-gray-200 hover:border-[#111827] p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                <div className="h-12 w-12 rounded bg-gray-200 text-gray-900 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <HomeIcon className="h-6 w-6" />
+                </div>
+                <h3 className="font-heading font-extrabold text-lg text-gray-900">
+                  Appartements Meublés Essos &amp; Yaoundé
+                </h3>
+                <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                  Studios et logements meublés à Essos, Omnisports et Le Golfe. Idéal pour séjours d'affaires et touristiques courts et moyens séjours.
+                </p>
+              </div>
+              <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-gray-900 uppercase tracking-wider">
+                <span>Tous les quartiers</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Card 5: Vente & Leasing MUPOCAM */}
+            <Link
+              to="/vente-voiture-leasing-cameroun"
+              className="group bg-gray-50 hover:bg-white border border-gray-200 hover:border-[#E20713] p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                <div className="h-12 w-12 rounded bg-[#E20713]/10 text-[#E20713] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <CreditCard className="h-6 w-6" />
+                </div>
+                <h3 className="font-heading font-extrabold text-lg text-gray-900 group-hover:text-[#E20713] transition-colors">
+                  Vente &amp; Leasing MUPOCAM
+                </h3>
+                <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                  Achat de véhicules neufs 0 km et occasions certifiées avec convention officielle de leasing et facilités de paiement échelonné.
+                </p>
+              </div>
+              <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-[#E20713] uppercase tracking-wider">
+                <span>Programme de leasing</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Card 6: Boutique en ligne */}
+            <Link
+              to="/boutique"
+              className="group bg-[#111827] text-white p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                <div className="h-12 w-12 rounded bg-white/10 text-[#FF7900] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <h3 className="font-heading font-extrabold text-lg text-white">
+                  Boutique en Ligne 3M SERVICES
+                </h3>
+                <p className="text-xs text-stone-300 mt-2 leading-relaxed">
+                  Consultez notre stock de voitures et appartements, ajoutez vos choix au panier et passez commande instantanément via WhatsApp.
+                </p>
+              </div>
+              <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-bold text-[#FF7900] uppercase tracking-wider">
+                <span>Accéder à la boutique</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION PARTENARIAT MUPOCAM & VENTE EN LEASING
+          ═══════════════════════════════════════════════════════════════ */}
+      <section id="leasing" className="py-20 md:py-28 bg-[#0D0F0E] text-white border-b border-white/10 relative overflow-hidden">
+        {/* Subtle orange accent glow in background */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FF7900]/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#ED1C24]/10 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="mx-auto max-w-[1440px] px-5 md:px-10 relative z-10">
+          
+          {/* Header & Badges */}
+          <div className="flex flex-wrap items-center justify-between gap-6 pb-12 border-b border-white/10">
+            <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
+              <div className="flex items-center gap-3 bg-black/60 px-4 py-2.5 rounded border border-white/15">
+                <img
+                  src="/Asset/logo-3m-services.png"
+                  alt="3M SERVICES"
+                  className="h-10 w-auto object-contain"
+                />
+                <span className="font-heading font-black text-sm text-white">3M SERVICES</span>
+              </div>
+              <span className="text-xl font-light text-stone-500">✕</span>
+              <div className="flex items-center gap-3 bg-black/60 px-4 py-2.5 rounded border border-[#FF7900]/40 shadow-[0_0_20px_rgba(255,121,0,0.15)]">
+                <img
+                  src="/Asset/logo-mupocam.png"
+                  alt="MUPOCAM - Mutuelle du Personnel Orange Cameroun"
+                  className="h-10 w-auto object-contain"
+                />
+                <div>
+                  <span className="font-heading font-black text-sm text-[#FF7900] block">MUPOCAM</span>
+                  <span className="text-[10px] text-stone-300 block font-sans">Mutuelle Personnel Orange Cameroun</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="px-3.5 py-1.5 rounded-full bg-[#FF7900]/15 text-[#FF7900] border border-[#FF7900]/30 font-mono text-xs font-bold uppercase tracking-wider">
+                Distributeur Officiel Agréé
+              </span>
+              <span className="px-3.5 py-1.5 rounded-full bg-white/10 text-white/90 border border-white/15 font-mono text-xs uppercase tracking-wider hidden sm:inline-block">
+                Nouvelle route - OMNISPORTS
+              </span>
+            </div>
+          </div>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-12 items-center">
+            
+            {/* Left Column: Brief, Benefits & Actions (7 cols) */}
+            <div className="lg:col-span-7 space-y-8">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-[0.25em] text-[#FF7900] font-bold block mb-3">
+                  PROGRAMME LEASING & FACILITÉS DE PAIEMENT
+                </span>
+                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                  Vente de Véhicules en <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF7900] to-red-500">Leasing</span> pour la Mutuelle Orange Cameroun
+                </h2>
+                <p className="mt-4 text-base sm:text-lg text-stone-300 leading-relaxed">
+                  Dans le cadre de notre partenariat exclusif, <strong className="text-white">3M SERVICES</strong> met à disposition des mutualistes de la <strong className="text-[#FF7900]">MUPOCAM</strong> (Mutuelle du Personnel d'Orange Cameroun) et de nos clients partenaires une formule d'acquisition en <strong>paiement échelonné (leasing automobile)</strong> sur tout notre catalogue 2025.
+                </p>
+              </div>
+
+              {/* 4 Feature Points */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="p-5 bg-white/5 border border-white/10 rounded-lg hover:border-[#FF7900]/50 transition-colors">
+                  <div className="h-10 w-10 rounded bg-[#FF7900]/20 text-[#FF7900] flex items-center justify-center mb-3">
+                    <CreditCard className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-heading font-bold text-white text-base">Paiement Échelonné Souple</h4>
+                  <p className="text-xs text-stone-400 mt-1 leading-relaxed">
+                    Apport initial modulable et mensualités étalées sur 12, 24 ou 36 mois adaptées à vos revenus et retenues.
+                  </p>
+                </div>
+
+                <div className="p-5 bg-white/5 border border-white/10 rounded-lg hover:border-[#FF7900]/50 transition-colors">
+                  <div className="h-10 w-10 rounded bg-red-500/20 text-red-400 flex items-center justify-center mb-3">
+                    <Car className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-heading font-bold text-white text-base">Tout le Catalogue 2025</h4>
+                  <p className="text-xs text-stone-400 mt-1 leading-relaxed">
+                    Éligible sur nos SUV (Toyota, Santa Fe), Berlines Mercedes, Kia neuves 0 km sous garantie, pick-ups et sur commande.
+                  </p>
+                </div>
+
+                <div className="p-5 bg-white/5 border border-white/10 rounded-lg hover:border-[#FF7900]/50 transition-colors">
+                  <div className="h-10 w-10 rounded bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
+                    <ShieldCheck className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-heading font-bold text-white text-base">Prise en Charge Clé en Main</h4>
+                  <p className="text-xs text-stone-400 mt-1 leading-relaxed">
+                    Immatriculation officielle, visite technique, assurance tous risques négociée et révision certifiée avant livraison.
+                  </p>
+                </div>
+
+                <div className="p-5 bg-white/5 border border-white/10 rounded-lg hover:border-[#FF7900]/50 transition-colors">
+                  <div className="h-10 w-10 rounded bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-heading font-bold text-white text-base">Agence Dédiée Omnisports</h4>
+                  <p className="text-xs text-stone-400 mt-1 leading-relaxed">
+                    Accueil personnalisé à notre agence : <strong>Nouvelle route - OMNISPORTS, Yaoundé</strong> pour l'étude de votre dossier.
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons: WhatsApp & Download PDF */}
+              <div className="pt-2 flex flex-wrap items-center gap-4">
+                <a
+                  href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20suis%20mutualiste%20MUPOCAM%20(Orange%20Cameroun)%20et%20je%20souhaite%20des%20informations%20sur%20l'offre%20de%20vente%20de%20véhicule%20en%20leasing%20/%20paiement%20échelonné."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-4 bg-[#FF7900] hover:bg-[#E06800] text-black font-heading font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2.5 shadow-lg"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <span>Demande Leasing WhatsApp</span>
+                </a>
+
+                <a
+                  href="/Asset/car.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download="Brochure-Officielle-3M-Services-MUPOCAM.pdf"
+                  className="px-6 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2.5"
+                >
+                  <Download className="h-4 w-4 text-[#FF7900]" />
+                  <span>Télécharger l'Affiche Officielle (PDF)</span>
+                </a>
+
+                <a
+                  href="#catalogue"
+                  className="px-5 py-4 text-xs font-bold uppercase tracking-wider text-stone-300 hover:text-white flex items-center gap-2 transition-colors underline"
+                >
+                  <span>Voir les véhicules éligibles</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </a>
+              </div>
+
+              <div className="p-4 rounded bg-black/40 border border-white/10 text-xs text-stone-300 flex items-start gap-3">
+                <Building2 className="h-5 w-5 text-[#FF7900] flex-shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white font-semibold">Conseil aux adhérents MUPOCAM :</strong> Munissez-vous de votre carte d'adhérent ou matricule Orange Cameroun pour bénéficier des conditions tarifaires préférentielles et du traitement prioritaire de votre dossier.
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Poster Preview (5 cols) */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative max-w-md w-full bg-black/80 p-3 sm:p-4 rounded-xl border border-white/15 shadow-2xl">
+                <div className="absolute -top-3 -right-3 z-20 px-3 py-1 rounded bg-[#ED1C24] text-white font-mono text-[10px] font-bold uppercase tracking-widest shadow-md">
+                  AFFICHE OFFICIELLE
+                </div>
+                
+                <a
+                  href="/Asset/car.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block group overflow-hidden rounded-lg relative"
+                  title="Cliquer pour ouvrir le document PDF officiel"
+                >
+                  <img
+                    src="/Asset/affiche-mupocam-officielle.png"
+                    alt="3M Services Distributeur Officiel MUPOCAM Mutuelle Personnel Orange Cameroun"
+                    className="w-full h-auto object-contain rounded-lg group-hover:scale-[1.02] transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-xs uppercase tracking-wider backdrop-blur-xs">
+                    <ExternalLink className="h-4 w-4 text-[#FF7900]" />
+                    <span>Ouvrir le document PDF complet</span>
+                  </div>
+                </a>
+
+                <div className="pt-3 px-2 flex items-center justify-between text-xs text-stone-400">
+                  <span className="font-mono text-[11px]">📍 Nouvelle route - OMNISPORTS</span>
+                  <a
+                    href="/Asset/car.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#FF7900] hover:underline font-bold text-[11px]"
+                  >
+                    Consulter car.pdf →
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
         </div>
       </section>
 
@@ -350,325 +724,192 @@ export default function Home() {
       </section>
 
 
-      {/* MAIN CATALOGUE SECTION */}
-      <section id="catalogue" className="py-20 md:py-28 bg-bone relative border-b border-forest/15">
+      {/* ── SECTION VÉHICULES EN VEDETTE (EXACTEMENT 3 VÉHICULES) ─────── */}
+      <section id="catalogue" className="py-20 md:py-28 bg-[#FFFFFF] relative border-b border-gray-200">
         <div className="mx-auto max-w-[1440px] px-5 md:px-10">
           
-          {/* Section Title */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-forest/15">
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-gray-200">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-2.5 py-1 bg-maple text-white text-[11px] font-bold uppercase tracking-wider">
-                  ÉDITION 2025
+                <span className="px-2.5 py-1 bg-[#E20713] text-white text-[11px] font-bold uppercase tracking-wider rounded-xs">
+                  SÉLECTION EN VEDETTE
                 </span>
-                <span className="text-xs font-mono text-sage uppercase tracking-widest">
-                  TOUTES MARQUES & MODÈLES
+                <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">
+                  CATALOGUE AUTOMOBILE 2025 • YAOUNDÉ
                 </span>
               </div>
-              <h2 className="font-heading font-black text-3xl sm:text-5xl text-forest tracking-tight">
-                LE CATALOGUE AUTOMOBILE
+              <h2 className="font-heading font-black text-3xl sm:text-5xl text-gray-900 tracking-tight">
+                Véhicules Phares de la Semaine
               </h2>
-              <p className="font-serif italic text-lg sm:text-xl text-sage mt-1">
-                Explorez nos 12 sections : SUV, Mercedes, Kia, Toyota, Hyundai et commandes spéciales.
+              <p className="font-serif italic text-lg sm:text-xl text-gray-600 mt-1">
+                Une sélection exclusive disponible immédiatement pour achat au comptant ou en leasing MUPOCAM.
               </p>
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-forest font-mono">
-                {filteredVehicles.length} Véhicules trouvés
-              </span>
-              <button
-                onClick={() => setIsCustomOrderOpen(true)}
-                className="px-4 py-2 bg-maple text-white text-xs font-bold uppercase tracking-wider hover:bg-forest transition-colors flex items-center gap-1.5"
+              <Link
+                to="/boutique"
+                className="px-5 py-3 bg-[#E20713] hover:bg-[#C4050F] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 rounded-xs shadow-sm hover:shadow-md"
               >
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>Section 12 : Sur Commande</span>
-              </button>
+                <span>Voir toute la boutique ({cars.length}+)</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
 
-          {/* FILTER TOOLBAR */}
-          <div className="py-6 space-y-4">
-            
-            {/* Search Input & Condition Pills */}
-            <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
-              
-              {/* Search Bar */}
-              <div className="relative flex-1 max-w-lg">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-forest/40" />
-                <input
-                  type="text"
-                  placeholder="Rechercher par modèle (ex: RAV4, Maybach, Hilux, Seltos, Prado, Kona...)"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white border border-forest/20 text-xs font-medium text-forest placeholder:text-sage/60 focus:outline-none focus:border-maple"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-sage hover:text-forest"
-                  >
-                    Effacer
-                  </button>
-                )}
-              </div>
+          {/* 3 Featured Vehicles in a single row on desktop */}
+          <div className="pt-10 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            {featuredVehicles.map((veh) => {
+              const isNew = veh.condition === "Neuve" || veh.mileage === "0 km";
+              const added = isInCart(veh.id);
 
-              {/* Quick Filter Buttons */}
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-forest mr-1 flex items-center gap-1">
-                  <SlidersHorizontal className="h-3.5 w-3.5" /> État :
-                </span>
-                {[
-                  { label: "Tous", val: "all" },
-                  { label: "Neuves (0 km)", val: "Neuve" },
-                  { label: "Occasions Certifiées", val: "Occasion" }
-                ].map((btn) => (
-                  <button
-                    key={btn.val}
-                    onClick={() => setConditionFilter(btn.val)}
-                    className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors border ${
-                      conditionFilter === btn.val
-                        ? "bg-forest text-white border-forest"
-                        : "bg-white text-forest border-forest/20 hover:border-forest"
-                    }`}
-                  >
-                    {btn.label}
-                  </button>
-                ))}
-
-                <span className="text-xs font-bold uppercase tracking-wider text-forest ml-2 mr-1">
-                  Boîte :
-                </span>
-                {[
-                  { label: "Toutes", val: "all" },
-                  { label: "Auto", val: "auto" },
-                  { label: "Manuelle", val: "manuelle" },
-                  { label: "4*4", val: "4*" }
-                ].map((btn) => (
-                  <button
-                    key={btn.val}
-                    onClick={() => setTransmissionFilter(btn.val)}
-                    className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors border ${
-                      transmissionFilter === btn.val
-                        ? "bg-maple text-white border-maple"
-                        : "bg-white text-forest border-forest/20 hover:border-maple"
-                    }`}
-                  >
-                    {btn.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* SECTIONS TABS (01 to 12) */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-2 scrollbar-none">
-              <button
-                onClick={() => setSelectedSection("all")}
-                className={`px-4 py-2 whitespace-nowrap text-xs font-bold uppercase tracking-wider transition-colors border ${
-                  selectedSection === "all"
-                    ? "bg-forest text-white border-forest shadow-sm"
-                    : "bg-white text-forest border-forest/20 hover:border-forest hover:bg-forest/5"
-                }`}
-              >
-                Toutes les Catégories ({VEHICLES.length})
-              </button>
-
-              {CATALOG_SECTIONS.map((sec) => (
-                <button
-                  key={sec.number}
-                  onClick={() => setSelectedSection(sec.number)}
-                  className={`px-4 py-2 whitespace-nowrap text-xs font-bold uppercase tracking-wider transition-colors border ${
-                    selectedSection === sec.number
-                      ? "bg-maple text-white border-maple shadow-sm"
-                      : "bg-white text-forest border-forest/20 hover:border-maple hover:bg-maple/5"
-                  }`}
+              return (
+                <div
+                  key={veh.id}
+                  className="group flex flex-col justify-between bg-white border border-gray-200 hover:border-[#E20713] transition-all duration-300 hover:shadow-xl rounded-sm overflow-hidden relative"
                 >
-                  <span className="opacity-70 font-mono mr-1.5">{sec.number}</span>
-                  {sec.title}
-                </button>
-              ))}
-            </div>
+                  {/* Vehicle Image */}
+                  <div className="relative h-60 sm:h-64 w-full overflow-hidden bg-gray-100">
+                    <img
+                      src={veh.image}
+                      alt={veh.model}
+                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
 
-          </div>
-
-          {/* ACTIVE SECTION BANNER IF SPECIFIC SECTION SELECTED */}
-          {selectedSection !== "all" && (
-            <div className="my-6 p-4 sm:p-6 bg-forest text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-forest">
-              <div>
-                <span className="text-xs font-mono font-bold text-maple uppercase tracking-widest">
-                  SECTION {selectedSection}
-                </span>
-                <h3 className="text-xl sm:text-2xl font-heading font-black text-white mt-0.5">
-                  {CATALOG_SECTIONS.find((s) => s.number === selectedSection)?.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-white/70 mt-1">
-                  {CATALOG_SECTIONS.find((s) => s.number === selectedSection)?.subtitle}
-                </p>
-              </div>
-
-              <button
-                onClick={() => setSelectedSection("all")}
-                className="text-xs underline text-maple-light hover:text-white"
-              >
-                Afficher tout le catalogue (Toutes sections)
-              </button>
-            </div>
-          )}
-
-          {/* VEHICLES GRID */}
-          {filteredVehicles.length === 0 ? (
-            <div className="py-20 text-center bg-white border border-forest/15 p-8">
-              <Car className="h-12 w-12 text-forest/30 mx-auto mb-4" />
-              <h4 className="text-xl font-bold font-heading text-forest">Aucun véhicule ne correspond aux filtres</h4>
-              <p className="text-sm text-sage max-w-md mx-auto mt-2">
-                Essayez d'ajuster votre recherche ou utilisez notre service de commande sur mesure pour trouver exactement le véhicule de vos rêves.
-              </p>
-              <div className="mt-6 flex justify-center gap-3">
-                <button
-                  onClick={() => {
-                    setSelectedSection("all");
-                    setConditionFilter("all");
-                    setTransmissionFilter("all");
-                    setSearchQuery("");
-                  }}
-                  className="px-5 py-2.5 bg-forest text-white text-xs font-bold uppercase tracking-wider"
-                >
-                  Réinitialiser les filtres
-                </button>
-                <button
-                  onClick={() => setIsCustomOrderOpen(true)}
-                  className="px-5 py-2.5 bg-maple text-white text-xs font-bold uppercase tracking-wider"
-                >
-                  Passer une commande sur mesure
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {filteredVehicles.map((veh) => {
-                const isNew = veh.condition === "Neuve" || veh.mileage === "0 km";
-
-                return (
-                  <div
-                    key={veh.id}
-                    className="group flex flex-col justify-between bg-white border border-forest/20 hover:border-maple transition-all duration-300 hover:shadow-xl relative overflow-hidden"
-                  >
-                    {/* Top Image Container */}
-                    <div className="relative h-56 sm:h-64 w-full overflow-hidden bg-forest/10">
-                      <img
-                        src={veh.image}
-                        alt={veh.model}
-                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-
-                      {/* Top Badges */}
-                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-                        <span className="px-2 py-0.5 bg-forest/90 text-white text-[10px] font-bold font-mono uppercase tracking-wider">
-                          {veh.section} • {veh.brand}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
-                            isNew ? "bg-emerald-500 text-white" : "bg-amber-400 text-black"
-                          }`}
-                        >
-                          {veh.condition}
-                        </span>
-                      </div>
-
-                      {/* Mileage / Year Tag */}
-                      <div className="absolute top-3 right-3 z-10">
-                        <span className="px-2 py-0.5 bg-black/70 text-white text-[10px] font-mono font-bold">
-                          {veh.mileage || (isNew ? "0 km" : "Occasion")}
-                        </span>
-                      </div>
-
-                      {/* Bottom Title on Image */}
-                      <div className="absolute bottom-3 left-3 right-3 text-white">
-                        <p className="text-[10px] font-mono uppercase tracking-widest text-maple-light">
-                          {veh.sectionTitle}
-                        </p>
-                        <h4 className="text-lg sm:text-xl font-heading font-black text-white leading-tight mt-0.5 drop-shadow">
-                          {veh.model}
-                        </h4>
-                      </div>
-                    </div>
-
-                    {/* Specifications Body */}
-                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                      
-                      {/* Specs Matrix */}
-                      <div className="grid grid-cols-2 gap-2.5 text-xs border-b border-forest/10 pb-4">
-                        <div className="flex items-center gap-2">
-                          <Fuel className="h-3.5 w-3.5 text-maple flex-shrink-0" />
-                          <span className="text-sage">Moteur :</span>
-                          <span className="font-bold text-forest">{veh.engine}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Gauge className="h-3.5 w-3.5 text-maple flex-shrink-0" />
-                          <span className="text-sage">Boîte :</span>
-                          <span className="font-bold text-forest truncate" title={veh.transmission}>
-                            {veh.transmission}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Users className="h-3.5 w-3.5 text-maple flex-shrink-0" />
-                          <span className="text-sage">Places :</span>
-                          <span className="font-bold text-forest">{veh.seats || "5 places"}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-3.5 w-3.5 text-maple flex-shrink-0" />
-                          <span className="text-sage">Compteur :</span>
-                          <span className="font-bold text-forest">{veh.mileage || (isNew ? "0 km" : "Certifié")}</span>
-                        </div>
-                      </div>
-
-                      {/* Short Description */}
-                      <p className="text-xs text-sage line-clamp-2 leading-relaxed">
-                        {veh.description}
-                      </p>
-
-                      {/* Action CTA Buttons */}
-                      <div className="pt-2 flex items-center gap-2">
-                        <button
-                          onClick={() => openVehicleModal(veh)}
-                          className="flex-1 py-2.5 px-3 bg-forest hover:bg-maple text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 shadow-sm"
-                        >
-                          <span>Fiche & Devis</span>
-                          <ArrowRight className="h-3.5 w-3.5" />
-                        </button>
-
-                        <a
-                          href={`https://wa.me/237677000000?text=${encodeURIComponent(
-                            `Bonjour 3M SERVICES, je souhaite réserver ou commander : ${veh.model} (Moteur: ${veh.engine}, Boite: ${veh.transmission}, Section: ${veh.section})`
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
-                          title="Commander sur WhatsApp"
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Footer strip */}
-                    <div className="px-5 py-2 bg-[#F9F8F6] border-t border-forest/10 flex items-center justify-between text-[10px] text-sage font-mono">
-                      <span>RÉF : {veh.id.toUpperCase()}</span>
-                      <span className="text-emerald-700 font-bold flex items-center gap-1">
-                        <CheckCircle2 className="h-3 w-3" /> Yaoundé Disponible
+                    {/* Top Badges */}
+                    <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
+                      <span className="px-2 py-0.5 bg-black/80 backdrop-blur-xs text-white text-[10px] font-bold font-mono uppercase tracking-wider rounded-xs">
+                        {veh.brand}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 text-[10px] font-bold font-mono uppercase tracking-wider rounded-xs text-white ${
+                          isNew ? "bg-[#E20713]" : "bg-emerald-600"
+                        }`}
+                      >
+                        {veh.condition}
                       </span>
                     </div>
 
+                    {/* Year Tag */}
+                    <div className="absolute top-3 right-3 z-10">
+                      <span className="px-2.5 py-0.5 bg-white text-gray-900 text-[10px] font-mono font-bold rounded-xs shadow-xs">
+                        {veh.year ? veh.year : (veh.mileage || "Disponible")}
+                      </span>
+                    </div>
+
+                    {/* Model Name & Category on Image */}
+                    <div className="absolute bottom-3 left-3 right-3 text-white">
+                      <p className="text-[10px] font-mono uppercase tracking-widest text-red-300">
+                        {veh.sectionTitle}
+                      </p>
+                      <h3 className="text-xl font-heading font-black text-white leading-tight mt-0.5 drop-shadow">
+                        {veh.model}
+                      </h3>
+                    </div>
                   </div>
-                );
-              })}
+
+                  {/* Body Specs & Pricing */}
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                    
+                    {/* Price / Leasing Box */}
+                    <div className="flex items-center justify-between bg-gray-50 p-2.5 rounded border border-gray-100">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400 block">
+                          Prix / Formule
+                        </span>
+                        <span className="text-sm font-extrabold text-[#E20713]">
+                          {veh.price || (isNew ? "Neuve 0 km • Prix sur devis" : "Sur devis • Éligible Leasing")}
+                        </span>
+                      </div>
+                      {veh.isMupocam !== false && (
+                        <span className="px-2 py-0.5 bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-wider rounded border border-orange-200">
+                          MUPOCAM ✓
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Specs Matrix */}
+                    <div className="grid grid-cols-2 gap-2 text-xs border-b border-gray-100 pb-3 text-gray-600">
+                      <div className="flex items-center gap-1.5">
+                        <Fuel className="h-3.5 w-3.5 text-[#E20713] flex-shrink-0" />
+                        <span className="truncate">{veh.engine}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Gauge className="h-3.5 w-3.5 text-[#E20713] flex-shrink-0" />
+                        <span className="truncate">{veh.transmission}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5 text-[#E20713] flex-shrink-0" />
+                        <span>{veh.seats || "5 places"}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-[#E20713] flex-shrink-0" />
+                        <span>{veh.mileage || (isNew ? "0 km" : "Certifié")}</span>
+                      </div>
+                    </div>
+
+                    {/* Actions: Voir le véhicule & Ajouter au panier */}
+                    <div className="pt-2 flex flex-col sm:flex-row items-center gap-2">
+                      <button
+                        onClick={() => openVehicleModal(veh)}
+                        className="w-full sm:flex-1 py-2.5 px-3 bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 rounded-xs"
+                      >
+                        <span>Voir le véhicule</span>
+                        <ArrowRight className="h-3.5 w-3.5 text-gray-500" />
+                      </button>
+
+                      {added ? (
+                        <Link
+                          to="/panier"
+                          className="w-full sm:flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 rounded-xs shadow-xs"
+                        >
+                          <Check className="h-4 w-4" />
+                          <span>Au Panier ✓</span>
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => addToCart(veh)}
+                          className="w-full sm:flex-1 py-2.5 px-3 bg-[#E20713] hover:bg-[#C4050F] text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 rounded-xs shadow-xs"
+                        >
+                          <ShoppingCart className="h-3.5 w-3.5" />
+                          <span>Ajouter</span>
+                        </button>
+                      )}
+                    </div>
+
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── Banner: "Voir toute la boutique" Call-to-Action ─────── */}
+          <div className="mt-12 p-8 sm:p-10 bg-gradient-to-r from-gray-900 via-[#111827] to-gray-900 text-white rounded-sm border border-gray-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+            <div className="space-y-2 text-center md:text-left z-10">
+              <span className="text-[11px] font-mono text-[#EF4444] font-bold uppercase tracking-widest">
+                BOUTIQUE AUTOMOBILE COMPLÈTE
+              </span>
+              <h3 className="font-heading font-black text-2xl sm:text-3xl text-white">
+                Découvrez plus de 55 véhicules en stock et sur commande
+              </h3>
+              <p className="text-sm text-stone-300 max-w-2xl leading-relaxed">
+                Nos 12 sections complètes (Toyota Hilux, Prado, Mercedes Maybach, Kia neuves 0 km, Hyundai, etc.) sont réunies dans notre boutique dédiée avec panier et commande WhatsApp.
+              </p>
             </div>
-          )}
+
+            <div className="flex flex-col sm:flex-row items-center gap-3 z-10 w-full sm:w-auto">
+              <Link
+                to="/boutique"
+                className="w-full sm:w-auto px-8 py-4 bg-[#E20713] hover:bg-[#C4050F] text-white font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 rounded-xs shadow-lg transition-all"
+              >
+                <span>Voir toute la boutique</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
 
         </div>
       </section>
@@ -715,7 +956,7 @@ export default function Home() {
 
             <div className="lg:col-span-4 flex flex-col gap-4">
               <div className="p-6 bg-white/10 border border-white/20 backdrop-blur-sm text-center">
-                <Sparkles className="h-8 w-8 text-maple-light mx-auto mb-3" />
+                <Car className="h-8 w-8 text-[#E20713] mx-auto mb-3" />
                 <h4 className="text-lg font-bold font-heading text-white">Votre Projet Automobile</h4>
                 <p className="text-xs text-bone/70 mt-1 mb-5">
                   Indiquez-nous la marque, l'année et le budget souhaité. Devis gratuit sous 24h.
@@ -729,7 +970,7 @@ export default function Home() {
               </div>
 
               <a
-                href="https://wa.me/237677000000?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20commander%20une%20voiture%20sur%20mesure%20(Section%2012)"
+                href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20commander%20une%20voiture%20sur%20mesure%20(Section%2012)"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider text-center flex items-center justify-center gap-2 transition-colors"
@@ -764,7 +1005,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {APARTMENTS.map((apt) => (
+            {apartments.slice(0, 4).map((apt) => (
               <div
                 key={apt.id}
                 className="bg-white border border-forest/20 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
@@ -832,6 +1073,17 @@ export default function Home() {
             ))}
           </div>
 
+          {/* Link to Full Boutique Apartments */}
+          <div className="text-center mt-12">
+            <Link
+              to="/boutique?tab=appartements"
+              className="inline-flex items-center gap-2.5 px-8 py-4 bg-[#E20713] hover:bg-[#c00610] text-white font-heading font-bold text-xs uppercase tracking-widest shadow-lg hover:shadow-xl transition-all"
+            >
+              <Building2 className="h-4 w-4" />
+              <span>Explorer Tous Nos Appartements Meublés ({apartments.length})</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -867,10 +1119,18 @@ export default function Home() {
                 <div className="flex items-start gap-3 p-4 bg-[#F8F7F4] border border-forest/10">
                   <Phone className="h-5 w-5 text-maple flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-forest">Ligne Téléphonique Directe :</p>
-                    <a href="tel:+237677000000" className="text-xs font-bold text-forest hover:text-maple mt-0.5 block">
-                      +237 6 77 00 00 00
-                    </a>
+                    <p className="text-xs font-bold uppercase tracking-wider text-forest">Lignes Téléphoniques Directes :</p>
+                    <div className="mt-1 space-y-1">
+                      <a href="tel:+237691786447" className="text-xs font-bold text-forest hover:text-maple block">
+                        • +237 691 78 64 47
+                      </a>
+                      <a href="tel:+237653761728" className="text-xs font-bold text-forest hover:text-maple block">
+                        • +237 653 76 17 28
+                      </a>
+                      <a href="tel:+237691786447" className="text-xs font-bold text-forest hover:text-maple block">
+                        • +237 691 78 64 47
+                      </a>
+                    </div>
                   </div>
                 </div>
 
@@ -879,12 +1139,12 @@ export default function Home() {
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-emerald-950">Service Client WhatsApp :</p>
                     <a
-                      href="https://wa.me/237677000000?text=Bonjour%203M%20SERVICES"
+                      href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs font-bold text-emerald-800 hover:underline mt-0.5 block"
                     >
-                      +237 6 77 00 00 00 (Disponible 7j/7)
+                      +237 691 78 64 47 (Disponible 7j/7)
                     </a>
                   </div>
                 </div>
