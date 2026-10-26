@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+
+# Official 3M SERVICES Sitemap
+Sitemap: https://www.3mservice.shop/sitemap.xml

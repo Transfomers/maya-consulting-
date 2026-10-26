@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <!-- Page d'Accueil Principale -->
+  <url>
+    <loc>https://www.3mservice.shop/</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.3mservice.shop/Asset/logo-3m-services.png</image:loc>
+      <image:title>3M SERVICES Yaoundé - Vente &amp; Location de Véhicules et Appartements Meublés</image:title>
+      <image:caption>3M SERVICE Shop - Fournisseur Automobile et Immobilier de référence à Yaoundé</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Boutique Principale -->
+  <url>
+    <loc>https://www.3mservice.shop/boutique</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=compress&cs=tinysrgb&w=800</image:loc>
+      <image:title>Jeep JEEP GRAND CHEROKEE V6 (ÉDITION MUPOCAM) - 3M SERVICES Yaoundé</image:title>
+      <image:caption>Modèle vedette de l'affiche officielle MUPOCAM (Mutuelle du Personnel Orange Cameroun). SUV de prestige tout-terrain, disponible immédiatement à la ve</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1617469767053-d3b523a0b982?auto=compress&cs=tinysrgb&w=800</image:loc>
+      <image:title>Toyota TOYOTA RAV4 2021 - 3M SERVICES Yaoundé</image:title>
+      <image:caption>SUV moderne, économique et dynamique, parfait pour la circulation à Yaoundé et les voyages en famille.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=compress&cs=tinysrgb&w=800</image:loc>
+      <image:title>Mercedes-Benz MERCEDES CLASSE E 2011 - 3M SERVICES Yaoundé</image:title>
+      <image:caption>Berline routière de référence alliant standing, insonorisation remarquable et grande sécurité routière.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=compress&cs=tinysrgb&w=1200</image:loc>
+      <image:title>Appartement Prestige Bastos - Bastos, Yaoundé - 3M SERVICES</image:title>
+      <image:caption>Situé au cœur du quartier diplomatique de Bastos, cet appartement grand standing vous garantit un calme absolu, une literie de luxe, un groupe électro</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=compress&cs=tinysrgb&w=1200</image:loc>
+      <image:title>Résidence Cosy Omnisport - Omnisport, Yaoundé - 3M SERVICES</image:title>
+      <image:caption>À 2 minutes de l'agence 3M Services et des grands axes commerciaux de Yaoundé, profitez d'un intérieur chaleureux, décoré avec soin, sécurisé et total</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=compress&cs=tinysrgb&w=1200</image:loc>
+      <image:title>Penthouse Panoramique Golfe - Le Golfe, Yaoundé - 3M SERVICES</image:title>
+      <image:caption>Un espace d'exception perché sur les hauteurs du Golfe à Yaoundé. Idéal pour cadres dirigeants, délégations ou familles exigeant espace, discrétion et</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Onglet Véhicules -->
+  <url>
+    <loc>https://www.3mservice.shop/boutique?tab=vehicules</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- Onglet Appartements Meublés -->
+  <url>
+    <loc>https://www.3mservice.shop/boutique?tab=appartements</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- Page À Propos -->
+  <url>
+    <loc>https://www.3mservice.shop/about</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Page Contact -->
+  <url>
+    <loc>https://www.3mservice.shop/contact</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Page Blog / Actualités -->
+  <url>
+    <loc>https://www.3mservice.shop/blog</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- Page Services -->
+  <url>
+    <loc>https://www.3mservice.shop/services</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+</urlset>
