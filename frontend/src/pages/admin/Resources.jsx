@@ -40,7 +40,7 @@ export default function AdminResources() {
     external_url: "",
     file_size: "",
     mime_type: "",
-    author: "Cap Entrepreneurs",
+    author: "3M Services",
     tags: "",
     language: "fr",
     skill_level: "Tous niveaux",
@@ -96,7 +96,7 @@ export default function AdminResources() {
       external_url: "",
       file_size: "",
       mime_type: "",
-      author: "Cap Entrepreneurs",
+      author: "3M Services",
       tags: "Programme, Formation, Transition Numérique",
       language: "fr",
       skill_level: "Tous niveaux",
@@ -122,7 +122,7 @@ export default function AdminResources() {
       external_url: res.external_url || "",
       file_size: res.file_size || "",
       mime_type: res.mime_type || "",
-      author: res.author || "Cap Entrepreneurs",
+      author: res.author || "3M Services",
       tags: res.tags || "",
       language: res.language || "fr",
       skill_level: res.skill_level || "Tous niveaux",
@@ -309,7 +309,7 @@ export default function AdminResources() {
                           <p className="text-[11px] text-sage line-clamp-2 mt-1 leading-relaxed">{res.description}</p>
                         )}
                         <div className="flex items-center gap-3 text-[10px] text-forest/40 mt-1">
-                          <span>Auteur : {res.author || "Cap Entrepreneurs"}</span>
+                          <span>Auteur : {res.author || "3M Services"}</span>
                           {res.duration && <span>• Durée : {res.duration}</span>}
                           {res.skill_level && <span>• {res.skill_level}</span>}
                         </div>
@@ -592,7 +592,7 @@ export default function AdminResources() {
                   </label>
                   <input
                     type="url"
-                    placeholder="https://capentrepreneurs.org/uploads/mon-guide.pdf"
+                    placeholder="https://www.3mservice.shop/uploads/mon-guide.pdf"
                     value={formData.file_url || formData.external_url}
                     onChange={(e) => setFormData({ ...formData, file_url: e.target.value })}
                     className="w-full px-3 py-1.5 text-xs border border-forest/20 focus:border-maple outline-none bg-white"

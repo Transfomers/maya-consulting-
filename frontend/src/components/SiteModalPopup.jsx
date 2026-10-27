@@ -89,7 +89,7 @@ export default function SiteModalPopup() {
               Être recontacté par 3M
             </button>
             <a
-              href="https://wa.me/237677000000?text=Bonjour%203M%20SERVICES"
+              href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center transition-colors"

@@ -21,25 +21,25 @@ export default function AppartementMeubleYaounde() {
 
   const NEIGHBORHOODS = [
     {
-      name: "Bastos — Quartier Diplomatique & Résidentiel",
-      tag: "Prestige & Calme",
-      price: "Dès 65 000 FCFA / nuitée",
-      desc: "Idéal pour diplomates, cadres de multinationales et familles. À proximité des ambassades, supermarchés et restaurants huppés. Résidence ultra-sécurisée avec groupe électrogène automatique.",
-      link: "/appartement-meuble-bastos",
-      image: "/Asset/appartements/appartement-meuble-suite-parentale.webp",
-      features: ["T3 2 Chambres", "Wifi Fibre", "Groupe Automatique", "Gardien 24/7"],
-    },
-    {
-      name: "Essos — Central, Vivant & Très Accessible",
-      tag: "Proximité & Dynamisme",
+      name: "Tsinga (Face FECAFOOT) — Résidence Principale 3M SERVICES",
+      tag: "Prestige, Calme & Sécurité",
       price: "Dès 40 000 FCFA / nuitée",
-      desc: "Parfait pour les séjours professionnels et touristiques nécessitant un accès rapide à tous les points névralgiques de Yaoundé. Commerces et taxis immédiats.",
-      link: "#reserver",
-      image: "/Asset/appartements/appartement-meuble-chambre-bleue.webp",
-      features: ["Studio & T2", "Climatisé", "Eau permanente", "Smart TV"],
+      desc: "Situé à Tsinga directement en face du siège de la FECAFOOT à Yaoundé. Emplacement central, sécurisé 24/7 avec groupe électrogène automatique, climatisation intégrale, Smart TV et wifi fibre optique.",
+      link: "/appartement-meuble-tsinga-fecafoot",
+      image: "/Asset/appartements/appartement-meuble-suite-parentale.webp",
+      features: ["Face FECAFOOT", "T2, T3 & T4", "Groupe Automatique", "Gardien 24/7"],
     },
     {
-      name: "Omnisports (Rue Foe) — Proche Agence 3M SERVICES",
+      name: "Oyomabang (Bientôt Disponible — Coming Soon)",
+      tag: "Ouverture Prochaine • Pré-réservations",
+      price: "Coming Soon • Appelez le +237 691 78 64 47",
+      desc: "Nouvelle résidence meublée de haut standing en cours d'ouverture à Oyomabang, Yaoundé. Studios et appartements modernes avec groupe électrogène, fibre optique et sécurité 24/7. Appelez dès aujourd'hui pour être parmi les premiers locataires.",
+      link: "/boutique?tab=appartements",
+      image: "/Asset/appartements/appartement-meuble-chambre-bleue.webp",
+      features: ["Oyomabang", "Coming Soon", "Groupe Automatique", "Pré-réservation par appel"],
+    },
+    {
+      name: "Omnisports (Nouvelle Route) — Proche Agence 3M SERVICES",
       tag: "Affaires & Mobilité",
       price: "Dès 40 000 FCFA / nuitée",
       desc: "Situé à 2 minutes de l'agence principale 3M SERVICES et des grands axes routiers de Yaoundé. Idéal pour combiner location automobile et hébergement.",
@@ -48,27 +48,27 @@ export default function AppartementMeubleYaounde() {
       features: ["T2 Contemporain", "Parking fermé", "Fibre optique", "Accès goudronné"],
     },
     {
-      name: "Le Golfe — Hauteurs & Vue Panoramique",
-      tag: "Penthouse & Luxe",
+      name: "Tsinga Penthouse Standing (Face FECAFOOT)",
+      tag: "Penthouse & Espace VIP",
       price: "Dès 90 000 FCFA / nuitée",
-      desc: "Un penthouse d'exception avec grande terrasse et vue imprenable sur Yaoundé. Finitions luxueuses, 3 chambres spacieuses et service conciergerie privée.",
+      desc: "Un logement d'exception à Tsinga face à la FECAFOOT avec terrasse privée, 3 chambres spacieuses, finitions luxueuses et service conciergerie privée 3M Services.",
       link: "/boutique?tab=appartements",
       image: "/Asset/appartements/appartement-meuble-chambre-confort.webp",
-      features: ["T4 Penthouse", "Terrasse Privée", "3 Salles de bain", "Service 5 étoiles"],
+      features: ["T4 Standing", "Terrasse Privée", "3 Salles de bain", "Service 5 étoiles"],
     },
   ];
 
   return (
     <>
       <Helmet>
-        <title>Location Appartement Meublé Yaoundé | Bastos, Essos, Omnisports - 3M Services</title>
+        <title>Location Appartement Meublé Yaoundé | Tsinga (Face FECAFOOT) & Bientôt Oyomabang - 3M Services</title>
         <meta
           name="description"
-          content="Location d'appartements et studios meublés à Yaoundé : Bastos, Essos, Omnisports, Le Golfe. Logements climatisés avec groupe électrogène permanent, Wifi fibre optique et sécurité 24/7. Réservation WhatsApp (+237 691 78 64 47)."
+          content="Location d'appartements et studios meublés à Yaoundé : Tsinga (en face de la FECAFOOT), Omnisports et bientôt Oyomabang. Logements climatisés avec groupe électrogène permanent, Wifi fibre optique et sécurité 24/7. Appelez directement le +237 691 78 64 47."
         />
         <meta
           name="keywords"
-          content="appartement meublé Yaoundé, location appartement meublé Yaoundé, studio meublé Yaoundé, appartement meublé à louer Yaoundé, appartement meublé Essos, appartement essos, appartement meublé Bastos, appartement meublé Omnisports Yaoundé, appartement meublé courte durée Yaoundé, prix appartement meublé Yaoundé, appartement meublé par jour Yaoundé, résidence meublée Yaoundé"
+          content="appartement meublé tsinga, appartement meuble face fecafoot, appartement meuble tsinga yaounde, appartement meuble oyomabang, appartement meublé Yaoundé, location appartement meublé Yaoundé, studio meublé Yaoundé, appartement meublé à louer Yaoundé, appartement meublé Omnisports Yaoundé, appartement meublé courte durée Yaoundé, prix appartement meublé Yaoundé, appartement meublé par jour Yaoundé, résidence meublée Yaoundé"
         />
         <link rel="canonical" href="https://www.3mservice.shop/appartement-meuble-yaounde" />
       </Helmet>
@@ -88,19 +88,27 @@ export default function AppartementMeubleYaounde() {
             </h1>
 
             <p className="text-base sm:text-lg text-stone-300 max-w-3xl mt-4 leading-relaxed font-normal">
-              Vous recherchez un <strong>appartement meublé à Yaoundé</strong> pour un court séjour, un voyage d'affaires ou des vacances ? Découvrez notre sélection de logements haut standing situés dans les meilleurs quartiers : <strong>Bastos</strong>, <strong>Essos</strong>, <strong>Omnisports</strong> et <strong>Le Golfe</strong>.
+              Vous recherchez un <strong>appartement meublé à Yaoundé</strong> pour un court séjour, un voyage d'affaires ou des vacances ? Découvrez nos logements grand standing situés à <strong>Tsinga (en face de la FECAFOOT)</strong>, <strong>Omnisports</strong> et très prochainement à <strong>Oyomabang (Coming Soon)</strong>.
             </p>
 
             {/* Quick Actions */}
             <div className="flex flex-wrap items-center gap-3.5 mt-8">
               <a
+                href={`tel:+${WHATSAPP_NUMBER}`}
+                className="px-7 py-4 bg-[#E20713] hover:bg-[#b3050f] text-white font-heading font-black text-xs uppercase tracking-wider flex items-center gap-2 rounded-xs shadow-xl transition-all hover:scale-[1.02]"
+              >
+                <Phone className="h-4 w-4" />
+                <span>Appelez directement : {PHONE_DISPLAY}</span>
+              </a>
+
+              <a
                 href={`https://wa.me/${WHATSAPP_NUMBER}?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20un%20appartement%20meubl%C3%A9%20%C3%A0%20Yaound%C3%A9`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-4 bg-[#E20713] hover:bg-[#b3050f] text-white font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 rounded-xs shadow-xl transition-all hover:scale-[1.02]"
+                className="px-6 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 rounded-xs shadow-md transition-all"
               >
                 <MessageSquare className="h-4 w-4" />
-                <span>Réserver un Appartement ({PHONE_DISPLAY})</span>
+                <span>WhatsApp ({PHONE_DISPLAY})</span>
               </a>
 
               <Link
@@ -108,7 +116,7 @@ export default function AppartementMeubleYaounde() {
                 className="px-6 py-4 bg-white text-[#111827] hover:bg-stone-100 font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 rounded-xs transition-all shadow-md"
               >
                 <Building2 className="h-4 w-4 text-[#E20713]" />
-                <span>Voir la Galerie &amp; Disponibilités</span>
+                <span>Voir les Résidences</span>
               </Link>
             </div>
           </div>
@@ -166,15 +174,24 @@ export default function AppartementMeubleYaounde() {
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
+                  <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between gap-2">
+                    <a
+                      href={`tel:+${WHATSAPP_NUMBER}`}
+                      className="px-4 py-3 bg-[#E20713] hover:bg-[#b3050f] text-white text-xs font-heading font-black uppercase tracking-wider text-center transition-colors rounded-xs flex items-center justify-center gap-1.5 shadow-sm"
+                      title="Appeler directement"
+                    >
+                      <Phone className="h-4 w-4" />
+                      <span>Appeler</span>
+                    </a>
+
                     <a
                       href={`https://wa.me/${WHATSAPP_NUMBER}?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20un%20logement%20%C3%A0%20${encodeURIComponent(n.name)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 py-3 bg-[#E20713] hover:bg-[#b3050f] text-white text-xs font-heading font-bold uppercase tracking-wider text-center transition-colors rounded-xs flex items-center justify-center gap-2"
+                      className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-heading font-bold uppercase tracking-wider text-center transition-colors rounded-xs flex items-center justify-center gap-2"
                     >
                       <MessageSquare className="h-4 w-4" />
-                      <span>Réserver ce Quartier</span>
+                      <span>WhatsApp</span>
                     </a>
                   </div>
                 </div>

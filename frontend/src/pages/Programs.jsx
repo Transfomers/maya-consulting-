@@ -41,15 +41,15 @@ const FALLBACK_RESOURCES = [
     id: "res-1",
     title: "Manuel de Reconditionnement Circulaire & Éco-Conception Numérique",
     slug: "manuel-reconditionnement-circulaire-eco-conception",
-    program: "Cap Green Lab",
-    category: { name: "Cap Green Lab", slug: "cap-green-lab" },
+    program: "3M Services Mobilité",
+    category: { name: "3M Services Mobilité", slug: "3m-services-mobilite" },
     resource_type: "course",
     description: "Guide technique et pédagogique pour la mise en place d'ateliers de réemploi informatique, le diagnostic matériel, le cycle de vie des équipements et les filières solidaires.",
-    author: "Équipe Pédagogique Cap Green Lab",
+    author: "Équipe Pédagogique 3M Services Mobilité",
     tags: "Économie Circulaire, Reconditionnement, Matériel, Tech Inclusive",
     file_size: "4.2 Mo",
     mime_type: "application/pdf",
-    file_url: "/assets/guides/cap-green-lab-reconditionnement.pdf",
+    file_url: "/assets/guides/3m-services-mobilite-reconditionnement.pdf",
     is_featured: true,
   },
   {
@@ -124,7 +124,7 @@ const Programs = () => {
     name: "",
     email: "",
     organization: "",
-    program: "Cap Green Lab",
+    program: "3M Services Mobilité",
     message: ""
   });
   const [submitting, setSubmitting] = useState(false);
@@ -210,7 +210,7 @@ const Programs = () => {
           resource_id: selectedResource?.id,
           resource_title: selectedResource?.title,
           resource_type: selectedResource?.resource_type || "Guide / Cours",
-          program: selectedResource?.category?.name || selectedResource?.program || "Cap Entrepreneurs",
+          program: selectedResource?.category?.name || selectedResource?.program || "3M Services",
           downloaded_at: new Date().toISOString(),
         },
       });
@@ -222,10 +222,10 @@ const Programs = () => {
       const targetUrl =
         selectedResource?.file_url ||
         selectedResource?.external_url ||
-        "/assets/guides/cap-green-lab-reconditionnement.pdf";
+        "/assets/guides/3m-services-mobilite-reconditionnement.pdf";
       const a = document.createElement("a");
       a.href = targetUrl;
-      a.download = `${selectedResource?.slug || "guide-cap-entrepreneurs"}.pdf`;
+      a.download = `${selectedResource?.slug || "guide-3M SERVICES"}.pdf`;
       a.target = "_blank";
       document.body.appendChild(a);
       a.click();
@@ -311,7 +311,7 @@ const Programs = () => {
 
                 {/* Edition tag / date matching reference */}
                 <div className="mt-6 flex items-center gap-4 text-xs font-montserrat tracking-[0.2em] uppercase text-sage">
-                  <span>{t.programs.editionTag || "ÉDITION 2026-2027 • CAP ENTREPRENEURS"}</span>
+                  <span>{t.programs.editionTag || "ÉDITION 2026-2027 • 3M SERVICES"}</span>
                 </div>
 
                 {/* Quick Anchor Link */}
@@ -333,7 +333,7 @@ const Programs = () => {
                 <div className="relative mx-auto max-w-[440px] lg:max-w-none overflow-hidden bg-black shadow-lg">
                   <img
                     src={PROGRAM_ASSETS.heroPortrait}
-                    alt="Cap Entrepreneurs - Vision & Impact"
+                    alt="3M Services - Vision & Impact"
                     className="aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5] w-full object-cover filter grayscale contrast-125 transition-transform duration-700 hover:scale-105"
                   />
                 </div>
@@ -363,7 +363,7 @@ const Programs = () => {
 
                 <ol className="space-y-2.5 text-xs">
                   {[
-                    { num: "1", title: "Cap Green Lab", id: "cap-green-lab" },
+                    { num: "1", title: "3M Services Mobilité", id: "3m-services-mobilite" },
                     { num: "2", title: "AgriConnect", id: "agriconnect" },
                     { num: "3", title: "Safe Vibe", id: "safe-vibe" },
                     { num: "4", title: "Créatif & Social", id: "creatif-social" },
@@ -394,7 +394,7 @@ const Programs = () => {
                 </span>
                 <div className="flex items-center gap-3">
                   <a
-                    href="https://twitter.com/intent/tweet?text=Découvrez%20les%20programmes%20de%20Cap%20Entrepreneurs"
+                    href="https://twitter.com/intent/tweet?text=D%C3%A9couvrez%20les%20services%20de%203M%20SERVICES%20Yaound%C3%A9"
                     target="_blank"
                     rel="noreferrer"
                     className="flex h-8 w-8 items-center justify-center border border-[#0D0E0D]/10 text-sage hover:text-maple hover:border-maple transition-colors"
@@ -402,7 +402,7 @@ const Programs = () => {
                     <Twitter className="h-3.5 w-3.5" />
                   </a>
                   <a
-                    href="https://www.linkedin.com/sharing/share-offsite/?url=https://capentrepreneurs.org/programs"
+                    href="https://www.linkedin.com/sharing/share-offsite/?url=https://www.3mservice.shop/programs"
                     target="_blank"
                     rel="noreferrer"
                     className="flex h-8 w-8 items-center justify-center border border-[#0D0E0D]/10 text-sage hover:text-maple hover:border-maple transition-colors"
@@ -410,7 +410,7 @@ const Programs = () => {
                     <Linkedin className="h-3.5 w-3.5" />
                   </a>
                   <a
-                    href="mailto:?subject=Programmes%20Cap%20Entrepreneurs&body=https://capentrepreneurs.org/programs"
+                    href="mailto:?subject=3M%20SERVICES%20-%20Yaound%C3%A9&body=https://www.3mservice.shop/programs"
                     className="flex h-8 w-8 items-center justify-center border border-[#0D0E0D]/10 text-sage hover:text-maple hover:border-maple transition-colors"
                   >
                     <Mail className="h-3.5 w-3.5" />
@@ -436,24 +436,24 @@ const Programs = () => {
               </Reveal>
             </div>
 
-            {/* PROGRAMME 01 : CAP GREEN LAB */}
-            <article id="cap-green-lab" className="scroll-mt-28 space-y-6">
+            {/* PROGRAMME 01 : 3M Services Mobilité */}
+            <article id="3m-services-mobilite" className="scroll-mt-28 space-y-6">
               <Reveal>
                 <div className="border-b border-[#0D0E0D]/10 pb-4">
                   <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-maple font-montserrat block mb-1">
                     {lang === "fr" ? "01 • TECHNOLOGIE INCLUSIVE & ÉCONOMIE CIRCULAIRE" : lang === "ar" ? "01 • تكنولوجيا شاملة واقتصاد دائري" : "01 • INCLUSIVE TECHNOLOGY & CIRCULAR ECONOMY"}
                   </span>
                   <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-medium text-[#0D0E0D]">
-                    Cap Green Lab
+                    3M Services Mobilité
                   </h2>
                 </div>
 
                 <p className="font-serif italic text-base sm:text-lg text-sage leading-relaxed">
                   {lang === "fr"
-                    ? "Cap Green Lab est notre laboratoire dédié à la convergence de la transition numérique, de l'accessibilité, des compétences techniques et de l'économie circulaire."
+                    ? "3M Services Mobilité est notre laboratoire dédié à la convergence de la transition numérique, de l'accessibilité, des compétences techniques et de l'économie circulaire."
                     : lang === "ar"
                     ? "مختبر كاب الأخضر هو مختبرنا المخصص لتقارب التحول الرقمي وإمكانية الوصول والمهارات التقنية والاقتصاد الدائري."
-                    : "Cap Green Lab is our laboratory dedicated to the convergence of digital transition, accessibility, technical skills, and circular economy."}
+                    : "3M Services Mobilité is our laboratory dedicated to the convergence of digital transition, accessibility, technical skills, and circular economy."}
                 </p>
 
                 {/* Ce que nous faisons */}
@@ -501,7 +501,7 @@ const Programs = () => {
 
                 <div className="pt-3">
                   <button
-                    onClick={() => scrollToApply("Cap Green Lab")}
+                    onClick={() => scrollToApply("3M Services Mobilité")}
                     className="group inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#0D0E0D] hover:text-maple transition-colors"
                   >
                     <span>{lang === "fr" ? "Postuler à ce programme" : lang === "ar" ? "التقديم لهذا البرنامج" : "Apply to this program"}</span>
@@ -591,12 +591,12 @@ const Programs = () => {
                     <div className="overflow-hidden bg-[#FAF9F6] border border-[#0D0E0D]/10">
                       <img
                         src={PROGRAM_ASSETS.triad1}
-                        alt="Cap Green Lab - Reconditionnement"
+                        alt="3M Services Mobilité - Reconditionnement"
                         className="aspect-[3/4] w-full object-cover transition-transform duration-700 hover:scale-105"
                       />
                     </div>
                     <p className="mt-2 text-[10px] text-sage font-serif italic text-center">
-                      © Cap Green Lab- Atelier & Reconditionnement
+                      © 3M Services Mobilité- Atelier & Reconditionnement
                     </p>
                   </div>
 
@@ -838,7 +838,7 @@ const Programs = () => {
                 <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
                   {[
                     { id: "all", label: lang === "fr" ? "Tous les programmes" : lang === "ar" ? "جميع البرامج" : "All Programs" },
-                    { id: "cap-green-lab", label: "Cap Green Lab" },
+                    { id: "3m-services-mobilite", label: "3M Services Mobilité" },
                     { id: "agriconnect", label: "AgriConnect" },
                     { id: "safe-vibe", label: "Safe Vibe" },
                     { id: "creatif-social", label: lang === "fr" ? "Créatif & Social" : "Creative & Social" },
@@ -868,7 +868,7 @@ const Programs = () => {
                     if (resourceFilter === "all") return true;
                     const catSlug = r.category?.slug || "";
                     const catName = (r.category?.name || r.program || "").toLowerCase();
-                    if (resourceFilter === "cap-green-lab") return catSlug.includes("green") || catName.includes("green");
+                    if (resourceFilter === "3m-services-mobilite") return catSlug.includes("green") || catName.includes("green");
                     if (resourceFilter === "agriconnect") return catSlug.includes("agri") || catName.includes("agri");
                     if (resourceFilter === "safe-vibe") return catSlug.includes("safe") || catName.includes("safe") || catName.includes("vibe");
                     if (resourceFilter === "creatif-social") return catSlug.includes("creatif") || catName.includes("créatif") || catName.includes("femme");
@@ -898,7 +898,7 @@ const Programs = () => {
                             ? lang === "fr" ? "LIVRE BLANC" : "REPORT"
                             : lang === "fr" ? "GUIDE PRATIQUE" : "PRACTICAL GUIDE";
 
-                        const programBadge = res.category?.name || res.program || "Cap Entrepreneurs";
+                        const programBadge = res.category?.name || res.program || "3M Services";
 
                         return (
                           <div
@@ -1043,7 +1043,7 @@ const Programs = () => {
                           name: "",
                           email: "",
                           organization: "",
-                          program: "Cap Green Lab",
+                          program: "3M Services Mobilité",
                           message: ""
                         });
                       }}
@@ -1115,7 +1115,7 @@ const Programs = () => {
                         onChange={handleFormChange}
                         className="w-full border border-[#0D0E0D]/20 bg-white px-3.5 py-2.5 text-sm text-[#0D0E0D] focus:border-maple focus:outline-none"
                       >
-                        <option value="Cap Green Lab">Cap Green Lab- Technologie inclusive & économie circulaire</option>
+                        <option value="3M Services Mobilité">3M Services Mobilité- Technologie inclusive & économie circulaire</option>
                         <option value="AgriConnect">AgriConnect- Entrepreneuriat rural & agriculture numérique</option>
                         <option value="Safe Vibe">Safe Vibe- Médias numériques & éducation</option>
                         <option value="Entrepreneuriat Créatif & Social">Entrepreneuriat Créatif & Social- Femmes, arts & innovation sociale</option>
@@ -1195,7 +1195,7 @@ const Programs = () => {
 
                 <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                   <a
-                    href={selectedResource?.file_url || selectedResource?.external_url || "/assets/guides/cap-green-lab-reconditionnement.pdf"}
+                    href={selectedResource?.file_url || selectedResource?.external_url || "/assets/guides/3m-services-mobilite-reconditionnement.pdf"}
                     download
                     target="_blank"
                     rel="noopener noreferrer"
@@ -1370,8 +1370,8 @@ const Programs = () => {
 
                   <p className="text-[10px] text-center text-sage/80 pt-1">
                     {lang === "fr"
-                      ? "Vos données sont traitées en toute confidentialité par Cap Entrepreneurs conformément à notre politique de respect de la vie privée."
-                      : "Your data is handled securely by Cap Entrepreneurs."}
+                      ? "Vos données sont traitées en toute confidentialité par 3M Services conformément à notre politique de respect de la vie privée."
+                      : "Your data is handled securely by 3M Services."}
                   </p>
                 </form>
               </div>

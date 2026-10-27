@@ -40,27 +40,47 @@
     </image:image>
   </url>
 
-  <!-- P3 : Appartement Meublé Bastos Yaoundé -->
+  <!-- P3 : Appartement Meublé Tsinga (Face FECAFOOT) Yaoundé -->
   <url>
-    <loc>https://www.3mservice.shop/appartement-meuble-bastos</loc>
-    <lastmod>2026-10-26</lastmod>
+    <loc>https://www.3mservice.shop/appartement-meuble-tsinga-fecafoot</loc>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.98</priority>
     <image:image>
-      <image:loc>https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=compress&amp;cs=tinysrgb&amp;w=1200</image:loc>
-      <image:title>Appartement meublé haut standing à Bastos Yaoundé</image:title>
+      <image:loc>https://www.3mservice.shop/Asset/appartements/appartement-meuble-suite-parentale.webp</image:loc>
+      <image:title>Appartement meublé haut standing à Tsinga Face FECAFOOT Yaoundé</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.3mservice.shop/appartement-meuble-bastos</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://www.3mservice.shop/Asset/appartements/appartement-meuble-suite-parentale.webp</image:loc>
+      <image:title>Appartement meublé de standing Yaoundé - 3M Services</image:title>
     </image:image>
   </url>
 
-  <!-- P4 : Appartements Meublés Yaoundé (Bastos, Essos, Omnisports) -->
+  <!-- P4 : Appartements Meublés Yaoundé (Tsinga Face FECAFOOT, Omnisports, Oyomabang) -->
   <url>
     <loc>https://www.3mservice.shop/appartement-meuble-yaounde</loc>
-    <lastmod>2026-10-26</lastmod>
+    <lastmod>2026-10-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.98</priority>
     <image:image>
       <image:loc>https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=compress&amp;cs=tinysrgb&amp;w=1200</image:loc>
-      <image:title>Location appartement meublé Yaoundé Essos Omnisports Bastos</image:title>
+      <image:title>Location appartement meublé Yaoundé Tsinga FECAFOOT Omnisports Oyomabang</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.3mservice.shop/appartement-meuble-oyomabang</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=compress&amp;cs=tinysrgb&amp;w=1200</image:loc>
+      <image:title>Résidence Standing Oyomabang Yaoundé - Bientôt disponible - 3M Services</image:title>
     </image:image>
   </url>
 
@@ -98,9 +118,9 @@
       <image:caption>Berline routière de référence alliant standing, insonorisation remarquable et grande sécurité routière.</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=compress&cs=tinysrgb&w=1200</image:loc>
-      <image:title>Appartement Prestige Bastos - Bastos, Yaoundé - 3M Services</image:title>
-      <image:caption>Situé au cœur du quartier diplomatique de Bastos, cet appartement grand standing vous garantit un calme absolu, une literie de luxe, un groupe électro</image:caption>
+      <image:loc>https://www.3mservice.shop/Asset/appartements/appartement-meuble-suite-parentale.webp</image:loc>
+      <image:title>Appartement Prestige Tsinga (Face FECAFOOT) - Yaoundé - 3M Services</image:title>
+      <image:caption>Situé en face de la FECAFOOT à Tsinga, cet appartement grand standing vous garantit un calme absolu, une literie de luxe, un groupe électrogène automatique et un gardiennage 24/7. Résidence Oyomabang coming soon.</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=compress&cs=tinysrgb&w=1200</image:loc>

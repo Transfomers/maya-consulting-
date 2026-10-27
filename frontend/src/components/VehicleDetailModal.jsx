@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { X, Check, Phone, MessageSquare, Shield, Gauge, Fuel, Users, Calendar, ArrowRight, Sparkles } from "lucide-react";
+import { X, Check, Phone, MessageSquare, Shield, Gauge, Fuel, Users, Calendar, ArrowRight, Sparkles, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import { useCart } from "@/context/CartContext";
+import api from "@/lib/api";
 
 export default function VehicleDetailModal({ vehicle, isOpen, onClose }) {
+  const { addToCart, isInCart } = useCart();
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -15,14 +18,15 @@ export default function VehicleDetailModal({ vehicle, isOpen, onClose }) {
   if (!isOpen || !vehicle) return null;
 
   const whatsappMessage = encodeURIComponent(
-    `Bonjour 3M SERVICES, je suis intéressé(e) par le véhicule du Catalogue Automobile 2025 :\n` +
+    `Bonjour 3M SERVICES,\n` +
+    `Je vous contacte concernant le véhicule du Catalogue Automobile 2025 :\n` +
     `• Modèle : ${vehicle.model}\n` +
     `• Section : ${vehicle.sectionTitle} (${vehicle.section})\n` +
     `• Moteur : ${vehicle.engine}\n` +
     `• Transmission : ${vehicle.transmission}\n` +
     `• Condition : ${vehicle.condition}\n` +
-    `• Compteur : ${vehicle.mileage || "N/A"}\n\n` +
-    `Merci de me contacter pour les modalités et disponibilités à Yaoundé.`
+    `• Formule souhaitée : ${formData.intent === "leasing-mupocam" ? "Vente en LEASING / Paiement Échelonné (MUPOCAM Orange Cameroun)" : formData.intent.toUpperCase()}\n\n` +
+    `Merci de me contacter pour les modalités et échéanciers à l'agence Nouvelle route - Omnisports, Yaoundé.`
   );
 
   const handleSubmit = (e) => {
@@ -32,6 +36,20 @@ export default function VehicleDetailModal({ vehicle, isOpen, onClose }) {
       return;
     }
     setSubmitted(true);
+    api.post("/submissions", {
+      type: formData.intent === "leasing-mupocam" ? "mupocam" : "quote",
+      payload: {
+        name: formData.name,
+        phone: formData.phone,
+        vehicle: vehicle.model,
+        section: vehicle.section,
+        condition: vehicle.condition,
+        intent: formData.intent,
+        engine: vehicle.engine,
+        transmission: vehicle.transmission,
+        price: vehicle.price
+      }
+    }).catch(console.warn);
     toast.success(`Votre demande pour ${vehicle.model} a bien été transmise à l'équipe 3M SERVICES !`);
   };
 
@@ -163,6 +181,33 @@ export default function VehicleDetailModal({ vehicle, isOpen, onClose }) {
                 </div>
               )}
 
+              {/* MUPOCAM Leasing Partnership Notice */}
+              <div className="p-3.5 bg-[#0D0F0E] text-white rounded border border-[#FF7900]/40 flex items-center justify-between gap-3 mb-5 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <img
+                    src="/Asset/logo-mupocam.png"
+                    alt="MUPOCAM - Mutuelle du Personnel Orange Cameroun"
+                    className="h-8 w-auto object-contain flex-shrink-0"
+                  />
+                  <div>
+                    <span className="text-[10px] font-mono text-[#FF7900] font-bold uppercase tracking-wider block">
+                      Partenariat Officiel MUPOCAM
+                    </span>
+                    <span className="text-xs text-stone-200 block">
+                      Éligible à l'achat en <strong>Leasing & Paiement Échelonné</strong> (Orange Cameroun).
+                    </span>
+                  </div>
+                </div>
+                <a
+                  href="/Asset/car.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 py-1 bg-[#FF7900] hover:bg-[#E06800] text-black font-bold text-[10px] uppercase tracking-wider rounded transition-colors flex-shrink-0"
+                >
+                  Brochure
+                </a>
+              </div>
+
               {/* Instant WhatsApp Direct CTA */}
               <div className="p-4 bg-emerald-50 border border-emerald-200 mb-6">
                 <div className="flex items-center gap-3">
@@ -178,21 +223,44 @@ export default function VehicleDetailModal({ vehicle, isOpen, onClose }) {
                     </p>
                   </div>
                 </div>
-                <a
-                  href={`https://wa.me/237677000000?text=${whatsappMessage}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Commander ce véhicule sur WhatsApp
-                </a>
+                <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                  <a
+                    href={`https://wa.me/237691786447?text=${whatsappMessage}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm rounded-xs"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    <span>Commander sur WhatsApp</span>
+                  </a>
+
+                  {isInCart(vehicle.id) ? (
+                    <button
+                      onClick={() => {
+                        onClose();
+                        window.location.href = "/panier";
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 bg-[#111827] hover:bg-black text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-xs"
+                    >
+                      <Check className="h-4 w-4 text-emerald-400" />
+                      <span>Au Panier ✓</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => addToCart(vehicle)}
+                      className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 bg-[#E20713] hover:bg-[#C4050F] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm rounded-xs"
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      <span>Ajouter au Panier</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Direct Booking Form */}
               {submitted ? (
-                <div className="p-4 bg-forest text-bone text-center">
-                  <Sparkles className="h-6 w-6 text-maple mx-auto mb-2" />
+                <div className="p-4 bg-gray-900 text-white text-center">
+                  <Check className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
                   <p className="text-sm font-bold">Demande envoyée avec succès !</p>
                   <p className="text-xs text-bone/70 mt-1">
                     Notre équipe commerciale vous contactera au {formData.phone} dans les plus brefs délais.
@@ -234,7 +302,8 @@ export default function VehicleDetailModal({ vehicle, isOpen, onClose }) {
                       onChange={(e) => setFormData({ ...formData, intent: e.target.value })}
                       className="w-full px-3 py-2 text-xs border border-forest/20 bg-white focus:outline-none focus:border-maple"
                     >
-                      <option value="achat">Projet d'Achat (Neuf / Occasion)</option>
+                      <option value="achat">Projet d'Achat au Comptant</option>
+                      <option value="leasing-mupocam">Vente en Leasing / Paiement Échelonné (MUPOCAM)</option>
                       <option value="location">Demande de Location (Courte/Longue)</option>
                       <option value="info">Renseignements techniques</option>
                       <option value="sur-mesure">Commande spéciale similaire</option>
@@ -266,7 +335,7 @@ export default function VehicleDetailModal({ vehicle, isOpen, onClose }) {
                       <ArrowRight className="h-4 w-4" />
                     </button>
                     <a
-                      href="tel:+237677000000"
+                      href="tel:+237691786447"
                       className="px-4 py-3 bg-white border border-forest/20 text-forest hover:bg-forest/5 flex items-center justify-center transition-colors"
                       title="Appeler directement"
                     >

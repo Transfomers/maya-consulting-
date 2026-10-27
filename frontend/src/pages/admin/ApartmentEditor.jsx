@@ -42,7 +42,7 @@ export default function ApartmentEditor() {
     id: "",
     title: "",
     type: "T3 Meublé Haut Standing",
-    location: "Bastos, Yaoundé",
+    location: "Tsinga (Face FECAFOOT), Yaoundé",
     rooms: "2 Chambres • 2 Salons • 2 Salles de bain",
     price: "60 000 FCFA / nuitée",
     amenities: ["Climatisation", "Wifi Fibre Optique", "Sécurité 24/7", "Groupe électrogène", "Parking privé"],
@@ -291,7 +291,7 @@ export default function ApartmentEditor() {
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                placeholder="Ex: Appartement Prestige Bastos"
+                placeholder="Ex: Appartement Prestige Tsinga (Face FECAFOOT)"
                 required
                 className="w-full text-sm font-semibold border border-gray-300 rounded-xs px-3 py-2.5 focus:outline-none focus:border-[#E20713]"
               />
@@ -321,7 +321,7 @@ export default function ApartmentEditor() {
                   name="location"
                   value={form.location}
                   onChange={handleChange}
-                  placeholder="Ex: Bastos, Yaoundé"
+                  placeholder="Ex: Tsinga (Face FECAFOOT), Yaoundé"
                   className="w-full text-xs border border-gray-300 rounded-xs px-3 py-2.5 focus:outline-none focus:border-[#E20713]"
                 />
               </div>

@@ -25,14 +25,14 @@ const TABS = [
 
 const DEFAULT_SETTINGS = {
   general: {
-    site_name: 'CAP Entrepreneurs', site_tagline: '', description: '',
-    website_url: 'https://capentrepreneurs.org', default_language: 'en',
+    site_name: '3M SERVICES', site_tagline: '', description: '',
+    website_url: 'https://www.3mservice.shop', default_language: 'en',
     timezone: 'UTC', date_format: 'DD/MM/YYYY', default_currency: 'XAF'
   },
   organization: {
     org_name: '3M SERVICES', legal_name: '3M SERVICES', description: 'Fournisseur expérimenté de services automobiles à Yaoundé',
     address: 'Nouvelle route - OMNISPORTS', city: 'Yaoundé', country: 'Cameroun', postal_code: '',
-    phone: '+237 691 78 64 47', email: 'contact@3mservices.cm', website: 'https://3mservice.shop', registration_info: ''
+    phone: '+237 691 78 64 47', email: 'contact@3mservice.shop', website: 'https://3mservice.shop', registration_info: ''
   },
   branding: {
     logo_main: '', logo_light: '', logo_dark: '', favicon: '',
@@ -74,7 +74,7 @@ const DEFAULT_SETTINGS = {
     privacy_url: '', terms_url: ''
   },
   email: {
-    sender_name: '3M SERVICES', sender_email: 'contact@3mservices.cm',
+    sender_name: '3M SERVICES', sender_email: 'contact@3mservice.shop',
     reply_to: '', form_recipient: '', newsletter_recipient: '',
     smtp_host: '', smtp_port: '', smtp_username: '', smtp_password: '', smtp_encryption: 'tls'
   },
@@ -219,7 +219,7 @@ export default function AdminSettings() {
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-3xl font-black font-heading text-forest">Settings</h1>
-          <p className="text-sage mt-1">Manage global configuration for CAP Entrepreneurs.</p>
+          <p className="text-sage mt-1">Manage global configuration for 3M SERVICES.</p>
         </div>
         <div className="flex items-center gap-3">
           {isDirty && (
@@ -518,7 +518,7 @@ export default function AdminSettings() {
               <h2 className="text-xl font-bold font-heading text-forest border-b border-forest/10 pb-3">Security Configuration</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Input label="Session Timeout (Minutes)" type="number" value={settings.security.session_timeout} onChange={v => handleChange('security', 'session_timeout', v)} />
-                <Input label="Allowed Admin Domains (comma separated)" value={settings.security.allowed_domains} onChange={v => handleChange('security', 'allowed_domains', v)} placeholder="e.g., capentrepreneurs.org" />
+                <Input label="Allowed Admin Domains (comma separated)" value={settings.security.allowed_domains} onChange={v => handleChange('security', 'allowed_domains', v)} placeholder="e.g., 3mservice.shop" />
               </div>
             </div>
           )}

@@ -62,7 +62,7 @@ const Join = () => {
       <PageHero
         title="Find your place"
         accent="in the ecosystem"
-        subtitle="Complete this short questionnaire to discover your recommended CAP pathway."
+        subtitle="Complete this short questionnaire to discover your recommended 3M SERVICES pathway."
         image="/assets/hero-default.jpg"
       />
 
@@ -112,7 +112,7 @@ const Join = () => {
                   </div>
                 </div>
                 <h2 className="mb-12 text-center font-heading text-3xl font-black text-forest md:text-5xl">
-                  Your recommended CAP pathway
+                  Your recommended 3M SERVICES pathway
                 </h2>
                 
                 <div className="grid gap-8 md:grid-cols-2">

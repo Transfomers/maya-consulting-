@@ -108,7 +108,7 @@ const Volunteer = () => {
   };
 
   const calculateRecommendation = (finalAnswers) => {
-    let program = "Cap Green Lab";
+    let program = "3M Services Mobilité";
     let role = "Bénévole Technicien & Reconditionnement";
     let training = "Diagnostic, maintenance et réemploi d'équipements informatiques";
 
@@ -182,10 +182,10 @@ const Volunteer = () => {
 
   const popularPrograms = [
     {
-      title: "Cap Green Lab",
+      title: "3M Services Mobilité",
       category: "Tech Inclusive",
       image: IMAGES.workshop,
-      link: "/programs#cap-green-lab"
+      link: "/programs#3m-services-mobilite"
     },
     {
       title: "AgriConnect",
@@ -213,7 +213,7 @@ const Volunteer = () => {
       {/* 1. EDITORIAL REJOINDRE HERO (Matching "Why Every Woman Needs Nice Pj's" / La-féminité layout) */}
       <EditorialRejoindreHero
         testId="volunteer-hero"
-        brandName="Cap-Entrepreneurs"
+        brandName="3M SERVICES"
         categoryKicker={lang === "fr" ? "ENGAGEMENT CITOYEN & BÉNÉVOLAT" : lang === "ar" ? "التطوع المجتمعي" : "CITIZEN ENGAGEMENT & VOLUNTEERING"}
         verticalKicker={lang === "fr" ? "B É N É V O L A T" : lang === "ar" ? "ت ط و ع" : "V O L U N T E E R"}
         titleLines={lang === "fr" ? ["Créer", "Un Impact", "Humain Et", "Solidaire."] : lang === "ar" ? ["اصنع", "أثراً", "إنسانياً", "ومستداماً."] : ["Your Skills", "Can Open", "New", "Horizons."]}
@@ -366,7 +366,7 @@ const Volunteer = () => {
                   </h3>
                   <div className="mx-auto mt-3 mb-3 h-[2px] w-12 bg-maple" />
                   <p className="font-serif italic text-sm sm:text-base text-sage leading-relaxed">
-                    {t.volunteer.journeyIntro || "Chez Cap Entrepreneurs, le bénévolat n'est pas seulement une contribution. C'est une opportunité d'évolution, d'apprentissage et d'impact-au Canada et à l'international."}
+                    {t.volunteer.journeyIntro || "Chez 3M Services, le bénévolat n'est pas seulement une contribution. C'est une opportunité d'évolution, d'apprentissage et d'impact-au Canada et à l'international."}
                   </p>
                 </div>
 
@@ -425,7 +425,7 @@ const Volunteer = () => {
                       03 Match
                     </h4>
                     <p className="mt-2 text-xs sm:text-sm text-sage leading-relaxed">
-                      Impliquez-vous dans le programme correspondant à vos aspirations (Cap Green Lab, AgriConnect, Safe Vibe ou Initiatives Mondiales).
+                      Impliquez-vous dans le programme correspondant à vos aspirations (3M Services Mobilité, AgriConnect, Safe Vibe ou Initiatives Mondiales).
                     </p>
                   </div>
 
@@ -493,12 +493,12 @@ const Volunteer = () => {
           {/* RIGHT COLUMN: MAGAZINE SIDEBAR (4 cols - Matching Screenshot 1) */}
           <aside className="lg:col-span-4 space-y-12">
 
-            {/* WIDGET 1: ABOUT ME / ABOUT CAP (Framed with double horizontal lines) */}
+            {/* WIDGET 1: ABOUT ME / ABOUT 3M SERVICES (Framed with double horizontal lines) */}
             <div className="bg-white border border-[#0D0E0D]/10 p-6 shadow-sm">
               {/* Header framed with top & bottom line */}
               <div className="border-t border-b border-[#0D0E0D] py-2.5 text-center">
                 <span className="text-xs font-bold uppercase tracking-[0.28em] text-[#0D0E0D] font-montserrat">
-                  ABOUT CAP
+                  ABOUT 3M SERVICES
                 </span>
               </div>
 
@@ -506,7 +506,7 @@ const Volunteer = () => {
               <div className="mt-6 overflow-hidden border border-[#0D0E0D]/10">
                 <img
                   src={DESIGN_ASSETS.aboutPortrait}
-                  alt="Cap Entrepreneurs Bénévolat"
+                  alt="3M Services Bénévolat"
                   className="aspect-[4/5] w-full object-cover transition-transform duration-700 hover:scale-105"
                 />
               </div>
@@ -534,7 +534,7 @@ const Volunteer = () => {
                   <path d="M 182 43 C 189 33, 199 30, 212 33 C 222 36, 219 48, 229 50" />
                 </svg>
                 <span className="font-serif italic text-sm text-[#0D0E0D]/80 -mt-1 tracking-wider">
-                  Cap Entrepreneurs
+                  3M Services
                 </span>
               </div>
             </div>
@@ -683,10 +683,10 @@ const Volunteer = () => {
               {/* Narrative Text */}
               <p className="text-sm sm:text-base leading-relaxed text-sage mb-8">
                 {lang === "fr"
-                  ? "Que vous soyez étudiant, professionnel, consultant ou citoyen engagé, il y a une place pour vous chez Cap Entrepreneurs. Remplissez ce formulaire et notre équipe prendra contact avec vous dans les meilleurs délais pour convenir d'une première rencontre d'accueil et d'alignement."
+                  ? "Que vous soyez étudiant, professionnel, consultant ou citoyen engagé, il y a une place pour vous chez 3M Services. Remplissez ce formulaire et notre équipe prendra contact avec vous dans les meilleurs délais pour convenir d'une première rencontre d'accueil et d'alignement."
                   : lang === "ar"
                   ? "سواء كنت طالباً، أو مهنياً، أو استشارياً، أو مواطناً فاعلاً، فهناك مكان لك في كاب رواد الأعمال. املأ هذا النموذج وسيتواصل معك فريقنا في أقرب وقت لتنسيق لقاء التعارف الأول."
-                  : "Whether you are a student, professional, consultant, or engaged citizen, there is a meaningful place for you at Cap Entrepreneurs. Complete this application and our team will get in touch shortly to schedule an onboarding consultation."}
+                  : "Whether you are a student, professional, consultant, or engaged citizen, there is a meaningful place for you at 3M Services. Complete this application and our team will get in touch shortly to schedule an onboarding consultation."}
               </p>
 
               {submitted ? (
@@ -913,7 +913,7 @@ const Volunteer = () => {
 
             </div>
 
-            {/* RIGHT COLUMN: ABOUT ME / ABOUT CAP (Matching Screenshot 2 Sidebar) */}
+            {/* RIGHT COLUMN: ABOUT ME / ABOUT 3M SERVICES (Matching Screenshot 2 Sidebar) */}
             <div className="lg:col-span-4">
               <div className="bg-[#FAF9F6] border border-[#0D0E0D]/10 p-6 sm:p-8">
 
@@ -928,7 +928,7 @@ const Volunteer = () => {
                 <div className="mt-6 overflow-hidden border border-[#0D0E0D]/10">
                   <img
                     src={DESIGN_ASSETS.aboutPortrait}
-                    alt="Cap Entrepreneurs Community"
+                    alt="3M Services Community"
                     className="aspect-[4/5] w-full object-cover"
                   />
                 </div>
@@ -956,7 +956,7 @@ const Volunteer = () => {
                     <path d="M 182 43 C 189 33, 199 30, 212 33 C 222 36, 219 48, 229 50" />
                   </svg>
                   <span className="font-serif italic text-sm text-[#0D0E0D]/80 -mt-1 tracking-wider">
-                    Cap Entrepreneurs
+                    3M Services
                   </span>
                 </div>
 

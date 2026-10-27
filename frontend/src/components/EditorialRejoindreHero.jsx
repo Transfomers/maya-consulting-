@@ -2,7 +2,7 @@ import React from "react";
 import { Reveal } from "@/components/motion";
 
 const EditorialRejoindreHero = ({
-  brandName = "Cap-Entrepreneurs",
+  brandName = "3M SERVICES",
   categoryKicker = "ÉCOSYSTÈME & ENGAGEMENT",
   verticalKicker = "R E J O I N D R E",
   titleLines = ["Bâtir", "Ensemble", "Le Futur", "Durable"],

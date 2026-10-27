@@ -6,13 +6,14 @@ const defaultSettings = {
     site_name: "3M SERVICES",
     site_tagline: "Le confort de votre foyer, dans nos véhicules",
     site_description: "Catalogue Automobile 2025 - Fournisseur expérimenté de services automobiles, vente & location de véhicules et d'appartements à Yaoundé, Cameroun.",
-    contact_email: "contact@3mservices.cm",
-    contact_phone: "+237 6 77 00 00 00",
-    address: "Yaoundé, Région du Centre, Cameroun",
+    contact_email: "contact@3mservice.shop",
+    contact_phone: "+237 691 78 64 47",
+    contact_whatsapp: "237691786447",
+    address: "Nouvelle route - OMNISPORTS, Yaoundé, Cameroun",
   },
   branding: {
-    logo_main: "/assets/logo-mark.png",
-    logo_light: "/assets/logo-mark-light.png",
+    logo_main: "/Asset/logo-3m-services.png",
+    logo_light: "/Asset/logo-3m-services.png",
   }
 };
 
@@ -33,7 +34,14 @@ export const SettingsProvider = ({ children }) => {
           const formatted = { ...defaultSettings };
           res.data.forEach(item => {
             if (!formatted[item.category]) formatted[item.category] = {};
-            formatted[item.category][item.key] = item.value;
+            let val = item.value;
+            if (typeof val === "string" && val.toLowerCase().includes("capentrepreneurs")) {
+              val = val.replace(/capentrepreneurs\.org/gi, "3mservice.shop");
+            }
+            if (typeof val === "string" && val.toLowerCase().includes("cap")) {
+              val = "3M SERVICES";
+            }
+            formatted[item.category][item.key] = val;
           });
           if (isMounted) setSettings(formatted);
         }

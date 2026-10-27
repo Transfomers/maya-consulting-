@@ -42,14 +42,14 @@ export default function AppartementMeubleBastos() {
   return (
     <>
       <Helmet>
-        <title>Appartement Meublé à Bastos, Yaoundé | Résidence Haut Standing 3M Services</title>
+        <title>Appartement Meublé à Tsinga (Face FECAFOOT) & Yaoundé | Bientôt Oyomabang - 3M Services</title>
         <meta
           name="description"
-          content="Trouvez votre appartement meublé à Bastos, Yaoundé, avec 3M Services. Découvrez les logements disponibles, les équipements haut standing (groupe électrogène, fibre optique, gardiennage 24/7), les tarifs et réservez sur WhatsApp (+237 691 78 64 47)."
+          content="Trouvez votre appartement meublé à Yaoundé : découvrez notre résidence de haut standing à Tsinga (Face FECAFOOT) et l'ouverture prochaine à Oyomabang (Coming Soon). Climatisation, groupe automatique 24/7, Wifi fibre. Appelez le +237 691 78 64 47."
         />
         <meta
           name="keywords"
-          content="appartement meublé Bastos, location appartement meublé Bastos, studio meublé Bastos Yaoundé, appartement à louer Bastos, appartement meublé Bastos prix, location appartement courte durée Bastos, appartement meublé par jour Bastos, appartement meublé par mois Bastos, logement meublé Bastos Yaoundé, appartement meublé haut standing Bastos, studio meublé à louer Bastos, réservation appartement meublé Bastos"
+          content="appartement meublé tsinga, appartement meuble fecafoot yaounde, appartement meuble tsinga yaounde, appartement meublé oyomabang, appartement meuble yaounde, location appartement meuble yaounde, studio meuble yaounde, reservation appartement tsinga, appartement meuble cameroun"
         />
         <link rel="canonical" href="https://www.3mservice.shop/appartement-meuble-bastos" />
       </Helmet>
@@ -61,35 +61,35 @@ export default function AppartementMeubleBastos() {
           <div className="max-w-[1440px] mx-auto relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#E20713] text-white text-[11px] font-bold uppercase tracking-widest rounded-xs mb-4">
               <MapPin className="h-3.5 w-3.5" />
-              <span>Quartier Diplomatique de Bastos • Yaoundé, Cameroun</span>
+              <span>Tsinga (Face FECAFOOT) • Bientôt Oyomabang • Yaoundé, Cameroun</span>
             </div>
 
             <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-tight max-w-4xl">
-              Appartement Meublé à Bastos, Yaoundé
+              Appartement Meublé à Tsinga (Face FECAFOOT), Yaoundé
             </h1>
 
             <p className="text-base sm:text-lg text-stone-300 max-w-3xl mt-4 leading-relaxed font-normal">
-              Profitez d'un cadre résidentiel d'exception au cœur de <strong>Bastos</strong>. Appartements et studios meublés tout confort avec <strong>groupe électrogène automatique</strong>, <strong>Wi-Fi fibre optique</strong>, eau courante permanente et gardiennage 24h/24. Idéal pour diplomates, cadres expatriés et séjours d'affaires.
+              Profitez d'un cadre résidentiel d'exception à <strong>Tsinga, directement en face du siège de la FECAFOOT</strong>, ainsi que de notre nouvelle résidence bientôt disponible à <strong>Oyomabang (Coming Soon)</strong>. Appartements et studios meublés tout confort avec <strong>groupe électrogène automatique</strong>, <strong>Wi-Fi fibre optique</strong>, eau courante permanente et gardiennage 24h/24. Appelez-nous sans attendre pour bloquer vos dates.
             </p>
 
             {/* Quick Actions */}
             <div className="flex flex-wrap items-center gap-3.5 mt-8">
               <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20un%20appartement%20meubl%C3%A9%20%C3%A0%20Bastos`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-4 bg-[#E20713] hover:bg-[#b3050f] text-white font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 rounded-xs shadow-xl transition-all hover:scale-[1.02]"
+                href={`tel:+${WHATSAPP_NUMBER}`}
+                className="px-7 py-4 bg-[#E20713] hover:bg-[#b3050f] text-white font-heading font-black text-xs uppercase tracking-wider flex items-center gap-2 rounded-xs shadow-xl transition-all hover:scale-[1.03]"
               >
-                <MessageSquare className="h-4 w-4" />
-                <span>Réserver sur WhatsApp ({PHONE_DISPLAY})</span>
+                <Phone className="h-4 w-4" />
+                <span>Appelez directement : {PHONE_DISPLAY}</span>
               </a>
 
               <a
-                href={`tel:+${WHATSAPP_NUMBER}`}
-                className="px-6 py-4 bg-white/10 hover:bg-white/20 text-white font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 rounded-xs transition-all border border-white/20"
+                href={`https://wa.me/${WHATSAPP_NUMBER}?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20un%20appartement%20meubl%C3%A9%20%C3%A0%20Tsinga%20Face%20FECAFOOT`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 rounded-xs shadow-md transition-all"
               >
-                <Phone className="h-4 w-4 text-[#FF7900]" />
-                <span>Appel : {PHONE_DISPLAY}</span>
+                <MessageSquare className="h-4 w-4" />
+                <span>WhatsApp ({PHONE_DISPLAY})</span>
               </a>
 
               <Link
@@ -97,20 +97,20 @@ export default function AppartementMeubleBastos() {
                 className="px-6 py-4 bg-white text-[#111827] hover:bg-stone-100 font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 rounded-xs transition-all shadow-md"
               >
                 <Building2 className="h-4 w-4 text-[#E20713]" />
-                <span>Tous nos appartements à Yaoundé</span>
+                <span>Tsinga, Omnisports &amp; Oyomabang</span>
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Galerie Photos Bastos */}
+        {/* Galerie Photos Tsinga FECAFOOT */}
         <section className="py-12 px-5 sm:px-8 max-w-[1440px] mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {PHOTOS.map((src, i) => (
               <div key={i} className="aspect-[4/3] rounded-xs overflow-hidden bg-gray-100 border border-gray-200">
                 <img
                   src={src}
-                  alt={`Appartement meublé Bastos Yaoundé ${i + 1}`}
+                  alt={`Appartement meublé Tsinga FECAFOOT Yaoundé ${i + 1}`}
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                   loading="lazy"
                 />
@@ -128,11 +128,19 @@ export default function AppartementMeubleBastos() {
                   Descriptif du Logement
                 </span>
                 <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-gray-900 mt-1">
-                  Grand Standing au Calme à Bastos
+                  Grand Standing en Face de la FECAFOOT (Tsinga)
                 </h2>
                 <p className="text-sm text-gray-700 leading-relaxed mt-3">
-                  Situé dans une rue calme et sécurisée du quartier diplomatique de Bastos, notre appartement T3 dispose de 2 chambres avec literie haut de gamme, de 2 salons lumineux décorés dans un esprit contemporain et de 2 salles de bain privatives avec eau chaude. La cuisine américaine est entièrement équipée (four, micro-ondes, réfrigérateur grand volume, cafetière, vaisselle complète).
+                  Situé directement en face du siège de la FECAFOOT à Tsinga (Yaoundé), notre appartement T3 dispose de 2 chambres avec literie hôtelière grand luxe, de 2 salons lumineux décorés dans un esprit contemporain et de 2 salles de bain privatives avec eau chaude. La cuisine américaine est entièrement équipée (four, micro-ondes, réfrigérateur grand volume, cafetière, vaisselle complète).
                 </p>
+                <div className="mt-4 p-4 bg-red-50 border-l-4 border-[#E20713] rounded-xs">
+                  <p className="text-xs text-gray-800 font-bold uppercase tracking-wider text-[#E20713]">
+                    ⚡ NOUVEAUTÉ : RÉSIDENCE OYOMABANG — COMING SOON
+                  </p>
+                  <p className="text-xs text-gray-700 mt-1">
+                    Notre toute nouvelle résidence grand standing à <strong>Oyomabang</strong> ouvre très prochainement. Pré-réservez dès maintenant par téléphone au <strong>{PHONE_DISPLAY}</strong> pour bénéficier des tarifs de lancement.
+                  </p>
+                </div>
               </div>
 
               <div className="pt-6 border-t border-gray-200">
@@ -165,7 +173,7 @@ export default function AppartementMeubleBastos() {
             {/* Pricing Card */}
             <div className="bg-white border-2 border-[#111827] rounded-sm p-6 sm:p-7 shadow-xl h-fit">
               <span className="px-2.5 py-1 bg-[#E20713] text-white text-[10px] font-mono font-bold uppercase tracking-wider rounded-xs">
-                Tarifs &amp; Disponibilité Bastos
+                Tarifs &amp; Disponibilité Tsinga
               </span>
               <div className="mt-4">
                 <span className="text-3xl font-heading font-black text-gray-900">
@@ -179,15 +187,19 @@ export default function AppartementMeubleBastos() {
               <ul className="mt-6 space-y-2.5 text-xs text-gray-700 pt-4 border-t border-gray-100">
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                  <span>Face FECAFOOT Tsinga • Sécurité 24/7</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                   <span>Ménage quotidien &amp; changement de draps inclus</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                  <span>Electricité &amp; groupe électrogène inclus sans supplément</span>
+                  <span>Groupe électrogène automatique sans interruption</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                  <span>Wi-Fi Fibre illimité</span>
+                  <span>Wi-Fi Fibre optique illimité</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
@@ -195,15 +207,25 @@ export default function AppartementMeubleBastos() {
                 </li>
               </ul>
 
-              <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20l'appartement%20meubl%C3%A9%20de%20Bastos`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 w-full py-3.5 bg-[#E20713] hover:bg-[#b3050f] text-white text-xs font-heading font-bold uppercase tracking-wider text-center transition-colors rounded-xs flex items-center justify-center gap-2 shadow"
-              >
-                <MessageSquare className="h-4 w-4" />
-                <span>Réserver sur WhatsApp</span>
-              </a>
+              <div className="mt-6 space-y-2.5">
+                <a
+                  href={`tel:+${WHATSAPP_NUMBER}`}
+                  className="w-full py-3.5 bg-[#E20713] hover:bg-[#b3050f] text-white text-xs font-heading font-black uppercase tracking-wider text-center transition-all rounded-xs flex items-center justify-center gap-2 shadow-md hover:scale-[1.02]"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span>Appelez pour réserver : {PHONE_DISPLAY}</span>
+                </a>
+
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20l'appartement%20meubl%C3%A9%20de%20Tsinga%20Face%20FECAFOOT`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-heading font-bold uppercase tracking-wider text-center transition-colors rounded-xs flex items-center justify-center gap-2 shadow-xs"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <span>Disponibilité WhatsApp</span>
+                </a>
+              </div>
             </div>
           </div>
         </section>

@@ -79,7 +79,7 @@ export default function NewsletterSubscribe({
           {successMsg}
         </p>
         <span className="inline-block text-xs uppercase tracking-widest text-[#B84A39] font-bold">
-          CAP Entrepreneurs • contact@capentrepreneurs.org
+          3M SERVICES • contact@3mservice.shop
         </span>
       </div>
     );
@@ -144,7 +144,7 @@ export default function NewsletterSubscribe({
       </div>
 
       <h3 className="font-heading text-xl md:text-2xl font-bold tracking-tight text-forest mb-2">
-        {isEn ? "Stay connected with CAP Entrepreneurs" : "Restez connecté avec CAP Entrepreneurs"}
+        {isEn ? "Stay connected with 3M SERVICES" : "Restez connecté avec 3M SERVICES"}
       </h3>
       <p className="text-xs md:text-sm text-forest/75 leading-relaxed mb-6">
         {isEn
@@ -192,14 +192,14 @@ export default function NewsletterSubscribe({
           <label htmlFor={`consent-${source}`} className="text-xs text-forest/70 leading-relaxed cursor-pointer">
             {isEn ? (
               <>
-                I agree to receive email updates from CAP Entrepreneurs. You may unsubscribe at any time. View our{" "}
+                I agree to receive email updates from 3M SERVICES. You may unsubscribe at any time. View our{" "}
                 <Link to="/privacy" className="underline text-forest hover:text-[#B84A39]">
                   Privacy Policy
                 </Link>.
               </>
             ) : (
               <>
-                En vous abonnant, vous acceptez de recevoir les communications par courriel de CAP Entrepreneurs. Vous pouvez vous désabonner à tout moment. Consultez notre{" "}
+                En vous abonnant, vous acceptez de recevoir les communications par courriel de 3M SERVICES. Vous pouvez vous désabonner à tout moment. Consultez notre{" "}
                 <Link to="/privacy" className="underline text-forest hover:text-[#B84A39]">
                   Politique de confidentialité
                 </Link>.

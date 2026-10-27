@@ -30,7 +30,7 @@ class NewsletterTemplate(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, nullable=False)
-    subject_default = Column(String, default="Un nouvel article de CAP Entrepreneurs", nullable=False)
+    subject_default = Column(String, default="Un nouvel article de 3M SERVICES", nullable=False)
     preview_text_default = Column(String, default="Découvrez nos dernières réflexions, initiatives et opportunités.", nullable=False)
     heading = Column(String, default="Découvrez notre nouvel article", nullable=False)
     brand_color = Column(String, default="#0D0E0D", nullable=False)

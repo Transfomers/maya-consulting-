@@ -52,12 +52,12 @@ const ProgramsHero = () => {
             />
           </motion.div>
 
-          {/* Glass Card 1 - Cap Green Lab */}
+          {/* Glass Card 1 - 3M Services Mobilité */}
           <motion.div
             whileHover={{ scale: 1.05, zIndex: 30 }}
             className="absolute -left-6 top-[10%] rounded-2xl border border-white/60 bg-white/90 p-4 px-6 shadow-[0_8px_30px_rgb(0,0,0,0.08)] backdrop-blur-xl sm:-left-10"
           >
-            <p className="text-xs font-bold text-forest sm:text-sm">Cap Green Lab</p>
+            <p className="text-xs font-bold text-forest sm:text-sm">3M Services Mobilité</p>
             <p className="text-[10px] font-bold text-maple uppercase tracking-wider">Circular Tech</p>
           </motion.div>
 

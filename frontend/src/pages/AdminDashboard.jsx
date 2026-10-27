@@ -16,7 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState({ name: "Administrateur 3M", email: "admin@3mservices.cm", role: "admin" });
+  const [user, setUser] = useState({ name: "Administrateur 3M", email: "admin@3mservice.shop", role: "admin" });
   const [loading, setLoading] = useState(false);
   const [newSubmissionsCount, setNewSubmissionsCount] = useState(0);
   // Desktop: sidebar expanded/collapsed; Mobile: sidebar open/closed as overlay
@@ -34,14 +34,14 @@ export default function AdminDashboard() {
     const load = async () => {
       const localAuth = sessionStorage.getItem("3m_admin_authenticated");
       if (localAuth === "true") {
-        setUser({ name: "Administrateur 3M", email: "admin@3mservices.cm", role: "admin" });
+        setUser({ name: "Administrateur 3M", email: "admin@3mservice.shop", role: "admin" });
         return;
       }
       try {
         const me = await api.get("/auth/me", { timeout: 1500 });
         if (me.data) setUser(me.data);
       } catch (err) {
-        setUser({ name: "Administrateur 3M", email: "admin@3mservices.cm", role: "admin" });
+        setUser({ name: "Administrateur 3M", email: "admin@3mservice.shop", role: "admin" });
       }
     };
     load();

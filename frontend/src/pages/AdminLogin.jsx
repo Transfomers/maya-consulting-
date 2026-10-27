@@ -79,7 +79,7 @@ const AdminLogin = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-forest/25 bg-white px-4 py-3 text-sm"
-              placeholder="admin@capentrepreneurs.ca"
+              placeholder="admin@3mservice.shop"
             />
           </div>
           <div>
@@ -117,8 +117,8 @@ const AdminLogin = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setEmail("admin@capentrepreneurs.ca");
-                  setPassword("admin123");
+                  setEmail("admin@3mservice.shop");
+                  setPassword("3MServices@2025!");
                 }}
                 className="font-bold text-maple hover:underline uppercase text-[10px] tracking-wider"
               >

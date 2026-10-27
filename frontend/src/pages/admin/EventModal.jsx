@@ -198,7 +198,7 @@ export default function EventModal({ event, onClose, onSaved }) {
                   value={formData.translations[0].title}
                   onChange={e => updateTranslation(0, "title", e.target.value)}
                   className="w-full border border-forest/15 bg-white px-3 py-2 text-forest focus:border-forest focus:outline-none"
-                  placeholder="e.g. CAP Entrepreneurs Networking Night"
+                  placeholder="e.g. 3M SERVICES Networking Night"
                 />
               </div>
               

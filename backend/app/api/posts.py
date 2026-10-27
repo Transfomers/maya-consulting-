@@ -97,8 +97,8 @@ async def trigger_post_publication_newsletter(post_id: str, author_id: str, back
         if not post or post.status != "published":
             return
 
-        title = "Nouvel article sur CAP Entrepreneurs"
-        excerpt = "Découvrez notre dernière publication sur capentrepreneurs.org"
+        title = "Nouvel article sur 3M SERVICES"
+        excerpt = "Découvrez notre dernière publication sur 3mservice.shop"
         for t in (post.translations or []):
             if t.language == "fr" and t.title:
                 title = t.title
@@ -110,7 +110,7 @@ async def trigger_post_publication_newsletter(post_id: str, author_id: str, back
 
         campaign = NewsletterCampaign(
             title=f"Publication : {title}",
-            subject=f"CAP Entrepreneurs - {title}",
+            subject=f"3M SERVICES - {title}",
             preview_text=excerpt,
             article_id=post.id,
             recipient_segment="all_active",

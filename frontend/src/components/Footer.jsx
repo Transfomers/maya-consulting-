@@ -63,6 +63,14 @@ const Footer = () => {
                 <Phone className="h-3.5 w-3.5 text-[#E20713]" />
                 <span>+237 653 76 17 28</span>
               </a>
+
+              <a
+                href="mailto:contact@3mservice.shop"
+                className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider transition-colors rounded-xs"
+              >
+                <Mail className="h-3.5 w-3.5 text-[#E20713]" />
+                <span>contact@3mservice.shop</span>
+              </a>
             </div>
           </div>
 
@@ -119,14 +127,14 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-2">
                 <HomeIcon className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
-                <Link to="/appartement-meuble-bastos" className="hover:text-white hover:underline transition-colors font-medium">
-                  Appartement meublé Bastos (Haut standing)
+                <Link to="/appartement-meuble-tsinga-fecafoot" className="hover:text-white hover:underline transition-colors font-medium">
+                  Appartement meublé Tsinga (Face FECAFOOT)
                 </Link>
               </li>
               <li className="flex items-center gap-2">
                 <HomeIcon className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
                 <Link to="/appartement-meuble-yaounde" className="hover:text-white hover:underline transition-colors font-medium">
-                  Appartements meublés Essos &amp; Omnisports
+                  Appartements meublés Yaoundé &amp; Oyomabang (Bientôt)
                 </Link>
               </li>
               <li className="flex items-center gap-2">

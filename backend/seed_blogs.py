@@ -1,5 +1,5 @@
 """
-Seed or update published blog articles and categories in Cap Entrepreneurs database.
+Seed or update published blog articles and categories in 3M Services database.
 Run via: docker exec cap_backend python seed_blogs.py
 """
 import asyncio
@@ -117,7 +117,7 @@ ARTICLES_DATA = [
           <p>In community development, every step forward counts. Celebrating progress with peers maintains high collective morale.</p>
         """,
         "content_fr": """
-          <p class="lead">Se fixer des buts ambitieux est louable, mais sans rythme régulier, l'épuisement guette. Voici la méthode des petits pas partagés qui dynamise les cohortes de Cap Entrepreneurs.</p>
+          <p class="lead">Se fixer des buts ambitieux est louable, mais sans rythme régulier, l'épuisement guette. Voici la méthode des petits pas partagés qui dynamise les cohortes de 3M Services.</p>
           <h2>Le principe des 3 priorités quotidiennes</h2>
           <p>Chaque matin, identifiez les trois actions qui font avancer concrètement la mission. Concentrez votre énergie sur ce qui apporte une réelle valeur humaine.</p>
           <blockquote>"La régularité bienveillante produit plus d'impact que l'intensité sporadique."</blockquote>
@@ -265,7 +265,7 @@ async def seed_blogs():
                 slug=art["slug"],
                 excerpt=art["excerpt_en"],
                 content=art["content_en"].strip(),
-                seo_title=f"{art['title_en']} | CAP Entrepreneurs",
+                seo_title=f"{art['title_en']} | 3M SERVICES",
                 seo_description=art["excerpt_en"],
                 allow_index=True,
                 allow_follow=True,
@@ -277,7 +277,7 @@ async def seed_blogs():
                 slug=art["slug"],
                 excerpt=art["excerpt_fr"],
                 content=art["content_fr"].strip(),
-                seo_title=f"{art['title_fr']} | CAP Entrepreneurs",
+                seo_title=f"{art['title_fr']} | 3M SERVICES",
                 seo_description=art["excerpt_fr"],
                 allow_index=True,
                 allow_follow=True,
@@ -300,7 +300,7 @@ async def seed_blogs():
                     slug=art["slug"],
                     excerpt=ar_data["excerpt"],
                     content=ar_data["content"].strip(),
-                    seo_title=f"{ar_data['title']} | CAP Entrepreneurs",
+                    seo_title=f"{ar_data['title']} | 3M SERVICES",
                     seo_description=ar_data["excerpt"],
                     allow_index=True,
                     allow_follow=True,

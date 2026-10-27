@@ -212,7 +212,7 @@ export default function Boutique({ defaultTab }) {
               <p className="text-sm sm:text-base text-stone-300 max-w-2xl mt-3 font-normal leading-relaxed">
                 {activeTab === "vehicules"
                   ? "Explorez notre sélection complète de véhicules neufs (0 km) et occasions certifiées. Choisissez votre véhicule, ajoutez-le à votre panier et passez commande directement via WhatsApp."
-                  : "Découvrez nos résidences et appartements meublés grand standing à Yaoundé (Bastos, Omnisports, Le Golfe...). Climatisation, Wifi Fibre, sécurité 24/7 et réservation directe sur WhatsApp."}
+                  : "Découvrez nos résidences et appartements meublés grand standing à Yaoundé (Tsinga Face FECAFOOT, Omnisports, et bientôt Oyomabang). Climatisation, Wifi Fibre, groupe automatique, sécurité 24/7. Appelez directement au +237 691 78 64 47 ou réservez sur WhatsApp."}
               </p>
             </div>
 
@@ -720,7 +720,7 @@ export default function Boutique({ defaultTab }) {
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Rechercher par quartier, type, équipement (ex: Bastos, Omnisports, Fibre, Terrasse...)"
+                  placeholder="Rechercher par quartier, type, équipement (ex: Tsinga FECAFOOT, Oyomabang, Fibre...)"
                   value={aptSearch}
                   onChange={(e) => setAptSearch(e.target.value)}
                   className="w-full pl-10 pr-10 py-2.5 bg-[#F9FAFB] border border-gray-300 text-xs font-medium text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#E20713] focus:bg-white transition-colors rounded-xs"
@@ -777,6 +777,40 @@ export default function Boutique({ defaultTab }) {
           <section className="py-12 px-5 sm:px-8">
             <div className="max-w-[1440px] mx-auto">
               
+              {/* Prominent Call to Action Banner */}
+              <div className="mb-8 p-4 sm:p-6 bg-gradient-to-r from-[#111827] via-[#1a2332] to-[#111827] text-white rounded-xs border-l-4 border-[#E20713] flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xl">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#E20713] text-white text-[10px] font-mono font-bold uppercase tracking-wider rounded-xs mb-2">
+                    <Phone className="h-3 w-3" />
+                    <span>Ligne Directe Conciergerie 24/7</span>
+                  </div>
+                  <h3 className="font-heading font-black text-lg sm:text-xl text-white">
+                    Besoin d'un appartement meublé immédiatement à Yaoundé ?
+                  </h3>
+                  <p className="text-xs sm:text-sm text-stone-300 mt-1 max-w-2xl leading-relaxed">
+                    Résidences de standing disponibles à <strong className="text-white">Tsinga (Face FECAFOOT)</strong> et <strong className="text-white">Oyomabang (Bientôt disponible)</strong>. Appelez dès maintenant notre équipe pour vérifier les disponibilités et bloquer vos dates sans attendre.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0">
+                  <a
+                    href="tel:+237691786447"
+                    className="flex-1 md:flex-none px-6 py-3.5 bg-[#E20713] hover:bg-[#b3050f] text-white font-heading font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 rounded-xs shadow-lg transition-all hover:scale-105"
+                  >
+                    <Phone className="h-4 w-4" />
+                    <span>Appelez le +237 691 78 64 47</span>
+                  </a>
+                  <a
+                    href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20un%20appartement%20meubl%C3%A9"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-heading font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 rounded-xs transition-colors"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+
               {filteredApartments.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredApartments.map((apt) => {
@@ -899,13 +933,21 @@ export default function Boutique({ defaultTab }) {
 
                             <div className="flex items-center gap-2">
                               <a
+                                href="tel:+237691786447"
+                                title="Appeler directement (+237 691 78 64 47)"
+                                className="p-2.5 bg-[#E20713] hover:bg-[#b3050f] text-white rounded-xs transition-all shadow-xs flex items-center justify-center shrink-0 hover:scale-105"
+                              >
+                                <Phone className="h-3.5 w-3.5" />
+                              </a>
+
+                              <a
                                 href={`https://wa.me/237691786447?text=${whatsappMsg}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-heading font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 rounded-xs transition-colors shadow-xs"
                               >
                                 <MessageSquare className="h-3.5 w-3.5" />
-                                <span>Réserver WhatsApp</span>
+                                <span>WhatsApp</span>
                               </a>
 
                               <button

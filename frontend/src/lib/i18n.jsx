@@ -15,20 +15,20 @@ const STR = {
       "donate": "Donate"
     },
     "footer": {
-      "quote": "“Cap Entrepreneurs - Building inclusive, accessible and sustainable digital economies.”",
+      "quote": "“3M Services - Building inclusive, accessible and sustainable digital economies.”",
       "support": "Support the Mission",
       "explore": "Explore",
       "involved": "Get Involved",
-      "bottom1": "Cap Entrepreneurs - A Canadian non-profit organization",
+      "bottom1": "3M Services - A Canadian non-profit organization",
       "bottom2": "Rooted in Quebec. Connected to Canada. Open to the world.",
       "privacy": "Privacy Policy",
       "terms": "Terms of Service",
       "copyright": "All rights reserved.",
-      "designedBy": "Cap Entrepreneurs Ecosystem"
+      "designedBy": "3M Services Ecosystem"
     },
     "privacy": {
       "title": "Privacy Policy",
-      "intro": "How Cap Entrepreneurs protects your data as a Canadian non-profit organization.",
+      "intro": "How 3M Services protects your data as a Canadian non-profit organization.",
       "sections": [
         {
           "title": "1. Information We Collect",
@@ -48,13 +48,13 @@ const STR = {
         },
         {
           "title": "5. Contact Us",
-          "content": "If you have questions about this privacy statement, contact us at contact@capentrepreneurs.org."
+          "content": "If you have questions about this privacy statement, contact us at contact@3mservice.shop."
         }
       ]
     },
     "terms": {
       "title": "Terms of Service",
-      "intro": "Terms and guidelines for participating in the Cap Entrepreneurs community and platform.",
+      "intro": "Terms and guidelines for participating in the 3M Services community and platform.",
       "sections": [
         {
           "title": "1. Acceptance of Terms",
@@ -62,7 +62,7 @@ const STR = {
         },
         {
           "title": "2. Mission & Service",
-          "content": "Cap Entrepreneurs provides access to educational programs, volunteering opportunities, partnership networks, and community resources."
+          "content": "3M Services provides access to educational programs, volunteering opportunities, partnership networks, and community resources."
         },
         {
           "title": "3. Community Conduct",
@@ -89,7 +89,7 @@ const STR = {
       "launch": "Ask us",
       "openLabel": "Open the conversation",
       "closeLabel": "Close conversation",
-      "title": "CAP Assistant",
+      "title": "Assistant 3M SERVICES",
       "status": "Live answers",
       "greeting": "Hello. I can point you to the right program, volunteer pathways, or partnership team. Choose a question below or write yours.",
       "suggestionsLabel": "Suggested questions",
@@ -123,7 +123,7 @@ const STR = {
             "skills",
             "learn"
           ],
-          "a": "Cap Entrepreneurs deploys four structuring programs: Cap Green Lab (Inclusive technology & circular economy), AgriConnect (Rural entrepreneurship & digital agriculture), Safe Vibe (Digital media & education), and Creative & Social Entrepreneurship (Women, arts & social innovation).",
+          "a": "3M Services deploys four structuring programs: 3M Services Mobilité (Inclusive technology & circular economy), AgriConnect (Rural entrepreneurship & digital agriculture), Safe Vibe (Digital media & education), and Creative & Social Entrepreneurship (Women, arts & social innovation).",
           "ctaLabel": "Discover our programs",
           "ctaTo": "/programs"
         },
@@ -137,7 +137,7 @@ const STR = {
             "give time",
             "mentor"
           ],
-          "a": "Volunteering at Cap Entrepreneurs is an opportunity for learning, collaboration and community impact in Canada and internationally: Apply, Learn, Connect, Contribute, and Grow.",
+          "a": "Volunteering at 3M Services is an opportunity for learning, collaboration and community impact in Canada and internationally: Apply, Learn, Connect, Contribute, and Grow.",
           "ctaLabel": "Explore volunteering",
           "ctaTo": "/volunteer"
         },
@@ -182,7 +182,7 @@ const STR = {
             "talk",
             "message"
           ],
-          "a": "You can write to us at contact@capentrepreneurs.org or submit your message directly via our contact form.",
+          "a": "You can write to us at contact@3mservice.shop or submit your message directly via our contact form.",
           "ctaLabel": "Contact us",
           "ctaTo": "/contact"
         }
@@ -228,9 +228,9 @@ const STR = {
       "fourProgramsIntro": "Our programs transform ideas into practical solutions:",
       "h4Programs": [
         {
-          "name": "Cap Green Lab",
+          "name": "3M Services Mobilité",
           "theme": "Inclusive technology, accessibility and the circular economy",
-          "id": "cap-green-lab"
+          "id": "3m-services-mobilite"
         },
         {
           "name": "AgriConnect",
@@ -250,7 +250,7 @@ const STR = {
       ],
       "h4International": "Each program contributes to a broader mission: making the digital transition more inclusive, useful and sustainable.",
       "discoverPrograms": "Discover Our Programs",
-      "communitySectionTitle": "Meet the Community Behind CAP",
+      "communitySectionTitle": "Meet the Team Behind 3M SERVICES",
       "communitySectionSub": "We are building an ecosystem of people who identify opportunities, open doors and create connections.",
       "signalSeekersTitle": "The Signal Seekers",
       "signalSeekersDesc": "We observe, explore and identify emerging trends, needs, technologies and opportunities. We help our community understand what is changing - and what could come next.",
@@ -258,7 +258,7 @@ const STR = {
       "doorOpenersDesc": "We connect people, organizations and ecosystems. We help transform discoveries into relationships, collaborations and practical opportunities.",
       "communityQuote": "“These are complementary roles within one international community. Whether you are a student, entrepreneur, volunteer, professional, organization or institutional partner, there is a place for you.”",
       "h5Title": "A community built for everyone who creates opportunity",
-      "h5Intro": "Cap Entrepreneurs brings together:",
+      "h5Intro": "3M Services brings together:",
       "audiences": [
         "Entrepreneurs & Solopreneurs",
         "Non-Profit Organizations & Charities",
@@ -326,7 +326,7 @@ const STR = {
               "label": "Desired Program",
               "kind": "select",
               "options": [
-                "Cap Green Lab - Inclusive technology & circular economy",
+                "3M Services Mobilité - Inclusive technology & circular economy",
                 "AgriConnect - Rural entrepreneurship & digital agriculture",
                 "Safe Vibe - Digital media & education",
                 "Creative & Social Entrepreneurship - Women, arts & innovation",
@@ -350,7 +350,7 @@ const STR = {
           "title": "I want to volunteer",
           "link": "/volunteer",
           "submissionType": "volunteer",
-          "intro": "Share your skills and energy in service of entrepreneurial and social initiatives supported by CAP Entrepreneurs.",
+          "intro": "Share your skills and energy in service of entrepreneurial and social initiatives supported by 3M SERVICES.",
           "fields": [
             {
               "name": "area",
@@ -459,10 +459,10 @@ const STR = {
       "voicesTitle": "Supported by over 500+ participants, partners and communities.",
       "testimonials": [
         {
-          "quote": "Cap Green Lab helped our community bridge the digital divide while restoring critical hardware for local schools.",
+          "quote": "3M Services Mobilité helped our community bridge the digital divide while restoring critical hardware for local schools.",
           "author": "Sarah J.",
           "role": "Social Innovator",
-          "organization": "Cap Green Lab"
+          "organization": "3M Services Mobilité"
         },
         {
           "quote": "AgriConnect connected our women farmers' cooperative to modern digital tools and sustainable markets.",
@@ -471,7 +471,7 @@ const STR = {
           "organization": "AgriConnect"
         },
         {
-          "quote": "Collaborating across Canada, Africa and the Caribbean with Cap Entrepreneurs creates measurable, long-term impact.",
+          "quote": "Collaborating across Canada, Africa and the Caribbean with 3M Services creates measurable, long-term impact.",
           "author": "Elena R.",
           "role": "Institutional Partner",
           "organization": "Alliances & Impact"
@@ -479,12 +479,12 @@ const STR = {
       ]
     },
     "about": {
-      "eyebrow": "About Cap Entrepreneurs",
+      "eyebrow": "About 3M Services",
       "h1a": "We Believe Opportunity Should Have ",
       "h1accent": "No Borders",
       "whoTitle": "WHO WE ARE",
       "whoHeading": "Building inclusive, accessible & sustainable digital economies",
-      "whoText": "Cap Entrepreneurs is a Canadian nonprofit organization dedicated to inclusive and sustainable digital transition. We work with individuals, underrepresented communities, nonprofits, entrepreneurs and institutional partners to expand access to digital skills, technologies and opportunities. Our work combines practical learning, collaborative projects, community engagement and international cooperation. We also share Canadian approaches to inclusion, accessibility, sustainability and collaborative governance through our international initiatives. We do not see digital transformation as technology alone. We see it as an opportunity to build stronger communities, more accessible economies and more sustainable futures.",
+      "whoText": "3M Services is a premier mobility and hospitality group headquartered in Yaoundé, Cameroon. We provide high-end automotive sales, VIP car rentals with chauffeur, and luxury furnished apartments in Yaoundé (Tsinga Face FECAFOOT, Omnisports, and Oyomabang Coming Soon). Official partner of MUPOCAM Orange Cameroon.",
       "pullQuote": "“Connecting people, skills, technology and opportunities. Making the digital transition a model of inclusive excellence worldwide.”",
       "missionTitle": "OUR MISSION",
       "missionHeading": "Connect people, skills, technology and opportunities.",
@@ -547,7 +547,7 @@ const STR = {
       "ecoSteps": [
         {
           "title": "Join",
-          "text": "Onboard into the Cap ecosystem",
+          "text": "Onboard into the Écosystème 3M SERVICES",
           "icon": "👋"
         },
         {
@@ -608,8 +608,8 @@ const STR = {
       "h1a": "From learning to ",
       "h1accent": "measurable impact",
       "h1post": "",
-      "editionTag": "EDITION 2026-2027 • CAP ENTREPRENEURS",
-      "intro": "Cap Entrepreneurs deploys four structuring programs that address the concrete needs of individuals, organizations and territories. Each program combines learning, support, hands-on experimentation and deployment - connected to our international initiatives.",
+      "editionTag": "EDITION 2026-2027 • 3M SERVICES",
+      "intro": "3M Services deploys four structuring programs that address the concrete needs of individuals, organizations and territories. Each program combines learning, support, hands-on experimentation and deployment - connected to our international initiatives.",
       "tocTitle": "IN THIS ARTICLE",
       "shareTitle": "SHARE",
       "exploreCta": "Explore Programs",
@@ -617,12 +617,12 @@ const STR = {
       "forWhomTitle": "Who it's for:",
       "programsList": [
         {
-          "id": "cap-green-lab",
+          "id": "3m-services-mobilite",
           "num": "01",
-          "name": "Cap Green Lab",
+          "name": "3M Services Mobilité",
           "theme": "Inclusive Technology, Accessibility and Circular Economy",
           "subtitle": "Digital Inclusion & Environmental Responsibility",
-          "purpose": "Technology should be accessible to everyone - and respectful of our planet. Cap Green Lab is our laboratory dedicated to the intersection of digital inclusion, technical training, assistive technology and the circular economy.",
+          "purpose": "Technology should be accessible to everyone - and respectful of our planet. 3M Services Mobilité is our laboratory dedicated to the intersection of digital inclusion, technical training, assistive technology and the circular economy.",
           "whatWeDo": [
             "Refurbish and extend the life of digital equipment for community distribution.",
             "Promote accessible technologies and universal design for people with disabilities.",
@@ -632,7 +632,7 @@ const STR = {
           ],
           "forWhom": "Individuals in career transition, volunteers, nonprofits, schools, community organizations and technicians.",
           "goal": "Equip people with practical skills while extending the lifecycle of technology.",
-          "cta": "Explore Cap Green Lab"
+          "cta": "Explore 3M Services Mobilité"
         },
         {
           "id": "agriconnect",
@@ -755,7 +755,7 @@ const STR = {
       "eyebrow": "Join the Community",
       "h1a": "Find Your Path. ",
       "h1accent": "Create Your Impact.",
-      "intro": "There is more than one way to contribute to a more inclusive digital world. Whether you want to develop your skills, volunteer your expertise, represent an organization or explore international opportunities, CAP Entrepreneurs can help you identify your next step.",
+      "intro": "There is more than one way to contribute to a more inclusive digital world. Whether you want to develop your skills, volunteer your expertise, represent an organization or explore international opportunities, 3M SERVICES can help you identify your next step.",
       "pathwaysTitle": "Where Do You Want to Start?",
       "pathwayOptions": [
         {
@@ -791,8 +791,8 @@ const STR = {
           "link": "#contact-form"
         }
       ],
-      "formTitle": "Join the CAP Ecosystem",
-      "formCopy": "Tell us a little about yourself so we can direct you to the most relevant pathway. Your next CAP could begin with a conversation.",
+      "formTitle": "Join the Écosystème 3M SERVICES",
+      "formCopy": "Tell us a little about yourself so we can direct you to the most relevant pathway. Your Futur 3M SERVICES could begin with a conversation.",
       "submit": "Send Message",
       "success": "Thank you for reaching out - our team will direct you to the right pathway."
     },
@@ -800,7 +800,7 @@ const STR = {
       "eyebrow": "Volunteer With Us",
       "h1a": "Your Skills Can Open ",
       "h1accent": "New Horizons",
-      "intro": "At CAP Entrepreneurs, volunteering is more than giving your time. It is an opportunity to learn, collaborate, gain experience and contribute to meaningful projects in Canada and internationally. Whether you are a student, professional, consultant, specialist or executive, your knowledge can help create opportunities for others.",
+      "intro": "At 3M SERVICES, volunteering is more than giving your time. It is an opportunity to learn, collaborate, gain experience and contribute to meaningful projects in Canada and internationally. Whether you are a student, professional, consultant, specialist or executive, your knowledge can help create opportunities for others.",
       "areasTitle": "What Can You Contribute?",
       "areas": [
         "Digital skills and technology",
@@ -887,7 +887,7 @@ const STR = {
       "eyebrow": "Partnerships",
       "h1a": "Shared Vision. Collective Action. ",
       "h1accent": "Measurable Impact.",
-      "intro": "Meaningful change happens when people and organizations combine their strengths. CAP Entrepreneurs works with businesses, institutions, nonprofits, social enterprises, universities and creative ecosystems to develop practical initiatives that expand access to digital opportunities. We welcome partners who share our commitment to inclusion, accessibility, sustainability and international collaboration.",
+      "intro": "Meaningful change happens when people and organizations combine their strengths. 3M SERVICES works with businesses, institutions, nonprofits, social enterprises, universities and creative ecosystems to develop practical initiatives that expand access to digital opportunities. We welcome partners who share our commitment to inclusion, accessibility, sustainability and international collaboration.",
       "whoTitle": "Who We Work With",
       "partnerTypes": [
         {
@@ -930,7 +930,7 @@ const STR = {
       "ctaPackage": "Request the Partnership Package",
       "formEyebrow": "Partner Collaboration",
       "formTitle": "Let's Build Together",
-      "formCopy": "Tell us about your organization and how you envision collaborating with CAP Entrepreneurs.",
+      "formCopy": "Tell us about your organization and how you envision collaborating with 3M SERVICES.",
       "formSubmit": "Submit Partnership Proposal",
       "formSuccess": "Thank you for reaching out - our partnerships team will review your proposal promptly.",
       "typeLabel": "Partnership Type",
@@ -944,7 +944,7 @@ const STR = {
       "eyebrow": "The Global Festival",
       "h1a": "One Movement. Multiple Windows. ",
       "h1accent": "A World of Possibilities.",
-      "intro": "The CAP Entrepreneurs Global Festival is more than an event. It is a meeting point for ideas, people, cultures, and opportunities - bringing together entrepreneurs, innovators, organizations, and communities committed to building more inclusive, accessible, and sustainable digital economies. Rooted in Canadian know-how and open to the world, the Global Festival creates space for collaboration across borders, disciplines, and generations.",
+      "intro": "The 3M SERVICES Global Festival is more than an event. It is a meeting point for ideas, people, cultures, and opportunities - bringing together entrepreneurs, innovators, organizations, and communities committed to building more inclusive, accessible, and sustainable digital economies. Rooted in Canadian know-how and open to the world, the Global Festival creates space for collaboration across borders, disciplines, and generations.",
       "subIntro": "A Global Journey, Built Together. Our international journey unfolds through a series of strategic encounters, each opening a new window onto the world.",
       "destinationsTitle": "One Vision. Many Connections.",
       "destinations": [
@@ -997,15 +997,15 @@ const STR = {
         "Contribute to conversations about the future of the digital economy.",
         "Explore opportunities for international creative trade and collaboration."
       ],
-      "closingText": "The world is not one destination. It is a network of possibilities waiting to be connected. CAP Entrepreneurs - Opening New Horizons.",
+      "closingText": "The world is not one destination. It is a network of possibilities waiting to be connected. 3M SERVICES - Opening New Horizons.",
       "ctaWaitlist": "Join the Waitlist",
       "ctaPartners": "Explore Partnership Opportunities"
     },
     "blog": {
       "eyebrow": "Editorial Space",
-      "h1a": "The Windows of CAP - ",
+      "h1a": "Les Actualités 3M SERVICES - ",
       "h1accent": "Discover What's Possible Beyond Your Horizon",
-      "intro": "The Windows of CAP is our editorial space for sharing ideas, people, places and opportunities that can help our community see further. Here, the Signal Seekers identify what is emerging. The Door Openers share the connections and pathways that can help turn discovery into action.",
+      "intro": "Les Actualités 3M SERVICES is our editorial space for sharing ideas, people, places and opportunities that can help our community see further. Here, the Signal Seekers identify what is emerging. The Door Openers share the connections and pathways that can help turn discovery into action.",
       "subIntro": "From digital innovation to international ecosystems, from community stories to upcoming events, each window offers a new perspective.",
       "seriesTitle": "Explore Our Editorial Series",
       "series": [
@@ -1020,12 +1020,12 @@ const STR = {
           "desc": "Who can we connect with? Discover people, organizations and initiatives creating pathways for collaboration."
         },
         {
-          "title": "CAP On…",
+          "title": "3M SERVICES Sur…",
           "tag": "Territorial Focus",
           "desc": "Explore a city, market or ecosystem. Learn about local initiatives, emerging opportunities and the people shaping change."
         },
         {
-          "title": "The Next CAP",
+          "title": "Le Futur avec 3M SERVICES",
           "tag": "Portraits & Journeys",
           "desc": "Meet people who are learning, building, adapting and pursuing new directions."
         },
@@ -1038,20 +1038,20 @@ const STR = {
       "oneCommunityTitle": "One Community. Different Perspectives.",
       "oneCommunityText": "We share knowledge across languages, sectors and territories, with content designed to be relevant to our French-speaking and English-speaking communities and our international partners.",
       "ctaShare": "Share a Story",
-      "ctaContact": "Contact the CAP Team",
+      "ctaContact": "Contactez l'Équipe 3M SERVICES",
       "ctaNewsletter": "Subscribe to Our Newsletter"
     },
     "contact": {
       "eyebrow": "Contact Us",
       "h1a": "Let's Find Your ",
-      "h1accent": "Next CAP",
+      "h1accent": "Futur 3M SERVICES",
       "intro": "Whether you are an individual looking to get involved, an organization seeking a partner, an international buyer or an institution interested in supporting our mission, we'd like to hear from you. Tell us what you are working on, what you hope to achieve and how you would like to connect.",
       "helpTitle": "How Can We Help? Choose your profile:",
       "profiles": [
         {
           "icon": "🎓",
           "text": "I want to join the community - Discover how you can learn, contribute and connect.",
-          "cta": "Join CAP Entrepreneurs",
+          "cta": "Join 3M SERVICES",
           "link": "/join"
         },
         {
@@ -1087,8 +1087,8 @@ const STR = {
         {
           "icon": "📰",
           "text": "I am a journalist or institutional representative - Contact us about media, communications or institutional matters.",
-          "cta": "Contact the CAP Team",
-          "link": "mailto:contact@capentrepreneurs.org"
+          "cta": "Contactez l'Équipe 3M SERVICES",
+          "link": "mailto:contact@3mservice.shop"
         }
       ],
       "formTitle": "Start a Conversation",
@@ -1123,7 +1123,7 @@ const STR = {
       "info": [
         {
           "label": "Email",
-          "value": "contact@capentrepreneurs.org"
+          "value": "contact@3mservice.shop"
         },
         {
           "label": "Location",
@@ -1136,14 +1136,14 @@ const STR = {
       ],
       "pressTitle": "Press & Institutional Contact",
       "pressCopy": "For press relations, interview requests or institutional communications, please reach out directly to our communications office.",
-      "pressEmail": "contact@capentrepreneurs.org"
+      "pressEmail": "contact@3mservice.shop"
     },
     "donate": {
-      "eyebrow": "Donate to Cap Entrepreneurs",
+      "eyebrow": "Donate to 3M Services",
       "h1a": "Open New Horizons. ",
       "h1accent": "Make Opportunity Possible.",
-      "intro": "Your support helps connect people, skills, technology and opportunities to build more inclusive, accessible and sustainable digital economies. At CAP Entrepreneurs, we believe that everyone should have the opportunity to learn, innovate, participate in the digital economy and contribute to their community.",
-      "subIntro": "As a Canadian nonprofit organization with an international outlook, we work to reduce barriers to digital participation, strengthen entrepreneurial capabilities and connect individuals and organizations with opportunities to grow. Your contribution helps us develop practical programs, support community initiatives and build connections that turn ideas into action.",
+      "intro": "Your support helps connect people, skills, technology and opportunities to build more inclusive, accessible and sustainable digital economies. At 3M SERVICES, we believe that everyone should have the opportunity to learn, innovate, participate in the digital economy and contribute to their community.",
+      "subIntro": "3M Services combines premium automobile services with luxury furnished residences in Yaoundé, Cameroon. We offer certified new and pre-owned vehicles, VIP vehicle rentals, and high-standing furnished apartments.",
       "tagline": "One contribution. Shared commitment. New possibilities.",
       "ctaDonate": "Donate Now",
       "submit": "Complete My Pledge",
@@ -1211,20 +1211,20 @@ const STR = {
       "donate": "Faire un don"
     },
     "footer": {
-      "quote": "« Cap Entrepreneurs - Bâtir des économies numériques inclusives, accessibles et durables. »",
+      "quote": "« 3M Services - Bâtir des économies numériques inclusives, accessibles et durables. »",
       "support": "Soutenir notre mission sociale",
       "explore": "Explorer",
       "involved": "S'impliquer",
-      "bottom1": "Cap Entrepreneurs • Organisme canadien à but non lucratif",
+      "bottom1": "3M Services • Organisme canadien à but non lucratif",
       "bottom2": "Enraciné au Québec. Connecté au Canada. Ouvert sur le monde.",
       "privacy": "Politique de confidentialité",
       "terms": "Conditions d'utilisation",
       "copyright": "Tous droits réservés.",
-      "designedBy": "Écosystème Cap Entrepreneurs"
+      "designedBy": "Écosystème 3M Services"
     },
     "privacy": {
       "title": "Politique de confidentialité",
-      "intro": "Comment Cap Entrepreneurs, organisme à but non lucratif canadien, protège vos renseignements personnels.",
+      "intro": "Comment 3M Services, organisme à but non lucratif canadien, protège vos renseignements personnels.",
       "sections": [
         {
           "title": "1. Renseignements recueillis",
@@ -1244,13 +1244,13 @@ const STR = {
         },
         {
           "title": "5. Pour nous joindre",
-          "content": "Pour toute question relative à la protection de vos renseignements, écrivez-nous à contact@capentrepreneurs.org."
+          "content": "Pour toute question relative à la protection de vos renseignements, écrivez-nous à contact@3mservice.shop."
         }
       ]
     },
     "terms": {
       "title": "Conditions d'utilisation",
-      "intro": "Modalités d'engagement et règles de participation à la plateforme et aux initiatives de Cap Entrepreneurs.",
+      "intro": "Modalités d'engagement et règles de participation à la plateforme et aux initiatives de 3M Services.",
       "sections": [
         {
           "title": "1. Acceptation",
@@ -1258,7 +1258,7 @@ const STR = {
         },
         {
           "title": "2. Mission et services",
-          "content": "Cap Entrepreneurs offre l'accès à des programmes de formation, des opportunités de bénévolat, des réseaux d'entraide et des ressources communautaires."
+          "content": "3M Services offre l'accès à des programmes de formation, des opportunités de bénévolat, des réseaux d'entraide et des ressources communautaires."
         },
         {
           "title": "3. Conduite communautaire",
@@ -1285,7 +1285,7 @@ const STR = {
       "launch": "Nous joindre",
       "openLabel": "Ouvrir la conversation",
       "closeLabel": "Fermer la conversation",
-      "title": "Assistant CAP",
+      "title": "Assistant 3M SERVICES",
       "status": "Réponses en direct",
       "greeting": "Bonjour. Je peux vous orienter vers nos programmes de formation, nos opportunités de bénévolat ou notre équipe de partenariats. Choisissez une question ci-dessous ou écrivez votre message.",
       "suggestionsLabel": "Questions fréquentes",
@@ -1318,7 +1318,7 @@ const STR = {
             "creative",
             "formation"
           ],
-          "a": "Cap Entrepreneurs déploie quatre programmes structurants : Cap Green Lab (Technologie inclusive & économie circulaire), AgriConnect (Entrepreneuriat rural & agriculture numérique), Safe Vibe (Médias numériques & éducation citoyenne), et Entrepreneuriat Créatif & Social (Femmes, arts & innovation sociale).",
+          "a": "3M Services déploie quatre programmes structurants : 3M Services Mobilité (Technologie inclusive & économie circulaire), AgriConnect (Entrepreneuriat rural & agriculture numérique), Safe Vibe (Médias numériques & éducation citoyenne), et Entrepreneuriat Créatif & Social (Femmes, arts & innovation sociale).",
           "ctaLabel": "Découvrir nos programmes",
           "ctaTo": "/programs"
         },
@@ -1332,7 +1332,7 @@ const STR = {
             "donner du temps",
             "mentorat"
           ],
-          "a": "Chez Cap Entrepreneurs, le bénévolat est une démarche d'apprentissage mutuel et d'impact communautaire au Canada et à l'international : Postuler, Se former, Se connecter, Contribuer et Grandir.",
+          "a": "Chez 3M Services, le bénévolat est une démarche d'apprentissage mutuel et d'impact communautaire au Canada et à l'international : Postuler, Se former, Se connecter, Contribuer et Grandir.",
           "ctaLabel": "Découvrir le bénévolat",
           "ctaTo": "/volunteer"
         },
@@ -1378,7 +1378,7 @@ const STR = {
             "téléphone",
             "message"
           ],
-          "a": "Vous pouvez nous écrire directement à contact@capentrepreneurs.org ou utiliser notre formulaire de contact en ligne.",
+          "a": "Vous pouvez nous écrire directement à contact@3mservice.shop ou utiliser notre formulaire de contact en ligne.",
           "ctaLabel": "Nous contacter",
           "ctaTo": "/contact"
         }
@@ -1424,9 +1424,9 @@ const STR = {
       "fourProgramsIntro": "Nos programmes transforment les idées en solutions concrètes et mesurables :",
       "h4Programs": [
         {
-          "name": "Cap Green Lab",
+          "name": "3M Services Mobilité",
           "theme": "Technologie inclusive, accessibilité et économie circulaire",
-          "id": "cap-green-lab"
+          "id": "3m-services-mobilite"
         },
         {
           "name": "AgriConnect",
@@ -1446,7 +1446,7 @@ const STR = {
       ],
       "h4International": "Chaque programme contribue à un objectif collectif : rendre la transition numérique plus inclusive, utile et solidaire.",
       "discoverPrograms": "Découvrir nos programmes",
-      "communitySectionTitle": "Rencontrez la communauté de CAP",
+      "communitySectionTitle": "Rencontrez l'équipe 3M SERVICES",
       "communitySectionSub": "Nous bâtissons une communauté de personnes qui identifient les opportunités, ouvrent des portes et tissent des liens durables.",
       "signalSeekersTitle": "Les Éclaireurs (The Signal Seekers)",
       "signalSeekersDesc": "Nous observons, explorons et identifions les tendances émergentes, les besoins non comblés, les technologies et les opportunités pour aider notre communauté à anticiper les transformations.",
@@ -1454,7 +1454,7 @@ const STR = {
       "doorOpenersDesc": "Nous connectons les personnes, les organisations et les écosystèmes pour transformer les découvertes en partenariats solides, en collaborations et en retombées concrètes.",
       "communityQuote": "« Ce sont des rôles complémentaires au sein d'une même communauté internationale. Que vous soyez étudiant, entrepreneur, bénévole, professionnel, organisme communautaire ou partenaire institutionnel, vous avez votre place parmi nous. »",
       "h5Title": "Une communauté bâtie pour tous ceux qui créent des opportunités",
-      "h5Intro": "Cap Entrepreneurs rassemble :",
+      "h5Intro": "3M Services rassemble :",
       "audiences": [
         "Entrepreneurs & Travailleurs autonomes",
         "Organismes à but non lucratif & Coopératives",
@@ -1493,7 +1493,7 @@ const STR = {
         }
       ],
       "h6Title": "Prêt à ouvrir de nouveaux horizons ?",
-      "h6Sub": "Que vous souhaitiez développer vos compétences, offrir votre bénévolat, bâtir un partenariat solidaire ou soutenir l'innovation inclusive, votre prochain CAP commence ici.",
+      "h6Sub": "Que vous souhaitiez développer vos compétences, offrir votre bénévolat, bâtir un partenariat solidaire ou soutenir l'innovation inclusive, votre futur avec 3M SERVICES commence ici.",
       "ctaJoin": "Rejoindre la communauté",
       "ctaPartner": "Devenir partenaire",
       "marquee": [
@@ -1522,7 +1522,7 @@ const STR = {
               "label": "Programme souhaité",
               "kind": "select",
               "options": [
-                "Cap Green Lab - Technologie inclusive & économie circulaire",
+                "3M Services Mobilité - Technologie inclusive & économie circulaire",
                 "AgriConnect - Entrepreneuriat rural & agriculture numérique",
                 "Safe Vibe - Médias numériques & éducation",
                 "Entrepreneuriat Créatif & Social - Femmes, arts & innovation",
@@ -1546,7 +1546,7 @@ const STR = {
           "title": "Je veux faire du bénévolat",
           "link": "/volunteer",
           "submissionType": "volunteer",
-          "intro": "Partagez vos compétences et votre énergie au service des initiatives entrepreneuriales et sociales accompagnées par CAP Entrepreneurs.",
+          "intro": "Partagez vos compétences et votre énergie au service des initiatives entrepreneuriales et sociales accompagnées par 3M SERVICES.",
           "fields": [
             {
               "name": "area",
@@ -1655,10 +1655,10 @@ const STR = {
       "voicesTitle": "Porté par plus de 500+ participants, partenaires et communautés engagées.",
       "testimonials": [
         {
-          "quote": "Cap Green Lab a permis à notre communauté de réduire la fracture numérique tout en reconditionnant des équipements informatiques pour les écoles.",
+          "quote": "3M Services Mobilité a permis à notre communauté de réduire la fracture numérique tout en reconditionnant des équipements informatiques pour les écoles.",
           "author": "Sarah J.",
           "role": "Innovatrice Sociale",
-          "organization": "Cap Green Lab"
+          "organization": "3M Services Mobilité"
         },
         {
           "quote": "AgriConnect a relié notre coopérative agricole féminine aux outils numériques modernes et aux marchés équitables.",
@@ -1667,7 +1667,7 @@ const STR = {
           "organization": "AgriConnect"
         },
         {
-          "quote": "Collaborer avec Cap Entrepreneurs au Canada et à l'international crée des passerelles d'apprentissage solides et un impact humain durable.",
+          "quote": "Collaborer avec 3M Services au Canada et à l'international crée des passerelles d'apprentissage solides et un impact humain durable.",
           "author": "Elena R.",
           "role": "Partenaire Institutionnel",
           "organization": "Alliances & Impact"
@@ -1675,12 +1675,12 @@ const STR = {
       ]
     },
     "about": {
-      "eyebrow": "À propos de Cap Entrepreneurs",
+      "eyebrow": "À propos de 3M Services",
       "h1a": "L'opportunité ne devrait connaître ",
       "h1accent": "aucune frontière",
       "whoTitle": "QUI SOMMES-NOUS",
       "whoHeading": "Bâtir des économies numériques inclusives, accessibles et durables",
-      "whoText": "Cap Entrepreneurs est un organisme à but non lucratif canadien dédié à la transition numérique inclusive et durable. Nous accompagnons les individus, les communautés sous-représentées, les organismes communautaires, les entrepreneurs et les partenaires institutionnels dans l'accès aux compétences, aux outils et aux opportunités numériques. Notre travail allie apprentissage pratique, projets collaboratifs, mobilisation citoyenne et coopération internationale. Nous exportons également les approches canadiennes en matière d'inclusion, d'accessibilité, de durabilité et de gouvernance collaborative à travers nos initiatives mondiales. Pour nous, la transformation numérique n'est pas qu'une question technologique : c'est un levier d'émancipation humaine et de cohésion sociale.",
+      "whoText": "3M Services est un groupe de référence dans les services automobiles et l'immobilier de prestige basé à Yaoundé, Cameroun. Nous assurons la vente de véhicules neufs (0 km) et occasions certifiées, la location de véhicules de prestige avec chauffeur VIP (Toyota Prado TXL), ainsi que des résidences et appartements meublés grand standing à Tsinga (en face de la FECAFOOT), Omnisports et très prochainement à Oyomabang (Coming Soon). Partenaire officiel de la MUPOCAM Orange Cameroun.",
       "pullQuote": "« Connecter les personnes, les compétences, la technologie et les opportunités. Faire de la transition numérique un modèle d'excellence inclusive et durable à travers le monde. »",
       "missionTitle": "NOTRE MISSION",
       "missionHeading": "Connecter les personnes, les compétences, la technologie et les opportunités.",
@@ -1804,8 +1804,8 @@ const STR = {
       "h1a": "De l'apprentissage à ",
       "h1accent": "l'impact mesurable",
       "h1post": "",
-      "editionTag": "ÉDITION 2026-2027 • CAP ENTREPRENEURS",
-      "intro": "Cap Entrepreneurs déploie quatre programmes structurants qui répondent aux besoins concrets des individus, des organisations et des territoires. Chaque programme combine apprentissage pratique, accompagnement, expérimentation sur le terrain et déploiement solidaire - en lien avec nos initiatives internationales.",
+      "editionTag": "ÉDITION 2026-2027 • 3M SERVICES",
+      "intro": "3M Services déploie quatre programmes structurants qui répondent aux besoins concrets des individus, des organisations et des territoires. Chaque programme combine apprentissage pratique, accompagnement, expérimentation sur le terrain et déploiement solidaire - en lien avec nos initiatives internationales.",
       "tocTitle": "DANS CET ARTICLE",
       "shareTitle": "PARTAGER",
       "exploreCta": "Explorer les programmes",
@@ -1813,12 +1813,12 @@ const STR = {
       "forWhomTitle": "Pour qui ?",
       "programsList": [
         {
-          "id": "cap-green-lab",
+          "id": "3m-services-mobilite",
           "num": "01",
-          "name": "Cap Green Lab",
+          "name": "3M Services Mobilité",
           "theme": "Technologie inclusive, accessibilité et économie circulaire",
           "subtitle": "Inclusion numérique & responsabilité environnementale",
-          "purpose": "La technologie doit être accessible à tous - et respectueuse de notre planète. Cap Green Lab est notre laboratoire dédié à la convergence de l'inclusion numérique, de la formation technique, de l'accessibilité technologique et de l'économie circulaire.",
+          "purpose": "La technologie doit être accessible à tous - et respectueuse de notre planète. 3M Services Mobilité est notre laboratoire dédié à la convergence de l'inclusion numérique, de la formation technique, de l'accessibilité technologique et de l'économie circulaire.",
           "whatWeDo": [
             "Reconditionner et prolonger la durée de vie des équipements informatiques pour les redistribuer aux communautés dans le besoin.",
             "Promouvoir les technologies d'accessibilité et le design universel pour les personnes en situation de handicap.",
@@ -1828,7 +1828,7 @@ const STR = {
           ],
           "forWhom": "Personnes en transition professionnelle, bénévoles, OBNL, écoles, collectivités locales et techniciens.",
           "goal": "Développer des compétences techniques valorisantes tout en réduisant l'empreinte environnementale du numérique.",
-          "cta": "Découvrir Cap Green Lab"
+          "cta": "Découvrir 3M Services Mobilité"
         },
         {
           "id": "agriconnect",
@@ -1951,7 +1951,7 @@ const STR = {
       "eyebrow": "Rejoindre l'écosystème",
       "h1a": "Trouvez votre parcours. ",
       "h1accent": "Créez votre impact.",
-      "intro": "Il existe de multiples façons de contribuer à un monde numérique plus juste et solidaire. Que vous souhaitiez développer vos compétences, offrir votre bénévolat, représenter un organisme communautaire ou explorer des partenariats, Cap Entrepreneurs est là pour vous accompagner.",
+      "intro": "Il existe de multiples façons de contribuer à un monde numérique plus juste et solidaire. Que vous souhaitiez développer vos compétences, offrir votre bénévolat, représenter un organisme communautaire ou explorer des partenariats, 3M Services est là pour vous accompagner.",
       "pathwaysTitle": "Par où souhaitez-vous commencer ?",
       "pathwayOptions": [
         {
@@ -1987,8 +1987,8 @@ const STR = {
           "link": "#contact-form"
         }
       ],
-      "formTitle": "Rejoindre la communauté CAP",
-      "formCopy": "Dites-nous qui vous êtes afin que nous puissions vous orienter vers la démarche la plus adaptée. Votre prochain CAP commence par un premier échange.",
+      "formTitle": "Rejoindre l'univers 3M SERVICES",
+      "formCopy": "Dites-nous qui vous êtes afin que nous puissions vous orienter vers la démarche la plus adaptée. Votre futur avec 3M SERVICES commence par un premier échange.",
       "submit": "Transmettre ma demande",
       "success": "Merci pour votre message - notre équipe vous répondra dans les plus brefs délais."
     },
@@ -1996,7 +1996,7 @@ const STR = {
       "eyebrow": "S'impliquer en bénévolat",
       "h1a": "Vos compétences peuvent ouvrir de ",
       "h1accent": "nouveaux horizons",
-      "intro": "Chez Cap Entrepreneurs, le bénévolat est bien plus qu'un don de temps : c'est une occasion d'apprendre, de collaborer et d'avoir un impact tangible sur les communautés au Canada et à l'international. Que vous soyez étudiant, professionnel, consultant, artisan ou gestionnaire, votre savoir-faire peut changer des vies.",
+      "intro": "Chez 3M Services, le bénévolat est bien plus qu'un don de temps : c'est une occasion d'apprendre, de collaborer et d'avoir un impact tangible sur les communautés au Canada et à l'international. Que vous soyez étudiant, professionnel, consultant, artisan ou gestionnaire, votre savoir-faire peut changer des vies.",
       "areasTitle": "Comment pouvez-vous contribuer ?",
       "areas": [
         "Compétences numériques et développement web",
@@ -2083,7 +2083,7 @@ const STR = {
       "eyebrow": "Partenariats à mission sociale",
       "h1a": "Vision partagée. Action collective. ",
       "h1accent": "Impact mesurable.",
-      "intro": "Les changements profonds naissent de la mise en commun des forces. Cap Entrepreneurs collabore avec des entreprises citoyennes, des institutions publiques, des OBNL, des coopératives et des universités pour bâtir des initiatives numériques équitables et pérennes. Nous accueillons avec enthousiasme les partenaires qui partagent nos valeurs d'inclusion, d'accessibilité et de solidarité.",
+      "intro": "Les changements profonds naissent de la mise en commun des forces. 3M Services collabore avec des entreprises citoyennes, des institutions publiques, des OBNL, des coopératives et des universités pour bâtir des initiatives numériques équitables et pérennes. Nous accueillons avec enthousiasme les partenaires qui partagent nos valeurs d'inclusion, d'accessibilité et de solidarité.",
       "whoTitle": "Avec qui collaborons-nous ?",
       "partnerTypes": [
         {
@@ -2126,7 +2126,7 @@ const STR = {
       "ctaPackage": "Demander notre dossier de partenariat",
       "formEyebrow": "Proposition de partenariat",
       "formTitle": "Bâtissons ensemble",
-      "formCopy": "Présentez-nous votre organisation et votre vision d'une collaboration avec Cap Entrepreneurs.",
+      "formCopy": "Présentez-nous votre organisation et votre vision d'une collaboration avec 3M Services.",
       "formSubmit": "Transmettre notre proposition",
       "formSuccess": "Merci pour votre démarche - notre équipe des partenariats communiquera avec vous rapidement.",
       "typeLabel": "Catégorie de partenariat",
@@ -2140,7 +2140,7 @@ const STR = {
       "eyebrow": "Le Global Festival",
       "h1a": "Un mouvement solidaire. De multiples fenêtres. ",
       "h1accent": "Un monde d'opportunités.",
-      "intro": "Le Global Festival de Cap Entrepreneurs est bien plus qu'un simple événement : c'est un carrefour mondial d'idées, de personnes, de cultures et d'opportunités. Il réunit des innovateurs, des organismes communautaires, des institutions et des citoyens résolus à bâtir une économie numérique plus inclusive, accessible et durable. Enraciné dans le savoir-faire canadien et ouvert sur le monde, il favorise la coopération au-delà des frontières et des générations.",
+      "intro": "Le Global Festival de 3M Services est bien plus qu'un simple événement : c'est un carrefour mondial d'idées, de personnes, de cultures et d'opportunités. Il réunit des innovateurs, des organismes communautaires, des institutions et des citoyens résolus à bâtir une économie numérique plus inclusive, accessible et durable. Enraciné dans le savoir-faire canadien et ouvert sur le monde, il favorise la coopération au-delà des frontières et des générations.",
       "subIntro": "Un voyage international, bâti collectivement. Notre démarche se déploie à travers une série de rencontres stratégiques, ouvrant chacune une nouvelle fenêtre sur le monde.",
       "destinationsTitle": "Une vision partagée. Des liens durables.",
       "destinations": [
@@ -2193,15 +2193,15 @@ const STR = {
         "Contribuer aux réflexions sur l'avenir éthique de l'économie numérique.",
         "Explorer de nouveaux débouchés pour le commerce équitable et créatif."
       ],
-      "closingText": "Le monde n'est pas une destination unique. C'est un réseau de possibilités prêtes à être reliées. Cap Entrepreneurs - Ouvrir de nouveaux horizons.",
+      "closingText": "Le monde n'est pas une destination unique. C'est un réseau de possibilités prêtes à être reliées. 3M Services - Ouvrir de nouveaux horizons.",
       "ctaWaitlist": "Rejoindre la liste d'attente",
       "ctaPartners": "Explorer les partenariats du Festival"
     },
     "blog": {
       "eyebrow": "Espace Éditorial",
-      "h1a": "Les Fenêtres de CAP - ",
+      "h1a": "Les Actualités 3M SERVICES - ",
       "h1accent": "Découvrez ce qui est possible au-delà de votre horizon",
-      "intro": "Les Fenêtres de CAP est notre publication éditoriale pour partager les idées, les personnes, les initiatives et les opportunités qui permettent à notre communauté de voir plus loin. Les Éclaireurs y décryptent les tendances émergentes, tandis que les Bâtisseurs de Passerelles partagent les maillages propices à l'action.",
+      "intro": "Les Actualités 3M SERVICES est notre publication éditoriale pour partager les idées, les personnes, les initiatives et les opportunités qui permettent à notre communauté de voir plus loin. Les Éclaireurs y décryptent les tendances émergentes, tandis que les Bâtisseurs de Passerelles partagent les maillages propices à l'action.",
       "subIntro": "De l'innovation solidaire aux écosystèmes internationaux, des récits de nos bénéficiaires aux événements à venir, chaque fenêtre offre une perspective stimulante.",
       "seriesTitle": "Découvrez nos rubriques éditoriales",
       "series": [
@@ -2216,12 +2216,12 @@ const STR = {
           "desc": "Avec qui collaborer ? Découvrez des personnes et organisations qui ouvrent des portes vers des projets collectifs."
         },
         {
-          "title": "CAP Sur…",
+          "title": "3M SERVICES Sur…",
           "tag": "Focus Territoire",
           "desc": "Explorez une ville, un territoire ou un écosystème. Découvrez des initiatives locales et des porteurs de changement."
         },
         {
-          "title": "Le Prochain CAP",
+          "title": "Le Futur avec 3M SERVICES",
           "tag": "Portraits & Trajectoires",
           "desc": "Partez à la rencontre de participants qui apprennent, bâtissent et tracent de nouvelles voies professionnelles."
         },
@@ -2240,14 +2240,14 @@ const STR = {
     "contact": {
       "eyebrow": "Nous joindre",
       "h1a": "Trouvons votre ",
-      "h1accent": "prochain CAP",
+      "h1accent": "futur avec 3M SERVICES",
       "intro": "Que vous soyez un citoyen désireux de vous impliquer, un organisme en quête de partenariats, un bailleur de fonds souhaitant soutenir notre mission ou un professionnel des médias, nous serons ravis d'échanger avec vous. Parlez-nous de vos projets et de vos aspirations.",
       "helpTitle": "Comment pouvons-nous vous aider ? Choisissez votre profil :",
       "profiles": [
         {
           "icon": "🎓",
           "text": "Je veux rejoindre la communauté - Découvrir nos formations et opportunités d'apprentissage.",
-          "cta": "Rejoindre Cap Entrepreneurs",
+          "cta": "Rejoindre 3M Services",
           "link": "/join"
         },
         {
@@ -2284,7 +2284,7 @@ const STR = {
           "icon": "📰",
           "text": "Je suis journaliste ou représentant institutionnel - Contacter notre bureau de presse.",
           "cta": "Contact relations médias",
-          "link": "mailto:contact@capentrepreneurs.org"
+          "link": "mailto:contact@3mservice.shop"
         }
       ],
       "formTitle": "Engageons la conversation",
@@ -2319,7 +2319,7 @@ const STR = {
       "info": [
         {
           "label": "Courriel officiel",
-          "value": "contact@capentrepreneurs.org"
+          "value": "contact@3mservice.shop"
         },
         {
           "label": "Siège social",
@@ -2332,14 +2332,14 @@ const STR = {
       ],
       "pressTitle": "Relations médias et institutionnelles",
       "pressCopy": "Pour toute demande d'entrevue, communiqué de presse ou correspondance institutionnelle, notre équipe de communication se tient à votre disposition.",
-      "pressEmail": "contact@capentrepreneurs.org"
+      "pressEmail": "contact@3mservice.shop"
     },
     "donate": {
-      "eyebrow": "Soutenir Cap Entrepreneurs",
+      "eyebrow": "Soutenir 3M Services",
       "h1a": "Ouvrir de nouveaux horizons. ",
       "h1accent": "Rendre l'opportunité possible.",
-      "intro": "Votre soutien permet de relier les personnes, les compétences, la technologie et les opportunités afin de bâtir des économies numériques plus inclusives, accessibles et durables. Chez Cap Entrepreneurs, nous croyons fermement que chaque personne mérite d'apprendre, d'innover et de contribuer à sa communauté.",
-      "subIntro": "En tant qu'organisme à but non lucratif canadien à vocation internationale, nous travaillons à abaisser les barrières d'accès au numérique, à renforcer les capacités entrepreneuriales et à relier les talents aux opportunités d'avenir. Votre don contribue directement au déploiement de programmes concrets sur le terrain.",
+      "intro": "Votre soutien permet de relier les personnes, les compétences, la technologie et les opportunités afin de bâtir des économies numériques plus inclusives, accessibles et durables. Chez 3M Services, nous croyons fermement que chaque personne mérite d'apprendre, d'innover et de contribuer à sa communauté.",
+      "subIntro": "3M Services allie l'excellence automobile au confort de résidences meublées d'exception à Yaoundé, Cameroun. Nous mettons à disposition de nos clients des solutions de mobilité complètes et des hébergements tout confort avec groupe électrogène permanent, fibre optique et sécurité 24/7.",
       "tagline": "Un don. Un engagement partagé. De nouvelles possibilités.",
       "ctaDonate": "Faire un don maintenant",
       "submit": "Confirmer ma promesse de don",
@@ -2440,7 +2440,7 @@ const STR = {
         },
         {
           "title": "5. للتواصل معنا",
-          "content": "لأي استفسار بخصوص الخصوصية، يرجى مراسلتنا على contact@capentrepreneurs.org."
+          "content": "لأي استفسار بخصوص الخصوصية، يرجى مراسلتنا على contact@3mservice.shop."
         }
       ]
     },
@@ -2481,7 +2481,7 @@ const STR = {
       "launch": "تحدث معنا",
       "openLabel": "افتح المحادثة",
       "closeLabel": "إغلاق المحادثة",
-      "title": "مساعد CAP",
+      "title": "مساعد 3M SERVICES",
       "status": "إجابات مباشرة",
       "greeting": "مرحباً بك. يمكنني إرشادك إلى برامجنا التدريبية أو فرص التطوع أو فريق الشراكات. اختر سؤالاً أدناه أو اكتب سؤالك.",
       "suggestionsLabel": "أسئلة شائعة",
@@ -2513,7 +2513,7 @@ const STR = {
             "أجري كونكت",
             "سيف فايب"
           ],
-          "a": "نقدم أربعة برامج رئيسية: Cap Green Lab (التكنولوجيا الشاملة والاقتصاد الدائري)، AgriConnect (ريادة الأعمال الريفية والزراعة الرقمية)، Safe Vibe (الإعلام والتعليم الرقمي)، وريادة الأعمال الإبداعية والاجتماعية (المرأة، الفنون والابتكار).",
+          "a": "نقدم أربعة برامج رئيسية: 3M Services Mobilité (التكنولوجيا الشاملة والاقتصاد الدائري)، AgriConnect (ريادة الأعمال الريفية والزراعة الرقمية)، Safe Vibe (الإعلام والتعليم الرقمي)، وريادة الأعمال الإبداعية والاجتماعية (المرأة، الفنون والابتكار).",
           "ctaLabel": "اكتشف برامجنا",
           "ctaTo": "/programs"
         },
@@ -2570,7 +2570,7 @@ const STR = {
             "هاتف",
             "رسالة"
           ],
-          "a": "يمكنك مراسلتنا مباشرة على contact@capentrepreneurs.org أو ملء استمارة التواصل في الموقع.",
+          "a": "يمكنك مراسلتنا مباشرة على contact@3mservice.shop أو ملء استمارة التواصل في الموقع.",
           "ctaLabel": "اتصل بنا",
           "ctaTo": "/contact"
         }
@@ -2616,9 +2616,9 @@ const STR = {
       "fourProgramsIntro": "برامجنا تحول الأفكار إلى حلول ملموسة وعملية:",
       "h4Programs": [
         {
-          "name": "Cap Green Lab",
+          "name": "3M Services Mobilité",
           "theme": "التكنولوجيا الشاملة، إمكانية الوصول والاقتصاد الدائري",
-          "id": "cap-green-lab"
+          "id": "3m-services-mobilite"
         },
         {
           "name": "AgriConnect",
@@ -2638,7 +2638,7 @@ const STR = {
       ],
       "h4International": "يساهم كل برنامج في هدف مشترك: جعل التحول الرقمي أكثر شمولاً وفائدة واستدامة للجميع.",
       "discoverPrograms": "اكتشف برامجنا",
-      "communitySectionTitle": "تعرف على المجتمع خلف CAP",
+      "communitySectionTitle": "تعرف على فريق 3M SERVICES",
       "communitySectionSub": "نبني مجتمعاً من الأفراد والمؤسسات الذين يستكشفون الفرص ويفتحون الأبواب ويبنون جسور التعاون.",
       "signalSeekersTitle": "المستكشفون (The Signal Seekers)",
       "signalSeekersDesc": "نرصد ونستكشف الاتجاهات والاحتياجات والتقنيات الصاعدة لمساعدة مجتمعنا على استشراف التغيرات والمستقبل.",
@@ -2847,10 +2847,10 @@ const STR = {
       "voicesTitle": "بدعم وثقة أكثر من 500+ مشارك وشريك ومجتمع محلي.",
       "testimonials": [
         {
-          "quote": "ساعد Cap Green Lab مجتمعنا في تقليص الفجوة الرقمية وإعادة تأهيل الأجهزة للمدارس.",
+          "quote": "ساعد 3M Services Mobilité مجتمعنا في تقليص الفجوة الرقمية وإعادة تأهيل الأجهزة للمدارس.",
           "author": "Sarah J.",
           "role": "مبتكرة اجتماعية",
-          "organization": "Cap Green Lab"
+          "organization": "3M Services Mobilité"
         },
         {
           "quote": "ربط برنامج AgriConnect تعاونيتنا النسائية الزراعية بالأدوات الرقمية الحديثة والأسواق المستدامة.",
@@ -3005,9 +3005,9 @@ const STR = {
       "forWhomTitle": "لمن هذا البرنامج؟",
       "programsList": [
         {
-          "id": "cap-green-lab",
+          "id": "3m-services-mobilite",
           "num": "01",
-          "name": "Cap Green Lab",
+          "name": "3M Services Mobilité",
           "theme": "التكنولوجيا الشاملة، إمكانية الوصول والاقتصاد الدائري",
           "subtitle": "الشمول الرقمي والمسؤولية البيئية",
           "purpose": "يجب أن تكون التكنولوجيا متاحة للجميع وصديقة للبيئة. مختبرنا مكرس لتقارب التحول الرقمي والتدريب التقني وإمكانية الوصول التكنولوجي والاقتصاد الدائري.",
@@ -3020,7 +3020,7 @@ const STR = {
           ],
           "forWhom": "الأشخاص في مرحلة الانتقال المهني، المتطوعون، المنظمات غير الربحية، والمدارس.",
           "goal": "تأهيل الكفاءات بمهارات عملية مع تقليل النفايات الإلكترونية.",
-          "cta": "استكشف Cap Green Lab"
+          "cta": "استكشف 3M Services Mobilité"
         },
         {
           "id": "agriconnect",
@@ -3476,7 +3476,7 @@ const STR = {
           "icon": "📰",
           "text": "أنا صحفي أو ممثل مؤسسي - التواصل مع المكتب الإعلامي للمنظمة.",
           "cta": "اتصال إعلامي",
-          "link": "mailto:contact@capentrepreneurs.org"
+          "link": "mailto:contact@3mservice.shop"
         }
       ],
       "formTitle": "ابدأ الحوار معنا",
@@ -3511,7 +3511,7 @@ const STR = {
       "info": [
         {
           "label": "البريد الإلكتروني",
-          "value": "contact@capentrepreneurs.org"
+          "value": "contact@3mservice.shop"
         },
         {
           "label": "المقر الرئيسي",
@@ -3524,7 +3524,7 @@ const STR = {
       ],
       "pressTitle": "التواصل الصحفي والمؤسسي",
       "pressCopy": "للطلبات الصحفية والإعلامية والمراسلات الرسمية، تواصل مباشرة مع فريق التواصل والإعلام لدينا.",
-      "pressEmail": "contact@capentrepreneurs.org"
+      "pressEmail": "contact@3mservice.shop"
     },
     "donate": {
       "eyebrow": "تبرع لرواد أعمال كاب",
@@ -3592,7 +3592,7 @@ const LangContext = createContext(null);
 export const LanguageProvider = ({ children }) => {
   const [lang, setLang] = useState(() => {
     try {
-      return localStorage.getItem("cap-lang") || "fr";
+      return localStorage.getItem("3m-lang") || "fr";
     } catch {
       return "fr";
     }
@@ -3600,7 +3600,7 @@ export const LanguageProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem("cap-lang", lang);
+      localStorage.setItem("3m-lang", lang);
     } catch { }
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";

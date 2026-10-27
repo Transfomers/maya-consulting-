@@ -34,7 +34,7 @@ TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, 
 
 async def run_tests():
     print("=" * 60)
-    print("RUNNING CAP ENTREPRENEURS NEWSLETTER SUITE")
+    print("RUNNING 3M SERVICES NEWSLETTER SUITE")
     print("=" * 60)
 
     # 1. Initialize Tables
@@ -92,11 +92,11 @@ async def run_tests():
             subscriber_email=test_email,
             first_name="Jean-Marc",
             confirmation_token=token,
-            frontend_url="https://capentrepreneurs.org",
+            frontend_url="https://www.3mservice.shop",
             lang="fr"
         )
-        assert "CAP Entrepreneurs" in subject
-        assert "contact@capentrepreneurs.org" in html
+        assert "3M SERVICES" in subject
+        assert "contact@3mservice.shop" in html
         assert token in html
         assert "TABLE" in html.upper()
         print("✓ 5. Confirmation email template rendered with table-based email layout.")
@@ -129,8 +129,8 @@ async def run_tests():
 
         art_subject, art_html, art_plain = render_article_notification_email(
             post=loaded_post,
-            frontend_url="https://capentrepreneurs.org",
-            unsubscribe_url=f"https://capentrepreneurs.org/unsubscribe?token={unsub_token}"
+            frontend_url="https://www.3mservice.shop",
+            unsubscribe_url=f"https://www.3mservice.shop/unsubscribe?token={unsub_token}"
         )
         assert "L'économie circulaire" in art_subject
         assert "LIRE L'ARTICLE COMPLET" in art_html
@@ -145,7 +145,7 @@ async def run_tests():
 
         campaign = NewsletterCampaign(
             title=f"Avis: {trans.title}",
-            subject=f"CAP Entrepreneurs - {trans.title}",
+            subject=f"3M SERVICES - {trans.title}",
             preview_text=trans.excerpt,
             article_id=post.id,
             recipient_segment="all_active",

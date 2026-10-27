@@ -1,12 +1,13 @@
 [
   {
     "id": "apt-01",
-    "title": "Appartement Prestige Bastos",
+    "title": "Appartement Prestige Tsinga (Face FECAFOOT)",
     "type": "T3 Meublé Haut Standing",
-    "location": "Bastos, Yaoundé",
+    "location": "Tsinga (Face FECAFOOT), Yaoundé",
     "rooms": "2 Chambres • 2 Salons • 2 Salles de bain",
     "price": "65 000 FCFA / nuitée (Dégressif au mois)",
     "amenities": [
+      "Face FECAFOOT Tsinga",
       "Climatisation intégrale",
       "Wifi Fibre Optique",
       "Sécurité 24/7",
@@ -23,16 +24,17 @@
       "/Asset/appartements/appartement-meuble-chambre-confort.webp"
     ],
     "status": "Disponible",
-    "description": "Situé au cœur du quartier diplomatique de Bastos à Yaoundé, cet appartement meublé grand standing vous offre une suite parentale avec literie de luxe, une cuisine équipée moderne, salle de bain design, climatisation intégrale, groupe électrogène automatique et gardiennage permanent 24/7."
+    "description": "Situé à Tsinga, directement en face du siège de la FECAFOOT à Yaoundé, cet appartement meublé grand standing vous offre une suite parentale avec literie de luxe, une cuisine équipée moderne, salle de bain design, climatisation intégrale, groupe électrogène automatique et gardiennage permanent 24/7."
   },
   {
     "id": "apt-02",
-    "title": "Résidence Cosy Omnisport",
+    "title": "Résidence Cosy Tsinga (Face FECAFOOT)",
     "type": "T2 Meublé Contemporain",
-    "location": "Omnisport (Nouvelle Route), Yaoundé",
+    "location": "Tsinga (Face FECAFOOT), Yaoundé",
     "rooms": "1 Chambre • 1 Grand Salon • 1 Salle de bain",
     "price": "40 000 FCFA / nuitée (Tarif spécial long séjour)",
     "amenities": [
+      "Face FECAFOOT Tsinga",
       "Climatisation",
       "Smart TV 55\"",
       "Cuisine américaine laquée",
@@ -48,21 +50,21 @@
       "/Asset/appartements/appartement-meuble-suite-parentale.webp"
     ],
     "status": "Disponible",
-    "description": "À 2 minutes de l'agence 3M Services Nouvelle route - Omnisports et des grands axes commerciaux de Yaoundé, profitez d'un intérieur chaleureux avec chambre climatisée, lit velours, cuisine équipée, eau chaude et totale autonomie."
+    "description": "Situé à Tsinga face à la FECAFOOT à Yaoundé, profitez d'un intérieur chaleureux et contemporain avec chambre climatisée, lit velours, cuisine équipée, eau chaude, sécurité 24/7 et accès direct aux commodités."
   },
   {
     "id": "apt-03",
-    "title": "Penthouse Panoramique Golfe",
-    "type": "T4 Meublé Terrasse Panoramique",
-    "location": "Le Golfe, Yaoundé",
+    "title": "Grand Standing Tsinga (Face FECAFOOT)",
+    "type": "T4 Meublé Terrasse & Standing",
+    "location": "Tsinga (Face FECAFOOT), Yaoundé",
     "rooms": "3 Chambres • Double Salon • 3 Salles d'eau",
     "price": "90 000 FCFA / nuitée",
     "amenities": [
-      "Vue panoramique sur Yaoundé",
+      "Face FECAFOOT Tsinga",
       "Terrasse privée",
       "Climatisation intégrale",
       "Wifi Haut Débit",
-      "Groupe électrogène",
+      "Groupe électrogène automatique",
       "Conciergerie privée 3M"
     ],
     "image": "/Asset/appartements/appartement-meuble-chambre-confort.webp",
@@ -74,6 +76,32 @@
       "/Asset/appartements/appartement-meuble-chambre-bleue.webp"
     ],
     "status": "Disponible",
-    "description": "Un espace d'exception perché sur les hauteurs du Golfe à Yaoundé. Suites spacieuses tout confort, literie hôtelière 5 étoiles, cuisine moderne laquée et prestations haut de gamme pour délégations et séjours de prestige."
+    "description": "Un espace d'exception situé à Tsinga, en face de la FECAFOOT à Yaoundé. Suites spacieuses tout confort, literie hôtelière 5 étoiles, cuisine moderne laquée et prestations haut de gamme pour délégations et séjours de prestige."
+  },
+  {
+    "id": "apt-04",
+    "title": "Résidence Standing Oyomabang (Bientôt disponible)",
+    "type": "Studios & Appartements Meublés — Coming Soon",
+    "location": "Oyomabang, Yaoundé",
+    "rooms": "Studios & T2/T3 en finition haut standing",
+    "price": "Bientôt disponible • Pré-réservation par appel au +237 691 78 64 47",
+    "amenities": [
+      "Ouverture très prochaine",
+      "Oyomabang Yaoundé",
+      "Climatisation intégrale",
+      "Groupe électrogène automatique",
+      "Wifi Fibre Optique",
+      "Sécurité & Gardiennage 24/7",
+      "Parking fermé sécurisé"
+    ],
+    "image": "/Asset/appartements/appartement-meuble-suite-parentale.webp",
+    "images": [
+      "/Asset/appartements/appartement-meuble-suite-parentale.webp",
+      "/Asset/appartements/appartement-meuble-chambre-confort.webp",
+      "/Asset/appartements/appartement-meuble-cuisine-equipee.webp",
+      "/Asset/appartements/appartement-meuble-chambre-bleue.webp"
+    ],
+    "status": "Coming Soon",
+    "description": "Bientôt disponible ! Nouvelle résidence meublée de haut standing à Oyomabang, Yaoundé. Finitions soignées, sécurité 24/7, groupe électrogène automatique. Contactez-nous dès maintenant par téléphone au +237 691 78 64 47 pour pré-réserver votre logement en priorité."
   }
 ]

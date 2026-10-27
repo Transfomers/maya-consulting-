@@ -16,12 +16,12 @@ SUPER_ADMIN_ROLE_NAME = "Super Administrator"
 
 # All three admin accounts - password is set/reset on every deploy
 ADMINS = [
-    {"email": "ajana@capentrepreneurs.org",     "name": "A. Jana"},
-    {"email": "contact@capentrepreneurs.org",   "name": "Contact Admin"},
-    {"email": "murielle@capentrepreneurs.org",  "name": "Murielle"},
+    {"email": "ajana@3mservice.shop",     "name": "A. Jana", "password": "Capentrepreneurs@2026"},
+    {"email": "contact@3mservice.shop",   "name": "Contact Admin", "password": "3MServices@2025!"},
+    {"email": "admin@3mservice.shop",     "name": "Murielle", "password": "3MServices@2025!"},
 ]
 
-PASSWORD = "Capentreprenurs@2026"
+DEFAULT_PASSWORD = "3MServices@2025!"
 
 
 async def seed_admins():
@@ -38,11 +38,12 @@ async def seed_admins():
             )
             return
 
-        pw_hash = bcrypt.hashpw(
-            PASSWORD.encode("utf-8"), bcrypt.gensalt()
-        ).decode("utf-8")
-
         for admin in ADMINS:
+            admin_pw = admin.get("password", DEFAULT_PASSWORD)
+            pw_hash = bcrypt.hashpw(
+                admin_pw.encode("utf-8"), bcrypt.gensalt()
+            ).decode("utf-8")
+
             result = await db.execute(
                 select(User).where(User.email == admin["email"])
             )

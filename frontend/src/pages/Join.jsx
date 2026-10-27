@@ -50,8 +50,8 @@ const PATHWAY_DATA = [
     taglineEn: "Have an idea? Take the first step.",
     taglineFr: "Une idée en tête ? Franchissez le premier pas.",
     taglineAr: "هل لديك فكرة؟ اتخذ الخطوة الأولى.",
-    descEn: "You may have a business idea, a solution to a problem, or a vision for something new. CAP Entrepreneurs encourages aspiring entrepreneurs to explore their potential, develop their ideas, and take practical steps toward building their ventures. Join our community to connect with opportunities, discover relevant resources, participate in activities, and become part of an environment that encourages entrepreneurial thinking. You do not need to have everything figured out to begin. What matters is your willingness to learn, develop your ideas, and move forward.",
-    descFr: "Vous avez une idée d'entreprise, une réponse à un défi de société ou une vision novatrice. Cap Entrepreneurs encourage les porteurs de projet à développer leur plein potentiel, structurer leur démarche et concrétiser leurs initiatives dans un cadre bienveillant et solidaire. Rejoignez notre communauté pour accéder à des ressources adaptées, participer à des ateliers concrets et cheminer aux côtés de pairs qui partagent vos valeurs. Il n'est pas nécessaire d'avoir tout prévu pour commencer : ce qui compte, c'est votre désir d'apprendre et d'avancer.",
+    descEn: "You may have a business idea, a solution to a problem, or a vision for something new. 3M SERVICES encourages aspiring entrepreneurs to explore their potential, develop their ideas, and take practical steps toward building their ventures. Join our community to connect with opportunities, discover relevant resources, participate in activities, and become part of an environment that encourages entrepreneurial thinking. You do not need to have everything figured out to begin. What matters is your willingness to learn, develop your ideas, and move forward.",
+    descFr: "Vous avez une idée d'entreprise, une réponse à un défi de société ou une vision novatrice. 3M Services encourage les porteurs de projet à développer leur plein potentiel, structurer leur démarche et concrétiser leurs initiatives dans un cadre bienveillant et solidaire. Rejoignez notre communauté pour accéder à des ressources adaptées, participer à des ateliers concrets et cheminer aux côtés de pairs qui partagent vos valeurs. Il n'est pas nécessaire d'avoir tout prévu pour commencer : ce qui compte, c'est votre désir d'apprendre et d'avancer.",
     descAr: "قد تكون لديك فكرة عمل، أو حل لمشكلة مجتمعية، أو رؤية لابتكار جديد. تشجع كاب رواد الأعمال أصحاب المشاريع الطموحين على استكشاف إمكاناتهم، وتطوير أفكارهم، واتخاذ خطوات عملية نحو بناء مبادراتهم. انضم إلى مجتمعنا للتواصل مع الفرص، واكتشاف الموارد المناسبة، والمشاركة في الأنشطة، والاندماج في بيئة تحفز الفكر الريادي المسؤول.",
     actionLabelEn: "Explore Entrepreneurial Opportunities",
     actionLabelFr: "Explorer nos opportunités d'accompagnement",
@@ -70,8 +70,8 @@ const PATHWAY_DATA = [
     taglineEn: "You have started building. Let's move forward together.",
     taglineFr: "Vous bâtissez déjà. Avançons ensemble.",
     taglineAr: "لقد بدأت بالبناء بالفعل. دعنا نتقدم معاً.",
-    descEn: "Entrepreneurship is a continuous journey of learning, adapting, and growing. Whether you are developing your first product, strengthening an existing business, exploring new markets, or looking for meaningful connections, being part of a supportive ecosystem can make a difference. CAP Entrepreneurs seeks to foster connections, encourage knowledge-sharing, and help entrepreneurs discover resources and opportunities relevant to their growth. Become part of a community where experiences can be shared, challenges can be discussed, and new possibilities can emerge through collaboration.",
-    descFr: "L'entrepreneuriat est un cheminement continu d'apprentissage, d'adaptation et de dépassement. Que vous conceviez votre première solution, consolidiez une entreprise à impact ou cherchiez de nouveaux débouchés, être entouré d'un écosystème bienveillant fait toute la différence. Cap Entrepreneurs favorise l'échange de savoirs, le partage d'expériences et l'accès à des opportunités concrètes. Rejoignez un réseau solidaire où les défis se transforment en projets et où la collaboration ouvre de nouveaux horizons.",
+    descEn: "Entrepreneurship is a continuous journey of learning, adapting, and growing. Whether you are developing your first product, strengthening an existing business, exploring new markets, or looking for meaningful connections, being part of a supportive ecosystem can make a difference. 3M SERVICES seeks to foster connections, encourage knowledge-sharing, and help entrepreneurs discover resources and opportunities relevant to their growth. Become part of a community where experiences can be shared, challenges can be discussed, and new possibilities can emerge through collaboration.",
+    descFr: "L'entrepreneuriat est un cheminement continu d'apprentissage, d'adaptation et de dépassement. Que vous conceviez votre première solution, consolidiez une entreprise à impact ou cherchiez de nouveaux débouchés, être entouré d'un écosystème bienveillant fait toute la différence. 3M Services favorise l'échange de savoirs, le partage d'expériences et l'accès à des opportunités concrètes. Rejoignez un réseau solidaire où les défis se transforment en projets et où la collaboration ouvre de nouveaux horizons.",
     descAr: "ريادة الأعمال رحلة مستمرة من التعلم والتكيف والنمو. سواء كنت تطور منتجك الأول، أو تعزز مشروعاً قائماً، أو تبحث عن علاقات ذات مغزى، فإن التواجد ضمن منظومة داعمة يحدث فارقاً حقيقياً. تسعى كاب رواد الأعمال إلى تعزيز الروابط، وتشجيع تبادل المعرفة، ومساعدة رواد الأعمال على اكتشاف الموارد والفرص الملائمة لنموهم.",
     actionLabelEn: "Connect with Our Community",
     actionLabelFr: "Rejoindre le réseau des pairs",
@@ -94,7 +94,7 @@ const PATHWAY_DATA = [
     descFr: "Il n'est pas nécessaire d'être entrepreneur pour faire une réelle différence dans notre mission sociale. Notre communauté bénévole accueille toutes les personnes souhaitant offrir leur temps, leurs compétences professionnelles, leur créativité et leur énergie. Que votre expertise réside dans les technologies, la communication, la formation, l'administration, l'organisation d'événements ou l'animation communautaire, chaque contribution renforce notre capacité d'action et ouvre des opportunités pour ceux qui en ont le plus besoin.",
     descAr: "لا يلزم أن تكون رائد أعمال لتحدث فرقاً إيجابياً. يرحب مجتمع المتطوعين لدينا بالأشخاص الذين يرغبون في المساهمة بوقتهم ومعرفتهم وإبداعهم ومهاراتهم المهنية لدعم رسالتنا. وسواء كانت نقاط قوتك في الاتصال، أو التكنولوجيا، أو الإدارة، أو التدريب، فإن مساهمتك تساعد في خلق فرص ملموسة للآخرين.",
     actionLabelEn: "Become a Volunteer",
-    actionLabelFr: "Devenir bénévole chez CAP",
+    actionLabelFr: "Nous rejoindre chez 3M SERVICES",
     actionLabelAr: "تطوع معنا في كاب",
     image: JOIN_ASSETS.volunteers,
     categoryEn: "CITIZEN ENGAGEMENT",
@@ -110,8 +110,8 @@ const PATHWAY_DATA = [
     taglineEn: "Your experience could help someone move forward.",
     taglineFr: "Votre expérience éclaire le parcours d'autrui.",
     taglineAr: "خبرتك تلهم وتساعد الآخرين على التقدم.",
-    descEn: "Behind every successful entrepreneur are lessons learned, challenges overcome, and people who offered guidance at the right time. CAP Entrepreneurs welcomes interest from professionals, experienced entrepreneurs, subject-matter specialists, and other individuals who want to share their knowledge and support the development of entrepreneurial talent. Mentors and professionals may contribute through knowledge-sharing sessions, workshops, individual guidance, expert discussions, or other collaborative activities.",
-    descFr: "Derrière chaque réussite entrepreneuriale se trouvent des enseignements précieux, des écueils surmontés et des mentors bienveillants qui ont su guider au bon moment. Cap Entrepreneurs invite les professionnels, entrepreneurs d'expérience et spécialistes sectoriels à transmettre leur savoir-faire. En devenant mentor, vous accompagnez la montée en compétences de créateurs engagés à travers des ateliers pratiques, des revues de projet ou un accompagnement personnalisé fondé sur la solidarité.",
+    descEn: "Behind every successful entrepreneur are lessons learned, challenges overcome, and people who offered guidance at the right time. 3M SERVICES welcomes interest from professionals, experienced entrepreneurs, subject-matter specialists, and other individuals who want to share their knowledge and support the development of entrepreneurial talent. Mentors and professionals may contribute through knowledge-sharing sessions, workshops, individual guidance, expert discussions, or other collaborative activities.",
+    descFr: "Derrière chaque réussite entrepreneuriale se trouvent des enseignements précieux, des écueils surmontés et des mentors bienveillants qui ont su guider au bon moment. 3M Services invite les professionnels, entrepreneurs d'expérience et spécialistes sectoriels à transmettre leur savoir-faire. En devenant mentor, vous accompagnez la montée en compétences de créateurs engagés à travers des ateliers pratiques, des revues de projet ou un accompagnement personnalisé fondé sur la solidarité.",
     descAr: "خلف كل رائد أعمال ناجح دروس مستفادة وتحديات تم التغلب عليها وموجهون قدموا الإرشاد في الوقت المناسب. ترحب كاب رواد الأعمال بالمهنيين ورواد الأعمال ذوي الخبرة والمختصين الذين يرغبون في مشاركة معرفتهم ودعم المواهب الريادية الصاعدة.",
     actionLabelEn: "Express Interest in Mentoring",
     actionLabelFr: "S'impliquer comme mentor",
@@ -130,8 +130,8 @@ const PATHWAY_DATA = [
     taglineEn: "Let's create opportunities together.",
     taglineFr: "Créons des synergies à fort impact.",
     taglineAr: "لنبتكر الفرص معاً بتعاون وثيق.",
-    descEn: "Meaningful progress often happens when organizations combine their strengths, knowledge, networks, and resources around a shared purpose. CAP Entrepreneurs welcomes conversations with organizations, educational institutions, businesses, entrepreneurship support organizations, professional networks, and other stakeholders interested in advancing entrepreneurship and innovation. Partnership opportunities may include joint initiatives, training, events, knowledge exchange, resource sharing, community engagement, and other mutually beneficial collaborations.",
-    descFr: "Les transformations durables naissent lorsque des organisations complémentaires conjuguent leurs expertises, leurs réseaux et leurs ressources autour d'une mission d'intérêt collectif. Cap Entrepreneurs collabore activement avec des organismes à but non lucratif, des institutions d'enseignement, des collectivités et des entreprises socialement engagées pour déployer des programmes conjoints, favoriser l'inclusion numérique et enrichir l'écosystème.",
+    descEn: "Meaningful progress often happens when organizations combine their strengths, knowledge, networks, and resources around a shared purpose. 3M SERVICES welcomes conversations with organizations, educational institutions, businesses, entrepreneurship support organizations, professional networks, and other stakeholders interested in advancing entrepreneurship and innovation. Partnership opportunities may include joint initiatives, training, events, knowledge exchange, resource sharing, community engagement, and other mutually beneficial collaborations.",
+    descFr: "Les transformations durables naissent lorsque des organisations complémentaires conjuguent leurs expertises, leurs réseaux et leurs ressources autour d'une mission d'intérêt collectif. 3M Services collabore activement avec des organismes à but non lucratif, des institutions d'enseignement, des collectivités et des entreprises socialement engagées pour déployer des programmes conjoints, favoriser l'inclusion numérique et enrichir l'écosystème.",
     descAr: "يتحقق التقدم المستدام عندما تجمع المنظمات نقاط قوتها ومعرفتها وشبكاتها ومواردها حول هدف مجتمعي مشترك. ترحب كاب رواد الأعمال بالتعاون مع المنظمات غير الربحية، والمؤسسات التعليمية، والشبكات المهنية، والجهات المعنية بدعم الابتكار والشمول الرقمي.",
     actionLabelEn: "Explore Partnership Opportunities",
     actionLabelFr: "Développer un partenariat",
@@ -151,9 +151,9 @@ const PATHWAY_DATA = [
     taglineFr: "Créer les conditions de l'émancipation durable.",
     taglineAr: "ساهم في تهيئة الظروف لازدهار الجميع.",
     descEn: "Entrepreneurial potential exists everywhere, but access to opportunities, networks, knowledge, and resources is not always equal. Individuals and organizations who believe in the power of entrepreneurship can contribute to initiatives that support learning, innovation, business development, and community progress. We welcome conversations with potential sponsors, donors, and supporters interested in learning about our mission, our activities, our priorities, and opportunities to contribute. Every contribution should serve a clear purpose and help create meaningful value.",
-    descFr: "Le talent et la volonté d'entreprendre existent dans tous les milieux, mais l'accès aux outils, aux financements éthiques et aux opportunités demeure inégal. En soutenant financièrement ou matériellement Cap Entrepreneurs, vous permettez l'équipement numérique de personnes défavorisées, la formation de coopératives agricoles féminines et l'organisation de rencontres intercontinentales. Chaque contribution s'inscrit dans une gouvernance canadienne rigoureuse et transparente.",
+    descFr: "Le talent et la volonté d'entreprendre existent dans tous les milieux, mais l'accès aux outils, aux financements éthiques et aux opportunités demeure inégal. En soutenant financièrement ou matériellement 3M Services, vous permettez l'équipement numérique de personnes défavorisées, la formation de coopératives agricoles féminines et l'organisation de rencontres intercontinentales. Chaque contribution s'inscrit dans une gouvernance canadienne rigoureuse et transparente.",
     descAr: "الطاقات الريادية موجودة في كل مكان، ولكن الوصول إلى الموارد والشبكات والفرص لا يزال غير متكافئ. يمكن للأفراد والمنظمات الذين يؤمنون برسالة الأثر الاجتماعي المساهمة في دعم البرامج التي تعزز التعلم والابتكار وتمكين المجتمعات المحلية.",
-    actionLabelEn: "Discuss Ways to Support CAP",
+    actionLabelEn: "Discuss Ways to Soutenir 3M SERVICES",
     actionLabelFr: "Soutenir notre mission sociale",
     actionLabelAr: "ناقش سبل دعم المهمة",
     image: JOIN_ASSETS.sponsors,
@@ -185,8 +185,8 @@ const PATHWAY_DATA = [
 
 const FAQS = [
   {
-    qEn: "Do I need to be an entrepreneur to join CAP Entrepreneurs?",
-    qFr: "Dois-je obligatoirement être entrepreneur pour rejoindre Cap Entrepreneurs ?",
+    qEn: "Do I need to be an entrepreneur to join 3M SERVICES?",
+    qFr: "Dois-je obligatoirement être entrepreneur pour rejoindre 3M Services ?",
     qAr: "هل يجب أن أكون رائد أعمال للانضمام إلى كاب رواد الأعمال؟",
     aEn: "No. You can express interest as a volunteer, mentor, professional, student, organization, sponsor, donor, or supporter. The appropriate next steps depend on the type of engagement you are seeking.",
     aFr: "Non, absolument pas. Vous pouvez vous impliquer comme bénévole, mentor, apprenant, étudiant, organisation partenaire ou donateur. Notre organisme est un écosystème ouvert à toutes les énergies positives.",
@@ -411,7 +411,7 @@ const Join = () => {
       {/* 2. EDITORIAL HERO */}
       <EditorialRejoindreHero
         testId="join-hero"
-        brandName="Cap-Entrepreneurs"
+        brandName="3M SERVICES"
         categoryKicker={
           isFr
             ? "REJOINDRE L'ÉCOSYSTÈME"
@@ -435,17 +435,17 @@ const Join = () => {
         }
         subtitle={
           isFr
-            ? "Toute grande initiative commence par une idée. Mais pour la concrétiser durablement, il faut des compétences, de l'entraide, des ressources et un écosystème solidaire. Chez Cap Entrepreneurs, organisme à but non lucratif canadien, nous rassemblons les individus et les organisations pour créer des opportunités, accompagner les parcours et propulser un impact social mesurable."
+            ? "Toute grande initiative commence par une idée. Mais pour la concrétiser durablement, il faut des compétences, de l'entraide, des ressources et un écosystème solidaire. Chez 3M Services, organisme à but non lucratif canadien, nous rassemblons les individus et les organisations pour créer des opportunités, accompagner les parcours et propulser un impact social mesurable."
             : isAr
             ? "كل مشروع عظيم يبدأ بفكرة. ولكن تحويل تلك الفكرة إلى واقع مستدام يتطلب المعرفة والدعم والتعاون والموارد ومنظومة متضامنة. في كاب رواد الأعمال، نجمع الناس لخلق الفرص، ومرافقة المسارات، ودفع الأفكار نحو أثر اجتماعي ملموس."
-            : "Every great venture begins with an idea. But turning that idea into reality takes knowledge, support, collaboration, resources, and a community that believes in what is possible. At CAP Entrepreneurs, a Canadian non-profit organization, we bring people together to create opportunities, accompany entrepreneurs, and propel ideas toward meaningful impact."
+            : "Every great venture begins with an idea. But turning that idea into reality takes knowledge, support, collaboration, resources, and a community that believes in what is possible. At 3M SERVICES, a Canadian non-profit organization, we bring people together to create opportunities, accompany entrepreneurs, and propel ideas toward meaningful impact."
         }
         ctaLabel={
           isFr
             ? "Rejoindre l'écosystème"
             : isAr
             ? "انضم إلى مجتمعنا"
-            : "Become Part of CAP"
+            : "Rejoindre 3M SERVICES"
         }
         onCtaClick={() => scrollToForm()}
         bgImage="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80"
@@ -597,10 +597,10 @@ const Join = () => {
                 <div className="mx-auto mt-3 mb-3 h-[2px] w-12 bg-maple" />
                 <p className="font-serif italic text-sm text-sage max-w-xl mx-auto mb-10">
                   {isFr
-                    ? "Cap Entrepreneurs s'articule autour de trois principes fondamentaux qui guident nos interactions avec les bénéficiaires, bénévoles, professionnels et partenaires."
+                    ? "3M Services s'articule autour de trois principes fondamentaux qui guident nos interactions avec les bénéficiaires, bénévoles, professionnels et partenaires."
                     : isAr
                     ? "ترتكز كاب رواد الأعمال على ثلاثة مبادئ توجيهية ترسم أسلوب تفاعلنا مع رواد الأعمال والمتطوعين والمهنيين والشركاء والمجتمع بأسره."
-                    : "CAP Entrepreneurs is built around three guiding principles that shape the way we engage with entrepreneurs, volunteers, professionals, partners, and the wider community."}
+                    : "3M SERVICES is built around three guiding principles that shape the way we engage with entrepreneurs, volunteers, professionals, partners, and the wider community."}
                 </p>
 
                 <div className="grid gap-6 sm:grid-cols-3">
@@ -713,12 +713,12 @@ const Join = () => {
               <div className="mx-auto h-24 w-24 rounded-full overflow-hidden border border-[#0D0E0D]/10 shadow-sm mb-4">
                 <img
                   src={JOIN_ASSETS.sidebarAuthor}
-                  alt="Cap Entrepreneurs Community"
+                  alt="3M Services Community"
                   className="h-full w-full object-cover"
                 />
               </div>
               <h4 className="font-serif text-lg font-bold text-[#0D0E0D]">
-                {isFr ? "Coordination Communautaire" : isAr ? "منسق المجتمع" : "CAP Community Lead"}
+                {isFr ? "Coordination Communautaire" : isAr ? "منسق المجتمع" : "3M Services Lead"}
               </h4>
               <p className="mt-2 text-xs text-sage leading-relaxed">
                 {isFr
@@ -781,7 +781,7 @@ const Join = () => {
               <div className="space-y-4">
                 {[
                   {
-                    title: isFr ? "Cap Green Lab - Tech Circulaire" : isAr ? "مختبر كاب الأخضر - تكنولوجيا دائرية" : "Cap Green Lab - Circular Tech",
+                    title: isFr ? "3M Services Mobilité - Tech Circulaire" : isAr ? "مختبر كاب الأخضر - تكنولوجيا دائرية" : "3M Services Mobilité - Circular Tech",
                     tag: isFr ? "LABORATOIRE" : isAr ? "مختبر" : "LAB",
                     img: JOIN_ASSETS.aspiring,
                     to: "/programs#greenlab"
@@ -897,10 +897,10 @@ const Join = () => {
             <div className="mx-auto mt-4 mb-3 h-[2px] w-12 bg-maple" />
             <p className="text-xs sm:text-sm text-sage leading-relaxed font-serif italic">
               {isFr
-                ? "« L'avenir de l'entrepreneuriat se construit avec des personnes prêtes à imaginer de nouveaux horizons, à partager leurs savoirs et à agir ensemble pour le bien commun. Rejoignez Cap Entrepreneurs. Participez à l'aventure et faites avancer les idées. »"
+                ? "« L'avenir de l'entrepreneuriat se construit avec des personnes prêtes à imaginer de nouveaux horizons, à partager leurs savoirs et à agir ensemble pour le bien commun. Rejoignez 3M Services. Participez à l'aventure et faites avancer les idées. »"
                 : isAr
                 ? "« يتشكل مستقبل ريادة الأعمال من خلال أشخاص مستعدين لتخيل إمكانيات جديدة، ومشاركة ما يعرفونه، والعمل معاً، واتخاذ خطوات ملموسة. انضم إلى كاب رواد الأعمال. كن جزءاً من المسار وساهم في دفع الأفكار نحو الأمام. »"
-                : "“The future of entrepreneurship is shaped by people who are willing to imagine new possibilities, share what they know, work together, and take action. Join CAP Entrepreneurs. Be part of the journey. Help move ideas forward.”"}
+                : "“The future of entrepreneurship is shaped by people who are willing to imagine new possibilities, share what they know, work together, and take action. Join 3M SERVICES. Be part of the journey. Help move ideas forward.”"}
             </p>
           </div>
 
@@ -911,7 +911,7 @@ const Join = () => {
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
                 <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#0D0E0D]">
-                  {isFr ? "Bienvenue chez Cap Entrepreneurs !" : isAr ? "مرحباً بك في كاب رواد الأعمال!" : "Welcome to CAP Entrepreneurs !"}
+                  {isFr ? "Bienvenue chez 3M Services !" : isAr ? "مرحباً بك في كاب رواد الأعمال!" : "Welcome to 3M SERVICES !"}
                 </h3>
                 <p className="mt-3 text-sm text-sage max-w-md mx-auto">
                   {isFr
@@ -1042,7 +1042,7 @@ const Join = () => {
                         ? "Décrivez vos aspirations, les compétences que vous souhaitez développer ou offrir, et ce qui motive votre démarche..."
                         : isAr
                         ? "أخبرنا عن اهتماماتك والمهارات التي تود تقديمها أو اكتسابها..."
-                        : "Tell us about your interests, the skills you would like to offer or acquire, and what motivated you to connect with CAP..."
+                        : "Tell us about your interests, the skills you would like to offer or acquire, and what motivated you to connect with 3M SERVICES..."
                     }
                     value={formData.goals}
                     onChange={handleFormChange}
@@ -1095,7 +1095,7 @@ const Join = () => {
                   />
                   <p className="mt-1 text-[11px] text-sage">
                     {isFr
-                      ? "En inscrivant votre nom, vous confirmez l'exactitude de vos informations et votre accord avec les valeurs de Cap Entrepreneurs."
+                      ? "En inscrivant votre nom, vous confirmez l'exactitude de vos informations et votre accord avec les valeurs de 3M Services."
                       : isAr
                       ? "بكتابة اسمك، فإنك تؤكد صحة معلوماتك وتوافقك مع قيم المنظمة."
                       : "By typing your name, you confirm that the information provided is accurate and agree to communicate in good faith."}

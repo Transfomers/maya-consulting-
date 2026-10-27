@@ -38,9 +38,9 @@ export default function AcceptInvitation() {
     <div className="min-h-screen flex items-center justify-center bg-bone p-4">
       <div className="bg-white p-8 max-w-md w-full shadow-2xl border border-forest/10">
         <div className="text-center mb-8">
-          <img src="/assets/logo-mark.png" alt="CAP Entrepreneurs" className="h-12 w-auto mx-auto mb-6" />
+          <img src="/assets/logo-mark.png" alt="3M SERVICES" className="h-12 w-auto mx-auto mb-6" />
           <h1 className="text-2xl font-black font-heading text-forest">Activate Account</h1>
-          <p className="text-sage text-sm mt-2">Create a secure password to access your CAP Entrepreneurs administrator account.</p>
+          <p className="text-sage text-sm mt-2">Create a secure password to access your 3M SERVICES administrator account.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

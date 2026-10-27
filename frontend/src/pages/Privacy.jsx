@@ -14,7 +14,7 @@ export const PRIVACY_POLICY_EN = {
   effectiveDate: "15 October 2026",
   lastUpdated: "15 October 2026",
   website: "https://3mservice.shop",
-  contactEmail: "contact@3mservices.cm",
+  contactEmail: "contact@3mservice.shop",
   intro: "3M SERVICES est engagé à respecter votre vie privée et à protéger vos données personnelles. Cette politique de confidentialité détaille nos engagements concernant le traitement de vos informations pour nos services automobiles et locations à Yaoundé.",
   sections: [
     {
@@ -22,7 +22,7 @@ export const PRIVACY_POLICY_EN = {
       number: "1",
       title: "Introduction",
       paragraphs: [
-        "CAP Entrepreneurs (“CAP Entrepreneurs,” “CAP,” “we,” “our,” or “us”) is committed to respecting your privacy and protecting the personal information entrusted to us.",
+        "3M SERVICES (“3M SERVICES,” “we,” “our,” or “us”) is committed to respecting your privacy and protecting the personal information entrusted to us.",
         "This Privacy Policy explains how we collect, use, store, disclose, and protect personal information when you visit our website, contact our organization, participate in our activities, apply to volunteer, register for events, subscribe to communications, or engage with our programs and partnerships.",
         "We aim to handle personal information responsibly, transparently, and only for legitimate purposes connected with our activities.",
         "By using our website, you acknowledge that you have had the opportunity to read this Privacy Policy. Where consent is legally required, we will request it separately. Simply visiting our website does not constitute consent to optional marketing or non-essential cookies."
@@ -33,12 +33,12 @@ export const PRIVACY_POLICY_EN = {
       number: "2",
       title: "Who We Are",
       paragraphs: [
-        "CAP Entrepreneurs is the organization responsible for the personal information processed through its website and activities, subject to any arrangements that may apply to specific programs or services.",
+        "3M SERVICES is the organization responsible for the personal information processed through its website and activities, subject to any arrangements that may apply to specific programs or services.",
         "For questions about this Privacy Policy or the processing of your personal information, contact:"
       ],
       contactBox: {
-        email: "contact@capentrepreneurs.org",
-        website: "https://capentrepreneurs.org",
+        email: "contact@3mservice.shop",
+        website: "https://www.3mservice.shop",
         note: "Our full legal name, registered address, country of registration, and any applicable registration details should be published here once confirmed."
       }
     },
@@ -47,7 +47,7 @@ export const PRIVACY_POLICY_EN = {
       number: "3",
       title: "Personal Information We Collect",
       paragraphs: [
-        "The information we collect depends on how you interact with CAP Entrepreneurs."
+        "The information we collect depends on how you interact with 3M SERVICES."
       ],
       subsections: [
         {
@@ -62,7 +62,7 @@ export const PRIVACY_POLICY_EN = {
             "Participation information: event registrations, membership or volunteer applications, program participation, and communications with our team.",
             "Application information: information you provide when applying to volunteer, collaborate, mentor, participate in a program, or explore a partnership.",
             "Communication preferences: newsletter subscriptions, marketing preferences, and consent records.",
-            "Donation or transaction information: where applicable, information necessary to administer a donation or payment. Payment card details should be handled by the relevant payment provider rather than stored by CAP Entrepreneurs unless a verified, secure arrangement requires otherwise."
+            "Donation or transaction information: where applicable, information necessary to administer a donation or payment. Payment card details should be handled by the relevant payment provider rather than stored by 3M SERVICES unless a verified, secure arrangement requires otherwise."
           ],
           closingText: "Please provide only information that is relevant to your request or participation."
         },
@@ -100,7 +100,7 @@ export const PRIVACY_POLICY_EN = {
       number: "4",
       title: "How We Use Personal Information",
       paragraphs: [
-        "CAP Entrepreneurs may process personal information for the following purposes:"
+        "3M SERVICES may process personal information for the following purposes:"
       ],
       items: [
         "Responding to inquiries: answering messages, requests, and questions submitted through our website or other official channels.",
@@ -120,7 +120,7 @@ export const PRIVACY_POLICY_EN = {
       number: "5",
       title: "Legal Grounds for Processing",
       paragraphs: [
-        "Where applicable law requires a legal basis for processing personal information, CAP Entrepreneurs will rely on the basis appropriate to the specific activity. These may include:"
+        "Where applicable law requires a legal basis for processing personal information, 3M SERVICES will rely on the basis appropriate to the specific activity. These may include:"
       ],
       items: [
         "Consent: when you voluntarily subscribe to a newsletter, accept optional cookies, or authorize another activity requiring consent.",
@@ -136,8 +136,8 @@ export const PRIVACY_POLICY_EN = {
       number: "6",
       title: "Newsletters and Organizational Communications",
       paragraphs: [
-        "If you subscribe to communications from CAP Entrepreneurs, we may use your contact information to send updates about our activities, events, programs, resources, and relevant opportunities.",
-        "You can unsubscribe at any time by using the unsubscribe link included in the email, where available, or by contacting contact@capentrepreneurs.org.",
+        "If you subscribe to communications from 3M SERVICES, we may use your contact information to send updates about our activities, events, programs, resources, and relevant opportunities.",
+        "You can unsubscribe at any time by using the unsubscribe link included in the email, where available, or by contacting contact@3mservice.shop.",
         "Unsubscribing from newsletters will not necessarily stop essential administrative messages relating to an event, application, or service you have requested.",
         "We will not treat a volunteer application, event registration, or general inquiry as automatic permission to send unrelated promotional communications where consent or another lawful basis is required."
       ]
@@ -147,7 +147,7 @@ export const PRIVACY_POLICY_EN = {
       number: "7",
       title: "How We Share Personal Information",
       paragraphs: [
-        "CAP Entrepreneurs does not intend to sell personal information to third parties.",
+        "3M SERVICES does not intend to sell personal information to third parties.",
         "We may disclose relevant information in the following circumstances:"
       ],
       subsections: [
@@ -173,7 +173,7 @@ export const PRIVACY_POLICY_EN = {
           id: "section-7-4",
           number: "7.4",
           title: "Organizational changes",
-          text: "If CAP Entrepreneurs undergoes a lawful restructuring or transfer of relevant activities, information may be transferred only where appropriate safeguards and applicable legal requirements are satisfied.",
+          text: "If 3M SERVICES undergoes a lawful restructuring or transfer of relevant activities, information may be transferred only where appropriate safeguards and applicable legal requirements are satisfied.",
           closingText: "We remain responsible for ensuring that any disclosure has an appropriate legal basis."
         }
       ]
@@ -184,7 +184,7 @@ export const PRIVACY_POLICY_EN = {
       title: "International Data Transfers",
       paragraphs: [
         "Some service providers or collaborating organizations may operate outside your country of residence.",
-        "Where personal information is transferred internationally, CAP Entrepreneurs will take the measures required by applicable law, which may include assessing the destination, using appropriate contractual safeguards, limiting access, and informing affected individuals where required.",
+        "Where personal information is transferred internationally, 3M SERVICES will take the measures required by applicable law, which may include assessing the destination, using appropriate contractual safeguards, limiting access, and informing affected individuals where required.",
         "The countries in which our website hosting, email, analytics, and other service providers store or process information should be identified once those services have been verified."
       ]
     },
@@ -202,7 +202,7 @@ export const PRIVACY_POLICY_EN = {
         "Analytics cookies: help us understand how visitors use the website.",
         "Marketing cookies: may support advertising measurement or personalized marketing if such technologies are enabled."
       ],
-      closingText: "Where required, non-essential cookies will be activated only after the visitor has provided the appropriate consent. You may be able to manage cookies through our website's consent settings and your browser settings. Disabling certain cookies may affect some website features.\n\nImplementation requirement: CAP Entrepreneurs should verify which cookies and tracking technologies are actually installed and configure a consent mechanism appropriate to the applicable legal requirements before publishing claims about specific cookies."
+      closingText: "Where required, non-essential cookies will be activated only after the visitor has provided the appropriate consent. You may be able to manage cookies through our website's consent settings and your browser settings. Disabling certain cookies may affect some website features.\n\nImplementation requirement: 3M SERVICES should verify which cookies and tracking technologies are actually installed and configure a consent mechanism appropriate to the applicable legal requirements before publishing claims about specific cookies."
     },
     {
       id: "section-10",
@@ -220,14 +220,14 @@ export const PRIVACY_POLICY_EN = {
         "Technical and security logs: for a period appropriate to security monitoring, troubleshooting, and applicable obligations.",
         "Financial and legal records: for the period required by applicable accounting, legal, or regulatory requirements, where relevant."
       ],
-      closingText: "When information is no longer needed, we will take reasonable steps to delete it, anonymize it, or securely restrict access to it. CAP Entrepreneurs should establish and document specific retention periods for each category of information it actually collects."
+      closingText: "When information is no longer needed, we will take reasonable steps to delete it, anonymize it, or securely restrict access to it. 3M SERVICES should establish and document specific retention periods for each category of information it actually collects."
     },
     {
       id: "section-11",
       number: "11",
       title: "Data Security",
       paragraphs: [
-        "CAP Entrepreneurs takes reasonable technical and organizational measures to protect personal information against unauthorized access, accidental loss, alteration, disclosure, destruction, and misuse.",
+        "3M SERVICES takes reasonable technical and organizational measures to protect personal information against unauthorized access, accidental loss, alteration, disclosure, destruction, and misuse.",
         "Depending on the systems in use, appropriate measures may include:"
       ],
       items: [
@@ -260,16 +260,16 @@ export const PRIVACY_POLICY_EN = {
         "Unsubscribe from optional communications.",
         "Lodge a complaint with a competent data protection authority, where available."
       ],
-      closingText: "These rights may be subject to legal exceptions and verification requirements. To submit a request, email contact@capentrepreneurs.org with the subject line “Privacy Request.” Please explain the nature of your request and provide enough information for us to identify the relevant records. We may request proportionate additional information to verify your identity. We will respond within the period required by applicable law. We will not request unnecessary identification documents or use identity verification as an unreasonable barrier to exercising your rights."
+      closingText: "These rights may be subject to legal exceptions and verification requirements. To submit a request, email contact@3mservice.shop with the subject line “Privacy Request.” Please explain the nature of your request and provide enough information for us to identify the relevant records. We may request proportionate additional information to verify your identity. We will respond within the period required by applicable law. We will not request unnecessary identification documents or use identity verification as an unreasonable barrier to exercising your rights."
     },
     {
       id: "section-13",
       number: "13",
       title: "Children's Privacy",
       paragraphs: [
-        "CAP Entrepreneurs' activities may be relevant to young people. However, we do not knowingly collect personal information from children in circumstances where doing so would be unlawful.",
+        "3M SERVICES' activities may be relevant to young people. However, we do not knowingly collect personal information from children in circumstances where doing so would be unlawful.",
         "Where an activity involves minors, we will implement appropriate safeguards and obtain parental or guardian authorization when required by applicable law.",
-        "If you believe that a child has provided personal information inappropriately, please contact contact@capentrepreneurs.org so that we can review the situation and take appropriate action."
+        "If you believe that a child has provided personal information inappropriately, please contact contact@3mservice.shop so that we can review the situation and take appropriate action."
       ]
     },
     {
@@ -278,9 +278,9 @@ export const PRIVACY_POLICY_EN = {
       title: "Third-Party Websites and Social Media",
       paragraphs: [
         "Our website may contain links to external websites, registration platforms, partner websites, and social media services.",
-        "Those services operate under their own privacy policies and practices. CAP Entrepreneurs does not control their independent processing of personal information.",
+        "Those services operate under their own privacy policies and practices. 3M SERVICES does not control their independent processing of personal information.",
         "When you follow an external link, submit information to a partner, or interact with our social media pages, you should review the relevant provider's privacy information.",
-        "The presence of a link or partnership does not necessarily mean that CAP Entrepreneurs endorses every privacy or security practice of the external service."
+        "The presence of a link or partnership does not necessarily mean that 3M SERVICES endorses every privacy or security practice of the external service."
       ]
     },
     {
@@ -288,10 +288,10 @@ export const PRIVACY_POLICY_EN = {
       number: "15",
       title: "Photographs, Videos, and Public Communications",
       paragraphs: [
-        "CAP Entrepreneurs may document events, activities, and initiatives through photographs, videos, interviews, or testimonials.",
+        "3M SERVICES may document events, activities, and initiatives through photographs, videos, interviews, or testimonials.",
         "Where these materials identify individuals, we will handle their collection and publication in accordance with applicable law and any required notices, permissions, or consent.",
         "We will take particular care with images or information involving minors and other situations requiring additional safeguards.",
-        "If you have a concern about identifiable material published by CAP Entrepreneurs, contact contact@capentrepreneurs.org and explain the material concerned. We will review the request and take appropriate action where required."
+        "If you have a concern about identifiable material published by 3M SERVICES, contact contact@3mservice.shop and explain the material concerned. We will review the request and take appropriate action where required."
       ]
     },
     {
@@ -299,7 +299,7 @@ export const PRIVACY_POLICY_EN = {
       number: "16",
       title: "Automated Decision-Making",
       paragraphs: [
-        "CAP Entrepreneurs does not intend to make decisions producing legal or similarly significant effects on individuals solely through automated processing unless the activity has been appropriately assessed and the requirements of applicable law are satisfied.",
+        "3M SERVICES does not intend to make decisions producing legal or similarly significant effects on individuals solely through automated processing unless the activity has been appropriately assessed and the requirements of applicable law are satisfied.",
         "If such processing is introduced, we will provide the information and safeguards required by law."
       ]
     },
@@ -321,9 +321,9 @@ export const PRIVACY_POLICY_EN = {
         "For questions, concerns, or requests relating to this Privacy Policy or the handling of your personal information, contact:"
       ],
       contactBox: {
-        organization: "CAP Entrepreneurs",
-        website: "https://capentrepreneurs.org",
-        email: "contact@capentrepreneurs.org",
+        organization: "3M SERVICES",
+        website: "https://www.3mservice.shop",
+        email: "contact@3mservice.shop",
         subject: "Privacy Request",
         closing: "This Privacy Policy should be read alongside any applicable terms of use, event registration notices, consent forms, and other privacy notices provided for specific activities."
       }
@@ -333,19 +333,19 @@ export const PRIVACY_POLICY_EN = {
 
 export const PRIVACY_POLICY_FR = {
   title: "Politique de Confidentialité",
-  organization: "CAP Entrepreneurs",
+  organization: "3M SERVICES",
   effectiveDate: "15 octobre 2026",
   lastUpdated: "15 octobre 2026",
-  website: "https://capentrepreneurs.org",
-  contactEmail: "contact@capentrepreneurs.org",
-  intro: "CAP Entrepreneurs s'engage à respecter votre vie privée et à protéger les renseignements personnels qui lui sont confiés. La présente politique explique nos pratiques en matière de collecte, d'utilisation, de conservation et de protection de vos données.",
+  website: "https://www.3mservice.shop",
+  contactEmail: "contact@3mservice.shop",
+  intro: "3M SERVICES s'engage à respecter votre vie privée et à protéger les renseignements personnels qui lui sont confiés. La présente politique explique nos pratiques en matière de collecte, d'utilisation, de conservation et de protection de vos données.",
   sections: [
     {
       id: "section-1",
       number: "1",
       title: "Introduction",
       paragraphs: [
-        "CAP Entrepreneurs (« CAP Entrepreneurs », « CAP », « nous », « notre » ou « nos ») s'engage à respecter votre vie privée et à protéger les renseignements personnels qui lui sont confiés.",
+        "3M SERVICES (« 3M SERVICES », « nous », « notre » ou « nos ») s'engage à respecter votre vie privée et à protéger les renseignements personnels qui lui sont confiés.",
         "La présente Politique de confidentialité explique comment nous recueillons, utilisons, conservons, communiquons et protégeons les renseignements personnels lorsque vous visitez notre site Web, communiquez avec notre organisme, participez à nos activités, soumettez une candidature bénévole, vous inscrivez à des événements, vous abonnez à nos communications ou participez à nos programmes et partenariats.",
         "Nous nous efforçons de traiter les renseignements personnels de manière responsable, transparente et uniquement à des fins légitimes liées à nos activités.",
         "En utilisant notre site Web, vous reconnaissez avoir eu la possibilité de prendre connaissance de la présente Politique de confidentialité. Lorsqu'un consentement est légalement requis, nous vous le demanderons séparément. La simple consultation de notre site Web ne constitue pas un consentement à des communications marketing optionnelles ni à des témoins (cookies) non essentiels."
@@ -356,12 +356,12 @@ export const PRIVACY_POLICY_FR = {
       number: "2",
       title: "Qui sommes-nous ?",
       paragraphs: [
-        "CAP Entrepreneurs est l'organisme responsable des renseignements personnels traités par l'intermédiaire de son site Web et de ses activités, sous réserve d'ententes particulières pouvant s'appliquer à des programmes ou services spécifiques.",
+        "3M SERVICES est l'organisme responsable des renseignements personnels traités par l'intermédiaire de son site Web et de ses activités, sous réserve d'ententes particulières pouvant s'appliquer à des programmes ou services spécifiques.",
         "Pour toute question relative à la présente Politique de confidentialité ou au traitement de vos renseignements personnels, veuillez communiquer avec :"
       ],
       contactBox: {
-        email: "contact@capentrepreneurs.org",
-        website: "https://capentrepreneurs.org",
+        email: "contact@3mservice.shop",
+        website: "https://www.3mservice.shop",
         note: "Notre dénomination sociale complète, notre siège social enregistré et nos informations d'immatriculation applicables sont consultables sur nos canaux officiels."
       }
     },
@@ -370,7 +370,7 @@ export const PRIVACY_POLICY_FR = {
       number: "3",
       title: "Renseignements personnels que nous recueillons",
       paragraphs: [
-        "Les renseignements que nous recueillons dépendent de la nature de vos interactions avec CAP Entrepreneurs."
+        "Les renseignements que nous recueillons dépendent de la nature de vos interactions avec 3M SERVICES."
       ],
       subsections: [
         {
@@ -423,7 +423,7 @@ export const PRIVACY_POLICY_FR = {
       number: "4",
       title: "Comment nous utilisons les renseignements personnels",
       paragraphs: [
-        "CAP Entrepreneurs peut traiter les renseignements personnels aux fins suivantes :"
+        "3M SERVICES peut traiter les renseignements personnels aux fins suivantes :"
       ],
       items: [
         "Répondre aux demandes : traitement des messages, questions et sollicitations reçus par nos canaux officiels.",
@@ -443,7 +443,7 @@ export const PRIVACY_POLICY_FR = {
       number: "5",
       title: "Fondements juridiques du traitement",
       paragraphs: [
-        "Lorsque la législation applicable l'exige, CAP Entrepreneurs fonde ses traitements sur la base appropriée à chaque activité :"
+        "Lorsque la législation applicable l'exige, 3M SERVICES fonde ses traitements sur la base appropriée à chaque activité :"
       ],
       items: [
         "Consentement : abonnement volontaire à l'infolettre ou acceptation de témoins optionnels.",
@@ -460,7 +460,7 @@ export const PRIVACY_POLICY_FR = {
       title: "Infolettres et communications institutionnelles",
       paragraphs: [
         "Si vous vous abonnez à nos communications, nous pouvons utiliser vos coordonnées pour vous transmettre des nouvelles de nos activités, événements, programmes et ressources.",
-        "Vous pouvez vous désabonner à tout moment au moyen du lien de désabonnement inclus dans chaque courriel ou en écrivant à contact@capentrepreneurs.org.",
+        "Vous pouvez vous désabonner à tout moment au moyen du lien de désabonnement inclus dans chaque courriel ou en écrivant à contact@3mservice.shop.",
         "Le désabonnement des infolettres n'interrompt pas les communications administratives essentielles relatives à un dossier, une inscription ou un service en cours.",
         "Une candidature ou une inscription ponctuelle ne constitue jamais une autorisation automatique d'envoi de sollicitations promotionnelles non sollicitées."
       ]
@@ -470,7 +470,7 @@ export const PRIVACY_POLICY_FR = {
       number: "7",
       title: "Partage des renseignements personnels",
       paragraphs: [
-        "CAP Entrepreneurs ne vend aucun renseignement personnel à des tiers.",
+        "3M SERVICES ne vend aucun renseignement personnel à des tiers.",
         "Nous pouvons communiquer des renseignements pertinents uniquement dans les cas suivants :"
       ],
       subsections: [
@@ -507,7 +507,7 @@ export const PRIVACY_POLICY_FR = {
       title: "Transferts internationaux de données",
       paragraphs: [
         "Certains prestataires ou partenaires peuvent être situés à l'extérieur de votre province ou pays de résidence.",
-        "Lorsque des renseignements personnels font l'objet d'un transfert transfrontalier, CAP Entrepreneurs met en œuvre les mesures requises (évaluations des facteurs relatifs à la vie privée, clauses contractuelles types et contrôle d'accès)."
+        "Lorsque des renseignements personnels font l'objet d'un transfert transfrontalier, 3M SERVICES met en œuvre les mesures requises (évaluations des facteurs relatifs à la vie privée, clauses contractuelles types et contrôle d'accès)."
       ]
     },
     {
@@ -533,7 +533,7 @@ export const PRIVACY_POLICY_FR = {
       number: "11",
       title: "Sécurité des données",
       paragraphs: [
-        "CAP Entrepreneurs met en œuvre des mesures techniques et organisationnelles rigoureuses pour protéger les renseignements personnels contre la perte, le vol, l'accès ou la modification non autorisés.",
+        "3M SERVICES met en œuvre des mesures techniques et organisationnelles rigoureuses pour protéger les renseignements personnels contre la perte, le vol, l'accès ou la modification non autorisés.",
         "Ces mesures comprennent le chiffrement TLS, la gestion stricte des privilèges d'accès, l'authentification renforcée et la tenue à jour de nos systèmes."
       ]
     },
@@ -547,7 +547,7 @@ export const PRIVACY_POLICY_FR = {
         "• Droit de rectification des données inexactes ou incomplètes.",
         "• Droit à l'effacement ou au retrait de votre consentement.",
         "• Droit de déposer une plainte auprès de l'autorité compétente de protection des renseignements personnels (ex. Commission d'accès à l'information du Québec, Commissariat à la protection de la vie privée du Canada).",
-        "Pour exercer vos droits, écrivez à contact@capentrepreneurs.org avec l'objet « Demande relative à la vie privée ». Nous répondrons dans les délais prévus par la loi."
+        "Pour exercer vos droits, écrivez à contact@3mservice.shop avec l'objet « Demande relative à la vie privée ». Nous répondrons dans les délais prévus par la loi."
       ]
     },
     {
@@ -563,7 +563,7 @@ export const PRIVACY_POLICY_FR = {
       number: "14",
       title: "Sites tiers et réseaux sociaux",
       paragraphs: [
-        "Notre site Web peut inclure des hyperliens vers des sites externes ou des plateformes tierces qui appliquent leurs propres politiques de confidentialité indépendantes de CAP Entrepreneurs."
+        "Notre site Web peut inclure des hyperliens vers des sites externes ou des plateformes tierces qui appliquent leurs propres politiques de confidentialité indépendantes de 3M SERVICES."
       ]
     },
     {
@@ -571,7 +571,7 @@ export const PRIVACY_POLICY_FR = {
       number: "15",
       title: "Photographies, vidéos et communications publiques",
       paragraphs: [
-        "CAP Entrepreneurs peut documenter ses ateliers et événements. Toute diffusion d'images identifiables respecte les règles applicables et les autorisations obtenues auprès des personnes concernées."
+        "3M SERVICES peut documenter ses ateliers et événements. Toute diffusion d'images identifiables respecte les règles applicables et les autorisations obtenues auprès des personnes concernées."
       ]
     },
     {
@@ -579,7 +579,7 @@ export const PRIVACY_POLICY_FR = {
       number: "16",
       title: "Décisions automatisées",
       paragraphs: [
-        "CAP Entrepreneurs n'effectue aucune prise de décision produisant des effets juridiques sur les personnes sur la seule base d'un traitement automatisé."
+        "3M SERVICES n'effectue aucune prise de décision produisant des effets juridiques sur les personnes sur la seule base d'un traitement automatisé."
       ]
     },
     {
@@ -598,9 +598,9 @@ export const PRIVACY_POLICY_FR = {
         "Pour toute question ou demande concernant la protection de vos renseignements personnels :"
       ],
       contactBox: {
-        organization: "CAP Entrepreneurs",
-        website: "https://capentrepreneurs.org",
-        email: "contact@capentrepreneurs.org",
+        organization: "3M SERVICES",
+        website: "https://www.3mservice.shop",
+        email: "contact@3mservice.shop",
         subject: "Demande relative à la vie privée",
         closing: "La présente politique doit être lue conjointement avec nos conditions d'utilisation et les avis de consentement spécifiques à chaque programme."
       }

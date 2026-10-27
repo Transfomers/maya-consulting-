@@ -1,4 +1,4 @@
-# Auth Testing Playbook CAP Entrepreneurs
+# Auth Testing Playbook 3M SERVICES
 
 Credentials: see /app/memory/test_credentials.md (admin@capentrepreneurs.ca / CAP Admin 2026!)
 

@@ -11,7 +11,7 @@ const Membership = () => {
     <div data-testid="membership-page">
       <EditorialRejoindreHero
         testId="membership-hero"
-        brandName="Cap-Entrepreneurs"
+        brandName="3M SERVICES"
         categoryKicker="ADHÉSION & COMMUNAUTÉ CANADIENNE"
         verticalKicker="A D H É S I O N"
         titleLines={["Devenir", "Membre De", "La Communauté", "Canadienne."]}
@@ -103,7 +103,7 @@ const Membership = () => {
               {t.membership.volTitle}
             </h2>
             <p className="mt-6 max-w-md text-base leading-relaxed text-sage md:text-lg">
-              {t.membership.volEyebrow}s power our programs, events and international initiatives-including exchanges through CAP
+              {t.membership.volEyebrow}s power our programs, events and international initiatives-including exchanges through 3M SERVICES
               Global Mobility. Tell us how you'd like to contribute.
             </p>
           </Reveal>

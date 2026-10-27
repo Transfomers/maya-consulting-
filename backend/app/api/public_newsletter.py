@@ -100,7 +100,7 @@ async def subscribe_newsletter(
     settings_map = await get_all_settings_map(db)
     smtp_cfg = get_smtp_config_from_db(settings_map)
 
-    frontend_url = app_settings.FRONTEND_URL or "https://capentrepreneurs.org"
+    frontend_url = app_settings.FRONTEND_URL or "https://www.3mservice.shop"
     subject, html_body, plain_text = render_confirmation_email(
         subscriber_email=clean_email,
         first_name=req.first_name,
@@ -156,7 +156,7 @@ async def confirm_subscription(
 
     return {
         "success": True,
-        "message": "Félicitations ! Votre abonnement à l'infolettre CAP Entrepreneurs est maintenant confirmé.",
+        "message": "Félicitations ! Votre abonnement à l'infolettre 3M SERVICES est maintenant confirmé.",
         "email": sub.email,
         "first_name": sub.first_name
     }

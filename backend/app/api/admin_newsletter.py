@@ -76,7 +76,7 @@ async def process_campaign_dispatch(campaign_id: str):
         settings_map = await get_all_settings_map(db)
         smtp_cfg = get_smtp_config_from_db(settings_map)
         teams_webhook = settings_map.get("teams_webhook_url")
-        frontend_url = app_settings.FRONTEND_URL or "https://capentrepreneurs.org"
+        frontend_url = app_settings.FRONTEND_URL or "https://www.3mservice.shop"
 
         # Determine subscribers to target
         sub_query = select(NewsletterSubscriber)
@@ -132,7 +132,7 @@ async def process_campaign_dispatch(campaign_id: str):
                     <tr>
                       <td align="left" style="padding-bottom: 28px;">
                         <a href="{frontend_url}" target="_blank" style="display: inline-block; padding: 13px 28px; background-color: #232724; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: #FFFFFF; text-decoration: none;">
-                          Visiter capentrepreneurs.org &rarr;
+                          Visiter 3mservice.shop &rarr;
                         </a>
                       </td>
                     </tr>
@@ -379,7 +379,7 @@ async def export_subscribers_csv(
 
     output.seek(0)
     response = StreamingResponse(iter([output.getvalue()]), media_type="text/csv")
-    response.headers["Content-Disposition"] = "attachment; filename=subscribers_cap_entrepreneurs.csv"
+    response.headers["Content-Disposition"] = "attachment; filename=subscribers_3m_services.csv"
     return response
 
 
@@ -580,7 +580,7 @@ async def send_test_campaign(
 
     settings_map = await get_all_settings_map(db)
     smtp_cfg = get_smtp_config_from_db(settings_map)
-    frontend_url = app_settings.FRONTEND_URL or "https://capentrepreneurs.org"
+    frontend_url = app_settings.FRONTEND_URL or "https://www.3mservice.shop"
 
     post = None
     if camp.article_id:
@@ -638,8 +638,8 @@ async def list_templates(
     # Seed default template if none exist
     if not templates:
         default_tpl = NewsletterTemplate(
-            name="Modèle Officiel CAP Entrepreneurs",
-            subject_default="Un nouvel article de CAP Entrepreneurs",
+            name="Modèle Officiel 3M SERVICES",
+            subject_default="Un nouvel article de 3M SERVICES",
             preview_text_default="Découvrez nos dernières réflexions, initiatives et opportunités.",
             heading="Découvrez notre nouvel article",
             brand_color="#0D0E0D",
@@ -737,12 +737,12 @@ async def get_newsletter_settings(
 
     return NewsletterSettingsSchema(
         auto_send_on_publish=auto_send,
-        from_name=settings_map.get("newsletter_from_name", "CAP Entrepreneurs"),
-        from_email=settings_map.get("newsletter_from_email", "contact@capentrepreneurs.org"),
-        reply_to=settings_map.get("newsletter_reply_to", "contact@capentrepreneurs.org"),
+        from_name=settings_map.get("newsletter_from_name", "3M SERVICES"),
+        from_email=settings_map.get("newsletter_from_email", "contact@3mservice.shop"),
+        reply_to=settings_map.get("newsletter_reply_to", "contact@3mservice.shop"),
         smtp_host=settings_map.get("smtp_host", "smtp.hostinger.com"),
         smtp_port=int(settings_map.get("smtp_port", 465)),
-        smtp_user=settings_map.get("smtp_username", "contact@capentrepreneurs.org"),
+        smtp_user=settings_map.get("smtp_username", "contact@3mservice.shop"),
         smtp_pass="••••••••••••" if settings_map.get("smtp_password") else "",
         smtp_secure=settings_map.get("smtp_secure", "true").lower() in ("true", "1", "yes"),
         teams_webhook_url=settings_map.get("teams_webhook_url", "")
@@ -762,7 +762,7 @@ async def update_newsletter_settings(
         "newsletter_reply_to": data.reply_to,
         "smtp_host": data.smtp_host or "smtp.hostinger.com",
         "smtp_port": str(data.smtp_port or 465),
-        "smtp_username": data.smtp_user or "contact@capentrepreneurs.org",
+        "smtp_username": data.smtp_user or "contact@3mservice.shop",
         "smtp_secure": str(data.smtp_secure).lower(),
         "teams_webhook_url": data.teams_webhook_url or ""
     }
@@ -797,20 +797,20 @@ async def test_smtp_configuration(
     settings_map = await get_all_settings_map(db)
     smtp_cfg = get_smtp_config_from_db(settings_map)
 
-    subject = "CAP Entrepreneurs - Test de configuration SMTP Hostinger"
+    subject = "3M SERVICES - Test de configuration SMTP Hostinger"
     body = """
       <div style="font-family: Arial, sans-serif; padding: 20px;">
         <h2 style="color: #0D0E0D;">Test de configuration SMTP réussi !</h2>
         <p style="color: #555555; line-height: 1.6;">
           Ce message confirme que votre serveur SMTP Hostinger est correctement configuré et opérationnel
-          pour l'envoi automatisé des avis de parution et de l'infolettre de <strong>CAP Entrepreneurs</strong>.
+          pour l'envoi automatisé des avis de parution et de l'infolettre de <strong>3M SERVICES</strong>.
         </p>
         <p style="color: #777777; font-size: 12px; margin-top: 30px;">
-          Expédié via contact@capentrepreneurs.org • Date: {now}
+          Expédié via contact@3mservice.shop • Date: {now}
         </p>
       </div>
     """.replace("{now}", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"))
-    plain_text = "Test de configuration SMTP réussi pour CAP Entrepreneurs."
+    plain_text = "Test de configuration SMTP réussi pour 3M SERVICES."
 
     import asyncio
     success, err = await asyncio.to_thread(

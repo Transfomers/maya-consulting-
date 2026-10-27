@@ -1,7 +1,7 @@
-# PRD CAP Entrepreneurs Website
+# PRD 3M SERVICES Website
 
 ## Original Problem Statement
-CAP Entrepreneurs is a Canadian nonprofit dedicated to building entrepreneurial ecosystems through education, collaboration, innovation and international partnerships. The website must position the organization to inspire entrepreneurs, nonprofits, funders, volunteers and institutional partners; encourage membership, program applications, donations, partnerships, volunteering and event participation; and use community driven (not corporate consulting) language. Full navigation: Home, About, Programs, Impact Stories, Membership, Partners, News & Events, Donate, Contact.
+3M SERVICES is a Canadian nonprofit dedicated to building entrepreneurial ecosystems through education, collaboration, innovation and international partnerships. The website must position the organization to inspire entrepreneurs, nonprofits, funders, volunteers and institutional partners; encourage membership, program applications, donations, partnerships, volunteering and event participation; and use community driven (not corporate consulting) language. Full navigation: Home, About, Programs, Impact Stories, Membership, Partners, News & Events, Donate, Contact.
 
 ## User Personas
   Entrepreneurs (esp. rural/underserved) seeking programs, markets, scholarships

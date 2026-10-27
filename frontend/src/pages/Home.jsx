@@ -176,14 +176,23 @@ export default function Home() {
                 </a>
 
                 <a
+                  href="tel:+237691786447"
+                  className="px-6 py-4 bg-[#E20713] hover:bg-[#b3050f] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow"
+                  title="Appel Direct 3M Services"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span>Appel : +237 691 78 64 47</span>
+                </a>
+
+                <a
                   href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20des%20renseignements%20sur%20le%20Catalogue%20Automobile%202025"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-6 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow"
+                  className="px-5 py-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow"
                   title="WhatsApp 3M Services"
                 >
                   <MessageSquare className="h-4 w-4" />
-                  <span>WhatsApp Direct</span>
+                  <span>WhatsApp</span>
                 </a>
               </div>
 
@@ -275,7 +284,7 @@ export default function Home() {
               Nos Pôles d'Excellence à Yaoundé
             </h2>
             <p className="text-sm text-gray-600 mt-2">
-              Découvrez nos services dédiés : location de véhicules avec ou sans chauffeur, 4x4 Toyota Prado VIP, appartements meublés grand standing à Bastos et Essos, vente et leasing conventionné MUPOCAM.
+              Découvrez nos services dédiés : location de véhicules avec ou sans chauffeur, 4x4 Toyota Prado VIP, appartements meublés grand standing à Tsinga (Face FECAFOOT) et bientôt Oyomabang, vente et leasing conventionné MUPOCAM.
             </p>
           </div>
 
@@ -324,24 +333,27 @@ export default function Home() {
               </div>
             </Link>
 
-            {/* Card 3: Appartement Meublé Bastos */}
+            {/* Card 3: Appartement Meublé Tsinga FECAFOOT & Oyomabang */}
             <Link
-              to="/appartement-meuble-bastos"
+              to="/appartement-meuble-tsinga-fecafoot"
               className="group bg-gray-50 hover:bg-white border border-gray-200 hover:border-emerald-600 p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 <div className="h-12 w-12 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Building2 className="h-6 w-6" />
                 </div>
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold uppercase rounded-xs mb-2">
+                  <span>Tsinga • Bientôt Oyomabang</span>
+                </div>
                 <h3 className="font-heading font-extrabold text-lg text-gray-900 group-hover:text-emerald-600 transition-colors">
-                  Appartement Meublé à Bastos
+                  Appartements Meublés Tsinga (Face FECAFOOT)
                 </h3>
                 <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                  Résidence haut standing au cœur du quartier diplomatique. Groupe électrogène automatique, Wifi fibre optique et gardiennage 24h/24.
+                  Résidences haut standing en face du siège de la FECAFOOT et nouvelle résidence bientôt disponible à Oyomabang. Groupe électrogène permanent, Wifi fibre et gardiennage 24h/24. Appelez-nous au +237 691 78 64 47.
                 </p>
               </div>
               <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-emerald-600 uppercase tracking-wider">
-                <span>Voir la résidence Bastos</span>
+                <span>Voir Tsinga &amp; Oyomabang</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
@@ -641,7 +653,7 @@ export default function Home() {
                   <div className="border border-forest/20 overflow-hidden h-48 sm:h-56 bg-white shadow-sm">
                     <img
                       src="/Asset/appartements/appartement-meuble-suite-parentale.webp"
-                      alt="Appartement meublé Bastos Yaoundé 3M Services"
+                      alt="Appartement meublé Tsinga Face FECAFOOT Yaoundé 3M Services"
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -1213,7 +1225,7 @@ export default function Home() {
                     </label>
                     <input
                       type="text"
-                      placeholder="ex: RAV4, Mercedes, Bastos..."
+                      placeholder="ex: RAV4, Mercedes, Tsinga FECAFOOT..."
                       className="w-full px-4 py-2.5 text-xs bg-white border border-forest/20 focus:outline-none focus:border-maple"
                     />
                   </div>

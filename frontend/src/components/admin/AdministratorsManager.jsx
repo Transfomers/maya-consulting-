@@ -187,7 +187,7 @@ export default function AdministratorsManager() {
       <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-forest/10 pb-3 gap-4">
         <div>
           <h2 className="text-xl font-bold font-heading text-forest">Administrators</h2>
-          <p className="text-sm text-sage mt-1">Manage users who have access to the CAP Entrepreneurs administration panel.</p>
+          <p className="text-sm text-sage mt-1">Manage users who have access to the 3M SERVICES administration panel.</p>
         </div>
         <button onClick={openAdd} className="flex items-center gap-2 bg-forest text-bone px-4 py-2 font-bold uppercase tracking-wider text-xs hover:bg-maple transition-colors">
           <Plus className="h-4 w-4" /> Add Administrator

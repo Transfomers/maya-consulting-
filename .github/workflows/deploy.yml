@@ -89,10 +89,11 @@ jobs:
             docker exec cap_backend alembic upgrade head || echo "Warning: Migrations failed or already up to date"
 
             echo "Seeding admin accounts..."
-            docker exec cap_backend python seed_admin.py
+            docker exec cap_backend python seed_admin.py || echo "Warning: seed_admin.py failed"
+            docker exec cap_backend python seed_3m_admin.py || echo "Warning: seed_3m_admin.py failed"
 
             echo "Seeding blog posts and categories..."
-            docker exec cap_backend python seed_blogs.py
+            docker exec cap_backend python seed_blogs.py || echo "Warning: seed_blogs.py failed"
 
             echo "Checking containers..."
 

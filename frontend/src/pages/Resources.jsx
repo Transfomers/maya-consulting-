@@ -17,17 +17,17 @@ export const DEFAULT_RESOURCES = [
     id: "res-1",
     title: "Manuel de Reconditionnement Circulaire & Éco-Conception Numérique",
     slug: "manuel-reconditionnement-circulaire-eco-conception",
-    program: "Cap Green Lab",
-    category_name: "Cap Green Lab & Économie Circulaire",
+    program: "3M Services Mobilité",
+    category_name: "3M Services Mobilité & Économie Circulaire",
     resource_type: "course",
     image_url: "/assets/images/cap_green_lab.webp",
     published_date: "14 OCT",
     description: "Guide technique et méthodologique pour la mise en place d'ateliers de réemploi informatique, le diagnostic matériel, le cycle de vie des équipements et la valorisation solidaire.",
-    author: "Équipe Pédagogique Cap Green Lab",
+    author: "Équipe Pédagogique 3M Services Mobilité",
     tags: ["Économie Circulaire", "Reconditionnement", "Matériel", "Tech Inclusive"],
     file_size: "4.2 Mo",
     mime_type: "application/pdf",
-    file_url: "/assets/guides/cap-green-lab-reconditionnement.pdf",
+    file_url: "/assets/guides/3m-services-mobilite-reconditionnement.pdf",
     is_featured: true,
     downloads_count: 342
   },
@@ -107,17 +107,17 @@ export const DEFAULT_RESOURCES = [
     id: "res-6",
     title: "Modèle de Plan de Transition Circulaire pour Organismes à But Non Lucratif",
     slug: "modele-plan-transition-circulaire-obnl",
-    program: "Cap Green Lab",
-    category_name: "Cap Green Lab & Économie Circulaire",
+    program: "3M Services Mobilité",
+    category_name: "3M Services Mobilité & Économie Circulaire",
     resource_type: "template",
     image_url: "/assets/images/community_partnership.webp",
     published_date: "22 AOÛT",
     description: "Grille d'audit et gabarit opérationnel pour mesurer l'empreinte de son parc technologique et structurer un programme d'approvisionnement reconditionné.",
-    author: "Équipe Conseil Cap Entrepreneurs",
+    author: "Équipe Conseil 3M Services",
     tags: ["Gabarit", "OBNL", "Bilan Carbone Tech", "Approvisionnement"],
     file_size: "1.8 Mo",
     mime_type: "application/vnd.ms-excel",
-    file_url: "/assets/guides/cap-green-lab-reconditionnement.pdf",
+    file_url: "/assets/guides/3m-services-mobilite-reconditionnement.pdf",
     is_featured: false,
     downloads_count: 310
   }
@@ -196,7 +196,7 @@ export default function Resources() {
       toast.success(isEn ? "Download started successfully!" : "Téléchargement initié avec succès !");
 
       const link = document.createElement("a");
-      link.href = activeResource.file_url || "/assets/guides/cap-green-lab-reconditionnement.pdf";
+      link.href = activeResource.file_url || "/assets/guides/3m-services-mobilite-reconditionnement.pdf";
       link.download = `${activeResource.slug || "ressource"}.pdf`;
       link.target = "_blank";
       document.body.appendChild(link);
@@ -206,7 +206,7 @@ export default function Resources() {
       setDownloadSuccess(true);
       toast.success(isEn ? "Download started!" : "Téléchargement démarré !");
       const link = document.createElement("a");
-      link.href = activeResource.file_url || "/assets/guides/cap-green-lab-reconditionnement.pdf";
+      link.href = activeResource.file_url || "/assets/guides/3m-services-mobilite-reconditionnement.pdf";
       link.download = `${activeResource.slug || "ressource"}.pdf`;
       link.target = "_blank";
       document.body.appendChild(link);
@@ -220,7 +220,7 @@ export default function Resources() {
   // Build categories list
   const categories = [
     { id: "all", label: isEn ? "All Categories" : "Toutes les catégories" },
-    { id: "green-lab", label: "Cap Green Lab", match: "Cap Green Lab" },
+    { id: "green-lab", label: "3M Services Mobilité", match: "3M Services Mobilité" },
     { id: "agriconnect", label: "AgriConnect", match: "AgriConnect" },
     { id: "safe-vibe", label: "Safe Vibe", match: "Safe Vibe" },
     { id: "creatif", label: isEn ? "Creative & Social" : "Créatif & Social", match: "Créatif" },
@@ -446,7 +446,7 @@ export default function Resources() {
                               />
                               <div className="absolute top-3 left-3">
                                 <span className="bg-white/95 text-[#E20713] text-[9.5px] font-bold uppercase tracking-[0.18em] px-2.5 py-1 shadow-xs border border-forest/10 font-montserrat">
-                                  {res.program || res.category_name?.split("&")[0] || "CAP"}
+                                  {res.program || res.category_name?.split("&")[0] || "3M SERVICES"}
                                 </span>
                               </div>
                             </div>
@@ -534,7 +534,7 @@ export default function Resources() {
                   {isEn ? "Document ready to download!" : "Votre document est prêt !"}
                 </h3>
                 <p className="text-xs text-sage max-w-sm mx-auto leading-relaxed">
-                  Merci de votre intérêt pour les ressources de CAP Entrepreneurs. Votre téléchargement a démarré automatiquement.
+                  Merci de votre intérêt pour les ressources de 3M SERVICES. Votre téléchargement a démarré automatiquement.
                 </p>
 
                 <div className="pt-2">
@@ -623,7 +623,7 @@ export default function Resources() {
                       className="mt-0.5 h-3.5 w-3.5 rounded border-forest/30 text-[#E20713] focus:ring-[#E20713] accent-[#E20713]"
                     />
                     <label htmlFor="resource-newsletter-optin" className="text-[11px] text-sage leading-tight cursor-pointer">
-                      Je souhaite recevoir les prochaines parutions, avis de publication et guides d'impact de CAP Entrepreneurs.
+                      Je souhaite recevoir les prochaines parutions, avis de publication et guides d'impact de 3M SERVICES.
                     </label>
                   </div>
 

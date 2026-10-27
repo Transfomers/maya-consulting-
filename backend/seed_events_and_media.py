@@ -12,7 +12,7 @@ INITIAL_MEDIA = [
         "filename": "cap_ecosystem_collaboration.webp",
         "url": "/assets/images/cap_ecosystem_collaboration.webp",
         "mime_type": "image/webp",
-        "alt_text": "Écosystème collaboratif et espace de travail partagé CAP Entrepreneurs",
+        "alt_text": "Écosystème collaboratif et espace de travail partagé 3M SERVICES",
         "caption": "Membres de l'écosystème en session de co-création à Montréal."
     },
     {
@@ -89,7 +89,7 @@ INITIAL_EVENTS = [
         "location": "Paris & Format Hybride International",
         "is_online": True,
         "registration_required": True,
-        "registration_url": "mailto:contact@capentrepreneurs.org",
+        "registration_url": "mailto:contact@3mservice.shop",
         "max_participants": 120,
         "fr": {
             "title": "Brunch Pré-Festival & Table Ronde Partenaires - Paris 2026",

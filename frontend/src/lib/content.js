@@ -12,11 +12,11 @@ export const IMAGES = {
 
 export const PROGRAMS = [
   {
-    id: "cap-green-lab",
+    id: "3m-services-mobilite",
     number: "01",
-    name: "Cap Green Lab",
+    name: "3M Services Mobilité",
     theme: "Inclusive Technology & Circular Economy",
-    purpose: "Cap Green Lab is our laboratory dedicated to the convergence of digital transition, accessibility, technical skills and circular economy.",
+    purpose: "3M Services Mobilité is our laboratory dedicated to the convergence of digital transition, accessibility, technical skills and circular economy.",
     target: "People in career transition, technicians, volunteers, NGOs, communities.",
     outcomes: [
       "Refurbishment and reuse of digital equipment",
@@ -84,7 +84,7 @@ export const STORIES = [
       "A group of rural artisans had strong products but no access to digital commerce skills, larger markets or the confidence to price and present their work beyond local craft sales.",
     program: "Marketplace Lab",
     actions:
-      "Participants completed hands-on sessions in digital commerce, branding and export readiness, then showcased their products at a regional trade fair through the CAP partner network.",
+      "Participants completed hands-on sessions in digital commerce, branding and export readiness, then showcased their products at a regional trade fair through the 3M SERVICES partner network.",
     impact:
       "Every participating business launched an online storefront, and three secured recurring wholesale orders within six months of the program.",
     future:
@@ -97,13 +97,13 @@ export const STORIES = [
     image: IMAGES.portraitM,
     challenge:
       "A growing community nonprofit struggled with board engagement and strategic planning, putting its funding partnerships and long-term sustainability at risk.",
-    program: "CAP Executive",
+    program: "3M Business Services",
     actions:
       "Through governance intensives and peer collaboration, the organization rebuilt its strategic plan, re-engaged its board and formalized a partnership development framework.",
     impact:
       "Board participation rose across every committee, and the organization renewed two major funding partnerships with multi-year agreements.",
     future:
-      "The organization is exploring a co-delivery partnership with CAP Entrepreneurs to mentor newer nonprofits in its region.",
+      "The organization is exploring a co-delivery partnership with 3M SERVICES to mentor newer nonprofits in its region.",
   },
   {
     id: "global-exchange",
@@ -112,9 +112,9 @@ export const STORIES = [
     image: IMAGES.collaboration,
     challenge:
       "Early-stage entrepreneurs in small communities rarely get the chance to see how businesses operate in other markets, limiting their ambition and their networks.",
-    program: "CAP Global Mobility",
+    program: "3M Mobilité",
     actions:
-      "CAP Entrepreneurs brokered an exchange partnership connecting a cohort of Canadian entrepreneurs with peer organizations abroad for a collaborative learning mission.",
+      "3M SERVICES brokered an exchange partnership connecting a cohort of Canadian entrepreneurs with peer organizations abroad for a collaborative learning mission.",
     impact:
       "Participants returned with new distribution contacts, intercultural business skills and two active cross-border collaborations.",
     future:
@@ -148,14 +148,14 @@ export const NEWS = [
   {
     date: "September 2026",
     tag: "Community Initiative",
-    title: "CAP Executive governance intensive comes to Atlantic Canada",
+    title: "3M Business Services governance intensive comes to Atlantic Canada",
     excerpt:
       "A regional edition of our nonprofit leadership program, co-hosted with local economic development partners.",
   },
   {
     date: "October 2026",
     tag: "International Mission",
-    title: "First CAP Global Mobility exchange delegation announced",
+    title: "First 3M Mobilité exchange delegation announced",
     excerpt:
       "Selected entrepreneurs and volunteers will join a collaborative mission with international partner organizations this fall.",
   },
@@ -176,7 +176,7 @@ export const NEWS = [
   {
     date: "January 2027",
     tag: "Annual Report",
-    title: "CAP Entrepreneurs publishes its first annual impact report",
+    title: "3M SERVICES publishes its first annual impact report",
     excerpt:
       "A transparent look at our programs, partnerships and the measurable community impact of our first year.",
   },
@@ -186,7 +186,7 @@ export const EVENTS = [
   {
     date: "Sep 12, 2026",
     title: "Ecosystem Open House",
-    detail: "Meet the team, members and partners behind CAP Entrepreneurs. Virtual + in-person.",
+    detail: "Meet the team, members and partners behind 3M SERVICES. Virtual + in-person.",
   },
   {
     date: "Oct 03, 2026",
@@ -220,11 +220,11 @@ export const PARTNER_TYPES = [
 
 export const PROGRAMS_FR = [
   {
-    id: "cap-green-lab",
+    id: "3m-services-mobilite",
     number: "01",
-    name: "Cap Green Lab",
+    name: "3M Services Mobilité",
     theme: "Technologie inclusive & économie circulaire",
-    purpose: "Cap Green Lab est notre laboratoire dédié à la convergence de la transition numérique, de l'accessibilité, des compétences techniques et de l'économie circulaire.",
+    purpose: "3M Services Mobilité est notre laboratoire dédié à la convergence de la transition numérique, de l'accessibilité, des compétences techniques et de l'économie circulaire.",
     target: "Personnes en transition professionnelle, techniciens, bénévoles, ONG, collectivités.",
     outcomes: [
       "Reconditionnement et réemploi des équipements numériques",
@@ -284,9 +284,9 @@ export const PROGRAMS_FR = [
 
 export const PROGRAMS_AR = [
   {
-    id: "cap-green-lab",
+    id: "3m-services-mobilite",
     number: "01",
-    name: "Cap Green Lab",
+    name: "3M Services Mobilité",
     theme: "التكنولوجيا الشاملة والاقتصاد الدائري",
     purpose: "مختبرنا المخصص لتقارب التحول الرقمي وإمكانية الوصول والمهارات التقنية والاقتصاد الدائري.",
     target: "الأشخاص في مرحلة الانتقال المهني، التقنيون، المتطوعون، المنظمات غير الحكومية، والمجتمعات.",
@@ -356,7 +356,7 @@ export const STORIES_FR = [
       "Un groupe d'artisans ruraux avait de beaux produits, mais aucun acc\u00e8s aux comp\u00e9tences en commerce num\u00e9rique, aux grands march\u00e9s ni \u00e0 la confiance pour pr\u00e9senter et tarifer leur travail au-del\u00e0 des ventes artisanales locales.",
     program: "Marketplace Lab",
     actions:
-      "Les participants ont suivi des ateliers pratiques en commerce num\u00e9rique, en image de marque et en pr\u00e9paration \u00e0 l'exportation, puis ont pr\u00e9sent\u00e9 leurs produits \u00e0 une foire commerciale r\u00e9gionale gr\u00e2ce au r\u00e9seau de partenaires de CAP.",
+      "Les participants ont suivi des ateliers pratiques en commerce num\u00e9rique, en image de marque et en pr\u00e9paration \u00e0 l'exportation, puis ont pr\u00e9sent\u00e9 leurs produits \u00e0 une foire commerciale r\u00e9gionale gr\u00e2ce au r\u00e9seau de partenaires de 3M SERVICES.",
     impact:
       "Chaque entreprise participante a lanc\u00e9 une boutique en ligne, et trois ont obtenu des commandes de gros r\u00e9currentes dans les six mois suivant le programme.",
     future:
@@ -369,13 +369,13 @@ export const STORIES_FR = [
     image: IMAGES.portraitM,
     challenge:
       "Un organisme communautaire en croissance peinait avec l'engagement de son conseil et sa planification strat\u00e9gique, mettant en p\u00e9ril ses partenariats de financement et sa viabilit\u00e9 \u00e0 long terme.",
-    program: "CAP Executive",
+    program: "3M Business Services",
     actions:
       "Gr\u00e2ce \u00e0 des formations intensives en gouvernance et \u00e0 la collaboration entre pairs, l'organisme a reb\u00e2ti son plan strat\u00e9gique, r\u00e9engag\u00e9 son conseil et officialis\u00e9 un cadre de d\u00e9veloppement de partenariats.",
     impact:
       "La participation du conseil a augment\u00e9 dans chaque comit\u00e9, et l'organisme a renouvel\u00e9 deux partenariats de financement majeurs avec des ententes pluriannuelles.",
     future:
-      "L'organisme explore un partenariat de co-prestation avec CAP Entrepreneurs pour mentorer de jeunes organismes de sa r\u00e9gion.",
+      "L'organisme explore un partenariat de co-prestation avec 3M SERVICES pour mentorer de jeunes organismes de sa r\u00e9gion.",
   },
   {
     id: "global-exchange",
@@ -384,9 +384,9 @@ export const STORIES_FR = [
     image: IMAGES.collaboration,
     challenge:
       "Les entrepreneurs en d\u00e9marrage des petites communaut\u00e9s ont rarement l'occasion de voir comment les entreprises fonctionnent sur d'autres march\u00e9s, ce qui limite leurs ambitions et leurs r\u00e9seaux.",
-    program: "CAP Global Mobility",
+    program: "3M Mobilité",
     actions:
-      "CAP Entrepreneurs a conclu un partenariat d'\u00e9change reliant une cohorte d'entrepreneurs canadiens \u00e0 des organismes pairs \u00e0 l'\u00e9tranger pour une mission d'apprentissage collaborative.",
+      "3M SERVICES a conclu un partenariat d'\u00e9change reliant une cohorte d'entrepreneurs canadiens \u00e0 des organismes pairs \u00e0 l'\u00e9tranger pour une mission d'apprentissage collaborative.",
     impact:
       "Les participants sont revenus avec de nouveaux contacts de distribution, des compétences interculturelles et deux collaborations transfrontalières actives.",
     future:
@@ -420,14 +420,14 @@ export const NEWS_FR = [
   {
     date: "Septembre 2026",
     tag: "Initiative communautaire",
-    title: "La formation intensive en gouvernance CAP Executive arrive au Canada atlantique",
+    title: "La formation intensive en gouvernance 3M Business Services arrive au Canada atlantique",
     excerpt:
       "Une \u00e9dition r\u00e9gionale de notre programme de leadership \u00e0 but non lucratif, coanim\u00e9e avec des partenaires locaux de d\u00e9veloppement \u00e9conomique.",
   },
   {
     date: "Octobre 2026",
     tag: "Mission internationale",
-    title: "Annonce de la premi\u00e8re d\u00e9l\u00e9gation d'\u00e9change CAP Global Mobility",
+    title: "Annonce de la premi\u00e8re d\u00e9l\u00e9gation d'\u00e9change 3M Mobilité",
     excerpt:
       "Des entrepreneurs et b\u00e9n\u00e9voles s\u00e9lectionn\u00e9s se joindront \u00e0 une mission collaborative avec des organismes partenaires internationaux cet automne.",
   },
@@ -448,7 +448,7 @@ export const NEWS_FR = [
   {
     date: "Janvier 2027",
     tag: "Rapport annuel",
-    title: "CAP Entrepreneurs publie son premier rapport d'impact annuel",
+    title: "3M SERVICES publie son premier rapport d'impact annuel",
     excerpt:
       "Un regard transparent sur nos programmes, nos partenariats et l'impact communautaire mesurable de notre premi\u00e8re ann\u00e9e.",
   },
@@ -458,7 +458,7 @@ export const EVENTS_FR = [
   {
     date: "12 sept. 2026",
     title: "Portes ouvertes de l'\u00e9cosyst\u00e8me",
-    detail: "Rencontrez l'\u00e9quipe, les membres et les partenaires de CAP Entrepreneurs. En virtuel et en personne.",
+    detail: "Rencontrez l'\u00e9quipe, les membres et les partenaires de 3M SERVICES. En virtuel et en personne.",
   },
   {
     date: "3 oct. 2026",

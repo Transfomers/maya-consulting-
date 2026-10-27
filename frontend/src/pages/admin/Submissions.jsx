@@ -631,7 +631,7 @@ export default function AdminSubmissions() {
                   className="px-3 py-1.5 border border-forest/20 bg-white text-forest text-xs font-medium outline-none focus:border-[#E20713]"
                 >
                   <option value="">Non assigné</option>
-                  <option value="Équipe CAP">Équipe CAP</option>
+                  <option value="Équipe 3M SERVICES">Équipe 3M SERVICES</option>
                   <option value="Murielle">Murielle</option>
                   <option value="Comité Partenariats">Comité Partenariats</option>
                   <option value="Coordination Programmes">Coordination Programmes</option>

@@ -24,16 +24,28 @@ const ROUTE_SEO = {
     desc: "Location de Toyota Land Cruiser Prado à Yaoundé : SUV 4x4 de prestige avec chauffeur VIP pour cortèges, réceptions officielles, mariages et missions au Cameroun. Réservez chez 3M Services (+237 691 78 64 47).",
   },
   "/appartement-meuble-bastos": {
-    title: "Appartement Meublé à Bastos, Yaoundé | 3M Services",
-    desc: "Trouvez votre appartement meublé à Bastos, Yaoundé, avec 3M Services. Découvrez les logements disponibles, les équipements, les tarifs et les conditions de réservation.",
+    title: "Appartement Meublé à Tsinga (Face FECAFOOT) & Yaoundé | 3M Services",
+    desc: "Appartements meublés grand standing à Yaoundé : résidence à Tsinga directement en face de la FECAFOOT et ouverture prochaine à Oyomabang (Coming Soon). Climatisation, groupe automatique 24/7, Wi-Fi fibre. Appelez le +237 691 78 64 47.",
+  },
+  "/appartement-meuble-tsinga": {
+    title: "Appartement Meublé à Tsinga (Face FECAFOOT) & Yaoundé | 3M Services",
+    desc: "Appartements meublés grand standing à Yaoundé : résidence à Tsinga directement en face de la FECAFOOT et ouverture prochaine à Oyomabang (Coming Soon). Climatisation, groupe automatique 24/7, Wi-Fi fibre. Appelez le +237 691 78 64 47.",
+  },
+  "/appartement-meuble-tsinga-fecafoot": {
+    title: "Appartement Meublé à Tsinga (Face FECAFOOT) & Yaoundé | 3M Services",
+    desc: "Appartements meublés grand standing à Yaoundé : résidence à Tsinga directement en face de la FECAFOOT et ouverture prochaine à Oyomabang (Coming Soon). Climatisation, groupe automatique 24/7, Wi-Fi fibre. Appelez le +237 691 78 64 47.",
   },
   "/appartement-meuble-yaounde": {
-    title: "Location Appartement Meublé Yaoundé | Bastos, Essos, Omnisports - 3M Services",
-    desc: "Location d'appartements et studios meublés à Yaoundé : Bastos, Essos, Omnisports, Le Golfe. Logements climatisés avec groupe électrogène permanent, Wifi fibre optique et sécurité 24/7. Réservation WhatsApp (+237 691 78 64 47).",
+    title: "Location Appartement Meublé Yaoundé | Tsinga (Face FECAFOOT), Omnisports & Oyomabang - 3M Services",
+    desc: "Location d'appartements et studios meublés à Yaoundé : Tsinga (en face de la FECAFOOT), Omnisports et bientôt Oyomabang. Logements climatisés avec groupe électrogène permanent, Wifi fibre optique et sécurité 24/7. Appelez le +237 691 78 64 47.",
   },
   "/appartement-meuble-essos": {
-    title: "Appartement Meublé à Essos & Yaoundé | 3M Services",
-    desc: "Location d'appartements et studios meublés à Essos et Yaoundé. Logements tout confort, climatisés, sécurisés pour court et long séjour.",
+    title: "Appartement Meublé à Yaoundé | Tsinga, Omnisports & Oyomabang - 3M Services",
+    desc: "Location d'appartements et studios meublés à Yaoundé. Logements tout confort, climatisés, sécurisés 24/7 avec groupe automatique pour court et long séjour. Appelez le +237 691 78 64 47.",
+  },
+  "/appartement-meuble-oyomabang": {
+    title: "Appartement Meublé Standing à Oyomabang Yaoundé | Bientôt Disponible - 3M Services",
+    desc: "Résidence standing meublée à Oyomabang (Yaoundé) - Bientôt disponible chez 3M Services. Appartements modernes, groupe électrogène permanent, réserve d'eau, parking gardé 24/7. Contact & pré-réservations : +237 691 78 64 47.",
   },
   "/vente-voiture-leasing-cameroun": {
     title: "Vente de Voitures & Leasing MUPOCAM à Yaoundé | 3M Services Cameroun",
@@ -45,19 +57,19 @@ const ROUTE_SEO = {
   },
   "/boutique": {
     title: "Boutique & Catalogue | Voitures Neuves, Occasions & Appartements Meublés - 3M SERVICES Yaoundé",
-    desc: "Explorez le catalogue 3M SERVICES : SUV (Jeep, Toyota RAV4), berlines Mercedes-Benz, utilitaires et appartements meublés climatisés à Bastos et Omnisports Yaoundé.",
+    desc: "Explorez le catalogue 3M SERVICES : SUV (Jeep, Toyota RAV4), berlines Mercedes-Benz, utilitaires et appartements meublés climatisés à Tsinga (Face FECAFOOT), Omnisports et bientôt Oyomabang. Contact : +237 691 78 64 47.",
   },
   "/appartements": {
-    title: "Appartements Meublés Haut Standing à Bastos & Omnisport Yaoundé | 3M SERVICES",
-    desc: "Location d'appartements meublés sécurisés 24/7 avec groupe électrogène, Wi-Fi fibre optique et climatisation à Yaoundé (Bastos, Omnisports, Le Golfe). Contact WhatsApp : +237 691 78 64 47.",
+    title: "Appartements Meublés Haut Standing à Tsinga (Face FECAFOOT) & Yaoundé | Bientôt Oyomabang - 3M SERVICES",
+    desc: "Location d'appartements meublés sécurisés 24/7 avec groupe électrogène, Wi-Fi fibre optique et climatisation à Yaoundé (Tsinga Face FECAFOOT, Omnisports, et ouverture prochaine à Oyomabang). Appelez le +237 691 78 64 47.",
   },
   "/about": {
     title: "À Propos de 3M SERVICES | Concessionnaire & Immobilier d'Excellence à Yaoundé",
-    desc: "Découvrez l'histoire, les engagements et le réseau de 3M SERVICES à Yaoundé. Partenaire officiel MUPOCAM Orange Cameroun pour la mobilité et le logement.",
+    desc: "Découvrez l'histoire, les engagements et le catalogue de 3M SERVICES à Yaoundé. Partenaire officiel MUPOCAM Orange Cameroun pour la mobilité et le logement.",
   },
   "/contact": {
-    title: "Contact & WhatsApp (+237 691 78 64 47) | Agences Omnisports & Bastos - 3M SERVICES Yaoundé",
-    desc: "Contactez l'équipe 3M SERVICES par téléphone ou WhatsApp au +237 691 78 64 47 ou au +237 653 76 17 28. Agences situées à la Nouvelle route Omnisports et à Bastos, Yaoundé.",
+    title: "Contact & Réservation (+237 691 78 64 47) | Agences Omnisports & Tsinga - 3M SERVICES Yaoundé",
+    desc: "Contactez l'équipe 3M SERVICES par téléphone ou WhatsApp au +237 691 78 64 47 ou au +237 653 76 17 28. Agences situées à la Nouvelle route Omnisports et à Tsinga (Face FECAFOOT), Yaoundé.",
   },
   "/services": {
     title: "Nos Services | Vente Auto, Location, Leasing MUPOCAM & Appartements - 3M SERVICES Yaoundé",
@@ -67,9 +79,17 @@ const ROUTE_SEO = {
     title: "Actualités & Conseils Auto & Immo Cameroun | Blog 3M SERVICES Yaoundé",
     desc: "Guides d'achat de véhicules, actualités du marché automobile et immobilier à Yaoundé, conseils d'entretien et nouveautés 3M SERVICES.",
   },
+  "/panier": {
+    title: "Mon Panier de Commande | Véhicules & Appartements - 3M SERVICES Yaoundé",
+    desc: "Consultez votre panier de commande de véhicules neufs, d'occasion certifiées et d'appartements meublés à Yaoundé chez 3M SERVICES. Commande directe via WhatsApp (+237 691 78 64 47).",
+  },
+  "/privacy": {
+    title: "Politique de Confidentialité | 3M SERVICES Yaoundé",
+    desc: "Politique de confidentialité et protection des données personnelles de 3M SERVICES à Yaoundé, Cameroun.",
+  },
 };
 
-const DEFAULT_KEYWORDS = "location de voiture yaounde, location voiture yaounde, agence de location de voiture yaounde, louer une voiture a yaounde, location voiture avec chauffeur yaounde, location voiture sans chauffeur yaounde, prix location voiture yaounde, location voiture pas chere yaounde, location prado yaounde, location toyota prado yaounde, louer prado a yaounde, prix location prado yaounde, location 4x4 yaounde, location suv yaounde, location voiture vip yaounde, location land cruiser yaounde, appartement meuble yaounde, location appartement meuble yaounde, studio meuble yaounde, appartement meuble a louer yaounde, appartement meuble courte duree yaounde, prix appartement meuble yaounde, appartement meuble bastos, location appartement meuble bastos, studio meuble bastos yaounde, appartement meuble essos, vente de voiture yaounde, voiture a vendre yaounde, achat voiture a credit cameroun, vente voiture en leasing cameroun, voiture paiement echelonne yaounde, vehicule en leasing cameroun, 3mservice shop, 3m service yaounde, 3m services";
+const DEFAULT_KEYWORDS = "location de voiture yaounde, location voiture yaounde, agence de location de voiture yaounde, louer une voiture a yaounde, location voiture avec chauffeur yaounde, location voiture sans chauffeur yaounde, prix location voiture yaounde, location voiture pas chere yaounde, location prado yaounde, location toyota prado yaounde, louer prado a yaounde, prix location prado yaounde, location 4x4 yaounde, location suv yaounde, location voiture vip yaounde, location land cruiser yaounde, appartement meuble yaounde, location appartement meuble yaounde, studio meuble yaounde, appartement meuble a louer yaounde, appartement meuble tsinga, appartement meuble face fecafoot, appartement meuble fecafoot yaounde, appartement meuble oyomabang, appartement meuble courte duree yaounde, prix appartement meuble yaounde, residence meublee yaounde, vente de voiture yaounde, voiture a vendre yaounde, achat voiture a credit cameroun, vente voiture en leasing cameroun, voiture paiement echelonne yaounde, vehicule en leasing cameroun, 3mservice shop, 3m service yaounde, 3m services";
 
 export default function SEOHead() {
   const settings = useSettings();
@@ -78,7 +98,15 @@ export default function SEOHead() {
   const currentPath = location.pathname;
   const routeMeta = ROUTE_SEO[currentPath] || {};
 
-  const title = routeMeta.title || settings?.seo?.meta_title || settings?.general?.site_name || "3M SERVICE Shop | Vente de Voitures & Appartements Meublés à Yaoundé - 3M SERVICES";
+  const cleanSiteName = (settings?.general?.site_name && !settings.general.site_name.toLowerCase().includes("cap"))
+    ? settings.general.site_name
+    : "3M SERVICES";
+
+  const cleanMetaTitle = (settings?.seo?.meta_title && !settings.seo.meta_title.toLowerCase().includes("cap"))
+    ? settings.seo.meta_title
+    : null;
+
+  const title = routeMeta.title || cleanMetaTitle || `${cleanSiteName} | Vente de Voitures & Appartements Meublés à Yaoundé`;
   const desc = routeMeta.desc || settings?.seo?.meta_description || settings?.general?.description || "3M SERVICES - Vente et location de véhicules & appartements de prestige à Yaoundé, Cameroun.";
   const keywords = settings?.seo?.keywords || DEFAULT_KEYWORDS;
   const ogImage = settings?.seo?.og_image || "https://www.3mservice.shop/Asset/logo-3m-services.png";

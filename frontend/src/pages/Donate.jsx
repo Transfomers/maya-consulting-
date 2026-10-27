@@ -106,27 +106,27 @@ export default function Donate() {
 
   const FAQS = [
     {
-      qFr: "Qui peut faire un don à Cap Entrepreneurs ?",
-      qEn: "Who can donate to CAP Entrepreneurs?",
+      qFr: "Qui peut faire un don à 3M Services ?",
+      qEn: "Who can donate to 3M SERVICES?",
       qAr: "من يمكنه التبرع لكاب رواد الأعمال؟",
       aFr: "Les particuliers, entreprises, fondations et organisations peuvent nous contacter pour explorer des modalités de soutien adaptées à leurs objectifs.",
-      aEn: "Individuals, businesses, foundations and organizations can contact CAP Entrepreneurs to explore appropriate ways to provide support.",
+      aEn: "Individuals, businesses, foundations and organizations can contact 3M SERVICES to explore appropriate ways to provide support.",
       aAr: "يمكن للأفراد والشركات والمؤسسات والمنظمات التواصل معنا لاستكشاف سبل الدعم الملائمة لأهدافهم الاجتماعية."
     },
     {
       qFr: "Que finance mon don ?",
       qEn: "What does my donation support?",
       qAr: "ما الذي يموله تبرعي؟",
-      aFr: "Vos contributions soutiennent directement la mission, le déploiement des programmes structurants (Cap Green Lab, AgriConnect, Safe Vibe, Entrepreneuriat Créatif) et l'infrastructure communautaire.",
-      aEn: "Contributions can support CAP Entrepreneurs' mission, programs and organizational priorities. Any restrictions or program-specific designations should be confirmed before a donation is made.",
+      aFr: "Vos contributions soutiennent directement la mission, le déploiement des programmes structurants (3M Services Mobilité, AgriConnect, Safe Vibe, Entrepreneuriat Créatif) et l'infrastructure communautaire.",
+      aEn: "Contributions can support 3M SERVICES' mission, programs and organizational priorities. Any restrictions or program-specific designations should be confirmed before a donation is made.",
       aAr: "تدعم مساهماتك رسالتنا مباشرة، وإطلاق البرامج الهيكلية (مختبر كاب الأخضر، أجري كونكت، سيف فايب، وريادة الأعمال الإبداعية) والبنية التحتية المجتمعية."
     },
     {
       qFr: "Puis-je soutenir un programme spécifique ?",
       qEn: "Can I support a specific program?",
       qAr: "هل يمكنني توجيه التبرع لبرنامج محدد؟",
-      aFr: "Oui, vous pouvez cibler CAP Green Lab, AgriConnect, Safe Vibe ou Entrepreneuriat Créatif & Social. Notre équipe s'assure de l'affectation fidèle de vos fonds.",
-      aEn: "You can express an interest in supporting CAP Green Lab, AgriConnect, Safe Vibe or Creative & Social Entrepreneurship. Please confirm with CAP Entrepreneurs whether restricted donations are currently accepted.",
+      aFr: "Oui, vous pouvez cibler 3M Services Mobilité, AgriConnect, Safe Vibe ou Entrepreneuriat Créatif & Social. Notre équipe s'assure de l'affectation fidèle de vos fonds.",
+      aEn: "You can express an interest in supporting 3M Services Mobilité, AgriConnect, Safe Vibe or Creative & Social Entrepreneurship. Please confirm with 3M SERVICES whether restricted donations are currently accepted.",
       aAr: "نعم، يمكنك تخصيص تبرعك لأحد البرامج الأربعة، ويضمن فريقنا التوجيه الدقيق لأموال الدعم وفق رغبتك."
     },
     {
@@ -134,7 +134,7 @@ export default function Donate() {
       qEn: "Can my organization contribute equipment or professional services?",
       qAr: "هل يمكن لمؤسستي التبرع بمعدات أو خدمات مهنية؟",
       aFr: "Absolument. Nous accueillons avec enthousiasme les dons d'équipements informatiques, les logiciels, les expertises techniques, le mentorat et les partenariats stratégiques.",
-      aEn: "CAP Entrepreneurs welcomes partnership discussions involving financial support, technical resources, equipment, expertise and strategic collaboration. Contact the team to discuss your proposal.",
+      aEn: "3M SERVICES welcomes partnership discussions involving financial support, technical resources, equipment, expertise and strategic collaboration. Contact the team to discuss your proposal.",
       aAr: "بالتأكيد. نرحب بالمساهمات العينية من أجهزة حاسوبية، وبرمجيات، وخبرات تقنية، وإرشاد، وشراكات استراتيجية."
     },
     {
@@ -149,13 +149,13 @@ export default function Donate() {
       qFr: "Vais-je recevoir un reçu fiscal ?",
       qEn: "Will I receive a tax receipt?",
       qAr: "هل سأحصل على إيصال ضريبي؟",
-      aFr: "Veuillez contacter Cap Entrepreneurs pour confirmer les critères d'admissibilité fiscale applicables selon la nature de votre don et votre juridiction.",
-      aEn: "Please contact CAP Entrepreneurs to confirm whether your contribution qualifies for a tax receipt and what documentation may be available. Do not assume that every donation is tax-deductible.",
+      aFr: "Veuillez contacter 3M Services pour confirmer les critères d'admissibilité fiscale applicables selon la nature de votre don et votre juridiction.",
+      aEn: "Please contact 3M SERVICES to confirm whether your contribution qualifies for a tax receipt and what documentation may be available. Do not assume that every donation is tax-deductible.",
       aAr: "يرجى التواصل مع كاب رواد الأعمال لتأكيد معايير الأهلية الضريبية المطبقة وفقاً للولاية القضائية ونوع المساهمة."
     },
     {
-      qFr: "Comment en savoir plus sur Cap Entrepreneurs ?",
-      qEn: "How can I learn more about CAP Entrepreneurs?",
+      qFr: "Comment en savoir plus sur 3M Services ?",
+      qEn: "How can I learn more about 3M SERVICES?",
       qAr: "كيف يمكنني معرفة المزيد عن كاب رواد الأعمال؟",
       aFr: "Explorez nos pages À propos, Programmes, Bénévolat et Partenariats, ou contactez directement notre équipe pour échanger sur nos perspectives communes.",
       aEn: "Explore our About Us, Programs, Volunteer and Partnerships pages to learn more about our mission and ways to participate.",
@@ -170,7 +170,7 @@ export default function Donate() {
       <section className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12 mb-20 text-center">
         <Reveal>
           <span className="font-montserrat text-xs font-bold uppercase tracking-[0.28em] text-maple">
-            {isFrench ? "DONNER À CAP ENTREPRENEURS" : isArabic ? "التبرع لكاب رواد الأعمال" : "DONATE TO CAP ENTREPRENEURS"}
+            {isFrench ? "DONNER À 3M SERVICES" : isArabic ? "التبرع لكاب رواد الأعمال" : "DONATE TO 3M SERVICES"}
           </span>
           <h1 className="mt-4 font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-normal tracking-tight text-forest leading-[1.12] max-w-4xl mx-auto">
             {isFrench ? "Ouvrir de nouveaux horizons. Rendre l'opportunité possible." : isArabic ? "فتح آفاق جديدة. جعل الفرص ممكنة للجميع." : "Open New Horizons. Make Opportunity Possible."}
@@ -224,8 +224,8 @@ export default function Donate() {
                 </p>
                 <p className="text-base leading-relaxed text-sage mb-5">
                   {isFrench
-                    ? "Cap Entrepreneurs s'efforce de combler ces fossés en rassemblant les forces vives autour de l'apprentissage concret, de la technologie inclusive, de l'entrepreneuriat et de l'innovation sociale."
-                    : "CAP Entrepreneurs works to help bridge these gaps by bringing people together around practical learning, inclusive technology, entrepreneurship and social innovation."}
+                    ? "3M Services s'efforce de combler ces fossés en rassemblant les forces vives autour de l'apprentissage concret, de la technologie inclusive, de l'entrepreneuriat et de l'innovation sociale."
+                    : "3M SERVICES works to help bridge these gaps by bringing people together around practical learning, inclusive technology, entrepreneurship and social innovation."}
                 </p>
                 <p className="text-base leading-relaxed text-forest font-medium">
                   {isFrench
@@ -271,13 +271,13 @@ export default function Donate() {
               <p className="mt-4 text-base text-sage">
                 {isFrench
                   ? "Votre contribution soutient directement le développement et le déploiement sur le terrain de nos quatre piliers structurants :"
-                  : "Your contribution can support the development and delivery of CAP Entrepreneurs' four core programs."}
+                  : "Your contribution can support the development and delivery of 3M SERVICES' four core programs."}
               </p>
             </Reveal>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
-            {/* 1. CAP Green Lab */}
+            {/* 1. 3M Services Mobilité */}
             <Reveal delay={0.1}>
               <div className="p-8 border border-forest/10 bg-[#FAFAFA] flex flex-col justify-between h-full hover:border-maple transition-colors shadow-xs">
                 <div>
@@ -285,14 +285,14 @@ export default function Donate() {
                     <span className="font-serif text-2xl italic font-bold text-maple">01</span>
                     <Globe2 className="h-6 w-6 text-maple" />
                   </div>
-                  <h3 className="font-heading text-xl sm:text-2xl font-bold text-forest mb-1">CAP Green Lab</h3>
+                  <h3 className="font-heading text-xl sm:text-2xl font-bold text-forest mb-1">3M Services Mobilité</h3>
                   <p className="font-montserrat text-xs font-semibold uppercase tracking-wider text-maple mb-4">
                     {isFrench ? "Technologie inclusive & Économie circulaire" : "Inclusive Technology & Circular Economy"}
                   </p>
                   <p className="text-sm text-sage leading-relaxed mb-4">
                     {isFrench
-                      ? "La technologie doit être accessible, utile et gérée de manière responsable. CAP Green Lab réunit inclusion numérique, compétences techniques de réparation et réemploi responsable."
-                      : "Technology should be accessible, useful and responsibly managed. CAP Green Lab brings together digital inclusion, accessibility and circular-economy practices."}
+                      ? "La technologie doit être accessible, utile et gérée de manière responsable. 3M Services Mobilité réunit inclusion numérique, compétences techniques de réparation et réemploi responsable."
+                      : "Technology should be accessible, useful and responsibly managed. 3M Services Mobilité brings together digital inclusion, accessibility and circular-economy practices."}
                   </p>
                   <ul className="space-y-2 text-xs text-forest/80 font-medium">
                     <li className="flex items-center gap-2">• {isFrench ? "Reconditionnement et réutilisation d'équipements informatiques" : "Refurbishing and reusing digital equipment"}</li>
@@ -420,8 +420,8 @@ export default function Donate() {
               <div className="w-12 h-px bg-maple my-6" />
               <p className="text-base sm:text-lg text-bone/80 leading-relaxed mb-8">
                 {isFrench
-                  ? "Au-delà de chaque programme individuel, Cap Entrepreneurs développe un écosystème qui relie comités, programmes, bénévoles, partenaires et communautés. Vos contributions permettent de financer les outils d'apprentissage, la coordination des missions et la mesure continue de l'impact social."
-                  : "Beyond individual programs, CAP Entrepreneurs is developing an ecosystem that connects committees, programs, volunteers, partners and communities. Contributions support learning tools, mission coordination and verified impact tracking."}
+                  ? "Au-delà de chaque programme individuel, 3M Services développe un écosystème qui relie comités, programmes, bénévoles, partenaires et communautés. Vos contributions permettent de financer les outils d'apprentissage, la coordination des missions et la mesure continue de l'impact social."
+                  : "Beyond individual programs, 3M SERVICES is developing an ecosystem that connects committees, programs, volunteers, partners and communities. Contributions support learning tools, mission coordination and verified impact tracking."}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-montserrat uppercase tracking-wider text-bone/90">
@@ -460,8 +460,8 @@ export default function Donate() {
               </h2>
               <p className="mt-4 text-base text-sage">
                 {isFrench
-                  ? "Cap Entrepreneurs est enraciné au Québec, connecté au Canada et ouvert sur le monde. Notre parcours international planifié tisse des collaborations durables à travers 4 étapes clés :"
-                  : "CAP Entrepreneurs is rooted in Quebec, connected to Canada and open to the world through our planned international journey:"}
+                  ? "3M Services est enraciné au Québec, connecté au Canada et ouvert sur le monde. Notre parcours international planifié tisse des collaborations durables à travers 4 étapes clés :"
+                  : "3M SERVICES is rooted in Quebec, connected to Canada and open to the world through our planned international journey:"}
               </p>
             </Reveal>
           </div>
@@ -643,9 +643,9 @@ export default function Donate() {
                     className="w-full border border-forest/20 bg-white px-4 py-3 text-xs sm:text-sm text-forest focus:border-maple outline-none"
                   >
                     <option value="General Support / Mission Globale">
-                      {isFrench ? "Soutien général - Mission globale de Cap Entrepreneurs" : "General Support - Cap Entrepreneurs core mission"}
+                      {isFrench ? "Soutien général - Mission globale de 3M Services" : "General Support - 3M Services core mission"}
                     </option>
-                    <option value="CAP Green Lab">CAP Green Lab (Tech inclusive & Circularité)</option>
+                    <option value="3M Services Mobilité">3M Services Mobilité (Tech inclusive & Circularité)</option>
                     <option value="AgriConnect">AgriConnect (Entrepreneuriat rural & AgriTech)</option>
                     <option value="Safe Vibe">Safe Vibe (Médias numériques & Jeunesse)</option>
                     <option value="Creative & Social Entrepreneurship">
@@ -833,7 +833,7 @@ export default function Donate() {
               </Link>
             </div>
             <p className="mt-6 font-serif italic text-sm text-bone/60">
-              CAP Entrepreneurs - Opening New Horizons.
+              3M SERVICES - Opening New Horizons.
             </p>
           </Reveal>
         </div>
@@ -846,7 +846,7 @@ export default function Donate() {
             instagram:
           </span>
           <span className="font-montserrat text-[10px] font-bold uppercase tracking-[0.25em] text-forest/70 -mt-1 block">
-            @cap_entrepreneurs
+            @3mservices_cm
           </span>
         </div>
 

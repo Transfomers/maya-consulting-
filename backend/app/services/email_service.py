@@ -14,12 +14,12 @@ logger = logging.getLogger("email_service")
 # Default Hostinger configuration
 DEFAULT_SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.hostinger.com")
 DEFAULT_SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
-DEFAULT_SMTP_USER = os.environ.get("SMTP_USER", "contact@capentrepreneurs.org")
+DEFAULT_SMTP_USER = os.environ.get("SMTP_USER", "contact@3mservice.shop")
 DEFAULT_SMTP_PASS = os.environ.get("SMTP_PASS", "")
 DEFAULT_SMTP_SECURE = os.environ.get("SMTP_SECURE", "true").lower() in ("true", "1", "yes")
-DEFAULT_FROM_NAME = os.environ.get("NEWSLETTER_FROM_NAME", "CAP Entrepreneurs")
-DEFAULT_FROM_EMAIL = os.environ.get("NEWSLETTER_FROM_EMAIL", "contact@capentrepreneurs.org")
-DEFAULT_REPLY_TO = os.environ.get("NEWSLETTER_REPLY_TO", "contact@capentrepreneurs.org")
+DEFAULT_FROM_NAME = os.environ.get("NEWSLETTER_FROM_NAME", "3M SERVICES")
+DEFAULT_FROM_EMAIL = os.environ.get("NEWSLETTER_FROM_EMAIL", "contact@3mservice.shop")
+DEFAULT_REPLY_TO = os.environ.get("NEWSLETTER_REPLY_TO", "contact@3mservice.shop")
 
 
 def get_smtp_config_from_db(settings_map: Dict[str, str]) -> Dict[str, Any]:
@@ -71,7 +71,7 @@ def send_smtp_sync(
     msg["To"] = recipient
     msg["Reply-To"] = reply_to
     msg["Date"] = formatdate(localtime=True)
-    msg["Message-ID"] = make_msgid(domain="capentrepreneurs.org")
+    msg["Message-ID"] = make_msgid(domain="3mservice.shop")
 
     if unsubscribe_url:
         msg["List-Unsubscribe"] = f"<{unsubscribe_url}>"
@@ -133,9 +133,9 @@ async def send_email(
 # --- HTML Email Template Generators (Inline CSS & Table-based for 100% email client support) ---
 
 def render_base_email(body_html: str, unsubscribe_url: Optional[str] = None, preview_text: Optional[str] = None) -> str:
-    logo_url = "https://capentrepreneurs.org/assets/logo-mark.png"
-    unsub_link = unsubscribe_url or "https://capentrepreneurs.org/unsubscribe"
-    preview = preview_text or "CAP Entrepreneurs - Bâtir des économies numériques inclusives et durables."
+    logo_url = "https://www.3mservice.shop/assets/logo-mark.png"
+    unsub_link = unsubscribe_url or "https://www.3mservice.shop/unsubscribe"
+    preview = preview_text or "3M SERVICES - Bâtir des économies numériques inclusives et durables."
 
     return f"""<!DOCTYPE html>
 <html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
@@ -143,7 +143,7 @@ def render_base_email(body_html: str, unsubscribe_url: Optional[str] = None, pre
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>CAP Entrepreneurs</title>
+  <title>3M SERVICES</title>
   <style type="text/css">
     body, table, td, a {{ -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }}
     table, td {{ mso-table-lspace: 0pt; mso-table-rspace: 0pt; }}
@@ -178,8 +178,8 @@ def render_base_email(body_html: str, unsubscribe_url: Optional[str] = None, pre
               <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
                   <td align="left" valign="middle">
-                    <a href="https://capentrepreneurs.org" target="_blank" style="text-decoration: none;">
-                      <img src="{logo_url}" alt="CAP Entrepreneurs" width="150" style="display: block; width: 150px; max-width: 150px; height: auto; border: 0;" />
+                    <a href="https://www.3mservice.shop" target="_blank" style="text-decoration: none;">
+                      <img src="{logo_url}" alt="3M SERVICES" width="150" style="display: block; width: 150px; max-width: 150px; height: auto; border: 0;" />
                     </a>
                   </td>
                   <td align="right" valign="middle" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #B84A39;">
@@ -203,27 +203,27 @@ def render_base_email(body_html: str, unsubscribe_url: Optional[str] = None, pre
               <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
                   <td align="center" style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: #0D0E0D; padding-bottom: 8px;">
-                    CAP ENTREPRENEURS
+                    3M SERVICES
                   </td>
                 </tr>
                 <tr>
                   <td align="center" style="font-size: 11px; line-height: 18px; color: #737373; padding-bottom: 14px;">
                     Bâtir des économies numériques inclusives, accessibles et durables.<br />
-                    Montréal • Québec • Canada & Passerelles Internationales • <a href="mailto:contact@capentrepreneurs.org" style="color: #737373; text-decoration: none;">contact@capentrepreneurs.org</a>
+                    Montréal • Québec • Canada & Passerelles Internationales • <a href="mailto:contact@3mservice.shop" style="color: #737373; text-decoration: none;">contact@3mservice.shop</a>
                   </td>
                 </tr>
                 <tr>
                   <td align="center" style="font-size: 11px; line-height: 18px; color: #8C8C8C;">
-                    <a href="https://capentrepreneurs.org/privacy" target="_blank" style="color: #737373; text-decoration: underline;">Politique de confidentialité</a>
+                    <a href="https://www.3mservice.shop/privacy" target="_blank" style="color: #737373; text-decoration: underline;">Politique de confidentialité</a>
                     &nbsp;•&nbsp;
-                    <a href="https://capentrepreneurs.org/contact" target="_blank" style="color: #737373; text-decoration: underline;">Nous contacter</a>
+                    <a href="https://www.3mservice.shop/contact" target="_blank" style="color: #737373; text-decoration: underline;">Nous contacter</a>
                     &nbsp;•&nbsp;
                     <a href="{unsub_link}" target="_blank" style="color: #B84A39; text-decoration: underline; font-weight: 600;">Se désabonner</a>
                   </td>
                 </tr>
                 <tr>
                   <td align="center" style="font-size: 10px; color: #A3A3A3; padding-top: 12px;">
-                    Vous recevez cet envoi car vous êtes abonné aux communications de Cap Entrepreneurs.
+                    Vous recevez cet envoi car vous êtes abonné aux communications de 3M Services.
                   </td>
                 </tr>
               </table>
@@ -244,14 +244,14 @@ def render_confirmation_email(
     subscriber_email: str,
     first_name: Optional[str],
     confirmation_token: str,
-    frontend_url: str = "https://capentrepreneurs.org",
+    frontend_url: str = "https://www.3mservice.shop",
     lang: str = "fr"
 ) -> Tuple[str, str, str]:
     """Generates the Double Opt-In confirmation email."""
     confirm_url = f"{frontend_url.rstrip('/')}/confirm-subscription?token={confirmation_token}"
     greeting = f"Bonjour {first_name}," if first_name else "Bonjour,"
 
-    subject = "Confirmez votre inscription à l'infolettre CAP Entrepreneurs"
+    subject = "Confirmez votre inscription à l'infolettre 3M SERVICES"
     preview = "Veuillez confirmer votre adresse courriel pour recevoir nos publications."
 
     body = f"""
@@ -263,14 +263,14 @@ def render_confirmation_email(
         </tr>
         <tr>
           <td style="font-family: Georgia, 'Times New Roman', serif; font-size: 26px; line-height: 34px; font-weight: normal; color: #0D0E0D; padding-bottom: 18px;">
-            Bienvenue dans l'écosystème de CAP Entrepreneurs
+            Bienvenue dans l'écosystème de 3M SERVICES
           </td>
         </tr>
         <tr>
           <td style="font-size: 14px; line-height: 24px; color: #4A4A4A; padding-bottom: 22px;">
             <p style="margin: 0 0 14px 0;">{greeting}</p>
             <p style="margin: 0 0 14px 0;">
-              Nous avons bien reçu votre demande d'inscription à l'infolettre de <strong>CAP Entrepreneurs</strong>. Pour finaliser votre adhésion et recevoir nos prochains articles, guides méthodologiques et opportunités de programmes, merci de confirmer votre adresse en cliquant sur le bouton ci-dessous :
+              Nous avons bien reçu votre demande d'inscription à l'infolettre de <strong>3M SERVICES</strong>. Pour finaliser votre adhésion et recevoir nos prochains articles, guides méthodologiques et opportunités de programmes, merci de confirmer votre adresse en cliquant sur le bouton ci-dessous :
             </p>
           </td>
         </tr>
@@ -297,15 +297,15 @@ def render_confirmation_email(
 
     plain_text = f"""{greeting}
 
-Bienvenue dans l'écosystème de CAP Entrepreneurs.
+Bienvenue dans l'écosystème de 3M SERVICES.
 
 Veuillez confirmer votre inscription à notre infolettre en cliquant sur le lien suivant :
 {confirm_url}
 
 Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer ce message.
 
-CAP Entrepreneurs - Bâtir des économies numériques inclusives, accessibles et durables.
-https://capentrepreneurs.org
+3M SERVICES - Bâtir des économies numériques inclusives, accessibles et durables.
+https://www.3mservice.shop
 """
 
     return subject, render_base_email(body, preview_text=preview), plain_text
@@ -316,7 +316,7 @@ def render_article_notification_email(
     subscriber_email: Optional[str] = None,
     first_name: Optional[str] = None,
     template: Optional[Any] = None,
-    frontend_url: str = "https://capentrepreneurs.org",
+    frontend_url: str = "https://www.3mservice.shop",
     unsubscribe_token: Optional[str] = None,
     unsubscribe_url: Optional[str] = None,
     preview_text: Optional[str] = None
@@ -361,7 +361,7 @@ def render_article_notification_email(
     if not image_url:
         image_url = "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80"
 
-    subject = f"Nouvel article : {title} | CAP Entrepreneurs"
+    subject = f"Nouvel article : {title} | 3M SERVICES"
     preview = f"{title} - {excerpt[:120]}..."
 
     heading_text = template.heading if template and template.heading else "Découvrez notre nouvel article"
@@ -421,7 +421,7 @@ def render_article_notification_email(
       </table>
     """
 
-    plain_text = f"""NOUVEL ARTICLE SUR CAP ENTREPRENEURS
+    plain_text = f"""NOUVEL ARTICLE SUR 3M SERVICES
 
 {title}
 Catégorie: {category_name}
@@ -434,8 +434,8 @@ Lire l'article complet:
 Pour vous désabonner:
 {unsub_url}
 
-CAP Entrepreneurs
-https://capentrepreneurs.org
+3M SERVICES
+https://www.3mservice.shop
 """
 
     return subject, render_base_email(body, unsubscribe_url=unsub_url, preview_text=preview), plain_text
@@ -453,7 +453,7 @@ async def post_to_teams(webhook_url: str, title: str, text: str, action_url: Opt
         "summary": title,
         "sections": [{
             "activityTitle": f"📢 {title}",
-            "activitySubtitle": "CAP Entrepreneurs • Publication & Diffusion",
+            "activitySubtitle": "3M SERVICES • Publication & Diffusion",
             "text": text,
             "markdown": True
         }]

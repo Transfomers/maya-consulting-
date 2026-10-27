@@ -51,10 +51,10 @@ const GlobalFestival = () => {
 
   const handleShareQuote = () => {
     const text = isEn
-      ? "« CAP Entrepreneurs connects people, skills, technology and opportunities to build inclusive, accessible and sustainable digital economies. » - CAP Entrepreneurs"
+      ? "« 3M SERVICES connects people, skills, technology and opportunities to build inclusive, accessible and sustainable digital economies. » - 3M SERVICES"
       : isAr
         ? "« تربط كاب رواد الأعمال بين الأفراد والمهارات والتكنولوجيا والفرص لبناء اقتصادات رقمية شاملة ومستدامة. » - كاب رواد الأعمال"
-        : "« CAP Entrepreneurs connecte les individus, les compétences, les technologies et les opportunités pour bâtir des économies numériques inclusives, accessibles et durables. » - CAP Entrepreneurs";
+        : "« 3M SERVICES connecte les individus, les compétences, les technologies et les opportunités pour bâtir des économies numériques inclusives, accessibles et durables. » - 3M SERVICES";
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);
@@ -106,7 +106,7 @@ const GlobalFestival = () => {
                   <span className="h-1 w-1 rounded-full bg-sage" />
                   <span>NAIROBI 2027</span>
                   <span className="h-1 w-1 rounded-full bg-sage" />
-                  <span>CAP ENTREPRENEURS</span>
+                  <span>3M SERVICES</span>
                 </div>
 
                 {/* Quick Anchor Link */}
@@ -128,7 +128,7 @@ const GlobalFestival = () => {
                 <div className="relative mx-auto max-w-[440px] lg:max-w-none overflow-hidden bg-black shadow-lg">
                   <img
                     src={FESTIVAL_ASSETS.heroPortrait}
-                    alt="CAP Entrepreneurs - Opening New Horizons"
+                    alt="3M SERVICES - Opening New Horizons"
                     className="aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5] w-full object-cover filter grayscale contrast-125 transition-transform duration-700 hover:scale-105"
                   />
                 </div>
@@ -162,8 +162,8 @@ const GlobalFestival = () => {
                     { num: "2", title: isEn ? "Signal Seekers (North)" : "Capteurs de Signaux (Nord)", id: "signal-seekers" },
                     { num: "3", title: isEn ? "Door Openers (South)" : "Ouvreurs de Portes (Sud)", id: "door-openers" },
                     { num: "4", title: isEn ? "Core Message" : "Message Fondateur", id: "core-message" },
-                    { num: "5", title: isEn ? "Windows of CAP" : "Les Fenêtres de CAP", id: "windows-of-cap" },
-                    { num: "6", title: isEn ? "The Next CAP" : "Le Prochain CAP", id: "next-cap" },
+                    { num: "5", title: isEn ? "Les Actualités 3M SERVICES" : "Les Actualités 3M SERVICES", id: "windows-of-cap" },
+                    { num: "6", title: isEn ? "Le Futur avec 3M SERVICES" : "Le Futur avec 3M SERVICES", id: "next-cap" },
                     { num: "7", title: isEn ? "Our Voice" : "Notre Voix", id: "our-voice" },
                     { num: "8", title: isEn ? "Our Signature" : "Notre Signature", id: "our-signature" },
                     { num: "9", title: isEn ? "Festival Spaces" : "Espaces du Festival", id: "article-sources" },
@@ -191,7 +191,7 @@ const GlobalFestival = () => {
                 </span>
                 <div className="flex items-center gap-3">
                   <a
-                    href="https://twitter.com/intent/tweet?text=CAP%20Entrepreneurs%20-%20Opening%20New%20Horizons.%20Our%20roots%20are%20Canadian.%20Our%20ambition%20is%20global."
+                    href="https://twitter.com/intent/tweet?text=3M%20SERVICES%20-%20Fournisseur%20Automobile%20et%20Immobilier%20de%20R%C3%A9f%C3%A9rence%20%C3%A0%20Yaound%C3%A9."
                     target="_blank"
                     rel="noreferrer"
                     className="flex h-8 w-8 items-center justify-center border border-[#0D0E0D]/10 text-sage hover:text-maple hover:border-maple transition-colors"
@@ -199,7 +199,7 @@ const GlobalFestival = () => {
                     <Twitter className="h-3.5 w-3.5" />
                   </a>
                   <a
-                    href="https://www.linkedin.com/sharing/share-offsite/?url=https://capentrepreneurs.org/global-festival"
+                    href="https://www.linkedin.com/sharing/share-offsite/?url=https://www.3mservice.shop/global-festival"
                     target="_blank"
                     rel="noreferrer"
                     className="flex h-8 w-8 items-center justify-center border border-[#0D0E0D]/10 text-sage hover:text-maple hover:border-maple transition-colors"
@@ -207,7 +207,7 @@ const GlobalFestival = () => {
                     <Linkedin className="h-3.5 w-3.5" />
                   </a>
                   <a
-                    href="mailto:?subject=CAP%20Entrepreneurs%20-%20Global%20Festival&body=https://capentrepreneurs.org/global-festival"
+                    href="mailto:?subject=3M%20SERVICES%20-%20Catalogue%20et%20Services&body=https://www.3mservice.shop/"
                     className="flex h-8 w-8 items-center justify-center border border-[#0D0E0D]/10 text-sage hover:text-maple hover:border-maple transition-colors"
                   >
                     <Mail className="h-3.5 w-3.5" />
@@ -255,14 +255,14 @@ const GlobalFestival = () => {
               <Reveal>
                 <img
                   src={FESTIVAL_ASSETS.landscapePhoto}
-                  alt="CAP Global Community & Festival"
+                  alt="3M SERVICES Community"
                   className="aspect-[16/9] w-full object-cover transition-transform duration-700 hover:scale-102"
                 />
                 <div className="p-4 bg-white border-t border-[#0D0E0D]/10 text-center">
                   <p className="font-serif italic text-xs sm:text-sm text-sage">
                     {isEn
-                      ? "© CAP Global Festival- Connecting thinkers, creators, and community builders across borders."
-                      : "© CAP Global Festival- Connecter penseurs, créateurs et bâtisseurs par-delà les frontières."}
+                      ? "© 3M SERVICES- Connecting thinkers, creators, and community builders across borders."
+                      : "© 3M SERVICES- Connecter penseurs, créateurs et bâtisseurs par-delà les frontières."}
                   </p>
                 </div>
               </Reveal>
@@ -329,8 +329,8 @@ const GlobalFestival = () => {
                 <div className="border-l-2 border-maple bg-[#FAF9F6] p-5 my-4">
                   <p className="font-serif italic text-sm sm:text-base text-[#0D0E0D] leading-relaxed">
                     {isEn
-                      ? "« North and South describe complementary community roles within the CAP ecosystem. They are not geographic restrictions on who can participate. »"
-                      : "« Nord et Sud décrivent des rôles communautaires complémentaires au sein de l'écosystème CAP. Ce ne sont pas des restrictions géographiques sur la participation. »"}
+                      ? "« North and South describe complementary community roles within the Écosystème 3M SERVICES. They are not geographic restrictions on who can participate. »"
+                      : "« Nord et Sud décrivent des rôles communautaires complémentaires au sein de l'écosystème 3M SERVICES. Ce ne sont pas des restrictions géographiques sur la participation. »"}
                   </p>
                 </div>
               </Reveal>
@@ -347,11 +347,11 @@ const GlobalFestival = () => {
                 <blockquote className="font-serif text-xl sm:text-2xl md:text-3xl font-normal text-[#0D0E0D] leading-[1.4] mb-8">
                   {isEn ? (
                     <>
-                      CAP Entrepreneurs connects people, skills, technology and opportunities to build inclusive, accessible and sustainable digital economies. We help people discover possibilities, develop capabilities and create meaningful connections- in Canada and internationally.
+                      3M SERVICES connects people, skills, technology and opportunities to build inclusive, accessible and sustainable digital economies. We help people discover possibilities, develop capabilities and create meaningful connections- in Canada and internationally.
                     </>
                   ) : (
                     <>
-                      CAP Entrepreneurs connecte les individus, les compétences, les technologies et les opportunités pour bâtir des économies numériques inclusives, accessibles et durables. Nous aidons chacun à découvrir des possibilités, développer ses capacités et créer des connexions significatives- au Canada et à l'international.
+                      3M SERVICES connecte les individus, les compétences, les technologies et les opportunités pour bâtir des économies numériques inclusives, accessibles et durables. Nous aidons chacun à découvrir des possibilités, développer ses capacités et créer des connexions significatives- au Canada et à l'international.
                     </>
                   )}
                 </blockquote>
@@ -360,7 +360,7 @@ const GlobalFestival = () => {
                   <div className="text-xs font-montserrat tracking-[0.2em] uppercase text-sage">
                     <span>{isEn ? "OUR CORE MESSAGE" : "NOTRE MESSAGE FONDATEUR"}</span>
                     <span className="mx-2">•</span>
-                    <span>CAP ENTREPRENEURS</span>
+                    <span>3M SERVICES</span>
                   </div>
 
                   <button
@@ -374,7 +374,7 @@ const GlobalFestival = () => {
               </Reveal>
             </div>
 
-            {/* SECTION: THE WINDOWS OF CAP */}
+            {/* SECTION: Les Actualités 3M SERVICES */}
             <article id="windows-of-cap" className="scroll-mt-28 space-y-5 pt-8 border-t border-[#0D0E0D]/10">
               <Reveal>
                 <div className="border-b border-[#0D0E0D]/10 pb-4">
@@ -382,7 +382,7 @@ const GlobalFestival = () => {
                     {isEn ? "EDITORIAL PLATFORM" : "PLATEFORME ÉDITORIALE"}
                   </span>
                   <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-medium text-[#0D0E0D]">
-                    {isEn ? "The Windows of CAP" : "Les Fenêtres de CAP"}
+                    {isEn ? "Les Actualités 3M SERVICES" : "Les Actualités 3M SERVICES"}
                   </h2>
                   <p className="mt-2 font-serif italic text-lg sm:text-xl text-[#0D0E0D]">
                     {isEn ? "Discover what's possible." : "Découvrir ce qui est possible."}
@@ -407,7 +407,7 @@ const GlobalFestival = () => {
               </Reveal>
             </article>
 
-            {/* SECTION: THE NEXT CAP */}
+            {/* SECTION: Le Futur avec 3M SERVICES */}
             <article id="next-cap" className="scroll-mt-28 space-y-5 pt-8 border-t border-[#0D0E0D]/10">
               <Reveal>
                 <div className="border-b border-[#0D0E0D]/10 pb-4">
@@ -415,7 +415,7 @@ const GlobalFestival = () => {
                     {isEn ? "STORYTELLING & AMBITIONS" : "ESPACE RÉCITS & AMBITIONS"}
                   </span>
                   <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-medium text-[#0D0E0D]">
-                    {isEn ? "The Next CAP" : "Le Prochain CAP"}
+                    {isEn ? "Le Futur avec 3M SERVICES" : "Le Futur avec 3M SERVICES"}
                   </h2>
                   <p className="mt-2 font-serif italic text-lg sm:text-xl text-[#0D0E0D]">
                     {isEn ? "What's your next move?" : "Quelle est votre prochaine étape ?"}
@@ -424,8 +424,8 @@ const GlobalFestival = () => {
 
                 <p className="font-sans text-sm sm:text-base text-sage leading-relaxed">
                   {isEn
-                    ? "Our storytelling space for personal journeys, entrepreneurial ambitions and new directions. We chronicle the transformations of students, founders, researchers and community leaders who found their next breakthrough through the CAP network."
-                    : "Notre espace de narration dédié aux parcours personnels, aux ambitions entrepreneuriales et aux nouvelles orientations. Nous mettons en lumière les trajectoires d'étudiants, de fondateurs, de chercheurs et de leaders communautaires qui ont franchi un cap décisif grâce au réseau CAP."}
+                    ? "Our storytelling space for personal journeys, entrepreneurial ambitions and new directions. We chronicle the transformations of students, founders, researchers and community leaders who found their next breakthrough through the 3M SERVICES network."
+                    : "Notre espace de narration dédié aux parcours personnels, aux ambitions entrepreneuriales et aux nouvelles orientations. Nous mettons en lumière les trajectoires d'étudiants, de fondateurs, de chercheurs et de leaders communautaires qui ont franchi une étape décisive grâce au réseau 3M SERVICES."}
                 </p>
 
                 <div className="pt-2">
@@ -503,7 +503,7 @@ const GlobalFestival = () => {
 
                 <div className="bg-white border border-[#0D0E0D]/15 p-6 sm:p-8">
                   <h3 className="font-serif text-2xl sm:text-3xl font-medium text-[#0D0E0D]">
-                    CAP Entrepreneurs- {isEn ? "Opening New Horizons." : "Ouvrir de Nouveaux Horizons."}
+                    3M SERVICES- {isEn ? "Opening New Horizons." : "Ouvrir de Nouveaux Horizons."}
                   </h3>
                   <p className="mt-3 font-serif italic text-base sm:text-lg text-sage leading-relaxed">
                     {isEn

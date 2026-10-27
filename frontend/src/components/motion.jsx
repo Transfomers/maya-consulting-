@@ -6,14 +6,7 @@ import { Asterisk } from "lucide-react";
 const EASE = [0.16, 1, 0.3, 1];
 
 export const ScrollProgress = () => {
-  const { scrollYProgress } = useScroll();
-  return (
-    <motion.div
-      data-testid="scroll-progress"
-      className="fixed left-0 top-0 z-[70] h-[3px] w-full origin-left"
-      style={{ scaleX: scrollYProgress, background: "linear-gradient(90deg, #6725EB 0%, #7A3EF0 50%, #8F65DD 100%)" }}
-    />
-  );
+  return null;
 };
 
 export const Magnetic = ({ children, strength = 0.25, className = "" }) => {
@@ -109,7 +102,7 @@ export const EditorialMarquee = ({ items = [], dark = false, testId }) => {
     "TECH INCLUSIVE & DURABLE",
     "ÉCONOMIE CIRCULAIRE",
     "PASSERELLES MONDIALES",
-    "CAP ENTREPRENEURS"
+    "3M SERVICES"
   ];
   return (
     <div

@@ -83,12 +83,12 @@ async def create_submission(input: SubmissionInput, db: AsyncSession = Depends(g
         if not name:
             name = "Visiteur"
         if not email:
-            email = "anonyme@capentrepreneurs.org"
+            email = "client@3mservice.shop"
     elif form_type == "donate":
         if not name:
             name = "Donateur Anonyme"
         if not email:
-            email = "don@capentrepreneurs.org"
+            email = "contact@3mservice.shop"
     elif form_type == "partner":
         if not email:
             raise HTTPException(status_code=422, detail="Email is required for partnership inquiries")
@@ -286,7 +286,7 @@ async def export_submissions(
     return Response(
         content=content,
         media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename=submissions_cap_{datetime.now().strftime('%Y%m%d')}.csv"}
+        headers={"Content-Disposition": f"attachment; filename=submissions_3m_{datetime.now().strftime('%Y%m%d')}.csv"}
     )
 
 @router.put("/{id}")

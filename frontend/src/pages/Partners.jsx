@@ -7,7 +7,7 @@ import { PARTNER_TYPES, PARTNER_TYPES_FR, PARTNER_TYPES_AR } from "@/lib/content
 import { useLang } from "@/lib/i18n";
 import { ArrowUpRight, ArrowRight, CheckCircle2, Download, Handshake, Globe2, Building2, Check, ChevronDown, ChevronUp } from "lucide-react";
 
-// Curated editorial assets matching CAP Entrepreneurs mission
+// Curated editorial assets matching 3M SERVICES mission
 const EDITORIAL_PARTNER_ASSETS = {
   mainTallPortrait: "/assets/images/cap_green_lab.webp",
   floatingPortrait: "/assets/murielle-portrait.webp",
@@ -69,7 +69,7 @@ const Partners = () => {
     <div data-testid="partners-page" className="bg-[#FAF9F6] text-[#0D0E0D] font-sans selection:bg-maple selection:text-white">
       <EditorialRejoindreHero
         testId="partners-hero"
-        brandName="Cap-Entrepreneurs"
+        brandName="3M SERVICES"
         categoryKicker={lang === "fr" ? "ALLIANCES & IMPACT STRATÉGIQUE" : lang === "ar" ? "الشراكات والأثر" : "ALLIANCES & STRATEGIC IMPACT"}
         verticalKicker={lang === "fr" ? "P A R T E N A I R E S" : lang === "ar" ? "ش ر ك ا ء" : "P A R T N E R S"}
         titleLines={lang === "fr" ? ["Vision", "Partagée,", "Impact", "Mesurable."] : lang === "ar" ? ["رؤية", "مشتركة،", "وأثر", "ملموس."] : ["Shared", "Vision.", "Collective", "Impact."]}
@@ -133,7 +133,7 @@ const Partners = () => {
               <div className="flex-1 overflow-hidden bg-[#FAF9F6] border border-[#0D0E0D]/10 shadow-sm">
                 <img
                   src={EDITORIAL_PARTNER_ASSETS.mainTallPortrait}
-                  alt="Partenaire Fondateur Cap Entrepreneurs"
+                  alt="Partenaire Fondateur 3M Services"
                   className="aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] w-full object-cover transition-transform duration-700 hover:scale-[1.02]"
                 />
               </div>
@@ -151,7 +151,7 @@ const Partners = () => {
                 </h2>
 
                 <p className="mt-5 text-xs sm:text-sm md:text-[15px] leading-relaxed text-sage font-sans">
-                  {t.partners.foundingWhy || "En soutenant Cap Entrepreneurs dès ses premières années, vous contribuez à bâtir un écosystème durable et inclusif. Vous bénéficiez d'une visibilité privilégiée et d'une association forte à l'innovation sociale et aux meilleures pratiques canadiennes."}
+                  {t.partners.foundingWhy || "En soutenant 3M Services dès ses premières années, vous contribuez à bâtir un écosystème durable et inclusif. Vous bénéficiez d'une visibilité privilégiée et d'une association forte à l'innovation sociale et aux meilleures pratiques canadiennes."}
                 </p>
 
                 {/* Elegant Textual Links (Like "Shop the look →" in reference) */}
@@ -171,7 +171,7 @@ const Partners = () => {
                   </div>
                   <div>
                     <a
-                      href="mailto:contact@capentrepreneurs.org?subject=Partnership%20Package%20Request"
+                      href="mailto:contact@3mservice.shop?subject=Partnership%20Package%20Request"
                       className="group inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-sage hover:text-[#0D0E0D] transition-colors"
                     >
                       <span>{t.partners.ctaPackage || "Télécharger notre dossier"}</span>
@@ -188,7 +188,7 @@ const Partners = () => {
                 <div className="overflow-hidden bg-[#FAF9F6] border border-[#0D0E0D]/10 shadow-sm">
                   <img
                     src={EDITORIAL_PARTNER_ASSETS.floatingPortrait}
-                    alt="Murielle Kouadio • Fondatrice Cap Entrepreneurs"
+                    alt="Murielle Kouadio • Fondatrice 3M Services"
                     className="aspect-[3/4] w-full object-cover transition-transform duration-700 hover:scale-[1.03]"
                   />
                 </div>
@@ -274,7 +274,7 @@ const Partners = () => {
                       {t.partners.ctaFounding} →
                     </button>
                     <a
-                      href="mailto:contact@capentrepreneurs.org?subject=Partnership%20Package%20Request"
+                      href="mailto:contact@3mservice.shop?subject=Partnership%20Package%20Request"
                       className="border border-[#0D0E0D] px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-[#0D0E0D] hover:bg-white transition-colors"
                     >
                       {t.partners.ctaPackage}
@@ -296,7 +296,7 @@ const Partners = () => {
           lang === "fr" ? "TECH INCLUSIVE & DURABLE" : "INCLUSIVE TECH",
           lang === "fr" ? "ÉCONOMIE CIRCULAIRE" : "CIRCULAR ECONOMY",
           lang === "fr" ? "PASSERELLES MONDIALES" : "GLOBAL BRIDGES",
-          "CAP ENTREPRENEURS"
+          "3M SERVICES"
         ]}
       />
 

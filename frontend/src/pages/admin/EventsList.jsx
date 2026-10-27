@@ -137,7 +137,7 @@ export default function AdminEventsList() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-heading text-2xl sm:text-3xl font-black tracking-tight text-forest">Events</h1>
-          <p className="text-sm text-sage">Manage and schedule CAP Entrepreneurs events</p>
+          <p className="text-sm text-sage">Manage and schedule 3M SERVICES events</p>
         </div>
 
         {/* Actions */}

@@ -67,7 +67,7 @@ export default function About() {
                   <div>
                     <h4 className="text-sm font-bold text-forest uppercase tracking-wider">Location d'Appartements</h4>
                     <p className="text-xs text-sage mt-1">
-                      Appartements meublés de haut standing à Yaoundé (Bastos, Omnisport), climatisés, gardiennage 24/7, wifi haut débit et parking sécurisé.
+                      Appartements meublés de haut standing à Yaoundé (Tsinga - Face FECAFOOT, Omnisport, et bientôt Oyomabang), climatisés, gardiennage 24/7, wifi haut débit et parking sécurisé.
                     </p>
                   </div>
                 </div>

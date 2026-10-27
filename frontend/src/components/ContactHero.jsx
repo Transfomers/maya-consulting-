@@ -37,7 +37,7 @@ const ContactHero = () => {
           >
             <img
               src={IMAGES.community1}
-              alt="Cap Entrepreneurs Contact & Support"
+              alt="3M Services Contact & Support"
               className="h-full w-full object-cover"
             />
           </motion.div>

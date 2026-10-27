@@ -23,7 +23,7 @@ export default function AdminNewsletter() {
             Infolettre & Automatisation Email
           </h1>
           <p className="text-xs text-forest/60 mt-0.5">
-            Expéditeur officiel : <span className="font-mono text-forest font-semibold">contact@capentrepreneurs.org</span>
+            Expéditeur officiel : <span className="font-mono text-forest font-semibold">contact@3mservice.shop</span>
           </p>
         </div>
 
@@ -859,7 +859,7 @@ function NewsletterTemplatesTab() {
       <div className="flex items-center justify-between bg-white border border-forest/15 p-4 rounded-sm">
         <div>
           <h3 className="font-heading text-sm font-bold text-forest">
-            Gabarits & Identité Visuelle CAP Entrepreneurs
+            Gabarits & Identité Visuelle 3M SERVICES
           </h3>
           <p className="text-xs text-forest/60">
             Structure HTML compatible 100% avec les clients de messagerie (Outlook, Gmail, Apple Mail, Webmail).
@@ -894,12 +894,12 @@ function NewsletterTemplatesTab() {
           <div className="p-6 text-center border-b border-forest/10 bg-[#FDFCFD]">
             <img
               src="/assets/logo-mark.png"
-              alt="CAP Entrepreneurs"
+              alt="3M SERVICES"
               className="h-10 mx-auto object-contain mb-2"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
             <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#B84A39]">
-              CAP ENTREPRENEURS • NOUVEL ARTICLE
+              3M SERVICES • NOUVEL ARTICLE
             </span>
           </div>
 
@@ -924,13 +924,13 @@ function NewsletterTemplatesTab() {
           {/* Footer */}
           <div className="p-6 border-t border-forest/10 bg-[#FDFCFD] text-center space-y-2 text-[11px] text-forest/50">
             <p>
-              Vous recevez cet avis car vous êtes inscrit à l'infolettre de CAP Entrepreneurs.
+              Vous recevez cet avis car vous êtes inscrit à l'infolettre de 3M SERVICES.
             </p>
             <p>
               <a href="#" className="underline text-forest/70">Se désabonner</a> • <a href="#" className="underline text-forest/70">Politique de confidentialité</a>
             </p>
             <p className="font-mono text-[10px]">
-              CAP Entrepreneurs • contact@capentrepreneurs.org
+              3M SERVICES • contact@3mservice.shop
             </p>
           </div>
         </div>
@@ -1167,7 +1167,7 @@ function NewsletterSettingsTab() {
             Passerelle SMTP Hostinger
           </h3>
           <p className="text-xs text-forest/60 mb-4">
-            Configuration du serveur sortant pour contact@capentrepreneurs.org.
+            Configuration du serveur sortant pour contact@3mservice.shop.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -1199,7 +1199,7 @@ function NewsletterSettingsTab() {
                 type="text"
                 value={settings?.smtp_user || ""}
                 onChange={(e) => setSettings({ ...settings, smtp_user: e.target.value })}
-                placeholder="contact@capentrepreneurs.org"
+                placeholder="contact@3mservice.shop"
                 className="w-full bg-forest/5 border border-forest/20 px-3 py-2 text-forest focus:outline-none font-mono"
               />
             </div>
@@ -1251,7 +1251,7 @@ function NewsletterSettingsTab() {
             Vérification de la Connexion SMTP
           </h3>
           <p className="text-xs text-forest/60">
-            Transmet un message de test sécurisé depuis <span className="font-semibold text-forest">contact@capentrepreneurs.org</span> pour valider vos identifiants Hostinger.
+            Transmet un message de test sécurisé depuis <span className="font-semibold text-forest">contact@3mservice.shop</span> pour valider vos identifiants Hostinger.
           </p>
         </div>
 

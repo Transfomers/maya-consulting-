@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, Sparkles, MessageSquare, Phone, CheckCircle2, ShieldCheck, Car } from "lucide-react";
 import { toast } from "sonner";
+import api from "@/lib/api";
 
 export default function CustomOrderModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
@@ -36,6 +37,19 @@ export default function CustomOrderModal({ isOpen, onClose }) {
       return;
     }
     setSubmitted(true);
+    api.post("/submissions", {
+      type: "custom_order",
+      payload: {
+        name: formData.name,
+        phone: formData.phone,
+        brand: formData.brand,
+        model: formData.model,
+        year: formData.yearMin,
+        fuel: formData.fuel,
+        budget: formData.budget,
+        notes: formData.notes
+      }
+    }).catch(console.warn);
     toast.success("Votre demande de commande spéciale a été enregistrée avec succès !");
   };
 
@@ -75,7 +89,7 @@ export default function CustomOrderModal({ isOpen, onClose }) {
             </p>
             <div className="mt-5 flex justify-center gap-3">
               <a
-                href={`https://wa.me/237677000000?text=${whatsappMessage}`}
+                href={`https://wa.me/237691786447?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2"
@@ -225,7 +239,7 @@ export default function CustomOrderModal({ isOpen, onClose }) {
               </button>
 
               <a
-                href={`https://wa.me/237677000000?text=${whatsappMessage}`}
+                href={`https://wa.me/237691786447?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center justify-center gap-2"

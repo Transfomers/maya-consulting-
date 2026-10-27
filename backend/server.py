@@ -98,7 +98,7 @@ async def get_current_user(request: Request) -> dict:
 
 @api_router.get("/")
 async def root():
-    return {"message": "CAP Entrepreneurs API"}
+    return {"message": "3M SERVICES API"}
 
 
 @api_router.post("/auth/login")

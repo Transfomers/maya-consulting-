@@ -1,7 +1,7 @@
 // 3M SERVICES - APARTMENTS STORAGE & SERVER SYNC MANAGER
 import { APARTMENTS as DEFAULT_APARTMENTS } from "./catalogVehicles";
 
-const STORAGE_KEY = "3m_apartments_catalogue_v4";
+const STORAGE_KEY = "3m_apartments_catalogue_v6";
 
 const getApiBase = () => {
   if (typeof window !== "undefined") {
@@ -44,6 +44,8 @@ export const getApartments = () => {
       localStorage.removeItem("3m_apartments_catalogue_v1");
       localStorage.removeItem("3m_apartments_catalogue_v2");
       localStorage.removeItem("3m_apartments_catalogue_v3");
+      localStorage.removeItem("3m_apartments_catalogue_v4");
+      localStorage.removeItem("3m_apartments_catalogue_v5");
     }
 
     const raw = localStorage.getItem(STORAGE_KEY);

@@ -3,11 +3,11 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: cap_backend
+    container_name: m3_backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: sqlite+aiosqlite:////app/data/capentrepreneurs.db
-      FRONTEND_URL: https://capentrepreneurs.org
+      DATABASE_URL: sqlite+aiosqlite:////app/data/3mservice.db
+      FRONTEND_URL: https://3mservice.shop
       SECRET_KEY: ${SECRET_KEY}
       CRAFTI_API_KEY: ${CRAFTI_API_KEY}
       CRAFTI_API_BASE: ${CRAFTI_API_BASE:-https://rag-platform-backend-qt2l.onrender.com}
@@ -16,12 +16,12 @@ services:
     expose:
       - "8000"
     networks:
-      - cap_network
+      - m3_network
 
   frontend:
     build:
       context: ./frontend
-    container_name: cap_frontend
+    container_name: m3_frontend
     restart: unless-stopped
     depends_on:
       - backend
@@ -30,19 +30,19 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.cap.rule=Host(`capentrepreneurs.org`) || Host(`www.capentrepreneurs.org`)"
-      - "traefik.http.routers.cap.entrypoints=web,websecure"
-      - "traefik.http.routers.cap.tls=true"
-      - "traefik.http.routers.cap.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.cap.service=cap"
-      - "traefik.http.services.cap.loadbalancer.server.port=80"
+      - "traefik.http.routers.m3service.rule=Host(`3mservice.shop`) || Host(`www.3mservice.shop`)"
+      - "traefik.http.routers.m3service.entrypoints=web,websecure"
+      - "traefik.http.routers.m3service.tls=true"
+      - "traefik.http.routers.m3service.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.m3service.service=m3service"
+      - "traefik.http.services.m3service.loadbalancer.server.port=80"
     networks:
-      - cap_network
+      - m3_network
       - proxy
 
 networks:
-  cap_network:
-    name: capentrepreneurs_default
+  m3_network:
+    name: 3mservice_default
 
   proxy:
     external: true

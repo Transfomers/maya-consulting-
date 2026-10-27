@@ -73,7 +73,7 @@ export default function Unsubscribe() {
             </div>
 
             <p className="text-sm text-forest/75 leading-relaxed">
-              {message} Vous ne recevrez plus les avis de parution ni l'infolettre de CAP Entrepreneurs.
+              {message} Vous ne recevrez plus les avis de parution ni l'infolettre de 3M SERVICES.
             </p>
 
             <div className="pt-4">
@@ -101,7 +101,7 @@ export default function Unsubscribe() {
             </div>
 
             <p className="text-sm text-forest/75 leading-relaxed">
-              Confirmez votre désabonnement pour ne plus recevoir les communications et alertes de publication de CAP Entrepreneurs.
+              Confirmez votre désabonnement pour ne plus recevoir les communications et alertes de publication de 3M SERVICES.
             </p>
 
             <form onSubmit={handleUnsubscribe} className="space-y-4 pt-2">

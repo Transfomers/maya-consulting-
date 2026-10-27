@@ -53,7 +53,7 @@ class SubscriberListResponse(BaseModel):
 # --- Template Schemas ---
 class TemplateBase(BaseModel):
     name: str
-    subject_default: str = "Un nouvel article de CAP Entrepreneurs"
+    subject_default: str = "Un nouvel article de 3M SERVICES"
     preview_text_default: str = "Découvrez nos dernières réflexions, initiatives et opportunités."
     heading: str = "Découvrez notre nouvel article"
     brand_color: str = "#0D0E0D"
@@ -137,12 +137,12 @@ class DeliveryResponse(BaseModel):
 # --- Settings & Stats ---
 class NewsletterSettingsSchema(BaseModel):
     auto_send_on_publish: bool = True
-    from_name: str = "CAP Entrepreneurs"
-    from_email: str = "contact@capentrepreneurs.org"
-    reply_to: str = "contact@capentrepreneurs.org"
+    from_name: str = "3M SERVICES"
+    from_email: str = "contact@3mservice.shop"
+    reply_to: str = "contact@3mservice.shop"
     smtp_host: Optional[str] = "smtp.hostinger.com"
     smtp_port: Optional[int] = 465
-    smtp_user: Optional[str] = "contact@capentrepreneurs.org"
+    smtp_user: Optional[str] = "contact@3mservice.shop"
     smtp_pass: Optional[str] = ""
     smtp_secure: Optional[bool] = True
     teams_webhook_url: Optional[str] = None

@@ -7,7 +7,7 @@ with open("frontend/src/pages/Join.jsx", "r") as f:
 replacements = {
     'eyebrow="Join the Ecosystem"': 'eyebrow={t.join.eyebrow}',
     '<>Find your <span className="font-serif font-medium italic text-maple">pathway</span></>': '<>{t.join.h1a}<span className="font-serif font-medium italic text-maple">{t.join.h1accent}</span></>',
-    'intro="Complete this short questionnaire to discover the best way for you or your organization to engage with CAP Entrepreneurs."': 'intro={t.join.intro}',
+    'intro="Complete this short questionnaire to discover the best way for you or your organization to engage with 3M SERVICES."': 'intro={t.join.intro}',
     '← Back': '{t.join.back}',
     'Your Recommended Pathway': '{t.join.recommendedTitle}',
     'Retake Questionnaire': '{t.join.retake}',

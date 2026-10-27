@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
 from fastapi.staticfiles import StaticFiles
-from app.api import auth, submissions, posts, events, media, seo, stats, taxonomy, public_posts, settings as api_settings, public_taxonomy, public_settings, admin_users, chat, resources, public_resources, public_events, public_newsletter, admin_newsletter, translate
+from app.api import auth, submissions, posts, events, media, seo, stats, taxonomy, public_posts, settings as api_settings, public_taxonomy, public_settings, admin_users, chat, resources, public_resources, public_events, public_newsletter, admin_newsletter, translate, vehicles, apartments
 import app.models
 import os
 
@@ -52,6 +52,8 @@ app.include_router(admin_users.router, prefix="/api/v1/admin/users", tags=["Admi
 app.include_router(public_newsletter.router, prefix="/api/v1/newsletter", tags=["newsletter"])
 app.include_router(admin_newsletter.router, prefix="/api/v1/admin/newsletter", tags=["admin_newsletter"])
 app.include_router(translate.router, prefix="/api/v1/translate", tags=["translate"])
+app.include_router(vehicles.router, prefix="/api/v1/vehicles", tags=["vehicles"])
+app.include_router(apartments.router, prefix="/api/v1/apartments", tags=["apartments"])
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")

@@ -121,6 +121,9 @@ function App() {
                   <Route path="/location-prado-yaounde" element={page(LocationPradoYaounde)} />
                   <Route path="/location-toyota-prado-yaounde" element={page(LocationPradoYaounde)} />
                   <Route path="/appartement-meuble-bastos" element={page(AppartementMeubleBastos)} />
+                  <Route path="/appartement-meuble-tsinga" element={page(AppartementMeubleBastos)} />
+                  <Route path="/appartement-meuble-tsinga-fecafoot" element={page(AppartementMeubleBastos)} />
+                  <Route path="/appartement-meuble-oyomabang" element={page(AppartementMeubleYaounde)} />
                   <Route path="/appartement-meuble-yaounde" element={page(AppartementMeubleYaounde)} />
                   <Route path="/appartement-meuble-essos" element={page(AppartementMeubleYaounde)} />
                   <Route path="/vente-voiture-leasing-cameroun" element={page(VenteVoitureLeasing)} />
