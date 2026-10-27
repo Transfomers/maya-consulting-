@@ -29,6 +29,28 @@ CATEGORIES_DATA = [
 
 ARTICLES_DATA = [
     {
+        "slug": "partenariat-mupocam-orange-cameroun-vente-leasing-automobile",
+        "category_slug": "community",
+        "title_en": "Official Partnership: 3M SERVICES & MUPOCAM (Orange Cameroon) Vehicle Sales & Leasing",
+        "title_fr": "Partenariat Officiel : 3M SERVICES & MUPOCAM (Orange Cameroun) pour la Vente de Voitures et le Leasing",
+        "excerpt_en": "Exclusive partnership offering Orange Cameroon staff mutual members privileged conditions for new and certified pre-owned vehicle acquisitions.",
+        "excerpt_fr": "Convention de partenariat stratégique offrant aux adhérents de la Mutuelle du Personnel d'Orange Cameroun un accès privilégié à nos véhicules neufs et d'occasion en formule de leasing.",
+        "content_en": """
+          <p class="lead">3M SERVICES is proud to announce the signing and active deployment of its official partnership agreement with MUPOCAM (Orange Cameroon Staff Mutual).</p>
+          <h2>An Exclusive Agreement for Mobility and Vehicle Acquisition</h2>
+          <p>Under this agreement, mutual members benefit from preferential rates, flexible down payments, and installment payment plans on the entire 3M SERVICES vehicle catalog (SUVs, Mercedes-Benz sedans, Toyota, Kia, Hyundai, and utility pickups).</p>
+          <h2>Turnkey Service and Technical Warranty</h2>
+          <p>All vehicles supplied under the MUPOCAM convention undergo rigorous multi-point technical inspections, come with registration, and include dedicated after-sales support at the 3M SERVICES flagship agency located at Nouvelle route - Omnisports in Yaounde.</p>
+        """,
+        "content_fr": """
+          <p class="lead">3M SERVICES est honoré d'annoncer la signature et le déploiement actif de sa convention de partenariat officiel avec la MUPOCAM (Mutuelle du Personnel d'Orange Cameroun).</p>
+          <h2>Un accord exclusif pour la mobilité et l'acquisition automobile</h2>
+          <p>Dans le cadre de cette convention, les mutualistes bénéficient de conditions tarifaires préférentielles, d'apports initiaux souples et d'échéances mensuelles sécurisées sur l'ensemble du catalogue de vente 3M SERVICES (SUV robustes, berlines Mercedes-Benz, Toyota, Kia, Hyundai et utilitaires).</p>
+          <h2>Accompagnement clé en main et garantie technique</h2>
+          <p>Chaque véhicule délivré fait l'objet d'un contrôle technique rigoureux, d'une immatriculation complète et d'une garantie constructeur ou révisée, avec un accueil dédié à l'agence 3M SERVICES située à la Nouvelle route - Omnisports (Rue Foe) à Yaoundé.</p>
+        """
+    },
+    {
         "slug": "26-ways-ecosystem-thrive-collaborative-hub",
         "category_slug": "community",
         "title_en": "26 Ways to Make Your Ecosystem Thrive Like a Modern Collaborative Hub",

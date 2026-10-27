@@ -77,7 +77,7 @@ export default function Panier() {
                 Votre Panier de Commande
               </h1>
               <p className="text-xs sm:text-sm text-stone-300 mt-1 max-w-xl">
-                Vérifiez votre sélection, ajoutez vos instructions ou questions pour le leasing MUPOCAM, puis validez votre commande en un clic sur WhatsApp.
+                Vérifiez votre sélection, ajoutez vos instructions ou questions pour l'achat ou l'événement MUPOCAM, puis validez votre commande en un clic sur WhatsApp.
               </p>
             </div>
 
@@ -85,7 +85,7 @@ export default function Panier() {
               to="/boutique"
               className="text-xs text-stone-300 hover:text-white flex items-center gap-1.5 underline uppercase tracking-wider font-bold transition-colors"
             >
-              ← Poursuivre mes achats
+              ← Poursuivre la sélection de voitures
             </Link>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function Panier() {
                 Votre panier est actuellement vide
               </h2>
               <p className="text-sm text-gray-500 mt-2 max-w-md mx-auto">
-                Parcourez notre catalogue pour découvrir nos SUV, Mercedes, Kia, Toyota, Hyundai et véhicules éligibles au leasing MUPOCAM.
+                Parcourez notre catalogue pour découvrir nos SUV, Mercedes, Kia, Toyota, Hyundai et nos offres de vente de voitures.
               </p>
               <div className="mt-8 flex justify-center">
                 <Link
@@ -113,7 +113,7 @@ export default function Panier() {
                   className="px-6 py-3.5 bg-[#E20713] hover:bg-[#C4050F] text-white font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 rounded-xs shadow-sm transition-all"
                 >
                   <ArrowRight className="h-4 w-4" />
-                  <span>Explorer la Boutique Automobile</span>
+                  <span>Consulter les Voitures en Vente</span>
                 </Link>
               </div>
             </div>
@@ -262,9 +262,9 @@ export default function Panier() {
                     </div>
 
                     <div className="flex items-center justify-between text-gray-600">
-                      <span>Mutuelle Partenaire :</span>
+                      <span>Événement / Partenaire :</span>
                       <span className="font-bold text-[#FF7900]">
-                        MUPOCAM (Orange Cameroun)
+                        Événement MUPOCAM (Orange Cameroun)
                       </span>
                     </div>
 

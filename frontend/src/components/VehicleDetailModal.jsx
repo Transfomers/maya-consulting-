@@ -191,10 +191,10 @@ export default function VehicleDetailModal({ vehicle, isOpen, onClose }) {
                   />
                   <div>
                     <span className="text-[10px] font-mono text-[#FF7900] font-bold uppercase tracking-wider block">
-                      Partenariat Officiel MUPOCAM
+                      Événement Partenariat MUPOCAM
                     </span>
                     <span className="text-xs text-stone-200 block">
-                      Éligible à l'achat en <strong>Leasing & Paiement Échelonné</strong> (Orange Cameroun).
+                      Éligible aux facilités de l'<strong>Événement Partenariat MUPOCAM</strong> (Orange Cameroun).
                     </span>
                   </div>
                 </div>
@@ -303,7 +303,7 @@ export default function VehicleDetailModal({ vehicle, isOpen, onClose }) {
                       className="w-full px-3 py-2 text-xs border border-forest/20 bg-white focus:outline-none focus:border-maple"
                     >
                       <option value="achat">Projet d'Achat au Comptant</option>
-                      <option value="leasing-mupocam">Vente en Leasing / Paiement Échelonné (MUPOCAM)</option>
+                      <option value="leasing-mupocam">Événement MUPOCAM / Paiement Échelonné (Orange Cameroun)</option>
                       <option value="location">Demande de Location (Courte/Longue)</option>
                       <option value="info">Renseignements techniques</option>
                       <option value="sur-mesure">Commande spéciale similaire</option>

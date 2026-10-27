@@ -198,20 +198,20 @@ export default function Boutique({ defaultTab }) {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="px-2.5 py-1 bg-[#E20713] text-white text-[11px] font-bold uppercase tracking-widest rounded-xs">
-                  BOUTIQUE 3M SERVICES
+                  VENTE DE VOITURES • 3M SERVICES
                 </span>
                 <span className="text-xs font-mono text-stone-400 uppercase tracking-wider">
                   {activeTab === "vehicules"
-                    ? "CATALOGUE AUTOMOBILE 2025 • YAOUNDÉ"
+                    ? "CATALOGUE VENTE AUTOMOBILE 2025 • YAOUNDÉ"
                     : "IMMOBILIER DE STANDING • YAOUNDÉ"}
                 </span>
               </div>
               <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-none">
-                {activeTab === "vehicules" ? "Notre Boutique Automobile" : "Location d'Appartements Meublés"}
+                {activeTab === "vehicules" ? "Vente de Voitures à Yaoundé" : "Location d'Appartements Meublés"}
               </h1>
               <p className="text-sm sm:text-base text-stone-300 max-w-2xl mt-3 font-normal leading-relaxed">
                 {activeTab === "vehicules"
-                  ? "Explorez notre sélection complète de véhicules neufs (0 km) et occasions certifiées. Choisissez votre véhicule, ajoutez-le à votre panier et passez commande directement via WhatsApp."
+                  ? "Explorez notre sélection complète de véhicules neufs (0 km) et occasions certifiées en vente. Choisissez votre modèle, ajoutez-le à votre panier et commandez directement via WhatsApp ou par téléphone."
                   : "Découvrez nos résidences et appartements meublés grand standing à Yaoundé (Tsinga Face FECAFOOT, Omnisports, et bientôt Oyomabang). Climatisation, Wifi Fibre, groupe automatique, sécurité 24/7. Appelez directement au +237 691 78 64 47 ou réservez sur WhatsApp."}
               </p>
             </div>
@@ -258,7 +258,7 @@ export default function Boutique({ defaultTab }) {
               }`}
             >
               <Car className="h-4 w-4" />
-              <span>Catalogue Véhicules ({cars.length})</span>
+              <span>Vente de Voitures ({cars.length})</span>
             </button>
 
             <button
@@ -298,13 +298,13 @@ export default function Boutique({ defaultTab }) {
                 <div>
                   <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#FF7900]/20 text-[#FF7900] border border-[#FF7900]/30 text-[10px] font-bold uppercase tracking-widest rounded-xs mb-2">
                     <FileText className="h-3 w-3" />
-                    <span>Documentation Officielle MUPOCAM & 3M SERVICES</span>
+                    <span>Événement &amp; Documentation Partenariat MUPOCAM (Orange Cameroun)</span>
                   </div>
                   <h3 className="font-heading font-extrabold text-xl sm:text-2xl text-white tracking-tight">
                     Catalogue Officiel Disponible en PDF
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-300 max-w-xl mt-1.5 leading-relaxed">
-                    Vous pouvez consulter en ligne ou télécharger notre catalogue complet : fiches techniques détaillées de nos SUV, berlines et utilitaires, ainsi que toutes les modalités de leasing conventionné MUPOCAM (Orange Cameroun).
+                    Vous pouvez consulter en ligne ou télécharger notre catalogue officiel de vente : fiches techniques détaillées de nos SUV, berlines et utilitaires, ainsi que les modalités de l'événement partenariat MUPOCAM (Orange Cameroun).
                   </p>
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-3 text-[11px] text-stone-400 font-mono">
                     <span className="flex items-center gap-1.5">
@@ -342,7 +342,7 @@ export default function Boutique({ defaultTab }) {
             </div>
           </div>
 
-          {/* MUPOCAM Leasing Advantage Banner */}
+          {/* MUPOCAM Event Banner */}
           {activeTab === "vehicules" && (
             <div className="mt-4 p-3.5 sm:p-4 rounded bg-white/5 border border-white/10 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2.5">
@@ -352,14 +352,14 @@ export default function Boutique({ defaultTab }) {
                   className="h-6 w-auto object-contain"
                 />
                 <span className="text-stone-300">
-                  <strong className="text-white font-semibold">Adhérents MUPOCAM :</strong> Tous nos véhicules de la boutique sont éligibles au programme d'achat en leasing / paiement échelonné.
+                  <strong className="text-[#FF7900] font-semibold">Événement Partenariat MUPOCAM (Orange Cameroun) :</strong> Retrouvez toutes les informations sur cette convention et nos facilités de paiement dans notre actualité / mise à jour de blog.
                 </span>
               </div>
               <a
-                href="/#leasing"
+                href="/#evenement-mupocam"
                 className="text-[#FF7900] hover:underline font-bold text-xs flex items-center gap-1"
               >
-                Voir conditions de leasing →
+                Lire l'actualité de l'événement →
               </a>
             </div>
           )}
@@ -540,8 +540,8 @@ export default function Boutique({ defaultTab }) {
                           {/* Condition Badge */}
                           <div className="absolute top-3 right-3 flex items-center gap-1.5">
                             {car.isMupocam !== false && (
-                              <span className="px-2 py-0.5 bg-[#FF7900] text-black text-[10px] font-black uppercase tracking-wider rounded-xs shadow-xs">
-                                MUPOCAM ✓
+                              <span className="px-2 py-0.5 bg-[#FF7900] text-black text-[9px] font-black uppercase tracking-wider rounded-xs shadow-xs" title="Événement Partenariat MUPOCAM (Orange Cameroun)">
+                                Événement MUPOCAM ✓
                               </span>
                             )}
                             <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-xs shadow-xs ${

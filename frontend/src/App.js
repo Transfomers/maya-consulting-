@@ -115,6 +115,9 @@ function App() {
                 <Routes>
                   <Route path="/" element={page(Home)} />
                   <Route path="/boutique" element={page(Boutique)} />
+                  <Route path="/vente-de-voiture" element={page(Boutique)} />
+                  <Route path="/vente-de-voitures" element={page(Boutique)} />
+                  <Route path="/vente-voitures" element={page(Boutique)} />
                   <Route path="/appartements" element={page(Boutique, { defaultTab: "appartements" })} />
                   <Route path="/location-voiture-yaounde" element={page(LocationVoitureYaounde)} />
                   <Route path="/location-de-voiture-yaounde" element={page(LocationVoitureYaounde)} />

@@ -284,7 +284,7 @@ export default function Home() {
               Nos Pôles d'Excellence à Yaoundé
             </h2>
             <p className="text-sm text-gray-600 mt-2">
-              Découvrez nos services dédiés : location de véhicules avec ou sans chauffeur, 4x4 Toyota Prado VIP, appartements meublés grand standing à Tsinga (Face FECAFOOT) et bientôt Oyomabang, vente et leasing conventionné MUPOCAM.
+              Découvrez nos services dédiés : location de véhicules avec ou sans chauffeur, 4x4 Toyota Prado VIP, appartements meublés grand standing à Tsinga (Face FECAFOOT) et bientôt Oyomabang, vente de voitures et événement partenariat MUPOCAM (Orange Cameroun).
             </p>
           </div>
 
@@ -333,7 +333,7 @@ export default function Home() {
               </div>
             </Link>
 
-            {/* Card 3: Appartement Meublé Tsinga FECAFOOT & Oyomabang */}
+            {/* Card 3: Appartement Meublé à Tsinga (Face FECAFOOT) */}
             <Link
               to="/appartement-meuble-tsinga-fecafoot"
               className="group bg-gray-50 hover:bg-white border border-gray-200 hover:border-emerald-600 p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
@@ -343,22 +343,22 @@ export default function Home() {
                   <Building2 className="h-6 w-6" />
                 </div>
                 <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-mono font-bold uppercase rounded-xs mb-2">
-                  <span>Tsinga • Bientôt Oyomabang</span>
+                  <span>Tsinga • Face FECAFOOT</span>
                 </div>
                 <h3 className="font-heading font-extrabold text-lg text-gray-900 group-hover:text-emerald-600 transition-colors">
-                  Appartements Meublés Tsinga (Face FECAFOOT)
+                  Appartement Meublé à Tsinga (Face FECAFOOT)
                 </h3>
                 <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                  Résidences haut standing en face du siège de la FECAFOOT et nouvelle résidence bientôt disponible à Oyomabang. Groupe électrogène permanent, Wifi fibre et gardiennage 24h/24. Appelez-nous au +237 691 78 64 47.
+                  Résidence haut standing en face du siège de la FECAFOOT et ouverture prochaine à Oyomabang. Groupe électrogène automatique, Wifi fibre optique et gardiennage 24h/24. Appelez le +237 691 78 64 47.
                 </p>
               </div>
               <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-emerald-600 uppercase tracking-wider">
-                <span>Voir Tsinga &amp; Oyomabang</span>
+                <span>Voir la résidence Tsinga</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
-            {/* Card 4: Appartements Meublés Yaoundé & Essos */}
+            {/* Card 4: Appartements Meublés Yaoundé & Oyomabang */}
             <Link
               to="/appartement-meuble-yaounde"
               className="group bg-gray-50 hover:bg-white border border-gray-200 hover:border-[#111827] p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
@@ -367,59 +367,67 @@ export default function Home() {
                 <div className="h-12 w-12 rounded bg-gray-200 text-gray-900 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <HomeIcon className="h-6 w-6" />
                 </div>
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-mono font-bold uppercase rounded-xs mb-2">
+                  <span>Bientôt Oyomabang</span>
+                </div>
                 <h3 className="font-heading font-extrabold text-lg text-gray-900">
-                  Appartements Meublés Essos &amp; Yaoundé
+                  Appartements Meublés Yaoundé &amp; Oyomabang
                 </h3>
                 <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                  Studios et logements meublés à Essos, Omnisports et Le Golfe. Idéal pour séjours d'affaires et touristiques courts et moyens séjours.
+                  Studios et logements meublés à Tsinga, Omnisports et nouvelle résidence grand standing bientôt disponible à Oyomabang. Idéal pour séjours d'affaires et touristiques.
                 </p>
               </div>
               <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-gray-900 uppercase tracking-wider">
-                <span>Tous les quartiers</span>
+                <span>Toutes les résidences</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
-            {/* Card 5: Vente & Leasing MUPOCAM */}
+            {/* Card 5: Événement Partenariat MUPOCAM */}
             <Link
               to="/vente-voiture-leasing-cameroun"
               className="group bg-gray-50 hover:bg-white border border-gray-200 hover:border-[#E20713] p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
             >
               <div>
-                <div className="h-12 w-12 rounded bg-[#E20713]/10 text-[#E20713] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <CreditCard className="h-6 w-6" />
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-12 w-12 rounded bg-[#E20713]/10 text-[#E20713] flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Calendar className="h-6 w-6" />
+                  </div>
+                  <span className="px-2 py-0.5 bg-[#FF7900]/15 text-[#FF7900] text-[10px] font-bold uppercase tracking-wider rounded-xs font-mono">
+                    Événement • Blog
+                  </span>
                 </div>
                 <h3 className="font-heading font-extrabold text-lg text-gray-900 group-hover:text-[#E20713] transition-colors">
-                  Vente &amp; Leasing MUPOCAM
+                  Événement Partenariat MUPOCAM
                 </h3>
                 <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                  Achat de véhicules neufs 0 km et occasions certifiées avec convention officielle de leasing et facilités de paiement échelonné.
+                  Actualité &amp; événement officiel : Convention de partenariat signée avec la Mutuelle du Personnel Orange Cameroun pour l'achat de véhicules neufs 0 km et occasions en leasing.
                 </p>
               </div>
               <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between text-xs font-bold text-[#E20713] uppercase tracking-wider">
-                <span>Programme de leasing</span>
+                <span>Lire l'événement blog</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
-            {/* Card 6: Boutique en ligne */}
+            {/* Card 6: Vente de Voitures à Yaoundé */}
             <Link
               to="/boutique"
               className="group bg-[#111827] text-white p-6 rounded-sm shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 <div className="h-12 w-12 rounded bg-white/10 text-[#FF7900] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Sparkles className="h-6 w-6" />
+                  <Car className="h-6 w-6" />
                 </div>
                 <h3 className="font-heading font-extrabold text-lg text-white">
-                  Boutique en Ligne 3M SERVICES
+                  Vente de Voitures à Yaoundé
                 </h3>
                 <p className="text-xs text-stone-300 mt-2 leading-relaxed">
-                  Consultez notre stock de voitures et appartements, ajoutez vos choix au panier et passez commande instantanément via WhatsApp.
+                  Consultez notre stock de voitures neuves 0 km et occasions certifiées à Yaoundé, ajoutez vos choix au panier et passez commande instantanément via WhatsApp.
                 </p>
               </div>
               <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-bold text-[#FF7900] uppercase tracking-wider">
-                <span>Accéder à la boutique</span>
+                <span>Voir les voitures en vente</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
@@ -431,7 +439,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════
           SECTION PARTENARIAT MUPOCAM & VENTE EN LEASING
           ═══════════════════════════════════════════════════════════════ */}
-      <section id="leasing" className="py-20 md:py-28 bg-[#0D0F0E] text-white border-b border-white/10 relative overflow-hidden">
+      <section id="evenement-mupocam" className="py-20 md:py-28 bg-[#0D0F0E] text-white border-b border-white/10 relative overflow-hidden">
         {/* Subtle orange accent glow in background */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FF7900]/10 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#ED1C24]/10 rounded-full blur-[100px] pointer-events-none" />
@@ -465,10 +473,10 @@ export default function Home() {
 
             <div className="flex items-center gap-3">
               <span className="px-3.5 py-1.5 rounded-full bg-[#FF7900]/15 text-[#FF7900] border border-[#FF7900]/30 font-mono text-xs font-bold uppercase tracking-wider">
-                Distributeur Officiel Agréé
+                Événement Partenariat Agréé
               </span>
               <span className="px-3.5 py-1.5 rounded-full bg-white/10 text-white/90 border border-white/15 font-mono text-xs uppercase tracking-wider hidden sm:inline-block">
-                Nouvelle route - OMNISPORTS
+                Mise à jour Blog &amp; Actualités
               </span>
             </div>
           </div>
@@ -480,13 +488,13 @@ export default function Home() {
             <div className="lg:col-span-7 space-y-8">
               <div>
                 <span className="text-xs font-mono uppercase tracking-[0.25em] text-[#FF7900] font-bold block mb-3">
-                  PROGRAMME LEASING & FACILITÉS DE PAIEMENT
+                  ÉVÉNEMENT SPÉCIAL &amp; ACTUALITÉ BLOG • PARTENARIAT MUTUALISTE
                 </span>
                 <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                  Vente de Véhicules en <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF7900] to-red-500">Leasing</span> pour la Mutuelle Orange Cameroun
+                  Événement : Partenariat <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF7900] to-red-500">3M SERVICES &amp; MUPOCAM</span> (Orange Cameroun)
                 </h2>
                 <p className="mt-4 text-base sm:text-lg text-stone-300 leading-relaxed">
-                  Dans le cadre de notre partenariat exclusif, <strong className="text-white">3M SERVICES</strong> met à disposition des mutualistes de la <strong className="text-[#FF7900]">MUPOCAM</strong> (Mutuelle du Personnel d'Orange Cameroun) et de nos clients partenaires une formule d'acquisition en <strong>paiement échelonné (leasing automobile)</strong> sur tout notre catalogue 2025.
+                  Dans le cadre de cet événement partenarial officiel, <strong className="text-white">3M SERVICES</strong> s'engage auprès des mutualistes de la <strong className="text-[#FF7900]">MUPOCAM</strong> (Mutuelle du Personnel d'Orange Cameroun) pour faciliter l'acquisition de véhicules neufs (0 km) et occasions sélectionnées via un programme de <strong>paiement échelonné et facilités de leasing</strong>.
                 </p>
               </div>
 
@@ -755,7 +763,7 @@ export default function Home() {
                 Véhicules Phares de la Semaine
               </h2>
               <p className="font-serif italic text-lg sm:text-xl text-gray-600 mt-1">
-                Une sélection exclusive disponible immédiatement pour achat au comptant ou en leasing MUPOCAM.
+                Une sélection exclusive disponible immédiatement pour achat au comptant ou avec facilités conventionnées.
               </p>
             </div>
 
@@ -764,7 +772,7 @@ export default function Home() {
                 to="/boutique"
                 className="px-5 py-3 bg-[#E20713] hover:bg-[#C4050F] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 rounded-xs shadow-sm hover:shadow-md"
               >
-                <span>Voir toute la boutique ({cars.length}+)</span>
+                <span>Voir toutes les voitures en vente ({cars.length}+)</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -837,8 +845,8 @@ export default function Home() {
                         </span>
                       </div>
                       {veh.isMupocam !== false && (
-                        <span className="px-2 py-0.5 bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-wider rounded border border-orange-200">
-                          MUPOCAM ✓
+                        <span className="px-2 py-0.5 bg-orange-100 text-orange-800 text-[9px] font-bold uppercase tracking-wider rounded border border-orange-200" title="Événement Partenariat MUPOCAM (Orange Cameroun)">
+                          Événement MUPOCAM
                         </span>
                       )}
                     </div>

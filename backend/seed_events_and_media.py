@@ -61,6 +61,27 @@ INITIAL_MEDIA = [
 
 INITIAL_EVENTS = [
     {
+        "slug": "evenement-partenariat-mupocam-orange-cameroun",
+        "status": "published",
+        "start_date": datetime(2026, 1, 15, 9, 0, tzinfo=timezone.utc),
+        "end_date": datetime(2027, 12, 31, 18, 0, tzinfo=timezone.utc),
+        "location": "Agence 3M SERVICES • Nouvelle route - Omnisports, Yaoundé",
+        "is_online": False,
+        "registration_required": True,
+        "registration_url": "/vente-voiture-leasing-cameroun",
+        "max_participants": 1000,
+        "fr": {
+            "title": "Événement Partenariat MUPOCAM (Orange Cameroun) : Vente de Voitures & Leasing",
+            "excerpt": "Convention officielle entre 3M SERVICES et la Mutuelle du Personnel d'Orange Cameroun pour faciliter l'acquisition de véhicules.",
+            "content": "<p>Découvrez notre partenariat exclusif avec la MUPOCAM offrant aux adhérents d'Orange Cameroun des conditions préférentielles pour l'achat au comptant ou en leasing de véhicules neufs (0 km) et occasions certifiées.</p>"
+        },
+        "en": {
+            "title": "MUPOCAM Partnership Event (Orange Cameroon): Vehicle Sales & Leasing",
+            "excerpt": "Official agreement between 3M SERVICES and Orange Cameroon Staff Mutual for privileged vehicle acquisition.",
+            "content": "<p>Discover our exclusive partnership with MUPOCAM offering members preferential conditions for the purchase or leasing of new (0 km) and certified pre-owned vehicles.</p>"
+        }
+    },
+    {
         "slug": "global-festival-nairobi-2027",
         "status": "published",
         "start_date": datetime(2027, 10, 14, 9, 0, tzinfo=timezone.utc),

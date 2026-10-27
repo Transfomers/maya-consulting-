@@ -77,7 +77,7 @@ const Footer = () => {
           {/* Quick Categories Navigation (4 cols) */}
           <div className="md:col-span-4 space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-[0.25em] text-[#EF4444] font-mono">
-              BOUTIQUE & CATALOGUE
+              VENTE DE VOITURES & CATALOGUE
             </h4>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <Link
@@ -85,7 +85,7 @@ const Footer = () => {
                 className="text-white hover:text-[#EF4444] font-bold transition-colors py-1 flex items-center gap-1.5"
               >
                 <span className="text-[#E20713] font-mono text-[10px]">★</span>
-                <span>Toute la Boutique</span>
+                <span>Toutes les Voitures en Vente</span>
               </Link>
               <Link
                 to="/panier"
@@ -152,7 +152,7 @@ const Footer = () => {
               </li>
             </ul>
 
-            {/* MUPOCAM Endorsement Box */}
+            {/* MUPOCAM Event Box */}
             <div className="pt-3 border-t border-white/10 flex items-center gap-3 bg-black/30 p-2.5 rounded border border-white/5">
               <img
                 src="/Asset/logo-mupocam.png"
@@ -161,10 +161,10 @@ const Footer = () => {
               />
               <div className="min-w-0">
                 <span className="text-[10px] font-mono text-[#FF7900] uppercase font-bold tracking-wider block truncate">
-                  Distributeur Officiel MUPOCAM
+                  Événement Partenariat MUPOCAM
                 </span>
                 <span className="text-[11px] text-bone/80 block leading-tight">
-                  Mutuelle Personnel Orange Cameroun • Vente Leasing
+                  Mutuelle Orange Cameroun • Actualité &amp; Blog
                 </span>
               </div>
             </div>

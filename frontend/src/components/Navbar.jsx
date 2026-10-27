@@ -18,10 +18,10 @@ const Navbar = () => {
 
   const NAV_ITEMS = [
     { to: "/", label: "Accueil" },
-    { to: "/boutique", label: "Boutique" },
+    { to: "/boutique", label: "Vente de Voitures" },
     { to: "/location-voiture-yaounde", label: "Location Voitures" },
     { to: "/appartement-meuble-yaounde", label: "Appartements Meublés" },
-    { to: "/#leasing", label: "Leasing MUPOCAM" },
+    { to: "/#evenement-mupocam", label: "Événement MUPOCAM" },
     { to: "/#contact", label: "Contact & Devis" },
     { to: "/panier", label: "Panier", isCart: true },
   ];
@@ -218,15 +218,15 @@ const Navbar = () => {
                   onClick={() => setOpen(false)}
                   className="block text-base font-heading font-bold uppercase tracking-wider text-white hover:text-[#EF4444] py-2 border-b border-white/10"
                 >
-                  Boutique
+                  Vente de Voitures
                 </Link>
 
                 <a
-                  href="/#leasing"
-                  onClick={() => handleLinkClick("/#leasing")}
+                  href="/#evenement-mupocam"
+                  onClick={() => handleLinkClick("/#evenement-mupocam")}
                   className="block text-base font-heading font-bold uppercase tracking-wider text-white hover:text-[#EF4444] py-2 border-b border-white/10"
                 >
-                  Leasing MUPOCAM
+                  Événement MUPOCAM (Orange Cameroun)
                 </a>
 
                 <Link

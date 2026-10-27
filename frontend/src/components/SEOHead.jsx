@@ -56,8 +56,12 @@ const ROUTE_SEO = {
     desc: "Achetez votre véhicule au meilleur prix à Yaoundé : SUV, berlines, 4x4 garantis et révisés chez 3M Services.",
   },
   "/boutique": {
-    title: "Boutique & Catalogue | Voitures Neuves, Occasions & Appartements Meublés - 3M SERVICES Yaoundé",
-    desc: "Explorez le catalogue 3M SERVICES : SUV (Jeep, Toyota RAV4), berlines Mercedes-Benz, utilitaires et appartements meublés climatisés à Tsinga (Face FECAFOOT), Omnisports et bientôt Oyomabang. Contact : +237 691 78 64 47.",
+    title: "Vente de Voitures à Yaoundé | Véhicules Neufs, Occasions & Appartements Meublés - 3M SERVICES",
+    desc: "Vente de voitures à Yaoundé : SUV (Jeep, Toyota RAV4), berlines Mercedes-Benz, utilitaires et appartements meublés climatisés à Tsinga (Face FECAFOOT), Omnisports et bientôt Oyomabang. Contact : +237 691 78 64 47.",
+  },
+  "/vente-de-voiture": {
+    title: "Vente de Voitures à Yaoundé | Véhicules Neufs (0 km) & Occasions Certifiées - 3M SERVICES",
+    desc: "Achat et vente de voitures à Yaoundé : découvrez notre showroom de véhicules neufs 0 km sous garantie constructeur et occasions certifiées rigoureusement inspectées. Appelez le +237 691 78 64 47.",
   },
   "/appartements": {
     title: "Appartements Meublés Haut Standing à Tsinga (Face FECAFOOT) & Yaoundé | Bientôt Oyomabang - 3M SERVICES",

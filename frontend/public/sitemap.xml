@@ -96,6 +96,14 @@
     </image:image>
   </url>
 
+  <!-- Vente de Voitures & Catalogue -->
+  <url>
+    <loc>https://www.3mservice.shop/vente-de-voiture</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.98</priority>
+  </url>
+
   <!-- Boutique Principale -->
   <url>
     <loc>https://www.3mservice.shop/boutique</loc>

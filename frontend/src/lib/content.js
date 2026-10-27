@@ -184,6 +184,11 @@ export const NEWS = [
 
 export const EVENTS = [
   {
+    date: "2026 - Active",
+    title: "MUPOCAM Partnership Event (Orange Cameroon)",
+    detail: "Official partnership agreement between 3M SERVICES and MUPOCAM (Orange Cameroon staff mutual): preferential vehicle sales and leasing facilities.",
+  },
+  {
     date: "Sep 12, 2026",
     title: "Ecosystem Open House",
     detail: "Meet the team, members and partners behind 3M SERVICES. Virtual + in-person.",
@@ -455,6 +460,11 @@ export const NEWS_FR = [
 ];
 
 export const EVENTS_FR = [
+  {
+    date: "2026 - En cours",
+    title: "Événement Partenariat MUPOCAM (Orange Cameroun)",
+    detail: "Convention officielle de partenariat 3M SERVICES & Mutuelle du Personnel Orange Cameroun : Facilités d'acquisition automobile et leasing échelonné.",
+  },
   {
     date: "12 sept. 2026",
     title: "Portes ouvertes de l'\u00e9cosyst\u00e8me",
