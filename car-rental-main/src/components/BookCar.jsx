@@ -242,6 +242,61 @@ function BookCar() {
       year: "numeric"
     });
 
+    const shareText = isFr
+      ? `*3M SERVICES YAOUNDÉ - BON DE RÉSERVATION OFFICIEL*
+━━━━━━━━━━━━━━━━━━━━━━━━
+📄 *RÉFÉRENCE :* ${refId}
+📅 *Émis le :* ${currentDate}
+✨ *Statut :* Validé Conciergerie 24/7
+
+🚗 *VÉHICULE :* ${carType || "Véhicule de Prestige"}
+⏱️ *Durée de location :* ${days} Jour(s)
+
+📍 *DÉPART :* ${formattedPickDate}
+• *Lieu :* ${pickUp || "Yaoundé"}
+📍 *RETOUR :* ${formattedDropDate}
+• *Lieu :* ${dropOff || "Yaoundé"}
+
+👤 *LOCATAIRE :* ${name} ${lastName}
+📞 *Téléphone :* ${phone}
+📧 *Email :* ${email || "N/C"}
+📍 *Adresse / Ville :* ${address || ""}, ${city || "Yaoundé"}
+
+🛡️ *SERVICES INCLUS :*
+• Assurance tous risques & responsabilité civile
+• Véhicule propre, climatisé et révisé
+• Assistance dépannage & conciergerie active 24/7
+• Chauffeur professionnel disponible sur simple demande
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+🏢 *DIRECTION CONCIERGERIE 3M SERVICES*
+Agences : Omnisports (Rue Foe) • Bastos • Aéroport Nsimalen
+📞 +237 691 78 64 47 / +237 653 76 17 28
+🌐 https://www.3mservice.shop`
+      : `*3M SERVICES YAOUNDÉ - OFFICIAL RESERVATION VOUCHER*
+━━━━━━━━━━━━━━━━━━━━━━━━
+📄 *REFERENCE:* ${refId}
+📅 *Issued on:* ${currentDate}
+✨ *Status:* Validated by Concierge 24/7
+
+🚗 *VEHICLE:* ${carType || "Premium Vehicle"}
+⏱️ *Duration:* ${days} Day(s)
+
+📍 *PICK-UP:* ${formattedPickDate}
+• *Location:* ${pickUp || "Yaoundé"}
+📍 *DROP-OFF:* ${formattedDropDate}
+• *Location:* ${dropOff || "Yaoundé"}
+
+👤 *CUSTOMER:* ${name} ${lastName}
+📞 *Phone:* ${phone}
+📧 *Email:* ${email || "N/A"}
+📍 *Address / City:* ${address || ""}, ${city || "Yaoundé"}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+🏢 *3M SERVICES CONCIERGE DIRECTION*
+Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
+🌐 https://www.3mservice.shop`;
+
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="${isFr ? "fr" : "en"}">
@@ -413,21 +468,130 @@ function BookCar() {
           }
           .signature-box { text-align: right; font-size: 11px; color: #737373; }
           .signature-box strong { display: block; color: #171717; font-size: 12px; margin-top: 20px; }
-          .print-actions { margin-top: 20px; text-align: center; }
+          .print-actions {
+            margin: 24px auto 10px;
+            max-width: 800px;
+            background: #F8F9FA;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+          }
+          .print-actions-header {
+            margin-bottom: 16px;
+            border-bottom: 1px solid #E2E8F0;
+            padding-bottom: 12px;
+          }
+          .print-actions-header h3 {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0F172A;
+            margin: 0 0 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .print-actions-header p {
+            font-size: 12px;
+            color: #64748B;
+            margin: 0;
+          }
+          .print-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+          }
+          .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: all 0.2s ease;
+          }
           .btn-print {
             background-color: #D62828;
             color: #ffffff;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
           }
           .btn-print:hover { background-color: #B91C1C; }
+          .btn-whatsapp-client {
+            background-color: #25D366;
+            color: #ffffff;
+          }
+          .btn-whatsapp-client:hover { background-color: #1EBE5D; }
+          .btn-whatsapp-any {
+            background-color: #0F172A;
+            color: #ffffff;
+          }
+          .btn-whatsapp-any:hover { background-color: #1E293B; }
+          .btn-native-share {
+            background-color: #0284C7;
+            color: #ffffff;
+          }
+          .btn-native-share:hover { background-color: #0369A1; }
+          .btn-copy {
+            background-color: #FFFFFF;
+            color: #334155;
+            border: 1px solid #CBD5E1;
+          }
+          .btn-copy:hover { background-color: #F1F5F9; }
+
+          .custom-share-box {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+          .custom-share-box label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          }
+          .custom-share-input-row {
+            display: flex;
+            gap: 8px;
+          }
+          .custom-share-input-row input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+          }
+          .custom-share-input-row input:focus {
+            border-color: #25D366;
+          }
+          .custom-share-input-row button {
+            background-color: #25D366;
+            color: #ffffff;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+          }
+          .custom-share-input-row button:hover {
+            background-color: #1EBE5D;
+          }
+
           @media print {
             body { padding: 0; }
-            .print-actions { display: none; }
+            .print-actions { display: none !important; }
           }
         </style>
       </head>
@@ -524,11 +688,112 @@ function BookCar() {
         </div>
 
         <div class="print-actions">
-          <button class="btn-print" onclick="window.print()">${isFr ? "Imprimer ou Enregistrer en PDF" : "Print or Save as PDF"}</button>
+          <div class="print-actions-header">
+            <h3>⚡ ${isFr ? "Actions & Partage du Bon de Réservation" : "Actions & Document Sharing"}</h3>
+            <p>${isFr ? "Imprimez en PDF ou partagez directement ce bon de réservation officiel à différents contacts." : "Print to PDF or share this official voucher directly with different contacts."}</p>
+          </div>
+
+          <div class="print-actions-grid">
+            <button type="button" class="btn-action btn-print" onclick="window.print()">
+              <span>🖨️ ${isFr ? "Imprimer / Enregistrer en PDF" : "Print / Save as PDF"}</span>
+            </button>
+
+            ${phone ? `
+            <button type="button" class="btn-action btn-whatsapp-client" onclick="shareToClient()">
+              <span>📲 ${isFr ? `Envoyer au Client (${phone})` : `Send to Client (${phone})`}</span>
+            </button>
+            ` : ""}
+
+            <button type="button" class="btn-action btn-whatsapp-any" onclick="shareToAny()">
+              <span>💬 ${isFr ? "Partager Contact WhatsApp" : "Share via WhatsApp"}</span>
+            </button>
+
+            <button type="button" id="btnNativeShare" class="btn-action btn-native-share" onclick="shareNative()">
+              <span>↗️ ${isFr ? "Partager Document..." : "Share Document..."}</span>
+            </button>
+
+            <button type="button" id="btnCopy" class="btn-action btn-copy" onclick="copySummary()">
+              <span>📋 ${isFr ? "Copier le Récapitulatif" : "Copy Summary"}</span>
+            </button>
+          </div>
+
+          <div class="custom-share-box">
+            <label>${isFr ? "Ou envoyer ce bon à un autre contact WhatsApp :" : "Or send this voucher to another WhatsApp contact:"}</label>
+            <div class="custom-share-input-row">
+              <input type="tel" id="customPhone" placeholder="${isFr ? "Saisir un numéro (ex: +237 691 78 64 47 ou 237...)" : "Enter phone (e.g. +237 691 78 64 47)"}" />
+              <button type="button" onclick="shareToCustom()">🚀 ${isFr ? "Envoyer" : "Send"}</button>
+            </div>
+          </div>
         </div>
 
         <script>
+          const shareText = ${JSON.stringify(shareText)};
+          const clientPhone = ${JSON.stringify((phone || "").replace(/[^0-9]/g, ""))};
+
+          function shareToClient() {
+            if (!clientPhone) {
+              alert("${isFr ? "Numéro WhatsApp du client non renseigné." : "No client phone number available."}");
+              return;
+            }
+            const url = 'https://wa.me/' + clientPhone + '?text=' + encodeURIComponent(shareText);
+            window.open(url, '_blank');
+          }
+
+          function shareToAny() {
+            const url = 'https://wa.me/?text=' + encodeURIComponent(shareText);
+            window.open(url, '_blank');
+          }
+
+          function shareToCustom() {
+            const input = document.getElementById('customPhone');
+            if (!input || !input.value.trim()) {
+              alert("${isFr ? "Veuillez saisir un numéro de téléphone valide." : "Please enter a valid phone number."}");
+              return;
+            }
+            const clean = input.value.replace(/[^0-9]/g, "");
+            const url = 'https://wa.me/' + clean + '?text=' + encodeURIComponent(shareText);
+            window.open(url, '_blank');
+          }
+
+          function shareNative() {
+            if (navigator.share) {
+              navigator.share({
+                title: '${isFr ? "Bon de Réservation 3M SERVICES" : "3M SERVICES Voucher"} (${refId})',
+                text: shareText
+              }).catch(function(e) { console.log('Share canceled', e); });
+            } else {
+              shareToAny();
+            }
+          }
+
+          function copySummary() {
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(shareText).then(function() {
+                const btn = document.getElementById('btnCopy');
+                if (btn) {
+                  const oldHtml = btn.innerHTML;
+                  btn.innerHTML = '<span>✅ ${isFr ? "Copié avec succès !" : "Copied successfully!"}</span>';
+                  btn.style.backgroundColor = '#DCFCE7';
+                  btn.style.color = '#16A34A';
+                  setTimeout(function() {
+                    btn.innerHTML = oldHtml;
+                    btn.style.backgroundColor = '';
+                    btn.style.color = '';
+                  }, 2500);
+                }
+              }).catch(function() {
+                alert("${isFr ? "Récapitulatif copié !" : "Summary copied!"}");
+              });
+            } else {
+              alert("${isFr ? "Récapitulatif copié !" : "Summary copied!"}");
+            }
+          }
+
           window.onload = function() {
+            if (!navigator.share) {
+              const nb = document.getElementById('btnNativeShare');
+              if (nb) nb.style.display = 'none';
+            }
             setTimeout(function() {
               window.print();
             }, 300);
