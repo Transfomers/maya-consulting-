@@ -180,34 +180,25 @@ function BookCar() {
 
   // Determine car preview image
   let imgUrl = CarPrado;
-  const matchedBackendCar = carsList.find((c) => c.name === carType);
+  const lowerCar = (carType || "").toLowerCase();
+  const matchedBackendCar = carsList.find((c) => 
+    c.name && (c.name.toLowerCase() === lowerCar || c.name.toLowerCase().includes(lowerCar) || lowerCar.includes(c.name.toLowerCase()))
+  );
   if (matchedBackendCar && matchedBackendCar.image) {
     imgUrl = matchedBackendCar.image;
   } else {
-    switch (carImg || carType) {
-      case "Toyota Land Cruiser Prado TXL VIP":
-      case "Toyota Prado VIP":
-        imgUrl = CarPrado;
-        break;
-      case "Jeep Grand Cherokee V6 MUPOCAM":
-      case "Jeep Grand Cherokee":
-        imgUrl = CarJeep;
-        break;
-      case "Mercedes-Benz Classe E VIP":
-      case "Mercedes Classe E VIP":
-        imgUrl = CarMercedes;
-        break;
-      case "Toyota Fortuner 4x4":
-        imgUrl = CarFortuner;
-        break;
-      case "Toyota RAV4 4WD":
-        imgUrl = CarRav4;
-        break;
-      case "Toyota Camry Executive":
-        imgUrl = CarToyota;
-        break;
-      default:
-        imgUrl = CarPrado;
+    if (lowerCar.includes("jeep") || lowerCar.includes("cherokee") || carImg === "Jeep Grand Cherokee V6 MUPOCAM") {
+      imgUrl = CarJeep;
+    } else if (lowerCar.includes("mercedes") || lowerCar.includes("classe e") || carImg === "Mercedes-Benz Classe E VIP") {
+      imgUrl = CarMercedes;
+    } else if (lowerCar.includes("fortuner") || carImg === "Toyota Fortuner 4x4") {
+      imgUrl = CarFortuner;
+    } else if (lowerCar.includes("rav4") || carImg === "Toyota RAV4 4WD") {
+      imgUrl = CarRav4;
+    } else if (lowerCar.includes("camry") || carImg === "Toyota Camry Executive") {
+      imgUrl = CarToyota;
+    } else {
+      imgUrl = CarPrado;
     }
   }
 
@@ -907,15 +898,19 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
                     <i className="fa-solid fa-car" style={{ color: "#D62828", marginRight: "7px" }}></i>
                     <span>{t("book_car_type")}</span>
                   </label>
-                  <select
+                  <input
                     id="cartype"
+                    list="car-types-list"
+                    type="text"
                     value={carType}
+                    placeholder={t("book_car_type_placeholder") || "Select your car type"}
                     onChange={(e) => {
                       setCarType(e.target.value);
                       setCarImg(e.target.value);
                     }}
-                  >
-                    <option value="">{t("book_car_type_placeholder") || "Select your car type"}</option>
+                    autoComplete="off"
+                  />
+                  <datalist id="car-types-list">
                     {carsList && carsList.length > 0
                       ? carsList.map((car) => (
                           <option key={car.id || car.name} value={car.name}>
@@ -927,7 +922,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
                             {car.name}
                           </option>
                         ))}
-                  </select>
+                  </datalist>
                 </div>
 
                 <div className="box-form__car-type">
@@ -935,8 +930,16 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
                     <i className="fa-solid fa-location-dot" style={{ color: "#D62828", marginRight: "7px" }}></i>
                     <span>{t("book_pickup")}</span>
                   </label>
-                  <select id="pick" value={pickUp} onChange={(e) => setPickUp(e.target.value)}>
-                    <option value="">{t("book_pickup_placeholder") || "Select pick-up location"}</option>
+                  <input
+                    id="pick"
+                    list="pickup-locations-list"
+                    type="text"
+                    value={pickUp}
+                    placeholder={t("book_pickup_placeholder") || "Select pick-up location"}
+                    onChange={(e) => setPickUp(e.target.value)}
+                    autoComplete="off"
+                  />
+                  <datalist id="pickup-locations-list">
                     {pickupLocations && pickupLocations.length > 0
                       ? pickupLocations.map((loc) => (
                           <option key={loc.id || loc.name} value={loc.name}>
@@ -948,7 +951,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
                             {loc}
                           </option>
                         ))}
-                  </select>
+                  </datalist>
                 </div>
 
                 <div className="box-form__car-type">
@@ -956,8 +959,16 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
                     <i className="fa-solid fa-location-dot" style={{ color: "#D62828", marginRight: "7px" }}></i>
                     <span>{t("book_dropoff")}</span>
                   </label>
-                  <select id="drop" value={dropOff} onChange={(e) => setDropOff(e.target.value)}>
-                    <option value="">{t("book_dropoff_placeholder") || "Select drop-off location"}</option>
+                  <input
+                    id="drop"
+                    list="dropoff-locations-list"
+                    type="text"
+                    value={dropOff}
+                    placeholder={t("book_dropoff_placeholder") || "Select drop-off location"}
+                    onChange={(e) => setDropOff(e.target.value)}
+                    autoComplete="off"
+                  />
+                  <datalist id="dropoff-locations-list">
                     {dropoffLocations && dropoffLocations.length > 0
                       ? dropoffLocations.map((loc) => (
                           <option key={loc.id || loc.name} value={loc.name}>
@@ -969,7 +980,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
                             {loc}
                           </option>
                         ))}
-                  </select>
+                  </datalist>
                 </div>
 
                 <div className="box-form__car-time">
@@ -982,6 +993,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
                     value={pickTime}
                     onChange={(e) => setPickTime(e.target.value)}
                     type="date"
+                    placeholder="dd/mm/yyyy"
                     min={new Date().toISOString().split("T")[0]}
                   />
                 </div>
@@ -996,6 +1008,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
                     value={dropTime}
                     onChange={(e) => setDropTime(e.target.value)}
                     type="date"
+                    placeholder="dd/mm/yyyy"
                     min={pickTime || new Date().toISOString().split("T")[0]}
                   />
                 </div>

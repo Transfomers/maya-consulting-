@@ -43,7 +43,7 @@ function Footer() {
                     target="_blank"
                     rel="noreferrer"
                     className="footer-channel-btn footer-channel-btn--whatsapp"
-                    style={{ borderRadius: "11px" }}
+                    style={{ borderRadius: "50%" }}
                     title="WhatsApp 3M SERVICES (+237 691 78 64 47)"
                     aria-label="WhatsApp +237 691 78 64 47"
                   >
@@ -56,7 +56,7 @@ function Footer() {
                   <a
                     href="tel:+237691786447"
                     className="footer-channel-btn footer-channel-btn--call"
-                    style={{ borderRadius: "11px" }}
+                    style={{ borderRadius: "50%" }}
                     title="Appeler +237 691 78 64 47"
                     aria-label="Appeler +237 691 78 64 47"
                   >
@@ -69,7 +69,7 @@ function Footer() {
                   <a
                     href="tel:+237653761728"
                     className="footer-channel-btn footer-channel-btn--call2"
-                    style={{ borderRadius: "11px" }}
+                    style={{ borderRadius: "50%" }}
                     title="Appeler +237 653 76 17 28"
                     aria-label="Appeler +237 653 76 17 28"
                   >
@@ -84,7 +84,7 @@ function Footer() {
                     target="_blank"
                     rel="noreferrer"
                     className="footer-channel-btn footer-channel-btn--facebook"
-                    style={{ borderRadius: "11px" }}
+                    style={{ borderRadius: "50%" }}
                     title="Page Facebook 3M SERVICES"
                     aria-label="Facebook 3M SERVICES"
                   >
@@ -99,7 +99,7 @@ function Footer() {
                     target="_blank"
                     rel="noreferrer"
                     className="footer-channel-btn footer-channel-btn--tiktok"
-                    style={{ borderRadius: "11px" }}
+                    style={{ borderRadius: "50%" }}
                     title="TikTok 3M SERVICES"
                     aria-label="TikTok 3M SERVICES"
                   >
@@ -112,7 +112,7 @@ function Footer() {
                   <a
                     href="mailto:contact@3mservice.shop"
                     className="footer-channel-btn footer-channel-btn--email"
-                    style={{ borderRadius: "11px" }}
+                    style={{ borderRadius: "50%" }}
                     title="Email: contact@3mservice.shop"
                     aria-label="Email contact@3mservice.shop"
                   >

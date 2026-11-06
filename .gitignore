@@ -4,3 +4,4 @@ car-rental-main/build/
 .DS_Store
 *.log
 .env.local
+

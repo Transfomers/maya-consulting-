@@ -962,6 +962,7 @@ body {
   }
 }
 .book-content__box .box-form__car-type select,
+.book-content__box .box-form__car-type input,
 .book-content__box .box-form__car-time input,
 .book-content__box button.book-search-btn {
   font-size: 1.4rem;
@@ -974,6 +975,7 @@ body {
   margin: 0;
 }
 .book-content__box .box-form__car-type select,
+.book-content__box .box-form__car-type input,
 .book-content__box .box-form__car-time input {
   color: #171717;
   font-family: inherit;
@@ -985,6 +987,7 @@ body {
   transition: border-color 0.2s ease;
 }
 .book-content__box .box-form__car-type select:focus,
+.book-content__box .box-form__car-type input:focus,
 .book-content__box .box-form__car-time input:focus {
   border-color: #D62828;
 }
@@ -3428,16 +3431,16 @@ footer {
   margin-top: 1.6rem;
 }
 .footer-channel-btn {
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 11px !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background-color: #EEF3F9 !important;
-  border: 1px solid #DCE4EE !important;
-  color: #1E293B !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  background-color: #EEF4FA !important;
+  border: 1px solid #DCE7F2 !important;
+  color: #000000 !important;
+  box-shadow: 0 4px 12px rgba(180, 195, 215, 0.28) !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   position: relative !important;
   text-decoration: none !important;

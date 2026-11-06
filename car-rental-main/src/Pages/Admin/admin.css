@@ -457,50 +457,45 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.1rem 1.4rem;
-  border-radius: 9px;
-  color: #252A34;
+  padding: 1.15rem 1.5rem;
+  border-radius: 12px;
+  color: #0F172A;
   background: transparent;
   border: none;
   width: 100%;
-  font-size: 1.4rem;
-  font-weight: 500;
+  font-size: 1.5rem;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
   font-family: inherit;
+  margin-bottom: 0.2rem;
 }
 
 .admin-nav-item div {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1.3rem;
 }
 
 .admin-nav-item svg,
 .admin-nav-item i {
-  color: #727987;
-  stroke: #727987;
+  color: #0F172A;
+  stroke: #0F172A;
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .admin-nav-item:hover {
-  background-color: #F8F9FB;
-  color: #252A34;
-}
-
-.admin-nav-item:hover svg,
-.admin-nav-item:hover i {
-  color: #D94B50;
-  stroke: #D94B50;
+  background-color: #F8FAFC;
+  color: #0F172A;
 }
 
 .admin-nav-item.active {
-  background-color: #D94B50 !important;
+  background-color: #E00613 !important;
   color: #ffffff !important;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(217, 75, 80, 0.25);
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(224, 6, 19, 0.28);
 }
 
 .admin-nav-item.active svg,
@@ -510,12 +505,25 @@
 }
 
 .admin-nav-badge {
-  background: #f59e0b;
   color: #ffffff;
-  font-size: 1.15rem;
-  font-weight: 700;
-  padding: 0.2rem 0.8rem;
-  border-radius: 12px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 4px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.admin-nav-badge--amber {
+  background-color: #F59E0B;
+}
+
+.admin-nav-badge--green {
+  background-color: #10B981;
 }
 
 .admin-sidebar-footer {
