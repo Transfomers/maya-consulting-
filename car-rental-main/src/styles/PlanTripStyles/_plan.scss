@@ -1,0 +1,144 @@
+@use "../global" as *;
+
+.plan-section {
+  background-color: $bg-white;
+  padding: 5.3rem 0;
+}
+
+.plan-container {
+  display: flex;
+  flex-direction: column;
+
+  &__title {
+    margin: 0 auto;
+    text-align: center;
+    color: $text-black;
+
+    h3 {
+      font-size: $h3-size;
+      font-family: $text-font;
+      font-weight: 500;
+    }
+
+    h2 {
+      font-size: $h2-size;
+      font-family: $titles-font;
+      margin: 1.3rem 0 3rem 0;
+    }
+  }
+
+  &__boxes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    gap: 3rem;
+    margin-top: 3.7rem;
+    padding: 0 3rem;
+
+    @media (max-width: 900px) {
+      gap: 1.5rem;
+      padding: 0 1rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+      padding: 0 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    &__box {
+      text-align: center;
+      padding: 1rem 1.5rem;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      img {
+        width: 14rem;
+        height: auto;
+        margin-bottom: 1.8rem;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.06);
+      }
+
+      h3 {
+        font-size: 2.2rem;
+        font-family: $titles-font;
+        font-weight: 700;
+        color: $text-black;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+      }
+
+      p {
+        font-size: 1.55rem;
+        font-family: $text-font;
+        color: $text-gray;
+        line-height: 1.45;
+        max-width: 32rem;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 900px) {
+        padding: 0.5rem;
+
+        img {
+          width: 9rem;
+          margin-bottom: 1rem;
+        }
+
+        h3 {
+          font-size: 1.6rem;
+          margin-bottom: 0.6rem;
+        }
+
+        p {
+          font-size: 1.25rem;
+          line-height: 1.35;
+        }
+      }
+
+      @media (max-width: 600px) {
+        padding: 0.2rem;
+
+        img {
+          width: 6.5rem;
+          margin-bottom: 0.8rem;
+        }
+
+        h3 {
+          font-size: 1.25rem;
+          margin-bottom: 0.4rem;
+          line-height: 1.2;
+        }
+
+        p {
+          font-size: 1.05rem;
+          line-height: 1.25;
+        }
+      }
+
+      @media (max-width: 380px) {
+        img {
+          width: 5.2rem;
+        }
+
+        h3 {
+          font-size: 1.1rem;
+        }
+
+        p {
+          font-size: 0.95rem;
+        }
+      }
+    }
+  }
+}

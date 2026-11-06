@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-marc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <radialGradient id="halo-marc" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="420" fill="url(#bg-marc)"/>
+  <circle cx="200" cy="180" r="140" fill="url(#halo-marc)"/>
+  
+  <!-- Shoulders & Navy Jacket -->
+  <path d="M70 420 C75 320 130 280 160 270 L240 270 C270 280 325 320 330 420 Z" fill="#1e3a8a"/>
+  <!-- Blue Collared Polo with 3M Red line -->
+  <polygon points="175,270 200,330 225,270 200,265" fill="#f8fafc"/>
+  <line x1="200" y1="270" x2="200" y2="330" stroke="#E20713" stroke-width="3"/>
+  <polygon points="140,275 175,270 185,340 160,350" fill="#172554"/>
+  <polygon points="260,275 225,270 215,340 240,350" fill="#172554"/>
+  <!-- Car Key / Fleet Badge -->
+  <rect x="155" y="305" width="18" height="12" rx="2" fill="#E20713"/>
+  <circle cx="164" cy="311" r="3" fill="#ffffff"/>
+  
+  <!-- Neck -->
+  <rect x="180" y="210" width="40" height="60" rx="6" fill="#935d4d"/>
+  
+  <!-- Head & Face -->
+  <ellipse cx="200" cy="170" rx="56" ry="66" fill="#935d4d"/>
+  <ellipse cx="144" cy="170" rx="9" ry="16" fill="#7a4d3f"/>
+  <ellipse cx="256" cy="170" rx="9" ry="16" fill="#7a4d3f"/>
+  <!-- Modern fade hair -->
+  <path d="M144 148 C144 98 170 92 200 92 C230 92 256 98 256 148 C252 110 228 105 200 105 C172 105 148 110 144 148 Z" fill="#0f172a"/>
+  <!-- Eyebrows -->
+  <path d="M165 146 Q178 141 188 146" stroke="#0f172a" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M212 146 Q222 141 235 146" stroke="#0f172a" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <!-- Eyes -->
+  <circle cx="176" cy="158" r="4.5" fill="#0f172a"/>
+  <circle cx="224" cy="158" r="4.5" fill="#0f172a"/>
+  <!-- Nose -->
+  <path d="M196 166 Q200 180 204 180 Q200 182 196 180" stroke="#72473a" stroke-width="2.5" fill="none"/>
+  <!-- Confident Smile -->
+  <path d="M184 198 Q200 210 216 198" stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M184 198 Q200 210 216 198" stroke="#5c382e" stroke-width="2" stroke-linecap="round" fill="none"/>
+</svg>

@@ -1,0 +1,176 @@
+@use "../global" as *;
+
+.download-section {
+  background-image: linear-gradient(to right, rgba(17, 24, 39, 0.92) 0%, rgba(17, 24, 39, 0.78) 100%), url("/src/images/banners/bg02.png");
+  background-color: #111827;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100%;
+  height: auto;
+  padding: 8rem 0;
+
+  @media (max-width: 900px) {
+    padding: 6rem 0;
+  }
+
+  @media (max-width: 700px) {
+    background-image: linear-gradient(rgba(17, 24, 39, 0.94), rgba(17, 24, 39, 0.95)), url("/src/images/banners/bg02.png");
+    background-color: #111827;
+  }
+}
+
+.download-grid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5rem;
+  width: 100%;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 4rem;
+  }
+}
+
+.download-text {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 62rem;
+  text-align: left;
+
+  @media (max-width: 900px) {
+    text-align: center;
+    margin: 0 auto;
+    align-items: center;
+  }
+
+  &__badge {
+    display: inline-block;
+    align-self: flex-start;
+    background-color: rgba(226, 7, 19, 0.22);
+    color: #ff6b6b;
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 0.6rem 1.6rem;
+    border-radius: 2rem;
+    letter-spacing: 0.08rem;
+    text-transform: uppercase;
+    font-family: $text-font;
+    border: 1px solid rgba(226, 7, 19, 0.45);
+
+    @media (max-width: 900px) {
+      align-self: center;
+    }
+  }
+
+  h2 {
+    font-size: 4.2rem;
+    color: #ffffff !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    font-family: $titles-font;
+    line-height: 1.25;
+
+    @media (max-width: 700px) {
+      font-size: 2.8rem;
+    }
+  }
+
+  p {
+    font-size: 1.65rem;
+    color: #f1f5f9 !important;
+    font-family: $text-font;
+    line-height: 1.65;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+
+    @media (max-width: 700px) {
+      font-size: 1.45rem;
+    }
+  }
+
+  &__action {
+    margin-top: 1rem;
+
+    &__install-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.6rem;
+      background-color: #E20713;
+      color: #ffffff;
+      border: none;
+      border-radius: 1rem;
+      padding: 1.4rem 2.8rem;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(226, 7, 19, 0.4);
+      transition: all 0.3s ease;
+      text-align: left;
+      font-family: $text-font;
+
+      &:hover {
+        background-color: #C4050F;
+        box-shadow: 0 14px 28px rgba(226, 7, 19, 0.55);
+        transform: translateY(-2px);
+      }
+
+      .btn-icon {
+        font-size: 2.8rem;
+        line-height: 1;
+      }
+
+      .btn-label {
+        display: flex;
+        flex-direction: column;
+
+        strong {
+          font-size: 1.8rem;
+          font-weight: 700;
+          color: #ffffff;
+          line-height: 1.2;
+        }
+
+        span {
+          font-size: 1.3rem;
+          color: rgba(255, 255, 255, 0.92);
+          font-weight: 400;
+          margin-top: 0.2rem;
+        }
+      }
+
+      @media (max-width: 700px) {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+.download-phone-wrapper {
+  flex: 0.9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    max-width: 440px;
+    width: 100%;
+    height: auto;
+    border-radius: 24px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px) scale(1.02);
+    }
+
+    @media (max-width: 900px) {
+      max-width: 340px;
+    }
+
+    @media (max-width: 500px) {
+      max-width: 280px;
+    }
+  }
+}

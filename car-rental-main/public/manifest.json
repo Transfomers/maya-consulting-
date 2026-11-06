@@ -1,0 +1,71 @@
+{
+  "short_name": "3M Services",
+  "name": "3M SERVICES — Location de Voitures Yaoundé",
+  "description": "Application officielle de location de voitures et Toyota Prado VIP à Yaoundé chez 3M SERVICES.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "favicon-32x32.png",
+      "type": "image/png",
+      "sizes": "32x32"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#E20713",
+  "background_color": "#ffffff",
+  "categories": ["travel", "business", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Réserver un véhicule",
+      "short_name": "Réserver",
+      "description": "Réserver une voiture ou un SUV VIP",
+      "url": "/#booking-section",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Notre Flotte",
+      "short_name": "Flotte",
+      "description": "Découvrir nos véhicules disponibles",
+      "url": "/models",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Conciergerie 24/7",
+      "short_name": "Contact",
+      "description": "Contacter la conciergerie 3M Services",
+      "url": "/contact",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-laurentine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#042f2e"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <radialGradient id="halo-laurentine" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="420" fill="url(#bg-laurentine)"/>
+  <circle cx="200" cy="180" r="140" fill="url(#halo-laurentine)"/>
+  
+  <!-- Shoulders & Teal/Emerald Blazer -->
+  <path d="M75 420 C80 325 130 285 160 275 L240 275 C270 285 320 325 325 420 Z" fill="#0f766e"/>
+  <!-- White Silk Blouse -->
+  <polygon points="175,275 200,340 225,275 200,265" fill="#f8fafc"/>
+  <polygon points="145,280 178,275 195,360 165,370" fill="#115e59"/>
+  <polygon points="255,280 222,275 205,360 235,370" fill="#115e59"/>
+  <!-- Key brooch (Apartments) -->
+  <circle cx="165" cy="305" r="4" fill="#fbbf24"/>
+  <line x1="165" y1="309" x2="165" y2="319" stroke="#fbbf24" stroke-width="2"/>
+  <line x1="165" y1="316" x2="169" y2="316" stroke="#fbbf24" stroke-width="2"/>
+  
+  <!-- Neck -->
+  <rect x="183" y="210" width="34" height="65" rx="6" fill="#8c5847"/>
+  
+  <!-- Head & Face -->
+  <ellipse cx="200" cy="168" rx="50" ry="62" fill="#8c5847"/>
+  <ellipse cx="149" cy="168" rx="7" ry="14" fill="#6f4234"/>
+  <ellipse cx="251" cy="168" rx="7" ry="14" fill="#6f4234"/>
+  <!-- Gold hoop earrings -->
+  <circle cx="148" cy="178" r="6" fill="none" stroke="#fbbf24" stroke-width="2"/>
+  <circle cx="252" cy="178" r="6" fill="none" stroke="#fbbf24" stroke-width="2"/>
+  
+  <!-- Braided / Chic Hair -->
+  <path d="M140 160 C135 110 160 85 200 85 C240 85 265 110 260 160 C265 190 260 220 255 240 C250 210 248 130 200 100 C152 130 150 210 145 240 C140 220 135 190 140 160 Z" fill="#171717"/>
+  
+  <!-- Eyebrows -->
+  <path d="M168 146 Q180 142 188 146" stroke="#171717" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M212 146 Q220 142 232 146" stroke="#171717" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- Eyes -->
+  <circle cx="178" cy="156" r="4" fill="#171717"/>
+  <circle cx="222" cy="156" r="4" fill="#171717"/>
+  <!-- Nose -->
+  <path d="M197 166 Q200 178 203 178" stroke="#663c2f" stroke-width="2" fill="none"/>
+  <!-- Radiant Smile -->
+  <path d="M184 196 Q200 210 216 196" fill="#f43f5e" stroke="#e11d48" stroke-width="1.5"/>
+</svg>

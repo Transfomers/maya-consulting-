@@ -1,0 +1,509 @@
+/* ==========================================================================
+   3M SERVICES - Modern Pop-On, Slide, and Micro-Interaction Animations
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Keyframes Definitions
+   -------------------------------------------------------------------------- */
+
+/* Pop-In with subtle spring bounce */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Energetic Pop Bounce (for badges, icons, modals) */
+@keyframes popBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  85% {
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide Up */
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide Down */
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide from Left */
+@keyframes slideLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide from Right */
+@keyframes slideRight {
+  0% {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Gentle ambient vehicle floating */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Luxury subtle pulse accent */
+@keyframes softPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(226, 7, 19, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(226, 7, 19, 0);
+  }
+}
+
+/* Fade In */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Hero Section Animations
+   -------------------------------------------------------------------------- */
+.hero-content__text {
+  animation: slideLeft 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-content__text h4 {
+  animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.hero-content__text h1 {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.hero-content__text p {
+  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.hero-content__text__btns {
+  animation: popIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+.hero-content__car-img {
+  animation: slideRight 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+.hero-content__car-img:hover img {
+  animation: floatSlow 3.5s ease-in-out infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Showcase Header Animations (Models, Apartments, About)
+   -------------------------------------------------------------------------- */
+.showcase-main-banner {
+  animation: slideLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.showcase-main-banner__content {
+  animation: fadeIn 0.9s ease both;
+}
+
+.showcase-main-banner__img-float {
+  animation: popIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+.showcase-side-card:first-child {
+  animation: slideRight 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.showcase-side-card:last-child {
+  animation: slideRight 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.showcase-side-card__img {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.showcase-side-card:hover .showcase-side-card__img {
+  transform: scale(1.08) rotate(1deg);
+}
+
+/* --------------------------------------------------------------------------
+   Booking Quick Form Box
+   -------------------------------------------------------------------------- */
+.book-content {
+  animation: popIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.book-content:hover {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   E-Commerce Cars & Apartments Product Cards (Staggered Pop-On & Micro-Lifts)
+   -------------------------------------------------------------------------- */
+.ecom-card,
+.apartment-card {
+  animation: popIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
+  will-change: transform, box-shadow;
+}
+
+/* Staggered grid delay for smooth cascade feel */
+.ecom-grid .ecom-card:nth-child(1),
+.apartment-grid .apartment-card:nth-child(1) { animation-delay: 0.05s; }
+.ecom-grid .ecom-card:nth-child(2),
+.apartment-grid .apartment-card:nth-child(2) { animation-delay: 0.1s; }
+.ecom-grid .ecom-card:nth-child(3),
+.apartment-grid .apartment-card:nth-child(3) { animation-delay: 0.15s; }
+.ecom-grid .ecom-card:nth-child(4),
+.apartment-grid .apartment-card:nth-child(4) { animation-delay: 0.2s; }
+.ecom-grid .ecom-card:nth-child(5),
+.apartment-grid .apartment-card:nth-child(5) { animation-delay: 0.25s; }
+.ecom-grid .ecom-card:nth-child(6),
+.apartment-grid .apartment-card:nth-child(6) { animation-delay: 0.3s; }
+.ecom-grid .ecom-card:nth-child(7),
+.apartment-grid .apartment-card:nth-child(7) { animation-delay: 0.35s; }
+.ecom-grid .ecom-card:nth-child(8),
+.apartment-grid .apartment-card:nth-child(8) { animation-delay: 0.4s; }
+
+.ecom-card:hover,
+.apartment-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1) !important;
+  border-color: #cbd5e1 !important;
+}
+
+.ecom-card__badge,
+.apartment-card__badge {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ecom-card:hover .ecom-card__badge,
+.apartment-card:hover .apartment-card__badge {
+  transform: scale(1.08);
+}
+
+.ecom-card__img,
+.apartment-card__img {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ecom-card:hover .ecom-card__img,
+.apartment-card:hover .apartment-card__img {
+  transform: scale(1.08);
+}
+
+/* --------------------------------------------------------------------------
+   Plan Trip Step Boxes
+   -------------------------------------------------------------------------- */
+.plan-container__boxes__box {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.35s ease;
+}
+
+.plan-container__boxes__box:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.08);
+}
+
+.plan-container__boxes__box img {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.plan-container__boxes__box:hover img {
+  transform: scale(1.15) rotate(3deg);
+}
+
+/* --------------------------------------------------------------------------
+   Why Choose Us Features
+   -------------------------------------------------------------------------- */
+.choose-container__features__box {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
+}
+
+.choose-container__features__box:hover {
+  transform: translateX(8px);
+}
+
+.choose-container__features__box img {
+  transition: transform 0.3s ease;
+}
+
+.choose-container__features__box:hover img {
+  transform: scale(1.1);
+}
+
+/* --------------------------------------------------------------------------
+   Team Cards
+   -------------------------------------------------------------------------- */
+.team-container__box {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.35s ease;
+}
+
+.team-container__box:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12) !important;
+}
+
+.team-container__box img {
+  transition: transform 0.45s ease;
+}
+
+.team-container__box:hover img {
+  transform: scale(1.06);
+}
+
+/* --------------------------------------------------------------------------
+   Testimonial Client Boxes
+   -------------------------------------------------------------------------- */
+.all-testimonials__box {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease;
+}
+
+.all-testimonials__box:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.09) !important;
+}
+
+/* --------------------------------------------------------------------------
+   FAQ Accordions
+   -------------------------------------------------------------------------- */
+.faq-box {
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.faq-box:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.faq-box__question i {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --------------------------------------------------------------------------
+   Interactive Buttons Micro-Bounce & Lift
+   -------------------------------------------------------------------------- */
+.hero-content__text__btns a,
+.showcase-btn,
+.ecom-card__btn-book,
+.ecom-card__btn-wa,
+.apartment-card__btn,
+.cta-btn,
+.banner-style-btn,
+.promo-banner-card__btn,
+.navbar__actions-cluster a,
+.navbar__lang-btn {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.22s ease,
+              background-color 0.2s ease !important;
+}
+
+.hero-content__text__btns a:hover,
+.showcase-btn:hover,
+.ecom-card__btn-book:hover,
+.apartment-card__btn:hover,
+.cta-btn:hover,
+.promo-banner-card__btn:hover {
+  transform: translateY(-2px) scale(1.025);
+  box-shadow: 0 8px 18px rgba(226, 7, 19, 0.28);
+}
+
+.ecom-card__btn-wa:hover {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 8px 18px rgba(37, 211, 102, 0.32);
+}
+
+.hero-content__text__btns a:active,
+.showcase-btn:active,
+.ecom-card__btn-book:active,
+.ecom-card__btn-wa:active,
+.apartment-card__btn:active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Scroll-Reveal Classes (Triggered by IntersectionObserver)
+   -------------------------------------------------------------------------- */
+.sr-hidden {
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.sr-slide-up {
+  transform: translateY(40px);
+}
+
+.sr-slide-left {
+  transform: translateX(-40px);
+}
+
+.sr-slide-right {
+  transform: translateX(40px);
+}
+
+.sr-pop {
+  transform: scale(0.85);
+}
+
+.sr-visible {
+  opacity: 1 !important;
+  transform: translate(0, 0) scale(1) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Modals Pop-On Animation
+   -------------------------------------------------------------------------- */
+.modal-overlay,
+div[style*="position: fixed"][style*="z-index: 9999"] {
+  animation: fadeIn 0.25s ease both;
+}
+
+.modal-overlay > div,
+div[style*="position: fixed"][style*="z-index: 9999"] > div {
+  animation: popBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* --------------------------------------------------------------------------
+   PWA & Bottom Strip Floating Animations
+   -------------------------------------------------------------------------- */
+.pwa-prompt-container {
+  animation: popBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.footer-channel-btn {
+  border-radius: 11px !important;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.25s ease;
+}
+
+.footer-channel-btn:hover {
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   Global Floating Scroll-To-Top Button (Mobile & Desktop)
+   -------------------------------------------------------------------------- */
+.scroll-to-top-btn {
+  position: fixed;
+  bottom: 3rem;
+  right: 2.5rem;
+  width: 4.8rem;
+  height: 4.8rem;
+  border-radius: 50%;
+  background-color: #C92A2A;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  cursor: pointer;
+  z-index: 99999;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px) scale(0.85);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scroll-to-top-btn.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.scroll-to-top-btn:hover {
+  background-color: #B02525;
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+.scroll-to-top-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+@media (max-width: 600px) {
+  .scroll-to-top-btn {
+    bottom: 2.2rem;
+    right: 1.8rem;
+    width: 4.8rem;
+    height: 4.8rem;
+    font-size: 2.2rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Footer Navigation Column - Removed on Phone Version
+   -------------------------------------------------------------------------- */
+@media (max-width: 800px) {
+  .footer-nav-col {
+    display: none !important;
+  }
+}
+

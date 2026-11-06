@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-michel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="tie-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E20713"/>
+      <stop offset="100%" stop-color="#99050d"/>
+    </linearGradient>
+    <radialGradient id="halo-michel" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#E20713" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="420" fill="url(#bg-michel)"/>
+  <circle cx="200" cy="180" r="140" fill="url(#halo-michel)"/>
+  
+  <!-- Shoulders & Suit -->
+  <path d="M70 420 C75 320 130 280 160 270 L240 270 C270 280 325 320 330 420 Z" fill="#18181b"/>
+  <!-- White Shirt -->
+  <polygon points="175,270 200,340 225,270 200,260" fill="#f8fafc"/>
+  <!-- Red Tie (3M Branding) -->
+  <polygon points="195,270 205,270 208,350 200,380 192,350" fill="url(#tie-grad)"/>
+  <polygon points="193,268 207,268 205,280 195,280" fill="#E20713"/>
+  <!-- Suit Lapels -->
+  <polygon points="140,275 175,270 195,360 160,370" fill="#27272a"/>
+  <polygon points="260,275 225,270 205,360 240,370" fill="#27272a"/>
+  <!-- 3M Services Lapel Pin -->
+  <circle cx="165" cy="300" r="5" fill="#E20713"/>
+  <circle cx="165" cy="300" r="2.5" fill="#ffffff"/>
+  
+  <!-- Neck -->
+  <rect x="180" y="210" width="40" height="60" rx="6" fill="#8d5b4c"/>
+  
+  <!-- Head & Face -->
+  <ellipse cx="200" cy="170" rx="55" ry="68" fill="#8d5b4c"/>
+  <!-- Ears -->
+  <ellipse cx="145" cy="170" rx="9" ry="16" fill="#7a4e40"/>
+  <ellipse cx="255" cy="170" rx="9" ry="16" fill="#7a4e40"/>
+  <!-- Hair (Trimmed executive) -->
+  <path d="M145 150 C145 100 170 95 200 95 C230 95 255 100 255 150 C250 115 225 110 200 110 C175 110 150 115 145 150 Z" fill="#171717"/>
+  <!-- Eyebrows -->
+  <path d="M165 145 Q178 140 188 145" stroke="#171717" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M212 145 Q222 140 235 145" stroke="#171717" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <!-- Glasses (Executive) -->
+  <rect x="160" y="148" width="32" height="22" rx="4" fill="none" stroke="#e2e8f0" stroke-width="3"/>
+  <rect x="208" y="148" width="32" height="22" rx="4" fill="none" stroke="#e2e8f0" stroke-width="3"/>
+  <line x1="192" y1="156" x2="208" y2="156" stroke="#e2e8f0" stroke-width="3"/>
+  <!-- Eyes -->
+  <circle cx="176" cy="159" r="4" fill="#171717"/>
+  <circle cx="224" cy="159" r="4" fill="#171717"/>
+  <!-- Nose -->
+  <path d="M196 168 Q200 182 204 182 Q200 184 196 182" stroke="#6b4438" stroke-width="2.5" fill="none"/>
+  <!-- Smile & Mustache -->
+  <path d="M185 192 Q200 190 215 192" stroke="#171717" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M188 203 Q200 212 212 203" stroke="#5a382e" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>
