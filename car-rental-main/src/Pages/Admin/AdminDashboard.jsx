@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../../images/logo/logo.png";
+import { CARS_CATALOGUE } from "../../data/carsCatalogue";
+import { API_BASE } from "../../config/api";
 import "./admin.css";
-
-const API_BASE = "http://localhost:5001/api";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ function AdminDashboard() {
   const [token, setToken] = useState("");
   const [stats, setStats] = useState(null);
   const [bookings, setBookings] = useState([]);
-  const [cars, setCars] = useState([]);
+  const [cars, setCars] = useState(CARS_CATALOGUE);
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -1527,8 +1527,10 @@ function AdminDashboard() {
                   </div>
                   <div className="admin-metric-bottom">
                     <span>PARC AUTOMOBILE</span>
-                    <h3>{cars.length || 9}</h3>
-                    <small>2 Neuve(s) • 1 Occasion(s)</small>
+                    <h3>{cars.length}</h3>
+                    <small>
+                      {cars.filter((c) => (c.condition || "").toLowerCase().includes("neuv")).length} Neuve(s) • {cars.filter((c) => (c.condition || "").toLowerCase().includes("occas")).length} Occasion(s)
+                    </small>
                   </div>
                 </div>
 

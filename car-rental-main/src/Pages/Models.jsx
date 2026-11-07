@@ -4,6 +4,7 @@ import ShowcaseHeroHeader from "../components/ShowcaseHeroHeader";
 import { useTranslation } from "../context/LanguageContext";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import defaultCarImg from "../images/cars/toyota-prado-txl-front.webp";
+import { API_BASE } from "../config/api";
 import "../styles/CatalogEcommerce.css";
 
 function Models() {
@@ -17,7 +18,7 @@ function Models() {
 
   // Attempt to fetch fresh data from backend API, fall back to CARS_CATALOGUE
   useEffect(() => {
-    fetch("http://localhost:5001/api/cars")
+    fetch(`${API_BASE}/cars`)
       .then((res) => {
         if (!res.ok) throw new Error("Network response was not ok");
         return res.json();

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../../images/logo/logo.png";
+import { API_BASE } from "../../config/api";
 import "./admin.css";
-
-const API_BASE = "http://localhost:5001/api";
 
 function AdminLogin() {
   const [email, setEmail] = useState("");

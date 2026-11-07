@@ -9,29 +9,6 @@
   },
   "cars": [
     {
-      "id": "car-1793963654181",
-      "name": "test",
-      "model": "test",
-      "mark": "Toyota",
-      "brand": "Toyota",
-      "category": "Berline Prestige",
-      "year": "2024",
-      "condition": "Occasion Révisée",
-      "mileage": "Faible kilométrage certifié",
-      "pricePerDay": 6000,
-      "price": "À partir de 6 000 FCFA / jour",
-      "doors": "5",
-      "seats": "5 places",
-      "transmission": "Manuelle",
-      "fuel": "Essence",
-      "air": "Oui",
-      "status": "En maintenance",
-      "plate": "CE-000-XX",
-      "img": "/uploads/upload-1793963636223-3233.webp",
-      "image": "/uploads/upload-1793963636223-3233.webp",
-      "description": "test"
-    },
-    {
       "id": "suv-02-prado",
       "name": "Toyota LAND CRUISER PRADO TXL (VIP 4X4)",
       "model": "LAND CRUISER PRADO TXL (VIP 4X4)",
@@ -119,8 +96,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-219-YA",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/2013_Toyota_RAV4_Limited_--_03-29-2013.jpg/800px-2013_Toyota_RAV4_Limited_--_03-29-2013.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/2013_Toyota_RAV4_Limited_--_03-29-2013.jpg/800px-2013_Toyota_RAV4_Limited_--_03-29-2013.jpg",
+      "img": "/images/cars/toyota-rav4-gen.webp",
+      "image": "/images/cars/toyota-rav4-gen.webp",
       "description": "Fiable, spacieux avec grand coffre et climatisation efficace pour la ville et les voyages."
     },
     {
@@ -142,8 +119,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-890-LT",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/2006-2008_Toyota_RAV4_--_04-20-2012.JPG/800px-2006-2008_Toyota_RAV4_--_04-20-2012.JPG",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/2006-2008_Toyota_RAV4_--_04-20-2012.JPG/800px-2006-2008_Toyota_RAV4_--_04-20-2012.JPG",
+      "img": "/images/cars/toyota-rav4-gen.webp",
+      "image": "/images/cars/toyota-rav4-gen.webp",
       "description": "Idéal pour les budgets maîtrisés tout en conservant la fiabilité mécanique éprouvée de Toyota."
     },
     {
@@ -188,8 +165,8 @@
       "air": "Oui",
       "status": "En maintenance",
       "plate": "CE-302-NS",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/2009_Nissan_Murano_SL_--_03-21-2012.JPG/800px-2009_Nissan_Murano_SL_--_03-21-2012.JPG",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/2009_Nissan_Murano_SL_--_03-21-2012.JPG/800px-2009_Nissan_Murano_SL_--_03-21-2012.JPG",
+      "img": "/images/cars/nissan-murano.webp",
+      "image": "/images/cars/nissan-murano.webp",
       "description": "Transmission intégrale 4x4, habitacle spacieux et position de conduite surélevée."
     },
     {
@@ -234,8 +211,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-555-VIP",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Mercedes_S_350_BlueTEC_4MATIC_%28W_221%29_%E2%80%93_Frontansicht%2C_28._August_2011%2C_Wuppertal.jpg/800px-Mercedes_S_350_BlueTEC_4MATIC_%28W_221%29_%E2%80%93_Frontansicht%2C_28._August_2011%2C_Wuppertal.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Mercedes_S_350_BlueTEC_4MATIC_%28W_221%29_%E2%80%93_Frontansicht%2C_28._August_2011%2C_Wuppertal.jpg/800px-Mercedes_S_350_BlueTEC_4MATIC_%28W_221%29_%E2%80%93_Frontansicht%2C_28._August_2011%2C_Wuppertal.jpg",
+      "img": "/images/cars/mercedes-classe-s-w221.webp",
+      "image": "/images/cars/mercedes-classe-s-w221.webp",
       "description": "Le summum du raffinement automobile mondial. Suspension pneumatique Airmatic et insonorisation absolue."
     },
     {
@@ -257,8 +234,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-722-GL",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Mercedes-Benz_GLK_220_CDI_4MATIC_Sport-Paket_%28X_204%2C_Facelift%29_%E2%80%93_Frontansicht%2C_13._Oktober_2012%2C_D%C3%BCsseldorf.jpg/800px-Mercedes-Benz_GLK_220_CDI_4MATIC_Sport-Paket_%28X_204%2C_Facelift%29_%E2%80%93_Frontansicht%2C_13._Oktober_2012%2C_D%C3%BCsseldorf.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Mercedes-Benz_GLK_220_CDI_4MATIC_Sport-Paket_%28X_204%2C_Facelift%29_%E2%80%93_Frontansicht%2C_13._Oktober_2012%2C_D%C3%BCsseldorf.jpg/800px-Mercedes-Benz_GLK_220_CDI_4MATIC_Sport-Paket_%28X_204%2C_Facelift%29_%E2%80%93_Frontansicht%2C_13._Oktober_2012%2C_D%C3%BCsseldorf.jpg",
+      "img": "/images/cars/mercedes-glk.webp",
+      "image": "/images/cars/mercedes-glk.webp",
       "description": "SUV compact compact statutaire à 4 roues motrices permanentes, idéal pour Yaoundé et déplacements interurbains."
     },
     {
@@ -280,8 +257,8 @@
       "air": "Oui (Clim 4 zones)",
       "status": "Disponible",
       "plate": "CE-001-MB",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/2018_Mercedes-Maybach_S_560_4MATIC_front_4.7.18.jpg/800px-2018_Mercedes-Maybach_S_560_4MATIC_front_4.7.18.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/2018_Mercedes-Maybach_S_560_4MATIC_front_4.7.18.jpg/800px-2018_Mercedes-Maybach_S_560_4MATIC_front_4.7.18.jpg",
+      "img": "/images/cars/mercedes-maybach.webp",
+      "image": "/images/cars/mercedes-maybach.webp",
       "description": "Le sommet du prestige absolu. Sièges exécutifs inclinables massants et finitions d orfèvrerie."
     },
     {
@@ -326,8 +303,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-999-ST",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Mercedes-Benz_S_350_BlueTEC_L_4MATIC_%28V_221%2C_Facelift%29_%E2%80%93_Frontansicht%2C_12._Juni_2011%2C_D%C3%BCsseldorf.jpg/800px-Mercedes-Benz_S_350_BlueTEC_L_4MATIC_%28V_221%2C_Facelift%29_%E2%80%93_Frontansicht%2C_12._Juni_2011%2C_D%C3%BCsseldorf.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Mercedes-Benz_S_350_BlueTEC_L_4MATIC_%28V_221%2C_Facelift%29_%E2%80%93_Frontansicht%2C_12._Juni_2011%2C_D%C3%BCsseldorf.jpg/800px-Mercedes-Benz_S_350_BlueTEC_L_4MATIC_%28V_221%2C_Facelift%29_%E2%80%93_Frontansicht%2C_12._Juni_2011%2C_D%C3%BCsseldorf.jpg",
+      "img": "/images/cars/mercedes-classe-s-w221.webp",
+      "image": "/images/cars/mercedes-classe-s-w221.webp",
       "description": "Confort impérial pour personnalités, ambassades et cérémonies de standing."
     },
     {
@@ -372,8 +349,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-111-NEUF",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Kia_Pegas_China_2017-10-06.jpg/800px-Kia_Pegas_China_2017-10-06.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Kia_Pegas_China_2017-10-06.jpg/800px-Kia_Pegas_China_2017-10-06.jpg",
+      "img": "/images/cars/kia-pegas.webp",
+      "image": "/images/cars/kia-pegas.webp",
       "description": "Berline neuve 0 km économique, moderne et agile pour tous les trajets urbains."
     },
     {
@@ -395,8 +372,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-112-NEUF",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Kia_Pegas_China_2017-10-06.jpg/800px-Kia_Pegas_China_2017-10-06.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Kia_Pegas_China_2017-10-06.jpg/800px-Kia_Pegas_China_2017-10-06.jpg",
+      "img": "/images/cars/kia-pegas.webp",
+      "image": "/images/cars/kia-pegas.webp",
       "description": "Transmission manuelle souple et consommation de carburant remarquablement basse."
     },
     {
@@ -418,8 +395,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-310-RIO",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/2021_Kia_Rio_5-door_S_front_left_10-18-2021.jpg/800px-2021_Kia_Rio_5-door_S_front_left_10-18-2021.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/2021_Kia_Rio_5-door_S_front_left_10-18-2021.jpg/800px-2021_Kia_Rio_5-door_S_front_left_10-18-2021.jpg",
+      "img": "/images/cars/kia-rio.webp",
+      "image": "/images/cars/kia-rio.webp",
       "description": "Compacte dynamique, connectivité moderne Apple CarPlay/Android Auto."
     },
     {
@@ -441,8 +418,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-440-CER",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/2021_Kia_Forte_GT-Line_front_left_10-18-2021.jpg/800px-2021_Kia_Forte_GT-Line_front_left_10-18-2021.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/2021_Kia_Forte_GT-Line_front_left_10-18-2021.jpg/800px-2021_Kia_Forte_GT-Line_front_left_10-18-2021.jpg",
+      "img": "/images/cars/kia-cerato.webp",
+      "image": "/images/cars/kia-cerato.webp",
       "description": "Ligne fluide, grand coffre et confort routier exceptionnel."
     },
     {
@@ -464,8 +441,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-2025-SON",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Kia_Sonet_HTX%2B_Turbo_DCT_%28India%29_front_view.jpg/800px-Kia_Sonet_HTX%2B_Turbo_DCT_%28India%29_front_view.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Kia_Sonet_HTX%2B_Turbo_DCT_%28India%29_front_view.jpg/800px-Kia_Sonet_HTX%2B_Turbo_DCT_%28India%29_front_view.jpg",
+      "img": "/images/cars/kia-sonet.webp",
+      "image": "/images/cars/kia-sonet.webp",
       "description": "Crossover compact surélevé, idéal pour circuler avec aisance sur toutes les chaussées."
     },
     {
@@ -487,8 +464,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-2025-SEL",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/2021_Kia_Seltos_EX_AWD_in_Steel_Gray%2C_Front_Right%2C_08-01-2021.jpg/800px-2021_Kia_Seltos_EX_AWD_in_Steel_Gray%2C_Front_Right%2C_08-01-2021.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/2021_Kia_Seltos_EX_AWD_in_Steel_Gray%2C_Front_Right%2C_08-01-2021.jpg/800px-2021_Kia_Seltos_EX_AWD_in_Steel_Gray%2C_Front_Right%2C_08-01-2021.jpg",
+      "img": "/images/cars/kia-seltos.webp",
+      "image": "/images/cars/kia-seltos.webp",
       "description": "Intérieur cuir raffiné, éclairage d ambiance et garde au sol généreuse."
     },
     {
@@ -510,8 +487,8 @@
       "air": "Oui (Clim arrière)",
       "status": "Disponible",
       "plate": "CE-777-CAR",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Kia_Carens_KY_IMG_6881.jpg/800px-Kia_Carens_KY_IMG_6881.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Kia_Carens_KY_IMG_6881.jpg/800px-Kia_Carens_KY_IMG_6881.jpg",
+      "img": "/images/cars/kia-carens.webp",
+      "image": "/images/cars/kia-carens.webp",
       "description": "Modularité 7 places, espace aux jambes royal et connectivité pour toute la famille."
     },
     {
@@ -533,8 +510,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-900-SOR",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/2021_Kia_Sorento_SX_AWD_in_Ebony_Black%2C_Front_Right%2C_10-18-2021.jpg/800px-2021_Kia_Sorento_SX_AWD_in_Ebony_Black%2C_Front_Right%2C_10-18-2021.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/2021_Kia_Sorento_SX_AWD_in_Ebony_Black%2C_Front_Right%2C_10-18-2021.jpg/800px-2021_Kia_Sorento_SX_AWD_in_Ebony_Black%2C_Front_Right%2C_10-18-2021.jpg",
+      "img": "/images/cars/kia-sorento.webp",
+      "image": "/images/cars/kia-sorento.webp",
       "description": "Grand SUV familial de luxe avec transmission intégrale et finition cuir intégrale."
     },
     {
@@ -556,8 +533,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-520-SK",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/2021_Kia_Seltos_EX_AWD_in_Steel_Gray%2C_Front_Right%2C_08-01-2021.jpg/800px-2021_Kia_Seltos_EX_AWD_in_Steel_Gray%2C_Front_Right%2C_08-01-2021.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/2021_Kia_Seltos_EX_AWD_in_Steel_Gray%2C_Front_Right%2C_08-01-2021.jpg/800px-2021_Kia_Seltos_EX_AWD_in_Steel_Gray%2C_Front_Right%2C_08-01-2021.jpg",
+      "img": "/images/cars/kia-seltos.webp",
+      "image": "/images/cars/kia-seltos.webp",
       "description": "Sellerie cuir soignée, entretien minutieux et polyvalence assurée."
     },
     {
@@ -579,8 +556,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-300-K7",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/2017_Kia_Cadenza_Limited%2C_front_8.23.19.jpg/800px-2017_Kia_Cadenza_Limited%2C_front_8.23.19.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/2017_Kia_Cadenza_Limited%2C_front_8.23.19.jpg/800px-2017_Kia_Cadenza_Limited%2C_front_8.23.19.jpg",
+      "img": "/images/cars/kia-k7.webp",
+      "image": "/images/cars/kia-k7.webp",
       "description": "Grande berline statutaire coréenne, confort feutré digne des berlines allemandes."
     },
     {
@@ -602,8 +579,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-800-SR",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/2014_Kia_Sorento_LX_AWD_--_08-27-2013.JPG/800px-2014_Kia_Sorento_LX_AWD_--_08-27-2013.JPG",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/2014_Kia_Sorento_LX_AWD_--_08-27-2013.JPG/800px-2014_Kia_Sorento_LX_AWD_--_08-27-2013.JPG",
+      "img": "/images/cars/kia-sorento.webp",
+      "image": "/images/cars/kia-sorento.webp",
       "description": "Moteur diesel coupleux, 7 vraies places pour tous vos déplacements d affaires."
     },
     {
@@ -625,8 +602,8 @@
       "air": "Oui (Bi-zone)",
       "status": "Disponible",
       "plate": "CE-300-LC",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/2022_Toyota_Land_Cruiser_300_3.3_D_ZX_%28South_Africa%29_front_view.jpg/800px-2022_Toyota_Land_Cruiser_300_3.3_D_ZX_%28South_Africa%29_front_view.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/2022_Toyota_Land_Cruiser_300_3.3_D_ZX_%28South_Africa%29_front_view.jpg/800px-2022_Toyota_Land_Cruiser_300_3.3_D_ZX_%28South_Africa%29_front_view.jpg",
+      "img": "/images/cars/toyota-lc300.webp",
+      "image": "/images/cars/toyota-lc300.webp",
       "description": "Le roi incontesté de la route et des pistes africaines. Puissance et blindage du confort."
     },
     {
@@ -648,8 +625,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-240-HL",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/2021_Toyota_Hilux_Invincible_D-4D_Automatic_2.8_Front.jpg/800px-2021_Toyota_Hilux_Invincible_D-4D_Automatic_2.8_Front.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/2021_Toyota_Hilux_Invincible_D-4D_Automatic_2.8_Front.jpg/800px-2021_Toyota_Hilux_Invincible_D-4D_Automatic_2.8_Front.jpg",
+      "img": "/images/cars/toyota-hilux-2024.webp",
+      "image": "/images/cars/toyota-hilux-2024.webp",
       "description": "Indestructible pick-up tout-terrain pour missions professionnelles exigeantes."
     },
     {
@@ -694,8 +671,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-441-CM",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/2007-2009_Toyota_Camry_LE_--_04-20-2012.JPG/800px-2007-2009_Toyota_Camry_LE_--_04-20-2012.JPG",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/2007-2009_Toyota_Camry_LE_--_04-20-2012.JPG/800px-2007-2009_Toyota_Camry_LE_--_04-20-2012.JPG",
+      "img": "/images/cars/toyota-camry-dark.webp",
+      "image": "/images/cars/toyota-camry-dark.webp",
       "description": "Berline confortable et très économique en entretien."
     },
     {
@@ -717,8 +694,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-950-VZ",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/2009-2011_Toyota_Venza_--_03-21-2012.JPG/800px-2009-2011_Toyota_Venza_--_03-21-2012.JPG",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/2009-2011_Toyota_Venza_--_03-21-2012.JPG/800px-2009-2011_Toyota_Venza_--_03-21-2012.JPG",
+      "img": "/images/cars/toyota-venza.webp",
+      "image": "/images/cars/toyota-venza.webp",
       "description": "Design raffiné et intérieur cuir d une grande élégance."
     },
     {
@@ -740,8 +717,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-207-CV",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Toyota_Corolla_Verso_front_20080807.jpg/800px-Toyota_Corolla_Verso_front_20080807.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Toyota_Corolla_Verso_front_20080807.jpg/800px-Toyota_Corolla_Verso_front_20080807.jpg",
+      "img": "/images/cars/toyota-corolla-verso.webp",
+      "image": "/images/cars/toyota-corolla-verso.webp",
       "description": "Véhicule familial pratique avec sièges rabattables modulaires."
     },
     {
@@ -786,8 +763,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-008-V8",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/2016_Toyota_Land_Cruiser_%28URJ200R%29_wagon_%282018-11-02%29_01.jpg/800px-2016_Toyota_Land_Cruiser_%28URJ200R%29_wagon_%282018-11-02%29_01.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/2016_Toyota_Land_Cruiser_%28URJ200R%29_wagon_%282018-11-02%29_01.jpg/800px-2016_Toyota_Land_Cruiser_%28URJ200R%29_wagon_%282018-11-02%29_01.jpg",
+      "img": "/images/cars/toyota-lc-v8-2022.webp",
+      "image": "/images/cars/toyota-lc-v8-2022.webp",
       "description": "Puissance du moteur V8 et franchissement sans concession sur toutes pistes."
     },
     {
@@ -809,8 +786,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-006-YR",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/2006_Toyota_Yaris_T3_1.3_Front.jpg/800px-2006_Toyota_Yaris_T3_1.3_Front.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/2006_Toyota_Yaris_T3_1.3_Front.jpg/800px-2006_Toyota_Yaris_T3_1.3_Front.jpg",
+      "img": "/images/cars/toyota-yaris.webp",
+      "image": "/images/cars/toyota-yaris.webp",
       "description": "Très maniable dans le trafic de Yaoundé et consommation minime."
     },
     {
@@ -832,8 +809,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-007-AV",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Toyota_Avensis_front_20071204.jpg/800px-Toyota_Avensis_front_20071204.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Toyota_Avensis_front_20071204.jpg/800px-Toyota_Avensis_front_20071204.jpg",
+      "img": "/images/cars/toyota-avensis.webp",
+      "image": "/images/cars/toyota-avensis.webp",
       "description": "Excellente routière réputée pour sa robustesse et son confort d assise."
     },
     {
@@ -878,8 +855,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-019-KN",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/2018_Hyundai_Kona_Iron_Man_Edition_1.6_Front.jpg/800px-2018_Hyundai_Kona_Iron_Man_Edition_1.6_Front.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/2018_Hyundai_Kona_Iron_Man_Edition_1.6_Front.jpg/800px-2018_Hyundai_Kona_Iron_Man_Edition_1.6_Front.jpg",
+      "img": "/images/cars/hyundai-kona.webp",
+      "image": "/images/cars/hyundai-kona.webp",
       "description": "Look urbain moderne et aides à la conduite complètes."
     },
     {
@@ -901,8 +878,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-015-SF",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/2013_Hyundai_Santa_Fe_Sport_--_09-17-2012.JPG/800px-2013_Hyundai_Santa_Fe_Sport_--_09-17-2012.JPG",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/2013_Hyundai_Santa_Fe_Sport_--_09-17-2012.JPG/800px-2013_Hyundai_Santa_Fe_Sport_--_09-17-2012.JPG",
+      "img": "/images/cars/hyundai-santafe-front.webp",
+      "image": "/images/cars/hyundai-santafe-front.webp",
       "description": "Spacieux, silencieux et très agréable pour les longues distances."
     },
     {
@@ -924,8 +901,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-012-SN",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/2011_Hyundai_Sonata_GLS_--_06-03-2011.jpg/800px-2011_Hyundai_Sonata_GLS_--_06-03-2011.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/2011_Hyundai_Sonata_GLS_--_06-03-2011.jpg/800px-2011_Hyundai_Sonata_GLS_--_06-03-2011.jpg",
+      "img": "/images/cars/hyundai-sonata.webp",
+      "image": "/images/cars/hyundai-sonata.webp",
       "description": "Design sculpté Fluidic Sculpture et sellerie tout confort."
     },
     {
@@ -947,8 +924,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-013-VL",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/2012_Hyundai_Veloster_--_01-20-2012.jpg/800px-2012_Hyundai_Veloster_--_01-20-2012.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/2012_Hyundai_Veloster_--_01-20-2012.jpg/800px-2012_Hyundai_Veloster_--_01-20-2012.jpg",
+      "img": "/images/cars/hyundai-veloster.webp",
+      "image": "/images/cars/hyundai-veloster.webp",
       "description": "Coupé asymétrique 3 portes au look inimitable et conduite réactive."
     },
     {
@@ -970,8 +947,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-009-VC",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/2007-2009_Hyundai_Veracruz_--_12-21-2009.jpg/800px-2007-2009_Hyundai_Veracruz_--_12-21-2009.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/2007-2009_Hyundai_Veracruz_--_12-21-2009.jpg/800px-2007-2009_Hyundai_Veracruz_--_12-21-2009.jpg",
+      "img": "/images/cars/hyundai-veracruz.webp",
+      "image": "/images/cars/hyundai-veracruz.webp",
       "description": "Espace intérieur généreux avec motorisation V6 robuste."
     },
     {
@@ -993,8 +970,8 @@
       "air": "Oui",
       "status": "Disponible",
       "plate": "CE-009-i30",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Hyundai_i30_front_20080303.jpg/800px-Hyundai_i30_front_20080303.jpg",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Hyundai_i30_front_20080303.jpg/800px-Hyundai_i30_front_20080303.jpg",
+      "img": "/images/cars/hyundai-i30.webp",
+      "image": "/images/cars/hyundai-i30.webp",
       "description": "Compacte économique à moteur diesel réputé pour sa sobriété."
     }
   ],

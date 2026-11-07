@@ -7,6 +7,7 @@ import CarMercedes from "../images/cars/mercedes-classe-e-front.webp";
 import CarRav4 from "../images/cars/toyota-rav4-front.webp";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { useTranslation } from "../context/LanguageContext";
+import { API_BASE } from "../config/api";
 
 function BookCar() {
   const { lang, t } = useTranslation();
@@ -48,7 +49,7 @@ function BookCar() {
 
   useEffect(() => {
     // 1. Fetch live fleet from backend
-    fetch("http://localhost:5001/api/cars")
+    fetch(`${API_BASE}/cars`)
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
         if (data && data.length > 0) {
@@ -58,7 +59,7 @@ function BookCar() {
       .catch((err) => console.log("Backend offline, fallback cars:", err));
 
     // 2. Fetch live Cameroon locations from backend
-    fetch("http://localhost:5001/api/locations")
+    fetch(`${API_BASE}/locations`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data && data.pickup) {
@@ -826,7 +827,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
     const formattedDrop = formatDateReadable(dropTime);
 
     // 1. Send booking to backend asynchronously
-    fetch("http://localhost:5001/api/bookings", {
+    fetch(`${API_BASE}/bookings`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

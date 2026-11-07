@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Footer from "../components/Footer";
 import ShowcaseHeroHeader from "../components/ShowcaseHeroHeader";
 import { useTranslation } from "../context/LanguageContext";
+import { API_BASE } from "../config/api";
 import "../styles/CatalogEcommerce.css";
 
 const DEFAULT_APARTMENTS = [
@@ -63,7 +64,7 @@ function ApartmentsPage() {
   const [activeModalApartment, setActiveModalApartment] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5001/api/apartments")
+    fetch(`${API_BASE}/apartments`)
       .then((res) => {
         if (!res.ok) throw new Error("HTTP error " + res.status);
         return res.json();

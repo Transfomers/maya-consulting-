@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "../context/LanguageContext";
+import { API_BASE } from "../config/api";
 
 function Footer() {
   const [emailInput, setEmailInput] = useState("");
@@ -9,7 +10,7 @@ function Footer() {
   const handleNewsletter = async (e) => {
     e.preventDefault();
     try {
-      await fetch("http://localhost:5001/api/newsletter", {
+      await fetch(`${API_BASE}/newsletter`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: emailInput })

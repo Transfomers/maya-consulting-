@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Footer from "../components/Footer";
 import HeroPages from "../components/HeroPages";
 import { useTranslation } from "../context/LanguageContext";
+import { API_BASE } from "../config/api";
 
 function Contact() {
   const { lang } = useTranslation();
@@ -16,7 +17,7 @@ function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await fetch("http://localhost:5001/api/contacts", {
+      await fetch(`${API_BASE}/contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
