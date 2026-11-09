@@ -483,7 +483,7 @@ function Models() {
               <p style={{ fontSize: "1.45rem", color: "#64748b", lineHeight: 1.6, marginBottom: "2rem" }}>
                 {selectedCarForModal.description ||
                   (isFr
-                    ? "Véhicule révisé et certifié conforme aux normes 3M Services. Climatisation d'origine, intérieur soigné, sécurité absolue pour vos déplacements à Yaoundé et sur tout le territoire camerounais."
+                    ? "Véhicule révisé et certifié conforme aux normes 3M Services. Climatisation d'origine, intérieur soigné, sécurité absolue pour vos déplacements à partir de Yaoundé et sur tout le territoire camerounais."
                     : "Serviced and certified vehicle compliant with 3M Services quality standards. Original air conditioning, pristine interior, and total safety for your travels in Yaoundé and across Cameroon.")}
               </p>
 

@@ -27,6 +27,11 @@
   gap: 5rem;
   width: 100%;
 
+  &--centered {
+    justify-content: center;
+    text-align: center;
+  }
+
   @media (max-width: 900px) {
     flex-direction: column;
     text-align: center;
@@ -42,6 +47,22 @@
   max-width: 62rem;
   text-align: left;
 
+  &--centered {
+    max-width: 82rem;
+    margin: 0 auto;
+    align-items: center;
+    text-align: center;
+
+    .download-text__badge {
+      align-self: center;
+    }
+
+    .download-text__action {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
   @media (max-width: 900px) {
     text-align: center;
     margin: 0 auto;
@@ -51,16 +72,22 @@
   &__badge {
     display: inline-block;
     align-self: flex-start;
-    background-color: rgba(226, 7, 19, 0.22);
+    background: transparent;
     color: #ff6b6b;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    padding: 0.6rem 1.6rem;
-    border-radius: 2rem;
-    letter-spacing: 0.08rem;
+    padding: 0;
+    letter-spacing: 0.12rem;
     text-transform: uppercase;
     font-family: $text-font;
-    border: 1px solid rgba(226, 7, 19, 0.45);
+    border: none;
+
+    &--nobg {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+    }
 
     @media (max-width: 900px) {
       align-self: center;

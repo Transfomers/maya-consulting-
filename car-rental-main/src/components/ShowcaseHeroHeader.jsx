@@ -21,16 +21,16 @@ function ShowcaseHeroHeader({ type = "models" }) {
     config = {
       main: {
         themeClass: "showcase-main-banner__overlay--cyan",
-        bgImage: "url('/Asset/appartements/appartement-meuble-suite-parentale.webp')",
-        eyebrow: isFr ? "OFFRE SPÉCIALE • LOCATION VIP & FLOTTE 3M" : "SPECIAL OFFER • VIP FLEET & CHAUFFEUR",
-        title: isFr ? "VOYAGEZ EN TOUTE SÉRÉNITÉ AU CAMEROUN" : "SHOP WISE WITH PREMIUM VEHICLE RENTALS",
+        bgImage: "none",
+        eyebrow: isFr ? "OFFRE SPÉCIALE • LOCATION VIP & FLOTTE 3M" : "SPECIAL OFFER • VIP FLEET 3M",
+        title: isFr ? "VOYAGEZ EN TOUTE SÉRÉNITÉ AU CAMEROUN" : "TRAVEL WITH COMPLETE PEACE OF MIND IN CAMEROON",
         btnOutline: {
-          label: isFr ? "Voir la Flotte" : "View Collection",
+          label: isFr ? "Voir la Flotte" : "View Fleet",
           link: "#catalog-section",
           isAnchor: true,
         },
         btnSolid: {
-          label: isFr ? "Réserver WhatsApp" : "Categories",
+          label: isFr ? "Réserver WhatsApp" : "Book WhatsApp",
           link: "https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20r%C3%A9server%20un%20v%C3%A9hicule",
           isExternal: true,
         },
@@ -38,17 +38,17 @@ function ShowcaseHeroHeader({ type = "models" }) {
       },
       topCard: {
         themeClass: "showcase-side-card--orange",
-        eyebrow: isFr ? "TOP ARRIVAGE • PRESTIGE" : "TOP PICKS IN LUXURY SUV",
+        eyebrow: isFr ? "TOP ARRIVAGE • PRESTIGE" : "TOP ARRIVAL • PRESTIGE",
         title: "TOYOTA PRADO TXL VIP",
-        subtext: isFr ? "Chauffeur bilingue • Accueil Nsimalen" : "VIP Chauffeur • Nsimalen Airport Pickup",
+        subtext: isFr ? "Chauffeur bilingue • Accueil Nsimalen" : "Bilingual Chauffeur • Nsimalen Airport Pickup",
         img: rav4Img,
         link: "https://wa.me/237691786447?text=Demande%20Toyota%20Prado%20VIP",
       },
       bottomCard: {
         themeClass: "showcase-side-card--blue",
-        eyebrow: isFr ? "BERLINE DE DIRECTION" : "EXECUTIVE LUXURY",
+        eyebrow: isFr ? "BERLINE DE DIRECTION" : "EXECUTIVE SEDAN",
         title: "MERCEDES-BENZ CLASSE E",
-        subtext: isFr ? "Dès 70 000 FCFA / jour avec chauffeur" : "From 70 000 FCFA / day with driver",
+        subtext: isFr ? "Dès 70 000 FCFA / jour avec chauffeur" : "From 70 000 FCFA / day with chauffeur",
         img: benzImg,
         link: "https://wa.me/237691786447?text=Demande%20Mercedes%20Classe%20E%20VIP",
       },
@@ -201,7 +201,7 @@ function ShowcaseHeroHeader({ type = "models" }) {
             <img
               src={config.main.floatImg}
               alt="3M SERVICES Showcase"
-              className={`showcase-main-banner__img-float ${isApartment ? "showcase-main-banner__img-float--photo" : ""}`}
+              className={`showcase-main-banner__img-float ${isApartment ? "showcase-main-banner__img-float--photo" : "showcase-main-banner__img-float--framed"}`}
             />
           )}
         </div>

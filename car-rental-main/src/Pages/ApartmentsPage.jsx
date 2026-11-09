@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Footer from "../components/Footer";
-import ShowcaseHeroHeader from "../components/ShowcaseHeroHeader";
+import ApartmentsLuxuryHeader from "../components/ApartmentsLuxuryHeader";
 import { useTranslation } from "../context/LanguageContext";
 import { API_BASE } from "../config/api";
 import "../styles/CatalogEcommerce.css";
@@ -16,7 +16,7 @@ const DEFAULT_APARTMENTS = [
     photosCount: 5,
     image: "/Asset/appartements/appartement-meuble-suite-parentale.webp",
     status: "Disponible",
-    description: "Situé à Tsinga, directement en face du siège de la FECAFOOT à Yaoundé, cet appartement meublé grand standing vous offre une suite parentale avec literie de luxe, une cuisine équipée moderne, salle de bain design, climatisation intégrale, groupe électrogène automatique et gardiennage permanent 24/7."
+    description: "Situé à Tsinga, directement en face du siège de la FECAFOOT à partir de Yaoundé, cet appartement meublé grand standing vous offre une suite parentale avec literie de luxe, une cuisine équipée moderne, salle de bain design, climatisation intégrale, groupe électrogène automatique et gardiennage permanent 24/7."
   },
   {
     id: "apt-02",
@@ -130,7 +130,7 @@ function ApartmentsPage() {
     <>
       <section className="catalog-ecom-page">
         {/* Showcase Hero Header matching reference design */}
-        <ShowcaseHeroHeader type="apartments" />
+        <ApartmentsLuxuryHeader />
 
         <div className="catalog-ecom-wrapper">
           {/* Catalog Navigation Header (Title on Left, Filter Tabs on Right) */}

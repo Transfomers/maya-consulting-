@@ -2612,19 +2612,40 @@ body {
   }
 }
 
-.download-text__badge {
+.download-grid--centered {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.download-text--centered {
+  max-width: 82rem !important;
+  margin: 0 auto !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+.download-text--centered .download-text__badge {
+  align-self: center !important;
+}
+.download-text--centered .download-text__action {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.download-text__badge,
+.download-text__badge--nobg {
   display: inline-block;
   align-self: flex-start;
-  background-color: rgba(226, 7, 19, 0.22);
+  background: transparent !important;
   color: #ff6b6b;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  padding: 0.6rem 1.6rem;
-  border-radius: 2rem;
-  letter-spacing: 0.08rem;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  letter-spacing: 0.12rem;
   text-transform: uppercase;
   font-family: "Rubik", sans-serif;
-  border: 1px solid rgba(226, 7, 19, 0.45);
+  border: none !important;
+  box-shadow: none !important;
 }
 @media (max-width: 900px) {
   .download-text__badge {
@@ -3433,7 +3454,7 @@ footer {
 .footer-channel-btn {
   width: 48px !important;
   height: 48px !important;
-  border-radius: 50% !important;
+  border-radius: 12px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;

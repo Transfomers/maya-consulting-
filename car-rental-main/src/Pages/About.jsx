@@ -5,7 +5,7 @@ import { useTranslation } from "../context/LanguageContext";
 import AboutMain from "../images/about/about-main.jpg";
 
 // Partner Logos (High Quality)
-import satguruLogo from "../images/partners/satguru-travel.png";
+import mupocamLogo from "../images/partners/mupocam-logo.png";
 import isdbiLogo from "../images/partners/isdbi.png";
 import ktsLogo from "../images/partners/kts.png";
 import circbLogo from "../images/partners/circb.png";
@@ -17,10 +17,10 @@ function About() {
 
   const partnerLogos = [
     {
-      name: "Satguru Travel",
-      logo: satguruLogo,
-      url: "https://satgurutravel.com/",
-      title: "Satguru Travel - Think Travel, Think Us",
+      name: "MUPOCAM",
+      logo: mupocamLogo,
+      url: "https://wa.me/237691786447?text=Partenariat%203M%20SERVICES%20et%20MUPOCAM%20Orange%20Cameroun",
+      title: "MUPOCAM - Mutuelle du Personnel Orange Cameroun (Partenaire Officiel)",
     },
     {
       name: "ISDBI",
@@ -65,13 +65,13 @@ function About() {
               <h3>{isFr ? "Notre Entreprise" : "Our Company"}</h3>
               <h2>
                 {isFr
-                  ? "L'Excellence Automobile et Immobilière à Yaoundé"
-                  : "Automotive and Real Estate Excellence in Yaoundé"}
+                  ? "L'Excellence Automobile et Immobilière à partir de Yaoundé"
+                  : "Automotive and Real Estate Excellence from Yaoundé"}
               </h2>
               <p>
                 {isFr
-                  ? "3M SERVICES est l'adresse de référence à Yaoundé pour la vente de véhicules neufs (0 km) et d'occasions certifiées, la location de Toyota Prado VIP avec chauffeur professionnel, les formules de leasing automobile (partenaire officiel MUPOCAM Orange Cameroun) et la gestion d'appartements meublés de grand standing à Tsinga (en face de la FECAFOOT). Notre conciergerie 24/7 s'engage à vous offrir un service haut de gamme, rapide et en toute transparence."
-                  : "3M SERVICES is the premier destination in Yaoundé for brand new (0 km) and certified pre-owned vehicles, luxury Toyota Prado VIP rentals with professional chauffeurs, corporate leasing (official MUPOCAM Orange Cameroon partner), and luxury furnished apartments in Tsinga (opposite FECAFOOT). Our 24/7 concierge delivers high-end, prompt, and completely transparent service."}
+                  ? "3M SERVICES est l'adresse de référence à partir de Yaoundé pour la vente de véhicules neufs (0 km) et d'occasions certifiées, la location de Toyota Prado VIP avec chauffeur professionnel, les formules de leasing automobile (partenaire officiel MUPOCAM Orange Cameroun) et la gestion d'appartements meublés de grand standing à Tsinga (en face de la FECAFOOT). Notre conciergerie 24/7 s'engage à vous offrir un service haut de gamme, rapide et en toute transparence."
+                  : "3M SERVICES is the premier destination from Yaoundé for brand new (0 km) and certified pre-owned vehicles, luxury Toyota Prado VIP rentals with professional chauffeurs, corporate leasing (official MUPOCAM Orange Cameroon partner), and luxury furnished apartments in Tsinga (opposite FECAFOOT). Our 24/7 concierge delivers high-end, prompt, and completely transparent service."}
               </p>
 
               {/* 3 Key Stats: Red Icons, Red Numbers, Perfectly Aligned */}
@@ -176,7 +176,7 @@ function About() {
                       lineHeight: 1.35,
                     }}
                   >
-                    {isFr ? "Agences à Yaoundé" : "Locations in Yaoundé"}
+                    {isFr ? "Agences à partir de Yaoundé" : "Locations from Yaoundé"}
                   </p>
                 </div>
 

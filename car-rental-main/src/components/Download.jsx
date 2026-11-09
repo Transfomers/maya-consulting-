@@ -1,5 +1,4 @@
 import { useTranslation } from "../context/LanguageContext";
-import PhoneAppImg from "../images/download/phone-app.png";
 
 function Download() {
   const { t } = useTranslation();
@@ -12,9 +11,9 @@ function Download() {
     <>
       <section className="download-section">
         <div className="container">
-          <div className="download-grid">
-            <div className="download-text">
-              <span className="download-text__badge">
+          <div className="download-grid download-grid--centered">
+            <div className="download-text download-text--centered">
+              <span className="download-text__badge download-text__badge--nobg">
                 {t("download_badge") || "APPLICATION MOBILE & PWA OFFICIELLE"}
               </span>
               <h2>{t("download_title")}</h2>
@@ -34,14 +33,6 @@ function Download() {
                   </div>
                 </button>
               </div>
-            </div>
-
-            <div className="download-phone-wrapper">
-              <img
-                src={PhoneAppImg}
-                alt="Application Mobile 3M SERVICES"
-                loading="lazy"
-              />
             </div>
           </div>
         </div>

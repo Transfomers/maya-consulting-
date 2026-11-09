@@ -820,7 +820,7 @@
 .footer-channel-btn {
   width: 48px;
   height: 48px;
-  border-radius: 50% !important;
+  border-radius: 12px !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;

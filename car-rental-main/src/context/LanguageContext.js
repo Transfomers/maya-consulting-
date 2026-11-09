@@ -13,7 +13,7 @@ const translations = {
     nav_app: "App",
 
     // Hero
-    hero_sub: "Planifiez votre trajet à Yaoundé",
+    hero_sub: "Planifiez votre trajet à partir de Yaoundé",
     hero_title: "Voyagez en grand avec",
     hero_title_1: "Voyagez en grand",
     hero_title_2: "avec",
@@ -80,7 +80,7 @@ const translations = {
     // Pick car
     fleet_sub: "Nos Véhicules",
     fleet_title: "Notre Flotte de Location",
-    fleet_desc: "Choisissez parmi nos véhicules récents et révisés pour vos missions professionnelles, séjours ou voyages à Yaoundé et au Cameroun.",
+    fleet_desc: "Choisissez parmi nos véhicules récents et révisés pour vos missions professionnelles, séjours ou voyages à partir de Yaoundé et au Cameroun.",
     spec_model: "Modèle",
     spec_brand: "Marque",
     spec_year: "Année",
@@ -93,16 +93,16 @@ const translations = {
     swipe_hint: "Glissez pour changer de véhicule ⟵ ⟶",
 
     // Banner
-    banner_title: "Voyagez au meilleur tarif à Yaoundé avec 3M SERVICES !",
+    banner_title: "Voyagez au meilleur tarif à partir de Yaoundé avec 3M SERVICES !",
     banner_desc: "Accueil Aéroport Nsimalen • Chauffeurs VIP Bilingues • Assistance 24/7",
 
     // Choose us
     choose_sub: "Pourquoi Nous Choisir",
-    choose_title: "Le meilleur standing automobile à Yaoundé",
+    choose_title: "Le meilleur standing automobile à partir de Yaoundé",
     choose_desc: "Découvrez une expérience d'exception avec 3M SERVICES. Que ce soit pour la location d'un Toyota Prado VIP, l'achat d'un véhicule neuf en leasing ou un séjour dans nos résidences meublées à Tsinga (face FECAFOOT), nous vous offrons le plus haut niveau de confort.",
     choose_more: "Télécharger le Catalogue (PDF)",
     box1_title: "Trajets Urbains & Régionaux",
-    box1_desc: "Circulez sereinement dans Yaoundé et rejoignez Douala, Kribi ou Bafoussam dans des véhicules 4x4 sécurisés.",
+    box1_desc: "Circulez sereinement à partir de Yaoundé et rejoignez Douala, Kribi ou Bafoussam dans des véhicules 4x4 sécurisés.",
     box2_title: "Tarifs Tout Compris",
     box2_desc: "Profitez de tarifs transparents en FCFA avec assurance et chauffeur professionnel inclus.",
     box3_title: "Zéro Frais Cachés",
@@ -118,10 +118,10 @@ const translations = {
     // Testimonials
     testi_sub: "Avis Vérifiés",
     testi_title: "Témoignages Clients 3M SERVICES",
-    testi_desc: "Découvrez la satisfaction de nos clients professionnels, délégations et membres de la diaspora ayant fait confiance à 3M SERVICES à Yaoundé.",
+    testi_desc: "Découvrez la satisfaction de nos clients professionnels, délégations et membres de la diaspora ayant fait confiance à 3M SERVICES à partir de Yaoundé.",
     testi_1_quote: "« Nous avons loué la Toyota Prado TXL pour une mission d'une semaine entre Yaoundé et Kribi. Véhicule impeccable, chauffeur ponctuel et courtois. Service d'une qualité rare ! »",
     testi_1_name: "Arnaud Mbarga",
-    testi_1_role: "Yaoundé (Cadre d'entreprise)",
+    testi_1_role: "Cadre d'entreprise",
     testi_2_quote: "« Accueil chaleureux dès l'atterrissage à Nsimalen. Véhicule récent, climatisé et réservation combinée avec l'appartement à Tsinga face FECAFOOT. Expérience parfaite ! »",
     testi_2_name: "Chantal Nguemo",
     testi_2_role: "Paris / Yaoundé (Diaspora)",
@@ -134,7 +134,7 @@ const translations = {
     // FAQ
     faq_sub: "FAQ",
     faq_title: "Foire Aux Questions 3M SERVICES",
-    faq_desc: "Tout ce que vous devez savoir pour votre location de voiture à Yaoundé et vos déplacements au Cameroun.",
+    faq_desc: "Tout ce que vous devez savoir pour votre location de voiture à partir de Yaoundé et vos déplacements au Cameroun.",
     faq_q1: "1. Comment réserver un véhicule chez 3M SERVICES ?",
     faq_a1: "La réservation est immédiate : choisissez votre véhicule dans notre formulaire en ligne, appelez notre équipe ou contactez-nous directement sur WhatsApp au +237 691 78 64 47. Nous confirmons la disponibilité et préparons votre contrat en quelques minutes.",
     faq_q2: "2. Proposez-vous un service de chauffeur professionnel ?",
@@ -143,7 +143,7 @@ const translations = {
     faq_a3: "Oui, notre service navette 24/7 prend en charge votre accueil dès la sortie de l'aéroport avec une pancarte nominative et assure votre transfert en toute sérénité vers votre hôtel, domicile ou résidence meublée.",
 
     // Footer
-    footer_desc: "Location de véhicules de prestige, Toyota Prado VIP, vente de voitures, formule avec chauffeur professionnel et conciergerie 24/7 à Yaoundé, Cameroun.",
+    footer_desc: "Location de véhicules de prestige, Toyota Prado VIP, vente de voitures, formule avec chauffeur professionnel et conciergerie 24/7 à partir de Yaoundé, Cameroun.",
     footer_nav: "Navigation",
     footer_home: "Accueil",
     footer_about: "À Propos",
@@ -165,7 +165,7 @@ const translations = {
     nav_app: "App",
 
     // Hero
-    hero_sub: "Plan your trip in Yaoundé",
+    hero_sub: "Plan your trip from Yaoundé",
     hero_title: "Travel in style with",
     hero_title_1: "Travel in style",
     hero_title_2: "with",
@@ -245,12 +245,12 @@ const translations = {
     swipe_hint: "Swipe to switch vehicle ⟵ ⟶",
 
     // Banner
-    banner_title: "Save big with our affordable car rentals in Yaoundé !",
+    banner_title: "Save big with our affordable car rentals from Yaoundé !",
     banner_desc: "Nsimalen Airport Meet & Greet • Bilingual VIP Chauffeurs • 24/7 Assistance",
 
     // Choose us
     choose_sub: "Why Choose Us",
-    choose_title: "Best Quality & Luxury Fleet in Yaoundé",
+    choose_title: "Best Quality & Luxury Fleet from Yaoundé",
     choose_desc: "Experience luxury and excellence with 3M SERVICES. From Toyota Prado VIP rentals to furnished residences in Tsinga (opp. FECAFOOT), we deliver high-end service.",
     choose_more: "Download Catalogue (PDF)",
     box1_title: "Cross-Country Drive",
@@ -270,10 +270,10 @@ const translations = {
     // Testimonials
     testi_sub: "Verified Reviews",
     testi_title: "Client Testimonials 3M SERVICES",
-    testi_desc: "Discover what corporate clients, delegations, and diaspora members say about their experience with 3M SERVICES in Yaoundé.",
+    testi_desc: "Discover what corporate clients, delegations, and diaspora members say about their experience with 3M SERVICES from Yaoundé.",
     testi_1_quote: "\"We rented the Toyota Prado TXL for a week-long executive trip between Yaoundé and Kribi. Spotless vehicle, punctual and courteous chauffeur. Outstanding quality!\"",
     testi_1_name: "Arnaud Mbarga",
-    testi_1_role: "Yaoundé (Corporate Executive)",
+    testi_1_role: "Corporate Executive",
     testi_2_quote: "\"Warm welcome upon landing at Nsimalen Airport. Recent AC vehicle and seamless combo booking with the furnished flat in Tsinga opposite FECAFOOT. Flawless service!\"",
     testi_2_name: "Chantal Nguemo",
     testi_2_role: "Paris / Yaoundé (Diaspora)",
@@ -286,7 +286,7 @@ const translations = {
     // FAQ
     faq_sub: "FAQ",
     faq_title: "Frequently Asked Questions (3M SERVICES)",
-    faq_desc: "Everything you need to know about renting a car in Yaoundé and traveling across Cameroon.",
+    faq_desc: "Everything you need to know about renting a car from Yaoundé and traveling across Cameroon.",
     faq_q1: "1. How do I book a vehicle with 3M SERVICES?",
     faq_a1: "Booking is instant: select your vehicle using our online booking form, call our team, or message us directly on WhatsApp at +237 691 78 64 47. We verify availability and prepare your rental agreement within minutes.",
     faq_q2: "2. Do you provide professional chauffeur services?",
@@ -295,7 +295,7 @@ const translations = {
     faq_a3: "Yes, our 24/7 airport transfer service welcomes you at airport arrivals with a personalized name sign and guarantees smooth, secure transportation to your hotel, home, or furnished apartment.",
 
     // Footer
-    footer_desc: "Luxury car rentals, Toyota Prado VIP, car sales, professional driver services and 24/7 concierge in Yaoundé, Cameroon.",
+    footer_desc: "Luxury car rentals, Toyota Prado VIP, car sales, professional driver services and 24/7 concierge from Yaoundé, Cameroon.",
     footer_nav: "Navigation",
     footer_home: "Home",
     footer_about: "About",

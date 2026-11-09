@@ -18,8 +18,8 @@
       "year": "2022",
       "condition": "Occasion Certifiée",
       "mileage": "Faible kilométrage certifié",
-      "price": "À partir de 90 000 FCFA / jour • Vente sur devis",
-      "pricePerDay": 90000,
+      "price": "100 000 & 120 000 FCFA / jour",
+      "pricePerDay": 100000,
       "doors": "5",
       "seats": "7 places en cuir",
       "transmission": "Automatique 4*4",
@@ -29,7 +29,7 @@
       "plate": "CE-482-LT",
       "img": "/images/cars/toyota-prado-txl-front.webp",
       "image": "/images/cars/toyota-prado-txl-front.webp",
-      "description": "SUV de très grand prestige, idéal pour délégations, cortèges diplomatiques et séjours VIP à Yaoundé et à travers le Cameroun."
+      "description": "SUV de très grand prestige, idéal pour délégations, cortèges diplomatiques et séjours VIP à partir de Yaoundé et à travers le Cameroun."
     },
     {
       "id": "suv-00-jeep",
@@ -616,8 +616,8 @@
       "year": "2024",
       "condition": "Occasion",
       "mileage": "Compteur : 0 km",
-      "price": "À partir de 65 000 FCFA / jour",
-      "pricePerDay": 65000,
+      "price": "70 000 FCFA / jour",
+      "pricePerDay": 70000,
       "doors": "4",
       "seats": "05 places cuir",
       "transmission": "Automatique",
@@ -639,8 +639,8 @@
       "year": "2019",
       "condition": "Occasion Prestige",
       "mileage": "Faible kilométrage certifié",
-      "price": "À partir de 50 000 FCFA / jour",
-      "pricePerDay": 50000,
+      "price": "60 000 FCFA / jour",
+      "pricePerDay": 60000,
       "doors": "4",
       "seats": "5 places",
       "transmission": "Automatique",
@@ -754,8 +754,8 @@
       "year": "2022",
       "condition": "Occasion",
       "mileage": "Certifié",
-      "price": "À partir de 110 000 FCFA / jour",
-      "pricePerDay": 110000,
+      "price": "130 000 & 150 000 FCFA / jour",
+      "pricePerDay": 130000,
       "doors": "5",
       "seats": "05-07 places",
       "transmission": "Automatique",
@@ -1351,7 +1351,7 @@
       "photosCount": 5,
       "image": "/Asset/appartements/appartement-meuble-suite-parentale.webp",
       "status": "Disponible",
-      "description": "Situé à Tsinga, directement en face du siège de la FECAFOOT à Yaoundé, cet appartement meublé grand standing vous offre une suite parentale avec literie de luxe, une cuisine équipée moderne, salle de bain design, climatisation intégrale, groupe électrogène automatique et gardiennage permanent 24/7."
+      "description": "Situé à Tsinga, directement en face du siège de la FECAFOOT à partir de Yaoundé, cet appartement meublé grand standing vous offre une suite parentale avec literie de luxe, une cuisine équipée moderne, salle de bain design, climatisation intégrale, groupe électrogène automatique et gardiennage permanent 24/7."
     },
     {
       "id": "apt-02",
@@ -1442,7 +1442,7 @@
       "cancelledRentals": 0,
       "totalAmountPaid": 100000,
       "lastReservationDate": "2026-11-06T08:00:00.000Z",
-      "notes": "Mission d affaires à Yaoundé. Demande chauffeur bilingue.",
+      "notes": "Mission d affaires à partir de Yaoundé. Demande chauffeur bilingue.",
       "createdAt": "2026-11-06T08:00:00.000Z"
     },
     {
