@@ -2,7 +2,8 @@ import Footer from "../components/Footer";
 import ShowcaseHeroHeader from "../components/ShowcaseHeroHeader";
 import PlanTrip from "../components/PlanTrip";
 import { useTranslation } from "../context/LanguageContext";
-import AboutMain from "../images/about/about-main.jpg";
+import AboutMain from "../images/about/partenariat-mupocam.jpg";
+import partenariatMupocamImg from "../images/about/partenariat-mupocam.jpg";
 
 // Partner Logos (High Quality)
 import mupocamLogo from "../images/partners/mupocam-logo.png";
@@ -59,7 +60,8 @@ function About() {
             <img
               className="about-main__img"
               src={AboutMain}
-              alt="3M Services Yaoundé"
+              alt="Partenariat officiel 3M SERVICES et MUPOCAM Orange Cameroun"
+              style={{ objectFit: "cover", borderRadius: "14px" }}
             />
             <div className="about-main__text">
               <h3>{isFr ? "Notre Entreprise" : "Our Company"}</h3>
@@ -74,13 +76,75 @@ function About() {
                   : "3M SERVICES is the premier destination from Yaoundé for brand new (0 km) and certified pre-owned vehicles, luxury Toyota Prado VIP rentals with professional chauffeurs, corporate leasing (official MUPOCAM Orange Cameroon partner), and luxury furnished apartments in Tsinga (opposite FECAFOOT). Our 24/7 concierge delivers high-end, prompt, and completely transparent service."}
               </p>
 
+              {/* Highlight MUPOCAM Partnership Card */}
+              <div
+                style={{
+                  marginTop: "2.2rem",
+                  padding: "1.6rem 2rem",
+                  backgroundColor: "#fff7ed",
+                  borderRadius: "14px",
+                  border: "1.5px solid #fed7aa",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "1.6rem",
+                  boxShadow: "0 6px 16px rgba(249, 115, 22, 0.08)",
+                }}
+              >
+                <div
+                  style={{
+                    width: "54px",
+                    height: "54px",
+                    minWidth: "54px",
+                    borderRadius: "12px",
+                    backgroundColor: "#000000",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                    padding: "5px",
+                  }}
+                >
+                  <img
+                    src={mupocamLogo}
+                    alt="Logo MUPOCAM Orange Cameroun"
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                  />
+                </div>
+                <div>
+                  <h4
+                    style={{
+                      margin: "0 0 0.3rem",
+                      fontSize: "1.55rem",
+                      fontWeight: 800,
+                      color: "#c2410c",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    {isFr ? "Partenariat Officiel MUPOCAM • Orange Cameroun" : "Official MUPOCAM • Orange Cameroon Partnership"}
+                  </h4>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "1.3rem",
+                      color: "#431407",
+                      lineHeight: "1.45",
+                    }}
+                  >
+                    {isFr
+                      ? "Partenaire conventionné de la Mutuelle du Personnel d'Orange Cameroun et du FOCODEMUC : offres exclusives de leasing automobile, achat à tempérament et tarifs préférentiels sur la flotte VIP."
+                      : "Official accredited partner of Orange Cameroon Staff Mutual Fund & FOCODEMUC: exclusive corporate leasing, rent-to-own plans, and privileged VIP fleet rates."}
+                  </p>
+                </div>
+              </div>
+
               {/* 3 Key Stats: Red Icons, Red Numbers, Perfectly Aligned */}
               <div
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(3, 1fr)",
                   gap: "2.5rem",
-                  marginTop: "3rem",
+                  marginTop: "2.8rem",
                   marginBottom: "1rem",
                 }}
               >
@@ -227,6 +291,128 @@ function About() {
                     {isFr ? "Assistance Continue" : "Continuous Support"}
                   </p>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dedicated Section: Official Bilateral Partnership Signing with MUPOCAM */}
+          <div
+            style={{
+              marginTop: "5.5rem",
+              padding: "4rem 3.5rem",
+              backgroundColor: "#f8fafc",
+              borderRadius: "20px",
+              border: "1px solid #e2e8f0",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.04)",
+            }}
+          >
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.15fr 0.85fr",
+                gap: "4rem",
+                alignItems: "center",
+              }}
+              className="about-mupocam-grid"
+            >
+              <div>
+                <span
+                  style={{
+                    color: "#ea580c",
+                    fontWeight: 700,
+                    fontSize: "1.3rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "1.2px",
+                    display: "inline-block",
+                    marginBottom: "0.8rem",
+                  }}
+                >
+                  {isFr ? "ALLIANCE STRATÉGIQUE & MOBILITÉ D'ENTREPRISE" : "STRATEGIC ALLIANCE & CORPORATE MOBILITY"}
+                </span>
+                <h3
+                  style={{
+                    fontSize: "2.8rem",
+                    fontWeight: 800,
+                    color: "#0f172a",
+                    lineHeight: "1.3",
+                    margin: "0 0 1.5rem",
+                  }}
+                >
+                  {isFr
+                    ? "Convention Cadre Officielle : 3M SERVICES & MUPOCAM (Orange Cameroun)"
+                    : "Official Framework Agreement: 3M SERVICES & MUPOCAM (Orange Cameroon)"}
+                </h3>
+                <p
+                  style={{
+                    fontSize: "1.5rem",
+                    color: "#475569",
+                    lineHeight: "1.7",
+                    marginBottom: "1.6rem",
+                  }}
+                >
+                  {isFr
+                    ? "Fruit d'une vision partagée d'excellence, de solidarité et de confort pour les collaborateurs, la convention officielle conclue entre 3M SERVICES, la Mutuelle du Personnel d'Orange Cameroun (MUPOCAM) et le FOCODEMUC (Fonds Commun de Développement des Mutuelles du Cameroun) consacre un partenariat d'envergure nationale."
+                    : "Embodying a shared vision of excellence, solidarity, and executive comfort, the partnership between 3M SERVICES, MUPOCAM, and FOCODEMUC establishes a premier automotive leasing and mobility framework across Cameroon."}
+                </p>
+                <ul
+                  style={{
+                    listStyle: "none",
+                    padding: 0,
+                    margin: "0 0 2.2rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "1.1rem",
+                  }}
+                >
+                  <li style={{ display: "flex", alignItems: "center", gap: "1.2rem", fontSize: "1.45rem", color: "#1e293b", fontWeight: 600 }}>
+                    <i className="fa-solid fa-circle-check" style={{ color: "#ea580c", fontSize: "1.8rem" }}></i>
+                    {isFr ? "Formules de leasing automobile avec facilités de paiement échelonnées" : "Corporate leasing programs with structured payment plans"}
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: "1.2rem", fontSize: "1.45rem", color: "#1e293b", fontWeight: 600 }}>
+                    <i className="fa-solid fa-circle-check" style={{ color: "#ea580c", fontSize: "1.8rem" }}></i>
+                    {isFr ? "Flotte exclusive conventionnée : Jeep Grand Cherokee V6 Édition MUPOCAM & Prado VIP" : "Exclusive accredited fleet: Jeep Grand Cherokee V6 MUPOCAM Edition & Prado VIP"}
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: "1.2rem", fontSize: "1.45rem", color: "#1e293b", fontWeight: 600 }}>
+                    <i className="fa-solid fa-circle-check" style={{ color: "#ea580c", fontSize: "1.8rem" }}></i>
+                    {isFr ? "Tarifs préférentiels sur nos résidences meublées haut standing à Tsinga (face FECAFOOT)" : "Preferential rates on luxury furnished apartments in Tsinga (opp. FECAFOOT)"}
+                  </li>
+                </ul>
+                <a
+                  href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20des%20informations%20sur%20les%20offres%20partenariat%20MUPOCAM"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.9rem",
+                    backgroundColor: "#ea580c",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    fontSize: "1.4rem",
+                    padding: "1.3rem 2.6rem",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    boxShadow: "0 6px 18px rgba(234, 88, 12, 0.28)",
+                  }}
+                >
+                  <i className="fa-brands fa-whatsapp" style={{ fontSize: "1.9rem" }}></i>
+                  {isFr ? "Contacter le Pôle Partenariats MUPOCAM" : "Contact MUPOCAM Partnerships Desk"}
+                </a>
+              </div>
+
+              <div
+                style={{
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  boxShadow: "0 16px 36px rgba(0, 0, 0, 0.14)",
+                  border: "5px solid #ffffff",
+                }}
+              >
+                <img
+                  src={partenariatMupocamImg}
+                  alt="Séance de signature du partenariat officiel 3M SERVICES et MUPOCAM"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
               </div>
             </div>
           </div>
