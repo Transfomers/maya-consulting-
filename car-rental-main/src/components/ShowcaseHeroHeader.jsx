@@ -115,15 +115,15 @@ function ShowcaseHeroHeader({ type = "models" }) {
         title: "PARTENARIAT MUPOCAM",
         subtext: isFr ? "Convention Orange Cameroun & Flotte" : "Official corporate agreement & leasing",
         img: benzImg,
-        link: "tel:+237691786447",
+        link: "#mupocam-section",
       },
       bottomCard: {
         themeClass: "showcase-side-card--blue",
-        eyebrow: isFr ? "SHOWROOM & AGENCES" : "PRESTIGE LOCATIONS",
-        title: "OMNISPORTS & TSINGA",
-        subtext: isFr ? "Face FECAFOOT & Rue Foe, Yaoundé" : "Opposite FECAFOOT & Rue Foe, Yaoundé",
-        img: "/Asset/appartements/appartement-meuble-chambre-bleue.webp",
-        link: "tel:+237691786447",
+        eyebrow: isFr ? "RÉSIDENCES & SÉJOURS" : "PRESTIGE RESIDENCES",
+        title: isFr ? "NOS APPARTEMENTS MEUBLÉS" : "OUR FURNISHED APARTMENTS",
+        subtext: isFr ? "Grand standing Tsinga (face FECAFOOT) & Omnisports" : "Executive suites in Tsinga & Omnisports",
+        img: "/Asset/appartements/appartement-meuble-salon-standing.webp",
+        link: "/apartments",
       },
     };
   }
@@ -207,56 +207,151 @@ function ShowcaseHeroHeader({ type = "models" }) {
         </div>
 
         {/* Right Column: 2 Stacked Feature Banners */}
+        {/* Right Column: 2 Stacked Feature Banners */}
         <div className="showcase-side-column">
           {/* Top Banner (Orange / Accent) */}
-          <a
-            href={config.topCard.link}
-            target={config.topCard.link.startsWith("http") ? "_blank" : undefined}
-            rel={config.topCard.link.startsWith("http") ? "noreferrer" : undefined}
-            className={`showcase-side-card ${config.topCard.themeClass}`}
-          >
-            <div className="showcase-side-card__content">
-              <span className="showcase-side-card__eyebrow">{config.topCard.eyebrow}</span>
-              <h3 className="showcase-side-card__title">{config.topCard.title}</h3>
-              <p className="showcase-side-card__subtext">{config.topCard.subtext}</p>
-              <span className="showcase-side-card__action">
-                <span>{isFr ? "En Savoir Plus" : "Explore Now"}</span>
-                <i className="fa-solid fa-arrow-right"></i>
-              </span>
-            </div>
-            <div className="showcase-side-card__img-wrap">
-              <img
-                src={config.topCard.img}
-                alt={config.topCard.title}
-                className={`showcase-side-card__img ${isApartment ? "showcase-side-card__img--photo" : "showcase-side-card__img--car"}`}
-              />
-            </div>
-          </a>
+          {config.topCard.link.startsWith("#") ? (
+            <a
+              href={config.topCard.link}
+              onClick={(e) => handleAnchorClick(e, config.topCard.link)}
+              className={`showcase-side-card ${config.topCard.themeClass}`}
+            >
+              <div className="showcase-side-card__content">
+                <span className="showcase-side-card__eyebrow">{config.topCard.eyebrow}</span>
+                <h3 className="showcase-side-card__title">{config.topCard.title}</h3>
+                <p className="showcase-side-card__subtext">{config.topCard.subtext}</p>
+                <span className="showcase-side-card__action">
+                  <span>{isFr ? "En Savoir Plus" : "Explore Now"}</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+              <div className="showcase-side-card__img-wrap">
+                <img
+                  src={config.topCard.img}
+                  alt={config.topCard.title}
+                  className={`showcase-side-card__img ${isApartment ? "showcase-side-card__img--photo" : "showcase-side-card__img--car"}`}
+                />
+              </div>
+            </a>
+          ) : config.topCard.link.startsWith("/") ? (
+            <Link
+              to={config.topCard.link}
+              className={`showcase-side-card ${config.topCard.themeClass}`}
+            >
+              <div className="showcase-side-card__content">
+                <span className="showcase-side-card__eyebrow">{config.topCard.eyebrow}</span>
+                <h3 className="showcase-side-card__title">{config.topCard.title}</h3>
+                <p className="showcase-side-card__subtext">{config.topCard.subtext}</p>
+                <span className="showcase-side-card__action">
+                  <span>{isFr ? "En Savoir Plus" : "Explore Now"}</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+              <div className="showcase-side-card__img-wrap">
+                <img
+                  src={config.topCard.img}
+                  alt={config.topCard.title}
+                  className={`showcase-side-card__img ${isApartment ? "showcase-side-card__img--photo" : "showcase-side-card__img--car"}`}
+                />
+              </div>
+            </Link>
+          ) : (
+            <a
+              href={config.topCard.link}
+              target={config.topCard.link.startsWith("http") ? "_blank" : undefined}
+              rel={config.topCard.link.startsWith("http") ? "noreferrer" : undefined}
+              className={`showcase-side-card ${config.topCard.themeClass}`}
+            >
+              <div className="showcase-side-card__content">
+                <span className="showcase-side-card__eyebrow">{config.topCard.eyebrow}</span>
+                <h3 className="showcase-side-card__title">{config.topCard.title}</h3>
+                <p className="showcase-side-card__subtext">{config.topCard.subtext}</p>
+                <span className="showcase-side-card__action">
+                  <span>{isFr ? "En Savoir Plus" : "Explore Now"}</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+              <div className="showcase-side-card__img-wrap">
+                <img
+                  src={config.topCard.img}
+                  alt={config.topCard.title}
+                  className={`showcase-side-card__img ${isApartment ? "showcase-side-card__img--photo" : "showcase-side-card__img--car"}`}
+                />
+              </div>
+            </a>
+          )}
 
           {/* Bottom Banner (Blue / Navy) */}
-          <a
-            href={config.bottomCard.link}
-            target={config.bottomCard.link.startsWith("http") ? "_blank" : undefined}
-            rel={config.bottomCard.link.startsWith("http") ? "noreferrer" : undefined}
-            className={`showcase-side-card ${config.bottomCard.themeClass}`}
-          >
-            <div className="showcase-side-card__content">
-              <span className="showcase-side-card__eyebrow">{config.bottomCard.eyebrow}</span>
-              <h3 className="showcase-side-card__title">{config.bottomCard.title}</h3>
-              <p className="showcase-side-card__subtext">{config.bottomCard.subtext}</p>
-              <span className="showcase-side-card__action">
-                <span>{isFr ? "Découvrir" : "Discover"}</span>
-                <i className="fa-solid fa-arrow-right"></i>
-              </span>
-            </div>
-            <div className="showcase-side-card__img-wrap">
-              <img
-                src={config.bottomCard.img}
-                alt={config.bottomCard.title}
-                className={`showcase-side-card__img ${isApartment ? "showcase-side-card__img--photo" : "showcase-side-card__img--car"}`}
-              />
-            </div>
-          </a>
+          {config.bottomCard.link.startsWith("#") ? (
+            <a
+              href={config.bottomCard.link}
+              onClick={(e) => handleAnchorClick(e, config.bottomCard.link)}
+              className={`showcase-side-card ${config.bottomCard.themeClass}`}
+            >
+              <div className="showcase-side-card__content">
+                <span className="showcase-side-card__eyebrow">{config.bottomCard.eyebrow}</span>
+                <h3 className="showcase-side-card__title">{config.bottomCard.title}</h3>
+                <p className="showcase-side-card__subtext">{config.bottomCard.subtext}</p>
+                <span className="showcase-side-card__action">
+                  <span>{isFr ? "Découvrir" : "Discover"}</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+              <div className="showcase-side-card__img-wrap">
+                <img
+                  src={config.bottomCard.img}
+                  alt={config.bottomCard.title}
+                  className={`showcase-side-card__img ${isApartment ? "showcase-side-card__img--photo" : "showcase-side-card__img--car"}`}
+                />
+              </div>
+            </a>
+          ) : config.bottomCard.link.startsWith("/") ? (
+            <Link
+              to={config.bottomCard.link}
+              className={`showcase-side-card ${config.bottomCard.themeClass}`}
+            >
+              <div className="showcase-side-card__content">
+                <span className="showcase-side-card__eyebrow">{config.bottomCard.eyebrow}</span>
+                <h3 className="showcase-side-card__title">{config.bottomCard.title}</h3>
+                <p className="showcase-side-card__subtext">{config.bottomCard.subtext}</p>
+                <span className="showcase-side-card__action">
+                  <span>{isFr ? "Découvrir" : "Discover"}</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+              <div className="showcase-side-card__img-wrap">
+                <img
+                  src={config.bottomCard.img}
+                  alt={config.bottomCard.title}
+                  className={`showcase-side-card__img ${isApartment ? "showcase-side-card__img--photo" : "showcase-side-card__img--car"}`}
+                />
+              </div>
+            </Link>
+          ) : (
+            <a
+              href={config.bottomCard.link}
+              target={config.bottomCard.link.startsWith("http") ? "_blank" : undefined}
+              rel={config.bottomCard.link.startsWith("http") ? "noreferrer" : undefined}
+              className={`showcase-side-card ${config.bottomCard.themeClass}`}
+            >
+              <div className="showcase-side-card__content">
+                <span className="showcase-side-card__eyebrow">{config.bottomCard.eyebrow}</span>
+                <h3 className="showcase-side-card__title">{config.bottomCard.title}</h3>
+                <p className="showcase-side-card__subtext">{config.bottomCard.subtext}</p>
+                <span className="showcase-side-card__action">
+                  <span>{isFr ? "Découvrir" : "Discover"}</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+              <div className="showcase-side-card__img-wrap">
+                <img
+                  src={config.bottomCard.img}
+                  alt={config.bottomCard.title}
+                  className={`showcase-side-card__img ${isApartment ? "showcase-side-card__img--photo" : "showcase-side-card__img--car"}`}
+                />
+              </div>
+            </a>
+          )}
         </div>
       </div>
     </div>

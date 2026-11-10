@@ -234,6 +234,7 @@ function About() {
 
           {/* Dedicated Section: Official Bilateral Partnership Signing with MUPOCAM */}
           <div
+            id="mupocam-section"
             style={{
               marginTop: "5.5rem",
               padding: "4rem 3.5rem",
@@ -241,6 +242,7 @@ function About() {
               borderRadius: "20px",
               border: "1px solid #e2e8f0",
               boxShadow: "0 10px 30px rgba(0, 0, 0, 0.04)",
+              scrollMarginTop: "90px",
             }}
           >
             <div
