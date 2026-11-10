@@ -308,6 +308,7 @@ function ShowcaseHeroHeader({ type = "models" }) {
           ) : config.bottomCard.link.startsWith("/") ? (
             <Link
               to={config.bottomCard.link}
+              onClick={() => window.scrollTo(0, 0)}
               className={`showcase-side-card ${config.bottomCard.themeClass}`}
             >
               <div className="showcase-side-card__content">
@@ -323,7 +324,7 @@ function ShowcaseHeroHeader({ type = "models" }) {
                 <img
                   src={config.bottomCard.img}
                   alt={config.bottomCard.title}
-                  className={`showcase-side-card__img ${isApartment ? "showcase-side-card__img--photo" : "showcase-side-card__img--car"}`}
+                  className={`showcase-side-card__img ${isApartment || (config.bottomCard.img && config.bottomCard.img.includes("appartement")) ? "showcase-side-card__img--photo" : "showcase-side-card__img--car"}`}
                 />
               </div>
             </Link>

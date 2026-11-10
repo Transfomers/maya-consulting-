@@ -31,6 +31,9 @@ function App() {
         <Route path="about" element={<About />} />
         <Route path="models" element={<Models />} />
         <Route path="apartments" element={<ApartmentsPage />} />
+        <Route path="appartements" element={<ApartmentsPage />} />
+        <Route path="appartement" element={<ApartmentsPage />} />
+        <Route path="appartements-meubles" element={<ApartmentsPage />} />
         <Route path="appartement-meuble-yaounde" element={<ApartmentsPage />} />
         <Route path="testimonials" element={<TestimonialsPage />} />
         <Route path="team" element={<Team />} />
