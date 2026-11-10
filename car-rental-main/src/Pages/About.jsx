@@ -2,7 +2,7 @@ import Footer from "../components/Footer";
 import ShowcaseHeroHeader from "../components/ShowcaseHeroHeader";
 import PlanTrip from "../components/PlanTrip";
 import { useTranslation } from "../context/LanguageContext";
-import AboutMain from "../images/about/partenariat-mupocam.jpg";
+import AboutMain from "../images/about/about-main.jpg";
 import partenariatMupocamImg from "../images/about/partenariat-mupocam.jpg";
 
 // Partner Logos (High Quality)
@@ -60,8 +60,7 @@ function About() {
             <img
               className="about-main__img"
               src={AboutMain}
-              alt="Partenariat officiel 3M SERVICES et MUPOCAM Orange Cameroun"
-              style={{ objectFit: "cover", borderRadius: "14px" }}
+              alt="3M Services Yaoundé"
             />
             <div className="about-main__text">
               <h3>{isFr ? "Notre Entreprise" : "Our Company"}</h3>
@@ -75,68 +74,6 @@ function About() {
                   ? "3M SERVICES est l'adresse de référence à partir de Yaoundé pour la vente de véhicules neufs (0 km) et d'occasions certifiées, la location de Toyota Prado VIP avec chauffeur professionnel, les formules de leasing automobile (partenaire officiel MUPOCAM Orange Cameroun) et la gestion d'appartements meublés de grand standing à Tsinga (en face de la FECAFOOT). Notre conciergerie 24/7 s'engage à vous offrir un service haut de gamme, rapide et en toute transparence."
                   : "3M SERVICES is the premier destination from Yaoundé for brand new (0 km) and certified pre-owned vehicles, luxury Toyota Prado VIP rentals with professional chauffeurs, corporate leasing (official MUPOCAM Orange Cameroon partner), and luxury furnished apartments in Tsinga (opposite FECAFOOT). Our 24/7 concierge delivers high-end, prompt, and completely transparent service."}
               </p>
-
-              {/* Highlight MUPOCAM Partnership Card */}
-              <div
-                style={{
-                  marginTop: "2.2rem",
-                  padding: "1.6rem 2rem",
-                  backgroundColor: "#fff7ed",
-                  borderRadius: "14px",
-                  border: "1.5px solid #fed7aa",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1.6rem",
-                  boxShadow: "0 6px 16px rgba(249, 115, 22, 0.08)",
-                }}
-              >
-                <div
-                  style={{
-                    width: "54px",
-                    height: "54px",
-                    minWidth: "54px",
-                    borderRadius: "12px",
-                    backgroundColor: "#000000",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                    padding: "5px",
-                  }}
-                >
-                  <img
-                    src={mupocamLogo}
-                    alt="Logo MUPOCAM Orange Cameroun"
-                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                  />
-                </div>
-                <div>
-                  <h4
-                    style={{
-                      margin: "0 0 0.3rem",
-                      fontSize: "1.55rem",
-                      fontWeight: 800,
-                      color: "#c2410c",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                    }}
-                  >
-                    {isFr ? "Partenariat Officiel MUPOCAM • Orange Cameroun" : "Official MUPOCAM • Orange Cameroon Partnership"}
-                  </h4>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: "1.3rem",
-                      color: "#431407",
-                      lineHeight: "1.45",
-                    }}
-                  >
-                    {isFr
-                      ? "Partenaire conventionné de la Mutuelle du Personnel d'Orange Cameroun et du FOCODEMUC : offres exclusives de leasing automobile, achat à tempérament et tarifs préférentiels sur la flotte VIP."
-                      : "Official accredited partner of Orange Cameroon Staff Mutual Fund & FOCODEMUC: exclusive corporate leasing, rent-to-own plans, and privileged VIP fleet rates."}
-                  </p>
-                </div>
-              </div>
 
               {/* 3 Key Stats: Red Icons, Red Numbers, Perfectly Aligned */}
               <div
