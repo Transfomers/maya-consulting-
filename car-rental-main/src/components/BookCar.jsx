@@ -874,6 +874,100 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
     );
   };
 
+  // Handle Email Confirmation to contact@3Mservice.shop + Backend Sync
+  const handleConfirmEmail = (e) => {
+    if (e) e.preventDefault();
+    setHasSubmitted(true);
+    if (!isFormValid()) {
+      return;
+    }
+
+    const refId = "3M-RES-" + Date.now().toString().slice(-4);
+    const fullName = `${name} ${lastName}`.trim();
+    const days = calculateDays();
+    const formattedPick = formatDateReadable(pickTime);
+    const formattedDrop = formatDateReadable(dropTime);
+
+    // 1. Send booking to backend asynchronously
+    fetch(`${API_BASE}/bookings`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clientName: fullName,
+        phone,
+        email: email || "",
+        address: address || "Yaoundé",
+        city: city || "Yaoundé",
+        zipcode: zipcode || "",
+        carName: carType,
+        pickUp,
+        dropOff,
+        pickTime,
+        dropTime,
+        notes: `Demande transmise par Email à contact@3Mservice.shop • Âge: ${age || "25"} • Newsletter: ${newsletter ? "Oui" : "Non"}`,
+        source: "Site Web (Email)"
+      })
+    }).catch((err) => console.warn("Backend offline or network err:", err));
+
+    // Also register message in contacts endpoint
+    fetch(`${API_BASE}/contacts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: fullName,
+        phone,
+        email: email || "contact@3Mservice.shop",
+        message: `Nouvelle réservation [${refId}] : ${carType} du ${formattedPick} au ${formattedDrop} (${days} j) par ${fullName} (${phone}).`
+      })
+    }).catch((err) => console.warn("Contacts sync err:", err));
+
+    // 2. Build formatted Email subject & body
+    const emailSubject = encodeURIComponent(
+      `Demande de Réservation 3M SERVICES [Réf : ${refId}] - ${carType} - ${fullName}`
+    );
+
+    const emailBody = encodeURIComponent(
+      `Bonjour 3M SERVICES,\n\n` +
+      `Je souhaite confirmer ma demande de réservation pour le véhicule suivant :\n\n` +
+      `========================================\n` +
+      `DÉTAILS DU VÉHICULE & LOCATION\n` +
+      `========================================\n` +
+      `• Référence Réservation : ${refId}\n` +
+      `• Véhicule choisi : ${carType}\n` +
+      `• Lieu de prise en charge : ${pickUp}\n` +
+      `• Date de prise en charge : ${formattedPick}\n` +
+      `• Lieu de restitution : ${dropOff}\n` +
+      `• Date de restitution : ${formattedDrop}\n` +
+      `• Durée estimée : ${days} jour(s)\n\n` +
+      `========================================\n` +
+      `COORDONNÉES DU CLIENT\n` +
+      `========================================\n` +
+      `• Nom & Prénom : ${fullName}\n` +
+      `• Téléphone / WhatsApp : ${phone}\n` +
+      `• Adresse Email : ${email || "Non renseigné"}\n` +
+      `• Âge : ${age || "25"}\n` +
+      `• Quartier / Adresse : ${address || "Yaoundé"}, ${city || "Yaoundé"}\n` +
+      `• Repère / Code postal : ${zipcode || "N/A"}\n` +
+      `• Offres exclusives : ${newsletter ? "Oui" : "Non"}\n\n` +
+      `========================================\n` +
+      `Merci de m'adresser la confirmation de réservation et la préparation du contrat à cette adresse.\n\n` +
+      `Cordialement,\n` +
+      `${fullName}\n` +
+      `${phone}\n` +
+      (email ? `${email}\n` : "")
+    );
+
+    // 3. Open mail client with prefilled mailto to contact@3Mservice.shop
+    window.location.href = `mailto:contact@3Mservice.shop?subject=${emailSubject}&body=${emailBody}`;
+
+    // 4. Set validation success message
+    setSuccessStatus(
+      isFr
+        ? `Votre demande de réservation (${refId}) a été validée et transmise par email à contact@3Mservice.shop !`
+        : `Your reservation request (${refId}) has been validated and sent via email to contact@3Mservice.shop!`
+    );
+  };
+
   return (
     <>
       <section id="booking-section" className="book-section">
@@ -1410,8 +1504,22 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
               >
                 <i className="fa-brands fa-whatsapp"></i>
                 <div className="btn-confirm-whatsapp__content">
-                  <strong>{isFr ? "Confirmer sur WhatsApp (+237 691 78 64 47)" : "Confirm via WhatsApp (+237 691 78 64 47)"}</strong>
+                  <strong>{t("modal_confirm_btn") || (isFr ? "Confirmer sur WhatsApp (+237 691 78 64 47)" : "Confirm via WhatsApp (+237 691 78 64 47)")}</strong>
                   <small>{isFr ? "Validation immédiate et préparation du contrat" : "Immediate validation & contract preparation"}</small>
+                </div>
+              </button>
+
+              {/* Email Action: Send form through Email to contact@3Mservice.shop */}
+              <button
+                type="button"
+                onClick={handleConfirmEmail}
+                className="btn-confirm-email"
+                title="Envoyer la demande de réservation par Email à contact@3Mservice.shop"
+              >
+                <i className="fa-solid fa-envelope"></i>
+                <div className="btn-confirm-email__content">
+                  <strong>{t("modal_confirm_email_btn") || (isFr ? "Envoyer par Email (contact@3Mservice.shop)" : "Send via Email (contact@3Mservice.shop)")}</strong>
+                  <small>{t("modal_confirm_email_sub") || (isFr ? "Transmission directe au service commercial" : "Direct delivery to 3M sales desk")}</small>
                 </div>
               </button>
 

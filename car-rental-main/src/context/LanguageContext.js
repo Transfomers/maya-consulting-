@@ -64,6 +64,8 @@ const translations = {
     modal_postal: "Repère / Code Postal",
     modal_newsletter: "Je souhaite recevoir les offres exclusives de 3M SERVICES.",
     modal_confirm_btn: "Confirmer sur WhatsApp (+237 691 78 64 47)",
+    modal_confirm_email_btn: "Envoyer par Email (contact@3mservice.shop)",
+    modal_confirm_email_sub: "Transmission directe au service commercial",
     modal_download_pdf_btn: "Télécharger le Bon de Réservation (PDF)",
     required: "Ce champ est requis.",
 
@@ -216,6 +218,8 @@ const translations = {
     modal_postal: "Postal Code / Landmark",
     modal_newsletter: "I would like to receive exclusive offers from 3M SERVICES.",
     modal_confirm_btn: "Confirm via WhatsApp (+237 691 78 64 47)",
+    modal_confirm_email_btn: "Send via Email (contact@3mservice.shop)",
+    modal_confirm_email_sub: "Direct delivery to 3M sales desk",
     modal_download_pdf_btn: "Download Reservation Form (PDF)",
     required: "This field is required.",
 

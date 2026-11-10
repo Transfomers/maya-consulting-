@@ -778,6 +778,54 @@
         }
       }
 
+      /* Email Confirmation Button: Send form through email to contact@3Mservice.shop */
+      .btn-confirm-email {
+        background-color: #0f172a;
+        color: #FFFFFF;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 1.15rem 2rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.2rem;
+        transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+
+        &:hover {
+          background-color: #1e293b;
+          border-color: #334155;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+        }
+
+        i {
+          font-size: 2.2rem;
+          color: #38bdf8;
+          flex-shrink: 0;
+        }
+
+        &__content {
+          display: flex;
+          flex-direction: column;
+          text-align: left;
+
+          strong {
+            font-size: 1.55rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #ffffff;
+          }
+
+          small {
+            font-size: 1.2rem;
+            opacity: 0.92;
+            font-weight: 500;
+            color: #94a3b8;
+          }
+        }
+      }
+
       /* Secondary Button: Download PDF */
       .btn-download-pdf {
         background-color: #FFFFFF;

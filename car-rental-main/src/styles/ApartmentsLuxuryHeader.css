@@ -54,10 +54,10 @@
 
 .apt-luxury-hero__accent-gold {
   position: absolute;
-  top: 10%;
-  left: 4%;
-  width: 120px;
-  height: 80%;
+  top: 8%;
+  left: 2%;
+  width: 130px;
+  height: 84%;
   background-color: #cda851;
   border-radius: 4px;
   z-index: 1;
@@ -66,9 +66,9 @@
 .apt-luxury-hero__frame-back {
   position: absolute;
   top: 0;
-  right: 6%;
+  right: 4%;
   width: 78%;
-  height: 92%;
+  height: 94%;
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
@@ -87,12 +87,12 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 62%;
-  height: 68%;
+  width: 66%;
+  height: 74%;
   border-radius: 4px;
   overflow: hidden;
-  border: 7px solid #ffffff;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+  border: 8px solid #ffffff;
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.22);
   z-index: 3;
 }
 
@@ -222,3 +222,4 @@
   line-height: 1.45;
   margin: 0;
 }
+

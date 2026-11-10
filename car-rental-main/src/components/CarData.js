@@ -1,8 +1,8 @@
-import LandCruiser from "../images/cars/toyota-lc-v8-2022.webp";
-import Prado from "../images/cars/toyota-prado-txl-front.webp";
-import PickupBlue from "../images/cars/pickup-blue-urbain.webp";
-import Hilux from "../images/cars/toyota-hilux-2024.webp";
-import Camry from "../images/cars/toyota-camry-dark.webp";
+import LandCruiser from "../images/cars/flyer-landcruiser.webp";
+import Prado from "../images/cars/flyer-prado.webp";
+import PickupBlue from "../images/cars/flyer-pickup_blue.webp";
+import Hilux from "../images/cars/flyer-pickup_toyota.webp";
+import Camry from "../images/cars/flyer-berline.webp";
 
 // 3M SERVICES CATALOGUE OFFICIEL - Top 5 Flotte Disponible (Flyer Officiel)
 export const CAR_DATA = [

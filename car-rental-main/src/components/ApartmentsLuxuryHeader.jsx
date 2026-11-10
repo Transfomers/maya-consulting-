@@ -15,19 +15,19 @@ export default function ApartmentsLuxuryHeader() {
 
           <div className="apt-luxury-hero__frame-back">
             <img
-              src="/Asset/appartements/appartement-meuble-chambre-bleue.webp"
-              alt="Résidence de standing 3M SERVICES"
+              src="/Asset/appartements/appartement-meuble-suite-parentale.webp"
+              alt="Suite de prestige 3M SERVICES"
               className="apt-luxury-hero__img-back"
-              loading="lazy"
+              loading="eager"
             />
           </div>
 
           <div className="apt-luxury-hero__frame-front">
             <img
-              src="/Asset/appartements/appartement-meuble-cuisine-equipee.webp"
-              alt="Cuisine moderne équipée"
+              src="/Asset/appartements/appartement-meuble-salon-standing.webp"
+              alt="Salon VIP & Salle à manger 3M SERVICES"
               className="apt-luxury-hero__img-front"
-              loading="lazy"
+              loading="eager"
             />
           </div>
         </div>
@@ -54,10 +54,10 @@ export default function ApartmentsLuxuryHeader() {
             {/* Bedroom Photo Card */}
             <div className="apt-luxury-hero__bedroom-card">
               <img
-                src="/Asset/appartements/appartement-meuble-suite-parentale.webp"
-                alt="Suite parentale grand confort"
+                src="/Asset/appartements/appartement-meuble-chambre-bleue.webp"
+                alt="Chambre grand confort 3M"
                 className="apt-luxury-hero__bedroom-img"
-                loading="lazy"
+                loading="eager"
               />
             </div>
 
@@ -103,3 +103,4 @@ export default function ApartmentsLuxuryHeader() {
     </section>
   );
 }
+
