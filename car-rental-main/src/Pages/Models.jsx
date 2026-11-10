@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import Footer from "../components/Footer";
-import ShowcaseHeroHeader from "../components/ShowcaseHeroHeader";
 import { useTranslation } from "../context/LanguageContext";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
-import defaultCarImg from "../images/cars/toyota-prado-txl-front.webp";
 import { API_BASE } from "../config/api";
 import "../styles/CatalogEcommerce.css";
+
+// Marketo visual assets
+import wheelHeroImg from "../images/marketo/1-min.png";
 
 function Models() {
   const { lang } = useTranslation();
@@ -13,10 +14,44 @@ function Models() {
 
   const [cars, setCars] = useState(CARS_CATALOGUE);
   const [selectedFilter, setSelectedFilter] = useState("Tous");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeDealIdx, setActiveDealIdx] = useState(0); // 0 = Prado, 1 = Land Cruiser
   const [selectedCarForModal, setSelectedCarForModal] = useState(null);
 
-  // Attempt to fetch fresh data from backend API, fall back to CARS_CATALOGUE
+  // Modal reservation form state
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [pickupDate, setPickupDate] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [bookingSent, setBookingSent] = useState(false);
+
+  // Live countdown timer ticking down every second
+  const [timeLeft, setTimeLeft] = useState({
+    days: 2,
+    hours: 14,
+    minutes: 35,
+    seconds: 48,
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.seconds > 0) {
+          return { ...prev, seconds: prev.seconds - 1 };
+        } else if (prev.minutes > 0) {
+          return { ...prev, minutes: 59, seconds: 59 };
+        } else if (prev.hours > 0) {
+          return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        } else if (prev.days > 0) {
+          return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        }
+        return { days: 3, hours: 12, minutes: 0, seconds: 0 };
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Fetch cars from API (fallback to static CARS_CATALOGUE)
   useEffect(() => {
     fetch(`${API_BASE}/cars`)
       .then((res) => {
@@ -29,260 +64,486 @@ function Models() {
         }
       })
       .catch(() => {
-        // Fallback to static catalogue silently
+        // Fallback to static catalogue
       });
   }, []);
 
+  // Deal of the week list (Prado TXL & Land Cruiser V8)
+  const dealCars = [
+    {
+      car: cars.find((c) => c.id === "prado") || cars[1] || cars[0],
+      discountBadge: "15% OFFRE VIP",
+      oldPrice: "120 000 FCFA",
+      stockLabel: isFr ? "1 Véhicule Disponible en Parc" : "1 Vehicle Available in Stock",
+      progressWidth: "85%",
+    },
+    {
+      car: cars.find((c) => c.id === "landcruiser") || cars[0],
+      discountBadge: "VIP FLOTTE",
+      oldPrice: "160 000 FCFA",
+      stockLabel: isFr ? "Prêt pour Déplacements VIP" : "Ready for VIP Travel",
+      progressWidth: "90%",
+    },
+  ];
+
+  const currentDeal = dealCars[activeDealIdx] || dealCars[0];
+
   const filterTabs = [
-    { label: isFr ? "Tous" : "All", value: "Tous" },
-    { label: "SUV & 4x4", value: "SUV" },
-    { label: "Toyota", value: "Toyota" },
-    { label: "Mercedes-Benz", value: "Mercedes" },
-    { label: "Kia", value: "Kia" },
-    { label: "Hyundai", value: "Hyundai" },
-    { label: isFr ? "Neuve (0 km)" : "Brand New (0 km)", value: "Neuve" },
+    { label: isFr ? "Tous" : "All", value: "Tous", count: cars.length },
+    {
+      label: "4x4 & SUV VIP",
+      value: "SUV",
+      count: cars.filter((c) => (c.category || "").includes("SUV") || c.name.includes("Land Cruiser") || c.name.includes("Prado")).length,
+    },
+    {
+      label: "Pick-up Double Cabine",
+      value: "Pickup",
+      count: cars.filter((c) => (c.category || "").includes("Pick-up") || c.name.includes("Pickup") || c.name.includes("Hilux")).length,
+    },
+    {
+      label: "Berlines",
+      value: "Berline",
+      count: cars.filter((c) => (c.category || "").includes("Berline") || c.name.includes("Camry") || c.name.includes("Berline")).length,
+    },
   ];
 
   const filteredCars = cars.filter((car) => {
-    const brand = (car.brand || car.mark || "").toLowerCase();
-    const name = (car.name || car.model || "").toLowerCase();
     const category = (car.category || "").toLowerCase();
-    const condition = (car.condition || "").toLowerCase();
+    const name = (car.name || car.model || "").toLowerCase();
 
-    // Match filter tab
-    let matchesFilter = true;
-    if (selectedFilter === "Toyota") {
-      matchesFilter =
-        brand.includes("toyota") ||
-        name.includes("toyota") ||
-        name.includes("rav4") ||
-        name.includes("prado") ||
-        name.includes("camry") ||
-        name.includes("corolla") ||
-        name.includes("fortuner") ||
-        name.includes("landcruiser");
-    } else if (selectedFilter === "Mercedes") {
-      matchesFilter =
-        brand.includes("mercedes") ||
-        name.includes("mercedes") ||
-        name.includes("benz") ||
-        name.includes("maybach") ||
-        name.includes("ml350");
-    } else if (selectedFilter === "Kia") {
-      matchesFilter =
-        brand.includes("kia") ||
-        name.includes("kia") ||
-        name.includes("sportage") ||
-        name.includes("seltos") ||
-        name.includes("sonet") ||
-        name.includes("rio") ||
-        name.includes("pegas") ||
-        name.includes("carens") ||
-        name.includes("cerato");
-    } else if (selectedFilter === "Hyundai") {
-      matchesFilter =
-        brand.includes("hyundai") ||
-        name.includes("hyundai") ||
-        name.includes("santa fe") ||
-        name.includes("kona");
-    } else if (selectedFilter === "SUV") {
-      matchesFilter =
-        category.includes("suv") ||
-        category.includes("4x4") ||
-        name.includes("prado") ||
-        name.includes("rav4") ||
-        name.includes("fortuner") ||
-        name.includes("sportage") ||
-        name.includes("santa fe") ||
-        name.includes("grand cherokee") ||
-        name.includes("cherokee");
-    } else if (selectedFilter === "Neuve") {
-      matchesFilter =
-        condition.includes("neuve") ||
-        condition.includes("0 km") ||
-        (car.mileage && car.mileage.includes("0 km"));
+    if (selectedFilter === "SUV") {
+      return category.includes("suv") || name.includes("prado") || name.includes("land cruiser") || name.includes("landcruiser");
     }
-
-    // Match search query
-    let matchesSearch = true;
-    if (searchQuery.trim() !== "") {
-      const q = searchQuery.toLowerCase().trim();
-      matchesSearch =
-        name.includes(q) ||
-        brand.includes(q) ||
-        category.includes(q) ||
-        condition.includes(q) ||
-        (car.year && String(car.year).includes(q));
+    if (selectedFilter === "Pickup") {
+      return category.includes("pick-up") || name.includes("pickup") || name.includes("hilux");
     }
-
-    return matchesFilter && matchesSearch;
+    if (selectedFilter === "Berline") {
+      return category.includes("berline") || name.includes("camry") || name.includes("berline");
+    }
+    return true;
   });
 
-  const getWhatsAppBookingLink = (car) => {
-    const carName = car.name || car.model || "Véhicule 3M";
-    const carYear = car.year || "2024";
+  const getWhatsAppLink = (car) => {
+    const carName = car?.name || car?.model || "Véhicule 3M";
     const text = encodeURIComponent(
       `Bonjour 3M SERVICES,\n\nJe souhaite réserver le véhicule suivant :\n` +
-      `• Modèle : ${carName} (${carYear})\n` +
-      `• Catégorie : ${car.category || "VIP / Flotte"}\n` +
-      `• État : ${car.condition || "Véhicule révisé"}\n` +
-      `• Transmission : ${car.transmission || "Automatique"}\n\n` +
-      `Merci de m'indiquer la disponibilité et les modalités de réservation.`
+      `• Modèle : ${carName}\n` +
+      `• Tarif officiel : ${car?.price || "Sur demande"}\n` +
+      `• Période souhaitée : ${pickupDate || "À convenir"} au ${returnDate || "À convenir"}\n\n` +
+      `Merci de me confirmer la disponibilité.`
     );
     return `https://wa.me/237691786447?text=${text}`;
   };
 
-  return (
-    <>
-      <section className="catalog-ecom-page">
-        {/* Showcase Hero Header matching reference design */}
-        <ShowcaseHeroHeader type="models" />
+  const handleSendEmailReservation = (e) => {
+    e.preventDefault();
+    if (!selectedCarForModal) return;
 
-        <div className="catalog-ecom-wrapper">
-          {/* Catalog Navigation Header (Title on Left, Filter Tabs on Right) */}
-          <div className="catalog-nav-header" id="catalog-section">
-            <h2 className="catalog-nav-title">
-              {isFr ? "Nos Véhicules" : "Our Vehicles"}
+    const carName = selectedCarForModal.name || selectedCarForModal.model || "Véhicule 3M";
+    const subject = encodeURIComponent(`Réservation 3M SERVICES : ${carName}`);
+    const body = encodeURIComponent(
+      `Bonjour l'équipe 3M SERVICES,\n\n` +
+      `Je vous contacte pour confirmer la réservation du véhicule suivant :\n\n` +
+      `• VÉHICULE : ${carName}\n` +
+      `• TARIF : ${selectedCarForModal.price}\n` +
+      `• DATE DE PRISE : ${pickupDate || "À convenir"}\n` +
+      `• DATE DE RESTITUTION : ${returnDate || "À convenir"}\n\n` +
+      `COORDONNÉES CLIENT :\n` +
+      `• Nom : ${clientName || "Non renseigné"}\n` +
+      `• Téléphone / WhatsApp : ${clientPhone || "Non renseigné"}\n` +
+      `• Email : ${clientEmail || "Non renseigné"}\n\n` +
+      `Merci de m'adresser la confirmation et le contrat de réservation.\n\nCordialement,`
+    );
+
+    // Save booking to backend
+    fetch(`${API_BASE}/bookings`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        carType: carName,
+        name: clientName,
+        phone: clientPhone,
+        email: clientEmail,
+        pickDate: pickupDate,
+        dropDate: returnDate,
+        totalPrice: selectedCarForModal.price,
+      }),
+    }).catch(() => {});
+
+    setBookingSent(true);
+    window.location.href = `mailto:contact@3Mservice.shop?subject=${subject}&body=${body}`;
+  };
+
+  return (
+    <div className="catalog-ecom-page">
+      {/* --------------------------------------------------------------------
+          1. Hero Section (Marketo Parts Style with Floating Wheel)
+          -------------------------------------------------------------------- */}
+      <section className="marketo-hero">
+        <div className="marketo-hero__container">
+          {/* Left Text */}
+          <div className="marketo-hero__content">
+            <div className="marketo-hero__badge">
+              <i className="fa-solid fa-certificate"></i>
+              <span>{isFr ? "Flotte Officielle 3M SERVICES" : "Official 3M Fleet"}</span>
+            </div>
+
+            <h1 className="marketo-hero__title">
+              {isFr ? (
+                <>
+                  DÉCOUVREZ TOUTE NOTRE <em>FLOTTE DE VÉHICULES</em> À <em>YAOUNDÉ</em>
+                </>
+              ) : (
+                <>
+                  GET ALL <em>OFFICIAL VIP</em> VEHICLES IN <em>YAOUNDÉ</em>
+                </>
+              )}
+            </h1>
+
+            <p className="marketo-hero__desc">
+              {isFr
+                ? "4x4 de grand prestige, pick-up double cabine tout-terrain et berlines exécutives. Disponibilité immédiate à partir de Yaoundé avec chauffeurs professionnels bilingues ou en formule autonome 24/7."
+                : "Luxury VIP 4x4s, heavy-duty double cabin pickups, and executive sedans. Immediate availability from Yaoundé with bilingual chauffeurs or self-drive."}
+            </p>
+
+            <div className="marketo-hero__actions">
+              <a href="#fleet-catalog" className="marketo-btn-primary">
+                <i className="fa-solid fa-car"></i>
+                <span>{isFr ? "Voir la Flotte" : "View Collection"}</span>
+              </a>
+
+              <a
+                href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20r%C3%A9server%20un%20v%C3%A9hicule"
+                target="_blank"
+                rel="noreferrer"
+                className="marketo-btn-outline"
+              >
+                <i className="fa-brands fa-whatsapp" style={{ color: "#25D366" }}></i>
+                <span>{isFr ? "Réserver WhatsApp" : "Book WhatsApp"}</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Right Visual (Interactive Alloy Wheel / Car like Marketo demo) */}
+          <div className="marketo-hero__visual">
+            <div className="marketo-hero__wheel-wrap">
+              <img
+                src={wheelHeroImg}
+                alt="Jante Alliage Prestige 3M SERVICES"
+                className="marketo-hero__wheel-img"
+              />
+
+              <div className="marketo-hero__floating-tag">
+                <div className="marketo-hero__tag-icon">
+                  <i className="fa-solid fa-shield-halved"></i>
+                </div>
+                <div className="marketo-hero__tag-text">
+                  <span>{isFr ? "Entretien Certifié" : "Certified Service"}</span>
+                  <strong>100% Zéro Panne</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --------------------------------------------------------------------
+          2. Marketo 3 Feature Banners Row (White, Red, Black cards)
+          -------------------------------------------------------------------- */}
+      <section className="marketo-banners-row">
+        {/* Card 1: White/Light */}
+        <div className="marketo-banner-card marketo-banner-card--white">
+          <div className="marketo-banner-card__content">
+            <span className="marketo-banner-card__eyebrow">
+              {isFr ? "Top Flotte • VIP" : "Top Fleet • VIP"}
+            </span>
+            <h3 className="marketo-banner-card__title">
+              {isFr ? "SUV & 4x4 de Grand Prestige" : "Luxury 4x4 & Prestige SUVs"}
+            </h3>
+            <a
+              href="#fleet-catalog"
+              onClick={() => setSelectedFilter("SUV")}
+              className="marketo-banner-card__btn"
+            >
+              <span>{isFr ? "Découvrir" : "Explore"}</span>
+              <i className="fa-solid fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        {/* Card 2: 3M Red */}
+        <div className="marketo-banner-card marketo-banner-card--red">
+          <div className="marketo-banner-card__content">
+            <span className="marketo-banner-card__eyebrow">
+              {isFr ? "Formule Sérénité" : "Full Peace of Mind"}
+            </span>
+            <h3 className="marketo-banner-card__title">
+              {isFr ? "Chauffeur Dédié & Accueil Nsimalen" : "Dedicated Chauffeur & Airport Pickup"}
+            </h3>
+            <a
+              href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20un%20chauffeur%20bilingue"
+              target="_blank"
+              rel="noreferrer"
+              className="marketo-banner-card__btn"
+            >
+              <span>{isFr ? "Nous Contacter" : "Contact Us"}</span>
+              <i className="fa-solid fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        {/* Card 3: Dark Black */}
+        <div className="marketo-banner-card marketo-banner-card--black">
+          <div className="marketo-banner-card__content">
+            <span className="marketo-banner-card__eyebrow">
+              {isFr ? "Tarifs Officiels 3M" : "Official 3M Rates"}
+            </span>
+            <h3 className="marketo-banner-card__title">
+              {isFr ? "Pick-up & Berlines dès 60 000 FCFA" : "Pickups & Sedans from 60 000 FCFA"}
+            </h3>
+            <a
+              href="#fleet-catalog"
+              onClick={() => setSelectedFilter("Tous")}
+              className="marketo-banner-card__btn"
+            >
+              <span>{isFr ? "Voir Tarifs" : "View Rates"}</span>
+              <i className="fa-solid fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* --------------------------------------------------------------------
+          3. Main 2-Column: Deals of the Week (Left) + Vehicle Grid (Right)
+          -------------------------------------------------------------------- */}
+      <div className="marketo-main-section" id="fleet-catalog">
+        {/* Left Column: Deals of the Week Card */}
+        <aside className="deal-week-card">
+          <div className="deal-week-card__header">
+            <h3 className="deal-week-card__title">
+              <i className="fa-solid fa-fire"></i>
+              <span>{isFr ? "Offre de la Semaine" : "Deal of the Week"}</span>
+            </h3>
+
+            <div className="deal-week-card__nav">
+              <button
+                type="button"
+                className="deal-week-card__nav-btn"
+                onClick={() =>
+                  setActiveDealIdx((prev) => (prev === 0 ? dealCars.length - 1 : prev - 1))
+                }
+                aria-label="Véhicule précédent"
+              >
+                <i className="fa-solid fa-chevron-left"></i>
+              </button>
+              <button
+                type="button"
+                className="deal-week-card__nav-btn"
+                onClick={() =>
+                  setActiveDealIdx((prev) => (prev === dealCars.length - 1 ? 0 : prev + 1))
+                }
+                aria-label="Véhicule suivant"
+              >
+                <i className="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <div className="deal-week-card__body">
+            {/* Featured Image with Discount Badge */}
+            <div className="deal-week-card__img-wrap">
+              <img
+                src={currentDeal.car?.img || currentDeal.car?.image}
+                alt={currentDeal.car?.name}
+                className="deal-week-card__img"
+              />
+              <div className="deal-week-card__badge-discount">
+                <span>-15%</span>
+                <small>OFFRE</small>
+              </div>
+            </div>
+
+            {/* Vehicle Name */}
+            <h4 className="deal-week-card__car-title">
+              {currentDeal.car?.name || "Toyota Land Cruiser Prado TXL VIP"}
+            </h4>
+
+            {/* Pricing */}
+            <div className="deal-week-card__pricing">
+              <span className="deal-week-card__old-price">{currentDeal.oldPrice}</span>
+              <span className="deal-week-card__price">
+                {currentDeal.car?.price}
+              </span>
+            </div>
+
+            {/* Stock / Availability Progress */}
+            <div className="deal-week-card__stock-info">
+              <div className="deal-week-card__stock-text">
+                <span>{currentDeal.stockLabel}</span>
+                <strong style={{ color: "#16a34a" }}>Actif</strong>
+              </div>
+              <div className="deal-week-card__progress-bar">
+                <div
+                  className="deal-week-card__progress-fill"
+                  style={{ width: currentDeal.progressWidth }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Live Real-time Countdown Timer */}
+            <div className="deal-week-card__countdown-wrap">
+              <p className="deal-week-card__countdown-label">
+                {isFr ? "Offre spéciale se termine dans :" : "Special offer ends in:"}
+              </p>
+              <div className="deal-week-card__timer-grid">
+                <div className="deal-week-card__timer-box">
+                  <span className="deal-week-card__timer-val">
+                    {String(timeLeft.days).padStart(2, "0")}
+                  </span>
+                  <span className="deal-week-card__timer-unit">
+                    {isFr ? "Jours" : "Days"}
+                  </span>
+                </div>
+                <div className="deal-week-card__timer-box">
+                  <span className="deal-week-card__timer-val">
+                    {String(timeLeft.hours).padStart(2, "0")}
+                  </span>
+                  <span className="deal-week-card__timer-unit">
+                    {isFr ? "Heures" : "Hours"}
+                  </span>
+                </div>
+                <div className="deal-week-card__timer-box">
+                  <span className="deal-week-card__timer-val">
+                    {String(timeLeft.minutes).padStart(2, "0")}
+                  </span>
+                  <span className="deal-week-card__timer-unit">Mins</span>
+                </div>
+                <div className="deal-week-card__timer-box">
+                  <span className="deal-week-card__timer-val">
+                    {String(timeLeft.seconds).padStart(2, "0")}
+                  </span>
+                  <span className="deal-week-card__timer-unit">Secs</span>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <button
+              type="button"
+              className="deal-week-card__btn-book"
+              onClick={() => {
+                setSelectedCarForModal(currentDeal.car);
+                setBookingSent(false);
+              }}
+            >
+              <i className="fa-solid fa-calendar-check"></i>
+              <span>{isFr ? "Réserver ce Véhicule" : "Book This Car"}</span>
+            </button>
+          </div>
+        </aside>
+
+        {/* Right Column: Fleet Catalog Header + 5 Cars Grid */}
+        <main className="marketo-catalog-content">
+          <div className="marketo-catalog-header">
+            <h2 className="marketo-catalog-title">
+              {isFr ? "Notre Flotte Officielle Disponible" : "Our Available Official Fleet"}
             </h2>
 
-            <div className="catalog-tabs-list">
+            {/* Filter Tabs with Downward Caret */}
+            <div className="marketo-filter-tabs">
               {filterTabs.map((tab) => (
                 <button
                   key={tab.value}
                   type="button"
-                  className={`catalog-tab-item ${selectedFilter === tab.value ? "is-active" : ""}`}
+                  className={`marketo-filter-tab ${selectedFilter === tab.value ? "is-active" : ""}`}
                   onClick={() => setSelectedFilter(tab.value)}
                 >
-                  {tab.label}
+                  {tab.label} ({tab.count})
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Search bar & vehicle count */}
-          <div className="catalog-toolbar">
-            <span className="catalog-count">
-              {isFr ? (
-                <>
-                  Affichage de <strong>{filteredCars.length}</strong> véhicule{filteredCars.length > 1 ? "s" : ""}
-                </>
-              ) : (
-                <>
-                  Showing <strong>{filteredCars.length}</strong> vehicle{filteredCars.length > 1 ? "s" : ""}
-                </>
-              )}
-            </span>
-
-            <div className="catalog-search-box">
-              <i className="fa-solid fa-magnifying-glass"></i>
-              <input
-                type="text"
-                placeholder={isFr ? "Rechercher (Prado, Rav4, 2024)..." : "Search (Prado, Rav4, 2024)..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="catalog-search-input"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  style={{
-                    position: "absolute",
-                    right: "1.2rem",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    color: "#94a3b8",
-                    cursor: "pointer",
-                    fontSize: "1.4rem"
-                  }}
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Minimalist E-Commerce Cars Grid */}
-          <div className="ecom-grid">
-            {filteredCars.map((car, idx) => {
-              const displayImg = car.img || car.image || defaultCarImg;
-              const displayBrand = car.brand || car.mark || "3M SERVICES";
-              const rawName = car.name || car.model || "Véhicule de Prestige";
-              const displayName = rawName.replace(/^([A-Za-z]+)\s+\1\b/i, "$1");
-              const displayPrice = car.pricePerDay
-                ? `${car.pricePerDay.toLocaleString("fr-FR")} FCFA`
-                : car.price && car.price.includes("FCFA")
-                ? car.price.split("•")[0].replace("À partir de ", "")
-                : isFr ? "Sur devis" : "On Request";
+          {/* Grid of the 5 Flyer Cars */}
+          <div className="marketo-cars-grid">
+            {filteredCars.map((car) => {
+              const displayImg = car.img || car.image;
+              const displayName = car.name || car.model;
 
               return (
-                <div key={car.id || idx} className="ecom-card">
-                  {/* Centered Image */}
-                  <div className="ecom-card__img-container">
+                <div key={car.id} className="marketo-car-card">
+                  {/* Category & Status Badges */}
+                  <div className="marketo-car-card__category-badge">
+                    {car.category || "3M VIP"}
+                  </div>
+                  <div className="marketo-car-card__status-badge">
+                    {car.status || (isFr ? "Disponible" : "Available")}
+                  </div>
+
+                  {/* Car Image with Hover Scale */}
+                  <div className="marketo-car-card__img-wrap">
                     <img
                       src={displayImg}
                       alt={displayName}
+                      className="marketo-car-card__img"
                       loading="lazy"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = defaultCarImg;
-                      }}
-                      className="ecom-card__img"
                     />
                   </div>
 
-                  {/* Eyebrow / Brand */}
-                  <span className="ecom-card__category">
-                    {displayBrand} • {car.category || "Berline / SUV"}
-                  </span>
-
-                  {/* Title */}
-                  <h3 className="ecom-card__title" title={displayName}>
+                  {/* Name */}
+                  <h3 className="marketo-car-card__name" title={displayName}>
                     {displayName}
                   </h3>
 
-                  {/* Price */}
-                  <div className="ecom-card__price">
-                    {displayPrice}
-                    {displayPrice.includes("FCFA") && !displayPrice.includes("devis") && (
-                      <span style={{ fontSize: "1.05rem", fontWeight: 500, color: "#64748b" }}>
-                        {isFr ? " / jour" : " / day"}
-                      </span>
-                    )}
+                  {/* Price Banner */}
+                  <div className="marketo-car-card__price-box">
+                    <span className="marketo-car-card__price-label">
+                      {isFr ? "Tarif Journalier Officiel" : "Official Daily Rate"}
+                    </span>
+                    <div className="marketo-car-card__price-value">
+                      {car.price}
+                    </div>
                   </div>
 
-                  {/* Specs Details */}
-                  <div className="ecom-card__details">
-                    <span>
-                      <i className="fa-solid fa-users"></i> {car.seats || (isFr ? "5 places" : "5 seats")}
-                    </span>
-                    <span>
-                      <i className="fa-solid fa-gear"></i> {car.transmission || (isFr ? "Automatique" : "Automatic")}
-                    </span>
-                    <span>
-                      <i className="fa-solid fa-gas-pump"></i> {car.fuel || (isFr ? "Essence" : "Petrol")}
-                    </span>
-                    <span>
-                      <i className="fa-solid fa-calendar"></i> {car.year || "2024"}
-                    </span>
+                  {/* Specs Grid */}
+                  <div className="marketo-car-card__specs-grid">
+                    <div className="marketo-car-card__spec-item">
+                      <i className="fa-solid fa-users"></i>
+                      <span>{car.seats || "5 places"}</span>
+                    </div>
+                    <div className="marketo-car-card__spec-item">
+                      <i className="fa-solid fa-gear"></i>
+                      <span>{car.transmission || "Automatique"}</span>
+                    </div>
+                    <div className="marketo-car-card__spec-item">
+                      <i className="fa-solid fa-snowflake"></i>
+                      <span>{car.air || "Climatisé"}</span>
+                    </div>
+                    <div className="marketo-car-card__spec-item">
+                      <i className="fa-solid fa-gas-pump"></i>
+                      <span>{car.fuel || "Diesel"}</span>
+                    </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="ecom-card__actions">
+                  {/* Action Buttons */}
+                  <div className="marketo-car-card__actions">
                     <button
                       type="button"
-                      onClick={() => setSelectedCarForModal(car)}
-                      className="ecom-card__btn-book"
+                      onClick={() => {
+                        setSelectedCarForModal(car);
+                        setBookingSent(false);
+                      }}
+                      className="marketo-car-card__btn-book"
                     >
-                      {isFr ? "Détails & Devis" : "Details & Quote"}
+                      <i className="fa-solid fa-calendar-check"></i>
+                      <span>{isFr ? "Réserver en Ligne" : "Book Online"}</span>
                     </button>
+
                     <a
-                      href={getWhatsAppBookingLink(car)}
+                      href={getWhatsAppLink(car)}
                       target="_blank"
                       rel="noreferrer"
-                      className="ecom-card__btn-wa"
+                      className="marketo-car-card__btn-wa"
                       title={isFr ? "Réserver sur WhatsApp" : "Book on WhatsApp"}
                     >
                       <i className="fa-brands fa-whatsapp"></i>
@@ -294,300 +555,322 @@ function Models() {
           </div>
 
           {filteredCars.length === 0 && (
-            <div style={{ textAlign: "center", padding: "6rem 2rem 8rem" }}>
-              <i
-                className="fa-solid fa-car"
-                style={{ fontSize: "4.5rem", color: "#cbd5e1", marginBottom: "1.5rem" }}
-              ></i>
-              <h3 style={{ fontSize: "2rem", color: "#1e293b", marginBottom: "0.8rem" }}>
-                {isFr ? "Aucun véhicule ne correspond à votre filtre" : "No vehicles match your filter"}
+            <div style={{ textAlign: "center", padding: "6rem 2rem", background: "#ffffff", borderRadius: "8px" }}>
+              <i className="fa-solid fa-car" style={{ fontSize: "4.5rem", color: "#cbd5e1", marginBottom: "1.5rem" }}></i>
+              <h3 style={{ fontSize: "2rem", color: "#0b0f19", marginBottom: "0.8rem" }}>
+                {isFr ? "Aucun véhicule dans cette catégorie" : "No vehicles in this category"}
               </h3>
-              <p style={{ fontSize: "1.5rem", color: "#64748b", marginBottom: "2rem" }}>
-                {isFr ? "Réinitialisez vos filtres ou contactez notre conciergerie 24/7." : "Reset your filters or contact our 24/7 concierge."}
-              </p>
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedFilter("Tous");
-                  setSearchQuery("");
-                }}
-                className="promo-banner-card__btn"
+                onClick={() => setSelectedFilter("Tous")}
+                className="marketo-btn-primary"
+                style={{ marginTop: "1rem" }}
               >
-                {isFr ? "Réinitialiser" : "Reset"}
+                {isFr ? "Afficher Tous les Véhicules" : "Show All Vehicles"}
               </button>
             </div>
           )}
+        </main>
+      </div>
 
-          {/* Bottom 5-Column Trust & Service Banner (from screenshot) */}
-          <div className="trust-banner-wrap">
-            <div className="trust-banner-grid">
-              {/* Pillar 1 */}
-              <div className="trust-card">
-                <div className="trust-card__icon">
-                  <i className="fa-solid fa-truck-fast"></i>
-                </div>
-                <div className="trust-card__texts">
-                  <h4 className="trust-card__title">
-                    {isFr ? "Livraison VIP" : "VIP Delivery"}
-                  </h4>
-                  <p className="trust-card__subtitle">
-                    {isFr ? "Aéroport Nsimalen & Hôtels" : "Nsimalen Airport & Hotels"}
-                  </p>
-                </div>
-              </div>
+      {/* --------------------------------------------------------------------
+          4. Trust & Service 5-Pillar Bar (Marketo Footer Style)
+          -------------------------------------------------------------------- */}
+      <section className="marketo-trust-bar">
+        <div className="marketo-trust-grid">
+          {/* Pillar 1 */}
+          <div className="marketo-trust-item">
+            <div className="marketo-trust-icon">
+              <i className="fa-solid fa-screwdriver-wrench"></i>
+            </div>
+            <div className="marketo-trust-texts">
+              <h4>{isFr ? "Véhicules Révisés" : "Certified Service"}</h4>
+              <p>{isFr ? "Contrôle 100% zéro panne" : "Strict 0-breakdown inspection"}</p>
+            </div>
+          </div>
 
-              {/* Pillar 2 */}
-              <div className="trust-card">
-                <div className="trust-card__icon">
-                  <i className="fa-solid fa-users"></i>
-                </div>
-                <div className="trust-card__texts">
-                  <h4 className="trust-card__title">99% Satisfaction</h4>
-                  <p className="trust-card__subtitle">
-                    {isFr ? "Avis clients vérifiés" : "Verified Customer Reviews"}
-                  </p>
-                </div>
-              </div>
+          {/* Pillar 2 */}
+          <div className="marketo-trust-item">
+            <div className="marketo-trust-icon">
+              <i className="fa-solid fa-user-tie"></i>
+            </div>
+            <div className="marketo-trust-texts">
+              <h4>{isFr ? "Chauffeurs Bilingues" : "Bilingual Chauffeurs"}</h4>
+              <p>{isFr ? "Ponctualité, discrétion & courtoisie" : "Punctuality & discretion"}</p>
+            </div>
+          </div>
 
-              {/* Pillar 3 */}
-              <div className="trust-card">
-                <div className="trust-card__icon">
-                  <i className="fa-solid fa-shield-halved"></i>
-                </div>
-                <div className="trust-card__texts">
-                  <h4 className="trust-card__title">
-                    {isFr ? "Assurance Tous Risques" : "Comprehensive Insurance"}
-                  </h4>
-                  <p className="trust-card__subtitle">
-                    {isFr ? "Assistance panne 24/7" : "24/7 Breakdown Assistance"}
-                  </p>
-                </div>
-              </div>
+          {/* Pillar 3 */}
+          <div className="marketo-trust-item">
+            <div className="marketo-trust-icon">
+              <i className="fa-solid fa-shield-halved"></i>
+            </div>
+            <div className="marketo-trust-texts">
+              <h4>{isFr ? "Remplacement 24/7" : "24/7 Assistance"}</h4>
+              <p>{isFr ? "Assistance immédiate partout" : "Immediate replacement anywhere"}</p>
+            </div>
+          </div>
 
-              {/* Pillar 4 */}
-              <div className="trust-card">
-                <div className="trust-card__icon">
-                  <i className="fa-solid fa-credit-card"></i>
-                </div>
-                <div className="trust-card__texts">
-                  <h4 className="trust-card__title">
-                    {isFr ? "Paiement Sécurisé" : "Secure Payment"}
-                  </h4>
-                  <p className="trust-card__subtitle">
-                    {isFr ? "Espèces, Virement & Mobile Money" : "Cash, Wire & Mobile Money"}
-                  </p>
-                </div>
-              </div>
+          {/* Pillar 4 */}
+          <div className="marketo-trust-item">
+            <div className="marketo-trust-icon">
+              <i className="fa-solid fa-file-invoice-dollar"></i>
+            </div>
+            <div className="marketo-trust-texts">
+              <h4>{isFr ? "Facture Proforma" : "Official Invoice"}</h4>
+              <p>{isFr ? "Afriland, OM, MoMo & Virement" : "Afriland Bank, Mobile Money"}</p>
+            </div>
+          </div>
 
-              {/* Pillar 5 */}
-              <div className="trust-card">
-                <div className="trust-card__icon">
-                  <i className="fa-solid fa-headset"></i>
-                </div>
-                <div className="trust-card__texts">
-                  <h4 className="trust-card__title">
-                    {isFr ? "Conciergerie 24/7" : "24/7 Concierge"}
-                  </h4>
-                  <p className="trust-card__subtitle">+237 691 78 64 47</p>
-                </div>
-              </div>
+          {/* Pillar 5 */}
+          <div className="marketo-trust-item">
+            <div className="marketo-trust-icon">
+              <i className="fa-solid fa-headset"></i>
+            </div>
+            <div className="marketo-trust-texts">
+              <h4>{isFr ? "Conciergerie 24/7" : "24/7 Concierge"}</h4>
+              <p>+237 691 78 64 47</p>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Vehicle Quick View Modal */}
-        {selectedCarForModal && (
+      {/* --------------------------------------------------------------------
+          5. Complete Booking & Reservation Modal
+          -------------------------------------------------------------------- */}
+      {selectedCarForModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(11, 15, 25, 0.75)",
+            backdropFilter: "blur(5px)",
+            zIndex: 99999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "2rem",
+          }}
+          onClick={() => setSelectedCarForModal(null)}
+        >
           <div
             style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(15, 23, 42, 0.75)",
-              backdropFilter: "blur(4px)",
-              zIndex: 9999,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "2rem"
+              backgroundColor: "#ffffff",
+              borderRadius: "12px",
+              maxWidth: "680px",
+              width: "100%",
+              padding: "3.2rem 3rem",
+              position: "relative",
+              maxHeight: "92vh",
+              overflowY: "auto",
+              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.35)",
+              border: "1.5px solid #e2e8f0",
             }}
-            onClick={() => setSelectedCarForModal(null)}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setSelectedCarForModal(null)}
               style={{
-                backgroundColor: "#ffffff",
-                borderRadius: "12px",
-                maxWidth: "600px",
-                width: "100%",
-                padding: "3rem",
-                position: "relative",
-                maxHeight: "90vh",
-                overflowY: "auto",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+                position: "absolute",
+                top: "1.6rem",
+                right: "1.6rem",
+                background: "#f1f5f9",
+                border: "none",
+                borderRadius: "50%",
+                width: "36px",
+                height: "36px",
+                fontSize: "1.8rem",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#64748b",
               }}
-              onClick={(e) => e.stopPropagation()}
             >
-              <button
-                type="button"
-                onClick={() => setSelectedCarForModal(null)}
-                style={{
-                  position: "absolute",
-                  top: "1.6rem",
-                  right: "1.6rem",
-                  background: "#f1f5f9",
-                  border: "none",
-                  borderRadius: "50%",
-                  width: "36px",
-                  height: "36px",
-                  fontSize: "1.8rem",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#64748b"
-                }}
-              >
-                ✕
-              </button>
+              ✕
+            </button>
 
-              <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+            {/* Modal Header */}
+            <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "2rem", borderBottom: "1px solid #f1f5f9", paddingBottom: "2rem" }}>
+              <div style={{ width: "160px", height: "110px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <img
-                  src={selectedCarForModal.img || selectedCarForModal.image || defaultCarImg}
-                  alt={selectedCarForModal.name || selectedCarForModal.model}
-                  style={{
-                    maxHeight: "180px",
-                    maxWidth: "100%",
-                    objectFit: "contain",
-                    margin: "0 auto"
-                  }}
+                  src={selectedCarForModal.img || selectedCarForModal.image}
+                  alt={selectedCarForModal.name}
+                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
                 />
               </div>
 
-              <span
-                style={{
-                  fontSize: "1.2rem",
-                  color: "#E20713",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px"
-                }}
-              >
-                {selectedCarForModal.brand || selectedCarForModal.mark || "3M SERVICES"}
-              </span>
-
-              <h3 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#111827", margin: "0.4rem 0 1rem" }}>
-                {(selectedCarForModal.name || selectedCarForModal.model || "").replace(/^([A-Za-z]+)\s+\1\b/i, "$1")}
-              </h3>
-
-              <p style={{ fontSize: "1.45rem", color: "#64748b", lineHeight: 1.6, marginBottom: "2rem" }}>
-                {selectedCarForModal.description ||
-                  (isFr
-                    ? "Véhicule révisé et certifié conforme aux normes 3M Services. Climatisation d'origine, intérieur soigné, sécurité absolue pour vos déplacements à partir de Yaoundé et sur tout le territoire camerounais."
-                    : "Serviced and certified vehicle compliant with 3M Services quality standards. Original air conditioning, pristine interior, and total safety for your travels in Yaoundé and across Cameroon.")}
-              </p>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "1.2rem",
-                  backgroundColor: "#f8fafc",
-                  padding: "1.6rem",
-                  borderRadius: "8px",
-                  marginBottom: "2.4rem",
-                  fontSize: "1.35rem"
-                }}
-              >
-                <div>
-                  <strong>{isFr ? "Places :" : "Seats:"}</strong> {selectedCarForModal.seats || (isFr ? "5 places" : "5 seats")}
+              <div>
+                <span style={{ fontSize: "1.2rem", fontWeight: 700, textTransform: "uppercase", color: "#C92A2A", letterSpacing: "0.5px" }}>
+                  {selectedCarForModal.category || "Flotte VIP 3M"}
+                </span>
+                <h3 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0b0f19", margin: "0.4rem 0" }}>
+                  {selectedCarForModal.name}
+                </h3>
+                <div style={{ fontSize: "1.9rem", fontWeight: 900, color: "#C92A2A" }}>
+                  {selectedCarForModal.price}
                 </div>
+              </div>
+            </div>
+
+            {/* Specs Summary */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", background: "#f8fafc", padding: "1.4rem", borderRadius: "8px", marginBottom: "2.4rem", fontSize: "1.3rem", color: "#334155" }}>
+              <div><strong>Places :</strong> {selectedCarForModal.seats || "5"}</div>
+              <div><strong>Boîte :</strong> {selectedCarForModal.transmission || "Auto"}</div>
+              <div><strong>Clim :</strong> {selectedCarForModal.air || "Oui"}</div>
+              <div><strong>Carburant :</strong> {selectedCarForModal.fuel || "Diesel"}</div>
+              <div><strong>Année :</strong> {selectedCarForModal.year || "2024"}</div>
+              <div><strong>Statut :</strong> <span style={{ color: "#16a34a", fontWeight: 700 }}>Disponible</span></div>
+            </div>
+
+            {/* Reservation Form */}
+            <form onSubmit={handleSendEmailReservation}>
+              <h4 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#0b0f19", marginBottom: "1.4rem" }}>
+                {isFr ? "Vos Informations de Réservation" : "Your Booking Information"}
+              </h4>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.4rem", marginBottom: "1.4rem" }}>
                 <div>
-                  <strong>{isFr ? "Transmission :" : "Transmission:"}</strong> {selectedCarForModal.transmission || (isFr ? "Automatique" : "Automatic")}
+                  <label style={{ fontSize: "1.25rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "0.5rem" }}>
+                    {isFr ? "Nom complet *" : "Full Name *"}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Arnaud Mbarga"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "6px", border: "1.5px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
+                  />
                 </div>
+
                 <div>
-                  <strong>{isFr ? "Carburant :" : "Fuel:"}</strong> {selectedCarForModal.fuel || (isFr ? "Essence" : "Petrol")}
-                </div>
-                <div>
-                  <strong>{isFr ? "Année :" : "Year:"}</strong> {selectedCarForModal.year || "2024"}
+                  <label style={{ fontSize: "1.25rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "0.5rem" }}>
+                    {isFr ? "Téléphone / WhatsApp *" : "Phone / WhatsApp *"}
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+237 6XX XX XX XX"
+                    value={clientPhone}
+                    onChange={(e) => setClientPhone(e.target.value)}
+                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "6px", border: "1.5px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
+                  />
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "1.2rem", flexWrap: "wrap" }}>
+              <div style={{ marginBottom: "1.4rem" }}>
+                <label style={{ fontSize: "1.25rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "0.5rem" }}>
+                  {isFr ? "Adresse Email (pour confirmation & facture) *" : "Email Address *"}
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="votre@email.com"
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "6px", border: "1.5px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.4rem", marginBottom: "2.4rem" }}>
+                <div>
+                  <label style={{ fontSize: "1.25rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "0.5rem" }}>
+                    {isFr ? "Date de Prise en charge *" : "Pickup Date *"}
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={pickupDate}
+                    onChange={(e) => setPickupDate(e.target.value)}
+                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "6px", border: "1.5px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: "1.25rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "0.5rem" }}>
+                    {isFr ? "Date de Restitution *" : "Return Date *"}
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={returnDate}
+                    onChange={(e) => setReturnDate(e.target.value)}
+                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "6px", border: "1.5px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons: Email and WhatsApp */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
                 <button
-                  type="button"
-                  onClick={() => {
-                    const carName = (selectedCarForModal.name || selectedCarForModal.model || "").replace(/^([A-Za-z]+)\s+\1\b/i, "$1");
-                    sessionStorage.setItem("selected_booking_car", carName);
-                    window.location.href = "/#booking-section";
-                  }}
+                  type="submit"
                   style={{
-                    flex: 1,
-                    backgroundColor: "#D62828",
+                    backgroundColor: "#C92A2A",
                     color: "#ffffff",
-                    textAlign: "center",
-                    padding: "1.2rem 1.6rem",
+                    padding: "1.4rem 2rem",
                     borderRadius: "6px",
-                    fontWeight: 700,
-                    fontSize: "1.4rem",
                     border: "none",
+                    fontSize: "1.55rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
                     cursor: "pointer",
-                    display: "inline-flex",
+                    display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "0.8rem"
+                    gap: "1rem",
+                    boxShadow: "0 6px 16px rgba(201, 42, 42, 0.3)",
+                    transition: "all 0.25s ease",
                   }}
                 >
-                  <i className="fa-solid fa-calendar-check"></i>
-                  {isFr ? "Réserver en ligne" : "Book Online"}
+                  <i className="fa-solid fa-envelope"></i>
+                  <span>{isFr ? "Envoyer par Email (contact@3Mservice.shop)" : "Send via Email (contact@3Mservice.shop)"}</span>
                 </button>
+
                 <a
-                  href={getWhatsAppBookingLink(selectedCarForModal)}
+                  href={getWhatsAppLink(selectedCarForModal)}
                   target="_blank"
                   rel="noreferrer"
                   style={{
-                    flex: 1,
                     backgroundColor: "#25D366",
                     color: "#ffffff",
-                    textAlign: "center",
-                    padding: "1.2rem 1.6rem",
+                    padding: "1.4rem 2rem",
                     borderRadius: "6px",
-                    fontWeight: 700,
-                    fontSize: "1.4rem",
                     textDecoration: "none",
-                    display: "inline-flex",
+                    fontSize: "1.55rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "0.8rem"
+                    gap: "1rem",
+                    boxShadow: "0 6px 16px rgba(37, 211, 102, 0.3)",
+                    transition: "all 0.25s ease",
                   }}
                 >
-                  <i className="fa-brands fa-whatsapp" style={{ fontSize: "1.8rem" }}></i>
-                  {isFr ? "WhatsApp" : "WhatsApp"}
+                  <i className="fa-brands fa-whatsapp" style={{ fontSize: "2rem" }}></i>
+                  <span>{isFr ? "Confirmer sur WhatsApp (+237 691 78 64 47)" : "Confirm on WhatsApp (+237 691 78 64 47)"}</span>
                 </a>
-                <button
-                  type="button"
-                  onClick={() => setSelectedCarForModal(null)}
-                  style={{
-                    padding: "1.2rem 2rem",
-                    borderRadius: "6px",
-                    border: "1px solid #E5E5E5",
-                    background: "#ffffff",
-                    fontSize: "1.4rem",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    color: "#737373"
-                  }}
-                >
-                  {isFr ? "Fermer" : "Close"}
-                </button>
               </div>
-            </div>
-          </div>
-        )}
 
-        <Footer />
-      </section>
-    </>
+              {bookingSent && (
+                <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "6px", color: "#166534", fontSize: "1.35rem", textAlign: "center" }}>
+                  <i className="fa-solid fa-circle-check" style={{ marginRight: "0.6rem" }}></i>
+                  {isFr ? "Votre demande a été préparée et transmise à contact@3Mservice.shop." : "Your request has been prepared and sent to contact@3Mservice.shop."}
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+
+      <Footer />
+    </div>
   );
 }
 

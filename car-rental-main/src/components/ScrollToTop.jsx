@@ -11,10 +11,32 @@ function ScrollToTop() {
   const [visible, setVisible] = useState(false);
   const location = useLocation();
 
-  // Scroll to top automatically when route changes
+  // Scroll to hash target if present, otherwise reset scroll to top on route change
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
+    if (location.hash) {
+      const scrollToHash = () => {
+        const target = document.querySelector(location.hash);
+        if (target) {
+          target.scrollIntoView({ behavior: "auto" });
+          return true;
+        }
+        return false;
+      };
+
+      if (!scrollToHash()) {
+        const interval = setInterval(() => {
+          if (scrollToHash()) clearInterval(interval);
+        }, 100);
+        const timeout = setTimeout(() => clearInterval(interval), 1500);
+        return () => {
+          clearInterval(interval);
+          clearTimeout(timeout);
+        };
+      }
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.hash]);
 
   // Show button when user scrolls down
   useEffect(() => {

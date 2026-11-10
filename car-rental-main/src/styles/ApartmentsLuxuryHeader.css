@@ -58,7 +58,7 @@
   left: 2%;
   width: 130px;
   height: 84%;
-  background-color: #cda851;
+  background: linear-gradient(135deg, #C92A2A 0%, #0b0f19 100%);
   border-radius: 4px;
   z-index: 1;
 }
@@ -118,13 +118,13 @@
 }
 
 .apt-luxury-hero__eyebrow {
-  color: #cda851;
-  font-size: 1.4rem;
-  font-weight: 600;
-  letter-spacing: 0.8px;
+  color: #C92A2A;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 1px;
   margin-bottom: 0.8rem;
   display: inline-block;
-  text-transform: capitalize;
+  text-transform: uppercase;
 }
 
 .apt-luxury-hero__title {
@@ -197,15 +197,27 @@
 }
 
 .apt-luxury-hero__icon-box {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  border-radius: 8px;
-  background-color: #0b3d2e;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: 10px;
+  background-color: #0b0f19;
+  border: 1.5px solid #C92A2A;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(11, 61, 46, 0.25);
+  box-shadow: 0 4px 12px rgba(201, 42, 42, 0.22);
+  transition: all 0.3s ease;
+}
+
+.apt-luxury-hero__feature-item:hover .apt-luxury-hero__icon-box {
+  background-color: #C92A2A;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(201, 42, 42, 0.35);
+}
+
+.apt-luxury-hero__feature-item:hover .apt-luxury-hero__icon-box svg {
+  stroke: #ffffff;
 }
 
 .apt-luxury-hero__feature-text h4 {
@@ -222,4 +234,3 @@
   line-height: 1.45;
   margin: 0;
 }
-

@@ -22,7 +22,11 @@ function CarBox({ data, carID }) {
           {/* description */}
           <div className="pick-description">
             <div className="pick-description__price">
-              <span>{car.price} FCFA</span> {t("price_unit")}
+              <div className="pick-description__price-main">
+                <span className="pick-description__price-val">{car.price}</span>
+                <span className="pick-description__price-currency">FCFA</span>
+              </div>
+              <span className="pick-description__price-unit">{t("price_unit") || "/ jour"}</span>
             </div>
             <div className="pick-description__table">
               <div className="pick-description__table__col">

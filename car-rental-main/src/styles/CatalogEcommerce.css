@@ -1,639 +1,1003 @@
 /* ==========================================================================
-   3M SERVICES - Modern E-Commerce Catalog Layout
-   Inspired by clean minimalist furniture/luxury showcase
+   3M SERVICES - Catalogue "Nos Véhicules" (Inspiré de Marketo Auto Parts)
+   Theme: Blanc / Gris Minéral + Rouge 3M (#C92A2A / #E20713) + Noir (#0B0F19)
+   Animations: Floating Wheel, Card Hover Zoom, Countdown Timer, Smooth Caret
    ========================================================================== */
 
-.catalog-ecom-wrapper {
-  background-color: #ffffff;
-  color: #1a1a1a;
+.catalog-ecom-page {
+  background-color: #f8fafc;
+  min-height: 100vh;
   width: 100%;
-  padding-bottom: 2rem;
 }
 
 /* --------------------------------------------------------------------------
-   Top Hero Promotional Banners (2 Columns)
+   1. Marketo Parts Inspired Hero Section
    -------------------------------------------------------------------------- */
-.catalog-hero-promos {
-  max-width: 1200px;
-  margin: 3.5rem auto 3rem;
-  padding: 0 2rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2.5rem;
+.marketo-hero {
+  position: relative;
+  background: radial-gradient(circle at 75% 50%, rgba(201, 42, 42, 0.06) 0%, rgba(248, 250, 252, 0.98) 70%),
+              linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 4.5rem 0 5rem;
+  overflow: hidden;
 }
 
-@media (max-width: 860px) {
-  .catalog-hero-promos {
+.marketo-hero__container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 4rem;
+}
+
+@media (max-width: 900px) {
+  .marketo-hero__container {
     grid-template-columns: 1fr;
-    margin: 2rem auto;
+    text-align: center;
+    gap: 3rem;
+    padding: 2.5rem 1.6rem 3rem;
   }
 }
 
-.promo-banner-card {
-  background-color: #f7f7f8;
-  border-radius: 6px;
-  padding: 3.5rem 3.2rem;
+.marketo-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  background-color: rgba(201, 42, 42, 0.1);
+  color: #C92A2A;
+  border: 1px solid rgba(201, 42, 42, 0.25);
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.6rem 1.4rem;
+  border-radius: 30px;
+  margin-bottom: 1.6rem;
+}
+
+.marketo-hero__title {
+  font-size: 4.2rem;
+  font-weight: 900;
+  color: #0b0f19;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  margin: 0 0 1.8rem 0;
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-transform: uppercase;
+}
+
+.marketo-hero__title em {
+  font-style: italic;
+  color: #C92A2A;
+}
+
+@media (max-width: 900px) {
+  .marketo-hero__title {
+    font-size: 3rem;
+  }
+}
+
+.marketo-hero__desc {
+  font-size: 1.6rem;
+  line-height: 1.65;
+  color: #475569;
+  max-width: 580px;
+  margin: 0 0 2.8rem 0;
+}
+
+@media (max-width: 900px) {
+  .marketo-hero__desc {
+    margin: 0 auto 2.5rem;
+    font-size: 1.45rem;
+  }
+}
+
+.marketo-hero__actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  position: relative;
-  overflow: hidden;
-  min-height: 230px;
-  border: 1px solid #f0f0f2;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  gap: 1.6rem;
+  flex-wrap: wrap;
 }
 
-.promo-banner-card:hover {
+@media (max-width: 900px) {
+  .marketo-hero__actions {
+    justify-content: center;
+  }
+}
+
+.marketo-btn-primary {
+  background-color: #C92A2A;
+  color: #ffffff !important;
+  font-size: 1.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 1.4rem 3.2rem;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 8px 20px rgba(201, 42, 42, 0.3);
+  transition: all 0.25s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.marketo-btn-primary:hover {
+  background-color: #B02525;
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 12px 28px rgba(201, 42, 42, 0.4);
 }
 
-.promo-banner-card__content {
-  flex: 1;
-  max-width: 58%;
-  z-index: 2;
+.marketo-btn-outline {
+  background-color: transparent;
+  color: #0b0f19 !important;
+  border: 2px solid #0b0f19;
+  font-size: 1.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 1.25rem 2.8rem;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.marketo-btn-outline:hover {
+  background-color: #0b0f19;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+}
+
+/* Hero Right Visuals: Rotating/Floating Wheel like Marketo demo */
+.marketo-hero__visual {
+  position: relative;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
-.promo-banner-card__eyebrow {
-  font-size: 1.3rem;
-  font-weight: 500;
-  color: #718096;
-  margin-bottom: 0.8rem;
-  display: block;
-  letter-spacing: 0.3px;
+.marketo-hero__wheel-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  animation: wheelFloat 4s ease-in-out infinite;
 }
 
-.promo-banner-card__eyebrow--highlight {
-  color: #D62828;
+@keyframes wheelFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.marketo-hero__wheel-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.25));
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketo-hero__wheel-wrap:hover .marketo-hero__wheel-img {
+  transform: rotate(20deg) scale(1.04);
+}
+
+.marketo-hero__floating-tag {
+  position: absolute;
+  bottom: 12%;
+  left: 0;
+  background: #ffffff;
+  border: 1.5px solid #C92A2A;
+  padding: 1rem 1.6rem;
+  border-radius: 8px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  animation: tagFloat 4s ease-in-out infinite reverse;
+}
+
+@keyframes tagFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.marketo-hero__tag-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #C92A2A;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+.marketo-hero__tag-text {
+  font-size: 1.25rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.marketo-hero__tag-text strong {
+  display: block;
+  font-size: 1.5rem;
+  color: #0b0f19;
+}
+
+/* --------------------------------------------------------------------------
+   2. Marketo 3 Feature Banners Row (White, Red, Black cards)
+   -------------------------------------------------------------------------- */
+.marketo-banners-row {
+  max-width: 1240px;
+  margin: -2.5rem auto 3.5rem;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  position: relative;
+  z-index: 10;
+}
+
+@media (max-width: 900px) {
+  .marketo-banners-row {
+    grid-template-columns: 1fr;
+    margin: 2rem auto 2.5rem;
+    gap: 1.6rem;
+  }
+}
+
+.marketo-banner-card {
+  position: relative;
+  border-radius: 8px;
+  padding: 3rem 2.4rem;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-size: cover;
+  background-position: center;
+}
+
+.marketo-banner-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.16);
+}
+
+/* Card 1: White/Light with brake disc background */
+.marketo-banner-card--white {
+  background-color: #ffffff;
+  background-image: url("../images/marketo/1.jpg");
+  border: 1px solid #e2e8f0;
+}
+
+.marketo-banner-card--white .marketo-banner-card__eyebrow {
+  color: #64748b;
+}
+
+.marketo-banner-card--white .marketo-banner-card__title {
+  color: #0b0f19;
+}
+
+.marketo-banner-card--white .marketo-banner-card__btn {
+  background-color: #C92A2A;
+  color: #ffffff !important;
+}
+
+.marketo-banner-card--white .marketo-banner-card__btn:hover {
+  background-color: #B02525;
+}
+
+/* Card 2: Vibrant 3M Red with steering wheel */
+.marketo-banner-card--red {
+  background-color: #C92A2A;
+  background-image: url("../images/marketo/2.jpg");
+  color: #ffffff;
+}
+
+.marketo-banner-card--red .marketo-banner-card__eyebrow {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.marketo-banner-card--red .marketo-banner-card__title {
+  color: #ffffff;
+}
+
+.marketo-banner-card--red .marketo-banner-card__btn {
+  background-color: #8b1818;
+  color: #ffffff !important;
+}
+
+.marketo-banner-card--red .marketo-banner-card__btn:hover {
+  background-color: #5c0f0f;
+}
+
+/* Card 3: Dark Black with taillight */
+.marketo-banner-card--black {
+  background-color: #0b0f19;
+  background-image: url("../images/marketo/3.jpg");
+  color: #ffffff;
+}
+
+.marketo-banner-card--black .marketo-banner-card__eyebrow {
+  color: #e2e8f0;
+}
+
+.marketo-banner-card--black .marketo-banner-card__title {
+  color: #ffffff;
+}
+
+.marketo-banner-card--black .marketo-banner-card__btn {
+  background-color: #C92A2A;
+  color: #ffffff !important;
+}
+
+.marketo-banner-card--black .marketo-banner-card__btn:hover {
+  background-color: #B02525;
+}
+
+.marketo-banner-card__content {
+  max-width: 62%;
+  z-index: 2;
+}
+
+.marketo-banner-card__eyebrow {
+  font-size: 1.35rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.8rem;
+  display: block;
+}
+
+.marketo-banner-card__title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0 0 1.8rem 0;
+  font-family: "Poppins", sans-serif;
+}
+
+.marketo-banner-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s ease;
+}
+
+/* --------------------------------------------------------------------------
+   3. Main 2-Column Section: Deals of the Week (Left) + Grid (Right)
+   -------------------------------------------------------------------------- */
+.marketo-main-section {
+  max-width: 1240px;
+  margin: 0 auto 5rem;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .marketo-main-section {
+    grid-template-columns: 1fr;
+    gap: 3.5rem;
+  }
+}
+
+/* Left: Deals of the Week Card */
+.deal-week-card {
+  background: #ffffff;
+  border: 2px solid #C92A2A;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 100px;
+}
+
+.deal-week-card__header {
+  background-color: #C92A2A;
+  color: #ffffff;
+  padding: 1.4rem 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.deal-week-card__title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.deal-week-card__nav {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.deal-week-card__nav-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.2rem;
+}
+
+.deal-week-card__nav-btn:hover {
+  background: #ffffff;
+  color: #C92A2A;
+}
+
+.deal-week-card__body {
+  padding: 2.2rem 2rem 2.6rem;
+}
+
+.deal-week-card__img-wrap {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.8rem;
+  overflow: hidden;
+}
+
+.deal-week-card__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+}
+
+.deal-week-card:hover .deal-week-card__img {
+  transform: scale(1.05);
+}
+
+.deal-week-card__badge-discount {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #C92A2A;
+  color: #ffffff;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.1;
+  box-shadow: 0 4px 10px rgba(201, 42, 42, 0.4);
+}
+
+.deal-week-card__badge-discount small {
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
-.promo-banner-card__title {
-  font-size: 2.6rem;
-  font-weight: 700;
-  color: #111827;
-  line-height: 1.25;
-  margin: 0 0 1.6rem;
+.deal-week-card__car-title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #0b0f19;
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
 }
 
-.promo-banner-card__pricing {
-  margin-bottom: 1.2rem;
+.deal-week-card__pricing {
   display: flex;
   align-items: baseline;
   gap: 1rem;
+  margin-bottom: 1.6rem;
 }
 
-.promo-banner-card__old-price {
+.deal-week-card__old-price {
   font-size: 1.6rem;
   color: #94a3b8;
   text-decoration: line-through;
   font-weight: 500;
 }
 
-.promo-banner-card__price {
-  font-size: 2.3rem;
-  font-weight: 800;
-  color: #D62828;
+.deal-week-card__price {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: #C92A2A;
 }
 
-.promo-banner-card__btn {
-  display: inline-block;
-  background-color: #D62828;
-  color: #ffffff !important;
+.deal-week-card__stock-info {
+  margin-bottom: 2rem;
+}
+
+.deal-week-card__stock-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.6rem;
+}
+
+.deal-week-card__progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.deal-week-card__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #C92A2A 0%, #ff5c5c 100%);
+  border-radius: 4px;
+}
+
+/* Countdown Timer */
+.deal-week-card__countdown-wrap {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 1.4rem 1rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.deal-week-card__countdown-label {
   font-size: 1.25rem;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  color: #0b0f19;
   text-transform: uppercase;
-  padding: 1.1rem 2.2rem;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-  border: none;
-  cursor: pointer;
-  align-self: flex-start;
+  letter-spacing: 0.5px;
+  margin: 0 0 1rem 0;
 }
 
-.promo-banner-card__btn:hover {
-  background-color: #b90610;
-  transform: translateY(-1px);
-}
-
-.promo-banner-card__img-wrap {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1;
-  max-width: 42%;
-}
-
-.promo-banner-card__img {
-  max-height: 165px;
-  max-width: 100%;
-  object-fit: contain;
-  transition: transform 0.35s ease;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.08));
-}
-
-.promo-banner-card:hover .promo-banner-card__img {
-  transform: scale(1.05);
-}
-
-/* --------------------------------------------------------------------------
-   Section Header with Left Title & Right Tabs
-   -------------------------------------------------------------------------- */
-.catalog-nav-header {
-  max-width: 1200px;
-  margin: 3.5rem auto 1.5rem;
-  padding: 0 2rem 1.6rem;
-  border-bottom: 1px solid #ebebeb;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1.6rem;
-}
-
-.catalog-nav-title {
-  font-size: 2.4rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
-  line-height: 1.2;
-}
-
-.catalog-tabs-list {
-  display: flex;
-  align-items: center;
-  gap: 2.8rem;
-  overflow-x: auto;
-  padding-bottom: 0.2rem;
-}
-
-.catalog-tab-item {
-  background: none;
-  border: none;
-  font-size: 1.45rem;
-  font-weight: 500;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.6rem 0;
-  position: relative;
-  transition: color 0.2s ease;
-  white-space: nowrap;
-}
-
-.catalog-tab-item:hover {
-  color: #111827;
-}
-
-.catalog-tab-item.is-active {
-  color: #D62828;
-  font-weight: 700;
-}
-
-/* The distinctive orange tick/notch underline from the reference screenshot */
-.catalog-tab-item.is-active::after {
-  content: "";
-  position: absolute;
-  bottom: -1.75rem;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: #D62828;
-}
-
-.catalog-tab-item.is-active::before {
-  content: "";
-  position: absolute;
-  bottom: -2.15rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 5px solid #D62828;
-}
-
-/* Search and counts toolbar */
-.catalog-toolbar {
-  max-width: 1200px;
-  margin: 1.5rem auto 3rem;
-  padding: 0 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
-
-.catalog-count {
-  font-size: 1.35rem;
-  color: #8c8c8c;
-}
-
-.catalog-search-box {
-  position: relative;
-  width: 100%;
-  max-width: 320px;
-}
-
-.catalog-search-box i {
-  position: absolute;
-  left: 1.4rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-  font-size: 1.4rem;
-}
-
-.catalog-search-input {
-  width: 100%;
-  padding: 0.9rem 1.4rem 0.9rem 3.8rem;
-  font-size: 1.35rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 25px;
-  outline: none;
-  background-color: #ffffff;
-  color: #1e293b;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.catalog-search-input:focus {
-  border-color: #D62828;
-  box-shadow: 0 0 0 3px rgba(226, 7, 19, 0.1);
-}
-
-/* --------------------------------------------------------------------------
-   Product Grid (Clean Minimalist Cards - Reduced & Compact)
-   -------------------------------------------------------------------------- */
-.ecom-grid {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
+.deal-week-card__timer-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.6rem;
+  gap: 0.6rem;
 }
 
-@media (max-width: 1100px) {
-  .ecom-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.4rem;
-  }
-}
-
-@media (max-width: 820px) {
-  .ecom-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.2rem;
-  }
-}
-
-@media (max-width: 540px) {
-  .ecom-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    padding: 0 1.2rem;
-  }
-}
-
-@media (max-width: 360px) {
-  .ecom-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Product Card */
-.ecom-card {
+.deal-week-card__timer-box {
   background: #ffffff;
-  border: 1px solid #eef0f3;
-  border-radius: 8px;
-  padding: 1.4rem 1.3rem 1.2rem;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  transition: all 0.25s ease;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 0.6rem 0.2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
 }
 
-.ecom-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  transform: translateY(-2px);
+.deal-week-card__timer-val {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #C92A2A;
+  display: block;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
-.ecom-card__badge {
-  position: absolute;
-  top: 0.8rem;
-  left: 0.8rem;
-  background: #111827;
-  color: #fff;
+.deal-week-card__timer-unit {
   font-size: 0.95rem;
   font-weight: 600;
-  padding: 0.25rem 0.6rem;
-  border-radius: 3px;
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
-  z-index: 2;
 }
 
-.ecom-card__badge--red {
-  background: #D62828;
-}
-
-.ecom-card__badge--green {
-  background: #10b981;
-}
-
-.ecom-card__badge--amber {
-  background: #f59e0b;
-}
-
-.ecom-card__img-container {
-  height: 125px;
+.deal-week-card__btn-book {
   width: 100%;
+  background-color: #C92A2A;
+  color: #ffffff !important;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1.3rem 1.6rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(201, 42, 42, 0.3);
+  transition: all 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f8fafc;
-  border-radius: 6px;
-  padding: 0.6rem;
-  overflow: hidden;
-  margin-bottom: 1rem;
+  gap: 0.8rem;
+  text-decoration: none;
 }
 
-.ecom-card__img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  transition: transform 0.3s ease;
+.deal-week-card__btn-book:hover {
+  background-color: #B02525;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(201, 42, 42, 0.4);
 }
 
-.ecom-card:hover .ecom-card__img {
-  transform: scale(1.04);
+/* --------------------------------------------------------------------------
+   Right: Catalog Navigation & Vehicle Cards
+   -------------------------------------------------------------------------- */
+.marketo-catalog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 1.2rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+  gap: 1.6rem;
 }
 
-.ecom-card__category {
-  font-size: 1.05rem;
-  color: #8c8c8c;
-  margin: 0 0 0.3rem;
-  font-weight: 500;
+.marketo-catalog-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #0b0f19;
+  margin: 0;
+  font-family: "Poppins", sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
-.ecom-card__title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0 0 0.5rem;
-  line-height: 1.25;
-  min-height: 3.2rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.ecom-card__price {
-  font-size: 1.45rem;
-  font-weight: 800;
-  color: #D62828;
-  margin: 0 0 0.8rem;
-}
-
-.ecom-card__details {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.35rem 0.6rem;
-  font-size: 1.05rem;
-  color: #64748b;
-  margin-bottom: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px dashed #f1f5f9;
-}
-
-.ecom-card__details span {
+.marketo-filter-tabs {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  gap: 0.8rem;
+  flex-wrap: wrap;
 }
 
-.ecom-card__details i {
-  color: #94a3b8;
-  font-size: 1rem;
+.marketo-filter-tab {
+  position: relative;
+  background: none;
+  border: none;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #64748b;
+  padding: 0.8rem 1.6rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.ecom-card__actions {
+.marketo-filter-tab:hover {
+  color: #0b0f19;
+}
+
+.marketo-filter-tab.is-active {
+  color: #C92A2A;
+  font-weight: 800;
+}
+
+/* Downward caret under active tab matching Marketo demo */
+.marketo-filter-tab.is-active::after {
+  content: "";
+  position: absolute;
+  bottom: -1.3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid #C92A2A;
+}
+
+/* Vehicle Cards Grid */
+.marketo-cars-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.4rem;
+}
+
+@media (max-width: 700px) {
+  .marketo-cars-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.marketo-car-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2rem 2rem 2.2rem;
   display: flex;
-  gap: 0.6rem;
-  margin-top: auto;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-.ecom-card__btn-book {
-  flex: 1;
-  background-color: #D62828;
-  color: #ffffff !important;
+.marketo-car-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(201, 42, 42, 0.4);
+  box-shadow: 0 16px 36px rgba(201, 42, 42, 0.12);
+}
+
+.marketo-car-card__category-badge {
+  position: absolute;
+  top: 1.6rem;
+  left: 1.6rem;
+  background-color: #f1f5f9;
+  color: #475569;
   font-size: 1.15rem;
   font-weight: 700;
-  text-align: center;
-  padding: 0.75rem 0.8rem;
-  border-radius: 5px;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  text-transform: uppercase;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  border: 1px solid #e2e8f0;
 }
 
-.ecom-card__btn-book:hover {
-  background-color: #b90610;
+.marketo-car-card__status-badge {
+  position: absolute;
+  top: 1.6rem;
+  right: 1.6rem;
+  background-color: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+  font-size: 1.15rem;
+  font-weight: 700;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.ecom-card__btn-wa {
+.marketo-car-card__status-badge::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #16a34a;
+}
+
+.marketo-car-card__img-wrap {
+  width: 100%;
+  height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 2rem 0 1.6rem;
+  overflow: hidden;
+}
+
+.marketo-car-card__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.12));
+}
+
+.marketo-car-card:hover .marketo-car-card__img {
+  transform: scale(1.06);
+}
+
+.marketo-car-card__name {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0b0f19;
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+  font-family: "Poppins", sans-serif;
+}
+
+.marketo-car-card__price-box {
+  background: #f8fafc;
+  border-left: 3px solid #C92A2A;
+  padding: 0.8rem 1.2rem;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 1.4rem;
+}
+
+.marketo-car-card__price-label {
+  font-size: 1.1rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+.marketo-car-card__price-value {
+  font-size: 1.95rem;
+  font-weight: 900;
+  color: #C92A2A;
+  line-height: 1.15;
+}
+
+.marketo-car-card__price-value span {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.marketo-car-card__specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin-bottom: 1.8rem;
+  font-size: 1.25rem;
+  color: #475569;
+}
+
+.marketo-car-card__spec-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: #f8fafc;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+}
+
+.marketo-car-card__spec-item i {
+  color: #C92A2A;
+  font-size: 1.2rem;
+}
+
+.marketo-car-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.marketo-car-card__btn-book {
+  flex: 1;
+  background-color: #C92A2A;
+  color: #ffffff !important;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 1.1rem 1.4rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.marketo-car-card__btn-book:hover {
+  background-color: #B02525;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(201, 42, 42, 0.3);
+}
+
+.marketo-car-card__btn-wa {
   background-color: #25D366;
   color: #ffffff !important;
-  padding: 0 1rem;
-  border-radius: 5px;
-  font-size: 1.4rem;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
   text-decoration: none;
-  transition: background-color 0.2s ease;
+  transition: all 0.25s ease;
 }
 
-@media (max-width: 540px) {
-  .ecom-card {
-    padding: 1rem 0.9rem;
-  }
-  .ecom-card__img-container {
-    height: 105px;
-    padding: 0.4rem;
-    margin-bottom: 0.7rem;
-  }
-  .ecom-card__title {
-    font-size: 1.15rem;
-    min-height: 2.8rem;
-  }
-  .ecom-card__price {
-    font-size: 1.25rem;
-    margin-bottom: 0.6rem;
-  }
-  .ecom-card__details {
-    font-size: 0.95rem;
-    gap: 0.25rem 0.4rem;
-    margin-bottom: 0.8rem;
-  }
-  .ecom-card__btn-book {
-    font-size: 1.05rem;
-    padding: 0.65rem 0.6rem;
-  }
-  .ecom-card__btn-wa {
-    padding: 0 0.8rem;
-    font-size: 1.25rem;
-  }
-}
-
-.ecom-card__btn-wa:hover {
+.marketo-car-card__btn-wa:hover {
   background-color: #1eb956;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(37, 211, 102, 0.35);
 }
 
 /* --------------------------------------------------------------------------
-   Bottom 5-Column Trust & Services Banner
+   4. Trust & Service 5-Pillar Bar (Marketo Footer Style)
    -------------------------------------------------------------------------- */
-.trust-banner-wrap {
-  border-top: 1px solid #ebebeb;
-  border-bottom: 1px solid #ebebeb;
-  background-color: #ffffff;
-  margin-top: 6rem;
-  padding: 3.5rem 2rem;
+.marketo-trust-bar {
+  max-width: 1240px;
+  margin: 3rem auto 6rem;
+  padding: 0 2rem;
 }
 
-.trust-banner-grid {
-  max-width: 1200px;
-  margin: 0 auto;
+.marketo-trust-grid {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2.8rem 2.4rem;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 2.4rem;
-  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
 }
 
-@media (max-width: 1050px) {
-  .trust-banner-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3rem 2rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .trust-banner-wrap {
-    padding: 2.2rem 1rem;
-    margin-top: 3.5rem;
-  }
-
-  .trust-banner-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 1.6rem 0.6rem;
-    align-items: start;
-  }
-
-  /* Row 1: 3 items (each spans 2 of 6 columns) */
-  .trust-banner-grid .trust-card:nth-child(1),
-  .trust-banner-grid .trust-card:nth-child(2),
-  .trust-banner-grid .trust-card:nth-child(3) {
-    grid-column: span 2;
-  }
-
-  /* Row 2: 2 items (each spans 3 of 6 columns) */
-  .trust-banner-grid .trust-card:nth-child(4),
-  .trust-banner-grid .trust-card:nth-child(5) {
-    grid-column: span 3;
-  }
-
-  .trust-card {
-    padding: 0.6rem 0.2rem;
-  }
-
-  .trust-card__icon {
-    width: 44px;
-    height: 44px;
-    font-size: 1.85rem;
-    border-radius: 12px;
-    margin-bottom: 0.7rem;
-  }
-
-  .trust-card__title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    line-height: 1.25;
-    margin-bottom: 0.25rem;
-    word-break: break-word;
-  }
-
-  .trust-card__subtitle {
-    font-size: 1.05rem;
-    line-height: 1.25;
+@media (max-width: 1024px) {
+  .marketo-trust-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
   }
 }
 
-.trust-card {
+@media (max-width: 600px) {
+  .marketo-trust-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.marketo-trust-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  padding: 1.5rem 1rem;
-  transition: transform 0.25s ease;
+  gap: 1.4rem;
 }
 
-.trust-card:hover {
-  transform: translateY(-3px);
-}
-
-.trust-card__icon {
-  font-size: 2.6rem;
-  color: #D62828;
-  width: 58px;
-  height: 58px;
-  border-radius: 14px;
-  background-color: #fee2e2;
+.marketo-trust-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  background-color: rgba(201, 42, 42, 0.08);
+  color: #C92A2A;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.4rem;
-  transition: transform 0.25s ease, background-color 0.25s ease;
+  font-size: 2rem;
+  transition: all 0.3s ease;
 }
 
-.trust-card:hover .trust-card__icon {
-  background-color: #fecaca;
-  transform: scale(1.08);
+.marketo-trust-item:hover .marketo-trust-icon {
+  background-color: #C92A2A;
+  color: #ffffff;
+  transform: scale(1.1);
 }
 
-.trust-card__texts {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.trust-card__title {
+.marketo-trust-texts h4 {
   font-size: 1.55rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0 0 0.4rem;
-  line-height: 1.3;
+  font-weight: 800;
+  color: #0b0f19;
+  margin: 0 0 0.3rem 0;
 }
 
-.trust-card__subtitle {
-  font-size: 1.3rem;
+.marketo-trust-texts p {
+  font-size: 1.25rem;
   color: #64748b;
   margin: 0;
   line-height: 1.35;
 }
-

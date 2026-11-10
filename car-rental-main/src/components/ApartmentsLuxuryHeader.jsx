@@ -61,11 +61,11 @@ export default function ApartmentsLuxuryHeader() {
               />
             </div>
 
-            {/* 2 Green Feature Badges matching reference */}
+            {/* 2 Red & Black Feature Badges matching reference */}
             <div className="apt-luxury-hero__features">
               <div className="apt-luxury-hero__feature-item">
                 <div className="apt-luxury-hero__icon-box">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C92A2A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
                     <path d="M12 2v3m0 14v3M2 12h3m14 0h3m-3.5-6.5l-2.1 2.1m-8.8 8.8l-2.1 2.1m0-13l2.1 2.1m8.8 8.8l2.1 2.1"></path>
                   </svg>
@@ -82,7 +82,7 @@ export default function ApartmentsLuxuryHeader() {
 
               <div className="apt-luxury-hero__feature-item">
                 <div className="apt-luxury-hero__icon-box">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C92A2A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                   </svg>
