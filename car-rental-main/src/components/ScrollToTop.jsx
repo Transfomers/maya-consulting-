@@ -38,10 +38,16 @@ function ScrollToTop() {
     }
   }, [location.pathname, location.hash]);
 
-  // Show button when user scrolls down
+  // Show button when user scrolls down (supports mobile touch & desktop)
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 80) {
+      const pos =
+        window.pageYOffset ||
+        window.scrollY ||
+        (document.documentElement && document.documentElement.scrollTop) ||
+        (document.body && document.body.scrollTop) ||
+        0;
+      if (pos > 60) {
         setVisible(true);
       } else {
         setVisible(false);
@@ -49,14 +55,32 @@ function ScrollToTop() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    window.addEventListener("touchmove", handleScroll, { passive: true });
+    document.addEventListener("scroll", handleScroll, { passive: true });
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    // Initial check on mount / route transition
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("touchmove", handleScroll);
+      document.removeEventListener("scroll", handleScroll);
+    };
+  }, [location.pathname]);
+
+  const scrollToTop = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    try {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth",
+      });
+    } catch {
+      window.scrollTo(0, 0);
+    }
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
   };
 
   return (

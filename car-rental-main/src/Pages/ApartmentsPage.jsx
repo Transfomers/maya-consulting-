@@ -126,6 +126,26 @@ function ApartmentsPage() {
     return `https://wa.me/237691786447?text=${text}`;
   };
 
+  const getEmailLink = (apt) => {
+    const subject = encodeURIComponent(`Demande de Réservation Appartement Meublé : ${apt.title} - 3M SERVICES`);
+    const body = encodeURIComponent(
+      `Bonjour l'équipe 3M SERVICES,\n\n` +
+      `Je souhaite obtenir des informations et réserver votre appartement meublé :\n\n` +
+      `• RÉSIDENCE : ${apt.title}\n` +
+      `• TYPE : ${apt.type}\n` +
+      `• LOCALISATION : ${apt.location}\n` +
+      `• TARIF : ${apt.price}\n\n` +
+      `Pourriez-vous me confirmer les disponibilités pour mon séjour et les modalités de réservation ?\n\n` +
+      `Mes coordonnées :\n` +
+      `• Nom et Prénom :\n` +
+      `• Téléphone / WhatsApp :\n` +
+      `• Date d'arrivée souhaitée :\n` +
+      `• Date de départ souhaitée :\n\n` +
+      `Merci d'avance pour votre retour.\n\nCordialement,`
+    );
+    return `mailto:contact@3mservice.shop?subject=${subject}&body=${body}`;
+  };
+
   return (
     <>
       <section className="catalog-ecom-page">
@@ -248,7 +268,7 @@ function ApartmentsPage() {
                     </span>
                   </div>
 
-                  {/* Action Buttons */}
+                  {/* Action Buttons: Details + WhatsApp Icon + Email Icon */}
                   <div className="ecom-card__actions">
                     <button
                       type="button"
@@ -262,9 +282,16 @@ function ApartmentsPage() {
                       target="_blank"
                       rel="noreferrer"
                       className="ecom-card__btn-wa"
-                      title="Réserver sur WhatsApp"
+                      title="Réserver sur WhatsApp (+237 691 78 64 47)"
                     >
                       <i className="fa-brands fa-whatsapp"></i>
+                    </a>
+                    <a
+                      href={getEmailLink(apt)}
+                      className="ecom-card__btn-email"
+                      title="Envoyer la demande par Email (contact@3mservice.shop)"
+                    >
+                      <i className="fa-solid fa-envelope"></i>
                     </a>
                   </div>
                 </div>
@@ -463,6 +490,7 @@ function ApartmentsPage() {
                   rel="noreferrer"
                   style={{
                     flex: 1,
+                    minWidth: "180px",
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -477,7 +505,29 @@ function ApartmentsPage() {
                   }}
                 >
                   <i className="fa-brands fa-whatsapp" style={{ fontSize: "2rem" }}></i>
-                  <span>Confirmer sur WhatsApp</span>
+                  <span>WhatsApp</span>
+                </a>
+
+                <a
+                  href={getEmailLink(activeModalApartment)}
+                  style={{
+                    flex: 1,
+                    minWidth: "180px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "10px",
+                    backgroundColor: "#C92A2A",
+                    color: "#ffffff",
+                    padding: "1.3rem 2rem",
+                    borderRadius: "6px",
+                    fontWeight: 700,
+                    fontSize: "1.5rem",
+                    textDecoration: "none"
+                  }}
+                >
+                  <i className="fa-solid fa-envelope" style={{ fontSize: "1.8rem" }}></i>
+                  <span>Envoyer par Email</span>
                 </a>
 
                 <a

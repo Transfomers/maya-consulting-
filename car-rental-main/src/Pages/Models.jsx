@@ -135,6 +135,24 @@ function Models() {
     return `https://wa.me/237691786447?text=${text}`;
   };
 
+  const getEmailLink = (car) => {
+    const carName = car?.name || car?.model || "Véhicule 3M";
+    const subject = encodeURIComponent(`Demande de Réservation 3M SERVICES : ${carName}`);
+    const body = encodeURIComponent(
+      `Bonjour l'équipe 3M SERVICES,\n\n` +
+      `Je souhaite obtenir des informations et réserver le véhicule suivant :\n\n` +
+      `• MODÈLE : ${carName}\n` +
+      `• TARIF JOURNALIER : ${car?.price || "Sur demande"}\n\n` +
+      `Merci de m'indiquer les disponibilités et modalités de prise en charge.\n\n` +
+      `Mes coordonnées :\n` +
+      `• Nom et Prénom :\n` +
+      `• Téléphone / WhatsApp :\n` +
+      `• Dates souhaitées :\n\n` +
+      `Cordialement,`
+    );
+    return `mailto:contact@3Mservice.shop?subject=${subject}&body=${body}`;
+  };
+
   const handleSendEmailReservation = (e) => {
     e.preventDefault();
     if (!selectedCarForModal) return;
@@ -191,11 +209,13 @@ function Models() {
             <h1 className="marketo-hero__title">
               {isFr ? (
                 <>
-                  DÉCOUVREZ TOUTE NOTRE <em>FLOTTE DE VÉHICULES</em> À <em>YAOUNDÉ</em>
+                  DÉCOUVREZ NOTRE <em>FLOTTE VIP</em>
+                  <br />À <em>YAOUNDÉ</em>
                 </>
               ) : (
                 <>
-                  GET ALL <em>OFFICIAL VIP</em> VEHICLES IN <em>YAOUNDÉ</em>
+                  OFFICIAL <em>VIP FLEET</em>
+                  <br />IN <em>YAOUNDÉ</em>
                 </>
               )}
             </h1>
@@ -525,7 +545,7 @@ function Models() {
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
+                  {/* Action Buttons: Book Modal + WhatsApp Icon + Email Icon */}
                   <div className="marketo-car-card__actions">
                     <button
                       type="button"
@@ -544,9 +564,17 @@ function Models() {
                       target="_blank"
                       rel="noreferrer"
                       className="marketo-car-card__btn-wa"
-                      title={isFr ? "Réserver sur WhatsApp" : "Book on WhatsApp"}
+                      title={isFr ? "Réserver sur WhatsApp (+237 691 78 64 47)" : "Book on WhatsApp"}
                     >
                       <i className="fa-brands fa-whatsapp"></i>
+                    </a>
+
+                    <a
+                      href={getEmailLink(car)}
+                      className="marketo-car-card__btn-email"
+                      title={isFr ? "Envoyer la demande par Email (contact@3Mservice.shop)" : "Send inquiry by Email"}
+                    >
+                      <i className="fa-solid fa-envelope"></i>
                     </a>
                   </div>
                 </div>
