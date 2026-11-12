@@ -76,11 +76,11 @@ function Team() {
       role: isFr
         ? "Relations Partenariats & Leasing"
         : "Corporate Partnerships & Leasing",
-      dept: isFr ? "Partenariats MUPOCAM" : "Corporate Partnerships",
+      dept: isFr ? "Pôle Leasing & Partenariats" : "Corporate Leasing & Partnerships",
       badgeColor: "#c2410c",
       contact: isFr
-        ? "Convention Mutuelle Orange & Entreprises"
-        : "Corporate & Orange Mutual Agreement",
+        ? "Formules Leasing & Accords Entreprises"
+        : "Corporate Leasing & Enterprise Agreements",
     },
   ];
 

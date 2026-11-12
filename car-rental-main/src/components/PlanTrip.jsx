@@ -3,7 +3,7 @@ import Contact from "../images/plan/icon2.png";
 import Drive from "../images/plan/icon3.png";
 import { useTranslation } from "../context/LanguageContext";
 
-function PlanTrip() {
+function PlanTrip({ hideTitle = false }) {
   const { t } = useTranslation();
 
   return (
@@ -11,10 +11,12 @@ function PlanTrip() {
       <section className="plan-section">
         <div className="container">
           <div className="plan-container">
-            <div className="plan-container__title">
-              <h3>{t("plan_sub")}</h3>
-              <h2>{t("plan_title")}</h2>
-            </div>
+            {!hideTitle && (
+              <div className="plan-container__title">
+                <h3>{t("plan_sub")}</h3>
+                <h2>{t("plan_title")}</h2>
+              </div>
+            )}
 
             <div className="plan-container__boxes">
               <div className="plan-container__boxes__box">

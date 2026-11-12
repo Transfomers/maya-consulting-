@@ -71,8 +71,8 @@ function About() {
               </h2>
               <p>
                 {isFr
-                  ? "3M SERVICES est l'adresse de référence à partir de Yaoundé pour la vente de véhicules neufs (0 km) et d'occasions certifiées, la location de Toyota Prado VIP avec chauffeur professionnel, les formules de leasing automobile (partenaire officiel MUPOCAM Orange Cameroun) et la gestion d'appartements meublés de grand standing à Tsinga (en face de la FECAFOOT). Notre conciergerie 24/7 s'engage à vous offrir un service haut de gamme, rapide et en toute transparence."
-                  : "3M SERVICES is the premier destination from Yaoundé for brand new (0 km) and certified pre-owned vehicles, luxury Toyota Prado VIP rentals with professional chauffeurs, corporate leasing (official MUPOCAM Orange Cameroon partner), and luxury furnished apartments in Tsinga (opposite FECAFOOT). Our 24/7 concierge delivers high-end, prompt, and completely transparent service."}
+                  ? "3M SERVICES est l'adresse de référence à partir de Yaoundé pour la vente de véhicules neufs (0 km) et d'occasions certifiées, la location de Toyota Prado VIP avec chauffeur professionnel, les formules de leasing automobile et crédit-bail (conditions sur simple demande) et la gestion d'appartements meublés de grand standing à Tsinga (en face de la FECAFOOT). Notre conciergerie 24/7 s'engage à vous offrir un service haut de gamme, rapide et en toute transparence."
+                  : "3M SERVICES is the premier destination from Yaoundé for brand new (0 km) and certified pre-owned vehicles, luxury Toyota Prado VIP rentals with professional chauffeurs, corporate automotive leasing & fleet finance (terms available on request), and luxury furnished apartments in Tsinga (opposite FECAFOOT). Our 24/7 concierge delivers high-end, prompt, and completely transparent service."}
               </p>
 
               {/* 3 Key Stats: Red Icons, Red Numbers, Perfectly Aligned */}
@@ -232,12 +232,15 @@ function About() {
             </div>
           </div>
 
-          {/* Dedicated Section: Official Bilateral Partnership Signing with MUPOCAM */}
+          {/* Section: 3-Step Process (cover the page with 3 icons as requested) */}
+          <PlanTrip hideTitle={true} />
+
+          {/* Dedicated Section: 3M Automotive Leasing with MUPOCAM Bilateral Convention as Blog / Act of Proof */}
           <div
-            id="mupocam-section"
+            id="leasing-section"
             style={{
-              marginTop: "5.5rem",
-              padding: "4rem 3.5rem",
+              marginTop: "5rem",
+              padding: "4.5rem 3.8rem",
               backgroundColor: "#f8fafc",
               borderRadius: "20px",
               border: "1px solid #e2e8f0",
@@ -245,113 +248,192 @@ function About() {
               scrollMarginTop: "90px",
             }}
           >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1.15fr 0.85fr",
-                gap: "4rem",
-                alignItems: "center",
-              }}
-              className="about-mupocam-grid"
-            >
-              <div>
-                <span
-                  style={{
-                    color: "#ea580c",
-                    fontWeight: 700,
-                    fontSize: "1.3rem",
-                    textTransform: "uppercase",
-                    letterSpacing: "1.2px",
-                    display: "inline-block",
-                    marginBottom: "0.8rem",
-                  }}
-                >
-                  {isFr ? "ALLIANCE STRATÉGIQUE & MOBILITÉ D'ENTREPRISE" : "STRATEGIC ALLIANCE & CORPORATE MOBILITY"}
-                </span>
-                <h3
-                  style={{
-                    fontSize: "2.8rem",
-                    fontWeight: 800,
-                    color: "#0f172a",
-                    lineHeight: "1.3",
-                    margin: "0 0 1.5rem",
-                  }}
-                >
-                  {isFr
-                    ? "Convention Cadre Officielle : 3M SERVICES & MUPOCAM (Orange Cameroun)"
-                    : "Official Framework Agreement: 3M SERVICES & MUPOCAM (Orange Cameroon)"}
-                </h3>
-                <p
-                  style={{
-                    fontSize: "1.5rem",
-                    color: "#475569",
-                    lineHeight: "1.7",
-                    marginBottom: "1.6rem",
-                  }}
-                >
-                  {isFr
-                    ? "Fruit d'une vision partagée d'excellence, de solidarité et de confort pour les collaborateurs, la convention officielle conclue entre 3M SERVICES, la Mutuelle du Personnel d'Orange Cameroun (MUPOCAM) et le FOCODEMUC (Fonds Commun de Développement des Mutuelles du Cameroun) consacre un partenariat d'envergure nationale."
-                    : "Embodying a shared vision of excellence, solidarity, and executive comfort, the partnership between 3M SERVICES, MUPOCAM, and FOCODEMUC establishes a premier automotive leasing and mobility framework across Cameroon."}
-                </p>
-                <ul
-                  style={{
-                    listStyle: "none",
-                    padding: 0,
-                    margin: "0 0 2.2rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1.1rem",
-                  }}
-                >
-                  <li style={{ display: "flex", alignItems: "center", gap: "1.2rem", fontSize: "1.45rem", color: "#1e293b", fontWeight: 600 }}>
-                    <i className="fa-solid fa-circle-check" style={{ color: "#ea580c", fontSize: "1.8rem" }}></i>
-                    {isFr ? "Formules de leasing automobile avec facilités de paiement échelonnées" : "Corporate leasing programs with structured payment plans"}
-                  </li>
-                  <li style={{ display: "flex", alignItems: "center", gap: "1.2rem", fontSize: "1.45rem", color: "#1e293b", fontWeight: 600 }}>
-                    <i className="fa-solid fa-circle-check" style={{ color: "#ea580c", fontSize: "1.8rem" }}></i>
-                    {isFr ? "Flotte exclusive conventionnée : Jeep Grand Cherokee V6 Édition MUPOCAM & Prado VIP" : "Exclusive accredited fleet: Jeep Grand Cherokee V6 MUPOCAM Edition & Prado VIP"}
-                  </li>
-                  <li style={{ display: "flex", alignItems: "center", gap: "1.2rem", fontSize: "1.45rem", color: "#1e293b", fontWeight: 600 }}>
-                    <i className="fa-solid fa-circle-check" style={{ color: "#ea580c", fontSize: "1.8rem" }}></i>
-                    {isFr ? "Tarifs préférentiels sur nos résidences meublées haut standing à Tsinga (face FECAFOOT)" : "Preferential rates on luxury furnished apartments in Tsinga (opp. FECAFOOT)"}
-                  </li>
-                </ul>
-                <a
-                  href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20des%20informations%20sur%20les%20offres%20partenariat%20MUPOCAM"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.9rem",
-                    backgroundColor: "#ea580c",
-                    color: "#ffffff",
-                    fontWeight: 700,
-                    fontSize: "1.4rem",
-                    padding: "1.3rem 2.6rem",
-                    borderRadius: "10px",
-                    textDecoration: "none",
-                    boxShadow: "0 6px 18px rgba(234, 88, 12, 0.28)",
-                  }}
-                >
-                  <i className="fa-brands fa-whatsapp" style={{ fontSize: "1.9rem" }}></i>
-                  {isFr ? "Contacter le Pôle Partenariats MUPOCAM" : "Contact MUPOCAM Partnerships Desk"}
-                </a>
-              </div>
-
-              <div
+            {/* Top: 3M General Leasing Presentation */}
+            <div style={{ maxWidth: "860px", marginBottom: "3.5rem" }}>
+              <span
                 style={{
-                  borderRadius: "16px",
-                  overflow: "hidden",
-                  boxShadow: "0 16px 36px rgba(0, 0, 0, 0.14)",
-                  border: "5px solid #ffffff",
+                  color: "#C92A2A",
+                  fontWeight: 700,
+                  fontSize: "1.3rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "1.2px",
+                  display: "inline-block",
+                  marginBottom: "0.8rem",
                 }}
               >
-                <img
-                  src={partenariatMupocamImg}
-                  alt="Séance de signature du partenariat officiel 3M SERVICES et MUPOCAM"
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
+                {isFr ? "MOBILITÉ PROFESSIONNELLE & LEASING" : "CORPORATE MOBILITY & LEASING"}
+              </span>
+              <h3
+                style={{
+                  fontSize: "2.8rem",
+                  fontWeight: 800,
+                  color: "#0f172a",
+                  lineHeight: "1.3",
+                  margin: "0 0 1.4rem",
+                }}
+              >
+                {isFr
+                  ? "Solutions de Leasing Automobile 3M SERVICES"
+                  : "3M SERVICES Automotive Leasing Solutions"}
+              </h3>
+              <p
+                style={{
+                  fontSize: "1.55rem",
+                  color: "#475569",
+                  lineHeight: "1.75",
+                  marginBottom: "2rem",
+                }}
+              >
+                {isFr
+                  ? "3M SERVICES propose aux entreprises, administrations, mutuelles et particuliers des formules complètes de leasing automobile, location avec option d'achat (LOA), crédit-bail et facilités de paiement échelonnées. Nos conditions financières et modalités personnalisées sont établies sur simple demande auprès de notre conciergerie."
+                  : "3M SERVICES offers comprehensive corporate automotive leasing, lease-to-own (LOA), fleet finance, and structured installment plans to businesses, mutual funds, and executives. Our custom terms and conditions are provided upon simple request to our concierge."}
+              </p>
+
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: "0 0 2.5rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1.1rem",
+                }}
+              >
+                <li style={{ display: "flex", alignItems: "center", gap: "1.2rem", fontSize: "1.45rem", color: "#1e293b", fontWeight: 600 }}>
+                  <i className="fa-solid fa-circle-check" style={{ color: "#C92A2A", fontSize: "1.8rem" }}></i>
+                  {isFr ? "Formules de leasing automobile avec facilités de paiement échelonnées" : "Corporate leasing programs with structured payment plans"}
+                </li>
+                <li style={{ display: "flex", alignItems: "center", gap: "1.2rem", fontSize: "1.45rem", color: "#1e293b", fontWeight: 600 }}>
+                  <i className="fa-solid fa-circle-check" style={{ color: "#C92A2A", fontSize: "1.8rem" }}></i>
+                  {isFr ? "Flotte exclusive disponible : Toyota Prado VIP, Land Cruiser V8, Berlines et Pick-ups" : "Exclusive available fleet: Toyota Prado VIP, Land Cruiser V8, Sedans & Pickups"}
+                </li>
+                <li style={{ display: "flex", alignItems: "center", gap: "1.2rem", fontSize: "1.45rem", color: "#1e293b", fontWeight: 600 }}>
+                  <i className="fa-solid fa-circle-check" style={{ color: "#C92A2A", fontSize: "1.8rem" }}></i>
+                  {isFr ? "Conditions et étude de dossier personnalisée communiquées sur simple contact" : "Custom terms and fast file review provided upon direct request"}
+                </li>
+              </ul>
+
+              <a
+                href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20conna%C3%AEtre%20les%20conditions%20de%20leasing%20automobile"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "1rem",
+                  backgroundColor: "#C92A2A",
+                  color: "#ffffff",
+                  fontWeight: 700,
+                  fontSize: "1.45rem",
+                  padding: "1.3rem 2.8rem",
+                  borderRadius: "10px",
+                  textDecoration: "none",
+                  boxShadow: "0 6px 18px rgba(201, 42, 42, 0.28)",
+                  transition: "all 0.25s ease",
+                }}
+              >
+                <i className="fa-brands fa-whatsapp" style={{ fontSize: "1.9rem" }}></i>
+                {isFr ? "Demander les Conditions de Leasing (Conciergerie 24/7)" : "Request Leasing Conditions (24/7 Concierge)"}
+              </a>
+            </div>
+
+            {/* Bottom Card: Official Bilateral Partnership Signing with MUPOCAM (Blog / Act of Proof) */}
+            <div
+              id="mupocam-section"
+              style={{
+                marginTop: "3.5rem",
+                padding: "3.2rem 3rem",
+                backgroundColor: "#ffffff",
+                borderRadius: "16px",
+                border: "1px solid #e2e8f0",
+                boxShadow: "0 6px 20px rgba(0, 0, 0, 0.03)",
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1.15fr 0.85fr",
+                  gap: "3.5rem",
+                  alignItems: "center",
+                }}
+                className="about-mupocam-grid"
+              >
+                <div>
+                  <span
+                    style={{
+                      color: "#ea580c",
+                      fontWeight: 700,
+                      fontSize: "1.2rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "1.2px",
+                      display: "inline-block",
+                      marginBottom: "0.8rem",
+                      backgroundColor: "#fff7ed",
+                      padding: "0.4rem 1rem",
+                      borderRadius: "6px",
+                      border: "1px solid #ffedd5",
+                    }}
+                  >
+                    {isFr ? "ACTUALITÉ & ACTE DE PREUVE INSTITUTIONNEL" : "NEWS & CERTIFIED INSTITUTIONAL PROOF"}
+                  </span>
+                  <h4
+                    style={{
+                      fontSize: "2.3rem",
+                      fontWeight: 800,
+                      color: "#0f172a",
+                      lineHeight: "1.3",
+                      margin: "0 0 1.4rem",
+                    }}
+                  >
+                    {isFr
+                      ? "Convention Cadre Officielle : 3M SERVICES & MUPOCAM (Orange Cameroun)"
+                      : "Official Framework Agreement: 3M SERVICES & MUPOCAM (Orange Cameroon)"}
+                  </h4>
+                  <p
+                    style={{
+                      fontSize: "1.45rem",
+                      color: "#64748b",
+                      lineHeight: "1.7",
+                      marginBottom: "1.6rem",
+                    }}
+                  >
+                    {isFr
+                      ? "Fruit d'une vision partagée d'excellence, de solidarité et de confort pour les collaborateurs, la convention officielle conclue entre 3M SERVICES, la Mutuelle du Personnel d'Orange Cameroun (MUPOCAM) et le FOCODEMUC (Fonds Commun de Développement des Mutuelles du Cameroun) consacre un partenariat d'envergure nationale et atteste de la solidité institutionnelle de nos offres."
+                      : "Embodying a shared vision of excellence, solidarity, and executive comfort, the partnership between 3M SERVICES, MUPOCAM, and FOCODEMUC establishes a premier automotive leasing and mobility framework across Cameroon, proving the institutional strength of our services."}
+                  </p>
+                  <a
+                    href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20des%20informations%20sur%20la%20convention%20MUPOCAM"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.8rem",
+                      color: "#ea580c",
+                      fontWeight: 700,
+                      fontSize: "1.35rem",
+                      textDecoration: "none",
+                    }}
+                  >
+                    <span>{isFr ? "En savoir plus sur cette convention cadre" : "Learn more about this agreement"}</span>
+                    <i className="fa-solid fa-arrow-right"></i>
+                  </a>
+                </div>
+
+                <div
+                  style={{
+                    borderRadius: "14px",
+                    overflow: "hidden",
+                    boxShadow: "0 12px 28px rgba(0, 0, 0, 0.1)",
+                    border: "4px solid #ffffff",
+                  }}
+                >
+                  <img
+                    src={partenariatMupocamImg}
+                    alt="Séance de signature du partenariat officiel 3M SERVICES et MUPOCAM"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -456,9 +538,6 @@ function About() {
               ))}
             </div>
           </div>
-
-          {/* Plan Your Trip Now */}
-          <PlanTrip />
         </div>
       </section>
 

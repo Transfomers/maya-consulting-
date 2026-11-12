@@ -479,49 +479,6 @@
     grid-template-columns: 1fr;
     gap: 3.5rem;
   }
-
-  .deal-week-card {
-    position: static;
-    top: auto;
-    margin-bottom: 2rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .deal-week-card__body {
-    padding: 1.6rem 1.4rem 2rem;
-  }
-
-  .deal-week-card__car-title {
-    font-size: 1.7rem;
-  }
-
-  .deal-week-card__pricing {
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-bottom: 1.2rem;
-  }
-
-  .deal-week-card__price {
-    font-size: 2rem;
-    word-break: break-word;
-  }
-
-  .deal-week-card__timer-grid {
-    gap: 4px;
-  }
-
-  .deal-week-card__timer-box {
-    padding: 0.5rem 0.2rem;
-  }
-
-  .deal-week-card__timer-val {
-    font-size: 1.5rem;
-  }
-
-  .deal-week-card__timer-unit {
-    font-size: 0.85rem;
-  }
 }
 
 /* Left: Deals of the Week Card */
@@ -759,6 +716,64 @@
   background-color: #B02525;
   transform: translateY(-2px);
   box-shadow: 0 10px 22px rgba(201, 42, 42, 0.4);
+}
+
+@media (max-width: 980px) {
+  .deal-week-card {
+    position: static !important;
+    top: auto !important;
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .deal-week-card {
+    position: static !important;
+    top: auto !important;
+    margin-bottom: 2rem;
+  }
+
+  .deal-week-card__body {
+    padding: 1.6rem 1.4rem 2rem;
+  }
+
+  .deal-week-card__car-title {
+    font-size: 1.65rem;
+  }
+
+  .deal-week-card__pricing {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .deal-week-card__old-price {
+    font-size: 1.4rem;
+  }
+
+  .deal-week-card__price {
+    font-size: 1.85rem !important;
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  .deal-week-card__timer-grid {
+    gap: 4px;
+  }
+
+  .deal-week-card__timer-box {
+    padding: 0.5rem 0.2rem;
+  }
+
+  .deal-week-card__timer-val {
+    font-size: 1.5rem;
+  }
+
+  .deal-week-card__timer-unit {
+    font-size: 0.85rem;
+  }
 }
 
 /* --------------------------------------------------------------------------

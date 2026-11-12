@@ -1583,9 +1583,9 @@ function AdminDashboard() {
                     <span className="admin-metric-badge amber" style={{ background: "#FEF3C7", color: "#D97706" }}>Actif</span>
                   </div>
                   <div className="admin-metric-bottom">
-                    <span>PARTENARIAT MUPOCAM</span>
-                    <h3 style={{ fontSize: "2.1rem", fontWeight: 700 }}>Convention</h3>
-                    <small>Mutuelle Orange Cameroun</small>
+                    <span>LEASING & PARTENARIATS</span>
+                    <h3 style={{ fontSize: "2.1rem", fontWeight: 700 }}>Conventionné</h3>
+                    <small>Entreprises & Institutions</small>
                   </div>
                 </div>
               </div>

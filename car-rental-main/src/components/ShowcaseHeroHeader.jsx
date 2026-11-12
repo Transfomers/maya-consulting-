@@ -112,10 +112,10 @@ function ShowcaseHeroHeader({ type = "models" }) {
       topCard: {
         themeClass: "showcase-side-card--orange",
         eyebrow: isFr ? "LOCATION & LEASING" : "FLEET & LEASING",
-        title: "PARTENARIAT MUPOCAM",
-        subtext: isFr ? "Convention Orange Cameroun & Flotte" : "Official corporate agreement & leasing",
+        title: isFr ? "LEASING AUTOMOBILE" : "AUTOMOTIVE LEASING",
+        subtext: isFr ? "Conditions & formules sur demande" : "Custom terms & plans upon request",
         img: benzImg,
-        link: "#mupocam-section",
+        link: "#leasing-section",
       },
       bottomCard: {
         themeClass: "showcase-side-card--blue",
