@@ -69,6 +69,27 @@ function Models() {
       });
   }, []);
 
+  // Auto-open modal if ?car= or ?id= parameter is present in URL
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const carId = params.get("car") || params.get("id");
+      if (carId && cars.length > 0) {
+        const found = cars.find(
+          (c) =>
+            c.id === carId ||
+            (c.name && c.name.toLowerCase().includes(carId.toLowerCase()))
+        );
+        if (found) {
+          setSelectedCarForModal(found);
+          setModalActivePhotoIdx(0);
+        }
+      }
+    } catch (e) {
+      // Ignore URL parsing errors
+    }
+  }, [cars]);
+
   // Deal of the week list (Prado TXL & Land Cruiser V8)
   const dealCars = [
     {
