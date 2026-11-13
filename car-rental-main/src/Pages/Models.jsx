@@ -16,6 +16,7 @@ function Models() {
   const [selectedFilter, setSelectedFilter] = useState("Tous");
   const [activeDealIdx, setActiveDealIdx] = useState(0); // 0 = Prado, 1 = Land Cruiser
   const [selectedCarForModal, setSelectedCarForModal] = useState(null);
+  const [modalActivePhotoIdx, setModalActivePhotoIdx] = useState(0);
 
   // Modal reservation form state
   const [clientName, setClientName] = useState("");
@@ -453,6 +454,7 @@ function Models() {
               className="deal-week-card__btn-book"
               onClick={() => {
                 setSelectedCarForModal(currentDeal.car);
+                setModalActivePhotoIdx(0);
                 setBookingSent(false);
               }}
             >
@@ -500,14 +502,45 @@ function Models() {
                     {car.status || (isFr ? "Disponible" : "Available")}
                   </div>
 
-                  {/* Car Image with Hover Scale */}
-                  <div className="marketo-car-card__img-wrap">
+                  {/* Car Image with Hover Scale & Clickable to View Different Angles */}
+                  <div
+                    className="marketo-car-card__img-wrap"
+                    style={{ cursor: "pointer", position: "relative" }}
+                    onClick={() => {
+                      setSelectedCarForModal(car);
+                      setModalActivePhotoIdx(0);
+                      setBookingSent(false);
+                    }}
+                    title={isFr ? "Cliquer pour voir les détails et les différents angles" : "Click to view details and angles"}
+                  >
                     <img
                       src={displayImg}
                       alt={displayName}
                       className="marketo-car-card__img"
                       loading="lazy"
                     />
+                    {Array.isArray(car.photos) && car.photos.length > 1 && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: "8px",
+                          right: "8px",
+                          background: "rgba(11, 15, 25, 0.8)",
+                          backdropFilter: "blur(4px)",
+                          color: "#ffffff",
+                          padding: "3px 8px",
+                          borderRadius: "12px",
+                          fontSize: "1.1rem",
+                          fontWeight: 600,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "5px",
+                        }}
+                      >
+                        <i className="fa-solid fa-camera" style={{ fontSize: "1rem", color: "#fca5a5" }}></i>
+                        <span>{car.photos.length} angles</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Name */}
@@ -551,6 +584,7 @@ function Models() {
                       type="button"
                       onClick={() => {
                         setSelectedCarForModal(car);
+                        setModalActivePhotoIdx(0);
                         setBookingSent(false);
                       }}
                       className="marketo-car-card__btn-book"
@@ -728,8 +762,8 @@ function Models() {
             </button>
 
             {/* Modal Header */}
-            <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "2rem", borderBottom: "1px solid #f1f5f9", paddingBottom: "2rem" }}>
-              <div style={{ width: "160px", height: "110px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "1.8rem", borderBottom: "1px solid #f1f5f9", paddingBottom: "1.6rem" }}>
+              <div style={{ width: "120px", height: "85px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", borderRadius: "8px", padding: "4px" }}>
                 <img
                   src={selectedCarForModal.img || selectedCarForModal.image}
                   alt={selectedCarForModal.name}
@@ -741,14 +775,141 @@ function Models() {
                 <span style={{ fontSize: "1.2rem", fontWeight: 700, textTransform: "uppercase", color: "#C92A2A", letterSpacing: "0.5px" }}>
                   {selectedCarForModal.category || "Flotte VIP 3M"}
                 </span>
-                <h3 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0b0f19", margin: "0.4rem 0" }}>
+                <h3 style={{ fontSize: "2.1rem", fontWeight: 800, color: "#0b0f19", margin: "0.3rem 0" }}>
                   {selectedCarForModal.name}
                 </h3>
-                <div style={{ fontSize: "1.9rem", fontWeight: 900, color: "#C92A2A" }}>
+                <div style={{ fontSize: "1.85rem", fontWeight: 900, color: "#C92A2A" }}>
                   {selectedCarForModal.price}
                 </div>
               </div>
             </div>
+
+            {/* MULTI-ANGLE PHOTO GALLERY & VIEWER */}
+            {Array.isArray(selectedCarForModal.photos) && selectedCarForModal.photos.length > 0 && (
+              <div style={{ marginBottom: "2rem", background: "#f8fafc", padding: "1.4rem", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "8px" }}>
+                  <span style={{ fontSize: "1.3rem", fontWeight: 700, color: "#0b0f19", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <i className="fa-solid fa-camera" style={{ color: "#C92A2A" }}></i>
+                    {isFr ? "Galerie Multi-Angles du Véhicule" : "Multi-Angle Vehicle Gallery"}
+                  </span>
+                  <span style={{ fontSize: "1.2rem", color: "#475569", fontWeight: 600, background: "#ffffff", padding: "3px 10px", borderRadius: "12px", border: "1px solid #cbd5e1" }}>
+                    Angle {modalActivePhotoIdx + 1} / {selectedCarForModal.photos.length}
+                    {selectedCarForModal.photoLabels?.[modalActivePhotoIdx] ? ` • ${selectedCarForModal.photoLabels[modalActivePhotoIdx]}` : ""}
+                  </span>
+                </div>
+
+                {/* Main Prominent Angle Photo */}
+                <div style={{ position: "relative", width: "100%", height: "260px", background: "#ffffff", borderRadius: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.06)" }}>
+                  <img
+                    src={selectedCarForModal.photos[modalActivePhotoIdx] || selectedCarForModal.img || selectedCarForModal.image}
+                    alt={`${selectedCarForModal.name} - angle ${modalActivePhotoIdx + 1}`}
+                    style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", transition: "all 0.3s ease" }}
+                  />
+
+                  {/* Previous / Next Arrow Controls */}
+                  {selectedCarForModal.photos.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setModalActivePhotoIdx((prev) => (prev > 0 ? prev - 1 : selectedCarForModal.photos.length - 1))}
+                        style={{
+                          position: "absolute",
+                          left: "10px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          background: "rgba(11, 15, 25, 0.7)",
+                          color: "#ffffff",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "36px",
+                          height: "36px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "1.6rem",
+                          fontWeight: 700,
+                          transition: "background 0.2s",
+                        }}
+                        title={isFr ? "Angle précédent" : "Previous angle"}
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setModalActivePhotoIdx((prev) => (prev < selectedCarForModal.photos.length - 1 ? prev + 1 : 0))}
+                        style={{
+                          position: "absolute",
+                          right: "10px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          background: "rgba(11, 15, 25, 0.7)",
+                          color: "#ffffff",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "36px",
+                          height: "36px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "1.6rem",
+                          fontWeight: 700,
+                          transition: "background 0.2s",
+                        }}
+                        title={isFr ? "Angle suivant" : "Next angle"}
+                      >
+                        ›
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Thumbnails Angle Strip */}
+                {selectedCarForModal.photos.length > 1 && (
+                  <div style={{ display: "flex", gap: "10px", marginTop: "12px", overflowX: "auto", paddingBottom: "4px" }}>
+                    {selectedCarForModal.photos.map((pUrl, pIdx) => (
+                      <button
+                        key={pIdx}
+                        type="button"
+                        onClick={() => setModalActivePhotoIdx(pIdx)}
+                        style={{
+                          flexShrink: 0,
+                          width: "82px",
+                          height: "60px",
+                          borderRadius: "6px",
+                          border: modalActivePhotoIdx === pIdx ? "2.5px solid #C92A2A" : "1.5px solid #cbd5e1",
+                          padding: "2px",
+                          background: "#ffffff",
+                          cursor: "pointer",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          position: "relative",
+                          opacity: modalActivePhotoIdx === pIdx ? 1 : 0.65,
+                          transition: "all 0.2s ease",
+                        }}
+                        title={selectedCarForModal.photoLabels?.[pIdx] || `Angle ${pIdx + 1}`}
+                      >
+                        <img
+                          src={pUrl}
+                          alt={`Thumbnail ${pIdx + 1}`}
+                          style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Description if present */}
+            {selectedCarForModal.description && (
+              <p style={{ fontSize: "1.35rem", color: "#475569", lineHeight: 1.6, marginBottom: "1.8rem", background: "#f8fafc", padding: "1.2rem", borderRadius: "6px" }}>
+                {selectedCarForModal.description}
+              </p>
+            )}
 
             {/* Specs Summary */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", background: "#f8fafc", padding: "1.4rem", borderRadius: "8px", marginBottom: "2.4rem", fontSize: "1.3rem", color: "#334155" }}>

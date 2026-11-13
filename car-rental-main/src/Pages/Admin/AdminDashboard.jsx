@@ -4111,7 +4111,7 @@ function AdminDashboard() {
                     <p style={{ margin: "0.4rem 0", fontSize: "1.25rem", color: "#4B5563" }}>
                       Location de Véhicules VIP • Conciergerie Privée • Yaoundé, Cameroun
                       <br />
-                      Tél : +237 691 78 64 47 • Email : contact@3mservices.cm
+                      Tél : +237 691 78 64 47 • Email : contact@3mservice.shop
                     </p>
                   </div>
                   <div style={{ textAlign: "right" }}>

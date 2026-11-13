@@ -2,46 +2,89 @@
   "admin": {
     "id": "admin-1",
     "name": "Direction 3M SERVICES",
-    "email": "admin@3mservices.cm",
-    "passwordHash": "51a6373f6d68890e738dc0cdf3d0c4e6c26511955a8a5b41f4ac31d8e21a3d00",
+    "email": "contact@3mservice.shop",
+    "passwordHash": "97cf8a327f7bf67a001bfcb1ead833a79a4a7a984c1c36e54a2d821587f5c9ab",
     "phone": "+237 691 78 64 47",
     "role": "Super Administrateur"
   },
   "cars": [
     {
       "id": "landcruiser",
-      "name": "Toyota Land Cruiser V8 (LC200 / LC300)",
+      "name": "Toyota Land Cruiser V8 (LC200 Prestige)",
       "model": "Toyota Land Cruiser V8 (LC200 / LC300)",
       "mark": "Toyota",
       "brand": "Toyota",
       "category": "4x4 & SUV VIP",
       "year": "2022",
       "condition": "Prestige VIP",
-      "mileage": "Certifié Faible Km",
-      "price": "130 000 & 150 000 FCFA / jour",
+      "mileage": "Certifi\u00e9 Faible Km",
+      "price": "130 000 FCFA / jour",
       "pricePerDay": 130000,
       "doors": "5",
       "seats": "7 places cuir VIP",
       "transmission": "Automatique 4x4",
       "fuel": "Diesel",
-      "air": "Oui (Intégrale bi-zone)",
+      "air": "Oui (Int\u00e9grale bi-zone)",
       "status": "Disponible",
       "plate": "CE-982-LT",
       "img": "/images/cars/toyota-landcruiser-v8-black.webp",
       "image": "/images/cars/toyota-landcruiser-v8-black.webp",
-      "description": "Le summum du prestige automobile à Yaoundé et à travers le Cameroun. Motorisation V8 puissante, intérieur grand luxe 7 places cuir, climatisation intégrale bi-zone. Idéal pour délégations, personnalités VIP et voyages d'affaires."
+      "photos": [
+        "/images/cars/toyota-landcruiser-v8-black.webp",
+        "/images/cars/toyota-lc-v8-2022.webp",
+        "/images/cars/flyer-landcruiser.webp"
+      ],
+      "photoLabels": [
+        "Vue 3/4 Avant Prestige",
+        "Face Avant & Calandre V8",
+        "Vue Flyer Officiel 3M"
+      ],
+      "description": "Le summum du prestige automobile \u00e0 Yaound\u00e9 et \u00e0 travers le Cameroun. Motorisation V8 puissante, int\u00e9rieur grand luxe 7 places cuir, climatisation int\u00e9grale bi-zone. Id\u00e9al pour d\u00e9l\u00e9gations, personnalit\u00e9s VIP et voyages d'affaires."
     },
     {
-      "id": "prado",
-      "name": "Toyota Land Cruiser Prado TXL VIP",
-      "model": "Toyota Land Cruiser Prado TXL VIP",
+      "id": "landcruiser-lc300",
+      "name": "Toyota Land Cruiser V8 (LC300 Executive)",
+      "model": "Toyota Land Cruiser LC300 V8",
       "mark": "Toyota",
       "brand": "Toyota",
       "category": "4x4 & SUV VIP",
-      "year": "2022",
-      "condition": "Occasion Certifiée VIP",
-      "mileage": "Faible kilométrage certifié",
-      "price": "100 000 & 120 000 FCFA / jour",
+      "year": "2024",
+      "condition": "Neuf (0 km certifi\u00e9)",
+      "mileage": "0 km certifi\u00e9",
+      "price": "150 000 FCFA / jour",
+      "pricePerDay": 150000,
+      "doors": "5",
+      "seats": "7 places cuir VIP",
+      "transmission": "Automatique 10 rapports 4x4",
+      "fuel": "Diesel Twin-Turbo",
+      "air": "Oui (Quadri-zone int\u00e9grale)",
+      "status": "Disponible",
+      "plate": "CE-300-VIP",
+      "img": "/images/cars/toyota-lc300.webp",
+      "image": "/images/cars/toyota-lc300.webp",
+      "photos": [
+        "/images/cars/toyota-lc300.webp",
+        "/images/cars/toyota-landcruiser-v8-black.webp",
+        "/images/cars/flyer-landcruiser.webp"
+      ],
+      "photoLabels": [
+        "Profil Lat\u00e9ral Dynamique",
+        "Face 3/4 Noire Prestige",
+        "Vue Flyer Officiel 3M"
+      ],
+      "description": "Nouvelle g\u00e9n\u00e9ration LC300. Technologie tout-terrain de pointe, insonorisation d'exception et finition grand luxe 7 places. Le choix absolu pour les missions officielles de tr\u00e8s haut rang."
+    },
+    {
+      "id": "prado",
+      "name": "Toyota Land Cruiser Prado TXL Blanc",
+      "model": "Toyota Land Cruiser Prado TXL Blanc",
+      "mark": "Toyota",
+      "brand": "Toyota",
+      "category": "4x4 & SUV VIP",
+      "year": "2023",
+      "condition": "Occasion Certifi\u00e9e VIP",
+      "mileage": "Faible kilom\u00e9trage certifi\u00e9",
+      "price": "100 000 FCFA / jour",
       "pricePerDay": 100000,
       "doors": "5",
       "seats": "7 places en cuir",
@@ -50,9 +93,52 @@
       "air": "Oui (Bi-zone)",
       "status": "Disponible",
       "plate": "CE-482-LT",
+      "img": "/images/cars/flyer-prado.webp",
+      "image": "/images/cars/flyer-prado.webp",
+      "photos": [
+        "/images/cars/flyer-prado.webp",
+        "/images/cars/toyota-prado-txl-front.webp",
+        "/images/cars/toyota-prado-rear.webp"
+      ],
+      "photoLabels": [
+        "Vue 3/4 Blanche Officielle",
+        "Face Avant Calandre Chrom\u00e9e",
+        "Vue Arri\u00e8re & Coffre"
+      ],
+      "description": "SUV de tr\u00e8s grand standing en livr\u00e9e blanche \u00e9l\u00e9gante. 7 places en cuir raffin\u00e9, climatisation bi-zone puissante. Id\u00e9al pour mariages, cort\u00e8ges diplomatiques et s\u00e9jours VIP."
+    },
+    {
+      "id": "prado-vip",
+      "name": "Toyota Land Cruiser Prado TXL VIP (Gris Anthracite)",
+      "model": "Toyota Land Cruiser Prado TXL VIP",
+      "mark": "Toyota",
+      "brand": "Toyota",
+      "category": "4x4 & SUV VIP",
+      "year": "2024",
+      "condition": "Occasion Certifi\u00e9e VIP",
+      "mileage": "Faible kilom\u00e9trage certifi\u00e9",
+      "price": "120 000 FCFA / jour",
+      "pricePerDay": 120000,
+      "doors": "5",
+      "seats": "7 places en cuir VIP",
+      "transmission": "Automatique 4x4",
+      "fuel": "Diesel",
+      "air": "Oui (Bi-zone)",
+      "status": "Disponible",
+      "plate": "CE-774-OU",
       "img": "/images/cars/toyota-prado-txl-front.webp",
       "image": "/images/cars/toyota-prado-txl-front.webp",
-      "description": "SUV de très grand standing, idéal pour délégations, cortèges diplomatiques et séjours VIP à partir de Yaoundé et à travers le Cameroun."
+      "photos": [
+        "/images/cars/toyota-prado-txl-front.webp",
+        "/images/cars/toyota-prado-rear.webp",
+        "/images/cars/flyer-prado.webp"
+      ],
+      "photoLabels": [
+        "Face Avant 3/4 Anthracite VIP",
+        "Vue Arri\u00e8re 3/4 \u00c9chappement",
+        "Vue Flyer Officiel 3M"
+      ],
+      "description": "SUV de tr\u00e8s grand prestige en version VIP Gris Anthracite. Sellerie cuir grand confort, vitres surteint\u00e9es pour une confidentialit\u00e9 maximale \u00e0 Yaound\u00e9 et sur tous les axes interurbains."
     },
     {
       "id": "pickup-blue",
@@ -62,7 +148,7 @@
       "brand": "Pick-up 4x4",
       "category": "Pick-up Double Cabine",
       "year": "2023",
-      "condition": "Occasion Récente",
+      "condition": "Occasion R\u00e9cente",
       "mileage": "Entretien rigoureux 3M",
       "price": "70 000 FCFA / jour",
       "pricePerDay": 70000,
@@ -70,12 +156,20 @@
       "seats": "5 places",
       "transmission": "Automatique / Manuelle 4x4",
       "fuel": "Diesel",
-      "air": "Oui",
+      "air": "Oui (Climatis\u00e9)",
       "status": "Disponible",
       "plate": "CE-823-NH",
       "img": "/images/cars/pickup-blue-urbain.webp",
       "image": "/images/cars/pickup-blue-urbain.webp",
-      "description": "Pick-up robuste et moderne en double cabine, idéal pour les déplacements urbains et les liaisons interurbaines avec benne spacieuse et habitacle climatisé tout confort."
+      "photos": [
+        "/images/cars/pickup-blue-urbain.webp",
+        "/images/cars/flyer-pickup_blue.webp"
+      ],
+      "photoLabels": [
+        "Profil Lat\u00e9ral Double Cabine",
+        "Vue Flyer Officiel 3M"
+      ],
+      "description": "Pick-up robuste et moderne en double cabine, id\u00e9al pour les d\u00e9placements urbains et les liaisons interurbaines avec benne spacieuse et habitacle climatis\u00e9 tout confort."
     },
     {
       "id": "pickup-toyota",
@@ -86,19 +180,27 @@
       "category": "Pick-up Double Cabine",
       "year": "2024",
       "condition": "Neuve (0 km)",
-      "mileage": "0 km certifié",
+      "mileage": "0 km certifi\u00e9",
       "price": "70 000 FCFA / jour",
       "pricePerDay": 70000,
       "doors": "4",
       "seats": "5 places",
       "transmission": "Manuelle / Auto 4x4",
       "fuel": "Diesel",
-      "air": "Oui",
+      "air": "Oui (Climatis\u00e9)",
       "status": "Disponible",
       "plate": "CE-171-505",
       "img": "/images/cars/toyota-hilux-2024.webp",
       "image": "/images/cars/toyota-hilux-2024.webp",
-      "description": "Le baroudeur par excellence de Toyota. Conçu pour résister à tous les terrains camerounais, offrant un confort cabine optimal et une fiabilité mécanique légendaire."
+      "photos": [
+        "/images/cars/toyota-hilux-2024.webp",
+        "/images/cars/flyer-pickup_toyota.webp"
+      ],
+      "photoLabels": [
+        "Avant 3/4 Baroudeur Tout-Terrain",
+        "Vue Flyer Officiel 3M"
+      ],
+      "description": "Le baroudeur par excellence de Toyota. Con\u00e7u pour r\u00e9sister \u00e0 tous les terrains camerounais, offrant un confort cabine optimal et une fiabilit\u00e9 m\u00e9canique l\u00e9gendaire."
     },
     {
       "id": "berline",
@@ -107,9 +209,9 @@
       "mark": "Toyota",
       "brand": "Toyota",
       "category": "Berlines",
-      "year": "2021",
+      "year": "2022",
       "condition": "Occasion Grand Confort",
-      "mileage": "Faible kilométrage",
+      "mileage": "Faible kilom\u00e9trage",
       "price": "60 000 FCFA / jour",
       "pricePerDay": 60000,
       "doors": "4",
@@ -121,7 +223,17 @@
       "plate": "LT-881-LL",
       "img": "/images/cars/toyota-camry-front.webp",
       "image": "/images/cars/toyota-camry-front.webp",
-      "description": "Berline exécutive au confort feutré et silencieux. Idéale pour déplacements en ville à Yaoundé, rendez-vous d'affaires, cérémonies et transferts aéroport."
+      "photos": [
+        "/images/cars/toyota-camry-front.webp",
+        "/images/cars/toyota-camry-dark.webp",
+        "/images/cars/flyer-berline.webp"
+      ],
+      "photoLabels": [
+        "Avant 3/4 Prestige Grand Confort",
+        "Vue Ex\u00e9cutive Sombre",
+        "Vue Flyer Officiel 3M"
+      ],
+      "description": "Berline ex\u00e9cutive au confort feutr\u00e9 et silencieux. Id\u00e9ale pour d\u00e9placements en ville \u00e0 Yaound\u00e9, rendez-vous d'affaires, c\u00e9r\u00e9monies et transferts a\u00e9roport."
     }
   ],
   "bookings": [
@@ -135,14 +247,14 @@
       "age": "",
       "email": "transformersnetwork23@gmail.com",
       "address": "7.674",
-      "city": "OA§",
+      "city": "OA\u00a7",
       "zipcode": "",
       "marketingConsent": false,
       "carName": "Toyota Land Cruiser Prado TXL VIP",
       "carId": "",
       "rentalType": "Avec Chauffeur",
-      "pickUp": "Yaoundé - Bastos (Ambassades & Hôtels)",
-      "dropOff": "Yaoundé - Bastos",
+      "pickUp": "Yaound\u00e9 - Bastos (Ambassades & H\u00f4tels)",
+      "dropOff": "Yaound\u00e9 - Bastos",
       "pickTime": "2026-11-14",
       "dropTime": "2026-11-29",
       "days": 1,
@@ -160,8 +272,8 @@
       "internalNotes": [
         {
           "id": "nt-1794327689283",
-          "text": "Demande transmise par Email à contact@3Mservice.shop • Âge: 25 • Newsletter: Non",
-          "author": "Système",
+          "text": "Demande transmise par Email \u00e0 contact@3Mservice.shop \u2022 \u00c2ge: 25 \u2022 Newsletter: Non",
+          "author": "Syst\u00e8me",
           "createdAt": "2026-11-10T16:21:29.283Z"
         }
       ],
@@ -170,7 +282,7 @@
           "status": "En attente",
           "changedAt": "2026-11-10T16:21:29.283Z",
           "changedBy": "Client (Formulaire Web)",
-          "note": "Création initiale de la réservation"
+          "note": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "createdAt": "2026-11-10T16:21:29.283Z"
@@ -185,14 +297,14 @@
       "age": "",
       "email": "transformersnetwork23@gmail.com",
       "address": "7.674",
-      "city": "OA§",
+      "city": "OA\u00a7",
       "zipcode": "",
       "marketingConsent": false,
       "carName": "Toyota Land Cruiser Prado TXL VIP",
       "carId": "",
       "rentalType": "Avec Chauffeur",
-      "pickUp": "Yaoundé - Bastos (Ambassades & Hôtels)",
-      "dropOff": "Yaoundé - Bastos",
+      "pickUp": "Yaound\u00e9 - Bastos (Ambassades & H\u00f4tels)",
+      "dropOff": "Yaound\u00e9 - Bastos",
       "pickTime": "2026-11-14",
       "dropTime": "2026-11-29",
       "days": 1,
@@ -210,8 +322,8 @@
       "internalNotes": [
         {
           "id": "nt-1794327686720",
-          "text": "Demande transmise par Email à contact@3Mservice.shop • Âge: 25 • Newsletter: Non",
-          "author": "Système",
+          "text": "Demande transmise par Email \u00e0 contact@3Mservice.shop \u2022 \u00c2ge: 25 \u2022 Newsletter: Non",
+          "author": "Syst\u00e8me",
           "createdAt": "2026-11-10T16:21:26.720Z"
         }
       ],
@@ -220,7 +332,7 @@
           "status": "En attente",
           "changedAt": "2026-11-10T16:21:26.720Z",
           "changedBy": "Client (Formulaire Web)",
-          "note": "Création initiale de la réservation"
+          "note": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "createdAt": "2026-11-10T16:21:26.720Z"
@@ -235,14 +347,14 @@
       "age": "",
       "email": "transformersnetwork23@gmail.com",
       "address": "7.674",
-      "city": "OA§",
+      "city": "OA\u00a7",
       "zipcode": "",
       "marketingConsent": false,
       "carName": "Toyota Land Cruiser Prado TXL VIP",
       "carId": "",
       "rentalType": "Avec Chauffeur",
-      "pickUp": "Yaoundé - Bastos (Ambassades & Hôtels)",
-      "dropOff": "Yaoundé - Bastos",
+      "pickUp": "Yaound\u00e9 - Bastos (Ambassades & H\u00f4tels)",
+      "dropOff": "Yaound\u00e9 - Bastos",
       "pickTime": "2026-11-14",
       "dropTime": "2026-11-29",
       "days": 1,
@@ -260,8 +372,8 @@
       "internalNotes": [
         {
           "id": "nt-1794327680370",
-          "text": "Demande transmise par Email à contact@3Mservice.shop • Âge: 25 • Newsletter: Non",
-          "author": "Système",
+          "text": "Demande transmise par Email \u00e0 contact@3Mservice.shop \u2022 \u00c2ge: 25 \u2022 Newsletter: Non",
+          "author": "Syst\u00e8me",
           "createdAt": "2026-11-10T16:21:20.371Z"
         }
       ],
@@ -270,7 +382,7 @@
           "status": "En attente",
           "changedAt": "2026-11-10T16:21:20.371Z",
           "changedBy": "Client (Formulaire Web)",
-          "note": "Création initiale de la réservation"
+          "note": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "createdAt": "2026-11-10T16:21:20.371Z"
@@ -285,14 +397,14 @@
       "age": "",
       "email": "transformersnetwork23@gmail.com",
       "address": "7.674",
-      "city": "OA§",
+      "city": "OA\u00a7",
       "zipcode": "",
       "marketingConsent": false,
       "carName": "Toyota Land Cruiser Prado TXL VIP",
       "carId": "",
       "rentalType": "Avec Chauffeur",
-      "pickUp": "Yaoundé - Bastos (Ambassades & Hôtels)",
-      "dropOff": "Yaoundé - Bastos",
+      "pickUp": "Yaound\u00e9 - Bastos (Ambassades & H\u00f4tels)",
+      "dropOff": "Yaound\u00e9 - Bastos",
       "pickTime": "2026-11-14",
       "dropTime": "2026-11-29",
       "days": 1,
@@ -310,8 +422,8 @@
       "internalNotes": [
         {
           "id": "nt-1794327678105",
-          "text": "Demande transmise par Email à contact@3Mservice.shop • Âge: 25 • Newsletter: Non",
-          "author": "Système",
+          "text": "Demande transmise par Email \u00e0 contact@3Mservice.shop \u2022 \u00c2ge: 25 \u2022 Newsletter: Non",
+          "author": "Syst\u00e8me",
           "createdAt": "2026-11-10T16:21:18.105Z"
         }
       ],
@@ -320,7 +432,7 @@
           "status": "En attente",
           "changedAt": "2026-11-10T16:21:18.105Z",
           "changedBy": "Client (Formulaire Web)",
-          "note": "Création initiale de la réservation"
+          "note": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "createdAt": "2026-11-10T16:21:18.105Z"
@@ -335,14 +447,14 @@
       "age": "",
       "email": "transformersnetwork23@gmail.com",
       "address": "7.674",
-      "city": "OA§",
+      "city": "OA\u00a7",
       "zipcode": "",
       "marketingConsent": false,
       "carName": "Toyota Land Cruiser Prado TXL VIP",
       "carId": "",
       "rentalType": "Avec Chauffeur",
-      "pickUp": "Yaoundé - Bastos (Ambassades & Hôtels)",
-      "dropOff": "Yaoundé - Bastos",
+      "pickUp": "Yaound\u00e9 - Bastos (Ambassades & H\u00f4tels)",
+      "dropOff": "Yaound\u00e9 - Bastos",
       "pickTime": "2026-11-14",
       "dropTime": "2026-11-29",
       "days": 1,
@@ -360,8 +472,8 @@
       "internalNotes": [
         {
           "id": "nt-1794327675033",
-          "text": "Demande transmise par Email à contact@3Mservice.shop • Âge: 25 • Newsletter: Non",
-          "author": "Système",
+          "text": "Demande transmise par Email \u00e0 contact@3Mservice.shop \u2022 \u00c2ge: 25 \u2022 Newsletter: Non",
+          "author": "Syst\u00e8me",
           "createdAt": "2026-11-10T16:21:15.033Z"
         }
       ],
@@ -370,7 +482,7 @@
           "status": "En attente",
           "changedAt": "2026-11-10T16:21:15.033Z",
           "changedBy": "Client (Formulaire Web)",
-          "note": "Création initiale de la réservation"
+          "note": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "createdAt": "2026-11-10T16:21:15.033Z"
@@ -385,14 +497,14 @@
       "age": "",
       "email": "transformersnetwork23@gmail.com",
       "address": "7.674",
-      "city": "OA§",
+      "city": "OA\u00a7",
       "zipcode": "",
       "marketingConsent": false,
       "carName": "Toyota Land Cruiser Prado TXL VIP",
       "carId": "",
       "rentalType": "Avec Chauffeur",
-      "pickUp": "Yaoundé - Bastos (Ambassades & Hôtels)",
-      "dropOff": "Yaoundé - Bastos",
+      "pickUp": "Yaound\u00e9 - Bastos (Ambassades & H\u00f4tels)",
+      "dropOff": "Yaound\u00e9 - Bastos",
       "pickTime": "2026-11-14",
       "dropTime": "2026-11-29",
       "days": 1,
@@ -410,8 +522,8 @@
       "internalNotes": [
         {
           "id": "nt-1794327649960",
-          "text": "Âge: 25 • Newsletter: Non",
-          "author": "Système",
+          "text": "\u00c2ge: 25 \u2022 Newsletter: Non",
+          "author": "Syst\u00e8me",
           "createdAt": "2026-11-10T16:20:49.960Z"
         }
       ],
@@ -420,7 +532,7 @@
           "status": "En attente",
           "changedAt": "2026-11-10T16:20:49.960Z",
           "changedBy": "Client (Formulaire Web)",
-          "note": "Création initiale de la réservation"
+          "note": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "createdAt": "2026-11-10T16:20:49.960Z"
@@ -435,14 +547,14 @@
       "age": "",
       "email": "contact@craftistudio.tech",
       "address": "yaounde Nsimeyon 7.674",
-      "city": "Yaoundé",
+      "city": "Yaound\u00e9",
       "zipcode": "",
       "marketingConsent": false,
       "carName": "Kia CERATO 2024",
       "carId": "",
       "rentalType": "Avec Chauffeur",
-      "pickUp": "Aéroport International de Yaoundé-Nsimalen (NSI)",
-      "dropOff": "Même lieu que la prise en charge",
+      "pickUp": "A\u00e9roport International de Yaound\u00e9-Nsimalen (NSI)",
+      "dropOff": "M\u00eame lieu que la prise en charge",
       "pickTime": "2026-11-08",
       "dropTime": "2026-11-13",
       "days": 1,
@@ -460,8 +572,8 @@
       "internalNotes": [
         {
           "id": "nt-1793971050130",
-          "text": "Âge: 25 • Newsletter: Oui",
-          "author": "Système",
+          "text": "\u00c2ge: 25 \u2022 Newsletter: Oui",
+          "author": "Syst\u00e8me",
           "createdAt": "2026-11-06T13:17:30.130Z"
         }
       ],
@@ -470,7 +582,7 @@
           "status": "En attente",
           "changedAt": "2026-11-06T13:17:30.130Z",
           "changedBy": "Client (Formulaire Web)",
-          "note": "Création initiale de la réservation"
+          "note": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "createdAt": "2026-11-06T13:17:30.130Z"
@@ -481,35 +593,35 @@
       "phone": "+237 677 12 34 56",
       "email": "e.kamga@gmail.com",
       "address": "Bastos, Rue 1.834",
-      "city": "Yaoundé",
+      "city": "Yaound\u00e9",
       "carName": "Toyota Land Cruiser Prado TXL VIP",
       "carId": "car-1",
-      "pickUp": "Aéroport Nsimalen (Yaoundé)",
+      "pickUp": "A\u00e9roport Nsimalen (Yaound\u00e9)",
       "dropOff": "Agence Omnisports",
       "pickTime": "2026-11-06",
       "dropTime": "2026-11-10",
       "days": 4,
       "pricePerDay": 75000,
       "totalPrice": 300000,
-      "status": "Confirmée",
+      "status": "Confirm\u00e9e",
       "withDriver": true,
-      "notes": "Arrivée vol Air France 19h45. Chauffeur avec pancarte nominative demandé.",
+      "notes": "Arriv\u00e9e vol Air France 19h45. Chauffeur avec pancarte nominative demand\u00e9.",
       "createdAt": "2026-11-04T14:30:00.000Z",
       "customerId": "CUST-001",
       "internalNotes": [
         {
           "id": "note-0-1",
-          "text": "Prise de contact téléphonique effectuée. Disponibilité vérifiée sur le planning.",
+          "text": "Prise de contact t\u00e9l\u00e9phonique effectu\u00e9e. Disponibilit\u00e9 v\u00e9rifi\u00e9e sur le planning.",
           "author": "Direction 3M SERVICES",
           "createdAt": "2026-11-06T11:45:43.027219+00:00"
         }
       ],
       "statusHistory": [
         {
-          "status": "Confirmée",
-          "changedBy": "Système",
+          "status": "Confirm\u00e9e",
+          "changedBy": "Syst\u00e8me",
           "changedAt": "2026-11-04T14:30:00.000Z",
-          "reason": "Création initiale de la réservation"
+          "reason": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "deposit": 50000,
@@ -521,7 +633,7 @@
       "phone": "+237 699 88 77 66",
       "email": "sophie.mbarga@orange.cm",
       "address": "Quartier Golf",
-      "city": "Yaoundé",
+      "city": "Yaound\u00e9",
       "carName": "Jeep Grand Cherokee V6 MUPOCAM",
       "carId": "car-2",
       "pickUp": "Bastos",
@@ -539,7 +651,7 @@
       "internalNotes": [
         {
           "id": "note-1-1",
-          "text": "Prise de contact téléphonique effectuée. Disponibilité vérifiée sur le planning.",
+          "text": "Prise de contact t\u00e9l\u00e9phonique effectu\u00e9e. Disponibilit\u00e9 v\u00e9rifi\u00e9e sur le planning.",
           "author": "Direction 3M SERVICES",
           "createdAt": "2026-11-06T11:45:43.027219+00:00"
         }
@@ -547,9 +659,9 @@
       "statusHistory": [
         {
           "status": "En attente",
-          "changedBy": "Système",
+          "changedBy": "Syst\u00e8me",
           "changedAt": "2026-11-05T09:15:00.000Z",
-          "reason": "Création initiale de la réservation"
+          "reason": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "deposit": 50000,
@@ -561,35 +673,35 @@
       "phone": "+237 655 44 33 22",
       "email": "p.nguemo@afriktech.com",
       "address": "Centre-ville",
-      "city": "Yaoundé",
+      "city": "Yaound\u00e9",
       "carName": "Mercedes-Benz Classe E VIP",
       "carId": "car-3",
-      "pickUp": "Hôtel Hilton Yaoundé",
-      "dropOff": "Hôtel Hilton Yaoundé",
+      "pickUp": "H\u00f4tel Hilton Yaound\u00e9",
+      "dropOff": "H\u00f4tel Hilton Yaound\u00e9",
       "pickTime": "2026-11-01",
       "dropTime": "2026-11-04",
       "days": 3,
       "pricePerDay": 65000,
       "totalPrice": 195000,
-      "status": "Terminée",
+      "status": "Termin\u00e9e",
       "withDriver": true,
-      "notes": "Paiement 195 000 FCFA soldé au retour. Client très satisfait.",
+      "notes": "Paiement 195 000 FCFA sold\u00e9 au retour. Client tr\u00e8s satisfait.",
       "createdAt": "2026-10-31T18:00:00.000Z",
       "customerId": "CUST-003",
       "internalNotes": [
         {
           "id": "note-2-1",
-          "text": "Prise de contact téléphonique effectuée. Disponibilité vérifiée sur le planning.",
+          "text": "Prise de contact t\u00e9l\u00e9phonique effectu\u00e9e. Disponibilit\u00e9 v\u00e9rifi\u00e9e sur le planning.",
           "author": "Direction 3M SERVICES",
           "createdAt": "2026-11-06T11:45:43.027219+00:00"
         }
       ],
       "statusHistory": [
         {
-          "status": "Terminée",
-          "changedBy": "Système",
+          "status": "Termin\u00e9e",
+          "changedBy": "Syst\u00e8me",
           "changedAt": "2026-10-31T18:00:00.000Z",
-          "reason": "Création initiale de la réservation"
+          "reason": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "deposit": 50000,
@@ -601,7 +713,7 @@
       "phone": "+237 691 00 22 44",
       "email": "a.tchinda@yahoo.fr",
       "address": "Tsinga",
-      "city": "Yaoundé",
+      "city": "Yaound\u00e9",
       "carName": "Toyota Camry Executive",
       "carId": "car-5",
       "pickUp": "Tsinga Face FECAFOOT",
@@ -613,13 +725,13 @@
       "totalPrice": 135000,
       "status": "En attente",
       "withDriver": false,
-      "notes": "Réservation combinée avec appartement meublé 3M Services.",
+      "notes": "R\u00e9servation combin\u00e9e avec appartement meubl\u00e9 3M Services.",
       "createdAt": "2026-11-05T11:20:00.000Z",
       "customerId": "CUST-003",
       "internalNotes": [
         {
           "id": "note-3-1",
-          "text": "Prise de contact téléphonique effectuée. Disponibilité vérifiée sur le planning.",
+          "text": "Prise de contact t\u00e9l\u00e9phonique effectu\u00e9e. Disponibilit\u00e9 v\u00e9rifi\u00e9e sur le planning.",
           "author": "Direction 3M SERVICES",
           "createdAt": "2026-11-06T11:45:43.027219+00:00"
         }
@@ -627,9 +739,9 @@
       "statusHistory": [
         {
           "status": "En attente",
-          "changedBy": "Système",
+          "changedBy": "Syst\u00e8me",
           "changedAt": "2026-11-05T11:20:00.000Z",
-          "reason": "Création initiale de la réservation"
+          "reason": "Cr\u00e9ation initiale de la r\u00e9servation"
         }
       ],
       "deposit": 50000,
@@ -642,7 +754,7 @@
       "name": "Transformers Network",
       "contact": "+237696767653",
       "email": "transformersnetwork23@gmail.com",
-      "message": "Nouvelle réservation [3M-RES-9266] : Toyota Land Cruiser Prado TXL VIP du 14 novembre 2026 au 29 novembre 2026 (15 j) par Transformers Network (+237696767653).",
+      "message": "Nouvelle r\u00e9servation [3M-RES-9266] : Toyota Land Cruiser Prado TXL VIP du 14 novembre 2026 au 29 novembre 2026 (15 j) par Transformers Network (+237696767653).",
       "status": "Nouveau",
       "createdAt": "2026-11-10T16:21:29.296Z"
     },
@@ -651,7 +763,7 @@
       "name": "Transformers Network",
       "contact": "+237696767653",
       "email": "transformersnetwork23@gmail.com",
-      "message": "Nouvelle réservation [3M-RES-6699] : Toyota Land Cruiser Prado TXL VIP du 14 novembre 2026 au 29 novembre 2026 (15 j) par Transformers Network (+237696767653).",
+      "message": "Nouvelle r\u00e9servation [3M-RES-6699] : Toyota Land Cruiser Prado TXL VIP du 14 novembre 2026 au 29 novembre 2026 (15 j) par Transformers Network (+237696767653).",
       "status": "Nouveau",
       "createdAt": "2026-11-10T16:21:26.728Z"
     },
@@ -660,7 +772,7 @@
       "name": "Transformers Network",
       "contact": "+237696767653",
       "email": "transformersnetwork23@gmail.com",
-      "message": "Nouvelle réservation [3M-RES-0353] : Toyota Land Cruiser Prado TXL VIP du 14 novembre 2026 au 29 novembre 2026 (15 j) par Transformers Network (+237696767653).",
+      "message": "Nouvelle r\u00e9servation [3M-RES-0353] : Toyota Land Cruiser Prado TXL VIP du 14 novembre 2026 au 29 novembre 2026 (15 j) par Transformers Network (+237696767653).",
       "status": "Nouveau",
       "createdAt": "2026-11-10T16:21:20.385Z"
     },
@@ -669,7 +781,7 @@
       "name": "Transformers Network",
       "contact": "+237696767653",
       "email": "transformersnetwork23@gmail.com",
-      "message": "Nouvelle réservation [3M-RES-8099] : Toyota Land Cruiser Prado TXL VIP du 14 novembre 2026 au 29 novembre 2026 (15 j) par Transformers Network (+237696767653).",
+      "message": "Nouvelle r\u00e9servation [3M-RES-8099] : Toyota Land Cruiser Prado TXL VIP du 14 novembre 2026 au 29 novembre 2026 (15 j) par Transformers Network (+237696767653).",
       "status": "Nouveau",
       "createdAt": "2026-11-10T16:21:18.132Z"
     },
@@ -678,7 +790,7 @@
       "name": "Transformers Network",
       "contact": "+237696767653",
       "email": "transformersnetwork23@gmail.com",
-      "message": "Nouvelle réservation [3M-RES-4970] : Toyota Land Cruiser Prado TXL VIP du 14 novembre 2026 au 29 novembre 2026 (15 j) par Transformers Network (+237696767653).",
+      "message": "Nouvelle r\u00e9servation [3M-RES-4970] : Toyota Land Cruiser Prado TXL VIP du 14 novembre 2026 au 29 novembre 2026 (15 j) par Transformers Network (+237696767653).",
       "status": "Nouveau",
       "createdAt": "2026-11-10T16:21:15.065Z"
     },
@@ -696,7 +808,7 @@
       "name": "Jean-Pierre Bella",
       "contact": "+237 671 23 45 67",
       "email": "jp.bella@gmail.com",
-      "message": "Bonjour 3M SERVICES, avez-vous des SUV disponibles pour une mission de 10 jours à Kribi avec chauffeur ?",
+      "message": "Bonjour 3M SERVICES, avez-vous des SUV disponibles pour une mission de 10 jours \u00e0 Kribi avec chauffeur ?",
       "createdAt": "2026-11-04T16:45:00.000Z",
       "status": "Nouveau"
     },
@@ -724,31 +836,31 @@
     "pickup": [
       {
         "id": "pk-1",
-        "name": "Yaoundé - Agence Omnisports (Rue Foe)",
-        "city": "Yaoundé",
+        "name": "Yaound\u00e9 - Agence Omnisports (Rue Foe)",
+        "city": "Yaound\u00e9",
         "active": true
       },
       {
         "id": "pk-2",
-        "name": "Aéroport International de Yaoundé-Nsimalen (NSI)",
+        "name": "A\u00e9roport International de Yaound\u00e9-Nsimalen (NSI)",
         "city": "Nsimalen",
         "active": true
       },
       {
         "id": "pk-3",
-        "name": "Yaoundé - Bastos (Ambassades & Hôtels)",
-        "city": "Yaoundé",
+        "name": "Yaound\u00e9 - Bastos (Ambassades & H\u00f4tels)",
+        "city": "Yaound\u00e9",
         "active": true
       },
       {
         "id": "pk-4",
-        "name": "Yaoundé - Tsinga (Face FECAFOOT / 3M Services)",
-        "city": "Yaoundé",
+        "name": "Yaound\u00e9 - Tsinga (Face FECAFOOT / 3M Services)",
+        "city": "Yaound\u00e9",
         "active": true
       },
       {
         "id": "pk-5",
-        "name": "Douala - Aéroport International de Douala (DLA)",
+        "name": "Douala - A\u00e9roport International de Douala (DLA)",
         "city": "Douala",
         "active": true
       },
@@ -760,57 +872,57 @@
       },
       {
         "id": "pk-7",
-        "name": "Kribi - Station Balnéaire & Hôtels",
+        "name": "Kribi - Station Baln\u00e9aire & H\u00f4tels",
         "city": "Kribi",
         "active": true
       },
       {
         "id": "pk-8",
-        "name": "Bafoussam - Centre-ville (Région de l'Ouest)",
+        "name": "Bafoussam - Centre-ville (R\u00e9gion de l'Ouest)",
         "city": "Bafoussam",
         "active": true
       },
       {
         "id": "pk-9",
-        "name": "Livraison VIP personnalisée à domicile ou hôtel",
-        "city": "Yaoundé & Douala",
+        "name": "Livraison VIP personnalis\u00e9e \u00e0 domicile ou h\u00f4tel",
+        "city": "Yaound\u00e9 & Douala",
         "active": true
       }
     ],
     "dropoff": [
       {
         "id": "dp-1",
-        "name": "Même lieu que la prise en charge",
+        "name": "M\u00eame lieu que la prise en charge",
         "city": "Cameroun",
         "active": true
       },
       {
         "id": "dp-2",
-        "name": "Yaoundé - Agence Omnisports (Rue Foe)",
-        "city": "Yaoundé",
+        "name": "Yaound\u00e9 - Agence Omnisports (Rue Foe)",
+        "city": "Yaound\u00e9",
         "active": true
       },
       {
         "id": "dp-3",
-        "name": "Aéroport International de Yaoundé-Nsimalen (NSI)",
+        "name": "A\u00e9roport International de Yaound\u00e9-Nsimalen (NSI)",
         "city": "Nsimalen",
         "active": true
       },
       {
         "id": "dp-4",
-        "name": "Yaoundé - Bastos",
-        "city": "Yaoundé",
+        "name": "Yaound\u00e9 - Bastos",
+        "city": "Yaound\u00e9",
         "active": true
       },
       {
         "id": "dp-5",
-        "name": "Yaoundé - Tsinga (Face FECAFOOT)",
-        "city": "Yaoundé",
+        "name": "Yaound\u00e9 - Tsinga (Face FECAFOOT)",
+        "city": "Yaound\u00e9",
         "active": true
       },
       {
         "id": "dp-6",
-        "name": "Douala - Aéroport International de Douala (DLA)",
+        "name": "Douala - A\u00e9roport International de Douala (DLA)",
         "city": "Douala",
         "active": true
       },
@@ -822,13 +934,13 @@
       },
       {
         "id": "dp-8",
-        "name": "Kribi - Station Balnéaire & Hôtels",
+        "name": "Kribi - Station Baln\u00e9aire & H\u00f4tels",
         "city": "Kribi",
         "active": true
       },
       {
         "id": "dp-9",
-        "name": "Restitution personnalisée sur devis",
+        "name": "Restitution personnalis\u00e9e sur devis",
         "city": "Cameroun",
         "active": true
       }
@@ -838,50 +950,50 @@
     {
       "id": "apt-01",
       "title": "Appartement Prestige Tsinga (Face FECAFOOT)",
-      "type": "T3 Meublé Haut Standing",
-      "location": "Tsinga (Face FECAFOOT), Yaoundé",
-      "rooms": "2 Chambres • 2 Salons • 2 Salles de bain",
-      "price": "65 000 FCFA / nuitée (Dégressif au mois)",
+      "type": "T3 Meubl\u00e9 Haut Standing",
+      "location": "Tsinga (Face FECAFOOT), Yaound\u00e9",
+      "rooms": "2 Chambres \u2022 2 Salons \u2022 2 Salles de bain",
+      "price": "65 000 FCFA / nuit\u00e9e (D\u00e9gressif au mois)",
       "photosCount": 5,
       "image": "/Asset/appartements/appartement-meuble-suite-parentale.webp",
       "status": "Disponible",
-      "description": "Situé à Tsinga, directement en face du siège de la FECAFOOT à partir de Yaoundé, cet appartement meublé grand standing vous offre une suite parentale avec literie de luxe, une cuisine équipée moderne, salle de bain design, climatisation intégrale, groupe électrogène automatique et gardiennage permanent 24/7."
+      "description": "Situ\u00e9 \u00e0 Tsinga, directement en face du si\u00e8ge de la FECAFOOT \u00e0 partir de Yaound\u00e9, cet appartement meubl\u00e9 grand standing vous offre une suite parentale avec literie de luxe, une cuisine \u00e9quip\u00e9e moderne, salle de bain design, climatisation int\u00e9grale, groupe \u00e9lectrog\u00e8ne automatique et gardiennage permanent 24/7."
     },
     {
       "id": "apt-02",
-      "title": "Résidence Cosy Tsinga (Face FECAFOOT)",
-      "type": "T2 Meublé Contemporain",
-      "location": "Tsinga (Face FECAFOOT), Yaoundé",
-      "rooms": "1 Chambre • 1 Grand Salon • 1 Salle de bain",
-      "price": "40 000 FCFA / nuitée (Tarif spécial long séjour)",
+      "title": "R\u00e9sidence Cosy Tsinga (Face FECAFOOT)",
+      "type": "T2 Meubl\u00e9 Contemporain",
+      "location": "Tsinga (Face FECAFOOT), Yaound\u00e9",
+      "rooms": "1 Chambre \u2022 1 Grand Salon \u2022 1 Salle de bain",
+      "price": "40 000 FCFA / nuit\u00e9e (Tarif sp\u00e9cial long s\u00e9jour)",
       "photosCount": 4,
       "image": "/Asset/appartements/appartement-meuble-chambre-bleue.webp",
       "status": "Disponible",
-      "description": "Élégant et chaleureux avec salon contemporain, cuisine américaine laquée, smart TV 55 pouces et connexion fibre optique haut débit."
+      "description": "\u00c9l\u00e9gant et chaleureux avec salon contemporain, cuisine am\u00e9ricaine laqu\u00e9e, smart TV 55 pouces et connexion fibre optique haut d\u00e9bit."
     },
     {
       "id": "apt-03",
       "title": "Grand Standing Tsinga (Face FECAFOOT)",
-      "type": "T4 Prestige Exécutif",
-      "location": "Tsinga (Face FECAFOOT), Yaoundé",
-      "rooms": "3 Chambres • Double Séjour • 3 Salles de bain",
-      "price": "90 000 FCFA / nuitée",
+      "type": "T4 Prestige Ex\u00e9cutif",
+      "location": "Tsinga (Face FECAFOOT), Yaound\u00e9",
+      "rooms": "3 Chambres \u2022 Double S\u00e9jour \u2022 3 Salles de bain",
+      "price": "90 000 FCFA / nuit\u00e9e",
       "photosCount": 6,
       "image": "/Asset/appartements/appartement-meuble-chambre-confort.webp",
       "status": "Disponible",
-      "description": "Spacieux appartement de grand standing pour familles, délégations d affaires ou séjours officiels avec vue dégagée."
+      "description": "Spacieux appartement de grand standing pour familles, d\u00e9l\u00e9gations d affaires ou s\u00e9jours officiels avec vue d\u00e9gag\u00e9e."
     },
     {
       "id": "apt-04",
       "title": "Studio Confort Omnisports",
-      "type": "Studio Meublé VIP",
-      "location": "Omnisports (Rue Foe), Yaoundé",
-      "rooms": "1 Grande Chambre Suite • Kitchenette équipée",
-      "price": "35 000 FCFA / nuitée",
+      "type": "Studio Meubl\u00e9 VIP",
+      "location": "Omnisports (Rue Foe), Yaound\u00e9",
+      "rooms": "1 Grande Chambre Suite \u2022 Kitchenette \u00e9quip\u00e9e",
+      "price": "35 000 FCFA / nuit\u00e9e",
       "photosCount": 3,
       "image": "/Asset/appartements/appartement-meuble-suite-parentale.webp",
       "status": "Disponible",
-      "description": "Idéalement situé à proximité immédiate de l agence 3M Services Omnisports. Climatisation, eau chaude et sécurité."
+      "description": "Id\u00e9alement situ\u00e9 \u00e0 proximit\u00e9 imm\u00e9diate de l agence 3M Services Omnisports. Climatisation, eau chaude et s\u00e9curit\u00e9."
     }
   ],
   "customers": [
@@ -894,13 +1006,13 @@
       "whatsapp": "+237 677 12 34 56",
       "email": "e.kamga@gmail.com",
       "address": "Bastos, Rue 1.834",
-      "city": "Yaoundé",
+      "city": "Yaound\u00e9",
       "totalReservations": 3,
       "completedRentals": 2,
       "cancelledRentals": 0,
       "totalAmountPaid": 600000,
       "lastReservationDate": "2026-11-04T14:30:00.000Z",
-      "notes": "Client VIP entreprise - Directeur Régional. Préfère les SUV automatiques.",
+      "notes": "Client VIP entreprise - Directeur R\u00e9gional. Pr\u00e9f\u00e8re les SUV automatiques.",
       "createdAt": "2026-08-15T10:00:00.000Z"
     },
     {
@@ -912,19 +1024,19 @@
       "whatsapp": "+237 699 88 77 66",
       "email": "sophie.mbarga@orange.cm",
       "address": "Quartier Golf",
-      "city": "Yaoundé",
+      "city": "Yaound\u00e9",
       "totalReservations": 2,
       "completedRentals": 1,
       "cancelledRentals": 0,
       "totalAmountPaid": 280000,
       "lastReservationDate": "2026-11-05T09:15:00.000Z",
-      "notes": "Délégation Orange Cameroun. Demande facturation société.",
+      "notes": "D\u00e9l\u00e9gation Orange Cameroun. Demande facturation soci\u00e9t\u00e9.",
       "createdAt": "2026-09-02T11:20:00.000Z"
     },
     {
       "id": "CUST-003",
-      "fullName": "Marc-Aurèle Tchounkeu",
-      "firstName": "Marc-Aurèle",
+      "fullName": "Marc-Aur\u00e8le Tchounkeu",
+      "firstName": "Marc-Aur\u00e8le",
       "lastName": "Tchounkeu",
       "phone": "+237 653 44 22 11",
       "whatsapp": "+237 653 44 22 11",
@@ -936,7 +1048,7 @@
       "cancelledRentals": 0,
       "totalAmountPaid": 100000,
       "lastReservationDate": "2026-11-06T08:00:00.000Z",
-      "notes": "Mission d affaires à partir de Yaoundé. Demande chauffeur bilingue.",
+      "notes": "Mission d affaires \u00e0 partir de Yaound\u00e9. Demande chauffeur bilingue.",
       "createdAt": "2026-11-06T08:00:00.000Z"
     },
     {
@@ -946,7 +1058,7 @@
       "whatsapp": "+237695266214",
       "email": "contact@craftistudio.tech",
       "address": "yaounde Nsimeyon 7.674",
-      "city": "Yaoundé",
+      "city": "Yaound\u00e9",
       "zipcode": "",
       "age": "",
       "marketingConsent": false,
@@ -962,7 +1074,7 @@
       "whatsapp": "+237696767653",
       "email": "transformersnetwork23@gmail.com",
       "address": "7.674",
-      "city": "OA§",
+      "city": "OA\u00a7",
       "zipcode": "",
       "age": "",
       "marketingConsent": false,
@@ -986,7 +1098,7 @@
       "reference": "VIR-BGFI-884920",
       "date": "2026-11-04",
       "status": "Paid",
-      "notes": "Règlement intégral de la commande reçu sur compte BGFI.",
+      "notes": "R\u00e8glement int\u00e9gral de la commande re\u00e7u sur compte BGFI.",
       "createdAt": "2026-11-04T15:00:00.000Z"
     },
     {
@@ -1002,7 +1114,7 @@
       "reference": "OM-TXN-991823",
       "date": "2026-11-05",
       "status": "Partially Paid",
-      "notes": "Acompte de caution de 50 000 FCFA reçu par Orange Money.",
+      "notes": "Acompte de caution de 50 000 FCFA re\u00e7u par Orange Money.",
       "createdAt": "2026-11-05T10:00:00.000Z"
     }
   ],
@@ -1020,7 +1132,7 @@
       "deposit": 50000,
       "balance": 0,
       "driverName": "Alain Ndongo (Chauffeur VIP 3M)",
-      "status": "Signé",
+      "status": "Sign\u00e9",
       "generatedAt": "2026-11-04T15:30:00.000Z"
     }
   ],
@@ -1032,7 +1144,7 @@
       "licenseNumber": "PC-LT-2015-883",
       "experience": "11 ans",
       "status": "En mission",
-      "languages": "Français, Anglais",
+      "languages": "Fran\u00e7ais, Anglais",
       "rating": 4.9
     },
     {
@@ -1042,7 +1154,7 @@
       "licenseNumber": "PC-CE-2018-441",
       "experience": "8 ans",
       "status": "Disponible",
-      "languages": "Français",
+      "languages": "Fran\u00e7ais",
       "rating": 4.8
     },
     {
@@ -1052,64 +1164,64 @@
       "licenseNumber": "PC-CE-2020-119",
       "experience": "6 ans",
       "status": "Disponible",
-      "languages": "Français, Anglais",
+      "languages": "Fran\u00e7ais, Anglais",
       "rating": 5
     }
   ],
   "activity_logs": [
     {
       "id": "ACT-1794327689285-545",
-      "action": "NOUVELLE_RÉSERVATION",
-      "details": "Réservation 3M-RES-2026-011 créée pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
+      "action": "NOUVELLE_R\u00c9SERVATION",
+      "details": "R\u00e9servation 3M-RES-2026-011 cr\u00e9\u00e9e pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
       "user": "Site Web",
       "timestamp": "2026-11-10T16:21:29.285Z"
     },
     {
       "id": "ACT-1794327686724-676",
-      "action": "NOUVELLE_RÉSERVATION",
-      "details": "Réservation 3M-RES-2026-010 créée pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
+      "action": "NOUVELLE_R\u00c9SERVATION",
+      "details": "R\u00e9servation 3M-RES-2026-010 cr\u00e9\u00e9e pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
       "user": "Site Web",
       "timestamp": "2026-11-10T16:21:26.724Z"
     },
     {
       "id": "ACT-1794327680380-985",
-      "action": "NOUVELLE_RÉSERVATION",
-      "details": "Réservation 3M-RES-2026-009 créée pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
+      "action": "NOUVELLE_R\u00c9SERVATION",
+      "details": "R\u00e9servation 3M-RES-2026-009 cr\u00e9\u00e9e pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
       "user": "Site Web",
       "timestamp": "2026-11-10T16:21:20.380Z"
     },
     {
       "id": "ACT-1794327678129-119",
-      "action": "NOUVELLE_RÉSERVATION",
-      "details": "Réservation 3M-RES-2026-008 créée pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
+      "action": "NOUVELLE_R\u00c9SERVATION",
+      "details": "R\u00e9servation 3M-RES-2026-008 cr\u00e9\u00e9e pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
       "user": "Site Web",
       "timestamp": "2026-11-10T16:21:18.129Z"
     },
     {
       "id": "ACT-1794327675053-73",
-      "action": "NOUVELLE_RÉSERVATION",
-      "details": "Réservation 3M-RES-2026-007 créée pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
+      "action": "NOUVELLE_R\u00c9SERVATION",
+      "details": "R\u00e9servation 3M-RES-2026-007 cr\u00e9\u00e9e pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
       "user": "Site Web",
       "timestamp": "2026-11-10T16:21:15.054Z"
     },
     {
       "id": "ACT-1794327649981-689",
-      "action": "NOUVELLE_RÉSERVATION",
-      "details": "Réservation 3M-RES-2026-006 créée pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
+      "action": "NOUVELLE_R\u00c9SERVATION",
+      "details": "R\u00e9servation 3M-RES-2026-006 cr\u00e9\u00e9e pour Transformers Network (Toyota Land Cruiser Prado TXL VIP)",
       "user": "Site Web",
       "timestamp": "2026-11-10T16:20:49.981Z"
     },
     {
       "id": "ACT-1793971050149-472",
-      "action": "NOUVELLE_RÉSERVATION",
-      "details": "Réservation 3M-RES-2026-005 créée pour tesyt ajana mboussi (Kia CERATO 2024)",
+      "action": "NOUVELLE_R\u00c9SERVATION",
+      "details": "R\u00e9servation 3M-RES-2026-005 cr\u00e9\u00e9e pour tesyt ajana mboussi (Kia CERATO 2024)",
       "user": "Site Web",
       "timestamp": "2026-11-06T13:17:30.149Z"
     },
     {
       "id": "act-1",
-      "action": "Réservation confirmée",
-      "details": "Réservation 3M-RES-2026-001 confirmée pour Emmanuel Kamga (Toyota Prado VIP).",
+      "action": "R\u00e9servation confirm\u00e9e",
+      "details": "R\u00e9servation 3M-RES-2026-001 confirm\u00e9e pour Emmanuel Kamga (Toyota Prado VIP).",
       "adminName": "Direction 3M SERVICES",
       "timestamp": "2026-11-04T14:45:00.000Z",
       "targetId": "3M-RES-2026-001",
@@ -1117,8 +1229,8 @@
     },
     {
       "id": "act-2",
-      "action": "Contrat généré",
-      "details": "Contrat CTR-2026-001 émis et transmis au client.",
+      "action": "Contrat g\u00e9n\u00e9r\u00e9",
+      "details": "Contrat CTR-2026-001 \u00e9mis et transmis au client.",
       "adminName": "Direction 3M SERVICES",
       "timestamp": "2026-11-04T15:30:00.000Z",
       "targetId": "CTR-2026-001",
@@ -1126,8 +1238,8 @@
     },
     {
       "id": "act-3",
-      "action": "Paiement enregistré",
-      "details": "Paiement de 50 000 FCFA reçu par Orange Money pour 3M-RES-2026-002.",
+      "action": "Paiement enregistr\u00e9",
+      "details": "Paiement de 50 000 FCFA re\u00e7u par Orange Money pour 3M-RES-2026-002.",
       "adminName": "Direction 3M SERVICES",
       "timestamp": "2026-11-05T10:00:00.000Z",
       "targetId": "PAY-2026-002",
@@ -1137,7 +1249,7 @@
   "users": [
     {
       "id": "usr-1",
-      "name": "Direction Générale",
+      "name": "Direction G\u00e9n\u00e9rale",
       "email": "direction@3mservices.cm",
       "role": "Super Admin",
       "status": "Actif",
@@ -1145,7 +1257,7 @@
     },
     {
       "id": "usr-2",
-      "name": "Chef d Exploitation & Réservations",
+      "name": "Chef d Exploitation & R\u00e9servations",
       "email": "reservations@3mservices.cm",
       "role": "Reservation Manager",
       "status": "Actif",
@@ -1161,7 +1273,7 @@
     },
     {
       "id": "usr-4",
-      "name": "Service Comptabilité & Caisse",
+      "name": "Service Comptabilit\u00e9 & Caisse",
       "email": "comptabilite@3mservices.cm",
       "role": "Accountant",
       "status": "Actif",
@@ -1180,19 +1292,19 @@
     {
       "id": "rev-1",
       "name": "Arnaud Mbarga",
-      "role": "Cadre d entreprise, Yaoundé",
+      "role": "Cadre d entreprise, Yaound\u00e9",
       "rating": 5,
-      "comment": "Nous avons loué la Toyota Prado TXL pour une mission d une semaine entre Yaoundé et Kribi. Véhicule impeccable, chauffeur ponctuel et courtois.",
-      "status": "Publié",
+      "comment": "Nous avons lou\u00e9 la Toyota Prado TXL pour une mission d une semaine entre Yaound\u00e9 et Kribi. V\u00e9hicule impeccable, chauffeur ponctuel et courtois.",
+      "status": "Publi\u00e9",
       "createdAt": "2026-10-20"
     },
     {
       "id": "rev-2",
       "name": "Chantal Nguemo",
-      "role": "Diaspora, Paris / Yaoundé",
+      "role": "Diaspora, Paris / Yaound\u00e9",
       "rating": 5,
-      "comment": "Accueil chaleureux dès l atterrissage à Nsimalen. Véhicule récent, climatisé et réservation combinée avec l appartement à Tsinga face FECAFOOT.",
-      "status": "Publié",
+      "comment": "Accueil chaleureux d\u00e8s l atterrissage \u00e0 Nsimalen. V\u00e9hicule r\u00e9cent, climatis\u00e9 et r\u00e9servation combin\u00e9e avec l appartement \u00e0 Tsinga face FECAFOOT.",
+      "status": "Publi\u00e9",
       "createdAt": "2026-10-28"
     }
   ]
