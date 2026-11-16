@@ -3068,47 +3068,56 @@ function AdminDashboard() {
               <div className="admin-cars-grid">
                 {filteredCars.map((car) => (
                   <div className="admin-car-card" key={car.id}>
-                    <img
-                      src={car.img || "/images/cars-big/toyotacamry.jpg"}
-                      alt={car.name}
-                      className="admin-car-card-img"
-                    />
+                    <div className="admin-car-card-img-wrap">
+                      <img
+                        src={car.img || car.image || "/images/cars/toyota-prado-txl-front.webp"}
+                        alt={car.name}
+                        onError={(e) => {
+                          e.currentTarget.src = "/images/cars/toyota-prado-txl-front.webp";
+                        }}
+                      />
+                      <span className="admin-card-badge-category">
+                        {car.category || "VIP 4x4"}
+                      </span>
+                      <span className={`admin-card-badge-status ${car.status === "Loué" ? "amber" : car.status === "En maintenance" ? "red" : ""}`}>
+                        ● {car.status || "Disponible"}
+                      </span>
+                      {car.photos?.length > 1 && (
+                        <span className="admin-card-badge-photos">
+                          📷 {car.photos.length} Angles
+                        </span>
+                      )}
+                    </div>
 
                     <div className="admin-car-card-body">
                       <div className="admin-car-card-header">
                         <div>
                           <h4>{car.name}</h4>
-                          <small style={{ color: "#64748b" }}>{car.category}</small>
+                          <small style={{ color: "#64748b" }}>{car.condition} • {car.year}</small>
                         </div>
-                        <span
-                          className={`admin-badge ${car.status === "Disponible"
-                              ? "green"
-                              : car.status === "Loué"
-                                ? "amber"
-                                : "red"
-                            }`}
-                        >
-                          {car.status}
-                        </span>
                       </div>
 
                       <div className="admin-car-price">
-                        {Number(car.pricePerDay || 0).toLocaleString()} FCFA{" "}
-                        <span>/ jour</span>
+                        {Number(car.pricePerDay || 0).toLocaleString()} FCFA <span>/ jour</span>
                       </div>
 
-                      <div className="admin-car-specs">
-                        <div>
-                          <i className="fa-solid fa-gear"></i> {car.transmission}
+                      {/* RentQ 4-Box Specs Grid */}
+                      <div className="admin-rentq-specs-grid">
+                        <div className="admin-rentq-spec-pill">
+                          <i className="fa-solid fa-gear"></i>
+                          <span>{car.transmission}</span>
                         </div>
-                        <div>
-                          <i className="fa-solid fa-users"></i> {car.seats} places
+                        <div className="admin-rentq-spec-pill">
+                          <i className="fa-solid fa-users"></i>
+                          <span>{car.seats}</span>
                         </div>
-                        <div>
-                          <i className="fa-solid fa-gas-pump"></i> {car.fuel}
+                        <div className="admin-rentq-spec-pill">
+                          <i className="fa-solid fa-gas-pump"></i>
+                          <span>{car.fuel}</span>
                         </div>
-                        <div>
-                          <i className="fa-solid fa-id-card"></i> {car.plate || "Matricule"}
+                        <div className="admin-rentq-spec-pill">
+                          <i className="fa-solid fa-snowflake"></i>
+                          <span>Climatisé</span>
                         </div>
                       </div>
 
@@ -3225,42 +3234,61 @@ function AdminDashboard() {
               <div className="admin-cars-grid">
                 {apartments.map((apt) => (
                   <div key={apt.id} className="admin-car-card">
-                    <div className="admin-car-card-img" style={{ position: "relative" }}>
+                    {/* RentQ Card Image Header */}
+                    <div className="admin-car-card-img-wrap">
                       <img
-                        src={apt.image || "/Asset/appartements/appartement-meuble-suite-parentale.webp"}
+                        src={apt.image && !apt.image.includes("cpa") ? apt.image : "/Asset/appartements/appartement-meuble-suite-parentale.webp"}
                         alt={apt.title}
                         onError={(e) => {
                           e.currentTarget.src = "/Asset/appartements/appartement-meuble-suite-parentale.webp";
                         }}
                       />
-                      <span className="admin-apt-photo-count" style={{ position: "absolute", bottom: "8px", right: "8px" }}>
-                        {apt.photosCount || 1} 📷 Photos
+                      <span className="admin-card-badge-category">
+                        {apt.type || "T3 Meublé Haut Standing"}
+                      </span>
+                      <span className={`admin-card-badge-status ${apt.status === "Occupé" ? "red" : ""}`}>
+                        ● {apt.status || "Disponible"}
+                      </span>
+                      <span className="admin-card-badge-photos">
+                        📷 {apt.photosCount || 1} Photos
                       </span>
                     </div>
 
                     <div className="admin-car-card-body">
-                      <div className="admin-car-card-title">
+                      <div className="admin-car-card-header">
                         <h4>{apt.title}</h4>
-                        <span className="admin-car-price">{apt.price}</span>
                       </div>
 
-                      <p style={{ fontSize: "1.25rem", color: "#64748b", margin: "0.5rem 0" }}>
-                        <i className="fa-solid fa-location-dot" style={{ color: "#ef4444" }}></i> {apt.location}
-                      </p>
-
-                      <div className="admin-car-specs">
-                        <span><i className="fa-solid fa-door-open"></i> {apt.rooms}</span>
-                        <span><i className="fa-solid fa-shield-halved"></i> Sécurité 24/7</span>
-                        <span><i className="fa-solid fa-wifi"></i> Fibre Optique</span>
-                        <span><i className="fa-solid fa-bolt"></i> Groupe Auto</span>
+                      <div className="admin-car-price">
+                        {apt.price}
                       </div>
 
-                      <p style={{ fontSize: "1.2rem", color: "#475569", marginTop: "1rem", lineHeight: "1.4" }}>
-                        {apt.description}
+                      <p style={{ fontSize: "1.25rem", color: "#64748b", margin: "0.2rem 0 1rem 0", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <i className="fa-solid fa-location-dot" style={{ color: "#E20713" }}></i> {apt.location}
                       </p>
+
+                      {/* RentQ 4-Box Specs Grid */}
+                      <div className="admin-rentq-specs-grid">
+                        <div className="admin-rentq-spec-pill">
+                          <i className="fa-solid fa-bed"></i>
+                          <span>{apt.rooms || "2 Chambres"}</span>
+                        </div>
+                        <div className="admin-rentq-spec-pill">
+                          <i className="fa-solid fa-snowflake"></i>
+                          <span>Clim Intégrale</span>
+                        </div>
+                        <div className="admin-rentq-spec-pill">
+                          <i className="fa-solid fa-bolt"></i>
+                          <span>Groupe 24/7</span>
+                        </div>
+                        <div className="admin-rentq-spec-pill">
+                          <i className="fa-solid fa-wifi"></i>
+                          <span>Fibre Optique</span>
+                        </div>
+                      </div>
 
                       {/* Description & Équipements configurés par l'admin */}
-                      <div style={{ marginTop: "1.2rem", borderTop: "1px dashed #e2e8f0", paddingTop: "0.8rem" }}>
+                      <div style={{ marginTop: "1rem", borderTop: "1px dashed #e2e8f0", paddingTop: "0.8rem" }}>
                         <span style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                           <i className="fa-solid fa-list-check" style={{ color: "#E20713" }}></i> Description & Équipements ({Array.isArray(apt.equipments) ? apt.equipments.length : 0}) :
                         </span>
@@ -3309,7 +3337,7 @@ function AdminDashboard() {
                         </div>
                       </div>
 
-                      <div className="admin-car-footer" style={{ marginTop: "1.5rem" }}>
+                      <div className="admin-car-card-footer" style={{ marginTop: "1.5rem" }}>
                         <div className="admin-action-btns">
                           <button
                             className="admin-action-btn edit"
@@ -3325,6 +3353,16 @@ function AdminDashboard() {
                             <i className="fa-solid fa-trash"></i>
                           </button>
                         </div>
+                        <a
+                          href="/apartments"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="admin-action-btn"
+                          style={{ color: "#0f172a", textDecoration: "none" }}
+                          title="Voir sur la vitrine publique"
+                        >
+                          <i className="fa-solid fa-arrow-up-right-from-square"></i> Voir vitrine
+                        </a>
                       </div>
                     </div>
                   </div>

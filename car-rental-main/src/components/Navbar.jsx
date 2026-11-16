@@ -300,37 +300,57 @@ function Navbar() {
           <div className="navbar__center">
             <ul className="navbar__links">
               <li>
-                <Link className="home-link" to="/">
+                <Link
+                  className={`home-link ${location.pathname === "/" ? "active" : ""}`}
+                  to="/"
+                  style={location.pathname === "/" ? { color: "#E20713", fontWeight: 700 } : {}}
+                >
                   {t("nav_home")}
                 </Link>
               </li>
               <li>
-                <Link className="about-link" to="/about">
+                <Link
+                  className={`about-link ${location.pathname === "/about" ? "active" : ""}`}
+                  to="/about"
+                  style={location.pathname === "/about" ? { color: "#E20713", fontWeight: 700 } : {}}
+                >
                   {t("nav_about")}
                 </Link>
               </li>
               <li>
-                <Link className="models-link" to="/models">
+                <Link
+                  className={`models-link ${location.pathname === "/models" ? "active" : ""}`}
+                  to="/models"
+                  style={location.pathname === "/models" ? { color: "#E20713", fontWeight: 700 } : {}}
+                >
                   {t("nav_models")}
                 </Link>
               </li>
               <li>
                 <Link
-                  className="testi-link"
+                  className={`testi-link ${location.pathname === "/apartments" ? "active" : ""}`}
                   to="/apartments"
                   title="Consulter nos appartements meublés de standing à Tsinga, Yaoundé"
-                  style={{ color: "#E20713", fontWeight: 700 }}
+                  style={location.pathname === "/apartments" ? { color: "#E20713", fontWeight: 700 } : {}}
                 >
                   {t("nav_apartments")}
                 </Link>
               </li>
               <li>
-                <Link className="team-link" to="/team">
+                <Link
+                  className={`team-link ${location.pathname === "/team" ? "active" : ""}`}
+                  to="/team"
+                  style={location.pathname === "/team" ? { color: "#E20713", fontWeight: 700 } : {}}
+                >
                   {t("nav_team")}
                 </Link>
               </li>
               <li>
-                <Link className="contact-link" to="/contact">
+                <Link
+                  className={`contact-link ${location.pathname === "/contact" ? "active" : ""}`}
+                  to="/contact"
+                  style={location.pathname === "/contact" ? { color: "#E20713", fontWeight: 700 } : {}}
+                >
                   {t("nav_contact")}
                 </Link>
               </li>

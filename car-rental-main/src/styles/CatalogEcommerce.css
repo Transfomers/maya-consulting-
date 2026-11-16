@@ -59,16 +59,17 @@
 }
 
 .marketo-hero__title {
-  font-size: 4.2rem;
+  font-size: 5rem;
+  font-family: "Poppins", sans-serif;
   font-weight: 700;
-  color: #0b0f19;
-  line-height: 1.2;
+  color: #010103;
+  line-height: 1.18;
   letter-spacing: -0.5px;
   margin: 0 0 1.8rem 0;
-  font-family: "Poppins", sans-serif;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
+.marketo-hero__title span,
 .marketo-hero__title em {
   font-style: normal;
   color: #C92A2A;
@@ -77,8 +78,8 @@
 
 @media (max-width: 900px) {
   .marketo-hero__title {
-    font-size: 2.8rem;
-    line-height: 1.25;
+    font-size: 3.5rem;
+    line-height: 1.2;
   }
 }
 
@@ -219,7 +220,7 @@
   transform: translateY(-2px);
 }
 
-/* Hero Right Visuals: Rotating/Floating Wheel like Marketo demo */
+/* Hero Right Visuals: Flagship Luxury Car (Toyota Prado VIP) */
 .marketo-hero__visual {
   position: relative;
   display: flex;
@@ -227,50 +228,76 @@
   justify-content: center;
 }
 
+.marketo-hero__car-wrap,
 .marketo-hero__wheel-wrap {
   position: relative;
   width: 100%;
-  max-width: 440px;
-  animation: wheelFloat 4s ease-in-out infinite;
+  max-width: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: carFloat 4s ease-in-out infinite;
 }
 
-@keyframes wheelFloat {
-
+@keyframes carFloat {
   0%,
   100% {
     transform: translateY(0);
   }
 
   50% {
-    transform: translateY(-12px);
+    transform: translateY(-10px);
   }
 }
 
+.marketo-hero__car-img,
 .marketo-hero__wheel-img {
   width: 100%;
+  max-width: 560px;
   height: auto;
+  max-height: 380px;
   object-fit: contain;
-  filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.25));
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.2));
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.marketo-hero__car-wrap:hover .marketo-hero__car-img,
 .marketo-hero__wheel-wrap:hover .marketo-hero__wheel-img {
-  transform: rotate(20deg) scale(1.04);
+  transform: scale(1.03);
 }
 
 .marketo-hero__floating-tag {
   position: absolute;
-  bottom: 12%;
-  left: 0;
   background: #ffffff;
   border: 1.5px solid #C92A2A;
-  padding: 1rem 1.6rem;
-  border-radius: 8px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  padding: 0.9rem 1.4rem;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
   display: flex;
   align-items: center;
-  gap: 1.2rem;
-  animation: tagFloat 4s ease-in-out infinite reverse;
+  gap: 1.1rem;
+  z-index: 5;
+}
+
+.marketo-hero__floating-tag--left {
+  bottom: 8%;
+  left: -20px;
+}
+
+.marketo-hero__floating-tag--right {
+  top: 10%;
+  right: -20px;
+  border-color: #16a34a;
+}
+
+@media (max-width: 900px) {
+  .marketo-hero__floating-tag--right {
+    display: none;
+  }
+  .marketo-hero__floating-tag--left {
+    left: 0;
+    bottom: -10px;
+  }
 }
 
 @keyframes tagFloat {

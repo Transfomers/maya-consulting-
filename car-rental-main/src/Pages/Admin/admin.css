@@ -1240,33 +1240,107 @@
   border-color: #fecaca;
 }
 
-/* Fleet Cards Grid */
+/* Fleet & Apartment Cards Grid (RentQ Modern Dashboard Design) */
 .admin-cars-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2.5rem;
-  padding: 2.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 2.2rem;
+  padding: 2.2rem;
 }
 
 .admin-car-card {
-  border: 1px solid var(--admin-border);
-  border-radius: var(--admin-radius);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
   overflow: hidden;
   background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
 }
 
-.admin-car-card-img {
+.admin-car-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-car-card-img-wrap {
+  position: relative;
   width: 100%;
-  height: 190px;
+  height: 210px;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.admin-car-card-img-wrap img,
+.admin-car-card-img,
+.admin-car-card-img img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  background: #f1f5f9;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.admin-car-card:hover .admin-car-card-img-wrap img,
+.admin-car-card:hover .admin-car-card-img img {
+  transform: scale(1.05);
+}
+
+/* Floating RentQ badges on cards */
+.admin-card-badge-category {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #ffffff;
+  backdrop-filter: blur(6px);
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.admin-card-badge-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.95);
+  color: #ffffff;
+  backdrop-filter: blur(6px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.admin-card-badge-status.red {
+  background: rgba(239, 68, 68, 0.95);
+}
+
+.admin-card-badge-photos {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  backdrop-filter: blur(4px);
+  z-index: 2;
 }
 
 .admin-car-card-body {
-  padding: 2rem;
+  padding: 2.2rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1277,34 +1351,61 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 .admin-car-card-header h4 {
-  font-size: 1.7rem;
+  font-size: 1.75rem;
   font-weight: 700;
   margin: 0;
   color: var(--admin-text-dark);
 }
 
 .admin-car-price {
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 1.9rem;
+  font-weight: 800;
   color: var(--admin-primary);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
 }
 
 .admin-car-price span {
   font-size: 1.25rem;
   color: var(--admin-text-muted);
-  font-weight: 400;
+  font-weight: 500;
+}
+
+/* RentQ 4-Box Specs Grid */
+.admin-rentq-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin: 1.2rem 0;
+}
+
+.admin-rentq-spec-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.9rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.admin-rentq-spec-pill i {
+  color: #E20713;
+  font-size: 1.3rem;
+  flex-shrink: 0;
 }
 
 .admin-car-specs {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.8rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   font-size: 1.25rem;
   color: #475569;
 }

@@ -5,8 +5,8 @@ import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { API_BASE } from "../config/api";
 import "../styles/CatalogEcommerce.css";
 
-// Marketo visual assets
-import wheelHeroImg from "../images/marketo/1-min.png";
+// Official 3M Fleet Visual Assets
+import heroCarImg from "../images/cars/toyota-prado-nobg.png";
 
 function Models() {
   const { lang } = useTranslation();
@@ -211,7 +211,7 @@ function Models() {
     }).catch(() => {});
 
     setBookingSent(true);
-    window.location.href = `mailto:contact@3Mservice.shop?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:contact@3mservice.shop?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -228,16 +228,16 @@ function Models() {
               <span>{isFr ? "Flotte Officielle 3M SERVICES" : "Official 3M Fleet"}</span>
             </div>
 
-            <h1 className="marketo-hero__title">
+            <h1 className="marketo-hero__title hero-title">
               {isFr ? (
                 <>
-                  DÉCOUVREZ NOTRE <em>FLOTTE VIP</em>
-                  <br />À <em>YAOUNDÉ</em>
+                  Découvrez notre <span>Flotte VIP</span>
+                  <br />à <span>Yaoundé</span>
                 </>
               ) : (
                 <>
-                  OFFICIAL <em>VIP FLEET</em>
-                  <br />IN <em>YAOUNDÉ</em>
+                  Official <span>VIP Fleet</span>
+                  <br />in <span>Yaoundé</span>
                 </>
               )}
             </h1>
@@ -266,21 +266,31 @@ function Models() {
             </div>
           </div>
 
-          {/* Right Visual (Interactive Alloy Wheel / Car like Marketo demo) */}
+          {/* Right Visual: Flagship Toyota Prado TXL VIP */}
           <div className="marketo-hero__visual">
-            <div className="marketo-hero__wheel-wrap">
+            <div className="marketo-hero__car-wrap">
               <img
-                src={wheelHeroImg}
-                alt="Jante Alliage Prestige 3M SERVICES"
-                className="marketo-hero__wheel-img"
+                src={heroCarImg}
+                alt="Toyota Prado TXL VIP 3M SERVICES"
+                className="marketo-hero__car-img"
               />
 
-              <div className="marketo-hero__floating-tag">
+              <div className="marketo-hero__floating-tag marketo-hero__floating-tag--left">
                 <div className="marketo-hero__tag-icon">
-                  <i className="fa-solid fa-shield-halved"></i>
+                  <i className="fa-solid fa-crown" style={{ color: "#E20713" }}></i>
                 </div>
                 <div className="marketo-hero__tag-text">
-                  <span>{isFr ? "Entretien Certifié" : "Certified Service"}</span>
+                  <span>{isFr ? "Flotte Officielle 3M" : "Official 3M Fleet"}</span>
+                  <strong>{isFr ? "Toyota Prado TXL VIP" : "Toyota Prado VIP"}</strong>
+                </div>
+              </div>
+
+              <div className="marketo-hero__floating-tag marketo-hero__floating-tag--right">
+                <div className="marketo-hero__tag-icon">
+                  <i className="fa-solid fa-shield-halved" style={{ color: "#16a34a" }}></i>
+                </div>
+                <div className="marketo-hero__tag-text">
+                  <span>{isFr ? "Disponibilité Immédiate" : "Immediate Availability"}</span>
                   <strong>100% Zéro Panne</strong>
                 </div>
               </div>
@@ -1043,7 +1053,7 @@ function Models() {
                   }}
                 >
                   <i className="fa-solid fa-envelope"></i>
-                  <span>{isFr ? "Envoyer par Email (contact@3Mservice.shop)" : "Send via Email (contact@3Mservice.shop)"}</span>
+                  <span>{isFr ? "Envoyer par Email (contact@3mservice.shop)" : "Send via Email (contact@3mservice.shop)"}</span>
                 </button>
 
                 <a
@@ -1075,7 +1085,7 @@ function Models() {
               {bookingSent && (
                 <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "6px", color: "#166534", fontSize: "1.35rem", textAlign: "center" }}>
                   <i className="fa-solid fa-circle-check" style={{ marginRight: "0.6rem" }}></i>
-                  {isFr ? "Votre demande a été préparée et transmise à contact@3Mservice.shop." : "Your request has been prepared and sent to contact@3Mservice.shop."}
+                  {isFr ? "Votre demande a été préparée et transmise à contact@3mservice.shop." : "Your request has been prepared and sent to contact@3mservice.shop."}
                 </div>
               )}
             </form>
