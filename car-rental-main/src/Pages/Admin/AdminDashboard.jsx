@@ -13,7 +13,9 @@ import {
   DEFAULT_CONTACTS,
   DEFAULT_LOCATIONS,
   DEFAULT_SUBSCRIBERS,
-  DEFAULT_APARTMENTS
+  DEFAULT_APARTMENTS,
+  DEFAULT_EQUIPMENT_OPTIONS,
+  DEFAULT_VIP_SERVICES_OPTIONS
 } from "../../data/crmSeedData";
 import "./admin.css";
 
@@ -172,10 +174,8 @@ function AdminDashboard() {
     role: "Gestionnaire Réservations"
   });
 
-  // Notifications State
-  // eslint-disable-next-line no-unused-vars
+  // Notifications State & Device Alerts
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [notifications, setNotifications] = useState([
     {
       id: "sys-init",
@@ -188,6 +188,19 @@ function AdminDashboard() {
     }
   ]);
   const notifRef = React.useRef(null);
+
+  // Device Web Push Notification permission state for used devices
+  const [deviceNotifStatus, setDeviceNotifStatus] = useState(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      return Notification.permission;
+    }
+    return "unsupported";
+  });
+
+  const unreadNotifCount = useMemo(
+    () => notifications.filter((n) => n.unread).length,
+    [notifications]
+  );
 
   // Modals state
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -205,7 +218,11 @@ function AdminDashboard() {
     photosCount: 5,
     image: "/Asset/appartements/appartement-meuble-suite-parentale.webp",
     status: "Disponible",
-    description: ""
+    description: "",
+    equipments: [],
+    vipServices: [],
+    customEquipment: "",
+    customVipService: ""
   });
 
   // New Booking Form State
@@ -250,7 +267,7 @@ function AdminDashboard() {
     { label: "Toyota Camry Executive (Avant)", url: "/images/cars/toyota-camry-front.webp" },
     { label: "Mercedes-Benz Classe E VIP", url: "/images/cars/mercedes-classe-e-front.webp" },
     { label: "Mercedes-Benz ML350 Luxe", url: "/images/cars/mercedes-ml350-front.webp" },
-    { label: "Jeep Grand Cherokee V6 MUPOCAM", url: "/images/cars/jeep-grand-cherokee-front.webp" },
+    { label: "Jeep Grand Cherokee V6 Luxury", url: "/images/cars/jeep-grand-cherokee-front.webp" },
     { label: "Kia Sportage GT-Line (0 km)", url: "/images/cars/kia-sportage-front.webp" },
     { label: "Hyundai Santa Fe 4x4", url: "/images/cars/hyundai-santafe-front.webp" }
   ];
@@ -434,12 +451,11 @@ function AdminDashboard() {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
-  // eslint-disable-next-line no-unused-vars
+  // Mark all notifications as read
   const markAllNotificationsAsRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
   };
 
-  // eslint-disable-next-line no-unused-vars
   const handleNotificationClick = (notif) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === notif.id ? { ...n, unread: false } : n))
@@ -449,6 +465,118 @@ function AdminDashboard() {
     }
     setNotificationsOpen(false);
   };
+
+  // Sound chime notification for device alert
+  const playNotificationSound = useCallback(() => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.18); // A5
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } catch (e) {
+      console.warn("Audio chime failed:", e);
+    }
+  }, []);
+
+  // Web Notification API alert on used device
+  const triggerDeviceNotification = useCallback((title, options = {}) => {
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      try {
+        new Notification(title, {
+          icon: "/favicon.ico",
+          badge: "/favicon.ico",
+          ...options
+        });
+      } catch (err) {
+        console.warn("Device Notification trigger error:", err);
+      }
+    }
+  }, []);
+
+  // Request permission for Web Notifications on used device
+  const requestDeviceNotificationPermission = async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      alert("Votre navigateur ne prend pas en charge l'API Notifications Web.");
+      return;
+    }
+    try {
+      const perm = await Notification.requestPermission();
+      setDeviceNotifStatus(perm);
+      if (perm === "granted") {
+        playNotificationSound();
+        triggerDeviceNotification("Notifications 3M Services Activées", {
+          body: "Vous serez notifié en direct sur cet appareil pour tout nouveau message ou réservation."
+        });
+      } else if (perm === "denied") {
+        alert("Les notifications sont bloquées dans les paramètres de votre navigateur.");
+      }
+    } catch (e) {
+      console.warn("Could not request notification permission:", e);
+    }
+  };
+
+  // Real-time listener for incoming messages (Contact & Conciergerie) across tabs & devices
+  useEffect(() => {
+    const handleIncomingContact = (msgData) => {
+      if (!msgData) return;
+      playNotificationSound();
+      triggerDeviceNotification("Nouveau message - 3M Services", {
+        body: `${msgData.name || "Client"} : ${msgData.subject || msgData.message || "Nouvelle demande de conciergerie"}`
+      });
+
+      // Prepend to contacts list if not existing
+      setContacts((prev) => {
+        if (prev.some((c) => c.id === msgData.id)) return prev;
+        return [msgData, ...prev];
+      });
+
+      // Add to dynamic notifications
+      setNotifications((prev) => [
+        {
+          id: `msg-live-${Date.now()}`,
+          type: "contact",
+          title: `Nouveau message de ${msgData.name || "Client"}`,
+          desc: msgData.subject || (msgData.message ? msgData.message.slice(0, 60) : "Message reçu via Contact & Conciergerie"),
+          time: "À l'instant",
+          unread: true,
+          targetTab: "contacts"
+        },
+        ...prev
+      ]);
+    };
+
+    const onCustomNewContact = (e) => {
+      if (e?.detail) handleIncomingContact(e.detail);
+    };
+    window.addEventListener("3m_new_contact", onCustomNewContact);
+
+    const onStorageChange = (e) => {
+      if (e.key === "3m_last_message_ping" && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          handleIncomingContact(parsed);
+        } catch (err) {
+          // ignore
+        }
+      }
+    };
+    window.addEventListener("storage", onStorageChange);
+
+    return () => {
+      window.removeEventListener("3m_new_contact", onCustomNewContact);
+      window.removeEventListener("storage", onStorageChange);
+    };
+  }, [playNotificationSound, triggerDeviceNotification]);
 
   const handleDirectCarStatusChange = async (carId, newStatus) => {
     try {
@@ -1216,6 +1344,58 @@ function AdminDashboard() {
      APARTMENT / IMMOBILIER ACTIONS
      ======================================================================== */
 
+  const toggleEquipmentOption = (eqName) => {
+    setApartmentForm((prev) => {
+      const current = Array.isArray(prev.equipments) ? prev.equipments : [];
+      const exists = current.includes(eqName);
+      const updated = exists ? current.filter((x) => x !== eqName) : [...current, eqName];
+      return { ...prev, equipments: updated };
+    });
+  };
+
+  const addCustomEquipment = () => {
+    if (!apartmentForm.customEquipment || !apartmentForm.customEquipment.trim()) return;
+    const item = apartmentForm.customEquipment.trim();
+    setApartmentForm((prev) => {
+      const current = Array.isArray(prev.equipments) ? prev.equipments : [];
+      if (current.includes(item)) return { ...prev, customEquipment: "" };
+      return { ...prev, equipments: [...current, item], customEquipment: "" };
+    });
+  };
+
+  const removeEquipmentOption = (eqName) => {
+    setApartmentForm((prev) => {
+      const current = Array.isArray(prev.equipments) ? prev.equipments : [];
+      return { ...prev, equipments: current.filter((x) => x !== eqName) };
+    });
+  };
+
+  const toggleVipServiceOption = (serviceName) => {
+    setApartmentForm((prev) => {
+      const current = Array.isArray(prev.vipServices) ? prev.vipServices : [];
+      const exists = current.includes(serviceName);
+      const updated = exists ? current.filter((x) => x !== serviceName) : [...current, serviceName];
+      return { ...prev, vipServices: updated };
+    });
+  };
+
+  const addCustomVipService = () => {
+    if (!apartmentForm.customVipService || !apartmentForm.customVipService.trim()) return;
+    const item = apartmentForm.customVipService.trim();
+    setApartmentForm((prev) => {
+      const current = Array.isArray(prev.vipServices) ? prev.vipServices : [];
+      if (current.includes(item)) return { ...prev, customVipService: "" };
+      return { ...prev, vipServices: [...current, item], customVipService: "" };
+    });
+  };
+
+  const removeVipServiceOption = (serviceName) => {
+    setApartmentForm((prev) => {
+      const current = Array.isArray(prev.vipServices) ? prev.vipServices : [];
+      return { ...prev, vipServices: current.filter((x) => x !== serviceName) };
+    });
+  };
+
   const openNewApartmentModal = () => {
     setEditingApartment(null);
     setApartmentForm({
@@ -1227,7 +1407,11 @@ function AdminDashboard() {
       photosCount: 5,
       image: "/Asset/appartements/appartement-meuble-suite-parentale.webp",
       status: "Disponible",
-      description: ""
+      description: "",
+      equipments: [...DEFAULT_EQUIPMENT_OPTIONS.slice(0, 6)],
+      vipServices: [...DEFAULT_VIP_SERVICES_OPTIONS.slice(0, 4)],
+      customEquipment: "",
+      customVipService: ""
     });
     setShowApartmentModal(true);
   };
@@ -1243,7 +1427,15 @@ function AdminDashboard() {
       photosCount: apt.photosCount || 1,
       image: apt.image || apt.img || "/Asset/appartements/appartement-meuble-suite-parentale.webp",
       status: apt.status || "Disponible",
-      description: apt.description || ""
+      description: apt.description || "",
+      equipments: Array.isArray(apt.equipments) && apt.equipments.length > 0
+        ? [...apt.equipments]
+        : [...DEFAULT_EQUIPMENT_OPTIONS.slice(0, 5)],
+      vipServices: Array.isArray(apt.vipServices) && apt.vipServices.length > 0
+        ? [...apt.vipServices]
+        : [...DEFAULT_VIP_SERVICES_OPTIONS.slice(0, 4)],
+      customEquipment: "",
+      customVipService: ""
     });
     setShowApartmentModal(true);
   };
@@ -1252,9 +1444,12 @@ function AdminDashboard() {
     e.preventDefault();
     const isEdit = !!editingApartment;
     const aptId = isEdit ? editingApartment.id : `apt-${Date.now()}`;
+    const { customEquipment, customVipService, ...cleanAptData } = apartmentForm;
     const updatedApt = {
-      ...apartmentForm,
-      id: aptId
+      ...cleanAptData,
+      id: aptId,
+      equipments: Array.isArray(cleanAptData.equipments) ? cleanAptData.equipments : [],
+      vipServices: Array.isArray(cleanAptData.vipServices) ? cleanAptData.vipServices : []
     };
 
     if (isEdit) {
@@ -1568,6 +1763,26 @@ function AdminDashboard() {
             </span>
           </button>
 
+          {/* 2b. Contact & Conciergerie */}
+          <button
+            className={`admin-nav-item ${activeTab === "contacts" ? "active" : ""}`}
+            onClick={() => handleNavClick("contacts")}
+            data-tooltip="Contact & Conciergerie"
+            title="Messages & Demandes Conciergerie"
+          >
+            <div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Contact & Conciergerie</span>
+            </div>
+            {contacts.length > 0 && (
+              <span className="admin-nav-badge admin-nav-badge--red" style={{ backgroundColor: "#E20713", color: "#fff" }}>
+                {contacts.length}
+              </span>
+            )}
+          </button>
+
           {/* 3. Contrats de Location (Matching Image 2) */}
           <button
             className={`admin-nav-item ${activeTab === "contracts" ? "active" : ""}`}
@@ -1796,7 +2011,103 @@ function AdminDashboard() {
             </div>
           </div>
 
-          <div className="admin-topbar-actions">
+          <div className="admin-topbar-actions" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {/* Device Web Push & Sound Alert Trigger Button */}
+            <button
+              type="button"
+              onClick={requestDeviceNotificationPermission}
+              className="admin-device-alert-btn"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "7px",
+                padding: "7px 13px",
+                borderRadius: "8px",
+                border: deviceNotifStatus === "granted" ? "1px solid #86efac" : "1px solid #E2E8F0",
+                backgroundColor: deviceNotifStatus === "granted" ? "#f0fdf4" : "#ffffff",
+                color: deviceNotifStatus === "granted" ? "#166534" : "#475569",
+                fontSize: "12.5px",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
+              }}
+              title="Recevoir des alertes sonores et des notifications Web Push sur cet appareil lors de nouvelles réservations ou messages"
+            >
+              <i
+                className={`fa-solid ${deviceNotifStatus === "granted" ? "fa-bell" : "fa-bell-slash"}`}
+                style={{ color: deviceNotifStatus === "granted" ? "#16a34a" : "#94a3b8" }}
+              ></i>
+              <span>{deviceNotifStatus === "granted" ? "Notifications Actives" : "Activer alertes appareil"}</span>
+            </button>
+
+            {/* Notification Center Bell & Dropdown Tray */}
+            <div className="admin-notifications-wrapper" ref={notifRef}>
+              <button
+                type="button"
+                className="admin-topbar-icon-btn"
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                title="Centre de notifications 3M"
+              >
+                <i className="fa-regular fa-bell"></i>
+                {unreadNotifCount > 0 && (
+                  <span className="admin-notification-badge">{unreadNotifCount}</span>
+                )}
+              </button>
+
+              {notificationsOpen && (
+                <div className="admin-notifications-dropdown">
+                  <div className="admin-notifications-header">
+                    <div className="admin-notifications-header-title">
+                      <h4>Notifications</h4>
+                      {unreadNotifCount > 0 && (
+                        <span className="admin-unread-count-pill">{unreadNotifCount} non lues</span>
+                      )}
+                    </div>
+                    {unreadNotifCount > 0 && (
+                      <button
+                        type="button"
+                        className="admin-notifications-mark-read"
+                        onClick={markAllNotificationsAsRead}
+                      >
+                        Tout marquer comme lu
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="admin-notifications-list">
+                    {notifications.length === 0 ? (
+                      <div className="admin-notifications-empty">
+                        <i className="fa-regular fa-bell-slash"></i>
+                        <p>Aucune notification pour le moment.</p>
+                      </div>
+                    ) : (
+                      notifications.map((notif) => (
+                        <div
+                          key={notif.id}
+                          className={`admin-notification-item ${notif.unread ? "unread" : ""}`}
+                          onClick={() => handleNotificationClick(notif)}
+                        >
+                          <div className={`admin-notif-icon notif-${notif.type || "system"}`}>
+                            {notif.type === "booking" && <i className="fa-solid fa-calendar-check"></i>}
+                            {notif.type === "contact" && <i className="fa-solid fa-envelope"></i>}
+                            {notif.type === "fleet" && <i className="fa-solid fa-car"></i>}
+                            {(!notif.type || notif.type === "system") && <i className="fa-solid fa-bell"></i>}
+                          </div>
+                          <div className="admin-notif-content">
+                            <h5>{notif.title}</h5>
+                            <p>{notif.desc}</p>
+                            <span className="admin-notif-time">{notif.time}</span>
+                          </div>
+                          {notif.unread && <span className="admin-notif-dot"></span>}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <a
               href="/"
               target="_blank"
@@ -2948,6 +3259,56 @@ function AdminDashboard() {
                         {apt.description}
                       </p>
 
+                      {/* Description & Équipements configurés par l'admin */}
+                      <div style={{ marginTop: "1.2rem", borderTop: "1px dashed #e2e8f0", paddingTop: "0.8rem" }}>
+                        <span style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                          <i className="fa-solid fa-list-check" style={{ color: "#E20713" }}></i> Description & Équipements ({Array.isArray(apt.equipments) ? apt.equipments.length : 0}) :
+                        </span>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.6rem" }}>
+                          {(Array.isArray(apt.equipments) && apt.equipments.length > 0 ? apt.equipments : DEFAULT_EQUIPMENT_OPTIONS.slice(0, 4)).map((eq, i) => (
+                            <span
+                              key={i}
+                              style={{
+                                background: "#f1f5f9",
+                                color: "#334155",
+                                padding: "0.25rem 0.7rem",
+                                borderRadius: "12px",
+                                fontSize: "1.1rem",
+                                fontWeight: 600,
+                                border: "1px solid #e2e8f0"
+                              }}
+                            >
+                              ✓ {eq}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Services VIP Inclus configurés par l'admin */}
+                      <div style={{ marginTop: "1rem", borderTop: "1px dashed #e2e8f0", paddingTop: "0.8rem" }}>
+                        <span style={{ fontSize: "1.2rem", fontWeight: 700, color: "#92400e", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                          <i className="fa-solid fa-crown" style={{ color: "#d97706" }}></i> Services VIP Inclus ({Array.isArray(apt.vipServices) ? apt.vipServices.length : 0}) :
+                        </span>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.6rem" }}>
+                          {(Array.isArray(apt.vipServices) && apt.vipServices.length > 0 ? apt.vipServices : DEFAULT_VIP_SERVICES_OPTIONS.slice(0, 3)).map((vs, i) => (
+                            <span
+                              key={i}
+                              style={{
+                                background: "#fef3c7",
+                                color: "#92400e",
+                                padding: "0.25rem 0.7rem",
+                                borderRadius: "12px",
+                                fontSize: "1.1rem",
+                                fontWeight: 600,
+                                border: "1px solid #fde68a"
+                              }}
+                            >
+                              ★ {vs}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
                       <div className="admin-car-footer" style={{ marginTop: "1.5rem" }}>
                         <div className="admin-action-btns">
                           <button
@@ -3263,12 +3624,40 @@ function AdminDashboard() {
               ============================================================== */}
           {activeTab === "contacts" && (
             <div className="admin-panel-card">
+              <div className="admin-cms-nav-pills" style={{ display: "flex", gap: "0.8rem", padding: "1.5rem 2rem 0", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  className={`admin-date-filter-btn ${activeTab === "bookings" ? "active" : ""}`}
+                  onClick={() => setActiveTab("bookings")}
+                >
+                  <i className="fa-solid fa-car"></i> Réservations Véhicules ({bookings.length})
+                </button>
+                <button
+                  type="button"
+                  className={`admin-date-filter-btn ${activeTab === "contacts" ? "active" : ""}`}
+                  onClick={() => setActiveTab("contacts")}
+                >
+                  <i className="fa-solid fa-envelope"></i> Contact & Conciergerie ({contacts.length})
+                </button>
+              </div>
+
               <div className="admin-card-header">
                 <div>
                   <h3>Demandes & Messages Reçus ({contacts.length})</h3>
                   <small style={{ color: "#64748b" }}>
-                    Messages envoyés depuis la page Contact du site 3M SERVICES
+                    Messages envoyés depuis la page Contact & Conciergerie du site 3M SERVICES
                   </small>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={requestDeviceNotificationPermission}
+                    className="admin-btn-outline"
+                    style={{ fontSize: "1.25rem", padding: "0.6rem 1.2rem" }}
+                  >
+                    <i className={`fa-solid ${deviceNotifStatus === "granted" ? "fa-bell" : "fa-bell-slash"}`} style={{ color: deviceNotifStatus === "granted" ? "#16a34a" : "#E20713", marginRight: "0.5rem" }}></i>
+                    {deviceNotifStatus === "granted" ? "Alertes Appareil Activées" : "Activer alertes sur cet appareil"}
+                  </button>
                 </div>
               </div>
 
@@ -5504,15 +5893,216 @@ function AdminDashboard() {
                 </div>
 
                 <div className="admin-form-group" style={{ marginTop: "1.5rem" }}>
-                  <label>Description & Commodités</label>
+                  <label>Description Générale de la Résidence</label>
                   <textarea
                     rows="3"
-                    placeholder="Climatisation intégrale, Fibre optique, Groupe électrogène automatique 24/7, Gardiennage..."
+                    placeholder="Situé à Tsinga face FECAFOOT, cet appartement meublé offre un cadre paisible, moderne et haut de gamme..."
                     value={apartmentForm.description}
                     onChange={(e) =>
                       setApartmentForm({ ...apartmentForm, description: e.target.value })
                     }
                   />
+                </div>
+
+                {/* Section Description & Équipements (Options administrables) */}
+                <div style={{ marginTop: "2rem", padding: "1.6rem", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                    <label style={{ fontWeight: 800, color: "#0f172a", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                      <i className="fa-solid fa-list-check" style={{ color: "#E20713" }}></i>
+                      Description & Équipements (Sélectionnés : {apartmentForm.equipments?.length || 0})
+                    </label>
+                    <span style={{ fontSize: "1.15rem", color: "#64748b" }}>Cochez pour activer ou ajoutez un équipement</span>
+                  </div>
+
+                  {/* Standard predefined equipment options */}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem", marginBottom: "1.2rem" }}>
+                    {DEFAULT_EQUIPMENT_OPTIONS.map((eq) => {
+                      const isSelected = apartmentForm.equipments?.includes(eq);
+                      return (
+                        <button
+                          key={eq}
+                          type="button"
+                          onClick={() => toggleEquipmentOption(eq)}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            padding: "0.5rem 1rem",
+                            borderRadius: "20px",
+                            fontSize: "1.2rem",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            border: isSelected ? "1.5px solid #E20713" : "1px solid #cbd5e1",
+                            background: isSelected ? "#fee2e2" : "#ffffff",
+                            color: isSelected ? "#991b1b" : "#475569",
+                            transition: "all 0.15s ease"
+                          }}
+                        >
+                          <i className={`fa-solid ${isSelected ? "fa-circle-check" : "fa-plus"}`}></i>
+                          {eq}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Custom Equipment Input */}
+                  <div style={{ display: "flex", gap: "0.8rem", alignItems: "center" }}>
+                    <input
+                      type="text"
+                      placeholder="Ajouter un équipement personnalisé..."
+                      value={apartmentForm.customEquipment || ""}
+                      onChange={(e) => setApartmentForm({ ...apartmentForm, customEquipment: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addCustomEquipment();
+                        }
+                      }}
+                      style={{ flex: 1, padding: "0.7rem 1rem", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.25rem" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={addCustomEquipment}
+                      className="admin-action-btn"
+                      style={{ padding: "0.7rem 1.4rem", background: "#0f172a", color: "#fff", border: "none", borderRadius: "6px", fontWeight: 600, fontSize: "1.25rem", cursor: "pointer" }}
+                    >
+                      <i className="fa-solid fa-plus"></i> Ajouter
+                    </button>
+                  </div>
+
+                  {/* Active Equipments List with delete */}
+                  {Array.isArray(apartmentForm.equipments) && apartmentForm.equipments.length > 0 && (
+                    <div style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+                      {apartmentForm.equipments.map((eq) => (
+                        <span
+                          key={eq}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.6rem",
+                            background: "#e2e8f0",
+                            color: "#1e293b",
+                            padding: "0.4rem 0.9rem",
+                            borderRadius: "15px",
+                            fontSize: "1.15rem",
+                            fontWeight: 600
+                          }}
+                        >
+                          <i className="fa-solid fa-check" style={{ color: "#16a34a" }}></i>
+                          {eq}
+                          <button
+                            type="button"
+                            onClick={() => removeEquipmentOption(eq)}
+                            style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 0, marginLeft: "0.3rem", fontSize: "1.3rem", lineHeight: 1 }}
+                            title="Supprimer cet équipement"
+                          >
+                            &times;
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Section Services VIP Inclus (Options administrables) */}
+                <div style={{ marginTop: "1.8rem", padding: "1.6rem", background: "#fffbeb", borderRadius: "10px", border: "1px solid #fde68a" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                    <label style={{ fontWeight: 800, color: "#92400e", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                      <i className="fa-solid fa-crown" style={{ color: "#d97706" }}></i>
+                      Services VIP Inclus (Sélectionnés : {apartmentForm.vipServices?.length || 0})
+                    </label>
+                    <span style={{ fontSize: "1.15rem", color: "#b45309" }}>Options VIP incluses pour ce logement</span>
+                  </div>
+
+                  {/* Standard predefined VIP service options */}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem", marginBottom: "1.2rem" }}>
+                    {DEFAULT_VIP_SERVICES_OPTIONS.map((vs) => {
+                      const isSelected = apartmentForm.vipServices?.includes(vs);
+                      return (
+                        <button
+                          key={vs}
+                          type="button"
+                          onClick={() => toggleVipServiceOption(vs)}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            padding: "0.5rem 1rem",
+                            borderRadius: "20px",
+                            fontSize: "1.2rem",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            border: isSelected ? "1.5px solid #d97706" : "1px solid #fcd34d",
+                            background: isSelected ? "#fef3c7" : "#ffffff",
+                            color: isSelected ? "#78350f" : "#92400e",
+                            transition: "all 0.15s ease"
+                          }}
+                        >
+                          <i className={`fa-solid ${isSelected ? "fa-crown" : "fa-plus"}`}></i>
+                          {vs}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Custom VIP Service Input */}
+                  <div style={{ display: "flex", gap: "0.8rem", alignItems: "center" }}>
+                    <input
+                      type="text"
+                      placeholder="Ajouter un service VIP personnalisé..."
+                      value={apartmentForm.customVipService || ""}
+                      onChange={(e) => setApartmentForm({ ...apartmentForm, customVipService: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addCustomVipService();
+                        }
+                      }}
+                      style={{ flex: 1, padding: "0.7rem 1rem", borderRadius: "6px", border: "1px solid #fcd34d", fontSize: "1.25rem", background: "#fff" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={addCustomVipService}
+                      className="admin-action-btn"
+                      style={{ padding: "0.7rem 1.4rem", background: "#d97706", color: "#fff", border: "none", borderRadius: "6px", fontWeight: 600, fontSize: "1.25rem", cursor: "pointer" }}
+                    >
+                      <i className="fa-solid fa-plus"></i> Ajouter VIP
+                    </button>
+                  </div>
+
+                  {/* Active VIP Services List with delete */}
+                  {Array.isArray(apartmentForm.vipServices) && apartmentForm.vipServices.length > 0 && (
+                    <div style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+                      {apartmentForm.vipServices.map((vs) => (
+                        <span
+                          key={vs}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.6rem",
+                            background: "#fef3c7",
+                            color: "#78350f",
+                            padding: "0.4rem 0.9rem",
+                            borderRadius: "15px",
+                            fontSize: "1.15rem",
+                            fontWeight: 600,
+                            border: "1px solid #fde68a"
+                          }}
+                        >
+                          <i className="fa-solid fa-crown" style={{ color: "#d97706" }}></i>
+                          {vs}
+                          <button
+                            type="button"
+                            onClick={() => removeVipServiceOption(vs)}
+                            style={{ background: "none", border: "none", cursor: "pointer", color: "#92400e", padding: 0, marginLeft: "0.3rem", fontSize: "1.3rem", lineHeight: 1 }}
+                            title="Supprimer ce service VIP"
+                          >
+                            &times;
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -16,8 +16,35 @@ function Contact() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newContact = {
+      id: `ct-${Date.now()}`,
+      name: formData.name,
+      contact: formData.contact,
+      phone: formData.contact,
+      subject: "Demande Contact & Conciergerie",
+      message: formData.message,
+      createdAt: new Date().toISOString()
+    };
+
+    // 1. Sync to local CRM store & fire notification across device tabs
     try {
-      await fetch(`${API_BASE}/contacts`, {
+      const rawStore = localStorage.getItem("3m_crm_store_v2");
+      let store = {};
+      if (rawStore) store = JSON.parse(rawStore);
+      const updatedContacts = [newContact, ...(store.contacts || [])];
+      store.contacts = updatedContacts;
+      localStorage.setItem("3m_crm_store_v2", JSON.stringify(store));
+      localStorage.setItem("3m_last_message_ping", Date.now().toString());
+
+      // Dispatch event to active admin tabs on same window/device
+      window.dispatchEvent(new CustomEvent("3m_new_contact", { detail: newContact }));
+    } catch (localErr) {
+      console.warn("Local notification sync error:", localErr);
+    }
+
+    // 2. Background sync to backend API
+    try {
+      fetch(`${API_BASE}/contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -25,7 +52,7 @@ function Contact() {
           contact: formData.contact,
           message: formData.message
         })
-      });
+      }).catch((err) => console.warn("Backend non joignable:", err));
     } catch (err) {
       console.warn("Backend non joignable:", err);
     }

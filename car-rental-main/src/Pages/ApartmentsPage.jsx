@@ -64,6 +64,18 @@ function ApartmentsPage() {
   const [activeModalApartment, setActiveModalApartment] = useState(null);
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem("3m_crm_store_v2");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.apartments) && parsed.apartments.length > 0) {
+          setApartments(parsed.apartments);
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+
     fetch(`${API_BASE}/apartments`)
       .then((res) => {
         if (!res.ok) throw new Error("HTTP error " + res.status);
@@ -397,33 +409,74 @@ function ApartmentsPage() {
               />
 
               <div style={{ marginBottom: "2rem" }}>
-                <h4 style={{ fontSize: "1.6rem", color: "#0f172a", marginBottom: "0.8rem" }}>Description & Équipements</h4>
-                <p style={{ fontSize: "1.45rem", color: "#475569", lineHeight: 1.6 }}>
+                <h4 style={{ fontSize: "1.6rem", color: "#0f172a", marginBottom: "0.8rem", fontWeight: 700 }}>
+                  <i className="fa-solid fa-list-check" style={{ color: "#E20713", marginRight: "0.6rem" }}></i>
+                  Description & Équipements
+                </h4>
+                <p style={{ fontSize: "1.45rem", color: "#475569", lineHeight: 1.6, marginBottom: "1rem" }}>
                   {activeModalApartment.description}
                 </p>
+                {Array.isArray(activeModalApartment.equipments) && activeModalApartment.equipments.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.8rem", marginTop: "1rem" }}>
+                    {activeModalApartment.equipments.map((eq, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          background: "#F1F5F9",
+                          color: "#1E293B",
+                          padding: "0.5rem 1rem",
+                          borderRadius: "20px",
+                          fontSize: "1.25rem",
+                          fontWeight: 600,
+                          border: "1px solid #E2E8F0"
+                        }}
+                      >
+                        <i className="fa-solid fa-check" style={{ color: "#16A34A" }}></i> {eq}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div style={{ marginBottom: "2.5rem" }}>
-                <h4 style={{ fontSize: "1.6rem", color: "#0f172a", marginBottom: "1rem" }}>Services VIP Inclus</h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem" }}>
-                  <div style={{ padding: "0.8rem", background: "#f8fafc", borderRadius: "8px", fontSize: "1.35rem" }}>
-                    ⚡ Groupe électrogène 24/7
-                  </div>
-                  <div style={{ padding: "0.8rem", background: "#f8fafc", borderRadius: "8px", fontSize: "1.35rem" }}>
-                    📶 WiFi Fibre Optique
-                  </div>
-                  <div style={{ padding: "0.8rem", background: "#f8fafc", borderRadius: "8px", fontSize: "1.35rem" }}>
-                    ❄️ Climatisation intégrale
-                  </div>
-                  <div style={{ padding: "0.8rem", background: "#f8fafc", borderRadius: "8px", fontSize: "1.35rem" }}>
-                    🛡️ Gardiennage 24/7
-                  </div>
-                  <div style={{ padding: "0.8rem", background: "#f8fafc", borderRadius: "8px", fontSize: "1.35rem" }}>
-                    📺 Smart TV 55" HD
-                  </div>
-                  <div style={{ padding: "0.8rem", background: "#f8fafc", borderRadius: "8px", fontSize: "1.35rem" }}>
-                    🍳 Cuisine équipée moderne
-                  </div>
+                <h4 style={{ fontSize: "1.6rem", color: "#0f172a", marginBottom: "1rem", fontWeight: 700 }}>
+                  <i className="fa-solid fa-crown" style={{ color: "#D97706", marginRight: "0.6rem" }}></i>
+                  Services VIP Inclus
+                </h4>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+                  {((Array.isArray(activeModalApartment.vipServices) && activeModalApartment.vipServices.length > 0)
+                    ? activeModalApartment.vipServices
+                    : [
+                        "⚡ Groupe électrogène 24/7 (Zéro coupure)",
+                        "📶 WiFi Fibre Optique Illimité",
+                        "❄️ Climatisation intégrale",
+                        "🛡️ Gardiennage & Sécurité 24/7",
+                        "🧹 Ménage & Conciergerie 3M",
+                        "🍳 Cuisine équipée moderne"
+                      ]
+                  ).map((vip, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        padding: "1rem 1.2rem",
+                        background: "#FFFBEB",
+                        border: "1px solid #FDE68A",
+                        borderRadius: "8px",
+                        fontSize: "1.3rem",
+                        fontWeight: 600,
+                        color: "#92400E",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.8rem"
+                      }}
+                    >
+                      <span>✨</span>
+                      <span>{vip}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 

@@ -343,6 +343,30 @@ export const DEFAULT_SUBSCRIBERS = [
   { id: "sub-3", email: "contact@kamga-avocats.cm", createdAt: "2026-11-13T08:30:00Z" }
 ];
 
+export const DEFAULT_EQUIPMENT_OPTIONS = [
+  "Climatisation intégrale",
+  "WiFi Fibre Optique illimité",
+  "Smart TV 55 pouces HD (Netflix / Canal+)",
+  "Cuisine américaine tout équipée",
+  "Literie King Size Grand Confort",
+  "Salle de bain design à l'italienne",
+  "Balcon privé avec vue dégagée",
+  "Forage d'eau & suppresseur automatique",
+  "Machine à laver & espace buanderie",
+  "Micro-ondes & réfrigérateur combiné",
+  "Chauffe-eau électrique permanent"
+];
+
+export const DEFAULT_VIP_SERVICES_OPTIONS = [
+  "Groupe électrogène automatique 24/7 (Zéro coupure)",
+  "Gardiennage & vigiles 24/7 (Caméras de surveillance)",
+  "Ménage régulier & conciergerie hôtelière 3M",
+  "Parking privé sécurisé et fermé",
+  "Chauffeur privé VIP dédié (sur demande)",
+  "Navette accueil aéroport Nsimalen",
+  "Assistance & conciergerie privée 24/7"
+];
+
 export const DEFAULT_APARTMENTS = [
   {
     id: "apt-01",
@@ -354,7 +378,21 @@ export const DEFAULT_APARTMENTS = [
     photosCount: 5,
     image: "/Asset/appartements/appartement-meuble-suite-parentale.webp",
     status: "Disponible",
-    description: "Situé à Tsinga, directement en face du siège de la FECAFOOT à Yaoundé, cet appartement meublé grand standing vous offre une suite parentale avec literie de luxe, une cuisine équipée moderne, salle de bain design, climatisation intégrale, groupe électrogène automatique et gardiennage permanent 24/7."
+    description: "Situé à Tsinga, directement en face du siège de la FECAFOOT à Yaoundé, cet appartement meublé grand standing vous offre une suite parentale avec literie de luxe, une cuisine équipée moderne, salle de bain design, climatisation intégrale, groupe électrogène automatique et gardiennage permanent 24/7.",
+    equipments: [
+      "Climatisation intégrale",
+      "WiFi Fibre Optique illimité",
+      "Smart TV 55 pouces HD (Netflix / Canal+)",
+      "Cuisine américaine tout équipée",
+      "Literie King Size Grand Confort",
+      "Salle de bain design à l'italienne"
+    ],
+    vipServices: [
+      "Groupe électrogène automatique 24/7 (Zéro coupure)",
+      "Gardiennage & vigiles 24/7 (Caméras de surveillance)",
+      "Ménage régulier & conciergerie hôtelière 3M",
+      "Parking privé sécurisé et fermé"
+    ]
   },
   {
     id: "apt-02",
@@ -366,7 +404,18 @@ export const DEFAULT_APARTMENTS = [
     photosCount: 4,
     image: "/Asset/appartements/appartement-meuble-chambre-bleue.webp",
     status: "Disponible",
-    description: "Élégant et chaleureux avec salon contemporain, cuisine américaine laquée, smart TV 55 pouces et connexion fibre optique haut débit."
+    description: "Élégant et chaleureux avec salon contemporain, cuisine américaine laquée, smart TV 55 pouces et connexion fibre optique haut débit.",
+    equipments: [
+      "Climatisation intégrale",
+      "WiFi Fibre Optique illimité",
+      "Smart TV 55 pouces HD (Netflix / Canal+)",
+      "Cuisine américaine tout équipée"
+    ],
+    vipServices: [
+      "Groupe électrogène automatique 24/7 (Zéro coupure)",
+      "Gardiennage & vigiles 24/7 (Caméras de surveillance)",
+      "Parking privé sécurisé et fermé"
+    ]
   },
   {
     id: "apt-03",
@@ -378,7 +427,23 @@ export const DEFAULT_APARTMENTS = [
     photosCount: 6,
     image: "/Asset/appartements/appartement-meuble-chambre-confort.webp",
     status: "Disponible",
-    description: "Conçu pour les familles, cadres et délégations d'affaires recherchant l'espace, la confidentialité et un confort sans compromis."
+    description: "Conçu pour les familles, cadres et délégations d'affaires recherchant l'espace, la confidentialité et un confort sans compromis.",
+    equipments: [
+      "Climatisation intégrale",
+      "WiFi Fibre Optique illimité",
+      "Smart TV 55 pouces HD (Netflix / Canal+)",
+      "Cuisine américaine tout équipée",
+      "Literie King Size Grand Confort",
+      "Salle de bain design à l'italienne",
+      "Balcon privé avec vue dégagée"
+    ],
+    vipServices: [
+      "Groupe électrogène automatique 24/7 (Zéro coupure)",
+      "Gardiennage & vigiles 24/7 (Caméras de surveillance)",
+      "Ménage régulier & conciergerie hôtelière 3M",
+      "Parking privé sécurisé et fermé",
+      "Chauffeur privé VIP dédié (sur demande)"
+    ]
   }
 ];
 
