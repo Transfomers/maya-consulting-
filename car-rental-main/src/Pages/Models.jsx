@@ -6,7 +6,7 @@ import { API_BASE } from "../config/api";
 import "../styles/CatalogEcommerce.css";
 
 // Official 3M Fleet Visual Assets
-import heroCarImg from "../images/cars/toyota-prado-nobg.png";
+import heroCarImg from "../images/cars/toyota-prado-txl-front.webp";
 
 function Models() {
   const { lang } = useTranslation();
