@@ -8,6 +8,7 @@ import CarRav4 from "../images/cars/toyota-rav4-front.webp";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { useTranslation } from "../context/LanguageContext";
 import { API_BASE } from "../config/api";
+import { saveOrderAndCustomerAccount } from "../utils/customerAccounts";
 
 function BookCar() {
   const { lang, t } = useTranslation();
@@ -820,31 +821,32 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
       return;
     }
 
-    const refId = "3M-RES-" + Date.now().toString().slice(-4);
     const fullName = `${name} ${lastName}`.trim();
     const days = calculateDays();
     const formattedPick = formatDateReadable(pickTime);
     const formattedDrop = formatDateReadable(dropTime);
 
-    // 1. Send booking to backend asynchronously
-    fetch(`${API_BASE}/bookings`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        clientName: fullName,
-        phone,
-        email: email || "",
-        address: address || "Yaoundé",
-        city: city || "Yaoundé",
-        zipcode: zipcode || "",
-        carName: carType,
-        pickUp,
-        dropOff,
-        pickTime,
-        dropTime,
-        notes: `Âge: ${age || "25"} • Newsletter: ${newsletter ? "Oui" : "Non"}`
-      })
-    }).catch((err) => console.warn("Backend offline or network err:", err));
+    // Synchronize CRM order and customer account
+    const { customer, booking } = saveOrderAndCustomerAccount({
+      clientName: fullName,
+      phone,
+      email: email || "",
+      address: address || "Yaoundé",
+      city: city || "Yaoundé",
+      itemName: carType,
+      itemCategory: "Véhicule VIP",
+      itemPrice: 120000,
+      days,
+      totalPrice: 120000 * (days || 1),
+      pickTime,
+      dropTime,
+      pickUp,
+      dropOff,
+      notes: `Âge: ${age || "25"} • Newsletter: ${newsletter ? "Oui" : "Non"}`,
+      source: "Site Web (WhatsApp)"
+    });
+
+    const refId = booking.id;
 
     // 2. Build formatted WhatsApp message
     const msg = encodeURIComponent(
@@ -855,6 +857,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
       `🏁 Restitution : ${dropOff} le ${formattedDrop}\n` +
       `⏱️ Durée estimée : ${days} jour(s)\n\n` +
       `👤 Client : ${fullName}\n` +
+      `💳 Compte Client 3M : ${customer.accountNumber}\n` +
       `📞 Téléphone / WhatsApp : ${phone}\n` +
       (email ? `✉️ Email : ${email}\n` : "") +
       (address ? `📍 Adresse / Quartier : ${address}, ${city || "Yaoundé"}\n` : `📍 Ville : ${city || "Yaoundé"}\n`) +
@@ -869,12 +872,12 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
     // 4. Set validation success message in green
     setSuccessStatus(
       isFr
-        ? `Votre demande de réservation (${refId}) a été validée avec succès et transmise à la conciergerie 3M SERVICES sur WhatsApp (+237 691 78 64 47) !`
-        : `Your reservation request (${refId}) has been successfully validated and sent to 3M SERVICES concierge on WhatsApp (+237 691 78 64 47)!`
+        ? `Votre réservation (${refId}) a été enregistrée avec succès ! Votre Compte Client N° ${customer.accountNumber} est désormais actif.`
+        : `Your reservation (${refId}) has been successfully saved! Your Client Account N° ${customer.accountNumber} is now active.`
     );
   };
 
-  // Handle Email Confirmation to contact@3Mservice.shop + Backend Sync
+  // Handle Email Confirmation to contact@3mservice.shop + Backend Sync
   const handleConfirmEmail = (e) => {
     if (e) e.preventDefault();
     setHasSubmitted(true);
@@ -882,32 +885,32 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
       return;
     }
 
-    const refId = "3M-RES-" + Date.now().toString().slice(-4);
     const fullName = `${name} ${lastName}`.trim();
     const days = calculateDays();
     const formattedPick = formatDateReadable(pickTime);
     const formattedDrop = formatDateReadable(dropTime);
 
-    // 1. Send booking to backend asynchronously
-    fetch(`${API_BASE}/bookings`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        clientName: fullName,
-        phone,
-        email: email || "",
-        address: address || "Yaoundé",
-        city: city || "Yaoundé",
-        zipcode: zipcode || "",
-        carName: carType,
-        pickUp,
-        dropOff,
-        pickTime,
-        dropTime,
-        notes: `Demande transmise par Email à contact@3Mservice.shop • Âge: ${age || "25"} • Newsletter: ${newsletter ? "Oui" : "Non"}`,
-        source: "Site Web (Email)"
-      })
-    }).catch((err) => console.warn("Backend offline or network err:", err));
+    // Synchronize CRM order and customer account
+    const { customer, booking } = saveOrderAndCustomerAccount({
+      clientName: fullName,
+      phone,
+      email: email || "",
+      address: address || "Yaoundé",
+      city: city || "Yaoundé",
+      itemName: carType,
+      itemCategory: "Véhicule VIP",
+      itemPrice: 120000,
+      days,
+      totalPrice: 120000 * (days || 1),
+      pickTime,
+      dropTime,
+      pickUp,
+      dropOff,
+      notes: `Demande Email • Âge: ${age || "25"} • Newsletter: ${newsletter ? "Oui" : "Non"}`,
+      source: "Site Web (Email)"
+    });
+
+    const refId = booking.id;
 
     // Also register message in contacts endpoint
     fetch(`${API_BASE}/contacts`, {
@@ -943,6 +946,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
       `COORDONNÉES DU CLIENT\n` +
       `========================================\n` +
       `• Nom & Prénom : ${fullName}\n` +
+      `• Compte Client 3M : ${customer.accountNumber}\n` +
       `• Téléphone / WhatsApp : ${phone}\n` +
       `• Adresse Email : ${email || "Non renseigné"}\n` +
       `• Âge : ${age || "25"}\n` +
@@ -963,8 +967,8 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
     // 4. Set validation success message
     setSuccessStatus(
       isFr
-        ? `Votre demande de réservation (${refId}) a été validée et transmise par email à contact@3Mservice.shop !`
-        : `Your reservation request (${refId}) has been validated and sent via email to contact@3Mservice.shop!`
+        ? `Votre demande de réservation (${refId}) a été validée et transmise par email à contact@3Mservice.shop ! Compte Client N° ${customer.accountNumber} actif.`
+        : `Your reservation request (${refId}) has been validated and sent via email to contact@3Mservice.shop! Client Account N° ${customer.accountNumber} active.`
     );
   };
 

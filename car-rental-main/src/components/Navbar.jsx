@@ -2,12 +2,21 @@ import { Link, useLocation } from "react-router-dom";
 import Logo from "../images/logo/logo.png";
 import { useState, useEffect } from "react";
 import { useTranslation } from "../context/LanguageContext";
+import { getCurrentClient } from "../utils/customerAccounts";
 import "../styles/MobileNav.css";
 
 function Navbar() {
   const [nav, setNav] = useState(false);
   const { lang, setLang, t } = useTranslation();
+  const isFr = lang === "fr";
   const location = useLocation();
+  const [client, setClient] = useState(getCurrentClient());
+
+  useEffect(() => {
+    const handleAuth = (e) => setClient(e.detail || null);
+    window.addEventListener("3m-client-auth-changed", handleAuth);
+    return () => window.removeEventListener("3m-client-auth-changed", handleAuth);
+  }, []);
 
   const closeNav = () => {
     setNav(false);
@@ -179,6 +188,26 @@ function Navbar() {
                   </div>
                   <i className="fa-solid fa-chevron-right mobile-nav-drawer__link-chevron"></i>
                 </Link>
+              </li>
+
+              {/* 7. Espace Client */}
+              <li>
+                <button
+                  type="button"
+                  className="mobile-nav-drawer__link-item"
+                  style={{ width: "100%", background: "none", border: "none", textAlign: "left", cursor: "pointer", font: "inherit" }}
+                  onClick={() => { closeNav(); window.dispatchEvent(new CustomEvent("open-client-portal")); }}
+                >
+                  <div className="mobile-nav-drawer__link-left">
+                    <span className="mobile-nav-drawer__link-icon" style={{ backgroundColor: "#fee2e2", color: "#E20713" }}>
+                      <i className="fa-solid fa-circle-user"></i>
+                    </span>
+                    <span className="mobile-nav-drawer__link-title" style={{ color: "#E20713", fontWeight: 700 }}>
+                      {client ? `Mon Compte (${client.name.split(" ")[0]})` : (isFr ? "Espace Client & Commandes" : "My Account & Orders")}
+                    </span>
+                  </div>
+                  <i className="fa-solid fa-chevron-right mobile-nav-drawer__link-chevron"></i>
+                </button>
               </li>
             </ul>
 
@@ -357,8 +386,36 @@ function Navbar() {
             </ul>
           </div>
 
-          {/* Right Action Cluster (Clean Text Language Switch + WhatsApp + Mobile Hamb) */}
-          <div className="navbar__right">
+          {/* Right Action Cluster (Espace Client + Language Switch + WhatsApp + Mobile Hamb) */}
+          <div className="navbar__right" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            {/* Espace Client / Mon Compte VIP Button */}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-client-portal"))}
+              className="navbar-client-portal-btn"
+              title="Espace Client 3M - Suivre mes commandes"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.6rem",
+                padding: "0.65rem 1.3rem",
+                borderRadius: "20px",
+                backgroundColor: "#f8fafc",
+                border: "1.5px solid #e2e8f0",
+                color: "#0f172a",
+                fontSize: "1.25rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
+                transition: "all 0.2s ease"
+              }}
+            >
+              <i className="fa-solid fa-circle-user" style={{ color: "#E20713", fontSize: "1.5rem" }}></i>
+              <span className="navbar-client-portal-text">
+                {client ? (client.name.split(" ")[0]) : (isFr ? "Espace Client" : "My Account")}
+              </span>
+            </button>
+
             {/* Minimalist Text-Only Language Switcher (FR / EN) - No round border, No flag */}
             <div className="navbar-lang-switch" role="group" aria-label="Sélecteur de langue">
               <button

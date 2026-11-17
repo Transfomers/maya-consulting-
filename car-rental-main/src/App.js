@@ -14,6 +14,7 @@ import ScrollReveal from "./components/ScrollReveal";
 import ScrollToTop from "./components/ScrollToTop";
 import AdminLogin from "./Pages/Admin/AdminLogin";
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
+import ClientPortalModal from "./components/ClientPortalModal";
 import { LanguageProvider } from "./context/LanguageContext";
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
       <ScrollReveal />
       {!isAdminPath && <PwaInstallPrompt />}
       {!isAdminPath && <Navbar />}
+      {!isAdminPath && <ClientPortalModal />}
       <Routes>
         <Route index path="/" element={<Home />} />
         <Route path="about" element={<About />} />

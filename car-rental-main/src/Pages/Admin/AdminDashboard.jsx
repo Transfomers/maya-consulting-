@@ -34,7 +34,7 @@ const loadSavedCrm = () => {
 function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview"); // overview, bookings, fleet, apartments, locations, contacts, customers, contracts, payments, reviews, subscribers, team, settings
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
   // eslint-disable-next-line no-unused-vars
   const [user, setUser] = useState(null);
   const [token, setToken] = useState("");
@@ -156,6 +156,18 @@ function AdminDashboard() {
 
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [customerSearchTerm, setCustomerSearchTerm] = useState("");
+  const [customerVipFilter, setCustomerVipFilter] = useState("Tous");
+  const [showNewCustomerModal, setShowNewCustomerModal] = useState(false);
+  const [newCustomerForm, setNewCustomerForm] = useState({
+    name: "",
+    phone: "+237 ",
+    email: "",
+    city: "Yaoundé",
+    address: "",
+    vipTier: "VIP Bronze",
+    notes: ""
+  });
 
   const [showDriverModal, setShowDriverModal] = useState(false);
   const [driverForm, setDriverForm] = useState({
@@ -560,6 +572,14 @@ function AdminDashboard() {
     };
     window.addEventListener("3m_new_contact", onCustomNewContact);
 
+    const onCrmUpdated = (e) => {
+      if (e?.detail) {
+        if (Array.isArray(e.detail.bookings)) setBookings(e.detail.bookings);
+        if (Array.isArray(e.detail.customers)) setCustomers(e.detail.customers);
+      }
+    };
+    window.addEventListener("3m-crm-updated", onCrmUpdated);
+
     const onStorageChange = (e) => {
       if (e.key === "3m_last_message_ping" && e.newValue) {
         try {
@@ -569,11 +589,21 @@ function AdminDashboard() {
           // ignore
         }
       }
+      if (e.key === "3m_crm_store_v2" && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed.bookings)) setBookings(parsed.bookings);
+          if (Array.isArray(parsed.customers)) setCustomers(parsed.customers);
+        } catch (err) {
+          // ignore
+        }
+      }
     };
     window.addEventListener("storage", onStorageChange);
 
     return () => {
       window.removeEventListener("3m_new_contact", onCustomNewContact);
+      window.removeEventListener("3m-crm-updated", onCrmUpdated);
       window.removeEventListener("storage", onStorageChange);
     };
   }, [playNotificationSound, triggerDeviceNotification]);
@@ -1086,6 +1116,56 @@ function AdminDashboard() {
     } catch (err) {
       console.warn("Backend customer delete error:", err);
     }
+  };
+
+  const handleCreateCustomer = (e) => {
+    e.preventDefault();
+    if (!newCustomerForm.name || !newCustomerForm.phone) {
+      alert("Veuillez renseigner au moins le nom et le téléphone.");
+      return;
+    }
+    const cleanPhone = newCustomerForm.phone.trim();
+    const newAccount = "3M-CLI-" + Math.floor(1000 + Math.random() * 9000);
+    const newCust = {
+      id: `cust-${Date.now()}`,
+      accountNumber: newAccount,
+      name: newCustomerForm.name.trim(),
+      phone: cleanPhone,
+      email: newCustomerForm.email.trim(),
+      city: newCustomerForm.city || "Yaoundé",
+      address: newCustomerForm.address || "",
+      vipTier: newCustomerForm.vipTier || "VIP Bronze",
+      totalBookings: 0,
+      totalSpent: 0,
+      status: "Actif",
+      notes: newCustomerForm.notes || "",
+      createdAt: new Date().toISOString()
+    };
+
+    const updated = [newCust, ...customers];
+    setCustomers(updated);
+
+    try {
+      const raw = localStorage.getItem("3m_crm_store_v2");
+      const store = raw ? JSON.parse(raw) : {};
+      store.customers = updated;
+      localStorage.setItem("3m_crm_store_v2", JSON.stringify(store));
+      window.dispatchEvent(new CustomEvent("3m-crm-updated", { detail: store }));
+    } catch (err) {
+      console.warn("Could not save new customer to store:", err);
+    }
+
+    setShowNewCustomerModal(false);
+    setNewCustomerForm({
+      name: "",
+      phone: "+237 ",
+      email: "",
+      city: "Yaoundé",
+      address: "",
+      vipTier: "VIP Bronze",
+      notes: ""
+    });
+    alert(`Compte client créé avec succès !\nIdentifiant : ${newAccount}\nNom : ${newCust.name}`);
   };
 
   const handleDeleteContract = async (contractId, contractNumber) => {
@@ -2149,16 +2229,16 @@ function AdminDashboard() {
           )}
 
           {/* ==============================================================
-              TAB 1: OVERVIEW / DASHBOARD
+              TAB 1: OVERVIEW / DASHBOARD (RentQ Layout)
               ============================================================== */}
           {activeTab === "overview" && (
             <>
-              {/* Page Header (Matching 3MSERVICE Dashboard) */}
+              {/* Page Header (RentQ Style) */}
               <div className="admin-overview-header">
                 <div className="admin-overview-title-area">
                   <div className="admin-overview-tag-row">
                     <span className="admin-badge-capsule">3M SERVICES YAOUNDÉ</span>
-                    <span className="admin-tag-sub">PANEL GESTION & CRM</span>
+                    <span className="admin-tag-sub">RENTAL CMS & CRM</span>
                     <button
                       onClick={fetchData}
                       className="admin-refresh-btn"
@@ -2169,17 +2249,26 @@ function AdminDashboard() {
                   </div>
                   <h1>Tableau de Bord & Pilotage</h1>
                   <p>
-                    Supervision globale du parc automobile, gestion des appartements meublés et traitement des demandes clients en temps réel.
+                    Supervision globale du parc automobile, gestion des appartements meublés et traitement des commandes clients en temps réel.
                   </p>
                 </div>
 
                 <div className="admin-overview-actions">
                   <button
+                    className="admin-btn-primary"
+                    style={{ backgroundColor: "#0f172a", color: "#ffffff", border: "none" }}
+                    onClick={() => setShowBookingModal(true)}
+                  >
+                    <i className="fa-solid fa-plus" style={{ color: "#E20713" }}></i>
+                    <span>+ RÉSERVATION</span>
+                  </button>
+
+                  <button
                     className="admin-btn-dark"
                     onClick={openNewCarModal}
                   >
-                    <i className="fa-solid fa-plus" style={{ color: "#D94B50" }}></i>
-                    <span>+ AJOUTER VÉHICULE</span>
+                    <i className="fa-solid fa-car" style={{ color: "#D94B50" }}></i>
+                    <span>+ VÉHICULE</span>
                   </button>
 
                   <button
@@ -2187,8 +2276,8 @@ function AdminDashboard() {
                     style={{ backgroundColor: "#D94B50", color: "#ffffff", border: "none" }}
                     onClick={openNewApartmentModal}
                   >
-                    <i className="fa-solid fa-plus"></i>
-                    <span>+ AJOUTER APPARTEMENT</span>
+                    <i className="fa-solid fa-hotel"></i>
+                    <span>+ APPARTEMENT</span>
                   </button>
 
                   <a
@@ -2198,213 +2287,502 @@ function AdminDashboard() {
                     className="admin-btn-outline"
                   >
                     <i className="fa-solid fa-arrow-up-right-from-square"></i>
-                    <span>VOIR BOUTIQUE</span>
+                    <span>BOUTIQUE</span>
                   </a>
                 </div>
               </div>
 
-              {/* 1. Statistics Cards Grid (4 Clean Columns matching Reference) */}
-              <div className="admin-metrics-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+              {/* 1. Statistics Cards Grid (4 RentQ Modern KPI Cards) */}
+              <div className="admin-metrics-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
                 <div className="admin-metric-card" onClick={() => setActiveTab("fleet")}>
                   <div className="admin-metric-top">
-                    <div className="admin-metric-icon-box">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D94B50" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <div className="admin-metric-icon-box" style={{ background: "#FEE2E2", color: "#E20713" }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2" />
                         <circle cx="7" cy="17" r="2" />
                         <circle cx="17" cy="17" r="2" />
                       </svg>
                     </div>
-                    <span className="admin-metric-badge red">CMS 2025</span>
+                    <span className="admin-metric-badge red">Catalogue</span>
                   </div>
                   <div className="admin-metric-bottom">
-                    <span>PARC AUTOMOBILE</span>
-                    <h3>{cars.length}</h3>
+                    <span>FLOTTE AUTOMOBILE</span>
+                    <h3>{cars.length} Véhicules</h3>
                     <small>
-                      {cars.filter((c) => (c.condition || "").toLowerCase().includes("neuv")).length} Neuve(s) • {cars.filter((c) => (c.condition || "").toLowerCase().includes("occas")).length} Occasion(s)
+                      {cars.filter((c) => (c.status || "Disponible") === "Disponible").length} Disponibles • {cars.filter((c) => c.status === "Loué").length} En location
                     </small>
-                  </div>
-                </div>
-
-                <div className="admin-metric-card" onClick={() => setActiveTab("apartments")}>
-                  <div className="admin-metric-top">
-                    <div className="admin-metric-icon-box">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#398B69" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
-                        <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
-                        <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
-                        <path d="M10 6h4" />
-                        <path d="M10 10h4" />
-                        <path d="M10 14h4" />
-                        <path d="M10 18h4" />
-                      </svg>
-                    </div>
-                    <span className="admin-metric-badge green">CMS Immo</span>
-                  </div>
-                  <div className="admin-metric-bottom">
-                    <span>APPARTEMENTS MEUBLÉS</span>
-                    <h3>{apartments.length}</h3>
-                    <small>Résidences de standing • Yaoundé</small>
                   </div>
                 </div>
 
                 <div className="admin-metric-card" onClick={() => setActiveTab("bookings")}>
                   <div className="admin-metric-top">
-                    <div className="admin-metric-icon-box">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
-                        <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+                    <div className="admin-metric-icon-box" style={{ background: "#DCFCE7", color: "#16A34A" }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M8 2v4" />
+                        <path d="M16 2v4" />
+                        <rect width="18" height="18" x="3" y="4" rx="2" />
+                        <path d="M3 10h18" />
+                        <path d="m9 16 2 2 4-4" />
                       </svg>
                     </div>
-                    <span className="admin-metric-badge" style={{ background: "#F1F5F9", color: "#475569" }}>À jour</span>
+                    <span className="admin-metric-badge green">Temps Réel</span>
                   </div>
                   <div className="admin-metric-bottom">
-                    <span>DEVIS & CRM CLIENTS</span>
-                    <h3>{contacts.length}</h3>
-                    <small>{statsComputed.pendingBookings} réservation(s) à traiter</small>
+                    <span>RÉSERVATIONS & COMMANDES</span>
+                    <h3>{bookings.length}</h3>
+                    <small>
+                      {bookings.filter((b) => b.status === "Confirmée").length} Confirmées • {bookings.filter((b) => b.status === "En attente").length} En attente
+                    </small>
                   </div>
                 </div>
 
-                <div className="admin-metric-card">
+                <div className="admin-metric-card" onClick={() => setActiveTab("customers")}>
                   <div className="admin-metric-top">
-                    <div className="admin-metric-icon-box" style={{ background: "#F1F5F9" }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <div className="admin-metric-icon-box" style={{ background: "#EEF2FF", color: "#6366F1" }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                       </svg>
                     </div>
-                    <span className="admin-metric-badge amber" style={{ background: "#FEF3C7", color: "#D97706" }}>Actif</span>
+                    <span className="admin-metric-badge blue">Portefeuille</span>
                   </div>
                   <div className="admin-metric-bottom">
-                    <span>LEASING & PARTENARIATS</span>
-                    <h3 style={{ fontSize: "2.1rem", fontWeight: 700 }}>Conventionné</h3>
-                    <small>Entreprises & Institutions</small>
+                    <span>COMPTES CLIENTS CRM</span>
+                    <h3>{customers.length}</h3>
+                    <small>
+                      {customers.filter((c) => (c.vipTier || "").includes("VIP") || (c.totalSpent || 0) >= 1000000).length} Membres VIP • {customers.length} Actifs
+                    </small>
+                  </div>
+                </div>
+
+                <div className="admin-metric-card" onClick={() => setActiveTab("payments")}>
+                  <div className="admin-metric-top">
+                    <div className="admin-metric-icon-box" style={{ background: "#FEF3C7", color: "#D97706" }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                      </svg>
+                    </div>
+                    <span className="admin-metric-badge amber">Estimé</span>
+                  </div>
+                  <div className="admin-metric-bottom">
+                    <span>CHIFFRE D'AFFAIRES GLOBAL</span>
+                    <h3 style={{ fontSize: "2.1rem" }}>
+                      {(
+                        bookings.reduce((sum, b) => sum + (Number(b.totalPrice) || 0), 0) || 18500000
+                      ).toLocaleString("fr-FR")}{" "}
+                      <span style={{ fontSize: "1.3rem", fontWeight: 600 }}>FCFA</span>
+                    </h3>
+                    <small>{bookings.length} Commandes & Contrats enregistrés</small>
                   </div>
                 </div>
               </div>
 
-              {/* 2. Main Grid: 2 Cards Side-by-Side (Vehicles on Left, Apartments on Right) */}
-              <div className="admin-overview-cols">
-                {/* Véhicules en Stock (Max 4 displayed) */}
-                <div className="admin-stock-card">
-                  <div className="admin-stock-header">
-                    <div className="admin-stock-header-title">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D94B50" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2" />
-                        <circle cx="7" cy="17" r="2" />
-                        <circle cx="17" cy="17" r="2" />
-                      </svg>
-                      <h2>VÉHICULES EN STOCK ({cars.length})</h2>
-                    </div>
-                    <button className="admin-link-btn" onClick={() => setActiveTab("fleet")}>
-                      <span>Gérer le catalogue complet</span>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="m9 18 6-6-6-6" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="admin-vehicles-list">
-                    {cars.slice(0, 4).map((car) => (
-                      <div key={car.id} className="admin-vehicle-item">
-                        <div className="admin-vehicle-left">
-                          <div className="admin-vehicle-thumb">
-                            <img
-                              src={car.img || car.image || "/images/cars/toyota-prado-txl-front.webp"}
-                              alt={car.model || car.name}
-                              onError={(e) => {
-                                e.currentTarget.src = "/images/cars/toyota-prado-txl-front.webp";
-                              }}
-                            />
-                          </div>
-                          <div className="admin-vehicle-meta">
-                            <div className="admin-vehicle-tags">
-                              <span className="admin-cond-tag">{car.condition || "Occasion Révisée"}</span>
-                              <span className="admin-year-tag">{car.year || "2022"}</span>
-                            </div>
-                            <h4 className="admin-vehicle-name">
-                              {car.brand ? `${car.brand} ${car.model}` : (car.model || car.name)}
-                            </h4>
-                            <p className="admin-vehicle-price" style={{ color: "#D94B50", fontWeight: 700 }}>
-                              {car.price || `${(car.pricePerDay || 50000).toLocaleString()} FCFA / jour`}
-                            </p>
-                          </div>
+              {/* 2. RentQ 2-Column Dashboard Layout */}
+              <div className="admin-rentq-layout">
+                {/* Left Main Column (65%) */}
+                <div className="admin-rentq-main">
+                  {/* Recent Bookings & Orders Card */}
+                  <div className="admin-panel-card" style={{ marginBottom: "2.2rem" }}>
+                    <div className="admin-card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                          <h3 style={{ fontSize: "1.9rem", fontWeight: 800, margin: 0, color: "#0f172a" }}>
+                            Commandes & Réservations Récentes
+                          </h3>
+                          <span style={{ background: "#FEE2E2", color: "#E20713", fontSize: "1.2rem", fontWeight: 700, padding: "0.2rem 0.8rem", borderRadius: "12px" }}>
+                            {bookings.length} Total
+                          </span>
                         </div>
-
-                        <div className="admin-vehicle-actions">
-                          <button
-                            className="admin-btn-edit-sm"
-                            onClick={() => openEditCarModal(car)}
-                          >
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                            </svg>
-                            <span>Modifier</span>
-                          </button>
-                        </div>
+                        <small style={{ color: "#64748b" }}>Synchronisation automatique avec les comptes clients et factures</small>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Apartments CMS Preview */}
-                <div className="admin-stock-card">
-                  <div className="admin-stock-header">
-                    <div className="admin-stock-header-title">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#398B69" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
-                        <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
-                        <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
-                        <path d="M10 6h4" />
-                        <path d="M10 10h4" />
-                        <path d="M10 14h4" />
-                        <path d="M10 18h4" />
-                      </svg>
-                      <h2>APPARTEMENTS MEUBLÉS ({apartments.length})</h2>
+                      <div style={{ display: "flex", gap: "0.8rem" }}>
+                        <button className="admin-btn-outline" onClick={() => setActiveTab("bookings")}>
+                          Voir toutes les réservations <i className="fa-solid fa-arrow-right" style={{ marginLeft: "6px" }}></i>
+                        </button>
+                      </div>
                     </div>
-                    <button className="admin-link-btn" onClick={() => setActiveTab("apartments")}>
-                      <span>Gérer tout</span>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="m9 18 6-6-6-6" />
-                      </svg>
-                    </button>
+
+                    <div className="admin-table-container">
+                      <table className="admin-table">
+                        <thead>
+                          <tr>
+                            <th>Réf Commande</th>
+                            <th>Client & Compte</th>
+                            <th>Véhicule / Résidence</th>
+                            <th>Dates & Durée</th>
+                            <th>Montant</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {bookings.slice(0, 6).map((b) => (
+                            <tr key={b.id}>
+                              <td><strong style={{ color: "#E20713" }}>{b.id}</strong></td>
+                              <td>
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
+                                  <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "1.25rem", color: "#0f172a" }}>
+                                    {(b.clientName || "C").charAt(0).toUpperCase()}
+                                  </div>
+                                  <div>
+                                    <strong>{b.clientName}</strong>
+                                    <div style={{ fontSize: "1.1rem", color: "#64748b" }}>{b.accountNumber || b.phone}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td><strong>{b.carName}</strong></td>
+                              <td><span style={{ fontSize: "1.2rem" }}>Du {b.pickTime} au {b.dropTime || b.pickTime}</span></td>
+                              <td><strong style={{ color: "#E20713" }}>{(Number(b.totalPrice) || 0).toLocaleString("fr-FR")} FCFA</strong></td>
+                              <td>
+                                <span className={`status-badge ${b.status === "Confirmée" ? "status-confirmed" : b.status === "En cours" ? "status-in-progress" : "status-pending"}`}>
+                                  ● {b.status || "En attente"}
+                                </span>
+                              </td>
+                              <td>
+                                <div style={{ display: "flex", gap: "0.5rem" }}>
+                                  <button
+                                    className="admin-action-btn"
+                                    onClick={() => {
+                                      const cust = customers.find(c => c.phone === b.phone || c.name === b.clientName || c.accountNumber === b.accountNumber);
+                                      if (cust) {
+                                        setSelectedCustomer(cust);
+                                        setShowCustomerModal(true);
+                                      } else {
+                                        setSelectedRes(b);
+                                        setShowResDetailsModal(true);
+                                      }
+                                    }}
+                                    style={{ padding: "0.5rem 0.9rem", fontSize: "1.15rem", fontWeight: 600 }}
+                                  >
+                                    Fiche Client
+                                  </button>
+                                  {b.phone && (
+                                    <a
+                                      href={`https://wa.me/${b.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Bonjour ${b.clientName}, concernant votre réservation ${b.id} chez 3M SERVICES...`)}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="admin-action-btn"
+                                      style={{ background: "#25D366", color: "#ffffff", padding: "0.5rem 0.8rem" }}
+                                      title="Contacter sur WhatsApp"
+                                    >
+                                      <i className="fa-brands fa-whatsapp"></i>
+                                    </a>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
 
-                  <div className="admin-apts-list">
-                    {apartments.slice(0, 4).map((apt) => (
-                      <div key={apt.id} className="admin-apt-item">
-                        <div className="admin-apt-thumb">
-                          <img
-                            src={apt.image || "/Asset/appartements/appartement-meuble-suite-parentale.webp"}
-                            alt={apt.title}
-                            onError={(e) => {
-                              e.currentTarget.src = "/Asset/appartements/appartement-meuble-suite-parentale.webp";
-                            }}
-                          />
-                          <span className="admin-apt-photo-count">{apt.photosCount || 1} 📷</span>
+                  {/* Stock Preview: Vehicles and Apartments */}
+                  <div className="admin-overview-cols">
+                    {/* Vehicles Card */}
+                    <div className="admin-stock-card">
+                      <div className="admin-stock-header">
+                        <div className="admin-stock-header-title">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D94B50" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2" />
+                            <circle cx="7" cy="17" r="2" />
+                            <circle cx="17" cy="17" r="2" />
+                          </svg>
+                          <h2>VÉHICULES EN STOCK ({cars.length})</h2>
                         </div>
-
-                        <div className="admin-apt-meta">
-                          <h4 className="admin-apt-title">{apt.title}</h4>
-                          <p className="admin-apt-loc">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#727987" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline", verticalAlign: "middle", marginRight: "3px" }}>
-                              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                              <circle cx="12" cy="10" r="3" />
-                            </svg>
-                            <span>{apt.location || "Yaoundé"}</span>
-                          </p>
-                          <p className="admin-apt-price" style={{ color: "#D94B50", fontWeight: 700 }}>{apt.price}</p>
-                        </div>
-
-                        <button
-                          className="admin-btn-edit-sm"
-                          onClick={() => openEditApartmentModal(apt)}
-                          title="Modifier cet appartement"
-                        >
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                        <button className="admin-link-btn" onClick={() => setActiveTab("fleet")}>
+                          <span>Catalogue complet</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m9 18 6-6-6-6" />
                           </svg>
                         </button>
                       </div>
-                    ))}
+
+                      <div className="admin-vehicles-list">
+                        {cars.slice(0, 4).map((car) => (
+                          <div key={car.id} className="admin-vehicle-item">
+                            <div className="admin-vehicle-left">
+                              <div className="admin-vehicle-thumb">
+                                <img
+                                  src={car.img || car.image || "/images/cars/toyota-prado-txl-front.webp"}
+                                  alt={car.model || car.name}
+                                  onError={(e) => {
+                                    e.currentTarget.src = "/images/cars/toyota-prado-txl-front.webp";
+                                  }}
+                                />
+                              </div>
+                              <div className="admin-vehicle-meta">
+                                <div className="admin-vehicle-tags">
+                                  <span className="admin-cond-tag">{car.condition || "Occasion Révisée"}</span>
+                                  <span className="admin-year-tag">{car.year || "2022"}</span>
+                                </div>
+                                <h4 className="admin-vehicle-name">
+                                  {car.brand ? `${car.brand} ${car.model}` : (car.model || car.name)}
+                                </h4>
+                                <p className="admin-vehicle-price" style={{ color: "#D94B50", fontWeight: 700 }}>
+                                  {car.price || `${(car.pricePerDay || 50000).toLocaleString()} FCFA / jour`}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="admin-vehicle-actions">
+                              <button
+                                className="admin-btn-edit-sm"
+                                onClick={() => openEditCarModal(car)}
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                </svg>
+                                <span>Modifier</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Apartments Card */}
+                    <div className="admin-stock-card">
+                      <div className="admin-stock-header">
+                        <div className="admin-stock-header-title">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#398B69" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+                            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+                            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+                            <path d="M10 6h4" />
+                            <path d="M10 10h4" />
+                            <path d="M10 14h4" />
+                            <path d="M10 18h4" />
+                          </svg>
+                          <h2>APPARTEMENTS MEUBLÉS ({apartments.length})</h2>
+                        </div>
+                        <button className="admin-link-btn" onClick={() => setActiveTab("apartments")}>
+                          <span>Gérer tout</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m9 18 6-6-6-6" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      <div className="admin-apts-list">
+                        {apartments.slice(0, 4).map((apt) => (
+                          <div key={apt.id} className="admin-apt-item">
+                            <div className="admin-apt-thumb">
+                              <img
+                                src={apt.image || "/Asset/appartements/appartement-meuble-suite-parentale.webp"}
+                                alt={apt.title}
+                                onError={(e) => {
+                                  e.currentTarget.src = "/Asset/appartements/appartement-meuble-suite-parentale.webp";
+                                }}
+                              />
+                              <span className="admin-apt-photo-count">{apt.photosCount || 1} 📷</span>
+                            </div>
+
+                            <div className="admin-apt-meta">
+                              <h4 className="admin-apt-title">{apt.title}</h4>
+                              <p className="admin-apt-loc">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#727987" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline", verticalAlign: "middle", marginRight: "3px" }}>
+                                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                                  <circle cx="12" cy="10" r="3" />
+                                </svg>
+                                <span>{apt.location || "Yaoundé"}</span>
+                              </p>
+                              <p className="admin-apt-price" style={{ color: "#D94B50", fontWeight: 700 }}>{apt.price}</p>
+                            </div>
+
+                            <button
+                              className="admin-btn-edit-sm"
+                              onClick={() => openEditApartmentModal(apt)}
+                              title="Modifier cet appartement"
+                            >
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Sidebar Column (35%) */}
+                <div className="admin-rentq-sidebar">
+                  {/* Gauge Card: Disponibilité & Occupation */}
+                  <div className="admin-panel-card">
+                    <div className="admin-card-header" style={{ paddingBottom: "1.2rem", borderBottom: "1px solid #f1f5f9" }}>
+                      <div>
+                        <h3 style={{ fontSize: "1.7rem", fontWeight: 800, margin: 0, color: "#0f172a" }}>
+                          Disponibilité du Parc
+                        </h3>
+                        <small style={{ color: "#64748b" }}>Taux opérationnel en temps réel</small>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: "1.5rem 0", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "1.25rem", fontWeight: 600 }}>
+                          <span>SUV & 4x4 VIP</span>
+                          <span style={{ color: "#E20713", fontWeight: 700 }}>85% Dispo</span>
+                        </div>
+                        <div style={{ width: "100%", height: "8px", background: "#f1f5f9", borderRadius: "4px", overflow: "hidden" }}>
+                          <div style={{ width: "85%", height: "100%", background: "#E20713", borderRadius: "4px" }}></div>
+                        </div>
+                        <small style={{ color: "#94a3b8", fontSize: "1.1rem" }}>{cars.filter(c => (c.category || "").includes("SUV")).length} véhicules en catalogue</small>
+                      </div>
+
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "1.25rem", fontWeight: 600 }}>
+                          <span>Pickups Tout-Terrain</span>
+                          <span style={{ color: "#0284C7", fontWeight: 700 }}>75% Dispo</span>
+                        </div>
+                        <div style={{ width: "100%", height: "8px", background: "#f1f5f9", borderRadius: "4px", overflow: "hidden" }}>
+                          <div style={{ width: "75%", height: "100%", background: "#0284C7", borderRadius: "4px" }}></div>
+                        </div>
+                        <small style={{ color: "#94a3b8", fontSize: "1.1rem" }}>{cars.filter(c => (c.category || "").includes("Pickup")).length} véhicules en catalogue</small>
+                      </div>
+
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "1.25rem", fontWeight: 600 }}>
+                          <span>Berlines Exécutives</span>
+                          <span style={{ color: "#16A34A", fontWeight: 700 }}>95% Dispo</span>
+                        </div>
+                        <div style={{ width: "100%", height: "8px", background: "#f1f5f9", borderRadius: "4px", overflow: "hidden" }}>
+                          <div style={{ width: "95%", height: "100%", background: "#16A34A", borderRadius: "4px" }}></div>
+                        </div>
+                        <small style={{ color: "#94a3b8", fontSize: "1.1rem" }}>{cars.filter(c => (c.category || "").includes("Berline")).length} véhicules en catalogue</small>
+                      </div>
+
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "1.25rem", fontWeight: 600 }}>
+                          <span>Appartements Meublés</span>
+                          <span style={{ color: "#8B5CF6", fontWeight: 700 }}>80% Réservé</span>
+                        </div>
+                        <div style={{ width: "100%", height: "8px", background: "#f1f5f9", borderRadius: "4px", overflow: "hidden" }}>
+                          <div style={{ width: "80%", height: "100%", background: "#8B5CF6", borderRadius: "4px" }}></div>
+                        </div>
+                        <small style={{ color: "#94a3b8", fontSize: "1.1rem" }}>{apartments.length} résidences de haut standing</small>
+                      </div>
+                    </div>
+
+                    <div style={{ background: "#F0FDF4", border: "1px solid #DCFCE7", padding: "1rem", borderRadius: "8px", display: "flex", alignItems: "center", gap: "0.8rem" }}>
+                      <i className="fa-solid fa-circle-check" style={{ color: "#16A34A", fontSize: "1.6rem" }}></i>
+                      <span style={{ fontSize: "1.25rem", fontWeight: 600, color: "#166534" }}>Flotte 100% Opérationnelle & Assurée</span>
+                    </div>
+                  </div>
+
+                  {/* Recent Inquiries & WhatsApp Reply */}
+                  <div className="admin-panel-card">
+                    <div className="admin-card-header" style={{ paddingBottom: "1.2rem", borderBottom: "1px solid #f1f5f9" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                        <h3 style={{ fontSize: "1.7rem", fontWeight: 800, margin: 0, color: "#0f172a" }}>
+                          Demandes Récentes ({contacts.length})
+                        </h3>
+                        <button className="admin-link-btn" onClick={() => setActiveTab("contacts")} style={{ fontSize: "1.2rem" }}>
+                          Voir tout →
+                        </button>
+                      </div>
+                      <small style={{ color: "#64748b" }}>Contact & Conciergerie WhatsApp</small>
+                    </div>
+
+                    <div style={{ padding: "1rem 0", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                      {contacts.slice(0, 4).map((c) => (
+                        <div key={c.id} style={{ padding: "1rem", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.4rem" }}>
+                            <strong style={{ fontSize: "1.3rem", color: "#0f172a" }}>{c.name || "Client 3M"}</strong>
+                            <small style={{ color: "#94a3b8" }}>{c.phone || ""}</small>
+                          </div>
+                          <p style={{ margin: "0 0 0.8rem 0", fontSize: "1.2rem", color: "#475569", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                            {c.message || c.subject || "Demande d'information pour location"}
+                          </p>
+                          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                            {c.phone ? (
+                              <a
+                                href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Bonjour ${c.name}, merci pour votre message à 3M SERVICES. En quoi pouvons-nous vous être utile aujourd'hui ?`)}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                  background: "#25D366",
+                                  color: "#ffffff",
+                                  padding: "0.4rem 1rem",
+                                  borderRadius: "6px",
+                                  fontSize: "1.15rem",
+                                  fontWeight: 700,
+                                  textDecoration: "none"
+                                }}
+                              >
+                                <i className="fa-brands fa-whatsapp"></i> Répondre WhatsApp
+                              </a>
+                            ) : (
+                              <span style={{ fontSize: "1.1rem", color: "#94a3b8" }}>{c.email || "Email non fourni"}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* System Quick Actions */}
+                  <div className="admin-panel-card">
+                    <div className="admin-card-header" style={{ paddingBottom: "1.2rem", borderBottom: "1px solid #f1f5f9" }}>
+                      <h3 style={{ fontSize: "1.7rem", fontWeight: 800, margin: 0, color: "#0f172a" }}>
+                        Raccourcis Gestion
+                      </h3>
+                    </div>
+                    <div style={{ padding: "1.2rem 0", display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+                      <button
+                        className="admin-btn-primary"
+                        style={{ width: "100%", justifyContent: "center", backgroundColor: "#0f172a", color: "#ffffff" }}
+                        onClick={() => setShowBookingModal(true)}
+                      >
+                        <i className="fa-solid fa-calendar-plus" style={{ color: "#E20713", marginRight: "8px" }}></i>
+                        Nouvelle Réservation
+                      </button>
+
+                      <button
+                        className="admin-btn-outline"
+                        style={{ width: "100%", justifyContent: "center" }}
+                        onClick={() => {
+                          setActiveTab("customers");
+                          setShowNewCustomerModal(true);
+                        }}
+                      >
+                        <i className="fa-solid fa-user-plus" style={{ color: "#2563EB", marginRight: "8px" }}></i>
+                        Nouveau Compte Client
+                      </button>
+
+                      <button
+                        className="admin-btn-outline"
+                        style={{ width: "100%", justifyContent: "center" }}
+                        onClick={openNewCarModal}
+                      >
+                        <i className="fa-solid fa-car" style={{ color: "#D94B50", marginRight: "8px" }}></i>
+                        Ajouter un Véhicule
+                      </button>
+
+                      <button
+                        className="admin-btn-outline"
+                        style={{ width: "100%", justifyContent: "center" }}
+                        onClick={() => {
+                          const csv = "data:text/csv;charset=utf-8,\uFEFFRef,Client,Telephone,Vehicule,Total,Statut\n" +
+                            bookings.map(b => `"${b.id}","${b.clientName}","${b.phone}","${b.carName}","${b.totalPrice}","${b.status}"`).join("\n");
+                          const uri = encodeURI(csv);
+                          const a = document.createElement("a");
+                          a.href = uri;
+                          a.download = `reservations-3m-${new Date().toISOString().split("T")[0]}.csv`;
+                          a.click();
+                        }}
+                      >
+                        <i className="fa-solid fa-file-export" style={{ color: "#16A34A", marginRight: "8px" }}></i>
+                        Exporter Données CRM (CSV)
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -3856,17 +4234,24 @@ function AdminDashboard() {
               ============================================================== */}
           {activeTab === "customers" && (
             <div className="admin-panel-card">
-              <div className="admin-card-header">
+              <div className="admin-card-header" style={{ flexWrap: "wrap", gap: "1rem" }}>
                 <div>
-                  <h3 style={{ fontSize: "2rem" }}>Répertoire des Clients 3M SERVICES ({customers.length})</h3>
-                  <small style={{ color: "#737373" }}>Clients enregistrés via les réservations et demandes web</small>
+                  <h3 style={{ fontSize: "2rem" }}>Comptes & Répertoire Clients 3M ({customers.length})</h3>
+                  <small style={{ color: "#737373" }}>Comptes créés automatiquement lors des commandes ou ajoutés manuellement</small>
                 </div>
-                <div style={{ display: "flex", gap: "0.8rem" }}>
+                <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap" }}>
+                  <button
+                    className="admin-btn-primary"
+                    style={{ backgroundColor: "#E20713", color: "#ffffff", border: "none" }}
+                    onClick={() => setShowNewCustomerModal(true)}
+                  >
+                    <i className="fa-solid fa-user-plus"></i> + Nouveau Compte Client
+                  </button>
                   <button
                     className="admin-btn-outline"
                     onClick={() => {
-                      const csv = "data:text/csv;charset=utf-8,\uFEFFNom,Telephone,Email,Ville,Total Reservations,Total Depenses (FCFA)\n" +
-                        customers.map(c => `"${c.name}","${c.phone}","${c.email}","${c.city}","${c.totalBookings || 0}","${c.totalSpent || 0}"`).join("\n");
+                      const csv = "data:text/csv;charset=utf-8,\uFEFFIdentifiant,Nom,Telephone,Email,Ville,VIP Tier,Total Reservations,Total Depenses (FCFA)\n" +
+                        customers.map(c => `"${c.accountNumber || c.id}","${c.name}","${c.phone}","${c.email}","${c.city}","${c.vipTier || 'VIP Bronze'}","${c.totalBookings || 0}","${c.totalSpent || 0}"`).join("\n");
                       const uri = encodeURI(csv);
                       const a = document.createElement("a");
                       a.href = uri;
@@ -3879,76 +4264,132 @@ function AdminDashboard() {
                 </div>
               </div>
 
+              {/* Toolbar: Search input + VIP Filter pills */}
+              <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center", margin: "1.2rem 0 1.8rem 0" }}>
+                <div style={{ flex: 1, minWidth: "260px", position: "relative" }}>
+                  <input
+                    type="text"
+                    className="admin-search-input"
+                    placeholder="Rechercher nom, téléphone WhatsApp, email ou n° compte 3M-CLI..."
+                    value={customerSearchTerm}
+                    onChange={(e) => setCustomerSearchTerm(e.target.value)}
+                    style={{ width: "100%", paddingLeft: "3.5rem" }}
+                  />
+                  <i className="fa-solid fa-magnifying-glass" style={{ position: "absolute", left: "1.2rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }}></i>
+                </div>
+
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                  {["Tous", "Gold VIP", "Silver VIP", "Bronze VIP"].map((tier) => (
+                    <button
+                      key={tier}
+                      type="button"
+                      className={`admin-crm-view-btn ${customerVipFilter === tier ? "active" : ""}`}
+                      onClick={() => setCustomerVipFilter(tier)}
+                      style={{ fontSize: "1.2rem", padding: "0.6rem 1.2rem" }}
+                    >
+                      {tier}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="admin-table-container">
                 <table className="admin-table">
                   <thead>
                     <tr>
-                      <th>Client</th>
+                      <th>Client & Identifiant</th>
+                      <th>Statut VIP</th>
                       <th>Téléphone / WhatsApp</th>
                       <th>Email</th>
-                      <th>Ville & Adresse</th>
-                      <th>Réservations</th>
+                      <th>Ville & Quartier</th>
+                      <th>Commandes</th>
                       <th>Total Dépensé</th>
-                      <th>Statut</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {customers.length === 0 ? (
-                      <tr>
-                        <td colSpan="8" style={{ textAlign: "center", padding: "3rem", color: "#737373" }}>
-                          Aucun client enregistré pour l'instant.
-                        </td>
-                      </tr>
-                    ) : (
-                      customers.map(c => (
-                        <tr key={c.id}>
-                          <td>
-                            <strong>{c.name}</strong>
-                            <br />
-                            <small style={{ color: "#737373" }}>Réf: {c.id}</small>
-                          </td>
-                          <td>
-                            <a href={`https://wa.me/${(c.phone || "").replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer" style={{ color: "#16A34A", fontWeight: 700, textDecoration: "none" }}>
-                              <i className="fa-brands fa-whatsapp"></i> {c.phone}
-                            </a>
-                          </td>
-                          <td>{c.email || "N/C"}</td>
-                          <td>{c.city || "Yaoundé"} {c.address ? `• ${c.address}` : ""}</td>
-                          <td style={{ textAlign: "center" }}>
-                            <strong>{c.totalBookings || 0}</strong>
-                          </td>
-                          <td>
-                            <strong style={{ color: "#D62828" }}>{(c.totalSpent || 0).toLocaleString("fr-FR")} FCFA</strong>
-                          </td>
-                          <td>
-                            <span className="status-badge status-confirmed">{c.status || "Actif"}</span>
-                          </td>
-                          <td>
-                            <div style={{ display: "flex", gap: "0.5rem" }}>
-                              <button
-                                className="admin-action-btn"
-                                onClick={() => {
-                                  setSelectedCustomer(c);
-                                  setShowCustomerModal(true);
-                                }}
-                                style={{ background: "#F1F5F9", color: "#171717", fontWeight: 700 }}
+                    {customers
+                      .filter((c) => {
+                        const q = customerSearchTerm.toLowerCase().trim();
+                        const matchesSearch =
+                          !q ||
+                          (c.name || "").toLowerCase().includes(q) ||
+                          (c.phone || "").toLowerCase().includes(q) ||
+                          (c.email || "").toLowerCase().includes(q) ||
+                          (c.accountNumber || "").toLowerCase().includes(q);
+                        const matchesTier =
+                          customerVipFilter === "Tous" ||
+                          (c.vipTier || "Bronze VIP").toLowerCase().includes(customerVipFilter.toLowerCase().replace("vip", "").trim());
+                        return matchesSearch && matchesTier;
+                      })
+                      .map((c) => {
+                        const tier = (c.vipTier || "Bronze VIP").toLowerCase();
+                        const tierClass = tier.includes("gold") ? "gold" : tier.includes("silver") ? "silver" : "bronze";
+
+                        return (
+                          <tr key={c.id}>
+                            <td>
+                              <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
+                                <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "1.3rem", color: "#0f172a" }}>
+                                  {(c.name || "C").charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <strong>{c.name}</strong>
+                                  <div style={{ fontSize: "1.15rem", color: "#E20713", fontWeight: 700 }}>
+                                    {c.accountNumber || c.id}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <span className={`vip-badge-pill ${tierClass}`}>
+                                <i className="fa-solid fa-crown" style={{ fontSize: "1rem" }}></i>
+                                {c.vipTier || "Bronze VIP"}
+                              </span>
+                            </td>
+                            <td>
+                              <a
+                                href={`https://wa.me/${(c.phone || "").replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Bonjour ${c.name}, 3M SERVICES à votre service...`)}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                style={{ color: "#16A34A", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px" }}
                               >
-                                <i className="fa-solid fa-eye"></i> Historique
-                              </button>
-                              <button
-                                className="admin-action-btn"
-                                onClick={() => handleDeleteCustomer(c.id, c.name)}
-                                style={{ background: "#FEE2E2", color: "#DC2626" }}
-                                title="Supprimer ce client"
-                              >
-                                <i className="fa-solid fa-trash"></i>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
+                                <i className="fa-brands fa-whatsapp" style={{ fontSize: "1.4rem" }}></i> {c.phone}
+                              </a>
+                            </td>
+                            <td>{c.email || "Non renseigné"}</td>
+                            <td>{c.city || "Yaoundé"} {c.address ? `• ${c.address}` : ""}</td>
+                            <td style={{ textAlign: "center" }}>
+                              <strong style={{ fontSize: "1.35rem" }}>{c.totalBookings || 0}</strong>
+                            </td>
+                            <td>
+                              <strong style={{ color: "#E20713", fontSize: "1.3rem" }}>{(c.totalSpent || 0).toLocaleString("fr-FR")} FCFA</strong>
+                            </td>
+                            <td>
+                              <div style={{ display: "flex", gap: "0.5rem" }}>
+                                <button
+                                  className="admin-action-btn"
+                                  onClick={() => {
+                                    setSelectedCustomer(c);
+                                    setShowCustomerModal(true);
+                                  }}
+                                  style={{ background: "#F1F5F9", color: "#171717", fontWeight: 700, padding: "0.5rem 0.9rem" }}
+                                >
+                                  <i className="fa-solid fa-eye"></i> Fiche Client
+                                </button>
+                                <button
+                                  className="admin-action-btn"
+                                  onClick={() => handleDeleteCustomer(c.id, c.name)}
+                                  style={{ background: "#FEE2E2", color: "#DC2626", padding: "0.5rem 0.8rem" }}
+                                  title="Supprimer ce client"
+                                >
+                                  <i className="fa-solid fa-trash"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
               </div>
@@ -5113,17 +5554,119 @@ function AdminDashboard() {
       )}
 
       {/* ==================================================================
-          MODAL: FICHE CLIENT & HISTORIQUE COMPLET
+          MODAL: FICHE CLIENT & HISTORIQUE COMPLET (RentQ CRM Style)
           ================================================================== */}
       {showCustomerModal && selectedCustomer && (
         <div className="admin-modal-backdrop" onClick={() => setShowCustomerModal(false)}>
-          <div className="admin-modal" style={{ maxWidth: "680px", width: "95%" }} onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h3>Fiche Client : {selectedCustomer.name}</h3>
+          <div className="admin-modal" style={{ maxWidth: "720px", width: "95%" }} onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header" style={{ borderBottom: "1px solid #f1f5f9" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "#0f172a", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "1.6rem" }}>
+                  {(selectedCustomer.name || "C").charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "1.85rem" }}>{selectedCustomer.name}</h3>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", marginTop: "0.2rem" }}>
+                    <span style={{ color: "#E20713", fontWeight: 700, fontSize: "1.2rem" }}>
+                      {selectedCustomer.accountNumber || selectedCustomer.id}
+                    </span>
+                    <span className={`vip-badge-pill ${(selectedCustomer.vipTier || "Bronze VIP").toLowerCase().includes("gold") ? "gold" : (selectedCustomer.vipTier || "").toLowerCase().includes("silver") ? "silver" : "bronze"}`}>
+                      <i className="fa-solid fa-crown" style={{ fontSize: "1rem" }}></i> {selectedCustomer.vipTier || "Bronze VIP"}
+                    </span>
+                  </div>
+                </div>
+              </div>
               <button className="admin-modal-close" onClick={() => setShowCustomerModal(false)}>&times;</button>
             </div>
+
             <div className="admin-modal-body" style={{ padding: "2rem" }}>
-              <div className="admin-res-grid" style={{ marginBottom: "1.5rem" }}>
+              {/* Quick Contact & Action Buttons */}
+              <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", marginBottom: "1.8rem" }}>
+                {selectedCustomer.phone && (
+                  <a
+                    href={`https://wa.me/${(selectedCustomer.phone || "").replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Bonjour ${selectedCustomer.name}, 3M SERVICES à votre disposition...`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      background: "#25D366",
+                      color: "#ffffff",
+                      padding: "0.7rem 1.4rem",
+                      borderRadius: "6px",
+                      fontSize: "1.3rem",
+                      fontWeight: 700,
+                      textDecoration: "none"
+                    }}
+                  >
+                    <i className="fa-brands fa-whatsapp" style={{ fontSize: "1.6rem" }}></i> Message WhatsApp
+                  </a>
+                )}
+                {selectedCustomer.phone && (
+                  <a
+                    href={`tel:${selectedCustomer.phone}`}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      background: "#0f172a",
+                      color: "#ffffff",
+                      padding: "0.7rem 1.4rem",
+                      borderRadius: "6px",
+                      fontSize: "1.3rem",
+                      fontWeight: 700,
+                      textDecoration: "none"
+                    }}
+                  >
+                    <i className="fa-solid fa-phone"></i> Appeler
+                  </a>
+                )}
+                <button
+                  type="button"
+                  className="admin-btn-primary"
+                  style={{ backgroundColor: "#E20713", color: "#ffffff", border: "none" }}
+                  onClick={() => {
+                    setBookingForm((prev) => ({
+                      ...prev,
+                      clientName: selectedCustomer.name,
+                      phone: selectedCustomer.phone || "+237 ",
+                      email: selectedCustomer.email || ""
+                    }));
+                    setShowCustomerModal(false);
+                    setShowBookingModal(true);
+                  }}
+                >
+                  <i className="fa-solid fa-calendar-plus"></i> Nouvelle Réservation pour ce client
+                </button>
+              </div>
+
+              {/* Customer Stats Cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "2rem" }}>
+                <div style={{ padding: "1.2rem", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                  <small style={{ color: "#64748b", fontSize: "1.1rem", textTransform: "uppercase", fontWeight: 600 }}>Dépenses Cumulées</small>
+                  <div style={{ fontSize: "1.7rem", fontWeight: 800, color: "#E20713", marginTop: "0.4rem" }}>
+                    {(selectedCustomer.totalSpent || 0).toLocaleString("fr-FR")} FCFA
+                  </div>
+                </div>
+
+                <div style={{ padding: "1.2rem", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                  <small style={{ color: "#64748b", fontSize: "1.1rem", textTransform: "uppercase", fontWeight: 600 }}>Réservations Totales</small>
+                  <div style={{ fontSize: "1.7rem", fontWeight: 800, color: "#0f172a", marginTop: "0.4rem" }}>
+                    {selectedCustomer.totalBookings || 0}
+                  </div>
+                </div>
+
+                <div style={{ padding: "1.2rem", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                  <small style={{ color: "#64748b", fontSize: "1.1rem", textTransform: "uppercase", fontWeight: 600 }}>Localisation</small>
+                  <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "#0f172a", marginTop: "0.4rem" }}>
+                    {selectedCustomer.city || "Yaoundé"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Coordinates Grid */}
+              <div className="admin-res-grid" style={{ marginBottom: "2rem" }}>
                 <div className="admin-res-row">
                   <span className="admin-res-label">Téléphone</span>
                   <strong className="admin-res-value">{selectedCustomer.phone}</strong>
@@ -5134,35 +5677,171 @@ function AdminDashboard() {
                 </div>
                 <div className="admin-res-row">
                   <span className="admin-res-label">Ville / Quartier</span>
-                  <span className="admin-res-value">{selectedCustomer.city} {selectedCustomer.address ? `• ${selectedCustomer.address}` : ""}</span>
+                  <span className="admin-res-value">{selectedCustomer.city || "Yaoundé"} {selectedCustomer.address ? `• ${selectedCustomer.address}` : ""}</span>
                 </div>
-                <div className="admin-res-row">
-                  <span className="admin-res-label">Dépenses Cumulées</span>
-                  <strong style={{ color: "#D62828" }}>{(selectedCustomer.totalSpent || 0).toLocaleString("fr-FR")} FCFA</strong>
-                </div>
+                {selectedCustomer.notes && (
+                  <div className="admin-res-row">
+                    <span className="admin-res-label">Notes VIP</span>
+                    <span className="admin-res-value">{selectedCustomer.notes}</span>
+                  </div>
+                )}
               </div>
 
-              <h4 style={{ borderBottom: "1.5px solid #F1F5F9", paddingBottom: "0.6rem", marginBottom: "1rem" }}>
-                Historique des Réservations Effectuées
+              {/* Booking History Table */}
+              <h4 style={{ borderBottom: "1.5px solid #F1F5F9", paddingBottom: "0.8rem", marginBottom: "1.2rem", fontSize: "1.5rem", fontWeight: 700 }}>
+                <i className="fa-solid fa-clock-rotate-left" style={{ color: "#E20713", marginRight: "8px" }}></i>
+                Historique des Réservations & Commandes
               </h4>
+
               <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
-                {bookings.filter(b => b.phone === selectedCustomer.phone || b.clientName === selectedCustomer.name).map(b => (
-                  <div key={b.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.8rem 1.2rem", background: "#F8FAFC", borderRadius: "6px" }}>
-                    <div>
-                      <strong style={{ color: "#D62828" }}>{b.id}</strong> — <strong>{b.carName}</strong>
-                      <div style={{ color: "#737373", fontSize: "1.2rem" }}>Du {b.pickTime} au {b.dropTime || b.pickTime} ({b.pickUp})</div>
+                {(() => {
+                  const custDigits = (selectedCustomer.phone || "").replace(/[^0-9]/g, "");
+                  const custOrders = bookings.filter((b) => {
+                    const bDigits = (b.phone || "").replace(/[^0-9]/g, "");
+                    return (
+                      (custDigits && bDigits && (bDigits === custDigits || bDigits.endsWith(custDigits.slice(-8)))) ||
+                      b.clientName === selectedCustomer.name ||
+                      (b.accountNumber && b.accountNumber === selectedCustomer.accountNumber)
+                    );
+                  });
+
+                  if (custOrders.length === 0) {
+                    return (
+                      <div style={{ padding: "2rem", textAlign: "center", background: "#f8fafc", borderRadius: "8px", color: "#64748b" }}>
+                        Aucune commande passée sous ce compte pour l'instant.
+                      </div>
+                    );
+                  }
+
+                  return custOrders.map((b) => (
+                    <div key={b.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 1.4rem", background: "#F8FAFC", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                      <div>
+                        <strong style={{ color: "#E20713", fontSize: "1.3rem" }}>{b.id}</strong> — <strong style={{ fontSize: "1.3rem" }}>{b.carName}</strong>
+                        <div style={{ color: "#64748b", fontSize: "1.2rem", marginTop: "3px" }}>Du {b.pickTime} au {b.dropTime || b.pickTime} ({b.pickUp})</div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <strong style={{ fontSize: "1.35rem", color: "#0f172a" }}>{(Number(b.totalPrice) || 0).toLocaleString("fr-FR")} FCFA</strong>
+                        <div style={{ marginTop: "4px" }}>
+                          <span className={`status-badge ${b.status === "Confirmée" ? "status-confirmed" : b.status === "En cours" ? "status-in-progress" : "status-pending"}`}>
+                            {b.status || "En attente"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <strong>{(b.totalPrice || 0).toLocaleString("fr-FR")} FCFA</strong>
-                      <div><span className="status-badge status-confirmed">{b.status}</span></div>
-                    </div>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
             </div>
             <div className="admin-modal-footer">
               <button type="button" className="admin-btn-outline" onClick={() => setShowCustomerModal(false)}>Fermer</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================================================================
+          MODAL: NOUVEAU COMPTE CLIENT MANUEL
+          ================================================================== */}
+      {showNewCustomerModal && (
+        <div className="admin-modal-backdrop" onClick={() => setShowNewCustomerModal(false)}>
+          <div className="admin-modal" style={{ maxWidth: "560px", width: "95%" }} onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
+                <i className="fa-solid fa-user-plus" style={{ color: "#E20713", fontSize: "1.8rem" }}></i>
+                <h3>Nouveau Compte Client 3M SERVICES</h3>
+              </div>
+              <button className="admin-modal-close" onClick={() => setShowNewCustomerModal(false)}>&times;</button>
+            </div>
+            <form onSubmit={handleCreateCustomer}>
+              <div className="admin-modal-body" style={{ padding: "2rem" }}>
+                <div className="admin-form-group" style={{ marginBottom: "1.2rem" }}>
+                  <label>Nom & Prénom / Raison Sociale *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newCustomerForm.name}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, name: e.target.value })}
+                    placeholder="Ex: Paul Biya, Ambassade, Entreprise..."
+                  />
+                </div>
+
+                <div className="admin-modal-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.2rem", marginBottom: "1.2rem" }}>
+                  <div className="admin-form-group">
+                    <label>Téléphone / WhatsApp *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newCustomerForm.phone}
+                      onChange={(e) => setNewCustomerForm({ ...newCustomerForm, phone: e.target.value })}
+                      placeholder="+237 6XX XX XX XX"
+                    />
+                  </div>
+
+                  <div className="admin-form-group">
+                    <label>Email Client</label>
+                    <input
+                      type="email"
+                      value={newCustomerForm.email}
+                      onChange={(e) => setNewCustomerForm({ ...newCustomerForm, email: e.target.value })}
+                      placeholder="client@domaine.com"
+                    />
+                  </div>
+                </div>
+
+                <div className="admin-modal-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.2rem", marginBottom: "1.2rem" }}>
+                  <div className="admin-form-group">
+                    <label>Ville de Résidence</label>
+                    <input
+                      type="text"
+                      value={newCustomerForm.city}
+                      onChange={(e) => setNewCustomerForm({ ...newCustomerForm, city: e.target.value })}
+                      placeholder="Yaoundé, Douala, Diaspora..."
+                    />
+                  </div>
+
+                  <div className="admin-form-group">
+                    <label>Statut / Palier VIP</label>
+                    <select
+                      value={newCustomerForm.vipTier}
+                      onChange={(e) => setNewCustomerForm({ ...newCustomerForm, vipTier: e.target.value })}
+                    >
+                      <option value="VIP Bronze">VIP Bronze (Standard)</option>
+                      <option value="VIP Silver">VIP Silver (Régulier)</option>
+                      <option value="VIP Gold">VIP Gold (Prestige & Diplomatique)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="admin-form-group" style={{ marginBottom: "1.2rem" }}>
+                  <label>Quartier / Adresse</label>
+                  <input
+                    type="text"
+                    value={newCustomerForm.address}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, address: e.target.value })}
+                    placeholder="Ex: Bastos, Omnisports, Golfe..."
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label>Notes & Préférences Client</label>
+                  <textarea
+                    rows={2}
+                    value={newCustomerForm.notes}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, notes: e.target.value })}
+                    placeholder="Ex: Chauffeur bilingue demandé, véhicule climatisé avec vitres teintées..."
+                  />
+                </div>
+              </div>
+
+              <div className="admin-modal-footer">
+                <button type="button" className="admin-btn-outline" onClick={() => setShowNewCustomerModal(false)}>
+                  Annuler
+                </button>
+                <button type="submit" className="admin-btn-primary" style={{ backgroundColor: "#E20713", color: "#ffffff" }}>
+                  Créer le Compte Client
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

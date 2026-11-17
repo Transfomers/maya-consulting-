@@ -3,6 +3,7 @@ import Footer from "../components/Footer";
 import { useTranslation } from "../context/LanguageContext";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { API_BASE } from "../config/api";
+import { saveOrderAndCustomerAccount } from "../utils/customerAccounts";
 import "../styles/CatalogEcommerce.css";
 
 // Official 3M Fleet Visual Assets
@@ -195,20 +196,22 @@ function Models() {
       `Merci de m'adresser la confirmation et le contrat de réservation.\n\nCordialement,`
     );
 
-    // Save booking to backend
-    fetch(`${API_BASE}/bookings`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        carType: carName,
-        name: clientName,
-        phone: clientPhone,
-        email: clientEmail,
-        pickDate: pickupDate,
-        dropDate: returnDate,
-        totalPrice: selectedCarForModal.price,
-      }),
-    }).catch(() => {});
+    // Save booking and synchronize customer account
+    const carPriceNum = Number((selectedCarForModal?.price || "120000").replace(/[^0-9]/g, "")) || 120000;
+    saveOrderAndCustomerAccount({
+      clientName: clientName || "Client 3M Services",
+      phone: clientPhone || "+237 691 78 64 47",
+      email: clientEmail || "",
+      itemName: carName,
+      itemCategory: selectedCarForModal?.category || "Véhicule VIP",
+      itemPrice: carPriceNum,
+      days: 1,
+      totalPrice: carPriceNum,
+      pickTime: pickupDate || new Date().toISOString().split("T")[0],
+      dropTime: returnDate || pickupDate || new Date().toISOString().split("T")[0],
+      notes: "Réservation via modal de détail /models",
+      source: "Catalogue Véhicules (/models)"
+    });
 
     setBookingSent(true);
     window.location.href = `mailto:contact@3mservice.shop?subject=${subject}&body=${body}`;
@@ -1083,9 +1086,34 @@ function Models() {
               </div>
 
               {bookingSent && (
-                <div style={{ marginTop: "1.4rem", padding: "1.2rem", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "6px", color: "#166534", fontSize: "1.35rem", textAlign: "center" }}>
-                  <i className="fa-solid fa-circle-check" style={{ marginRight: "0.6rem" }}></i>
-                  {isFr ? "Votre demande a été préparée et transmise à contact@3mservice.shop." : "Your request has been prepared and sent to contact@3mservice.shop."}
+                <div style={{ marginTop: "1.4rem", padding: "1.4rem", background: "#f0fdf4", border: "1.5px solid #bbf7d0", borderRadius: "10px", color: "#166534", fontSize: "1.35rem", textAlign: "center" }}>
+                  <i className="fa-solid fa-circle-check" style={{ marginRight: "0.6rem", fontSize: "1.6rem" }}></i>
+                  <strong>{isFr ? "Réservation confirmée ! Votre Compte Client 3M a été activé." : "Booking confirmed! Your 3M Client Account has been activated."}</strong>
+                  <div style={{ marginTop: "1rem" }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCarForModal(null);
+                        window.dispatchEvent(new CustomEvent("open-client-portal"));
+                      }}
+                      style={{
+                        backgroundColor: "#16a34a",
+                        color: "#ffffff",
+                        border: "none",
+                        padding: "0.8rem 1.6rem",
+                        borderRadius: "8px",
+                        fontSize: "1.3rem",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.6rem"
+                      }}
+                    >
+                      <i className="fa-solid fa-circle-user"></i>
+                      <span>{isFr ? "Accéder à mon Espace Client" : "Open My Account"}</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </form>

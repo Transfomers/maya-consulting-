@@ -3,6 +3,7 @@ import Footer from "../components/Footer";
 import ApartmentsLuxuryHeader from "../components/ApartmentsLuxuryHeader";
 import { useTranslation } from "../context/LanguageContext";
 import { API_BASE } from "../config/api";
+import { saveOrderAndCustomerAccount, getCurrentClient } from "../utils/customerAccounts";
 import "../styles/CatalogEcommerce.css";
 
 const DEFAULT_APARTMENTS = [
@@ -125,6 +126,28 @@ function ApartmentsPage() {
 
     return matchesFilter && matchesSearch;
   });
+
+  const handleApartmentBookClick = (apt) => {
+    try {
+      const current = getCurrentClient();
+      const priceNum = Number((apt.price || "65000").replace(/[^0-9]/g, "")) || 65000;
+      saveOrderAndCustomerAccount({
+        clientName: current?.name || "Client Résidence 3M",
+        phone: current?.phone || "+237 691 78 64 47",
+        email: current?.email || "",
+        city: "Yaoundé",
+        itemName: apt.title,
+        itemCategory: "Appartement Meublé",
+        itemPrice: priceNum,
+        days: 1,
+        totalPrice: priceNum,
+        pickUp: apt.location || "Yaoundé",
+        notes: `Demande de réservation appartement : ${apt.title}`
+      });
+    } catch (err) {
+      console.warn("Could not save apartment order:", err);
+    }
+  };
 
   const getWhatsAppLink = (apt) => {
     const text = encodeURIComponent(
@@ -485,6 +508,7 @@ function ApartmentsPage() {
                   href={getWhatsAppLink(activeModalApartment)}
                   target="_blank"
                   rel="noreferrer"
+                  onClick={() => handleApartmentBookClick(activeModalApartment)}
                   style={{
                     flex: 1,
                     minWidth: "180px",
@@ -507,6 +531,7 @@ function ApartmentsPage() {
 
                 <a
                   href={getEmailLink(activeModalApartment)}
+                  onClick={() => handleApartmentBookClick(activeModalApartment)}
                   style={{
                     flex: 1,
                     minWidth: "180px",

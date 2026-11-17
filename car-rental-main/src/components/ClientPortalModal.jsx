@@ -1,0 +1,676 @@
+import React, { useState, useEffect } from "react";
+import {
+  getCurrentClient,
+  setCurrentClient,
+  loginClient,
+  getClientOrders,
+  getCrmStore
+} from "../utils/customerAccounts";
+
+function ClientPortalModal() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [client, setClient] = useState(null);
+  const [loginInput, setLoginInput] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [activeTab, setActiveTab] = useState("orders"); // orders, profile
+
+  useEffect(() => {
+    // Check initial logged-in state
+    const current = getCurrentClient();
+    if (current) setClient(current);
+
+    // Event listener to open modal from anywhere (Navbar, Booking modal, etc.)
+    const handleOpen = (e) => {
+      if (e?.detail?.client) {
+        setClient(e.detail.client);
+      } else {
+        const c = getCurrentClient();
+        if (c) setClient(c);
+      }
+      setIsOpen(true);
+    };
+
+    const handleAuthChange = (e) => {
+      setClient(e.detail || null);
+    };
+
+    window.addEventListener("open-client-portal", handleOpen);
+    window.addEventListener("3m-client-auth-changed", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("open-client-portal", handleOpen);
+      window.removeEventListener("3m-client-auth-changed", handleAuthChange);
+    };
+  }, []);
+
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    setLoginError("");
+    if (!loginInput.trim()) {
+      setLoginError("Veuillez renseigner votre numéro de téléphone ou votre adresse email.");
+      return;
+    }
+
+    const found = loginClient(loginInput);
+    if (found) {
+      setClient(found);
+      setLoginInput("");
+    } else {
+      // Check if any client exists or offer quick guest registration
+      const store = getCrmStore();
+      const existing = (store.customers || []).find(
+        (c) =>
+          (c.phone && c.phone.includes(loginInput.trim())) ||
+          (c.email && c.email.toLowerCase() === loginInput.trim().toLowerCase())
+      );
+      if (existing) {
+        setClient(existing);
+        setCurrentClient(existing);
+      } else {
+        setLoginError(
+          "Aucun compte client trouvé avec ces coordonnées. Passez une réservation ou utilisez l'accès démo ci-dessous."
+        );
+      }
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentClient(null);
+    setClient(null);
+  };
+
+  const orders = client ? getClientOrders(client) : [];
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(15, 23, 42, 0.75)",
+        backdropFilter: "blur(6px)",
+        zIndex: 99999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1.5rem"
+      }}
+      onClick={() => setIsOpen(false)}
+    >
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "20px",
+          width: "100%",
+          maxWidth: "760px",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          display: "flex",
+          flexDirection: "column",
+          position: "relative"
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div
+          style={{
+            padding: "2rem 2.5rem",
+            borderBottom: "1px solid #f1f5f9",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            backgroundColor: "#ffffff",
+            borderTopLeftRadius: "20px",
+            borderTopRightRadius: "20px"
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "1.2rem" }}>
+            <div
+              style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "12px",
+                backgroundColor: "#fee2e2",
+                color: "#E20713",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "1.8rem"
+              }}
+            >
+              <i className="fa-solid fa-user-shield"></i>
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: "1.9rem", fontWeight: 800, color: "#0f172a" }}>
+                {client ? `Espace Client 3M VIP` : `Connexion Espace Client`}
+              </h3>
+              <p style={{ margin: 0, fontSize: "1.25rem", color: "#64748b" }}>
+                {client
+                  ? `Compte N° ${client.accountNumber || client.id} • Suivi en temps réel`
+                  : `Retrouvez vos réservations, commandes et avantages VIP`}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setIsOpen(false)}
+            style={{
+              background: "#f1f5f9",
+              border: "none",
+              borderRadius: "50%",
+              width: "36px",
+              height: "36px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontSize: "1.6rem",
+              color: "#475569"
+            }}
+            aria-label="Fermer"
+          >
+            &times;
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: "2.5rem" }}>
+          {!client ? (
+            /* Login Form */
+            <div>
+              <div
+                style={{
+                  padding: "1.4rem",
+                  backgroundColor: "#f8fafc",
+                  borderRadius: "12px",
+                  border: "1px solid #e2e8f0",
+                  marginBottom: "2rem"
+                }}
+              >
+                <p style={{ margin: 0, fontSize: "1.35rem", color: "#334155", lineHeight: "1.6" }}>
+                  💡 <strong>Déjà client 3M SERVICES ?</strong> Entrez simplement votre numéro de téléphone ou l'email utilisé lors de votre réservation pour accéder immédiatement à votre historique, état des véhicules et contrats.
+                </p>
+              </div>
+
+              <form onSubmit={handleLoginSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.4rem" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "1.3rem", fontWeight: 700, color: "#1e293b", marginBottom: "0.6rem" }}>
+                    Numéro de Téléphone / WhatsApp ou Email
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={loginInput}
+                    onChange={(e) => setLoginInput(e.target.value)}
+                    placeholder="Ex: +237 698 66 87 61 ou arnaud.mbarga@gmail.com"
+                    style={{
+                      width: "100%",
+                      padding: "1.2rem 1.4rem",
+                      borderRadius: "10px",
+                      border: "1.5px solid #cbd5e1",
+                      fontSize: "1.45rem",
+                      boxSizing: "border-box",
+                      outline: "none"
+                    }}
+                  />
+                </div>
+
+                {loginError && (
+                  <div style={{ padding: "1rem", backgroundColor: "#fef2f2", color: "#b91c1c", borderRadius: "8px", fontSize: "1.3rem" }}>
+                    <i className="fa-solid fa-circle-exclamation" style={{ marginRight: "0.5rem" }}></i>
+                    {loginError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  style={{
+                    backgroundColor: "#E20713",
+                    color: "#ffffff",
+                    border: "none",
+                    padding: "1.3rem",
+                    borderRadius: "10px",
+                    fontSize: "1.5rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: "0 4px 14px rgba(226, 7, 19, 0.3)",
+                    transition: "all 0.2s ease"
+                  }}
+                >
+                  Accéder à mon Espace Client
+                </button>
+              </form>
+
+              {/* Quick Demo Logins */}
+              <div style={{ marginTop: "2.5rem", borderTop: "1px dashed #e2e8f0", paddingTop: "1.8rem" }}>
+                <span style={{ fontSize: "1.2rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  Ou testez un compte client de démonstration :
+                </span>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.8rem", marginTop: "1rem" }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const c = loginClient("+237 698 66 87 61");
+                      if (c) setClient(c);
+                    }}
+                    style={{
+                      padding: "0.8rem 1.4rem",
+                      borderRadius: "8px",
+                      backgroundColor: "#f1f5f9",
+                      border: "1px solid #cbd5e1",
+                      fontSize: "1.25rem",
+                      fontWeight: 600,
+                      color: "#0f172a",
+                      cursor: "pointer"
+                    }}
+                  >
+                    👤 Arnaud Mbarga (Particulier VIP)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const c = loginClient("protocole@diplomatie.cm");
+                      if (c) setClient(c);
+                    }}
+                    style={{
+                      padding: "0.8rem 1.4rem",
+                      borderRadius: "8px",
+                      backgroundColor: "#f1f5f9",
+                      border: "1px solid #cbd5e1",
+                      fontSize: "1.25rem",
+                      fontWeight: 600,
+                      color: "#0f172a",
+                      cursor: "pointer"
+                    }}
+                  >
+                    🏛️ Délégation MINREX (Institutionnel)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const c = loginClient("+237 691 78 64 47");
+                      if (c) setClient(c);
+                    }}
+                    style={{
+                      padding: "0.8rem 1.4rem",
+                      borderRadius: "8px",
+                      backgroundColor: "#f1f5f9",
+                      border: "1px solid #cbd5e1",
+                      fontSize: "1.25rem",
+                      fontWeight: 600,
+                      color: "#0f172a",
+                      cursor: "pointer"
+                    }}
+                  >
+                    🏢 Société Générale Cameroun
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Logged-In Client Account Dashboard */
+            <div>
+              {/* Profile Card */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  backgroundColor: "#0f172a",
+                  borderRadius: "16px",
+                  padding: "2rem",
+                  color: "#ffffff",
+                  marginBottom: "2rem",
+                  flexWrap: "wrap",
+                  gap: "1.5rem"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "1.4rem" }}>
+                  <div
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "50%",
+                      backgroundColor: "#E20713",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "2.2rem",
+                      fontWeight: 800,
+                      color: "#ffffff"
+                    }}
+                  >
+                    {(client.name || "C").charAt(0).toUpperCase()}
+                  </div>
+
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
+                      <h4 style={{ margin: 0, fontSize: "2rem", fontWeight: 800 }}>{client.name}</h4>
+                      <span
+                        style={{
+                          backgroundColor: "#f59e0b",
+                          color: "#78350f",
+                          fontSize: "1.1rem",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: "12px",
+                          textTransform: "uppercase"
+                        }}
+                      >
+                        ⭐ {client.tier || "Bronze VIP"}
+                      </span>
+                    </div>
+
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginTop: "0.4rem", fontSize: "1.25rem", color: "#94a3b8" }}>
+                      <span><i className="fa-solid fa-phone" style={{ marginRight: "4px" }}></i> {client.phone}</span>
+                      {client.email && <span><i className="fa-solid fa-envelope" style={{ marginRight: "4px" }}></i> {client.email}</span>}
+                      <span><i className="fa-solid fa-location-dot" style={{ marginRight: "4px" }}></i> {client.city || "Yaoundé"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    color: "#ffffff",
+                    padding: "0.7rem 1.4rem",
+                    borderRadius: "8px",
+                    fontSize: "1.2rem",
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
+                >
+                  <i className="fa-solid fa-arrow-right-from-bracket" style={{ marginRight: "0.5rem" }}></i>
+                  Déconnexion
+                </button>
+              </div>
+
+              {/* 3 Metric Pills */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: "1.2rem",
+                  marginBottom: "2rem"
+                }}
+              >
+                <div style={{ padding: "1.4rem", backgroundColor: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0", textAlign: "center" }}>
+                  <span style={{ fontSize: "1.15rem", color: "#64748b", fontWeight: 600, display: "block" }}>RÉSERVATIONS TOTALES</span>
+                  <strong style={{ fontSize: "2.4rem", color: "#0f172a", fontWeight: 800 }}>{orders.length}</strong>
+                </div>
+
+                <div style={{ padding: "1.4rem", backgroundColor: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0", textAlign: "center" }}>
+                  <span style={{ fontSize: "1.15rem", color: "#64748b", fontWeight: 600, display: "block" }}>DÉPENSES CUMULÉES</span>
+                  <strong style={{ fontSize: "2.1rem", color: "#E20713", fontWeight: 800 }}>
+                    {(client.totalSpent || orders.reduce((sum, o) => sum + (Number(o.totalPrice) || 0), 0)).toLocaleString("fr-FR")} FCFA
+                  </strong>
+                </div>
+
+                <div style={{ padding: "1.4rem", backgroundColor: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0", textAlign: "center" }}>
+                  <span style={{ fontSize: "1.15rem", color: "#64748b", fontWeight: 600, display: "block" }}>STATUT DU COMPTE</span>
+                  <strong style={{ fontSize: "1.8rem", color: "#16a34a", fontWeight: 800 }}>Actif VIP</strong>
+                </div>
+              </div>
+
+              {/* Tabs Switcher: Orders vs Profile */}
+              <div style={{ display: "flex", gap: "1rem", borderBottom: "2px solid #e2e8f0", marginBottom: "2rem" }}>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("orders")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    borderBottom: activeTab === "orders" ? "3px solid #E20713" : "3px solid transparent",
+                    padding: "0.8rem 1.4rem",
+                    fontSize: "1.45rem",
+                    fontWeight: 700,
+                    color: activeTab === "orders" ? "#E20713" : "#64748b",
+                    cursor: "pointer",
+                    marginBottom: "-2px"
+                  }}
+                >
+                  <i className="fa-solid fa-list-check" style={{ marginRight: "6px" }}></i>
+                  Mes Commandes & Réservations ({orders.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("profile")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    borderBottom: activeTab === "profile" ? "3px solid #E20713" : "3px solid transparent",
+                    padding: "0.8rem 1.4rem",
+                    fontSize: "1.45rem",
+                    fontWeight: 700,
+                    color: activeTab === "profile" ? "#E20713" : "#64748b",
+                    cursor: "pointer",
+                    marginBottom: "-2px"
+                  }}
+                >
+                  <i className="fa-solid fa-id-card" style={{ marginRight: "6px" }}></i>
+                  Mon Profil & Avantages VIP
+                </button>
+              </div>
+
+              {/* Profile Tab */}
+              {activeTab === "profile" && (
+                <div style={{ padding: "1.5rem", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0", marginBottom: "2rem" }}>
+                  <h4 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#0f172a", marginBottom: "1.2rem" }}>
+                    Informations du Compte Client
+                  </h4>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.2rem", marginBottom: "1.5rem" }}>
+                    <div>
+                      <small style={{ color: "#64748b", fontSize: "1.15rem", display: "block" }}>Numéro de Compte 3M</small>
+                      <strong style={{ fontSize: "1.4rem", color: "#E20713" }}>{client.accountNumber || "3M-CLI-1001"}</strong>
+                    </div>
+                    <div>
+                      <small style={{ color: "#64748b", fontSize: "1.15rem", display: "block" }}>Palier de Fidélité</small>
+                      <strong style={{ fontSize: "1.4rem", color: "#b45309" }}>⭐ {client.tier || "Bronze VIP"}</strong>
+                    </div>
+                    <div>
+                      <small style={{ color: "#64748b", fontSize: "1.15rem", display: "block" }}>Téléphone Associé</small>
+                      <strong style={{ fontSize: "1.35rem", color: "#0f172a" }}>{client.phone}</strong>
+                    </div>
+                    <div>
+                      <small style={{ color: "#64748b", fontSize: "1.15rem", display: "block" }}>Email</small>
+                      <strong style={{ fontSize: "1.35rem", color: "#0f172a" }}>{client.email || "Non renseigné"}</strong>
+                    </div>
+                  </div>
+
+                  <h5 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#0f172a", marginBottom: "0.8rem" }}>
+                    Vos Privilèges Membre 3M SERVICES
+                  </h5>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                    <div style={{ padding: "0.8rem", background: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1.25rem", color: "#334155" }}>
+                      ✅ Concierge dédié 24/7 sur WhatsApp
+                    </div>
+                    <div style={{ padding: "0.8rem", background: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1.25rem", color: "#334155" }}>
+                      ✅ Véhicules de remplacement prioritaire
+                    </div>
+                    <div style={{ padding: "0.8rem", background: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1.25rem", color: "#334155" }}>
+                      ✅ Tarifs dégressifs pour séjours longue durée
+                    </div>
+                    <div style={{ padding: "0.8rem", background: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1.25rem", color: "#334155" }}>
+                      ✅ Accueil aéroportuaire VIP à Nsimalen
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Orders List */}
+              {activeTab === "orders" && (
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.2rem" }}>
+                  <h4 style={{ margin: 0, fontSize: "1.7rem", fontWeight: 800, color: "#0f172a" }}>
+                    <i className="fa-solid fa-list-check" style={{ color: "#E20713", marginRight: "0.8rem" }}></i>
+                    Mes Commandes & Réservations ({orders.length})
+                  </h4>
+
+                  <a
+                    href="https://wa.me/237691786447"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      color: "#16a34a",
+                      fontWeight: 700,
+                      fontSize: "1.3rem",
+                      textDecoration: "none"
+                    }}
+                  >
+                    <i className="fa-brands fa-whatsapp"></i> Conciergerie 24/7
+                  </a>
+                </div>
+
+                {orders.length === 0 ? (
+                  <div style={{ padding: "3rem", textAlign: "center", backgroundColor: "#f8fafc", borderRadius: "12px", border: "1px dashed #cbd5e1" }}>
+                    <p style={{ fontSize: "1.4rem", color: "#64748b", margin: "0 0 1rem 0" }}>
+                      Vous n'avez pas encore de réservation active enregistrée sur ce compte.
+                    </p>
+                    <a
+                      href="/models"
+                      style={{
+                        display: "inline-block",
+                        backgroundColor: "#E20713",
+                        color: "#ffffff",
+                        padding: "1rem 2rem",
+                        borderRadius: "8px",
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        fontSize: "1.35rem"
+                      }}
+                    >
+                      Explorer nos Véhicules & Appartements
+                    </a>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+                    {orders.map((ord) => (
+                      <div
+                        key={ord.id}
+                        style={{
+                          backgroundColor: "#ffffff",
+                          border: "1.5px solid #e2e8f0",
+                          borderRadius: "14px",
+                          padding: "1.6rem 2rem",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "1rem",
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.03)"
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.8rem" }}>
+                          <div>
+                            <span style={{ fontSize: "1.15rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                              RÉF: {ord.id}
+                            </span>
+                            <h5 style={{ margin: "0.2rem 0", fontSize: "1.8rem", fontWeight: 800, color: "#0f172a" }}>
+                              {ord.carName || "Véhicule / Résidence 3M"}
+                            </h5>
+                            <span style={{ fontSize: "1.25rem", color: "#64748b" }}>
+                              📍 {ord.pickUp || "Yaoundé"} • Du {ord.pickTime} au {ord.dropTime || ord.pickTime} ({ord.days || 1} jour(s))
+                            </span>
+                          </div>
+
+                          <div style={{ textAlign: "right" }}>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                padding: "4px 10px",
+                                borderRadius: "20px",
+                                fontSize: "1.15rem",
+                                fontWeight: 700,
+                                backgroundColor:
+                                  ord.status === "Confirmée"
+                                    ? "#dcfce7"
+                                    : ord.status === "En cours"
+                                    ? "#dbeafe"
+                                    : "#fef3c7",
+                                color:
+                                  ord.status === "Confirmée"
+                                    ? "#15803d"
+                                    : ord.status === "En cours"
+                                    ? "#1e40af"
+                                    : "#b45309"
+                              }}
+                            >
+                              ● {ord.status || "En attente"}
+                            </span>
+                            <div style={{ fontSize: "1.8rem", fontWeight: 800, color: "#E20713", marginTop: "0.4rem" }}>
+                              {(Number(ord.totalPrice) || 0).toLocaleString("fr-FR")} FCFA
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Order Actions */}
+                        <div style={{ display: "flex", gap: "1rem", borderTop: "1px dashed #e2e8f0", paddingTop: "1rem", flexWrap: "wrap" }}>
+                          <a
+                            href={`https://wa.me/237691786447?text=${encodeURIComponent(
+                              `Bonjour 3M SERVICES, je suis ${client.name} (Compte N° ${client.accountNumber}). Je vous contacte au sujet de ma réservation [Réf : ${ord.id}] pour ${ord.carName}.`
+                            )}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.6rem",
+                              backgroundColor: "#25D366",
+                              color: "#ffffff",
+                              padding: "0.8rem 1.4rem",
+                              borderRadius: "8px",
+                              fontSize: "1.25rem",
+                              fontWeight: 700,
+                              textDecoration: "none"
+                            }}
+                          >
+                            <i className="fa-brands fa-whatsapp"></i>
+                            Contacter le Concierge Dédié
+                          </a>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              window.print();
+                            }}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.6rem",
+                              backgroundColor: "#f8fafc",
+                              border: "1px solid #cbd5e1",
+                              color: "#334155",
+                              padding: "0.8rem 1.4rem",
+                              borderRadius: "8px",
+                              fontSize: "1.25rem",
+                              fontWeight: 600,
+                              cursor: "pointer"
+                            }}
+                          >
+                            <i className="fa-solid fa-receipt"></i>
+                            Imprimer Reçu
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ClientPortalModal;

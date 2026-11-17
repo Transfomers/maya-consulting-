@@ -3219,3 +3219,62 @@ a.admin-action-btn {
     justify-content: center;
   }
 }
+
+/* ==============================================================
+   RENTQ DASHBOARD LAYOUT & ENHANCEMENTS
+   ============================================================== */
+.admin-rentq-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  gap: 2.2rem;
+  margin-top: 2.2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-rentq-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-rentq-sidebar {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .admin-rentq-layout {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+  }
+}
+
+.vip-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.vip-badge-pill.gold {
+  background: #FEF3C7;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+.vip-badge-pill.silver {
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+}
+.vip-badge-pill.bronze {
+  background: #FFEDD5;
+  color: #C2410C;
+  border: 1px solid #FED7AA;
+}
+
