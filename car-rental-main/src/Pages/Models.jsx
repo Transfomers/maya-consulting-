@@ -740,79 +740,40 @@ function Models() {
           -------------------------------------------------------------------- */}
       {selectedCarForModal && (
         <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(11, 15, 25, 0.75)",
-            backdropFilter: "blur(5px)",
-            zIndex: 99999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "2rem",
-          }}
+          className="models-modal-backdrop"
           onClick={() => setSelectedCarForModal(null)}
         >
           <div
-            style={{
-              backgroundColor: "#ffffff",
-              borderRadius: "12px",
-              maxWidth: "680px",
-              width: "100%",
-              padding: "3.2rem 3rem",
-              position: "relative",
-              maxHeight: "92vh",
-              overflowY: "auto",
-              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.35)",
-              border: "1.5px solid #e2e8f0",
-            }}
+            className="models-modal-dialog"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               type="button"
+              className="models-modal-close-btn"
               onClick={() => setSelectedCarForModal(null)}
-              style={{
-                position: "absolute",
-                top: "1.6rem",
-                right: "1.6rem",
-                background: "#f1f5f9",
-                border: "none",
-                borderRadius: "50%",
-                width: "36px",
-                height: "36px",
-                fontSize: "1.8rem",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#64748b",
-              }}
+              aria-label="Fermer"
             >
               ✕
             </button>
 
             {/* Modal Header */}
-            <div style={{ display: "flex", alignItems: "center", gap: "2rem", marginBottom: "1.8rem", borderBottom: "1px solid #f1f5f9", paddingBottom: "1.6rem" }}>
-              <div style={{ width: "120px", height: "85px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", borderRadius: "8px", padding: "4px" }}>
+            <div className="models-modal-header">
+              <div className="models-modal-header-thumb">
                 <img
                   src={selectedCarForModal.img || selectedCarForModal.image}
                   alt={selectedCarForModal.name}
-                  style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
                 />
               </div>
 
-              <div>
-                <span style={{ fontSize: "1.2rem", fontWeight: 700, textTransform: "uppercase", color: "#C92A2A", letterSpacing: "0.5px" }}>
+              <div className="models-modal-header-info">
+                <span className="models-modal-header-badge">
                   {selectedCarForModal.category || "Flotte VIP 3M"}
                 </span>
-                <h3 style={{ fontSize: "2.1rem", fontWeight: 800, color: "#0b0f19", margin: "0.3rem 0" }}>
+                <h3 className="models-modal-header-title">
                   {selectedCarForModal.name}
                 </h3>
-                <div style={{ fontSize: "1.85rem", fontWeight: 900, color: "#C92A2A" }}>
+                <div className="models-modal-header-price">
                   {selectedCarForModal.price}
                 </div>
               </div>
@@ -820,24 +781,23 @@ function Models() {
 
             {/* MULTI-ANGLE PHOTO GALLERY & VIEWER */}
             {Array.isArray(selectedCarForModal.photos) && selectedCarForModal.photos.length > 0 && (
-              <div style={{ marginBottom: "2rem", background: "#f8fafc", padding: "1.4rem", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "8px" }}>
-                  <span style={{ fontSize: "1.3rem", fontWeight: 700, color: "#0b0f19", display: "flex", alignItems: "center", gap: "6px" }}>
-                    <i className="fa-solid fa-camera" style={{ color: "#C92A2A" }}></i>
+              <div className="models-modal-gallery">
+                <div className="models-modal-gallery-header">
+                  <span className="models-modal-gallery-title">
+                    <i className="fa-solid fa-camera"></i>
                     {isFr ? "Galerie Multi-Angles du Véhicule" : "Multi-Angle Vehicle Gallery"}
                   </span>
-                  <span style={{ fontSize: "1.2rem", color: "#475569", fontWeight: 600, background: "#ffffff", padding: "3px 10px", borderRadius: "12px", border: "1px solid #cbd5e1" }}>
+                  <span className="models-modal-gallery-badge">
                     Angle {modalActivePhotoIdx + 1} / {selectedCarForModal.photos.length}
                     {selectedCarForModal.photoLabels?.[modalActivePhotoIdx] ? ` • ${selectedCarForModal.photoLabels[modalActivePhotoIdx]}` : ""}
                   </span>
                 </div>
 
                 {/* Main Prominent Angle Photo */}
-                <div style={{ position: "relative", width: "100%", height: "260px", background: "#ffffff", borderRadius: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.06)" }}>
+                <div className="models-modal-gallery-main">
                   <img
                     src={selectedCarForModal.photos[modalActivePhotoIdx] || selectedCarForModal.img || selectedCarForModal.image}
                     alt={`${selectedCarForModal.name} - angle ${modalActivePhotoIdx + 1}`}
-                    style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", transition: "all 0.3s ease" }}
                   />
 
                   {/* Previous / Next Arrow Controls */}
@@ -845,52 +805,16 @@ function Models() {
                     <>
                       <button
                         type="button"
+                        className="models-modal-gallery-nav-btn models-modal-gallery-nav-btn--prev"
                         onClick={() => setModalActivePhotoIdx((prev) => (prev > 0 ? prev - 1 : selectedCarForModal.photos.length - 1))}
-                        style={{
-                          position: "absolute",
-                          left: "10px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "rgba(11, 15, 25, 0.7)",
-                          color: "#ffffff",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "36px",
-                          height: "36px",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "1.6rem",
-                          fontWeight: 700,
-                          transition: "background 0.2s",
-                        }}
                         title={isFr ? "Angle précédent" : "Previous angle"}
                       >
                         ‹
                       </button>
                       <button
                         type="button"
+                        className="models-modal-gallery-nav-btn models-modal-gallery-nav-btn--next"
                         onClick={() => setModalActivePhotoIdx((prev) => (prev < selectedCarForModal.photos.length - 1 ? prev + 1 : 0))}
-                        style={{
-                          position: "absolute",
-                          right: "10px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "rgba(11, 15, 25, 0.7)",
-                          color: "#ffffff",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "36px",
-                          height: "36px",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "1.6rem",
-                          fontWeight: 700,
-                          transition: "background 0.2s",
-                        }}
                         title={isFr ? "Angle suivant" : "Next angle"}
                       >
                         ›
@@ -901,35 +825,18 @@ function Models() {
 
                 {/* Thumbnails Angle Strip */}
                 {selectedCarForModal.photos.length > 1 && (
-                  <div style={{ display: "flex", gap: "10px", marginTop: "12px", overflowX: "auto", paddingBottom: "4px" }}>
+                  <div className="models-modal-gallery-strip">
                     {selectedCarForModal.photos.map((pUrl, pIdx) => (
                       <button
                         key={pIdx}
                         type="button"
+                        className={`models-modal-gallery-thumb ${modalActivePhotoIdx === pIdx ? "is-active" : ""}`}
                         onClick={() => setModalActivePhotoIdx(pIdx)}
-                        style={{
-                          flexShrink: 0,
-                          width: "82px",
-                          height: "60px",
-                          borderRadius: "6px",
-                          border: modalActivePhotoIdx === pIdx ? "2.5px solid #C92A2A" : "1.5px solid #cbd5e1",
-                          padding: "2px",
-                          background: "#ffffff",
-                          cursor: "pointer",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          position: "relative",
-                          opacity: modalActivePhotoIdx === pIdx ? 1 : 0.65,
-                          transition: "all 0.2s ease",
-                        }}
                         title={selectedCarForModal.photoLabels?.[pIdx] || `Angle ${pIdx + 1}`}
                       >
                         <img
                           src={pUrl}
                           alt={`Thumbnail ${pIdx + 1}`}
-                          style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
                         />
                       </button>
                     ))}
@@ -946,7 +853,7 @@ function Models() {
             )}
 
             {/* Specs Summary */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", background: "#f8fafc", padding: "1.4rem", borderRadius: "8px", marginBottom: "2.4rem", fontSize: "1.3rem", color: "#334155" }}>
+            <div className="models-modal-specs-grid">
               <div><strong>Places :</strong> {selectedCarForModal.seats || "5"}</div>
               <div><strong>Boîte :</strong> {selectedCarForModal.transmission || "Auto"}</div>
               <div><strong>Clim :</strong> {selectedCarForModal.air || "Oui"}</div>
@@ -961,9 +868,9 @@ function Models() {
                 {isFr ? "Vos Informations de Réservation" : "Your Booking Information"}
               </h4>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.4rem", marginBottom: "1.4rem" }}>
+              <div className="models-modal-form-grid">
                 <div>
-                  <label style={{ fontSize: "1.25rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "0.5rem" }}>
+                  <label className="models-modal-label">
                     {isFr ? "Nom complet *" : "Full Name *"}
                   </label>
                   <input
@@ -972,12 +879,12 @@ function Models() {
                     placeholder="Ex: Arnaud Mbarga"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "6px", border: "1.5px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
+                    className="models-modal-input-field"
                   />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: "1.25rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "0.5rem" }}>
+                  <label className="models-modal-label">
                     {isFr ? "Téléphone / WhatsApp *" : "Phone / WhatsApp *"}
                   </label>
                   <input
@@ -986,13 +893,13 @@ function Models() {
                     placeholder="+237 6XX XX XX XX"
                     value={clientPhone}
                     onChange={(e) => setClientPhone(e.target.value)}
-                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "6px", border: "1.5px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
+                    className="models-modal-input-field"
                   />
                 </div>
               </div>
 
               <div style={{ marginBottom: "1.4rem" }}>
-                <label style={{ fontSize: "1.25rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "0.5rem" }}>
+                <label className="models-modal-label">
                   {isFr ? "Adresse Email (pour confirmation & facture) *" : "Email Address *"}
                 </label>
                 <input
@@ -1001,13 +908,13 @@ function Models() {
                   placeholder="votre@email.com"
                   value={clientEmail}
                   onChange={(e) => setClientEmail(e.target.value)}
-                  style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "6px", border: "1.5px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
+                  className="models-modal-input-field"
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.4rem", marginBottom: "2.4rem" }}>
+              <div className="models-modal-form-grid" style={{ marginBottom: "2.4rem" }}>
                 <div>
-                  <label style={{ fontSize: "1.25rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "0.5rem" }}>
+                  <label className="models-modal-label">
                     {isFr ? "Date de Prise en charge *" : "Pickup Date *"}
                   </label>
                   <input
@@ -1015,12 +922,12 @@ function Models() {
                     required
                     value={pickupDate}
                     onChange={(e) => setPickupDate(e.target.value)}
-                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "6px", border: "1.5px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
+                    className="models-modal-input-field"
                   />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: "1.25rem", fontWeight: 600, color: "#475569", display: "block", marginBottom: "0.5rem" }}>
+                  <label className="models-modal-label">
                     {isFr ? "Date de Restitution *" : "Return Date *"}
                   </label>
                   <input
@@ -1028,32 +935,16 @@ function Models() {
                     required
                     value={returnDate}
                     onChange={(e) => setReturnDate(e.target.value)}
-                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "6px", border: "1.5px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
+                    className="models-modal-input-field"
                   />
                 </div>
               </div>
 
               {/* Action Buttons: Email and WhatsApp */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+              <div className="models-modal-actions">
                 <button
                   type="submit"
-                  style={{
-                    backgroundColor: "#C92A2A",
-                    color: "#ffffff",
-                    padding: "1.4rem 2rem",
-                    borderRadius: "6px",
-                    border: "none",
-                    fontSize: "1.55rem",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "1rem",
-                    boxShadow: "0 6px 16px rgba(201, 42, 42, 0.3)",
-                    transition: "all 0.25s ease",
-                  }}
+                  className="models-modal-btn-email"
                 >
                   <i className="fa-solid fa-envelope"></i>
                   <span>{isFr ? "Envoyer par Email (contact@3mservice.shop)" : "Send via Email (contact@3mservice.shop)"}</span>
@@ -1063,22 +954,7 @@ function Models() {
                   href={getWhatsAppLink(selectedCarForModal)}
                   target="_blank"
                   rel="noreferrer"
-                  style={{
-                    backgroundColor: "#25D366",
-                    color: "#ffffff",
-                    padding: "1.4rem 2rem",
-                    borderRadius: "6px",
-                    textDecoration: "none",
-                    fontSize: "1.55rem",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "1rem",
-                    boxShadow: "0 6px 16px rgba(37, 211, 102, 0.3)",
-                    transition: "all 0.25s ease",
-                  }}
+                  className="models-modal-btn-wa"
                 >
                   <i className="fa-brands fa-whatsapp" style={{ fontSize: "2rem" }}></i>
                   <span>{isFr ? "Confirmer sur WhatsApp (+237 691 78 64 47)" : "Confirm on WhatsApp (+237 691 78 64 47)"}</span>

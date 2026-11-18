@@ -81,6 +81,7 @@ function PwaInstallPrompt() {
     <div
       role="dialog"
       aria-label="Installation de l'application 3M SERVICES"
+      className="pwa-compact-bar"
       style={{
         position: "fixed",
         bottom: "16px",

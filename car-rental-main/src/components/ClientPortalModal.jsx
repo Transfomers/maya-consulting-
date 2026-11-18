@@ -35,10 +35,12 @@ function ClientPortalModal() {
     };
 
     window.addEventListener("open-client-portal", handleOpen);
+    window.addEventListener("3m-open-client-portal", handleOpen);
     window.addEventListener("3m-client-auth-changed", handleAuthChange);
 
     return () => {
       window.removeEventListener("open-client-portal", handleOpen);
+      window.removeEventListener("3m-open-client-portal", handleOpen);
       window.removeEventListener("3m-client-auth-changed", handleAuthChange);
     };
   }, []);
