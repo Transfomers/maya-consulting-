@@ -1,9 +1,9 @@
-import "../src/dist/styles.css";
+import "./dist/styles.css";
 import "./styles/Animations.css";
 import { Route, Routes, useLocation } from "react-router-dom";
 import About from "./Pages/About";
 import Home from "./Pages/Home";
-import Navbar from "../src/components/Navbar";
+import Navbar from "./components/Navbar";
 import Models from "./Pages/Models";
 import TestimonialsPage from "./Pages/TestimonialsPage";
 import Team from "./Pages/Team";
