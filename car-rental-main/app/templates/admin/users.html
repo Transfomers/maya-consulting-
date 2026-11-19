@@ -4,62 +4,144 @@
 
 {% block content %}
 <div class="container-fluid px-0">
-    <!-- Header matching RentQ Screenshot -->
-    <div class="mb-4">
-        <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Customer Management</h2>
-        <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">View and manage your customer database.</p>
+    <!-- Header matching RentQ & 3M Style -->
+    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Customer Management</h2>
+            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Consultez et gérez la base de données des clients VIP et comptes synchronisés.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary rounded-2 px-3" onclick="window.print()"><i class="bi bi-printer me-1"></i> Imprimer</button>
+        </div>
+    </div>
+
+    <!-- 3M Services SaaS Customer KPI Summary Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Total Clients</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #eff8ff; color: #175cd3;">
+                        <i class="bi bi-people-fill fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem;">{{ users|length }}</h3>
+                    <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">Enregistrés</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Clients VIP Actifs</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #ecfdf3; color: #039855;">
+                        <i class="bi bi-shield-check fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-success" style="font-size: 1.45rem;">{{ users|length }}</h3>
+                    <span class="badge bg-success-soft text-success" style="font-size: 0.7rem;">100% Actifs</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Statut Comptes</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fdf2fa; color: #c11574;">
+                        <i class="bi bi-person-check fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem;">Vérifiés</h3>
+                    <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">3M-CLI</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Programme Fidélité</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fffaeb; color: #b54708;">
+                        <i class="bi bi-star-fill fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-warning" style="font-size: 1.45rem;">Gold VIP</h3>
+                    <span class="badge bg-warning-soft text-warning" style="font-size: 0.7rem;">Privilège</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Main Table Card matching RentQ Screenshot exactly -->
     <div class="card bg-white border shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important; overflow: hidden; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
+        <!-- Table Filter / Search Header -->
+        <div class="d-flex flex-wrap gap-2 p-3 border-bottom align-items-center justify-content-between" style="background: #fafbfc; border-color: #eaecf0 !important;">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <div class="input-group input-group-sm" style="max-width: 280px;">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" id="usersTableSearch" class="form-control border-start-0 ps-0" placeholder="Chercher client, téléphone, email...">
+                </div>
+                <button class="btn btn-sm btn-outline-secondary rounded-2" onclick="document.getElementById('usersTableSearch').value=''; document.getElementById('usersTableSearch').dispatchEvent(new Event('input'));">
+                    <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+                </button>
+            </div>
+            <div class="text-muted small" style="font-size: 0.78rem;">
+                <span class="fw-semibold text-dark">{{ users|length }}</span> client(s) répertorié(s)
+            </div>
+        </div>
+
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="font-size: 0.92rem; border-collapse: separate; border-spacing: 0;">
-                <thead style="background: #f9fafb; border-bottom: 1px solid #eaecf0;">
-                    <tr style="font-size: 0.88rem;">
-                        <th class="ps-4 py-3.5" style="border: none; font-weight: 700; color: #101828; width: 14%;">Customer ID</th>
-                        <th class="py-3.5" style="border: none; font-weight: 700; color: #101828; width: 18%;">Name</th>
-                        <th class="py-3.5" style="border: none; font-weight: 700; color: #101828; width: 20%;">Email</th>
-                        <th class="py-3.5" style="border: none; font-weight: 700; color: #101828; width: 16%;">Phone</th>
-                        <th class="py-3.5" style="border: none; font-weight: 700; color: #101828; width: 14%;">Join Date</th>
-                        <th class="py-3.5" style="border: none; font-weight: 700; color: #101828; width: 10%;">Total Rentals</th>
-                        <th class="text-end pe-4 py-3.5" style="border: none; font-weight: 700; color: #101828; width: 8%;">Actions</th>
+            <table class="table table-hover align-middle mb-0" style="min-width: 840px;">
+                <thead>
+                    <tr>
+                        <th class="ps-3" style="width: 14%;">Customer ID</th>
+                        <th style="width: 20%;">Name</th>
+                        <th style="width: 22%;">Email</th>
+                        <th style="width: 16%;">Phone</th>
+                        <th style="width: 14%;">Join Date</th>
+                        <th style="width: 10%;">Tarif / Jour</th>
+                        <th class="text-end pe-3" style="width: 8%;">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="usersTableBody">
                     {% for user in users %}
-                    <tr class="user-row" style="border-bottom: 1px solid #f2f4f7; transition: background 0.15s ease;">
-                        <td class="ps-4 py-3.5" style="color: #475467; font-weight: 400; border-bottom: 1px solid #f2f4f7;">
+                    <tr class="user-row" style="transition: background 0.15s ease;">
+                        <td class="ps-3 fw-semibold" style="color: #475467;">
                             #CUS-{{ '%03d'|format(user.id if user.id <= 5 else (loop.index)) }}
                         </td>
-                        <td class="py-3.5" style="border-bottom: 1px solid #f2f4f7;">
-                            <span class="text-dark" style="font-weight: 500; color: #101828 !important;">{{ user.real_name or user.username }}</span>
+                        <td>
+                            <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">{{ user.real_name or user.username }}</div>
+                            <div class="small text-muted" style="font-size: 0.7rem;">Client VIP Particulier</div>
                         </td>
-                        <td class="py-3.5" style="color: #475467; border-bottom: 1px solid #f2f4f7;">
+                        <td style="color: #475467;">
                             {{ user.email }}
                         </td>
-                        <td class="py-3.5" style="color: #475467; border-bottom: 1px solid #f2f4f7;">
-                            {{ user.phone or '(555) 123-9595' }}
+                        <td style="color: #475467;">
+                            {{ user.phone or '+237 691 78 64 47' }}
                         </td>
-                        <td class="py-3.5" style="color: #475467; border-bottom: 1px solid #f2f4f7;">
+                        <td style="color: #475467;">
                             {{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'Jan 15, 2026' }}
                         </td>
-                        <td class="py-3.5" style="color: #344054; font-weight: 500; border-bottom: 1px solid #f2f4f7;">
-                            {% if loop.index == 1 %}$38/day
-                            {% elif loop.index == 2 %}$65/day
-                            {% elif loop.index == 3 %}$129/day
-                            {% elif loop.index == 4 %}$99/day
-                            {% elif loop.index == 5 %}$75/day
-                            {% else %}$85/day{% endif %}
+                        <td class="fw-semibold text-dark">
+                            {% if loop.index == 1 %}120 000 FCFA
+                            {% elif loop.index == 2 %}85 000 FCFA
+                            {% elif loop.index == 3 %}150 000 FCFA
+                            {% elif loop.index == 4 %}95 000 FCFA
+                            {% elif loop.index == 5 %}65 000 FCFA
+                            {% else %}80 000 FCFA{% endif %}
                         </td>
-                        <td class="text-end pe-4 py-3.5 text-nowrap" style="border-bottom: 1px solid #f2f4f7;">
-                            <div class="d-inline-flex align-items-center gap-2">
-                                <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link" title="View" style="color: #667085; text-decoration: none; padding: 3px 5px; font-size: 0.95rem;">
+                        <td class="text-end pe-3 text-nowrap">
+                            <div class="d-inline-flex align-items-center gap-1.5">
+                                <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link" title="Consulter la fiche client">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link" title="Edit" style="color: #667085; text-decoration: none; padding: 3px 5px; font-size: 0.95rem;">
+                                <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link" title="Modifier le compte">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{{ url_for('admin.delete_user', id=user.id) }}" class="action-icon-link" title="Delete" onclick="return confirm('Supprimer ce compte client ?');" style="color: #667085; text-decoration: none; padding: 3px 5px; font-size: 0.95rem;">
+                                <a href="{{ url_for('admin.delete_user', id=user.id) }}" class="action-icon-link text-danger" title="Supprimer" onclick="return confirm('Supprimer ce compte client ?');">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -69,7 +151,7 @@
                     <tr>
                         <td colspan="7" class="text-center py-5 text-muted">
                             <i class="bi bi-people fs-1 d-block mb-3 text-secondary"></i>
-                            No customer records found.
+                            Aucun compte client trouvé dans la base.
                         </td>
                     </tr>
                     {% endfor %}
@@ -79,7 +161,7 @@
     </div>
 
     <!-- Footer matching Clean Dashboard Style -->
-    <div class="text-center py-4 text-muted small" style="color: #98a2b3 !important; font-size: 0.88rem;">
+    <div class="text-center py-3 text-muted small" style="color: #98a2b3 !important; font-size: 0.8125rem;">
         © 3M SERVICES. All Rights Reserved.
     </div>
 </div>
@@ -88,33 +170,27 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Connect floating topbar search directly to filter table rows
+    const tableSearch = document.getElementById('usersTableSearch');
     const topSearch = document.getElementById('adminSearchInput');
     const tableBody = document.getElementById('usersTableBody');
     
-    if (topSearch && tableBody) {
-        topSearch.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-            const rows = tableBody.querySelectorAll('tr.user-row');
-            
-            rows.forEach(function(row) {
-                const text = row.innerText.toLowerCase();
-                if (text.includes(query)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+    function filterRows(val) {
+        if (!tableBody) return;
+        const query = (val || '').toLowerCase().trim();
+        const rows = tableBody.querySelectorAll('tr.user-row');
+        
+        rows.forEach(function(row) {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
         });
+    }
+
+    if (tableSearch) {
+        tableSearch.addEventListener('input', function() { filterRows(this.value); });
+    }
+    if (topSearch) {
+        topSearch.addEventListener('input', function() { filterRows(this.value); });
     }
 });
 </script>
-<style>
-.action-icon-link:hover {
-    color: #FF5B35 !important;
-}
-.user-row:hover {
-    background-color: #fafbfc !important;
-}
-</style>
 {% endblock %}
