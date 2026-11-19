@@ -4615,16 +4615,19 @@ def export_bookings_csv():
     
     f = StringIO()
     writer = csv.writer(f)
-    writer.writerow(["ID", "CODE RESERVATION", "PASSAGER / CLIENT", "VOYAGE", "SEIGE N°", "PASSAGERS", "MONTANT PAYE", "METHODE DE PAIEMENT", "STATUT PAIEMENT", "STATUT", "DATE RESERVATION"])
+    writer.writerow(["ID", "REF MISSION VIP", "CLIENT VIP", "MISSION / TRAJET", "VEHICULE VIP", "CHAUFFEUR VIP", "FORMULE / FORFAIT", "MONTANT TOTAL (FCFA)", "MODE PAIEMENT", "STATUT REGLEMENT", "STATUT MISSION", "DATE RESERVATION"])
     
     for b in bookings:
+        veh = f"{b.trip.bus.brand} {b.trip.bus.model} ({b.trip.bus.bus_number})" if b.trip and b.trip.bus else ''
+        chauffeur = (b.trip.driver.name if (b.trip and b.trip.driver) else (b.trip.bus.driver_name if (b.trip and b.trip.bus) else 'Chauffeur VIP Dédié')) if b.trip else ''
         writer.writerow([
             b.id,
-            b.booking_code or '',
+            b.booking_code or f"3M-MIS-{b.id:04d}",
             b.passenger_name or (b.user.username if b.user else ''),
             f"{b.trip.route.origin} -> {b.trip.route.destination} ({b.trip.departure_time.strftime('%d/%m %H:%M')})" if b.trip and b.trip.route else '',
-            b.seat_number,
-            b.num_persons,
+            veh,
+            chauffeur,
+            b.seat_number or 'Avec Chauffeur VIP',
             b.price_paid,
             b.payment_method or '',
             b.payment_status or '',
@@ -4633,8 +4636,8 @@ def export_bookings_csv():
         ])
         
     output = make_response(f.getvalue())
-    output.headers["Content-Disposition"] = "attachment; filename=bookings_list.csv"
-    output.headers["Content-type"] = "text/csv"
+    output.headers["Content-Disposition"] = f"attachment; filename=missions_vip_{filter_val}.csv"
+    output.headers["Content-type"] = "text/csv; charset=utf-8"
     return output
 
 
@@ -4672,15 +4675,15 @@ def export_bookings_pdf():
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     
-    draw_pdf_header(p, "3M SERVICES — RESERVATIONS CLIENTS")
+    draw_pdf_header(p, "3M SERVICES — SORTIES & MISSIONS DE FLOTTE VIP")
     
     p.setFont("Helvetica-Bold", 10)
     p.setFillColorRGB(0, 0, 0)
-    p.drawString(50, 715, "Code")
-    p.drawString(130, 715, "Passager / Client")
-    p.drawString(240, 715, "Voyage / Trajet")
-    p.drawString(380, 715, "Siège")
-    p.drawString(420, 715, "Montant")
+    p.drawString(50, 715, "Réf Mission")
+    p.drawString(130, 715, "Client VIP")
+    p.drawString(240, 715, "Mission / Trajet")
+    p.drawString(380, 715, "Forfait")
+    p.drawString(420, 715, "Tarif")
     p.drawString(485, 715, "Statut")
     p.line(50, 705, 560, 705)
     
@@ -4690,11 +4693,11 @@ def export_bookings_pdf():
         if y < 50:
             p.showPage()
             p.setFont("Helvetica-Bold", 10)
-            p.drawString(50, 750, "Code")
-            p.drawString(130, 750, "Passager / Client")
-            p.drawString(240, 750, "Voyage / Trajet")
-            p.drawString(380, 750, "Siège")
-            p.drawString(420, 750, "Montant")
+            p.drawString(50, 750, "Réf Mission")
+            p.drawString(130, 750, "Client VIP")
+            p.drawString(240, 750, "Mission / Trajet")
+            p.drawString(380, 750, "Forfait")
+            p.drawString(420, 750, "Tarif")
             p.drawString(485, 750, "Statut")
             p.line(50, 740, 560, 740)
             p.setFont("Helvetica", 9)
@@ -4705,7 +4708,7 @@ def export_bookings_pdf():
         
         trip_str = f"{b.trip.route.origin[:10]}->{b.trip.route.destination[:10]}" if b.trip and b.trip.route else ''
         p.drawString(240, y, trip_str)
-        p.drawString(380, y, b.seat_number)
+        p.drawString(380, y, (b.seat_number or 'VIP')[:8])
         p.drawString(420, y, f"{b.price_paid:.0f} F")
         p.drawString(485, y, b.status)
         y -= 20
@@ -4713,7 +4716,7 @@ def export_bookings_pdf():
     p.showPage()
     p.save()
     buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name="bookings_list.pdf", mimetype='application/pdf')
+    return send_file(buffer, as_attachment=True, download_name=f"missions_vip_{filter_val}.pdf", mimetype='application/pdf')
 
 
 # 6. TRIPS (TRAJETS) EXPORTS

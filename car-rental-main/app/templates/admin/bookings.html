@@ -1,15 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Réservations VIP & Contrats — 3M SERVICES{% endblock %}
+{% block title %}Sorties & Missions de Flotte VIP — 3M SERVICES{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
     <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Bookings & Contracts Management</h2>
-            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Consultez et suivez l'ensemble des locations de véhicules, dates d'affectation et paiements des clients.</p>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Sorties & Missions de Flotte VIP</h2>
+            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Programmez et gérez les missions, forfaits et sorties de véhicules VIP avec chauffeur.</p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ url_for('admin.add_trip') }}" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1.5 shadow-xs">
+                <i class="bi bi-plus-circle"></i> <span>Planifier une Mission</span>
+            </a>
             <a href="{{ url_for('admin.export_bookings_pdf', filter=current_filter or 'all') }}" class="btn btn-sm btn-export-pdf"><i class="bi bi-file-pdf me-1"></i> PDF</a>
             <a href="{{ url_for('admin.export_bookings_csv', filter=current_filter or 'all') }}" class="btn btn-sm btn-export-csv"><i class="bi bi-file-csv me-1"></i> CSV</a>
         </div>
@@ -20,21 +23,21 @@
         <div class="col-6 col-lg-3">
             <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Total Dossiers</span>
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Total Missions VIP</span>
                     <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #f4f3ff; color: #7f56d9;">
-                        <i class="bi bi-journal-text fs-6"></i>
+                        <i class="bi bi-shield-check fs-6"></i>
                     </div>
                 </div>
                 <div class="d-flex align-items-baseline gap-2">
                     <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem;">{{ bookings|length }}</h3>
-                    <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">Actifs</span>
+                    <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">Actives</span>
                 </div>
             </div>
         </div>
         <div class="col-6 col-lg-3">
             <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Confirmés VIP</span>
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Missions Confirmées</span>
                     <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #ecfdf3; color: #039855;">
                         <i class="bi bi-check-circle-fill fs-6"></i>
                     </div>
@@ -43,14 +46,14 @@
                     <h3 class="fw-bold mb-0 text-success" style="font-size: 1.45rem;">
                         {{ bookings|selectattr('status', 'equalto', 'confirmed')|list|length }}
                     </h3>
-                    <span class="badge bg-success-soft text-success" style="font-size: 0.7rem;">Engagés</span>
+                    <span class="badge bg-success-soft text-success" style="font-size: 0.7rem;">Engagées VIP</span>
                 </div>
             </div>
         </div>
         <div class="col-6 col-lg-3">
             <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En Discussion</span>
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En Attente / Prep</span>
                     <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fffaeb; color: #b54708;">
                         <i class="bi bi-hourglass-split fs-6"></i>
                     </div>
@@ -59,14 +62,14 @@
                     <h3 class="fw-bold mb-0 text-warning" style="font-size: 1.45rem;">
                         {{ bookings|selectattr('status', 'ne', 'confirmed')|selectattr('status', 'ne', 'cancelled')|list|length }}
                     </h3>
-                    <span class="badge bg-warning-soft text-warning" style="font-size: 0.7rem;">En attente</span>
+                    <span class="badge bg-warning-soft text-warning" style="font-size: 0.7rem;">À valider</span>
                 </div>
             </div>
         </div>
         <div class="col-6 col-lg-3">
             <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Annulés</span>
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Sorties Annulées</span>
                     <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fef3f2; color: #d92d20;">
                         <i class="bi bi-x-circle fs-6"></i>
                     </div>
@@ -75,7 +78,7 @@
                     <h3 class="fw-bold mb-0 text-danger" style="font-size: 1.45rem;">
                         {{ bookings|selectattr('status', 'equalto', 'cancelled')|list|length }}
                     </h3>
-                    <span class="badge bg-danger-soft text-danger" style="font-size: 0.7rem;">Libérés</span>
+                    <span class="badge bg-danger-soft text-danger" style="font-size: 0.7rem;">Libérées</span>
                 </div>
             </div>
         </div>
@@ -85,30 +88,30 @@
         <!-- Filter Bar -->
         <div class="d-flex flex-wrap gap-2 p-3 border-bottom align-items-center justify-content-between" style="background: #fafbfc; border-color: #eaecf0 !important;">
             <div class="d-flex flex-wrap gap-2 align-items-center">
-                <div class="input-group input-group-sm" style="max-width: 250px;">
+                <div class="input-group input-group-sm" style="max-width: 270px;">
                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                    <input type="text" id="bookingsSearch" class="form-control border-start-0 ps-0" placeholder="Chercher contrat, client...">
+                    <input type="text" id="bookingsSearch" class="form-control border-start-0 ps-0" placeholder="Chercher mission, client, véhicule, chauffeur...">
                 </div>
                 
                 <select id="bookingsFilterStatus" class="form-select form-select-sm" style="width: auto;">
-                    <option value="">Statut Contrat (Tous)</option>
-                    <option value="confirmé">Confirmé</option>
-                    <option value="en_attente">En attente / Temporaire</option>
-                    <option value="annulé">Annulé</option>
+                    <option value="">Statut Mission (Tous)</option>
+                    <option value="confirmé">Confirmée</option>
+                    <option value="en_attente">En attente / Préparation</option>
+                    <option value="annulé">Annulée</option>
                 </select>
                 
                 <select id="bookingsFilterPaymentStatus" class="form-select form-select-sm" style="width: auto;">
-                    <option value="">Paiement (Tous)</option>
+                    <option value="">Règlement (Tous)</option>
                     <option value="payé">Payé</option>
-                    <option value="remboursé">Remboursé</option>
                     <option value="en attente">En Attente</option>
+                    <option value="remboursé">Remboursé</option>
                 </select>
                 
                 <div class="date-filter-group">
-                    <button type="button" class="date-filter-btn {% if current_filter == 'all' or not current_filter %}active{% endif %}" onclick="applyBackendDateFilter('all')">All</button>
-                    <button type="button" class="date-filter-btn {% if current_filter == 'day' %}active{% endif %}" onclick="applyBackendDateFilter('day')">Day</button>
-                    <button type="button" class="date-filter-btn {% if current_filter == 'week' %}active{% endif %}" onclick="applyBackendDateFilter('week')">Week</button>
-                    <button type="button" class="date-filter-btn {% if current_filter == 'month' %}active{% endif %}" onclick="applyBackendDateFilter('month')">Month</button>
+                    <button type="button" class="date-filter-btn {% if current_filter == 'all' or not current_filter %}active{% endif %}" onclick="applyBackendDateFilter('all')">Tous</button>
+                    <button type="button" class="date-filter-btn {% if current_filter == 'day' %}active{% endif %}" onclick="applyBackendDateFilter('day')">Aujourd'hui</button>
+                    <button type="button" class="date-filter-btn {% if current_filter == 'week' %}active{% endif %}" onclick="applyBackendDateFilter('week')">Semaine</button>
+                    <button type="button" class="date-filter-btn {% if current_filter == 'month' %}active{% endif %}" onclick="applyBackendDateFilter('month')">Mois</button>
                 </div>
                 
                 <button class="btn btn-sm btn-outline-secondary" onclick="resetBookingsFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
@@ -116,18 +119,20 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="min-width: 960px;">
+            <table class="table table-hover align-middle mb-0" style="min-width: 1120px;">
                 <thead>
                     <tr>
-                        <th style="min-width: 110px;">Réf Contrat</th>
-                        <th style="min-width: 140px;">Client VIP</th>
-                        <th style="min-width: 160px;">Véhicule & Mission</th>
-                        <th style="min-width: 130px;">Période / Dates</th>
-                        <th style="min-width: 80px;">Formule</th>
-                        <th style="min-width: 130px;">Paiement</th>
-                        <th style="min-width: 110px;">Montant Total</th>
-                        <th style="min-width: 100px;">Statut</th>
-                        <th style="min-width: 130px;" class="text-end">Actions</th>
+                        <th style="min-width: 125px;">Réf Mission</th>
+                        <th style="min-width: 160px;">Client VIP</th>
+                        <th style="min-width: 190px;">Véhicule VIP & Immat</th>
+                        <th style="min-width: 190px;">Mission & Trajet</th>
+                        <th style="min-width: 150px;">Chauffeur VIP</th>
+                        <th style="min-width: 140px;">Date & Départ</th>
+                        <th style="min-width: 110px;">Formule</th>
+                        <th style="min-width: 135px;">Règlement</th>
+                        <th style="min-width: 115px;">Tarif Total</th>
+                        <th style="min-width: 105px;">Statut</th>
+                        <th style="min-width: 85px;" class="text-end pe-3">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="bookingsTableBody">
@@ -136,76 +141,137 @@
                         data-status="{{ 'confirmé' if booking.status == 'confirmed' else ('annulé' if booking.status == 'cancelled' else 'en_attente') }}" 
                         data-payment-status="{{ 'payé' if booking.payment_status == 'paid' else ('remboursé' if booking.payment_status == 'refunded' else 'en attente') }}"
                         data-date="{{ booking.booking_date.timestamp() if booking.booking_date else 0 }}">
-                        <td class="fw-bold" style="color: #101828;">{{ booking.booking_code or '#' ~ booking.id }}</td>
                         <td>
-                            <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">{{ booking.passenger_name or booking.user.username }}</div>
-                            <div class="small text-muted"><i class="bi bi-telephone me-1"></i>{{ booking.user.phone or 'N/A' }}</div>
+                            <div class="fw-bold text-dark font-monospace" style="font-size: 0.8125rem;">
+                                {{ booking.booking_code or ('3M-MIS-' ~ '%04d'|format(booking.id)) }}
+                            </div>
+                            <div class="small text-muted" style="font-size: 0.72rem;">
+                                <i class="bi bi-calendar-event me-1"></i>{{ booking.booking_date.strftime('%d/%m/%Y') if booking.booking_date else 'Date N/D' }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-circle rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; background: #fff4ed; color: #ff5b35; font-size: 0.75rem; font-weight: 600;">
+                                    {{ (booking.passenger_name or (booking.user.username if booking.user else 'C'))[:1]|upper }}
+                                </div>
+                                <div class="text-truncate" style="max-width: 135px;">
+                                    <div class="fw-semibold text-dark text-truncate" style="font-size: 0.8125rem;" title="{{ booking.passenger_name or (booking.user.username if booking.user else 'Client Direct') }}">
+                                        {{ booking.passenger_name or (booking.user.username if booking.user else 'Client Direct') }}
+                                    </div>
+                                    <div class="small text-muted text-truncate" style="font-size: 0.72rem;">
+                                        <i class="bi bi-telephone me-1"></i>{{ booking.user.phone if (booking.user and booking.user.phone) else (booking.special_instructions or 'Contact direct') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if booking.trip and booking.trip.bus %}
+                                <div class="fw-semibold text-dark text-truncate" style="font-size: 0.8125rem; max-width: 180px;" title="{{ booking.trip.bus.brand }} {{ booking.trip.bus.model }}">
+                                    {{ booking.trip.bus.brand }} {{ booking.trip.bus.model }}
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 mt-0.5">
+                                    <span class="badge bg-light text-dark border font-monospace" style="font-size: 0.7rem; letter-spacing: 0.3px; padding: 2px 6px;">
+                                        {{ booking.trip.bus.bus_number }}
+                                    </span>
+                                    <span class="badge bg-light text-muted" style="font-size: 0.68rem;">VIP Flotte</span>
+                                </div>
+                            {% else %}
+                                <span class="text-muted small">Flotte VIP non assignée</span>
+                            {% endif %}
                         </td>
                         <td>
                             {% if booking.trip and booking.trip.route %}
-                                <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">{{ booking.trip.route.origin }} &rarr; {{ booking.trip.route.destination }}</div>
-                                <div class="small text-muted">{{ booking.trip.route.agency.name }}</div>
+                                <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">
+                                    {{ booking.trip.route.origin }} <i class="bi bi-arrow-right text-primary mx-0.5"></i> {{ booking.trip.route.destination }}
+                                </div>
+                                <div class="small text-muted" style="font-size: 0.72rem;">
+                                    <i class="bi bi-geo-alt me-0.5 text-danger"></i>{{ booking.trip.route.agency.name if (booking.trip.route.agency) else '3M Douala Prestige' }}
+                                </div>
                             {% else %}
-                                <span class="text-muted small">Location Directe</span>
+                                <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">Mise à disposition VIP</div>
+                                <div class="small text-muted" style="font-size: 0.72rem;">Chauffeur Privé Dédié</div>
                             {% endif %}
                         </td>
                         <td>
-                            {% if booking.trip %}
-                                <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">{{ booking.trip.departure_time.strftime('%d/%m/%Y %H:%M') }}</div>
-                                <div class="small text-muted">{{ booking.trip.bus.model }} ({{ booking.trip.bus.bus_number }})</div>
+                            {% set driver_name = (booking.trip.driver.name if (booking.trip and booking.trip.driver) else (booking.trip.bus.driver_name if (booking.trip and booking.trip.bus and booking.trip.bus.driver_name) else 'Chauffeur VIP Dédié')) %}
+                            <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">
+                                <i class="bi bi-person-badge text-primary me-1"></i>{{ driver_name }}
+                            </div>
+                            <div class="small text-muted" style="font-size: 0.72rem;">
+                                {% if booking.trip and booking.trip.driver and booking.trip.driver.phone %}
+                                    <i class="bi bi-whatsapp text-success me-1"></i>{{ booking.trip.driver.phone }}
+                                {% else %}
+                                    <span class="badge bg-success-soft text-success" style="font-size: 0.65rem;">Chauffeur Certifié</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if booking.trip and booking.trip.departure_time %}
+                                <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">
+                                    {{ booking.trip.departure_time.strftime('%d/%m/%Y %H:%M') }}
+                                </div>
+                                <div class="small text-muted" style="font-size: 0.72rem;">
+                                    {% if booking.trip.arrival_time %}
+                                        Fin: {{ booking.trip.arrival_time.strftime('%H:%M') }}
+                                    {% else %}
+                                        Mission VIP
+                                    {% endif %}
+                                </div>
                             {% else %}
-                                <span class="text-muted small">Dates à convenir</span>
+                                <span class="text-muted small">À planifier</span>
                             {% endif %}
                         </td>
                         <td>
-                            <span class="badge bg-light text-dark fw-semibold border">{{ booking.seat_number }}</span>
+                            <span class="badge bg-light text-dark fw-medium border" style="font-size: 0.72rem;">
+                                <i class="bi bi-shield-check text-success me-1"></i>{{ booking.seat_number or 'Chauffeur VIP' }}
+                            </span>
                         </td>
                         <td>
                             <div>
                                 {% if booking.payment_method %}
-                                    {% if 'momo' in booking.payment_method.lower() or 'mobile money' in booking.payment_method.lower() %}
-                                        <span class="badge text-dark fw-semibold" style="background-color: #ffd54f !important;"><i class="bi bi-phone-vibrate me-1"></i> MTN MoMo</span>
+                                    {% if 'momo' in booking.payment_method.lower() or 'mobile money' in booking.payment_method.lower() or 'mtn' in booking.payment_method.lower() %}
+                                        <span class="badge text-dark fw-semibold" style="background-color: #ffd54f !important; font-size: 0.7rem;"><i class="bi bi-phone-vibrate me-1"></i> MTN MoMo</span>
                                     {% elif 'orange' in booking.payment_method.lower() or 'om' in booking.payment_method.lower() %}
-                                        <span class="badge text-white fw-semibold" style="background-color: #ff6600 !important;"><i class="bi bi-phone me-1"></i> Orange Money</span>
+                                        <span class="badge text-white fw-semibold" style="background-color: #ff6600 !important; font-size: 0.7rem;"><i class="bi bi-phone me-1"></i> Orange Money</span>
                                     {% else %}
-                                        <span class="badge bg-light text-muted fw-normal border">Espèces / Agence</span>
+                                        <span class="badge bg-light text-muted fw-normal border" style="font-size: 0.7rem;">Espèces / Showroom</span>
                                     {% endif %}
                                 {% else %}
-                                    <span class="text-muted small">Non spécifié</span>
+                                    <span class="badge bg-light text-muted fw-normal border" style="font-size: 0.7rem;">Showroom 3M</span>
                                 {% endif %}
                             </div>
                             <div class="mt-1">
                                 {% if booking.payment_status == 'paid' %}
-                                    <span class="badge bg-success-soft text-success"><i class="bi bi-cash-stack me-1"></i> Payé</span>
+                                    <span class="badge bg-success-soft text-success" style="font-size: 0.7rem;"><i class="bi bi-cash-stack me-1"></i> Payé</span>
                                 {% elif booking.payment_status == 'refunded' %}
-                                    <span class="badge bg-danger-soft text-danger"><i class="bi bi-arrow-counterclockwise me-1"></i> Remboursé</span>
+                                    <span class="badge bg-danger-soft text-danger" style="font-size: 0.7rem;"><i class="bi bi-arrow-counterclockwise me-1"></i> Remboursé</span>
                                 {% else %}
-                                    <span class="badge bg-warning-soft text-warning"><i class="bi bi-clock me-1"></i> En Attente</span>
+                                    <span class="badge bg-warning-soft text-warning" style="font-size: 0.7rem;"><i class="bi bi-clock me-1"></i> En Attente</span>
                                 {% endif %}
                             </div>
                         </td>
                         <td>
-                            <div class="fw-bold text-dark">{{ booking.price_paid | int }} FCFA</div>
+                            <div class="fw-bold text-dark" style="font-size: 0.8125rem;">{{ booking.price_paid | int }} FCFA</div>
                             {% if booking.refund_amount and booking.refund_amount > 0 %}
-                                <div class="small text-danger"><i class="bi bi-arrow-return-left me-0.5"></i>Ret: {{ booking.refund_amount | int }} FCFA</div>
+                                <div class="small text-danger" style="font-size: 0.7rem;"><i class="bi bi-arrow-return-left me-0.5"></i>Ret: {{ booking.refund_amount | int }} FCFA</div>
                             {% endif %}
                         </td>
                         <td>
                             {% if booking.status == 'confirmed' %}
-                                <span class="badge bg-success-soft text-success"><i class="bi bi-check-circle me-1"></i> Confirmé</span>
+                                <span class="badge bg-success-soft text-success" style="font-size: 0.72rem;"><i class="bi bi-check-circle me-1"></i> Confirmée</span>
                             {% elif booking.status == 'cancelled' %}
-                                <span class="badge bg-danger-soft text-danger"><i class="bi bi-x-circle me-1"></i> Annulé</span>
+                                <span class="badge bg-danger-soft text-danger" style="font-size: 0.72rem;"><i class="bi bi-x-circle me-1"></i> Annulée</span>
                             {% else %}
-                                <span class="badge bg-warning-soft text-warning"><i class="bi bi-hourglass me-1"></i> En attente</span>
+                                <span class="badge bg-warning-soft text-warning" style="font-size: 0.72rem;"><i class="bi bi-hourglass me-1"></i> En attente</span>
                             {% endif %}
                         </td>
                         <td class="text-end pe-3 text-nowrap">
                             <div class="d-inline-flex align-items-center gap-1.5">
-                                <a href="{{ url_for('admin.edit_booking', id=booking.id) }}" class="action-icon-link action-edit" title="Modifier le contrat">
+                                <a href="{{ url_for('admin.edit_booking', id=booking.id) }}" class="action-icon-link action-edit" title="Modifier la mission VIP">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 {% if booking.status != 'cancelled' %}
-                                    <a href="{{ url_for('admin.cancel_booking', id=booking.id) }}" class="action-icon-link action-delete" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');" title="Annuler le contrat">
+                                    <a href="{{ url_for('admin.cancel_booking', id=booking.id) }}" class="action-icon-link action-delete" onclick="return confirm('Confirmez-vous l\'annulation de cette sortie / mission VIP ?');" title="Annuler la sortie">
                                         <i class="bi bi-x-circle"></i>
                                     </a>
                                 {% endif %}
@@ -214,18 +280,15 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="9" class="text-center py-5 text-muted">
-                            <i class="bi bi-journal-x fs-1 d-block mb-3 text-secondary"></i>
-                            Aucune réservation enregistrée sur le système.
+                        <td colspan="11" class="text-center py-5 text-muted">
+                            <i class="bi bi-calendar-x fs-1 d-block mb-3 text-secondary"></i>
+                            Aucune sortie ou mission VIP enregistrée pour le moment.
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
-{% endblock %}
     </div>
 </div>
 {% endblock %}
@@ -236,25 +299,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('bookingsSearch');
     const filterStatus = document.getElementById('bookingsFilterStatus');
     const filterPaymentStatus = document.getElementById('bookingsFilterPaymentStatus');
-    const sortOrder = document.getElementById('bookingsSortOrder');
     const tableBody = document.getElementById('bookingsTableBody');
     
     if(!tableBody) return;
 
     function applyFilters() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = filterStatus.value.toLowerCase();
+        const searchTerm = (searchInput ? searchInput.value.toLowerCase() : '').trim();
+        const statusValue = filterStatus ? filterStatus.value.toLowerCase() : '';
         const paymentStatusValue = filterPaymentStatus ? filterPaymentStatus.value.toLowerCase() : '';
-        const sortValue = sortOrder.value;
         
         let rows = Array.from(tableBody.querySelectorAll('tr.booking-row'));
         
         rows.forEach(row => {
-            const targetStatus = row.getAttribute('data-status');
+            const targetStatus = row.getAttribute('data-status') || '';
             const targetPaymentStatus = row.getAttribute('data-payment-status') || '';
             const rowText = row.innerText.toLowerCase();
             
-            const matchesSearch = rowText.includes(searchTerm);
+            const matchesSearch = !searchTerm || rowText.includes(searchTerm);
             const matchesStatus = (statusValue === "" || targetStatus === statusValue);
             const matchesPaymentStatus = (paymentStatusValue === "" || targetPaymentStatus === paymentStatusValue);
             
@@ -264,20 +325,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.style.display = 'none';
             }
         });
-        
-        rows.sort((a, b) => {
-            const dateA = parseFloat(a.getAttribute('data-date'));
-            const dateB = parseFloat(b.getAttribute('data-date'));
-            return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
-        });
-        
-        rows.forEach(row => tableBody.appendChild(row));
     }
     
     if(searchInput) searchInput.addEventListener('input', applyFilters);
     if(filterStatus) filterStatus.addEventListener('change', applyFilters);
     if(filterPaymentStatus) filterPaymentStatus.addEventListener('change', applyFilters);
-    if(sortOrder) sortOrder.addEventListener('change', applyFilters);
     
     window.applyBackendDateFilter = function(value) {
         const url = new URL(window.location.href);
@@ -289,8 +341,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if(searchInput) searchInput.value = '';
         if(filterStatus) filterStatus.value = '';
         if(filterPaymentStatus) filterPaymentStatus.value = '';
-        if(sortOrder) sortOrder.value = 'newest';
-        // Clear backend filter by reloading bookings list
         window.location.href = "{{ url_for('admin.bookings') }}";
     };
 });
