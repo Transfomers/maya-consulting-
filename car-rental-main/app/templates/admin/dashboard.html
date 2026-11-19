@@ -180,28 +180,28 @@
             <p class="text-muted mb-0" style="font-size: 0.95rem;">Fleet operations, active rentals and real-time revenue tracking.</p>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <!-- Period Selector (RentQ Pill Style) -->
-            <div class="btn-group p-1 bg-white rounded-pill border" role="group" aria-label="Period selector" style="border-color: #eaecf0 !important; box-shadow: 0 1px 2px rgba(16,24,40,0.04);">
+            <!-- Period Selector (Uniform 3M Pill Style) -->
+            <div class="date-filter-group">
                 <input type="radio" class="btn-check" name="dashboardRange" id="rangeDay" value="day" checked autocomplete="off">
-                <label class="btn btn-sm btn-outline-danger px-2 px-sm-3 rounded-pill fw-semibold" style="font-size: 0.78rem; transition: all 0.2s;" for="rangeDay">Today</label>
+                <label class="date-filter-btn active" for="rangeDay">Today</label>
                 
                 <input type="radio" class="btn-check" name="dashboardRange" id="rangeWeek" value="week" autocomplete="off">
-                <label class="btn btn-sm btn-outline-danger px-2 px-sm-3 rounded-pill fw-semibold" style="font-size: 0.78rem; transition: all 0.2s;" for="rangeWeek">This Week</label>
+                <label class="date-filter-btn" for="rangeWeek">This Week</label>
                 
                 <input type="radio" class="btn-check" name="dashboardRange" id="rangeMonth" value="month" autocomplete="off">
-                <label class="btn btn-sm btn-outline-danger px-2 px-sm-3 rounded-pill fw-semibold" style="font-size: 0.78rem; transition: all 0.2s;" for="rangeMonth">This Month</label>
+                <label class="date-filter-btn" for="rangeMonth">This Month</label>
                 
                 <input type="radio" class="btn-check" name="dashboardRange" id="rangeAll" value="all" autocomplete="off">
-                <label class="btn btn-sm btn-outline-danger px-2 px-sm-3 rounded-pill fw-semibold" style="font-size: 0.78rem; transition: all 0.2s;" for="rangeAll">All</label>
+                <label class="date-filter-btn" for="rangeAll">All</label>
             </div>
 
             <!-- Export Buttons -->
             <div class="d-flex gap-2">
-                <a id="btnExportPdf" href="{{ url_for('admin.export_dashboard_pdf', range='day') }}" class="btn btn-sm btn-outline-secondary bg-white rounded-pill px-2.5 px-sm-3 shadow-2xs fw-semibold" style="font-size: 0.8rem; border-color: #eaecf0;">
-                    <i class="bi bi-file-pdf text-danger me-1"></i> PDF
+                <a id="btnExportPdf" href="{{ url_for('admin.export_dashboard_pdf', range='day') }}" class="btn btn-sm btn-export-pdf">
+                    <i class="bi bi-file-pdf me-1"></i> PDF
                 </a>
-                <a id="btnExportCsv" href="{{ url_for('admin.export_dashboard_csv', range='day') }}" class="btn btn-sm btn-outline-secondary bg-white rounded-pill px-2.5 px-sm-3 shadow-2xs fw-semibold" style="font-size: 0.8rem; border-color: #eaecf0;">
-                    <i class="bi bi-file-csv text-success me-1"></i> CSV
+                <a id="btnExportCsv" href="{{ url_for('admin.export_dashboard_csv', range='day') }}" class="btn btn-sm btn-export-csv">
+                    <i class="bi bi-file-csv me-1"></i> CSV
                 </a>
             </div>
         </div>
@@ -551,7 +551,7 @@
                     <h5 class="fw-bold mb-0 text-dark">
                         <i class="bi bi-activity text-danger me-2"></i> Flux d'Opérations en Direct
                     </h5>
-                    <a href="{{ url_for('admin.logs') }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold" style="font-size: 0.78rem;">Voir tout le journal d'audit</a>
+                    <a href="{{ url_for('admin.logs') }}" class="btn btn-sm btn-outline-secondary">Voir tout le journal d'audit</a>
                 </div>
                 
                 <div class="live-ops-feed" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
@@ -632,7 +632,7 @@
     <div class="card bg-white border p-4 fade-in shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important;">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-journal-check text-danger me-2"></i> Dernières Réservations de Location</h5>
-            <a href="{{ url_for('admin.bookings') }}" class="btn btn-sm btn-outline-danger rounded-pill fw-semibold" style="font-size: 0.8rem;">Voir toutes les réservations</a>
+            <a href="{{ url_for('admin.bookings') }}" class="btn btn-sm btn-outline-secondary">Voir toutes les réservations</a>
         </div>
         
         <!-- Filter Bar -->

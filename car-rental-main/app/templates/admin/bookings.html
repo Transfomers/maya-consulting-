@@ -10,8 +10,8 @@
             <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Consultez et suivez l'ensemble des locations de véhicules, dates d'affectation et paiements des clients.</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ url_for('admin.export_bookings_pdf', filter=current_filter or 'all') }}" class="btn btn-sm btn-outline-danger rounded-2 px-3"><i class="bi bi-file-pdf me-1"></i> PDF</a>
-            <a href="{{ url_for('admin.export_bookings_csv', filter=current_filter or 'all') }}" class="btn btn-sm btn-outline-success rounded-2 px-3"><i class="bi bi-file-csv me-1"></i> CSV</a>
+            <a href="{{ url_for('admin.export_bookings_pdf', filter=current_filter or 'all') }}" class="btn btn-sm btn-export-pdf"><i class="bi bi-file-pdf me-1"></i> PDF</a>
+            <a href="{{ url_for('admin.export_bookings_csv', filter=current_filter or 'all') }}" class="btn btn-sm btn-export-csv"><i class="bi bi-file-csv me-1"></i> CSV</a>
         </div>
     </div>
 
@@ -104,14 +104,14 @@
                     <option value="en attente">En Attente</option>
                 </select>
                 
-                <div class="d-inline-flex p-1 bg-white rounded-2 border shadow-xs align-items-center">
-                    <button type="button" class="btn btn-sm rounded-2 px-2.5 py-1 fw-semibold border-0 {% if current_filter == 'all' or not current_filter %}btn-dark text-white{% else %}text-muted bg-transparent{% endif %}" onclick="applyBackendDateFilter('all')">All</button>
-                    <button type="button" class="btn btn-sm rounded-2 px-2.5 py-1 fw-semibold border-0 {% if current_filter == 'day' %}btn-dark text-white{% else %}text-muted bg-transparent{% endif %}" onclick="applyBackendDateFilter('day')">Day</button>
-                    <button type="button" class="btn btn-sm rounded-2 px-2.5 py-1 fw-semibold border-0 {% if current_filter == 'week' %}btn-dark text-white{% else %}text-muted bg-transparent{% endif %}" onclick="applyBackendDateFilter('week')">Week</button>
-                    <button type="button" class="btn btn-sm rounded-2 px-2.5 py-1 fw-semibold border-0 {% if current_filter == 'month' %}btn-dark text-white{% else %}text-muted bg-transparent{% endif %}" onclick="applyBackendDateFilter('month')">Month</button>
+                <div class="date-filter-group">
+                    <button type="button" class="date-filter-btn {% if current_filter == 'all' or not current_filter %}active{% endif %}" onclick="applyBackendDateFilter('all')">All</button>
+                    <button type="button" class="date-filter-btn {% if current_filter == 'day' %}active{% endif %}" onclick="applyBackendDateFilter('day')">Day</button>
+                    <button type="button" class="date-filter-btn {% if current_filter == 'week' %}active{% endif %}" onclick="applyBackendDateFilter('week')">Week</button>
+                    <button type="button" class="date-filter-btn {% if current_filter == 'month' %}active{% endif %}" onclick="applyBackendDateFilter('month')">Month</button>
                 </div>
                 
-                <button class="btn btn-sm btn-outline-secondary rounded-2" onclick="resetBookingsFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="resetBookingsFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
             </div>
         </div>
 
@@ -199,15 +199,17 @@
                                 <span class="badge bg-warning-soft text-warning"><i class="bi bi-hourglass me-1"></i> En attente</span>
                             {% endif %}
                         </td>
-                        <td class="text-end text-nowrap">
-                            <a href="{{ url_for('admin.edit_booking', id=booking.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 me-1" title="Modifier le dossier">
-                                <i class="bi bi-pencil me-1"></i> Modifier
-                            </a>
-                            {% if booking.status != 'cancelled' %}
-                                <a href="{{ url_for('admin.cancel_booking', id=booking.id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-2.5 py-1" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');" title="Annuler">
-                                    <i class="bi bi-x-circle me-1"></i> Annuler
+                        <td class="text-end pe-3 text-nowrap">
+                            <div class="d-inline-flex align-items-center gap-1.5">
+                                <a href="{{ url_for('admin.edit_booking', id=booking.id) }}" class="action-icon-link action-edit" title="Modifier le contrat">
+                                    <i class="bi bi-pencil"></i>
                                 </a>
-                            {% endif %}
+                                {% if booking.status != 'cancelled' %}
+                                    <a href="{{ url_for('admin.cancel_booking', id=booking.id) }}" class="action-icon-link action-delete" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');" title="Annuler le contrat">
+                                        <i class="bi bi-x-circle"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% else %}

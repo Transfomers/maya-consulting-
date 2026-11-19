@@ -11,7 +11,7 @@
             <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Consultez et gérez la base de données des clients VIP et comptes synchronisés.</p>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-secondary rounded-2 px-3" onclick="window.print()"><i class="bi bi-printer me-1"></i> Imprimer</button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i> Imprimer</button>
         </div>
     </div>
 
@@ -84,7 +84,7 @@
                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
                     <input type="text" id="usersTableSearch" class="form-control border-start-0 ps-0" placeholder="Chercher client, téléphone, email...">
                 </div>
-                <button class="btn btn-sm btn-outline-secondary rounded-2" onclick="document.getElementById('usersTableSearch').value=''; document.getElementById('usersTableSearch').dispatchEvent(new Event('input'));">
+                <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('usersTableSearch').value=''; document.getElementById('usersTableSearch').dispatchEvent(new Event('input'));">
                     <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
                 </button>
             </div>
@@ -135,13 +135,13 @@
                         </td>
                         <td class="text-end pe-3 text-nowrap">
                             <div class="d-inline-flex align-items-center gap-1.5">
-                                <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link" title="Consulter la fiche client">
+                                <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link action-view" title="Consulter la fiche client">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link" title="Modifier le compte">
+                                <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link action-edit" title="Modifier le compte">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{{ url_for('admin.delete_user', id=user.id) }}" class="action-icon-link text-danger" title="Supprimer" onclick="return confirm('Supprimer ce compte client ?');">
+                                <a href="{{ url_for('admin.delete_user', id=user.id) }}" class="action-icon-link action-delete" title="Supprimer" onclick="return confirm('Supprimer ce compte client ?');">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>

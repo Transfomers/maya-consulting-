@@ -151,31 +151,185 @@
             transition: background 0.4s, box-shadow 0.4s, border 0.4s, color 0.4s;
         }
 
-        /* Standardize all Primary Buttons: White by default, Bordeaux on hover */
-        .btn-primary {
-            background-color: #ffffff !important;
-            border: 2px solid var(--primary-light) !important;
-            color: var(--primary-light) !important;
-            font-weight: 600 !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            border-radius: 2rem !important;
+        /* ==========================================================================
+           UNIFORM 3M SERVICES BUTTON SYSTEM (GLOBAL & ADMIN)
+           ========================================================================== */
+        .btn {
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: 500 !important;
+            font-size: 0.8125rem !important;
+            line-height: 1.4 !important;
+            border-radius: 8px !important;
+            padding: 0.42rem 0.85rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.35rem !important;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+            box-shadow: none !important;
+            text-decoration: none !important;
         }
 
-        .btn-primary i {
-            color: var(--primary-light) !important;
+        .btn:hover {
+            transform: translateY(-1px) !important;
+        }
+        .btn:active {
+            transform: translateY(0) !important;
         }
 
+        /* Small Button */
+        .btn-sm {
+            font-size: 0.75rem !important;
+            padding: 0.3rem 0.65rem !important;
+            border-radius: 6px !important;
+            line-height: 1.35 !important;
+            gap: 0.3rem !important;
+        }
+
+        /* 3M SERVICES Primary Button */
+        .btn-primary,
+        .btn-3m-primary {
+            background-color: #FF5B35 !important;
+            border: 1px solid #FF5B35 !important;
+            color: #ffffff !important;
+        }
+        .btn-primary i,
+        .btn-3m-primary i {
+            color: #ffffff !important;
+        }
         .btn-primary:hover,
         .btn-primary:focus,
-        .btn-primary:active {
-            background-color: var(--primary-light) !important;
-            border-color: var(--primary-light) !important;
+        .btn-3m-primary:hover,
+        .btn-3m-primary:focus {
+            background-color: #e04b27 !important;
+            border-color: #e04b27 !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 12px rgba(201, 42, 42, 0.2) !important;
+            box-shadow: 0 2px 6px rgba(255, 91, 53, 0.3) !important;
         }
 
-        .btn-primary:hover i {
-            color: #ffffff !important;
+        /* 3M SERVICES Secondary / Outline Button */
+        .btn-outline-secondary,
+        .btn-secondary {
+            background-color: #ffffff !important;
+            border: 1px solid #d0d5dd !important;
+            color: #344054 !important;
+        }
+        .btn-outline-secondary:hover,
+        .btn-secondary:hover {
+            background-color: #f9fafb !important;
+            border-color: #bcc3cf !important;
+            color: #101828 !important;
+            box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06) !important;
+        }
+
+        /* Export PDF Button */
+        .btn-export-pdf {
+            background-color: #ffffff !important;
+            border: 1px solid #fda29b !important;
+            color: #b42318 !important;
+        }
+        .btn-export-pdf:hover {
+            background-color: #fef3f2 !important;
+            border-color: #fecdca !important;
+            color: #b42318 !important;
+            box-shadow: 0 1px 3px rgba(180, 35, 24, 0.08) !important;
+        }
+
+        /* Export CSV Button */
+        .btn-export-csv {
+            background-color: #ffffff !important;
+            border: 1px solid #a6f4c5 !important;
+            color: #027a48 !important;
+        }
+        .btn-export-csv:hover {
+            background-color: #edfcf2 !important;
+            border-color: #75e0a7 !important;
+            color: #027a48 !important;
+            box-shadow: 0 1px 3px rgba(2, 122, 72, 0.08) !important;
+        }
+
+        /* Date Filter Toggle Pill Group */
+        .date-filter-group {
+            display: inline-flex !important;
+            align-items: center !important;
+            background: #f2f4f7 !important;
+            padding: 3px !important;
+            border-radius: 8px !important;
+            border: 1px solid #eaecf0 !important;
+            gap: 2px !important;
+        }
+        .date-filter-btn {
+            border: none !important;
+            background: transparent !important;
+            color: #667085 !important;
+            font-size: 0.75rem !important;
+            font-weight: 500 !important;
+            padding: 0.28rem 0.65rem !important;
+            border-radius: 6px !important;
+            line-height: 1.3 !important;
+            transition: all 0.15s ease !important;
+            cursor: pointer !important;
+        }
+        .date-filter-btn:hover {
+            color: #101828 !important;
+        }
+        .date-filter-btn.active {
+            background: #ffffff !important;
+            color: #101828 !important;
+            font-weight: 600 !important;
+            box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1) !important;
+        }
+
+        /* Table Action Buttons - Identical size, shape & interaction everywhere */
+        .table .action-icon-link,
+        .action-icon-link {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 30px !important;
+            height: 30px !important;
+            border-radius: 6px !important;
+            color: #475467 !important;
+            background: #ffffff !important;
+            border: 1px solid #eaecf0 !important;
+            transition: all 0.15s ease !important;
+            text-decoration: none !important;
+            font-size: 0.82rem !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+            flex-shrink: 0 !important;
+        }
+        .table .action-icon-link:hover,
+        .action-icon-link:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 4px rgba(16, 24, 40, 0.08) !important;
+        }
+        .table .action-icon-link:active,
+        .action-icon-link:active {
+            transform: translateY(0) !important;
+        }
+
+        .action-view:hover {
+            color: #175cd3 !important;
+            background: #eff8ff !important;
+            border-color: #b2ddff !important;
+        }
+        .action-edit:hover {
+            color: #FF5B35 !important;
+            background: #fff0ec !important;
+            border-color: #ffd4c9 !important;
+        }
+        .action-maint:hover {
+            color: #b54708 !important;
+            background: #fffaeb !important;
+            border-color: #fedf89 !important;
+        }
+        .action-delete:hover {
+            color: #d92d20 !important;
+            background: #fef3f2 !important;
+            border-color: #fecdca !important;
         }
 
         /* ── Admin Panel Mobile Responsiveness ───────────────────────────── */
