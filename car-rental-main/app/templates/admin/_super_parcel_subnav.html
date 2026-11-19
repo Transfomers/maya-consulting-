@@ -1,0 +1,77 @@
+<style>
+    .super-subnav-link {
+        border: 1px solid rgba(0,0,0,0.06);
+        background: #f8fafc;
+        color: #64748b !important;
+        transition: all 0.2s ease;
+    }
+    .super-subnav-link:hover {
+        background: #f1f5f9;
+        color: #0f172a !important;
+    }
+    .super-subnav-link.active {
+        background: #C92A2A !important;
+        border-color: #C92A2A !important;
+        color: #ffffff !important;
+    }
+    body.dark-mode .super-subnav-link {
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    body.dark-mode .super-subnav-link:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #ffffff !important;
+    }
+    body.dark-mode .super-subnav-link.active {
+        background: #ffc107 !important;
+        border-color: #ffc107 !important;
+        color: #0f172a !important;
+    }
+</style>
+
+<div class="mb-4">
+    <div class="nav nav-pills flex-nowrap overflow-auto pb-2 gap-2" style="-webkit-overflow-scrolling: touch; scrollbar-width: none;">
+        {% if current_user.role == 'super_admin' %}
+        <a class="nav-link py-2 px-3 fw-bold text-nowrap super-subnav-link {% if request.endpoint == 'admin.super_parcel_dashboard' %}active{% endif %}" href="{{ url_for('admin.super_parcel_dashboard') }}">
+            <i class="bi bi-grid-fill me-1"></i> Overview
+        </a>
+        {% endif %}
+        
+        <a class="nav-link py-2 px-3 fw-bold text-nowrap super-subnav-link {% if request.endpoint == 'admin.super_parcel_registry' %}active{% endif %}" href="{{ url_for('admin.super_parcel_registry') }}">
+            <i class="bi bi-list-stars me-1"></i> Registre
+        </a>
+        
+        {% if current_user.role == 'super_admin' %}
+        <a class="nav-link py-2 px-3 fw-bold text-nowrap super-subnav-link {% if request.endpoint == 'admin.super_parcel_agencies' %}active{% endif %}" href="{{ url_for('admin.super_parcel_agencies') }}">
+            <i class="bi bi-building me-1"></i> Agences
+        </a>
+        <a class="nav-link py-2 px-3 fw-bold text-nowrap super-subnav-link {% if request.endpoint == 'admin.super_parcel_trips' %}active{% endif %}" href="{{ url_for('admin.super_parcel_trips') }}">
+            <i class="bi bi-truck me-1"></i> Voyages Cargo
+        </a>
+        <a class="nav-link py-2 px-3 fw-bold text-nowrap super-subnav-link {% if request.endpoint == 'admin.super_parcel_revenue' %}active{% endif %}" href="{{ url_for('admin.super_parcel_revenue') }}">
+            <i class="bi bi-cash-coin me-1"></i> Finances
+        </a>
+        {% endif %}
+        
+        <a class="nav-link py-2 px-3 fw-bold text-nowrap super-subnav-link {% if request.endpoint == 'admin.super_parcel_routes' %}active{% endif %}" href="{{ url_for('admin.super_parcel_routes') }}">
+            <i class="bi bi-map me-1"></i> Lignes
+        </a>
+        
+        {% if current_user.role == 'super_admin' %}
+        <a class="nav-link py-2 px-3 fw-bold text-nowrap super-subnav-link {% if request.endpoint == 'admin.super_parcel_tracking' %}active{% endif %}" href="{{ url_for('admin.super_parcel_tracking') }}">
+            <i class="bi bi-geo-alt-fill me-1"></i> Suivi National
+        </a>
+        {% endif %}
+
+        <a class="nav-link py-2 px-3 fw-bold text-nowrap super-subnav-link {% if request.endpoint == 'admin.super_parcel_incidents' %}active{% endif %}" href="{{ url_for('admin.super_parcel_incidents') }}">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> Incidents & Litiges
+        </a>
+
+        {% if current_user.role == 'admin_agence' %}
+        <a class="nav-link py-2 px-3 fw-bold text-nowrap super-subnav-link ms-auto" href="{{ url_for('admin.manager_parcel_dashboard') }}">
+            <i class="bi bi-arrow-left-short me-1"></i> Retour au Dashboard
+        </a>
+        {% endif %}
+    </div>
+</div>

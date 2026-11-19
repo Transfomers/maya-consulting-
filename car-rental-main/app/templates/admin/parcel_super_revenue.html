@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Analyse Financière Fret - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+    {% include 'admin/_super_parcel_subnav.html' %}
+
+    <!-- Filter Console -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-funnel-fill text-primary me-2"></i>Filtre Temporel des Recettes</h5>
+        <form method="GET" action="{{ url_for('admin.super_parcel_revenue') }}" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small fw-bold text-uppercase text-muted">Date de Début</label>
+                <input type="date" name="date_from" class="form-control" value="{{ date_from or '' }}">
+            </div>
+            <div class="col-md-5">
+                <label class="form-label small fw-bold text-uppercase text-muted">Date de Fin</label>
+                <input type="date" name="date_to" class="form-control" value="{{ date_to or '' }}">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <a href="{{ url_for('admin.super_parcel_revenue') }}" class="btn btn-outline-secondary rounded-pill px-3 fw-bold w-100">Effacer</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-3 fw-bold w-100"><i class="bi bi-filter me-1"></i>Filtrer</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Top KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm p-4 text-start">
+                <span class="small fw-bold text-uppercase text-muted">Recettes Fret Totales</span>
+                <h2 class="fw-bold mt-2 mb-1 text-success">{{ total_revenue | int }} FCFA</h2>
+                <span class="small text-muted">Volume financier historique cumulé</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm p-4 text-start">
+                <span class="small fw-bold text-uppercase text-muted">Total Colis Facturés</span>
+                <h2 class="fw-bold mt-2 mb-1 text-primary">{{ total_count }}</h2>
+                <span class="small text-muted">Colis avec paiement confirmé</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Daily trend line chart -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-calendar3 text-primary me-2"></i>Évolution Quotidienne des Recettes (30 derniers jours)</h5>
+                <div style="position: relative; height:300px;">
+                    <canvas id="dailyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Monthly comparison -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill text-warning me-2"></i>Performance Mensuelle</h5>
+                <div style="position: relative; height:300px;">
+                    <canvas id="monthlyCompChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Methods & Transaction Breakdown -->
+    <div class="card border-0 shadow-sm p-4">
+        <h5 class="fw-bold mb-4"><i class="bi bi-credit-card-2-front text-primary me-2"></i>Répartition des Modes de Facturation</h5>
+        {% if methods %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Méthode de Paiement</th>
+                            <th class="text-center">Transactions</th>
+                            <th class="text-end fw-bold">Montant Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in methods %}
+                        <tr>
+                            <td class="fw-semibold">{{ m.method | upper }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border">{{ m.count }}</span>
+                            </td>
+                            <td class="text-end fw-bold text-success">{{ m.revenue | int }} FCFA</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-wallet2 fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted fw-bold">Aucune transaction de paiement trouvée.</h6>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Load Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Daily values from context
+        const dailyLabels = [];
+        const dailyValues = [];
+        {% for label in daily_labels %}
+            dailyLabels.push("{{ label }}");
+        {% endfor %}
+        {% for value in daily_values %}
+            dailyValues.push({{ value }});
+        {% endfor %}
+
+        // Monthly values from context
+        const monthlyLabels = [];
+        const monthlyValues = [];
+        {% for label in monthly_labels %}
+            monthlyLabels.push("{{ label }}");
+        {% endfor %}
+        {% for value in monthly_values %}
+            monthlyValues.push({{ value }});
+        {% endfor %}
+
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+        const textLabelColor = isDarkMode ? '#cbd5e1' : '#475569';
+
+        // Daily trend line chart
+        const ctxDaily = document.getElementById('dailyTrendChart').getContext('2d');
+        new Chart(ctxDaily, {
+            type: 'line',
+            data: {
+                labels: dailyLabels,
+                datasets: [{
+                    label: 'Chiffre d\'Affaires Fret',
+                    data: dailyValues,
+                    borderColor: '#C92A2A',
+                    backgroundColor: 'rgba(201, 42, 42, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: textLabelColor }
+                    },
+                    y: {
+                        grid: { color: gridColor },
+                        ticks: { color: textLabelColor }
+                    }
+                }
+            }
+        });
+
+        // Monthly comparison bar chart
+        const ctxMonthly = document.getElementById('monthlyCompChart').getContext('2d');
+        new Chart(ctxMonthly, {
+            type: 'bar',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Chiffre d\'Affaires Mensuel',
+                    data: monthlyValues,
+                    backgroundColor: 'rgba(255, 193, 7, 0.85)',
+                    borderColor: '#ffc107',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: textLabelColor }
+                    },
+                    y: {
+                        grid: { color: gridColor },
+                        ticks: { color: textLabelColor }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

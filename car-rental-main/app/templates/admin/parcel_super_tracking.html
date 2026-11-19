@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Suivi National de Colis - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+    }
+    .timeline-steps::after {
+        content: "";
+        position: absolute;
+        height: 4px;
+        background: #e2e8f0;
+        top: 24px;
+        left: 5%;
+        right: 5%;
+        z-index: 1;
+    }
+    body.dark-mode .timeline-steps::after {
+        background: #334155;
+    }
+    .step-item {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        width: 18%;
+    }
+    .step-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 3px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 1.25rem;
+        color: #94a3b8;
+        transition: all 0.3s ease;
+    }
+    body.dark-mode .step-icon {
+        background: #1e293b;
+        border-color: #334155;
+        color: #475569;
+    }
+    .step-item.completed .step-icon {
+        border-color: #C92A2A;
+        background: #fbf2f4;
+        color: #C92A2A;
+    }
+    body.dark-mode .step-item.completed .step-icon {
+        border-color: #ffc107;
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    .step-item.active .step-icon {
+        border-color: #C92A2A;
+        background: #C92A2A;
+        color: #ffffff;
+        box-shadow: 0 0 15px rgba(112,29,54,0.4);
+    }
+    body.dark-mode .step-item.active .step-icon {
+        border-color: #ffc107;
+        background: #ffc107;
+        color: #0f172a;
+        box-shadow: 0 0 15px rgba(255,193,7,0.4);
+    }
+    .map-simulation {
+        height: 250px;
+        background: #f1f5f9;
+        border-radius: 1rem;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    body.dark-mode .map-simulation {
+        background: #0f172a;
+        border-color: rgba(255,255,255,0.05);
+    }
+    .sim-line {
+        position: absolute;
+        top: 50%;
+        left: 10%;
+        right: 10%;
+        height: 4px;
+        border-top: 4px dashed #94a3b8;
+        transform: translateY(-50%);
+    }
+    .sim-truck {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.8rem;
+        color: #C92A2A;
+        animation: drive 10s infinite linear;
+    }
+    body.dark-mode .sim-truck {
+        color: #ffc107;
+    }
+    @keyframes drive {
+        0% { left: 10%; transform: translate(-50%, -50%) scaleX(1); }
+        49% { left: 90%; transform: translate(-50%, -50%) scaleX(1); }
+        50% { left: 90%; transform: translate(-50%, -50%) scaleX(-1); }
+        99% { left: 10%; transform: translate(-50%, -50%) scaleX(-1); }
+        100% { left: 10%; transform: translate(-50%, -50%) scaleX(1); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+    {% include 'admin/_super_parcel_subnav.html' %}
+
+    <!-- Live Search Input -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt-fill text-primary me-2"></i>Suivi en Temps Réel</h5>
+        <form method="GET" action="{{ url_for('admin.super_parcel_tracking') }}" class="d-flex gap-2">
+            <input type="text" name="tracking_code" class="form-control" placeholder="Entrez le numéro de tracking (ex: LV-PARCEL-...)" value="{{ tracking_code or '' }}" required>
+            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold text-nowrap"><i class="bi bi-search me-1"></i>Rechercher</button>
+        </form>
+    </div>
+
+    {% if tracking_code %}
+        {% if parcel %}
+            <!-- Status Stepper -->
+            <div class="card border-0 shadow-sm p-4 mb-4">
+                <h5 class="fw-bold mb-4"><i class="bi bi-bezier2 text-primary me-2"></i>Statut de l'Expédition</h5>
+                
+                {% set status_steps = ['pending', 'validated', 'paid', 'loaded', 'delivered'] %}
+                {% set current_status_idx = 0 %}
+                
+                {% if parcel.status == 'validated' %}
+                    {% set current_status_idx = 1 %}
+                {% elif parcel.status == 'paid' or parcel.status == 'assigned' %}
+                    {% set current_status_idx = 2 %}
+                {% elif parcel.status in ['loaded', 'in_transit', 'arrived'] %}
+                    {% set current_status_idx = 3 %}
+                {% elif parcel.status == 'delivered' %}
+                    {% set current_status_idx = 4 %}
+                {% endif %}
+
+                <div class="timeline-steps my-3 d-none d-md-flex">
+                    <div class="step-item {% if current_status_idx >= 0 %}completed{% endif %} {% if current_status_idx == 0 %}active{% endif %}">
+                        <div class="step-icon"><i class="bi bi-file-earmark-plus"></i></div>
+                        <div class="small fw-bold">Créé</div>
+                    </div>
+                    <div class="step-item {% if current_status_idx >= 1 %}completed{% endif %} {% if current_status_idx == 1 %}active{% endif %}">
+                        <div class="step-icon"><i class="bi bi-check-circle"></i></div>
+                        <div class="small fw-bold">Validé</div>
+                    </div>
+                    <div class="step-item {% if current_status_idx >= 2 %}completed{% endif %} {% if current_status_idx == 2 %}active{% endif %}">
+                        <div class="step-icon"><i class="bi bi-credit-card"></i></div>
+                        <div class="small fw-bold">Payé</div>
+                    </div>
+                    <div class="step-item {% if current_status_idx >= 3 %}completed{% endif %} {% if current_status_idx == 3 %}active{% endif %}">
+                        <div class="step-icon"><i class="bi bi-truck"></i></div>
+                        <div class="small fw-bold">En Transit</div>
+                    </div>
+                    <div class="step-item {% if current_status_idx >= 4 %}completed{% endif %} {% if current_status_idx == 4 %}active{% endif %}">
+                        <div class="step-icon"><i class="bi bi-house-check"></i></div>
+                        <div class="small fw-bold">Livré</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <!-- Map Simulator -->
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm p-4 h-100">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-map text-primary me-2"></i>Simulation de Transit GPS</h5>
+                        <div class="map-simulation d-flex flex-column justify-content-between p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary fs-6">{{ parcel.agency.city }}</span>
+                                <span class="badge bg-secondary fs-6">{{ parcel.receiver_city }}</span>
+                            </div>
+                            <div class="position-relative w-100" style="height: 60px;">
+                                <div class="sim-line"></div>
+                                <div class="sim-truck"><i class="bi bi-truck"></i></div>
+                            </div>
+                            <div class="text-center small text-muted">
+                                {% if parcel.status in ['loaded', 'in_transit'] %}
+                                    <span class="text-warning fw-bold"><i class="bi bi-broadcast me-1"></i>Signal GPS : Fret en déplacement sur l'axe national.</span>
+                                {% elif parcel.status == 'delivered' %}
+                                    <span class="text-success fw-bold"><i class="bi bi-check2-all me-1"></i>Terminé : Colis réceptionné à destination.</span>
+                                {% else %}
+                                    <span>En attente de départ logistique à l'agence d'origine.</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parcel Details -->
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm p-4 h-100">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Fiche Logistique</h5>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Numéro de Suivi :</span>
+                                <span class="fw-bold">{{ parcel.tracking_number }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Expéditeur :</span>
+                                <span class="fw-semibold">{{ parcel.sender_name }} ({{ parcel.sender_phone }})</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Destinataire :</span>
+                                <span class="fw-semibold">{{ parcel.receiver_name }} ({{ parcel.receiver_phone }})</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Description :</span>
+                                <span>{{ parcel.description }} ({{ parcel.parcel_type }})</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Poids total :</span>
+                                <span>{{ parcel.weight }} kg</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Voyage logistique affecté :</span>
+                                <span>{% if parcel.trip_id %}Voyage #{{ parcel.trip_id }}{% else %}Non assigné{% endif %}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Events -->
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold mb-4"><i class="bi bi-clock-history text-primary me-2"></i>Journal d'Audit & Événements</h5>
+                {% if timeline %}
+                    <div class="position-relative border-start border-2 ps-4 ms-2">
+                        {% for event in timeline %}
+                        <div class="mb-4 position-relative">
+                            <!-- Bullet -->
+                            <div class="position-absolute" style="left: -33px; top: 0px; width: 14px; height: 14px; border-radius: 50%; background: #C92A2A; border: 3px solid #ffffff;"></div>
+                            <div class="fw-bold text-dark">{{ event.action | replace('_', ' ') | title }}</div>
+                            <div class="small text-muted mb-1">{{ event.time.strftime('%d/%m/%Y à %H:%M') }} | Par: {{ event.user }}</div>
+                            <p class="text-secondary small mb-0">{{ event.details }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-4 mb-0">Aucun historique d'audit enregistré pour ce colis.</p>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="alert alert-warning border-0 shadow-sm">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Aucun colis trouvé pour le code de suivi <strong>{{ tracking_code }}</strong>.
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

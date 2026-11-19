@@ -1,0 +1,143 @@
+{% extends "admin/parcel_ops_base.html" %}
+
+{% block title %}Arrival & Delivery{% endblock %}
+{% block page_title %}Arrivée des Voyageurs & Remise des Colis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 text-start">
+    <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-mailbox2 text-primary me-2"></i>Flux d'Arrivée & Distribution Local</h5>
+            <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 fw-bold">{{ parcels | length }} colis</span>
+        </div>
+
+        {% if parcels %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>N° Suivi</th>
+                            <th>Expéditeur</th>
+                            <th>Destinataire</th>
+                            <th>Poids</th>
+                            <th>Statut Logistique</th>
+                            <th class="text-end">Actions de Remise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in parcels %}
+                        <tr>
+                            <td class="fw-bold">{{ p.tracking_number }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ p.sender_name }}</div>
+                                <div class="small text-muted">{{ p.sender_phone or '' }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ p.receiver_name }}</div>
+                                <div class="small text-muted">{{ p.receiver_phone }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ p.weight }} kg</span>
+                            </td>
+                            <td>
+                                {% if p.status == 'loaded' or p.status == 'in_transit' %}
+                                    <span class="badge bg-warning text-white px-2 py-1"><i class="bi bi-truck me-1"></i>En Transit</span>
+                                {% elif p.status == 'arrived' %}
+                                    <span class="badge bg-info text-white px-2 py-1"><i class="bi bi-geo-alt-fill me-1"></i>Arrivé (Prêt)</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark border px-2 py-1">{{ p.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if p.status == 'loaded' or p.status == 'in_transit' %}
+                                    <form method="POST" action="{{ url_for('admin.mark_parcel_arrived', parcel_id=p.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold">
+                                            <i class="bi bi-box-arrow-in-down"></i> Déclarer Arrivé
+                                        </button>
+                                    </form>
+                                {% elif p.status == 'arrived' %}
+                                    <button class="btn btn-sm btn-success rounded-pill px-4 fw-bold" onclick="openDeliverModal({{ p.id }}, '{{ p.tracking_number }}', '{{ p.receiver_name | replace("'", "\\'") }}')">
+                                        <i class="bi bi-clipboard2-check"></i> Remettre Colis
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted fw-bold">Aucun colis en attente d'arrivée ou de distribution.</h6>
+                <p class="text-muted small mb-0">Les colis arrivant à votre ville d'agence apparaîtront ici.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- DELIVER/HAND-OFF MODAL -->
+<div class="modal fade" id="deliverModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Sécuriser la Remise <span id="dTracking"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="deliverForm" method="POST" action="">
+                <div class="modal-body p-4 text-start">
+                    <p class="small text-muted">Veuillez vérifier l'identité du récepteur et entrer l'OTP envoyé pour confirmer la remise physique.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">Destinataire Attendu</label>
+                        <div class="p-2.5 bg-light border rounded">
+                            <strong class="text-dark d-block" id="dReceiver">--</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="dOtp" class="form-label fw-bold">Code OTP de Retrait *</label>
+                        <input type="text" class="form-control text-center fw-bold fs-4 letters-spaced" id="dOtp" name="otp" required placeholder="******" maxlength="6" style="letter-spacing: 0.5rem;">
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label for="dIdType" class="form-label fw-bold">Type de Pièce d'Identité *</label>
+                            <select class="form-select" id="dIdType" name="receiver_id_type" required>
+                                <option value="CNI" selected>CNI (Carte d'Identité)</option>
+                                <option value="Passeport">Passeport</option>
+                                <option value="Permis">Permis de Conduire</option>
+                                <option value="Autre">Autre Document Officiel</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label for="dIdNum" class="form-label fw-bold">Numéro de la Pièce *</label>
+                            <input type="text" class="form-control" id="dIdNum" name="receiver_id_number" required placeholder="123456789">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Valider la Remise</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let deliverModal;
+    document.addEventListener("DOMContentLoaded", () => {
+        deliverModal = new bootstrap.Modal(document.getElementById('deliverModal'));
+    });
+
+    function openDeliverModal(id, tracking, receiver) {
+        document.getElementById('dTracking').innerText = `#${tracking}`;
+        document.getElementById('dReceiver').innerText = receiver;
+        document.getElementById('deliverForm').action = `/admin/parcel/ops/parcel/${id}/deliver`;
+        deliverModal.show();
+    }
+</script>
+{% endblock %}

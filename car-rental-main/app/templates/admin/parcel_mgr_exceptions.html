@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Exception Management - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-exclamation-octagon-fill text-danger me-2"></i>Gestion des Exceptions & Litiges Colis</h4>
+            <p class="text-muted small mb-0">Contrôle des anomalies opérationnelles (retards, rejets, réclamations clients).</p>
+        </div>
+        <a href="{{ url_for('admin.manager_parcel_dashboard') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold">
+            <i class="bi bi-arrow-left"></i> Dashboard Manager
+        </a>
+    </div>
+
+    <!-- Tabbed Exceptions Panels -->
+    <ul class="nav nav-pills mb-4 border p-2 bg-light rounded-4 gap-2" id="exceptionsTab" role="tablist" style="max-width: fit-content;">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-3 small fw-bold" id="delayed-tab" data-bs-toggle="pill" data-bs-target="#delayed" type="button" role="tab" aria-selected="true">
+                ⚠️ Colis en Retard ({{ delayed | length }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-3 small fw-bold text-danger" id="rejected-tab" data-bs-toggle="pill" data-bs-target="#rejected" type="button" role="tab" aria-selected="false">
+                🚫 Demandes Rejetées ({{ rejected | length }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-3 small fw-bold text-primary" id="disputed-tab" data-bs-toggle="pill" data-bs-target="#disputed" type="button" role="tab" aria-selected="false">
+                💬 Litiges Actifs ({{ disputed | length }})
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="exceptionsTabContent">
+        <!-- 1. DELAYED PARCELS -->
+        <div class="tab-pane fade show active" id="delayed" role="tabpanel" aria-labelledby="delayed-tab">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-clock-history text-warning me-2"></i>Chargements hors délais (>6h de retard de départ)</h5>
+                {% if delayed %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Suivi</th>
+                                    <th>Véhicule / Voyage</th>
+                                    <th>Ligne</th>
+                                    <th>Départ Prévu</th>
+                                    <th>Poids</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in delayed %}
+                                <tr>
+                                    <td class="fw-bold">{{ p.tracking_number }}</td>
+                                    <td>Bus {{ p.trip.bus.bus_number if p.trip else 'N/A' }}</td>
+                                    <td>{{ p.trip.route.origin }}➔{{ p.trip.route.destination }}</td>
+                                    <td class="text-danger fw-semibold">{{ p.trip.departure_time.strftime('%d/%m à %H:%M') }}</td>
+                                    <td>{{ p.weight }} kg</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="openDisputeModal({{ p.id }}, '{{ p.tracking_number }}', '{{ p.dispute_notes | replace("'", "\\'") if p.dispute_notes else '' }}')">
+                                            Ouvrir Litige
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-4 mb-0">Aucune anomalie de délai détectée. Tous les colis voyagent à l'heure.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 2. REJECTED PARCELS -->
+        <div class="tab-pane fade" id="rejected" role="tabpanel" aria-labelledby="rejected-tab">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-x-circle text-danger me-2"></i>Demandes d'expéditions refusées au guichet</h5>
+                {% if rejected %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Suivi</th>
+                                    <th>Expéditeur</th>
+                                    <th>Destinataire / Cible</th>
+                                    <th>Motif du Rejet</th>
+                                    <th>Date Création</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in rejected %}
+                                <tr>
+                                    <td class="fw-bold">{{ p.tracking_number }}</td>
+                                    <td>{{ p.sender_name }}</td>
+                                    <td>{{ p.receiver_name }} (➔ {{ p.receiver_city }})</td>
+                                    <td class="text-danger fw-semibold">{{ p.rejection_reason or 'Non spécifié' }}</td>
+                                    <td>{{ p.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-4 mb-0">Aucune demande rejetée trouvée.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 3. DISPUTED PARCELS -->
+        <div class="tab-pane fade" id="disputed" role="tabpanel" aria-labelledby="disputed-tab">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-chat-left-dots text-primary me-2"></i>Réclamations et anomalies signalées</h5>
+                {% if disputed %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Suivi</th>
+                                    <th>Destinataire</th>
+                                    <th>Poids / Tarif</th>
+                                    <th>Notes de Litige / Résolution</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in disputed %}
+                                <tr>
+                                    <td class="fw-bold">{{ p.tracking_number }}</td>
+                                    <td>{{ p.receiver_name }} (➔ {{ p.receiver_city }})</td>
+                                    <td>{{ p.weight }} kg | {{ p.price | int }} F</td>
+                                    <td>
+                                        <div class="p-2 border rounded bg-light small text-muted">{{ p.dispute_notes }}</div>
+                                    </td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="openDisputeModal({{ p.id }}, '{{ p.tracking_number }}', '{{ p.dispute_notes | replace("'", "\\'") }}')">
+                                            Modifier
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-4 mb-0">Aucune réclamation de litige en cours.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DISPUTE MODAL -->
+<div class="modal fade" id="disputeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-chat-square-text me-2"></i>Ouvrir/Modifier Litige Colis <span id="dispTracking"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="disputeForm" method="POST" action="">
+                <div class="modal-body p-4 text-start">
+                    <div class="mb-3">
+                        <label for="dispNotes" class="form-label fw-bold">Notes de Litige & Suivi</label>
+                        <textarea class="form-control" id="dispNotes" name="dispute_notes" rows="4" required placeholder="Saisir les remarques sur le retard, la perte ou le litige avec le client..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-premium rounded-pill px-4 fw-bold">Enregistrer Litige</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let disputeModal;
+    document.addEventListener("DOMContentLoaded", () => {
+        disputeModal = new bootstrap.Modal(document.getElementById('disputeModal'));
+    });
+
+    function openDisputeModal(id, tracking, notes) {
+        document.getElementById('dispTracking').innerText = `#${tracking}`;
+        document.getElementById('dispNotes').value = notes || "";
+        document.getElementById('disputeForm').action = `/admin/parcel/mgr/parcel/${id}/dispute`;
+        disputeModal.show();
+    }
+</script>
+{% endblock %}

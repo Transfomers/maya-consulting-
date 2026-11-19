@@ -1,0 +1,16 @@
+Bonjour {{ username }},
+
+Vous recevez cet e-mail dans le cadre de votre demande de {{ purpose_label }} sur 3M SERVICES.
+
+Votre code de vérification OTP est :
+{{ otp_code }}
+
+Ce code expirera dans 10 minutes.
+
+ALERTE DE SÉCURITÉ :
+Ne partagez jamais ce code avec quiconque. Les agents de 3M SERVICES ne vous demanderont jamais votre code OTP. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité.
+
+--
+Ceci est un e-mail automatique. Merci de ne pas y répondre.
+3M SERVICES
+https://3mservice.shop

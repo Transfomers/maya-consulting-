@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Créer une Ligne - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+                <div class="mb-4">
+                    <h3 class="fw-bold"><i class="bi bi-signpost-split text-primary me-2"></i> Créer une Nouvelle Ligne</h3>
+                    <p class="text-muted">Définissez un itinéraire statique reliant deux villes du Cameroun.</p>
+                </div>
+                
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="origin" class="form-label">Ville de Départ</label>
+                            <select class="form-select" id="origin" name="origin" required>
+                                <option value="" disabled selected>Choisir une ville...</option>
+                                <option value="Douala">Douala</option>
+                                <option value="Yaoundé">Yaoundé</option>
+                                <option value="Bafoussam">Bafoussam</option>
+                                <option value="Garoua">Garoua</option>
+                                <option value="Bamenda">Bamenda</option>
+                                <option value="Ngaoundéré">Ngaoundéré</option>
+                                <option value="Maroua">Maroua</option>
+                                <option value="Kribi">Kribi</option>
+                                <option value="Limbe">Limbe</option>
+                            </select>
+                            <div class="invalid-feedback">Veuillez sélectionner la ville de départ.</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="destination" class="form-label">Ville de Destination</label>
+                            <select class="form-select" id="destination" name="destination" required>
+                                <option value="" disabled selected>Choisir une ville...</option>
+                                <option value="Douala">Douala</option>
+                                <option value="Yaoundé">Yaoundé</option>
+                                <option value="Bafoussam">Bafoussam</option>
+                                <option value="Garoua">Garoua</option>
+                                <option value="Bamenda">Bamenda</option>
+                                <option value="Ngaoundéré">Ngaoundéré</option>
+                                <option value="Maroua">Maroua</option>
+                                <option value="Kribi">Kribi</option>
+                                <option value="Limbe">Limbe</option>
+                            </select>
+                            <div class="invalid-feedback">Veuillez sélectionner la ville de destination.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="distance" class="form-label">Distance (en km)</label>
+                            <input type="number" class="form-control" id="distance" name="distance" min="1" placeholder="Ex: 245" required>
+                            <div class="invalid-feedback">Veuillez spécifier la distance estimée.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="duration" class="form-label">Durée Estimée (ex: 3h 30m)</label>
+                            <input type="text" class="form-control" id="duration" name="duration" placeholder="Ex: 4h 00m" required>
+                            <div class="invalid-feedback">Veuillez indiquer la durée estimée du trajet.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="base_price" class="form-label">Tarif de Base (FCFA)</label>
+                            <select class="form-select" id="base_price" name="base_price">
+                                <option value="">Aucun (Optionnel)</option>
+                                <option value="3000">3 000 FCFA</option>
+                                <option value="4000">4 000 FCFA</option>
+                                <option value="5000">5 000 FCFA</option>
+                                <option value="6000">6 000 FCFA</option>
+                                <option value="7000">7 000 FCFA</option>
+                                <option value="8000">8 000 FCFA</option>
+                                <option value="9000">9 000 FCFA</option>
+                                <option value="10000">10 000 FCFA</option>
+                                <option value="12000">12 000 FCFA</option>
+                                <option value="15000">15 000 FCFA</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="stops" class="form-label">Arrêts Intermédiaires (séparés par des virgules)</label>
+                            <input type="text" class="form-control" id="stops" name="stops" placeholder="Ex: Edéa, Boumnyébel (optionnel)">
+                        </div>
+
+                        {% if current_user.role == 'super_admin' %}
+                        <div class="col-md-12">
+                            <label for="agency_id" class="form-label">Attribuer à l'Agence</label>
+                            <select class="form-select" id="agency_id" name="agency_id" required>
+                                <option value="" disabled selected>Choisir l'agence opératrice...</option>
+                                {% for agency in agencies %}
+                                    <option value="{{ agency.id }}">{{ agency.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Veuillez attribuer cette ligne à une agence.</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <a href="{{ url_for('admin.routes') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-arrow-left me-2"></i> Retour aux lignes
+                        </a>
+                        <button type="submit" class="btn btn-success px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                            <i class="bi bi-check-circle me-2"></i> Créer la Ligne
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const distanceMatrix = {
+        "Douala_Yaoundé": { distance: 245, duration: "4h 00m" },
+        "Bafoussam_Douala": { distance: 263, duration: "4h 30m" },
+        "Douala_Kribi": { distance: 170, duration: "2h 30m" },
+        "Douala_Limbe": { distance: 80, duration: "1h 30m" },
+        "Bamenda_Douala": { distance: 350, duration: "6h 00m" },
+        "Douala_Ngaoundéré": { distance: 900, duration: "14h 00m" },
+        "Douala_Garoua": { distance: 1180, duration: "19h 00m" },
+        "Douala_Maroua": { distance: 1380, duration: "23h 00m" },
+        "Bafoussam_Yaoundé": { distance: 300, duration: "5h 00m" },
+        "Kribi_Yaoundé": { distance: 285, duration: "3h 30m" },
+        "Limbe_Yaoundé": { distance: 325, duration: "5h 00m" },
+        "Bamenda_Yaoundé": { distance: 380, duration: "7h 00m" },
+        "Ngaoundéré_Yaoundé": { distance: 800, duration: "12h 00m" },
+        "Garoua_Yaoundé": { distance: 1080, duration: "17h 00m" },
+        "Maroua_Yaoundé": { distance: 1280, duration: "21h 00m" },
+        "Bafoussam_Bamenda": { distance: 80, duration: "2h 00m" },
+        "Bafoussam_Kribi": { distance: 433, duration: "7h 00m" },
+        "Bafoussam_Ngaoundéré": { distance: 650, duration: "11h 00m" },
+        "Garoua_Ngaoundéré": { distance: 275, duration: "5h 00m" },
+        "Garoua_Maroua": { distance: 205, duration: "3h 30m" }
+    };
+
+    const originSelect = document.getElementById('origin');
+    const destinationSelect = document.getElementById('destination');
+    const distanceInput = document.getElementById('distance');
+    const durationInput = document.getElementById('duration');
+
+    function updateDistanceAndDuration() {
+        const origin = originSelect.value;
+        const destination = destinationSelect.value;
+        if (!origin || !destination) return;
+        
+        if (origin === destination) {
+            distanceInput.value = 0;
+            durationInput.value = "0h 00m";
+            return;
+        }
+        
+        const key = [origin, destination].sort().join('_');
+        const data = distanceMatrix[key];
+        if (data) {
+            distanceInput.value = data.distance;
+            durationInput.value = data.duration;
+        }
+    }
+
+    originSelect.addEventListener('change', updateDistanceAndDuration);
+    destinationSelect.addEventListener('change', updateDistanceAndDuration);
+});
+</script>
+{% endblock %} 

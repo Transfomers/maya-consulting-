@@ -128,7 +128,7 @@
 }
 
 .apt-luxury-hero__title {
-  font-family: "Cinzel", "Playfair Display", Georgia, "Times New Roman", serif;
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 3.4rem;
   font-weight: 700;
   color: #171717;
@@ -221,7 +221,7 @@
 }
 
 .apt-luxury-hero__feature-text h4 {
-  font-family: "Cinzel", "Playfair Display", Georgia, serif;
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 1.6rem;
   font-weight: 700;
   color: #171717;

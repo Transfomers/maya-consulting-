@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier le Véhicule VIP - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+                <div class="mb-4">
+                    <h3 class="fw-bold"><i class="bi bi-pencil text-danger me-2"></i> Modifier le Véhicule VIP: {{ bus.bus_number }}</h3>
+                    <p class="text-muted">Mettez à jour le numéro d'immatriculation, le modèle VIP, la marque, ou le nombre de places.</p>
+                </div>
+
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="bus_number" class="form-label">Plaque d'Immatriculation</label>
+                            <input type="text" class="form-control" id="bus_number" name="bus_number" value="{{ bus.bus_number }}" required>
+                            <div class="invalid-feedback">La plaque d'immatriculation est obligatoire.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="brand" class="form-label">Marque du Véhicule</label>
+                            <input type="text" class="form-control" id="brand" name="brand" value="{{ bus.brand or '' }}" placeholder="Ex: Toyota, Mercedes-Benz, Land Rover">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="model" class="form-label">Modèle VIP & Finition</label>
+                            <input type="text" class="form-control" id="model" name="model" value="{{ bus.model }}" placeholder="Ex: Land Cruiser V8 LC300 VIP" required>
+                            <div class="invalid-feedback">Le modèle est obligatoire.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="capacity" class="form-label">Capacité (Nombre de places)</label>
+                            <input type="number" class="form-control" id="capacity" name="capacity" value="{{ bus.capacity }}" min="2" max="15" required>
+                            <div class="invalid-feedback">Veuillez renseigner un nombre de places valide (entre 2 et 15).</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="driver_name" class="form-label">Chauffeur Assigné (Optionnel)</label>
+                            <select class="form-select" id="driver_name" name="driver_name">
+                                <option value="">Choisir un chauffeur...</option>
+                                {% for d in drivers %}
+                                    <option value="{{ d.name }}" {% if bus.driver_name == d.name %}selected{% endif %} data-agency="{{ d.agency_id }}">{{ d.name }} ({% if d.agency %}{{ d.agency.name }}{% else %}N/A{% endif %})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="last_maintenance_date" class="form-label">Dernière Date de Maintenance (Optionnel)</label>
+                            <input type="date" class="form-control" id="last_maintenance_date" name="last_maintenance_date" value="{{ bus.last_maintenance_date.strftime('%Y-%m-%d') if bus.last_maintenance_date else '' }}">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label for="maintenance_notes" class="form-label">Notes de Maintenance (Optionnel)</label>
+                            <textarea class="form-control" id="maintenance_notes" name="maintenance_notes" rows="2" placeholder="Détails sur l'état du bus...">{{ bus.maintenance_notes or '' }}</textarea>
+                        </div>
+
+                        {% if current_user.role == 'super_admin' %}
+                        <div class="col-md-12">
+                            <label for="agency_id" class="form-label">Agence Propriétaire</label>
+                            <select class="form-select" id="agency_id" name="agency_id" required>
+                                {% for agency in agencies %}
+                                    <option value="{{ agency.id }}" {% if bus.agency_id == agency.id %}selected{% endif %}>{{ agency.name }} ({{ agency.city }})</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Veuillez sélectionner une agence.</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <a href="{{ url_for('admin.buses') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-arrow-left me-2"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                            <i class="bi bi-check-circle me-2"></i> Enregistrer les Modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const agencySelect = document.getElementById('agency_id');
+    const driverSelect = document.getElementById('driver_name');
+    
+    if (driverSelect) {
+        const originalOptions = Array.from(driverSelect.options);
+        
+        function filterDrivers() {
+            // If super_admin, agencySelect exists and its value is the agency_id
+            // If agency admin, agencySelect does not exist (it's hidden/not in DOM) so we don't filter (all passed drivers are already of the correct agency)
+            const agencyId = agencySelect ? agencySelect.value : '';
+            if (!agencySelect) return; // No filtering needed for scoped agency admin
+            
+            const currentSelectedValue = driverSelect.value;
+            driverSelect.innerHTML = '';
+            
+            // Add the "Choose a driver" placeholder option
+            driverSelect.appendChild(originalOptions[0]);
+            
+            originalOptions.slice(1).forEach(option => {
+                if (!agencyId || option.getAttribute('data-agency') === agencyId) {
+                    driverSelect.appendChild(option);
+                }
+            });
+            
+            // Restore previous selection if still available in the filtered list
+            if (Array.from(driverSelect.options).some(opt => opt.value === currentSelectedValue)) {
+                driverSelect.value = currentSelectedValue;
+            }
+        }
+        
+        if (agencySelect) {
+            agencySelect.addEventListener('change', filterDrivers);
+        }
+        // Initial run
+        filterDrivers();
+    }
+});
+</script>
+{% endblock %}

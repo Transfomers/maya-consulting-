@@ -1,0 +1,2648 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('lang', 'fr') }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>3M SERVICES - {% block title %}{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icon-192.png') }}">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- PWA Settings -->
+    <meta name="theme-color" content="#ffffff">
+    <!-- iOS PWA Support -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="3M SERVICES">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+    <!-- Leaflet CSS for GPS maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- HTML5 QRCode library for camera scanning -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts: Poppins (Unified Site Font) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <!-- Custom CSS -->
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        burgundy: {
+                            50: '#fbf2f4',
+                            100: '#eed6db',
+                            500: '#C92A2A',
+                            600: '#A61E1E',
+                            900: '#0B0F19',
+                        },
+                        gold: {
+                            500: '#e0ab41',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Bootstrap Icons v1.11.3 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Flatpickr Datepicker Calendar -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_red.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
+    <style>
+        :root {
+            --primary-light: #C92A2A;
+            /* Burgundy from Logo */
+            --primary-dark: #A61E1E;
+            --accent-dark: #e0ab41;
+            /* Luxury Gold */
+            --bg-light: #fbf2f4;
+            /* Soft Lilac/Pink Background */
+            --bg-dark: #1e1014;
+            /* Deep Burgundy-Dark Background */
+            --text-light: #0B0F19;
+            /* Dark Plum Text */
+            --text-dark: #fcf6f7;
+            --text-muted-light: #755f65;
+            --text-muted-dark: #dbccd0;
+            --input-bg-light: #ffffff;
+            --input-bg-dark: #2a161c;
+            --input-border-light: #eed6db;
+            --input-border-dark: #5c3540;
+            --input-focus-light: #faeaed;
+            --input-focus-dark: #3a1a23;
+            --glass-bg-light: rgba(255, 255, 255, 0.85);
+            --glass-bg-dark: rgba(42, 22, 28, 0.75);
+            --glass-blur: 16px;
+        }
+
+        /* Fix Bootstrap Collapse conflict with Tailwind CSS */
+        .collapse:not(table) {
+            visibility: visible !important;
+        }
+
+        .navbar-logo {
+            width: 48px;
+            height: 48px;
+            transition: all 0.3s ease;
+        }
+
+        @media (min-width: 992px) {
+            .navbar-logo {
+                width: 56px;
+                height: 56px;
+            }
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            transition: background 0.4s cubic-bezier(.4, 0, .2, 1), color 0.4s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .navbar,
+        .footer {
+            background-color: var(--glass-bg-light) !important;
+            color: var(--text-light) !important;
+            backdrop-filter: blur(var(--glass-blur));
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.04);
+            transition: background 0.4s, color 0.4s, box-shadow 0.4s;
+        }
+
+        .footer {
+            border-top: 1.5px solid var(--input-border-light) !important;
+        }
+
+        .card {
+            background: var(--glass-bg-light);
+            color: var(--text-light);
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(var(--glass-blur));
+            transition: background 0.4s, box-shadow 0.4s, border 0.4s, color 0.4s;
+        }
+
+        /* Standardize all Primary Buttons: White by default, Bordeaux on hover */
+        .btn-primary {
+            background-color: #ffffff !important;
+            border: 2px solid var(--primary-light) !important;
+            color: var(--primary-light) !important;
+            font-weight: 600 !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border-radius: 2rem !important;
+        }
+
+        .btn-primary i {
+            color: var(--primary-light) !important;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:active {
+            background-color: var(--primary-light) !important;
+            border-color: var(--primary-light) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(201, 42, 42, 0.2) !important;
+        }
+
+        .btn-primary:hover i {
+            color: #ffffff !important;
+        }
+
+        /* ── Admin Panel Mobile Responsiveness ───────────────────────────── */
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 1rem 0 !important;
+            }
+
+            .admin-container .card {
+                padding: 1.25rem !important;
+                border-radius: 1rem !important;
+            }
+
+            .admin-container h2 {
+                font-size: 1.5rem !important;
+            }
+
+            .admin-container .block-title {
+                font-size: 1.5rem !important;
+            }
+
+            /* Stack period selector buttons on very small screens */
+            @media (max-width: 576px) {
+                .btn-group[role="group"] {
+                    display: flex;
+                    flex-direction: column;
+                    width: 100%;
+                }
+
+                .btn-group[role="group"] .btn {
+                    border-radius: 0.5rem !important;
+                    margin-bottom: 0.25rem;
+                }
+
+                .btn-group[role="group"] .btn-outline-primary {
+                    border: 1px solid var(--primary-light) !important;
+                }
+            }
+
+            /* Force table responsiveness */
+            .table-responsive {
+                border: 0;
+            }
+
+            .metric-card {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Bordeaux all icons by default and style transitions (excluding color utility classes) */
+        i:not([class*="text-"]):not([class*="bg-"]),
+        .bi:not([class*="text-"]):not([class*="bg-"]),
+        .fas:not([class*="text-"]):not([class*="bg-"]),
+        .far:not([class*="text-"]):not([class*="bg-"]),
+        .fab:not([class*="text-"]):not([class*="bg-"]) {
+            color: var(--primary-light);
+        }
+
+        i,
+        .bi,
+        .fas,
+        .far,
+        .fab {
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Retain yellow gold colors for rating stars */
+        i.text-warning,
+        i.bi-star-fill,
+        i.bi-star-half,
+        i.bi-star,
+        .text-warning i,
+        .rating-group i,
+        .stars i {
+            color: #ffc107 !important;
+        }
+
+        /* Hover animations for icons inside buttons/cards */
+        a:hover i,
+        button:hover i,
+        .card:hover i,
+        .service-card:hover i {
+            color: var(--primary-dark) !important;
+            transform: scale(1.1);
+        }
+
+        /* Maintain white icon color when primary button is hovered */
+        .btn-primary:hover i,
+        .btn-primary:focus i {
+            color: #ffffff !important;
+        }
+
+        /* Footer Icons */
+        .footer i {
+            color: #000000 !important;
+        }
+
+        body.dark-mode .footer i {
+            color: #ffffff !important;
+        }
+
+        /* Ensure navbar user dropdown works perfectly with absolute float styling */
+        .navbar .dropdown-menu {
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            left: auto !important;
+            z-index: 1080 !important;
+            background-color: var(--input-bg-light) !important;
+            border: 1.5px solid var(--input-border-light) !important;
+            box-shadow: 0 10px 40px rgba(201, 42, 42, 0.12) !important;
+            border-radius: 0.8rem !important;
+            margin-top: 0.5rem !important;
+            min-width: 170px !important;
+        }
+
+        body.dark-mode .navbar .dropdown-menu {
+            background-color: var(--input-bg-dark) !important;
+            border-color: var(--input-border-dark) !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        .navbar .dropdown-item {
+            color: var(--text-light) !important;
+            font-weight: 600 !important;
+            padding: 0.6rem 1.2rem !important;
+            font-size: 0.95rem !important;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        /* Mobile nav panel - drops as a beautiful overlay, does NOT push page content */
+        @media (max-width: 991.98px) {
+
+            #mobileMenuPanel,
+            #mobileMenuPanel.collapsing {
+                position: absolute !important;
+                top: 100%;
+                left: 0;
+                right: 0;
+                z-index: 9999 !important;
+                background: transparent;
+            }
+
+            #mobileMenuPanel .dropdown-menu {
+                position: static !important;
+                background-color: rgba(0, 0, 0, 0.1) !important;
+                border: none !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                margin-top: 0.5rem !important;
+            }
+
+            .mobile-nav-panel {
+                background: linear-gradient(rgba(201, 42, 42, 0.95), rgba(201, 42, 42, 0.95)),
+                url('{{ url_for("static", filename="uploads/hero_home_1781703290075.png") }}') center/cover no-repeat !important;
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-top: 1.5px solid var(--input-border-light);
+                border-bottom: 1.5px solid var(--input-border-light);
+                padding: 1.5rem;
+                box-shadow: 0 20px 50px rgba(201, 42, 42, 0.15);
+                border-bottom-left-radius: 1.5rem;
+                border-bottom-right-radius: 1.5rem;
+            }
+
+            body.dark-mode .mobile-nav-panel {
+                background: linear-gradient(rgba(30, 16, 20, 0.98), rgba(30, 16, 20, 0.98)),
+                url('{{ url_for("static", filename="uploads/hero_home_1781703290075.png") }}') center/cover no-repeat !important;
+                border-color: var(--input-border-dark);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            }
+
+            .mobile-nav-link {
+                display: flex;
+                align-items: center;
+                padding: 0.65rem 1rem;
+                border-radius: 0.75rem;
+                font-weight: 600;
+                font-size: 1rem;
+                color: rgba(255, 255, 255, 0.9) !important;
+                text-decoration: none;
+                transition: background 0.15s, color 0.15s;
+            }
+
+            .mobile-nav-link:hover,
+            .mobile-nav-link.active {
+                background: rgba(255, 255, 255, 0.15) !important;
+                color: #ffc107 !important;
+            }
+
+            .mobile-nav-link i {
+                color: rgba(255, 255, 255, 0.9) !important;
+            }
+
+            .mobile-nav-link:hover i,
+            .mobile-nav-link.active i {
+                color: #ffc107 !important;
+            }
+        }
+
+        /* Ensure mobile menu panel and toggler are completely hidden on desktop */
+        @media (min-width: 992px) {
+
+            #mobileMenuPanel,
+            .navbar-toggler {
+                display: none !important;
+            }
+        }
+
+        .text-primary {
+            color: var(--primary-light) !important;
+        }
+
+        body.dark-mode .text-primary {
+            color: var(--accent-dark) !important;
+        }
+
+        body.dark-mode .navbar .dropdown-item {
+            color: var(--text-dark) !important;
+        }
+
+        .navbar .dropdown-item:hover {
+            background-color: var(--primary-light) !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .navbar .dropdown-item:hover {
+            background-color: var(--accent-dark) !important;
+            color: #181a1b !important;
+        }
+
+        .bg-primary {
+            background-color: var(--primary-light) !important;
+        }
+
+        .nav-link.active,
+        .nav-link:focus {
+            border-bottom: 2.5px solid var(--primary-light);
+            font-weight: 600;
+            color: var(--primary-light) !important;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .form-control,
+        .form-select {
+            background-color: var(--input-bg-light);
+            color: var(--text-light);
+            border: 1.5px solid var(--input-border-light);
+            border-radius: 0.5rem;
+            box-shadow: none;
+            transition: border 0.3s, background 0.3s, color 0.3s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-light);
+            background-color: var(--input-focus-light);
+            color: var(--text-light);
+            box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, .15);
+        }
+
+        .form-text,
+        .text-muted {
+            color: var(--text-muted-light) !important;
+        }
+
+        ::placeholder {
+            color: var(--text-muted-light) !important;
+            opacity: 1;
+        }
+
+        .table,
+        .table th,
+        .table td {
+            color: var(--text-light);
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #181a1b 0%, #23272b 100%);
+            color: var(--text-dark);
+            --glass-bg-light: var(--glass-bg-dark);
+            /* Ensure inline usages adapt properly */
+        }
+
+        /* Ensure all standard Tailwind body texts are perfectly visible in dark mode */
+        body.dark-mode .text-gray-900,
+        body.dark-mode .text-dark,
+        body.dark-mode .lead,
+        body.dark-mode p,
+        body.dark-mode span:not(.badge):not(.status-pill):not(.legend-dot) {
+            color: var(--text-dark) !important;
+        }
+
+        body.dark-mode .text-muted,
+        body.dark-mode .form-text {
+            color: var(--text-muted-dark) !important;
+        }
+
+        body.dark-mode .bg-light,
+        body.dark-mode .bg-white {
+            background-color: var(--glass-bg-dark) !important;
+            color: var(--text-dark) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        body.dark-mode .modal-content {
+            background-color: var(--input-bg-dark) !important;
+            color: var(--text-dark) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        body.dark-mode .modal-header,
+        body.dark-mode .modal-footer {
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        body.dark-mode .list-group-item {
+            background-color: var(--glass-bg-dark) !important;
+            color: var(--text-dark) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        body.dark-mode .list-group-item.active {
+            background-color: var(--accent-dark) !important;
+            border-color: var(--accent-dark) !important;
+            color: #181a1b !important;
+        }
+
+        body.dark-mode .alert {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: var(--text-dark) !important;
+        }
+
+        body.dark-mode .alert-info {
+            border-left: 4px solid #0dcaf0 !important;
+        }
+
+        body.dark-mode .alert-success {
+            border-left: 4px solid #198754 !important;
+        }
+
+        body.dark-mode .alert-warning {
+            border-left: 4px solid #ffc107 !important;
+        }
+
+        body.dark-mode .alert-danger {
+            border-left: 4px solid #dc3545 !important;
+        }
+
+        body.dark-mode .navbar,
+        body.dark-mode .footer {
+            background-color: var(--glass-bg-dark) !important;
+            color: var(--text-dark) !important;
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.18);
+        }
+
+        body.dark-mode .footer {
+            border-top: 1.5px solid var(--input-border-dark) !important;
+        }
+
+        /* Footer headers and links in dark mode */
+        body.dark-mode .footer h5 {
+            color: var(--accent-dark) !important;
+        }
+
+        body.dark-mode .footer .text-muted,
+        body.dark-mode .footer a.text-muted {
+            color: var(--text-muted-dark) !important;
+        }
+
+        body.dark-mode .footer a.text-muted:hover {
+            color: var(--accent-dark) !important;
+        }
+
+        /* Preserve original logo colors in dark mode as requested */
+        body.dark-mode img[src*="logorv.png"] {
+            /* filter: brightness(0) invert(1); removed to keep original color */
+        }
+
+        body.dark-mode .card {
+            background: var(--glass-bg-dark);
+            color: var(--text-dark);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.22);
+        }
+
+        body.dark-mode i,
+        body.dark-mode .bi,
+        body.dark-mode .fas,
+        body.dark-mode .far {
+            color: var(--accent-dark) !important;
+        }
+
+        body.dark-mode a:hover i,
+        body.dark-mode button:hover i,
+        body.dark-mode .card:hover i {
+            color: #ffb74d !important;
+        }
+
+        body.dark-mode .btn-primary {
+            background-color: transparent !important;
+            border: 2px solid var(--accent-dark) !important;
+            color: var(--accent-dark) !important;
+        }
+
+        body.dark-mode .btn-primary i {
+            color: var(--accent-dark) !important;
+        }
+
+        body.dark-mode .btn-primary:hover,
+        body.dark-mode .btn-primary:focus {
+            background-color: var(--accent-dark) !important;
+            border-color: var(--accent-dark) !important;
+            color: #181a1b !important;
+        }
+
+        body.dark-mode .btn-primary:hover i {
+            color: #181a1b !important;
+        }
+
+        body.dark-mode .btn-outline-primary {
+            color: var(--text-dark) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        body.dark-mode .btn-outline-primary:hover,
+        body.dark-mode .btn-check:checked+.btn-outline-primary {
+            background-color: var(--accent-dark) !important;
+            border-color: var(--accent-dark) !important;
+            color: #181a1b !important;
+        }
+
+        body.dark-mode .btn-outline-secondary {
+            color: var(--text-dark) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        body.dark-mode .btn-outline-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+        }
+
+        body.dark-mode .btn-outline-success {
+            color: #28a745 !important;
+            border-color: #28a745 !important;
+        }
+
+        body.dark-mode .btn-outline-success:hover {
+            background-color: #28a745 !important;
+            color: #fff !important;
+        }
+
+        body.dark-mode .btn-outline-danger {
+            color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+
+        body.dark-mode .btn-outline-danger:hover {
+            background-color: #dc3545 !important;
+            color: #fff !important;
+        }
+
+        body.dark-mode .btn-outline-info {
+            color: #17a2b8 !important;
+            border-color: #17a2b8 !important;
+        }
+
+        body.dark-mode .btn-outline-info:hover {
+            background-color: #17a2b8 !important;
+            color: #fff !important;
+        }
+
+        body.dark-mode .bg-primary {
+            background-color: var(--accent-dark) !important;
+        }
+
+        body.dark-mode .badge.bg-primary,
+        body.dark-mode .badge.bg-info,
+        body.dark-mode .badge.bg-warning {
+            color: #181a1b !important;
+        }
+
+        body.dark-mode .dropdown-menu {
+            background-color: #23272b;
+            color: var(--text-dark);
+        }
+
+        body.dark-mode .form-label {
+            color: var(--text-dark);
+        }
+
+        body.dark-mode .form-control,
+        body.dark-mode .form-select {
+            background-color: var(--input-bg-dark);
+            color: var(--text-dark);
+            border: 1.5px solid var(--input-border-dark);
+        }
+
+        body.dark-mode .form-control:focus,
+        body.dark-mode .form-select:focus {
+            border-color: var(--accent-dark);
+            background-color: var(--input-focus-dark);
+            color: var(--text-dark);
+            box-shadow: 0 0 0 0.15rem #ff980033;
+        }
+
+        body.dark-mode .form-text,
+        body.dark-mode .text-muted {
+            color: var(--text-muted-dark) !important;
+        }
+
+        body.dark-mode ::placeholder {
+            color: var(--text-muted-dark) !important;
+            opacity: 1;
+        }
+
+        body.dark-mode .table,
+        body.dark-mode .table th,
+        body.dark-mode .table td {
+            color: var(--text-dark);
+        }
+
+        body.dark-mode .nav-link,
+        body.dark-mode .navbar .dropdown-item {
+            color: var(--accent-dark) !important;
+        }
+
+        body.dark-mode .nav-link.active,
+        body.dark-mode .nav-link:focus {
+            border-bottom: 2.5px solid var(--accent-dark);
+            color: #ffb74d !important;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            font-size: 1.3rem;
+            margin-left: 1rem;
+            transition: color 0.3s;
+        }
+
+        .theme-toggle .bi {
+            transition: transform 0.4s cubic-bezier(.4, 0, .2, 1), color 0.3s;
+        }
+
+        .theme-toggle .bi-sun-fill {
+            color: #ff9800;
+            transform: rotate(180deg) scale(1.2);
+        }
+
+        .theme-toggle .bi-moon-fill {
+            color: #C92A2A;
+            transform: rotate(0deg) scale(1.1);
+        }
+
+        /* Prevent navbar links from wrapping and truncate long usernames */
+        #mainNavbar .nav-link {
+            white-space: nowrap;
+        }
+
+        @media (min-width: 992px) and (max-width: 1199.98px) {
+            #mainNavbar .navbar-nav {
+                gap: 0.75rem !important;
+            }
+
+            #mainNavbar .nav-link {
+                font-size: 0.88rem !important;
+                padding-left: 0.25rem !important;
+                padding-right: 0.25rem !important;
+            }
+
+            #mainNavbar .user-dropdown-pro span.fw-semibold {
+                max-width: 80px !important;
+            }
+        }
+
+        /* ══ ADMIN DASHBOARD SIDEBAR LAYOUT (RentQ Luxury Obsidian Style) ══ */
+        .admin-layout-wrapper {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            display: flex;
+            min-height: 100vh;
+            background-color: #f8fafc;
+            position: relative;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body.dark-mode .admin-layout-wrapper {
+            background-color: #0b0f19;
+        }
+
+        /* ── Admin Content & Responsive Fluid Overrides ── */
+        .admin-content-area {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-color: #f8fafc;
+        }
+
+        body.dark-mode .admin-content-area {
+            background-color: #0b0f19;
+        }
+
+        .admin-main-body {
+            flex: 1;
+            min-width: 0;
+            overflow-x: hidden;
+        }
+
+        /* Crucial responsiveness fix: force Bootstrap .container in admin views to fluid width */
+        .admin-main-body .container,
+        .admin-main-body .container-fluid {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding-left: 1.5rem !important;
+            padding-right: 1.5rem !important;
+        }
+
+        @media (max-width: 768px) {
+
+            .admin-main-body .container,
+            .admin-main-body .container-fluid {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+
+            .admin-main-body {
+                padding: 0.75rem 0.5rem !important;
+            }
+        }
+
+        /* ── Admin Topbar ── */
+        .admin-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e2e8f0 !important;
+            height: 64px;
+            min-height: 64px;
+        }
+
+        body.dark-mode .admin-topbar {
+            background-color: rgba(11, 15, 25, 0.95) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* ── Pure White Modern Sidebar for 3M SERVICES ── */
+        .admin-sidebar {
+            width: 240px;
+            min-width: 240px;
+            max-width: 240px;
+            background: #ffffff !important;
+            border-right: 1px solid #eaecf0 !important;
+            color: #1e293b;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            z-index: 1040;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: width 0.25s cubic-bezier(0.2, 0, 0, 1), min-width 0.25s cubic-bezier(0.2, 0, 0, 1), max-width 0.25s cubic-bezier(0.2, 0, 0, 1), transform 0.28s cubic-bezier(0.2, 0, 0, 1);
+            user-select: none;
+        }
+
+        body.dark-mode .admin-sidebar {
+            background: #111827 !important;
+            border-right-color: #1f2937 !important;
+            color: #f1f5f9;
+        }
+
+        .admin-sidebar-brand {
+            background: #ffffff;
+            border-bottom: 1px solid #eaecf0 !important;
+            min-height: 70px;
+            height: 70px;
+            padding: 1rem 1.25rem;
+        }
+
+        body.dark-mode .admin-sidebar-brand {
+            background: #111827;
+            border-bottom-color: #1f2937 !important;
+        }
+
+        .admin-sidebar-brand .sidebar-logo {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            transition: transform 0.2s ease;
+        }
+
+        .admin-sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 91, 53, 0.25) transparent;
+            padding: 0.85rem 0.75rem;
+        }
+
+        .admin-sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .admin-sidebar-nav::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 91, 53, 0.25);
+            border-radius: 4px;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.75rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #98a2b3;
+            padding: 0.85rem 0.65rem 0.35rem;
+            white-space: nowrap;
+        }
+
+        body.dark-mode .sidebar-section-title {
+            color: #64748b;
+        }
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.55rem 0.75rem;
+            margin: 2px 0;
+            border-radius: 8px;
+            color: #344054;
+            font-weight: 500;
+            font-size: 0.92rem;
+            text-decoration: none;
+            transition: color 0.15s ease, background-color 0.15s ease;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        body.dark-mode .sidebar-nav-item {
+            color: #94a3b8;
+        }
+
+        .sidebar-nav-item i {
+            font-size: 1.15rem;
+            color: #344054;
+            transition: color 0.15s ease;
+            min-width: 22px;
+            text-align: center;
+        }
+
+        body.dark-mode .sidebar-nav-item i {
+            color: #94a3b8;
+        }
+
+        .sidebar-nav-item:hover {
+            background-color: transparent !important;
+            color: #FF5B35 !important;
+        }
+
+        .sidebar-nav-item:hover i {
+            color: #FF5B35 !important;
+        }
+
+        body.dark-mode .sidebar-nav-item:hover {
+            background-color: transparent !important;
+            color: #ff7a59 !important;
+        }
+
+        body.dark-mode .sidebar-nav-item:hover i {
+            color: #ff7a59 !important;
+        }
+
+        /* Active item: colored text & icon, clean transparent background */
+        .sidebar-nav-item.active {
+            background: transparent !important;
+            color: #FF5B35 !important;
+            font-weight: 600 !important;
+            box-shadow: none !important;
+        }
+
+        .sidebar-nav-item.active i {
+            color: #FF5B35 !important;
+        }
+
+        .sidebar-nav-item .sidebar-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.55rem;
+            font-weight: 600;
+        }
+
+        .admin-sidebar-footer {
+            background: #ffffff;
+            border-top: 1px solid #eaecf0 !important;
+            padding: 0.85rem 1rem;
+        }
+
+        body.dark-mode .admin-sidebar-footer {
+            background: #111827;
+            border-top-color: #1f2937 !important;
+        }
+
+        /* ── Desktop Collapsed State (>= 992px) ── */
+        @media (min-width: 992px) {
+            .admin-sidebar.collapsed {
+                width: 76px !important;
+                min-width: 76px !important;
+                max-width: 76px !important;
+            }
+
+            .admin-sidebar.collapsed .brand-details,
+            .admin-sidebar.collapsed .sidebar-text,
+            .admin-sidebar.collapsed .sidebar-section-title,
+            .admin-sidebar.collapsed .admin-role-box,
+            .admin-sidebar.collapsed .user-details,
+            .admin-sidebar.collapsed .sidebar-badge,
+            .admin-sidebar.collapsed .btn-logout {
+                display: none !important;
+            }
+
+            .admin-sidebar.collapsed .admin-sidebar-brand {
+                justify-content: center !important;
+                padding: 0.75rem 0.5rem !important;
+            }
+
+            .admin-sidebar.collapsed .sidebar-nav-item {
+                justify-content: center !important;
+                padding: 0.75rem 0.5rem !important;
+                margin: 4px 8px !important;
+            }
+
+            .admin-sidebar.collapsed .sidebar-nav-item i {
+                font-size: 1.25rem !important;
+                min-width: auto;
+                margin: 0 !important;
+            }
+
+            .admin-sidebar.collapsed .admin-sidebar-footer {
+                justify-content: center !important;
+                padding: 0.75rem 0.5rem !important;
+            }
+        }
+
+        /* ── Mobile Off-Canvas Drawer & Backdrop (< 992px) ── */
+        .admin-sidebar-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(16, 24, 40, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 99998;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .admin-sidebar-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Responsive Topbar Classes */
+        .admin-topbar-search {
+            max-width: 320px;
+            min-width: 0;
+            transition: max-width 0.2s ease;
+        }
+
+        .admin-topbar-actions {
+            gap: 1.5rem;
+            transition: gap 0.2s ease;
+        }
+
+        /* Global Admin Responsive Enhancements */
+        @media (max-width: 991.98px) {
+            .admin-sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 275px;
+                max-width: 85vw;
+                height: 100vh;
+                height: 100dvh;
+                z-index: 99999;
+                transform: translateX(-100%);
+                box-shadow: none;
+                transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1);
+            }
+
+            .admin-sidebar.show {
+                transform: translateX(0);
+                box-shadow: 12px 0 40px rgba(0, 0, 0, 0.45);
+            }
+
+            .admin-content-area {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 1rem 1rem 1.75rem !important;
+            }
+
+            .admin-topbar-card {
+                min-height: 56px;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+                margin-bottom: 1.25rem !important;
+            }
+
+            .admin-topbar-search {
+                max-width: 240px;
+            }
+
+            .admin-topbar-actions {
+                gap: 1rem !important;
+                margin-left: 0.75rem !important;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .admin-topbar-search {
+                max-width: 180px;
+            }
+
+            .admin-topbar-actions {
+                gap: 0.85rem !important;
+                margin-left: 0.5rem !important;
+            }
+
+            .admin-topbar-actions .user-avatar {
+                width: 36px !important;
+                height: 36px !important;
+            }
+
+            /* Robust table scrolling for mobile */
+            .table-responsive {
+                -webkit-overflow-scrolling: touch !important;
+                overflow-x: auto !important;
+                border-radius: 8px;
+            }
+
+            .table-responsive table {
+                min-width: 600px;
+            }
+
+            /* Adjust headings on tablet/mobile */
+            .admin-main-body h2 {
+                font-size: 1.45rem !important;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .admin-content-area {
+                padding: 0.65rem 0.5rem 1.25rem !important;
+            }
+
+            .admin-main-body {
+                padding: 0.25rem 0 !important;
+            }
+
+            .admin-main-body h2 {
+                font-size: 1.3rem !important;
+            }
+
+            .admin-topbar-card {
+                min-height: 48px;
+                padding: 0.35rem 0.55rem !important;
+                margin-bottom: 0.85rem !important;
+                border-radius: 10px !important;
+            }
+
+            .admin-topbar-search {
+                max-width: 135px;
+            }
+
+            .admin-topbar-search input {
+                height: 35px !important;
+                font-size: 0.78rem !important;
+                padding-left: 0.6rem !important;
+                padding-right: 1.75rem !important;
+            }
+
+            .admin-topbar-search .bi-search {
+                font-size: 0.75rem !important;
+                margin-right: 0.45rem !important;
+            }
+
+            .admin-topbar-search button.btn {
+                padding: 0.25rem 0.4rem !important;
+                margin-right: 0.25rem !important;
+            }
+
+            .admin-topbar-actions {
+                gap: 0.55rem !important;
+                margin-left: 0.25rem !important;
+            }
+
+            .admin-topbar-actions .bi {
+                font-size: 1.05rem !important;
+            }
+
+            .admin-topbar-actions .user-avatar {
+                width: 32px !important;
+                height: 32px !important;
+            }
+
+            /* Adjust badges inside action cluster */
+            .admin-topbar-actions .badge {
+                width: 14px !important;
+                height: 14px !important;
+                font-size: 0.52rem !important;
+            }
+        }
+
+        @media (max-width: 375px) {
+            .admin-topbar-search {
+                max-width: 105px;
+            }
+
+            .admin-topbar-search input::placeholder {
+                font-size: 0.72rem;
+            }
+
+            .admin-topbar-actions {
+                gap: 0.45rem !important;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    {% set is_admin_page = (request.blueprint == 'admin' or request.path.startswith('/admin')) %}
+
+    {% if is_admin_page %}
+    <!-- ══ UNIFIED 3M SERVICES ADMIN SIDEBAR & TOPBAR LAYOUT ══ -->
+    <div class="admin-layout-wrapper" id="adminWrapper">
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="admin-sidebar-backdrop" id="adminSidebarBackdrop" onclick="toggleAdminSidebar(true)"></div>
+
+        <!-- Left Admin Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <!-- Sidebar Brand Header (3M SERVICES Brand) -->
+            <div class="admin-sidebar-brand d-flex align-items-center justify-content-between px-3 py-3 border-bottom"
+                style="border-color: #eaecf0 !important; background: #ffffff;">
+                <a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none d-flex align-items-center gap-2">
+                    <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES" class="sidebar-logo"
+                        style="width: 36px; height: 36px; object-fit: contain;">
+                    <div class="d-flex flex-column brand-details">
+                        <div
+                            style="font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.25rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.3px; color: #101828;">
+                            3M <span style="color: #FF5B35;">SERVICES</span>
+                        </div>
+                        <div
+                            style="font-size: 0.65rem; font-weight: 600; color: #98a2b3; letter-spacing: 0.5px; margin-top: 2px; text-transform: uppercase;">
+                            Location & Flotte VIP
+                        </div>
+                    </div>
+                </a>
+                <div class="d-flex align-items-center gap-1">
+                    <!-- Desktop Collapse Chevron Button -->
+                    <button type="button"
+                        class="btn btn-sm btn-light border-0 rounded-2 p-1 d-none d-lg-inline-flex align-items-center justify-content-center"
+                        onclick="toggleAdminSidebar()" title="Replier / Agrandir le menu"
+                        style="width: 30px; height: 30px; color: #667085; background: #f8fafc;" id="btnDesktopCollapse">
+                        <i class="bi bi-chevron-left" id="collapseSidebarChevron"></i>
+                    </button>
+                    <!-- Mobile Close (X) Button -->
+                    <button type="button" class="btn btn-sm d-lg-none rounded-circle p-1 border-0"
+                        onclick="toggleAdminSidebar(true)" aria-label="Fermer"
+                        style="width: 32px; height: 32px; background: rgba(0,0,0,0.05); color: #4b5563;">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sidebar Navigation Menu -->
+            <div class="admin-sidebar-nav px-2 py-3">
+                <!-- Main -->
+                <div class="sidebar-section-title">Main</div>
+                <a href="{{ url_for('admin.dashboard') }}"
+                    class="sidebar-nav-item {% if request.endpoint == 'admin.dashboard' %}active{% endif %}"
+                    title="Dashboard">
+                    <i class="bi bi-house"></i>
+                    <span class="sidebar-text">Dashboard</span>
+                </a>
+                <a href="{{ url_for('admin.bookings') }}"
+                    class="sidebar-nav-item {% if request.endpoint in ['admin.bookings', 'admin.edit_booking'] %}active{% endif %}"
+                    title="Booking">
+                    <i class="bi bi-calendar3"></i>
+                    <span class="sidebar-text">Booking</span>
+                </a>
+                <a href="{{ url_for('admin.buses') }}"
+                    class="sidebar-nav-item {% if request.endpoint in ['admin.buses', 'admin.add_bus', 'admin.edit_bus'] %}active{% endif %}"
+                    title="Vehicles">
+                    <i class="bi bi-car-front"></i>
+                    <span class="sidebar-text">Vehicles</span>
+                </a>
+                <a href="{{ url_for('admin.users') }}"
+                    class="sidebar-nav-item {% if request.endpoint in ['admin.users', 'admin.edit_user'] %}active{% endif %}"
+                    title="Customers">
+                    <i class="bi bi-person"></i>
+                    <span class="sidebar-text">Customers</span>
+                </a>
+
+                <!-- Management -->
+                <div class="sidebar-section-title">Management</div>
+                <a href="{{ url_for('admin.trips') }}"
+                    class="sidebar-nav-item {% if request.endpoint in ['admin.trips', 'admin.add_trip', 'admin.edit_trip'] %}active{% endif %}"
+                    title="Locations">
+                    <i class="bi bi-geo-alt"></i>
+                    <span class="sidebar-text">Locations</span>
+                </a>
+                <a href="{{ url_for('admin.finance') }}"
+                    class="sidebar-nav-item {% if request.endpoint == 'admin.finance' %}active{% endif %}"
+                    title="Payments">
+                    <i class="bi bi-credit-card"></i>
+                    <span class="sidebar-text">Payments</span>
+                </a>
+                <a href="{{ url_for('admin.calendar_view') }}"
+                    class="sidebar-nav-item {% if request.endpoint == 'admin.calendar_view' %}active{% endif %}"
+                    title="Reports">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span class="sidebar-text">Reports</span>
+                </a>
+                <a href="{{ url_for('admin.drivers') }}"
+                    class="sidebar-nav-item {% if request.endpoint in ['admin.drivers', 'admin.add_driver', 'admin.edit_driver'] %}active{% endif %}"
+                    title="Drivers VIP">
+                    <i class="bi bi-person-badge"></i>
+                    <span class="sidebar-text">Drivers</span>
+                </a>
+                <a href="{{ url_for('admin.teller_dashboard') }}"
+                    class="sidebar-nav-item {% if request.endpoint == 'admin.teller_dashboard' %}active{% endif %}"
+                    title="Counter (POS)">
+                    <i class="bi bi-shop"></i>
+                    <span class="sidebar-text">Counter (POS)</span>
+                </a>
+
+                {% if current_user.role == 'super_admin' %}
+                <a href="{{ url_for('admin.agencies') }}"
+                    class="sidebar-nav-item {% if request.endpoint in ['admin.agencies', 'admin.add_agency', 'admin.edit_agency'] %}active{% endif %}"
+                    title="Agencies">
+                    <i class="bi bi-building"></i>
+                    <span class="sidebar-text">Agencies</span>
+                </a>
+                {% endif %}
+
+                <!-- Support -->
+                <div class="sidebar-section-title">Support</div>
+                <a href="{{ url_for('admin.notifications') }}"
+                    class="sidebar-nav-item {% if request.endpoint == 'admin.notifications' %}active{% endif %}"
+                    title="Help Center">
+                    <i class="bi bi-question-circle"></i>
+                    <span class="sidebar-text">Help Center</span>
+                </a>
+                <a href="{{ url_for('admin.profile') }}"
+                    class="sidebar-nav-item {% if request.endpoint in ['admin.profile', 'admin.settings'] %}active{% endif %}"
+                    title="Settings">
+                    <i class="bi bi-gear"></i>
+                    <span class="sidebar-text">Settings</span>
+                </a>
+
+                <!-- Others -->
+                <div class="sidebar-section-title">Others</div>
+                <a href="{{ url_for('auth.logout') }}" class="sidebar-nav-item" title="Logout">
+                    <i class="bi bi-box-arrow-left"></i>
+                    <span class="sidebar-text">Logout</span>
+                </a>
+            </div>
+
+            <!-- Bottom Language Switcher [文A] & User Profile -->
+            <div class="admin-sidebar-footer px-3 py-3 d-flex align-items-center justify-content-between"
+                style="border-top: 1px solid #eaecf0 !important; background: #ffffff;">
+                <button type="button"
+                    class="btn btn-sm border rounded-2 d-inline-flex align-items-center justify-content-center text-muted"
+                    style="width: 38px; height: 38px; border-color: #eaecf0 !important; background: #ffffff;"
+                    title="Language / Langue">
+                    <span style="font-weight: 600; font-size: 0.88rem; color: #344054;">文A</span>
+                </button>
+                <div class="d-flex align-items-center gap-2 user-details">
+                    <span class="badge bg-light text-dark border small"
+                        style="font-size: 0.72rem; border-color: #eaecf0 !important;">{{ 'Super Admin' if
+                        current_user.role == 'super_admin' else 'Admin' }}</span>
+                </div>
+                <a href="{{ url_for('auth.logout') }}"
+                    class="btn btn-sm btn-link text-muted p-1 text-decoration-none btn-logout" title="Déconnexion"
+                    style="color: #64748b;">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Right Side: Content Area (RentQ Light Gray) -->
+        <div class="admin-content-area" id="adminContentArea">
+            <!-- Floating Topbar Card (RentQ Clean Style for 3M SERVICES) -->
+            <header
+                class="admin-topbar-card d-flex align-items-center justify-content-between px-3 px-md-4 py-2 mb-4 bg-white rounded-3 shadow-xs border flex-nowrap"
+                style="border-color: #eaecf0 !important;">
+                <!-- Left: Search Bar & Toggle -->
+                <div class="admin-topbar-search d-flex align-items-center gap-2 flex-grow-1" style="max-width: 320px;">
+                    <!-- Universal Toggle Hamburger Button (Desktop & Mobile) -->
+                    <button type="button"
+                        class="btn btn-sm btn-light border rounded-3 p-2 me-2 d-inline-flex align-items-center justify-content-center"
+                        onclick="toggleAdminSidebar()" title="Afficher/Masquer le menu"
+                        style="width: 38px; height: 38px; background: #ffffff; border-color: #eaecf0 !important; color: #344054;">
+                        <i class="bi bi-list fs-5"></i>
+                    </button>
+                    <div class="position-relative w-100">
+                        <input type="text" class="form-control form-control-sm ps-3 pe-5 py-2 border rounded-3"
+                            placeholder="Search..."
+                            style="border-color: #eaecf0; font-size: 0.88rem; background: #ffffff; height: 40px; box-shadow: none;"
+                            id="adminSearchInput">
+                        <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3 text-muted"
+                            style="pointer-events: none; font-size: 0.9rem;"></i>
+                    </div>
+                </div>
+
+                <!-- Right: Action Icons (Sun, Bell with 1, Mail with 0, User Avatar) -->
+                <div class="admin-topbar-actions d-flex align-items-center flex-shrink-0 ms-3 gap-3">
+                    <!-- Quick Action Button -->
+                    <div class="dropdown d-none d-md-block">
+                        <button
+                            class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-semibold dropdown-toggle d-flex align-items-center gap-1.5"
+                            type="button" data-bs-toggle="dropdown"
+                            style="border-color: #eaecf0 !important; font-size: 0.85rem; color: #344054; background: #ffffff;">
+                            <i class="bi bi-plus-circle text-danger"></i>
+                            <span>Action Rapide</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                            <li><a class="dropdown-item py-2" href="{{ url_for('admin.add_bus') }}"><i
+                                        class="bi bi-car-front-fill text-danger me-2"></i> Ajouter un Véhicule VIP</a>
+                            </li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('admin.teller_book') }}"><i
+                                        class="bi bi-journal-plus text-primary me-2"></i> Nouveau Contrat Location</a>
+                            </li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('admin.add_trip') }}"><i
+                                        class="bi bi-calendar-plus text-success me-2"></i> Nouvelle Mission Flotte</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('admin.add_driver') }}"><i
+                                        class="bi bi-person-plus text-info me-2"></i> Enregistrer Chauffeur VIP</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Theme Toggle (Sun icon) -->
+                    <button type="button" class="btn btn-link p-0 text-decoration-none border-0" onclick="toggleTheme()"
+                        title="Basculer Mode Sombre/Clair">
+                        <i class="bi bi-brightness-high fs-5" style="color: #f59e0b !important;"></i>
+                    </button>
+
+                    <!-- Notifications Bell with Red Badge 1 -->
+                    <a href="{{ url_for('admin.notifications') }}"
+                        class="position-relative text-dark text-decoration-none" title="Notifications">
+                        <i class="bi bi-bell fs-5 text-dark"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle"
+                            style="font-size: 0.58rem; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; background-color: #ef4444 !important; color: #fff;">1</span>
+                    </a>
+
+                    <!-- Messages/Mail with Orange Badge 0 -->
+                    <a href="{{ url_for('admin.notifications') }}"
+                        class="position-relative text-dark text-decoration-none" title="Messages">
+                        <i class="bi bi-envelope fs-5 text-dark"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle"
+                            style="font-size: 0.58rem; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; background-color: #f97316 !important; color: #fff;">0</span>
+                    </a>
+
+                    <!-- User Avatar Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-link p-0 border-0" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <div class="user-avatar rounded-circle overflow-hidden border border-1 border-light bg-danger text-white d-flex align-items-center justify-content-center fw-bold shadow-xs"
+                                style="width: 38px; height: 38px; font-size: 0.9rem;">
+                                {{ current_user.username[:1].upper() if current_user.username else 'A' }}
+                            </div>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                            <li class="px-3 py-2 border-bottom">
+                                <div class="fw-bold text-dark">{{ current_user.real_name or current_user.username }}
+                                </div>
+                                <div class="text-muted small">{{ current_user.email }}</div>
+                            </li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('admin.profile') }}"><i
+                                        class="bi bi-person-gear me-2"></i> Mon Profil & Paramètres</a></li>
+                            <li><a class="dropdown-item py-2" href="http://localhost:3001" target="_blank"><i
+                                        class="bi bi-box-arrow-up-right me-2 text-danger"></i> Portail Client (Port
+                                    3001)</a></li>
+                            <li><a class="dropdown-item py-2" href="/"><i class="bi bi-house me-2"></i> Site Vitrine
+                                    Public</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item py-2 text-danger fw-semibold"
+                                    href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>
+                                    Déconnexion</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Admin Main Content Body -->
+            <main class="admin-main-body p-2 p-sm-3 p-lg-4">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category in ['error','danger'] else 'success' if category == 'success' else 'info' }} alert-dismissible fade show rounded-4 shadow-sm"
+                    role="alert">
+                    <i
+                        class="bi bi-{{ 'exclamation-triangle-fill' if category in ['error','danger'] else 'check-circle-fill' if category == 'success' else 'info-circle-fill' }} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+                {% else %}
+                <!-- ══ STANDARD PUBLIC PORTAL LAYOUT ══ -->
+                <!-- Navigation -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" id="mainNavbar"
+                    style="border-bottom: 1.5px solid #e3e6ea; min-height: 64px; position: relative; z-index: 9999;">
+                    <div class="container-fluid px-3 px-md-4 d-flex align-items-center flex-nowrap">
+
+                        <!-- Brand on the left -->
+                        <a class="navbar-brand d-flex align-items-center flex-shrink-0"
+                            href="{{ url_for('main.index') }}"
+                            style="text-decoration:none; z-index: 1040; margin-right: 1rem; padding: 0;">
+                            <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES"
+                                class="d-inline-block navbar-logo" style="background:transparent; object-fit: contain;">
+                        </a>
+
+                        <!-- Desktop Nav Links (centered) - ALWAYS VISIBLE on lg+ -->
+                        <ul class="navbar-nav d-none d-lg-flex flex-row align-items-center mx-auto flex-shrink-0"
+                            style="gap: 1.5rem; list-style:none; margin:0; padding:0;">
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-2 {% if request.endpoint == 'main.index' %}active{% endif %}"
+                                    href="{{ url_for('main.index') }}">{{ _t('Accueil') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-2 {% if request.endpoint == 'main.search' %}active{% endif %}"
+                                    href="{{ url_for('main.search') }}">{{ _t('Rechercher') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-2 {% if request.endpoint == 'main.about' %}active{% endif %}"
+                                    href="{{ url_for('main.about') }}">{{ _t('À propos') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-2 {% if request.endpoint == 'main.contact' %}active{% endif %}"
+                                    href="{{ url_for('main.contact') }}">{{ _t('Contact') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-2" href="{{ url_for('admin.dashboard') }}"
+                                    style="color: #C92A2A !important;">
+                                    <i class="bi bi-shield-lock-fill me-1"></i> Admin Panel
+                                </a>
+                            </li>
+                            {% if current_user.is_authenticated %}
+                            {% if current_user.role in ['super_admin', 'admin_agence'] %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-2 {% if request.endpoint == 'admin.dashboard' %}active{% endif %}"
+                                    href="{{ url_for('admin.dashboard') }}">Dashboard Admin</a>
+                            </li>
+                            {% endif %}
+                            {% if current_user.role == 'client' %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-2 {% if request.endpoint == 'main.my_bookings' %}active{% endif %}"
+                                    href="{{ url_for('main.my_bookings') }}"><i class="bi bi-car-front-fill me-1"></i>
+                                    {{ _t('Mes Locations VIP') }}</a>
+                            </li>
+                            {% endif %}
+                            {% endif %}
+                        </ul>
+
+                        <!-- Desktop Right Controls - ALWAYS VISIBLE on lg+ -->
+                        <div class="d-none d-lg-flex align-items-center flex-shrink-0" style="gap: 0.75rem;">
+                            <!-- Language -->
+                            <div class="dropdown">
+                                <button
+                                    class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                                    type="button" id="languageDropdownDesktop" data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    style="width: 36px; height: 36px; background: var(--input-bg-light); border: 1.5px solid var(--input-border-light); color: var(--text-muted-light); padding: 0;">
+                                    <i class="bi bi-globe2 fs-5"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                                    aria-labelledby="languageDropdownDesktop"
+                                    style="border-radius: 12px; background: var(--input-bg-light);">
+                                    <li><a class="dropdown-item {% if session.get('lang', 'fr') == 'fr' %}fw-bold text-primary{% endif %}"
+                                            href="{{ url_for('main.set_language', lang='fr') }}">FR - Français</a></li>
+                                    <li><a class="dropdown-item {% if session.get('lang') == 'en' %}fw-bold text-primary{% endif %}"
+                                            href="{{ url_for('main.set_language', lang='en') }}">EN - English</a></li>
+                                </ul>
+                            </div>
+                            <!-- Theme -->
+                            <button
+                                class="theme-toggle-btn btn btn-sm rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                                id="themeToggle" aria-label="Toggle dark mode"
+                                style="width: 36px; height: 36px; background: var(--input-bg-light); border: 1.5px solid var(--input-border-light); padding: 0;">
+                                <i class="bi bi-moon-fill fs-5" id="themeIcon"></i>
+                            </button>
+                            <!-- PWA Install Desktop -->
+                            <button
+                                class="btn btn-sm rounded-pill px-3 shadow-sm d-none align-items-center gap-1 text-white fw-bold"
+                                id="pwaInstallBtn"
+                                style="height: 36px; background: linear-gradient(135deg, var(--primary-light), #a02a4f); border: none; font-size: 0.82rem;">
+                                <i class="bi bi-download"></i> Installer
+                            </button>
+                            {% if current_user.is_authenticated %}
+                            <div style="width: 1px; height: 30px; background-color: var(--input-border-light);"></div>
+                            <!-- Notifications -->
+                            <div class="dropdown">
+                                <a class="nav-link position-relative d-flex align-items-center p-0" href="#"
+                                    id="notificationDropdownDesktop" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false" style="color: var(--primary-light);">
+                                    <i class="bi bi-bell-fill fs-4"></i>
+                                    <span id="notifBadge"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+                                        style="font-size: 0.65rem;">0</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow"
+                                    aria-labelledby="notificationDropdownDesktop"
+                                    style="min-width: 450px; width: 450px; max-width: calc(100vw - 20px); max-height: 500px; overflow-y: auto; padding: 0;"
+                                    id="notifList">
+                                    <li>
+                                        <h6 class="dropdown-header fw-bold border-bottom pb-2 pt-3 px-3">Notifications
+                                        </h6>
+                                    </li>
+                                    <li>
+                                        <div class="dropdown-item text-center text-muted small py-4 px-3 text-wrap"
+                                            id="noNotifMsg" style="white-space: normal; overflow-wrap: anywhere;">
+                                            Aucune nouvelle notification
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- User Menu -->
+                            <div class="dropdown">
+                                <a class="nav-link dropdown-toggle user-dropdown-pro d-flex align-items-center rounded-pill border"
+                                    href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    style="padding: 0.3rem 0.8rem; gap: 0.5rem; background: var(--glass-bg-light); color: var(--text-light) !important;">
+                                    <span
+                                        class="d-flex align-items-center justify-content-center rounded-circle overflow-hidden"
+                                        style="width: 30px; height: 30px;">
+                                        {% if current_user.profile_picture %}
+                                        <img id="navbarAvatarImg" src="{{ current_user.avatar_url }}" alt="Avatar"
+                                            style="width:100%; height:100%; object-fit:cover;">
+                                        {% else %}
+                                        <i class="bi bi-person-circle" id="navbarAvatarIcon"
+                                            style="font-size: 1.35rem; color: var(--primary-light) !important;"></i>
+                                        {% endif %}
+                                    </span>
+                                    <span class="fw-semibold text-truncate"
+                                        style="max-width: 120px; display: inline-block; vertical-align: middle;">{{
+                                        current_user.username }}</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li><a class="dropdown-item"
+                                            href="{{ url_for('client.profile' if current_user.role == 'client' else 'admin.profile') }}">Mon
+                                            Profil</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item text-danger"
+                                            href="{{ url_for('auth.auth0_logout') }}">Déconnexion</a></li>
+                                </ul>
+                            </div>
+                            {% else %}
+                            <a class="btn btn-sm fw-bold rounded-pill px-3" href="{{ url_for('auth.login') }}"
+                                style="border: 2px solid var(--primary-light); color: var(--primary-light); background: transparent; transition: all 0.2s;"
+                                onmouseover="this.style.background='var(--primary-light)';this.style.color='#fff';"
+                                onmouseout="this.style.background='transparent';this.style.color='var(--primary-light)';">Connexion</a>
+                            <a class="btn btn-sm fw-bold rounded-pill px-3" href="{{ url_for('auth.register') }}"
+                                style="background: linear-gradient(135deg, var(--primary-light), #a02a4f); color: #fff; border: none; box-shadow: 0 2px 10px rgba(112,29,54,0.25); transition: all 0.2s;"
+                                onmouseover="this.style.boxShadow='0 4px 18px rgba(112,29,54,0.4)'; this.style.transform='translateY(-1px)';"
+                                onmouseout="this.style.boxShadow='0 2px 10px rgba(112,29,54,0.25)'; this.style.transform='translateY(0)';">Inscription</a>
+                            <a class="btn btn-sm fw-bold rounded-pill px-3 text-white"
+                                href="{{ url_for('admin.dashboard') }}"
+                                style="background: #C92A2A; border: none; box-shadow: 0 2px 10px rgba(201,42,42,0.3); transition: all 0.2s;">
+                                <i class="bi bi-shield-lock-fill me-1"></i> Admin
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        <!-- Mobile Right Controls (Notification + Hamburger) hidden on desktop -->
+                        <div class="d-flex align-items-center ms-auto d-lg-none" style="gap: 1.25rem;">
+                            {% if current_user.is_authenticated %}
+                            <!-- Notifications mobile (moved out of hamburger) -->
+                            <div class="dropdown">
+                                <a class="nav-link position-relative d-flex align-items-center p-0" href="#"
+                                    id="mobileNotifDropdown" role="button" data-bs-toggle="dropdown"
+                                    style="color: var(--primary-light);">
+                                    <i class="bi bi-bell-fill"
+                                        style="font-size: 1.5rem; color: var(--primary-light) !important;"></i>
+                                    <span id="notifBadgeMobile"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+                                        style="font-size: 0.65rem;">0</span>
+                                </a>
+                                <ul class="dropdown-menu shadow" id="notifListMobile"
+                                    style="position: fixed !important; top: 70px; right: 10px; left: 10px; width: auto; max-width: none; max-height: 400px; overflow-y: auto; margin-top: 0; z-index: 1050; border-radius: 1rem;">
+                                    <li>
+                                        <h6 class="dropdown-header fw-bold border-bottom pb-2">Notifications</h6>
+                                    </li>
+                                    <li><a href="{{ url_for('client.notifications') if current_user.role == 'client' else '#' }}"
+                                            class="dropdown-item text-center text-primary fw-bold small py-3 text-wrap">Voir
+                                            toutes mes notifications</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- User Profile Mobile (moved out of hamburger) -->
+                            <div class="dropdown">
+                                <a class="nav-link d-flex align-items-center p-0" href="#" id="mobileUserDropdownOut"
+                                    role="button" data-bs-toggle="dropdown" style="color: var(--primary-light);">
+                                    <span
+                                        class="d-flex align-items-center justify-content-center rounded-circle overflow-hidden bg-light"
+                                        style="width: 32px; height: 32px; border: 1.5px solid var(--primary-light);">
+                                        {% if current_user.profile_picture %}
+                                        <img src="{{ current_user.avatar_url }}" alt="Avatar"
+                                            style="width:100%; height:100%; object-fit:cover;">
+                                        {% else %}
+                                        <i class="bi bi-person-circle"
+                                            style="font-size: 1.5rem; color: var(--primary-light) !important;"></i>
+                                        {% endif %}
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu shadow-sm"
+                                    style="position: fixed !important; top: 70px; right: 10px; left: auto; width: 220px; z-index: 1050; border-radius: 1rem; margin-top: 0;">
+                                    <li><a class="dropdown-item fw-bold text-dark text-wrap"
+                                            href="{{ url_for('client.profile' if current_user.role == 'client' else 'admin.profile') }}">Mon
+                                            Profil</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item text-danger fw-bold text-wrap"
+                                            href="{{ url_for('auth.auth0_logout') }}">Déconnexion</a></li>
+                                </ul>
+                            </div>
+                            {% endif %}
+
+                            <button class="navbar-toggler border-0 shadow-none p-0" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#mobileMenuPanel"
+                                aria-controls="mobileMenuPanel" aria-expanded="false" aria-label="Toggle navigation"
+                                style="color: var(--primary-light);">
+                                <i class="bi bi-list" id="navbarTogglerIcon"
+                                    style="font-size: 2.2rem; transition: all 0.3s ease;"></i>
+                            </button>
+                        </div>
+
+                        <!-- Mobile Menu Panel (Collapse) - Drops below navbar -->
+                        <div class="collapse navbar-collapse d-lg-none w-100 mt-2" id="mobileMenuPanel">
+                            <div class="mobile-nav-panel rounded-3" style="padding: 20px;">
+                                <ul class="list-unstyled mb-3" style="display:flex; flex-direction:column; gap:0.5rem;">
+                                    <li>
+                                        <a class="mobile-nav-link text-white {% if request.endpoint == 'main.index' %}active text-warning{% endif %}"
+                                            href="{{ url_for('main.index') }}"><i
+                                                class="bi bi-house-fill me-2 text-white"></i>{{ _t('Accueil') }}</a>
+                                    </li>
+                                    <li>
+                                        <a class="mobile-nav-link text-white {% if request.endpoint == 'main.search' %}active text-warning{% endif %}"
+                                            href="{{ url_for('main.search') }}"><i
+                                                class="bi bi-search me-2 text-white"></i>{{ _t('Rechercher') }}</a>
+                                    </li>
+                                    <li>
+                                        <a class="mobile-nav-link text-white {% if request.endpoint == 'main.about' %}active text-warning{% endif %}"
+                                            href="{{ url_for('main.about') }}"><i
+                                                class="bi bi-info-circle-fill me-2 text-white"></i>{{ _t('À propos')
+                                            }}</a>
+                                    </li>
+                                    <li>
+                                        <a class="mobile-nav-link text-white {% if request.endpoint == 'main.contact' %}active text-warning{% endif %}"
+                                            href="{{ url_for('main.contact') }}"><i
+                                                class="bi bi-envelope-fill me-2 text-white"></i>{{ _t('Contact') }}</a>
+                                    </li>
+                                    {% if current_user.is_authenticated %}
+                                    {% if current_user.role in ['super_admin', 'admin_agence'] %}
+                                    <li>
+                                        <a class="mobile-nav-link text-white {% if request.endpoint == 'admin.dashboard' %}active text-warning{% endif %}"
+                                            href="{{ url_for('admin.dashboard') }}"><i
+                                                class="bi bi-speedometer2 me-2 text-white"></i>Dashboard Admin</a>
+                                    </li>
+                                    {% endif %}
+                                    {% if current_user.role == 'client' %}
+                                    <li>
+                                        <a class="mobile-nav-link text-white {% if request.endpoint == 'main.my_bookings' %}active text-warning{% endif %}"
+                                            href="{{ url_for('main.my_bookings') }}"><i
+                                                class="bi bi-car-front-fill me-2 text-white"></i>{{ _t('Mes Locations
+                                            VIP') }}</a>
+                                    </li>
+                                    {% endif %}
+                                    {% endif %}
+                                </ul>
+                                <hr style="border-color: rgba(255,255,255,0.2); margin: 1rem 0;">
+                                <!-- Mobile Controls Row -->
+                                <div class="d-flex align-items-center justify-content-between flex-wrap"
+                                    style="gap: 1rem;">
+                                    <div class="d-flex align-items-center" style="gap: 1rem;">
+                                        <!-- Smart Language Toggle -->
+                                        <div class="d-flex align-items-center"
+                                            style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 3px;">
+                                            <a href="{{ url_for('main.set_language', lang='fr') }}"
+                                                class="btn btn-sm rounded-pill text-decoration-none {% if session.get('lang', 'fr') == 'fr' %}bg-white text-primary fw-bold shadow-sm{% else %}text-white{% endif %}"
+                                                style="padding: 4px 12px; font-size: 0.85rem; transition: all 0.2s;">FR</a>
+                                            <a href="{{ url_for('main.set_language', lang='en') }}"
+                                                class="btn btn-sm rounded-pill text-decoration-none {% if session.get('lang') == 'en' %}bg-white text-primary fw-bold shadow-sm{% else %}text-white{% endif %}"
+                                                style="padding: 4px 12px; font-size: 0.85rem; transition: all 0.2s;">EN</a>
+                                        </div>
+                                        <!-- Theme -->
+                                        <button
+                                            class="theme-toggle-btn btn btn-sm rounded-circle d-flex align-items-center justify-content-center border-0"
+                                            id="themeToggleMobile" aria-label="Toggle dark mode"
+                                            style="width:40px; height:40px; background: rgba(255,255,255,0.2); color: white;">
+                                            <i class="bi bi-moon-fill fs-5 text-white" id="themeIconMobile"></i>
+                                        </button>
+                                        <!-- PWA Install Mobile -->
+                                        <button
+                                            class="btn btn-sm rounded-pill px-3 d-none align-items-center gap-1 text-white fw-bold"
+                                            id="pwaInstallBtnMobile"
+                                            style="height: 40px; background: linear-gradient(135deg, var(--primary-light), #a02a4f); border: none; font-size: 0.85rem;">
+                                            <i class="bi bi-download"></i> Installer l'app
+                                        </button>
+                                    </div>
+                                    {% if not current_user.is_authenticated %}
+                                    <div class="d-flex w-100 mt-2 gap-2 flex-wrap">
+                                        <a class="btn flex-fill text-white border-white fw-bold"
+                                            href="{{ url_for('auth.login') }}"
+                                            style="border: 2px solid white; border-radius: 2rem;">Connexion</a>
+                                        <a class="btn flex-fill bg-white text-danger fw-bold"
+                                            href="{{ url_for('admin.dashboard') }}" style="border-radius: 2rem;">Admin
+                                            Panel</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <!-- Main Content -->
+                <main class="py-4">
+                    {% endif %}
+
+                    {% block content %}{% endblock %}
+
+                    {% if is_admin_page %}
+                </main>
+        </div>
+    </div>
+    {% else %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer py-4 py-lg-5 mt-auto">
+        <div class="container">
+            <div class="row g-3 g-lg-4 text-start footer-mobile-grid">
+                <style>
+                    @media (max-width: 767.98px) {
+                        .footer-mobile-grid h5 {
+                            font-size: 0.9rem !important;
+                            margin-bottom: 0.5rem !important;
+                        }
+
+                        .footer-mobile-grid ul li,
+                        .footer-mobile-grid p {
+                            font-size: 0.8rem !important;
+                            line-height: 1.4 !important;
+                        }
+
+                        .footer-mobile-grid .logo-img {
+                            width: 80px;
+                            height: 80px;
+                        }
+
+                        .footer-mobile-grid .col-6 {
+                            padding-right: 5px;
+                            padding-left: 5px;
+                        }
+                    }
+                </style>
+                <div
+                    class="col-12 col-lg-3 d-flex flex-column align-items-center align-items-lg-start text-center text-lg-start mb-2 mb-lg-0">
+                    <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES" width="120" height="120"
+                        class="mb-2 logo-img" style="background:transparent; object-fit: contain;">
+                    <p class="text-muted mt-2" style="line-height: 1.6; font-size: 0.9rem;">
+                        3M SERVICES SARL — Référence d'excellence au Cameroun en location de véhicules VIP, berlines de
+                        prestige, SUV 4x4 tout-terrain et conciergerie privée avec chauffeurs d'élite.
+                    </p>
+                </div>
+                <div class="col-6 col-lg-2 d-none d-md-block">
+                    <h5 class="fw-bold mb-3 text-uppercase" style="color: var(--primary-light); letter-spacing: 0.5px;">
+                        {{ _t('Flotte & Prestations') }}</h5>
+                    <ul class="list-unstyled d-flex flex-column gap-2 text-muted">
+                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Chauffeurs VIP d'Élite</li>
+                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> SUV 4x4 & V8 Prestige</li>
+                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Berlines Mercedes & VIP</li>
+                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Transferts Aéroport</li>
+                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Résidences Meublées</li>
+                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Conciergerie 24/7</li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-2 d-none d-md-block">
+                    <h5 class="fw-bold mb-3 text-uppercase" style="color: var(--primary-light); letter-spacing: 0.5px;">
+                        {{ _t('Liens Rapides') }}</h5>
+                    <ul class="list-unstyled d-flex flex-column gap-2">
+                        <li>
+                            <a href="{{ url_for('main.index') }}" class="text-muted text-decoration-none hover-link">
+                                <i class="bi bi-house-fill me-1 text-primary"></i> {{ _t('Accueil') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('main.search') }}" class="text-muted text-decoration-none hover-link">
+                                <i class="bi bi-car-front-fill me-1 text-primary"></i> {{ _t('Flotte VIP (7)') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="http://localhost:3001/models" target="_blank"
+                                class="text-muted text-decoration-none hover-link">
+                                <i class="bi bi-box-arrow-up-right me-1 text-primary"></i> Catalogue E-commerce
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('main.about') }}" class="text-muted text-decoration-none hover-link">
+                                <i class="bi bi-info-circle-fill me-1 text-primary"></i> {{ _t('À propos') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('main.contact') }}" class="text-muted text-decoration-none hover-link">
+                                <i class="bi bi-envelope-fill me-1 text-primary"></i> Contact
+                            </a>
+                        </li>
+                        {% if current_user.is_authenticated %}
+                        <li>
+                            <a href="{{ url_for('main.my_bookings') }}"
+                                class="text-muted text-decoration-none hover-link">
+                                <i class="bi bi-file-earmark-text-fill me-1 text-primary"></i> {{ _t('Mes Locations') }}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('auth.auth0_logout') }}"
+                                class="text-muted text-decoration-none hover-link">
+                                <i class="bi bi-box-arrow-right me-1 text-danger"></i> {{ _t('Déconnexion') }}
+                            </a>
+                        </li>
+                        {% else %}
+                        <li>
+                            <a href="{{ url_for('auth.login') }}" class="text-muted text-decoration-none hover-link">
+                                <i class="bi bi-box-arrow-in-right me-1 text-primary"></i> Connexion
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('auth.register') }}" class="text-muted text-decoration-none hover-link">
+                                <i class="bi bi-person-plus-fill me-1 text-primary"></i> Inscription
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-2 d-none d-md-block">
+                    <h5 class="fw-bold mb-3 text-uppercase" style="color: var(--primary-light); letter-spacing: 0.5px;">
+                        {{ _t('Formules VIP') }}</h5>
+                    <ul class="list-unstyled d-flex flex-column gap-2 text-muted">
+                        <li><i class="bi bi-check2-circle me-1 text-primary"></i> Avec Chauffeur VIP</li>
+                        <li><i class="bi bi-check2-circle me-1 text-primary"></i> Sans Chauffeur</li>
+                        <li><i class="bi bi-check2-circle me-1 text-primary"></i> Longue Durée (LLD)</li>
+                        <li><i class="bi bi-check2-circle me-1 text-primary"></i> Navette Nsimalen</li>
+                        <li><i class="bi bi-check2-circle me-1 text-primary"></i> Missions & Cortèges</li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-3 d-none d-md-block">
+                    <h5 class="fw-bold mb-3 text-uppercase" style="color: var(--primary-light); letter-spacing: 0.5px;">
+                        {{ _t('Agence Yaoundé') }}</h5>
+                    <ul class="list-unstyled d-flex flex-column gap-2 text-muted">
+                        <li><i class="bi bi-geo-alt-fill me-1 text-primary"></i> Omnisports, Face Pharmacie Le Bon
+                            Berger</li>
+                        <li><i class="bi bi-telephone-fill me-1 text-primary"></i> +237 691 78 64 47</li>
+                        <li><i class="bi bi-whatsapp me-1 text-success"></i> +237 698 66 87 61</li>
+                        <li><i class="bi bi-envelope-fill me-1 text-primary"></i> contact@3mservice.shop</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-3 text-muted">
+            <div class="text-center text-muted position-relative" style="font-size: 0.8rem;">
+                <p class="mb-0">&copy; {{ now_wat.year }} 3M SERVICES. {{ _t('Tous droits réservés.') }} <span
+                        class="opacity-75">{{ _t('Location de Prestige & Appartements VIP.') }}</span></p>
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+                    class="btn btn-primary rounded-circle d-md-none position-absolute"
+                    style="right: 0; bottom: -5px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"
+                    aria-label="Remonter en haut">
+                    <i class="bi bi-arrow-up"></i>
+                </button>
+            </div>
+        </div>
+    </footer>
+    {% endif %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Admin Sidebar Toggle logic (Responsive Mobile Drawer & Desktop Collapse)
+        function toggleAdminSidebar(forceClose = false) {
+            const sidebar = document.getElementById('adminSidebar');
+            const backdrop = document.getElementById('adminSidebarBackdrop');
+            const chevron = document.getElementById('collapseSidebarChevron');
+            if (!sidebar) return;
+
+            if (window.innerWidth < 992) {
+                if (forceClose) {
+                    sidebar.classList.remove('show');
+                    if (backdrop) backdrop.classList.remove('show');
+                    document.body.style.overflow = '';
+                    return;
+                }
+                const isShown = sidebar.classList.toggle('show');
+                if (backdrop) backdrop.classList.toggle('show', isShown);
+                document.body.style.overflow = isShown ? 'hidden' : '';
+            } else {
+                sidebar.classList.toggle('collapsed');
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                if (chevron) {
+                    if (isCollapsed) {
+                        chevron.classList.remove('bi-chevron-left');
+                        chevron.classList.add('bi-chevron-right');
+                    } else {
+                        chevron.classList.remove('bi-chevron-right');
+                        chevron.classList.add('bi-chevron-left');
+                    }
+                }
+                try { localStorage.setItem('adminSidebarCollapsed', isCollapsed ? 'true' : 'false'); } catch (e) { }
+            }
+        }
+
+        // Close mobile drawer on Escape key or link click
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && window.innerWidth < 992) {
+                toggleAdminSidebar(true);
+            }
+        });
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 992) {
+                const sidebar = document.getElementById('adminSidebar');
+                const backdrop = document.getElementById('adminSidebarBackdrop');
+                if (sidebar) sidebar.classList.remove('show');
+                if (backdrop) backdrop.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Global Theme Toggle logic
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            setTheme(isDark ? 'dark' : 'light');
+        }
+
+        // Theme toggle logic
+        function setTheme(mode) {
+            const themeIcon = document.getElementById('themeIcon');
+            const themeIconMobile = document.getElementById('themeIconMobile');
+            if (mode === 'dark') {
+                document.body.classList.add('dark-mode');
+                if (themeIcon) {
+                    themeIcon.classList.remove('bi-moon-fill');
+                    themeIcon.classList.add('bi-sun-fill');
+                }
+                if (themeIconMobile) {
+                    themeIconMobile.classList.remove('bi-moon-fill');
+                    themeIconMobile.classList.add('bi-sun-fill');
+                }
+            } else {
+                document.body.classList.remove('dark-mode');
+                if (themeIcon) {
+                    themeIcon.classList.remove('bi-sun-fill');
+                    themeIcon.classList.add('bi-moon-fill');
+                }
+                if (themeIconMobile) {
+                    themeIconMobile.classList.remove('bi-sun-fill');
+                    themeIconMobile.classList.add('bi-moon-fill');
+                }
+            }
+        }
+        // On load, set theme from localStorage
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+
+            // Restore desktop collapsed state if saved
+            const sidebar = document.getElementById('adminSidebar');
+            const chevron = document.getElementById('collapseSidebarChevron');
+            if (sidebar && window.innerWidth >= 992) {
+                try {
+                    const isCollapsed = localStorage.getItem('adminSidebarCollapsed') === 'true';
+                    if (isCollapsed) {
+                        sidebar.classList.add('collapsed');
+                        if (chevron) {
+                            chevron.classList.remove('bi-chevron-left');
+                            chevron.classList.add('bi-chevron-right');
+                        }
+                    }
+                } catch (e) { }
+            }
+            // Auto close mobile drawer when any sidebar link is clicked
+            document.querySelectorAll('.sidebar-nav-item').forEach(function (item) {
+                item.addEventListener('click', function () {
+                    if (window.innerWidth < 992) {
+                        const sb = document.getElementById('adminSidebar');
+                        const bd = document.getElementById('adminSidebarBackdrop');
+                        if (sb) sb.classList.remove('show');
+                        if (bd) bd.classList.remove('show');
+                        document.body.style.overflow = '';
+                    }
+                });
+            });
+
+            const handleThemeToggle = function () {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                setTheme(isDark ? 'dark' : 'light');
+            };
+
+            const themeBtn = document.getElementById('themeToggle');
+            const themeBtnMobile = document.getElementById('themeToggleMobile');
+            if (themeBtn) {
+                themeBtn.onclick = handleThemeToggle;
+            }
+            if (themeBtnMobile) {
+                themeBtnMobile.onclick = handleThemeToggle;
+            }
+
+            // Load Navbar Avatar from LocalStorage if authenticated
+            const currentUsername = "{{ current_user.username if current_user.is_authenticated else '' }}";
+            if (currentUsername) {
+                {% if current_user.profile_picture %}
+                const avatarUrl = "{{ current_user.avatar_url }}";
+                localStorage.setItem(`avatar_${currentUsername}`, avatarUrl);
+                const navbarAvatarImg = document.getElementById('navbarAvatarImg');
+                const navbarAvatarIcon = document.getElementById('navbarAvatarIcon');
+                if (navbarAvatarImg && navbarAvatarIcon) {
+                    navbarAvatarImg.src = avatarUrl;
+                    navbarAvatarImg.classList.remove('d-none');
+                    navbarAvatarIcon.classList.add('d-none');
+                }
+                {% else %}
+                localStorage.removeItem(`avatar_${currentUsername}`);
+                const navbarAvatarImg = document.getElementById('navbarAvatarImg');
+                const navbarAvatarIcon = document.getElementById('navbarAvatarIcon');
+                if (navbarAvatarImg && navbarAvatarIcon) {
+                    navbarAvatarImg.classList.add('d-none');
+                    navbarAvatarImg.src = "";
+                    navbarAvatarIcon.classList.remove('d-none');
+                }
+                {% endif %}
+            }
+
+            // Navbar Hamburger Icon Toggle Logic for Collapse Menu
+            const mobileMenuPanel = document.getElementById('mobileMenuPanel');
+            const togglerIcon = document.getElementById('navbarTogglerIcon');
+            if (mobileMenuPanel && togglerIcon) {
+                let bsMobileMenu;
+                try { bsMobileMenu = bootstrap.Collapse.getOrCreateInstance(mobileMenuPanel, { toggle: false }); } catch (e) { }
+
+                mobileMenuPanel.addEventListener('show.bs.collapse', function () {
+                    togglerIcon.classList.remove('bi-list');
+                    togglerIcon.classList.add('bi-x-lg');
+                    togglerIcon.style.transform = 'rotate(180deg)';
+                });
+                mobileMenuPanel.addEventListener('hide.bs.collapse', function () {
+                    togglerIcon.classList.remove('bi-x-lg');
+                    togglerIcon.classList.add('bi-list');
+                    togglerIcon.style.transform = 'rotate(0deg)';
+                });
+
+                // Auto-close menu when clicking a nav link on mobile
+                mobileMenuPanel.querySelectorAll('a:not([data-bs-toggle])').forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (bsMobileMenu) bsMobileMenu.hide();
+                    });
+                });
+            }
+        });
+
+        // Notifications logic
+        {% if current_user.is_authenticated %}
+        function fetchNotifications() {
+            fetch('/api/notifications')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        function updateList(badge, list) {
+                            if (!badge || !list) return;
+
+                            let notifUrl = "";
+                            {% if current_user.role == 'client' %}
+                            notifUrl = "{{ url_for('client.notifications') }}";
+                            {% elif current_user.role in ['super_admin', 'admin_agence'] %}
+                            notifUrl = "{{ url_for('admin.profile') }}#tab-notifications";
+                            {% endif %}
+
+                            let footerLink = notifUrl ? `<li><a class="dropdown-item text-center text-primary small py-3 px-3 fw-bold border-top text-wrap" href="${notifUrl}" style="white-space: normal; overflow-wrap: anywhere; background-color: rgba(201, 42, 42, 0.05);">Voir toutes les notifications</a></li>` : '';
+
+                            if (data.unread_count > 0) {
+                                badge.textContent = data.unread_count;
+                                badge.classList.remove('d-none');
+
+                                list.innerHTML = '<li><h6 class="dropdown-header fw-bold border-bottom pb-2">Notifications</h6></li>';
+
+                                data.notifications.forEach(n => {
+                                    let icon = 'bi-info-circle text-info';
+                                    if (n.type === 'success') icon = 'bi-check-circle text-success';
+                                    if (n.type === 'warning') icon = 'bi-exclamation-triangle text-warning';
+                                    if (n.type === 'danger') icon = 'bi-x-circle text-danger';
+                                    list.innerHTML += `
+                                        <li>
+                                            <a class="dropdown-item py-2 border-bottom text-wrap" href="#" onclick="markRead(${n.id}, event)" style="height: auto;">
+                                                <div class="d-flex align-items-start gap-2">
+                                                    <i class="bi ${icon} mt-1 flex-shrink-0"></i>
+                                                    <div class="flex-grow-1" style="white-space: normal; word-break: break-word;">
+                                                        <div class="fw-bold small lh-sm mb-1">${n.title}</div>
+                                                        <div class="small text-muted lh-sm" style="font-size: 0.8rem;">${n.message}</div>
+                                                        <div class="text-muted mt-1" style="font-size: 0.7rem;">${n.created_at}</div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    `;
+                                });
+                                list.innerHTML += footerLink;
+                            } else {
+                                badge.classList.add('d-none');
+                                list.innerHTML = `<li><h6 class="dropdown-header fw-bold border-bottom pb-2 pt-3 px-3">Notifications</h6></li>
+                                <li><div class="dropdown-item text-center text-muted small py-4 px-3 text-wrap" id="noNotifMsg" style="white-space: normal; overflow-wrap: anywhere;">Aucune nouvelle notification</div></li>` + footerLink;
+                            }
+                        }
+
+                        updateList(document.getElementById('notifBadge'), document.getElementById('notifList'));
+                        updateList(document.getElementById('notifBadgeMobile'), document.getElementById('notifListMobile'));
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        function markRead(id, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            fetch(`/api/notifications/${id}/read`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchNotifications();
+                    }
+                });
+        }
+
+        // Fetch on load and every 30 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            fetchNotifications();
+            setInterval(fetchNotifications, 30000);
+        });
+        {% endif %}
+
+        // --- Security UX: Password Clearing ---
+        window.addEventListener("load", () => {
+            document.querySelectorAll('input[type="password"]').forEach(input => {
+                input.value = "";
+            });
+        });
+
+        // Intercept logout clicks to clear local storage and passwords
+        document.addEventListener('click', function (e) {
+            let target = e.target.closest('a');
+            if (target && target.href && target.href.includes('/logout')) {
+                e.preventDefault();
+                localStorage.clear();
+                sessionStorage.clear();
+                document.querySelectorAll('input[type="password"]').forEach(input => {
+                    input.value = "";
+                });
+                window.location.href = target.href;
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+    <!-- Global Loader -->
+    <div id="global-loader" class="global-loader d-none">
+        <div class="loader-content">
+            <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES Logo" class="loader-logo">
+            <div class="spinner-border text-primary mt-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .global-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        body.dark-mode .global-loader {
+            background-color: rgba(30, 41, 59, 0.9);
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-logo {
+            width: 80px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Show loader when a form is submitted
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function () {
+                    if (form.checkValidity() && !form.hasAttribute('target')) {
+                        document.getElementById('global-loader').classList.remove('d-none');
+                    }
+                });
+            });
+
+            // Show loader on major navigation links
+            document.querySelectorAll('a.nav-link, a.btn-primary').forEach(link => {
+                if (link.getAttribute('href') && !link.getAttribute('href').startsWith('#') && link.getAttribute('target') !== '_blank') {
+                    link.addEventListener('click', function () {
+                        document.getElementById('global-loader').classList.remove('d-none');
+                    });
+                }
+            });
+        });
+        // Hide loader if page is loaded from cache (bfcache)
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+                document.getElementById('global-loader').classList.add('d-none');
+            }
+        });
+    </script>
+    <!-- iOS PWA Install Instruction Modal -->
+    <div class="modal fade" id="iosInstallModal" tabindex="-1" aria-labelledby="iosInstallModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center pt-0 pb-4 px-4">
+                    <img src="{{ url_for('static', filename='icon-192.png') }}" alt="3M SERVICES"
+                        class="mb-3 rounded-4 shadow-sm" style="width: 72px; height: 72px;">
+                    <h5 class="modal-title fw-bold mb-2 text-dark" id="iosInstallModalLabel">{{ _t("Installer 3M
+                        SERVICES sur iOS") }}</h5>
+                    <p class="text-muted small mb-4">{{ _t("Suivez ces 3 étapes simples pour ajouter l'application sur
+                        votre écran d'accueil :") }}</p>
+
+                    <div class="text-start bg-light p-3 rounded-4 mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+                                style="width: 36px; height: 36px; min-width: 36px;">
+                                <i class="bi bi-box-arrow-up"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark small">1. {{ _t("Bouton Partager") }}</div>
+                                <div class="text-muted small">{{ _t("Appuyez sur l'icône Partager dans la barre en bas
+                                    de Safari.") }}</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+                                style="width: 36px; height: 36px; min-width: 36px;">
+                                <i class="bi bi-plus-square"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark small">2. {{ _t("Sur l'écran d'accueil") }}</div>
+                                <div class="text-muted small">{{ _t("Faites défiler le menu et sélectionnez « Sur
+                                    l'écran d'accueil ».") }}</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+                                style="width: 36px; height: 36px; min-width: 36px;">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark small">3. {{ _t("Confirmer") }}</div>
+                                <div class="text-muted small">{{ _t("Appuyez sur « Ajouter » en haut à droite pour
+                                    terminer.") }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-100 py-2 rounded-pill fw-bold"
+                        data-bs-dismiss="modal">{{ _t("J'ai compris") }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PWA Install Popup -->
+    <div id="pwaInstallPopup" class="pwa-popup shadow-lg rounded-4 p-3 d-none align-items-center gap-3">
+        <div class="pwa-icon rounded-3 bg-primary text-white d-flex justify-content-center align-items-center"
+            style="width: 50px; height: 50px;">
+            <i class="bi bi-app-indicator fs-3"></i>
+        </div>
+        <div class="flex-grow-1">
+            <h6 class="mb-1 fw-bold text-dark">{{ _t("Installez l'application 3M SERVICES") }}</h6>
+            <p class="mb-0 text-muted small" style="line-height: 1.2;">{{ _t("Profitez d'une expérience plus rapide et
+                hors ligne.") }}</p>
+        </div>
+        <button id="pwaPopupInstallBtn" class="btn btn-sm btn-primary rounded-pill px-3">{{ _t('Installer') }}</button>
+        <button id="pwaCloseBtn" class="btn btn-sm btn-link text-muted p-0"><i class="bi bi-x-lg fs-5"></i></button>
+    </div>
+
+    <style>
+        .pwa-popup {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(201, 42, 42, 0.1);
+            z-index: 9999;
+            max-width: 90vw;
+            width: 400px;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .pwa-popup.show {
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. Service Worker registration
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('/service-worker.js').then(function (reg) {
+                        console.log('ServiceWorker registration successful');
+                    }).catch(function (err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
+
+            // 2. Check if already installed
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            if (isStandalone) {
+                return;
+            }
+
+            let deferredPrompt = null;
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const installBtn = document.getElementById('pwaInstallBtn');
+            const installBtnMobile = document.getElementById('pwaInstallBtnMobile');
+            const installFab = document.getElementById('pwaInstallFab');
+            const pwaPopup = document.getElementById('pwaInstallPopup');
+            const pwaPopupInstallBtn = document.getElementById('pwaPopupInstallBtn');
+            const pwaCloseBtn = document.getElementById('pwaCloseBtn');
+
+            function showInstallTriggers() {
+                if (installBtn) { installBtn.classList.remove('d-none'); installBtn.classList.add('d-flex'); }
+                if (installBtnMobile) { installBtnMobile.classList.remove('d-none'); installBtnMobile.classList.add('d-flex'); }
+                if (installFab) { installFab.classList.remove('d-none'); installFab.classList.add('d-flex'); }
+            }
+
+            function hideInstallTriggers() {
+                if (installBtn) { installBtn.classList.remove('d-flex'); installBtn.classList.add('d-none'); }
+                if (installBtnMobile) { installBtnMobile.classList.remove('d-flex'); installBtnMobile.classList.add('d-none'); }
+                if (installFab) { installFab.classList.remove('d-flex'); installFab.classList.add('d-none'); }
+            }
+
+            function closePwaPopup() {
+                if (pwaPopup) {
+                    pwaPopup.classList.remove('show');
+                    setTimeout(() => {
+                        pwaPopup.classList.remove('d-flex');
+                        pwaPopup.classList.add('d-none');
+                    }, 500);
+                }
+            }
+
+            async function handleInstallAction() {
+                closePwaPopup();
+                sessionStorage.setItem('pwaPromptDismissed', 'true');
+
+                if (isIOS) {
+                    const iosModalEl = document.getElementById('iosInstallModal');
+                    if (iosModalEl) {
+                        const iosModal = new bootstrap.Modal(iosModalEl);
+                        iosModal.show();
+                    }
+                    return;
+                }
+
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    if (outcome === 'accepted') {
+                        hideInstallTriggers();
+                    }
+                } else {
+                    alert({{ _t("Pour installer l'application, ouvrez le menu de votre navigateur et sélectionnez « Installer l'application » ou « Ajouter à l'écran d'accueil ».") | tojson }});
+                }
+            }
+        }
+
+        if (installBtn) installBtn.addEventListener('click', handleInstallAction);
+        if (installBtnMobile) installBtnMobile.addEventListener('click', handleInstallAction);
+        if (installFab) installFab.addEventListener('click', handleInstallAction);
+        if (pwaPopupInstallBtn) pwaPopupInstallBtn.addEventListener('click', handleInstallAction);
+
+        if (pwaCloseBtn) {
+            pwaCloseBtn.addEventListener('click', () => {
+                sessionStorage.setItem('pwaPromptDismissed', 'true');
+                closePwaPopup();
+            });
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallTriggers();
+        });
+
+        if (isIOS) {
+            showInstallTriggers();
+        }
+
+        const popupDismissed = sessionStorage.getItem('pwaPromptDismissed') || localStorage.getItem('pwaPromptDismissed');
+        if (!popupDismissed && pwaPopup) {
+            setTimeout(() => {
+                pwaPopup.classList.remove('d-none');
+                pwaPopup.classList.add('d-flex');
+                setTimeout(() => pwaPopup.classList.add('show'), 50);
+
+                setTimeout(() => {
+                    if (pwaPopup && pwaPopup.classList.contains('show')) {
+                        closePwaPopup();
+                    }
+                }, 15000);
+            }, 2500);
+        }
+    });
+    </script>
+
+    <!-- Offline / Online Notification System -->
+    <div id="connectionStatusPopup" class="pwa-popup shadow-lg rounded-4 p-3 d-none align-items-center gap-3"
+        style="z-index: 10000; bottom: 80px;">
+        <div id="connIconBg" class="pwa-icon rounded-3 text-white d-flex justify-content-center align-items-center"
+            style="width: 50px; height: 50px;">
+            <i id="connIcon" class="bi fs-3"></i>
+        </div>
+        <div class="flex-grow-1">
+            <h6 id="connTitle" class="mb-1 fw-bold text-dark">Status</h6>
+            <p id="connDesc" class="mb-0 text-muted small" style="line-height: 1.2;">Message</p>
+        </div>
+        <button id="connCloseBtn" class="btn btn-sm btn-link text-muted p-0"><i class="bi bi-x-lg fs-5"></i></button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const connPopup = document.getElementById('connectionStatusPopup');
+            const connIconBg = document.getElementById('connIconBg');
+            const connIcon = document.getElementById('connIcon');
+            const connTitle = document.getElementById('connTitle');
+            const connDesc = document.getElementById('connDesc');
+            const connCloseBtn = document.getElementById('connCloseBtn');
+            let connHideTimeout;
+
+            function showConnectionStatus(isOnline) {
+                if (isOnline) {
+                    connIconBg.className = 'pwa-icon rounded-3 text-white d-flex justify-content-center align-items-center bg-success';
+                    connIcon.className = 'bi bi-wifi fs-3';
+                    connTitle.innerText = "{{ _t('Vous êtes de nouveau en ligne') }}";
+                    connDesc.innerText = "{{ _t('La synchronisation est terminée. Toutes les informations sont à jour.') }}";
+                } else {
+                    connIconBg.className = 'pwa-icon rounded-3 text-white d-flex justify-content-center align-items-center bg-warning text-dark';
+                    connIcon.className = 'bi bi-wifi-off fs-3';
+                    connTitle.innerText = "{{ _t('Vous êtes hors ligne') }}";
+                    connDesc.innerText = "{{ _t('Vous consultez la version en cache. Synchronisation en attente de connexion...') }}";
+                }
+
+                connPopup.classList.remove('d-none');
+                connPopup.classList.add('d-flex');
+                setTimeout(() => connPopup.classList.add('show'), 50);
+
+                clearTimeout(connHideTimeout);
+                connHideTimeout = setTimeout(hideConnectionStatus, 6000);
+            }
+
+            function hideConnectionStatus() {
+                connPopup.classList.remove('show');
+                setTimeout(() => {
+                    connPopup.classList.remove('d-flex');
+                    connPopup.classList.add('d-none');
+                }, 500);
+            }
+
+            connCloseBtn.addEventListener('click', hideConnectionStatus);
+
+            window.addEventListener('online', () => showConnectionStatus(true));
+            window.addEventListener('offline', () => showConnectionStatus(false));
+        });
+    </script>
+
+    <!-- Floating Action Button for PWA Install -->
+    <button id="pwaInstallFab"
+        class="btn btn-primary rounded-circle shadow-lg d-none align-items-center justify-content-center"
+        style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; z-index: 9999; background: linear-gradient(135deg, var(--primary-light), #a02a4f); border: none; transition: transform 0.2s;">
+        <i class="bi bi-download fs-4 text-white"></i>
+    </button>
+
+</body>
+
+</html>

@@ -1,0 +1,605 @@
+{% extends "base.html" %}
+{% block title %}{{ _t('Créer un compte') }} - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Hide global nav / footer on auth pages ── */
+  .navbar, .footer { display: none !important; }
+  main { padding: 0 !important; }
+
+  .auth-page {
+    min-height: 100vh;
+    display: flex;
+    background: #f8fafc;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* ── LEFT panel ── */
+  .auth-left {
+    flex: 0 0 560px;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2.5rem 4rem;
+    background: #fff;
+    position: relative;
+    z-index: 2;
+    box-shadow: 4px 0 40px rgba(0,0,0,.07);
+    overflow-y: auto;
+  }
+  body.dark-mode .auth-left { background: #1f2937; }
+
+  .auth-logo { display:flex; align-items:center; gap:.7rem; margin-bottom:1.5rem; }
+  .auth-logo img { height:36px; }
+  body.dark-mode .auth-logo img { filter: brightness(0) invert(1); }
+  .auth-logo span { font-size:1.3rem; font-weight:800; color:#C92A2A; letter-spacing:-.02em; }
+
+  .auth-title { font-size:2rem; font-weight:800; color:#1e293b; line-height:1.2; margin-bottom:.5rem; }
+  body.dark-mode .auth-title { color:#f1f5f9; }
+  .auth-subtitle { color:#64748b; font-size:.9rem; margin-bottom:1.5rem; }
+
+  /* ── Fields ── */
+  .lv-input-wrap { position:relative; margin-bottom:1.1rem; }
+  .lv-input-wrap label { display:block; font-size:.8rem; font-weight:700; color:#374151; margin-bottom:.3rem; letter-spacing:.01em; }
+  body.dark-mode .lv-input-wrap label { color:#94a3b8; }
+
+  .lv-input {
+    width:100%; padding:.8rem 1rem .8rem 3.1rem;
+    border:1.5px solid #e2e8f0; border-radius:.9rem;
+    font-size:.95rem; background:#f8fafc; color:#1e293b;
+    outline:none; transition:border-color .2s, box-shadow .2s;
+  }
+  body.dark-mode .lv-input { background:#374151; border-color:#4b5563; color:#f1f5f9; }
+  .lv-input:focus { border-color:#C92A2A; box-shadow:0 0 0 3px rgba(112,29,54,.12); background:#fff; }
+  body.dark-mode .lv-input:focus { background:#1f2937; }
+
+  .lv-input-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:1rem; pointer-events:none; }
+
+  .lv-eye-btn { position:absolute; right:1rem; top:50%; transform:translateY(-50%); background:none; border:none; color:#9ca3af; cursor:pointer; padding:0; font-size:.95rem; z-index:10; }
+  .lv-eye-btn:hover { color:#C92A2A; }
+
+  /* Phone row: [flag select] [number input] */
+  .phone-row { display:flex; gap:.5rem; align-items:stretch; }
+  .phone-code-select {
+    flex-shrink:0; width:148px;
+    padding:.8rem .6rem;
+    border:1.5px solid #e2e8f0; border-radius:.9rem;
+    font-size:.88rem; background:#f8fafc; color:#1e293b;
+    outline:none; cursor:pointer; transition:border-color .2s;
+    appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239ca3af' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right .7rem center; padding-right:2rem;
+  }
+  body.dark-mode .phone-code-select { background-color:#374151; border-color:#4b5563; color:#f1f5f9; }
+  .phone-code-select:focus { border-color:#C92A2A; box-shadow:0 0 0 3px rgba(112,29,54,.12); }
+  .phone-number-wrap { flex:1; position:relative; }
+  .phone-number-wrap .lv-input { border-radius:.9rem; padding-left:1rem; }
+
+  /* Error badges under each field */
+  .field-error {
+    font-size:.75rem; color:#dc2626; margin-top:.25rem;
+    display:flex; align-items:center; gap:.3rem;
+    animation: shake .35s ease both;
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)}
+  }
+
+  /* Flash banners */
+  .lv-alert { border-radius:.75rem; padding:.7rem 1rem; margin-bottom:.9rem; font-size:.85rem; font-weight:600; display:flex; align-items:flex-start; gap:.5rem; }
+  .lv-alert-danger  { background:#fef2f2; color:#991b1b; border:1.5px solid #fecaca; }
+  .lv-alert-success { background:#f0fdf4; color:#166534; border:1.5px solid #bbf7d0; }
+  body.dark-mode .lv-alert-danger  { background:#450a0a; border-color:#7f1d1d; color:#fca5a5; }
+
+  /* Terms */
+  .lv-terms { display:flex; align-items:flex-start; gap:.45rem; font-size:.83rem; color:#64748b; cursor:pointer; margin-bottom:.5rem; }
+  .lv-terms input[type=checkbox] { accent-color:#C92A2A; width:16px; height:16px; margin-top:2px; flex-shrink:0; }
+  .lv-terms a { color:#C92A2A; font-weight:700; text-decoration:none; }
+  .lv-terms a:hover { text-decoration:underline; }
+
+  /* Submit */
+  .btn-lv-primary {
+    width:100%; padding:1rem; background:linear-gradient(135deg,#C92A2A 0%,#A61E1E 100%);
+    color:#fff; border:none; border-radius:.9rem; font-size:1.05rem; font-weight:700;
+    cursor:pointer; transition:all .25s; box-shadow:0 4px 20px rgba(112,29,54,.25);
+    display:flex; align-items:center; justify-content:center; gap:.6rem; margin-top:1rem;
+  }
+  .btn-lv-primary:hover { background:linear-gradient(135deg,#5c1628 0%,#C92A2A 100%); box-shadow:0 6px 28px rgba(112,29,54,.35); transform:translateY(-1px); }
+  .btn-lv-primary:active { transform:translateY(0); }
+  .btn-lv-primary .spinner { display:none; width:18px; height:18px; border:2.5px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+  .btn-lv-primary.loading .btn-text { display:none; }
+  .btn-lv-primary.loading .spinner { display:block; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  .lv-divider { display:flex; align-items:center; gap:.75rem; margin:1.2rem 0; color:#94a3b8; font-size:.8rem; }
+  .lv-divider::before, .lv-divider::after { content:''; flex:1; height:1px; background:#e5e7eb; }
+  body.dark-mode .lv-divider::before, body.dark-mode .lv-divider::after { background:#374151; }
+
+  .lv-login-link { text-align:center; font-size:.88rem; color:#64748b; }
+  .lv-login-link a { color:#C92A2A; font-weight:700; text-decoration:none; }
+  .lv-login-link a:hover { text-decoration:underline; }
+
+  /* ── RIGHT visual panel ── */
+  .auth-right { flex:1; position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; }
+  .auth-right-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; }
+  .auth-right-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(15,5,10,.92) 0%, rgba(60,10,25,.55) 45%, rgba(0,0,0,.15) 100%); }
+  .auth-right-content { position:relative; z-index:2; padding:3rem; color:#fff; }
+  .brand-tagline { font-size:2.4rem; font-weight:900; line-height:1.15; margin-bottom:1rem; letter-spacing:-.02em; }
+
+  /* ── Animations ── */
+  .fade-slide-in { animation:fadeSlideIn .55s cubic-bezier(.4,0,.2,1) both; }
+  @keyframes fadeSlideIn { from{opacity:0;transform:translateX(-24px)} to{opacity:1;transform:translateX(0)} }
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .auth-page { flex-direction:column-reverse; }
+    .auth-left { flex:none; max-width:100%; padding:2rem 1.5rem 2.5rem; box-shadow:none; }
+    .auth-right { min-height:220px; flex:none; }
+    .auth-right-content { padding:1.5rem; }
+    .brand-tagline { font-size:1.6rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+
+  <!-- ══ LEFT: Form ══ -->
+  <div class="auth-left fade-slide-in">
+
+    <!-- Logo -->
+    <div class="auth-logo">
+      <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES">
+      <span>3M SERVICES</span>
+    </div>
+
+    <h1 class="auth-title">{{ _t('Créez votre compte') }}</h1>
+    <p class="auth-subtitle">Bienvenue sur 3M SERVICES réservez vos voyages en quelques secondes, où que vous soyez au Cameroun.</p>
+
+    <!-- Auth0 Primary Signup -->
+    <a href="{{ url_for('auth.auth0_login', screen_hint='signup') }}" class="btn-lv-primary" style="margin-bottom: 2rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(135deg, #10b981, #059669); text-decoration: none;">
+      <i class="bi bi-person-plus-fill" style="font-size: 1.2rem;"></i>
+      <span class="btn-text" style="color: white; font-weight: bold;">S'inscrire avec Auth0</span>
+    </a>
+
+    <div class="lv-divider" style="margin-bottom: 2rem;">{{ _t('ou utiliser l\'ancienne inscription') }}</div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="lv-alert lv-alert-{{ 'danger' if category in ['error','danger'] else 'success' }}">
+      <i class="bi bi-{{ 'exclamation-triangle-fill' if category in ['error','danger'] else 'check-circle-fill' }} flex-shrink-0"></i>
+      <span>{{ message | safe }}</span>
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <!-- Form -->
+    <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
+      {{ csrf_token() if csrf_token else '' }}
+
+      <!-- Username -->
+      <div class="lv-input-wrap">
+        <label for="username"><i class="bi bi-person-badge me-1"></i>{{ _t('Nom & Prénom') }} <span class="text-danger">*</span></label>
+        <div class="position-relative">
+          <i class="bi bi-person-fill lv-input-icon"></i>
+          <input type="text" class="lv-input" id="username" name="username"
+            placeholder="Entrez votre nom en lettres uniquement"
+            value="{{ form_data.get('username', '') }}"
+            required pattern="[a-zA-ZÀ-ÿ ]{3,50}" minlength="3" maxlength="50"
+            autocomplete="username">
+        </div>
+        <div class="field-error d-none" id="err-username"><i class="bi bi-exclamation-circle-fill"></i> <span></span></div>
+        <div class="text-muted" style="font-size:.72rem;margin-top:.2rem;">Uniquement des lettres et des espaces (pas de chiffres ou caractères spéciaux).</div>
+      </div>
+
+      <!-- Email -->
+      <div class="lv-input-wrap">
+        <label for="email"><i class="bi bi-envelope me-1"></i>Adresse email <span class="text-danger">*</span></label>
+        <div class="position-relative">
+          <i class="bi bi-envelope-fill lv-input-icon"></i>
+          <input type="email" class="lv-input" id="email" name="email"
+            placeholder="Entrez votre email"
+            value="{{ form_data.get('email', '') }}"
+            required autocomplete="email">
+        </div>
+        <div class="field-error d-none" id="err-email"><i class="bi bi-exclamation-circle-fill"></i> <span></span></div>
+      </div>
+
+      <!-- Phone with country code -->
+      <div class="lv-input-wrap">
+        <label><i class="bi bi-telephone me-1"></i>Numéro de téléphone <span class="text-danger">*</span></label>
+        <div class="phone-row">
+          <select class="phone-code-select" name="phone_code" id="phone_code" aria-label="Indicatif pays">
+            {% set selected_code = form_data.get('phone_code', '+237') %}
+            <option value="+237" {{ 'selected' if selected_code == '+237' }}>🇨🇲 +237</option>
+            <option value="+33"  {{ 'selected' if selected_code == '+33'  }}>🇫🇷 +33</option>
+            <option value="+1"   {{ 'selected' if selected_code == '+1'   }}>🇺🇸 +1</option>
+            <option value="+44"  {{ 'selected' if selected_code == '+44'  }}>🇬🇧 +44</option>
+            <option value="+49"  {{ 'selected' if selected_code == '+49'  }}>🇩🇪 +49</option>
+            <option value="+34"  {{ 'selected' if selected_code == '+34'  }}>🇪🇸 +34</option>
+            <option value="+39"  {{ 'selected' if selected_code == '+39'  }}>🇮🇹 +39</option>
+            <option value="+32"  {{ 'selected' if selected_code == '+32'  }}>🇧🇪 +32</option>
+            <option value="+41"  {{ 'selected' if selected_code == '+41'  }}>🇨🇭 +41</option>
+            <option value="+212" {{ 'selected' if selected_code == '+212' }}>🇲🇦 +212</option>
+            <option value="+216" {{ 'selected' if selected_code == '+216' }}>🇹🇳 +216</option>
+            <option value="+213" {{ 'selected' if selected_code == '+213' }}>🇩🇿 +213</option>
+            <option value="+225" {{ 'selected' if selected_code == '+225' }}>🇨🇮 +225</option>
+            <option value="+221" {{ 'selected' if selected_code == '+221' }}>🇸🇳 +221</option>
+            <option value="+234" {{ 'selected' if selected_code == '+234' }}>🇳🇬 +234</option>
+            <option value="+243" {{ 'selected' if selected_code == '+243' }}>🇨🇩 +243</option>
+            <option value="+241" {{ 'selected' if selected_code == '+241' }}>🇬🇦 +241</option>
+            <option value="+242" {{ 'selected' if selected_code == '+242' }}>🇨🇬 +242</option>
+            <option value="+235" {{ 'selected' if selected_code == '+235' }}>🇹🇩 +235</option>
+            <option value="+236" {{ 'selected' if selected_code == '+236' }}>🇨🇫 +236</option>
+            <option value="+240" {{ 'selected' if selected_code == '+240' }}>🇬🇶 +240</option>
+            <option value="+27"  {{ 'selected' if selected_code == '+27'  }}>🇿🇦 +27</option>
+            <option value="+254" {{ 'selected' if selected_code == '+254' }}>🇰🇪 +254</option>
+            <option value="+255" {{ 'selected' if selected_code == '+255' }}>🇹🇿 +255</option>
+            <option value="+256" {{ 'selected' if selected_code == '+256' }}>🇺🇬 +256</option>
+            <option value="+250" {{ 'selected' if selected_code == '+250' }}>🇷🇼 +250</option>
+            <option value="+257" {{ 'selected' if selected_code == '+257' }}>🇧🇮 +257</option>
+            <option value="+233" {{ 'selected' if selected_code == '+233' }}>🇬🇭 +233</option>
+            <option value="+229" {{ 'selected' if selected_code == '+229' }}>🇧🇯 +229</option>
+            <option value="+228" {{ 'selected' if selected_code == '+228' }}>🇹🇬 +228</option>
+            <option value="+226" {{ 'selected' if selected_code == '+226' }}>🇧🇫 +226</option>
+            <option value="+223" {{ 'selected' if selected_code == '+223' }}>🇲🇱 +223</option>
+            <option value="+224" {{ 'selected' if selected_code == '+224' }}>🇬🇳 +224</option>
+            <option value="+227" {{ 'selected' if selected_code == '+227' }}>🇳🇪 +227</option>
+            <option value="+222" {{ 'selected' if selected_code == '+222' }}>🇲🇷 +222</option>
+            <option value="+245" {{ 'selected' if selected_code == '+245' }}>🇬🇼 +245</option>
+            <option value="+238" {{ 'selected' if selected_code == '+238' }}>🇨🇻 +238</option>
+            <option value="+232" {{ 'selected' if selected_code == '+232' }}>🇸🇱 +232</option>
+            <option value="+231" {{ 'selected' if selected_code == '+231' }}>🇱🇷 +231</option>
+            <option value="+20"  {{ 'selected' if selected_code == '+20'  }}>🇪🇬 +20</option>
+            <option value="+880" {{ 'selected' if selected_code == '+880' }}>🇧🇩 +880</option>
+            <option value="+91"  {{ 'selected' if selected_code == '+91'  }}>🇮🇳 +91</option>
+            <option value="+86"  {{ 'selected' if selected_code == '+86'  }}>🇨🇳 +86</option>
+            <option value="+81"  {{ 'selected' if selected_code == '+81'  }}>🇯🇵 +81</option>
+            <option value="+82"  {{ 'selected' if selected_code == '+82'  }}>🇰🇷 +82</option>
+            <option value="+7"   {{ 'selected' if selected_code == '+7'   }}>🇷🇺 +7</option>
+            <option value="+55"  {{ 'selected' if selected_code == '+55'  }}>🇧🇷 +55</option>
+            <option value="+52"  {{ 'selected' if selected_code == '+52'  }}>🇲🇽 +52</option>
+            <option value="+54"  {{ 'selected' if selected_code == '+54'  }}>🇦🇷 +54</option>
+            <option value="+56"  {{ 'selected' if selected_code == '+56'  }}>🇨🇱 +56</option>
+          </select>
+          <div class="phone-number-wrap">
+            <input type="tel" class="lv-input" id="phone_number" name="phone_number"
+              placeholder="Entrez votre numéro"
+              value="{{ form_data.get('phone_number', '') }}"
+              required inputmode="numeric" pattern="[\d\s\-]{6,15}">
+          </div>
+        </div>
+        <div class="field-error d-none" id="err-phone"><i class="bi bi-exclamation-circle-fill"></i> <span></span></div>
+        <div class="text-muted" style="font-size:.72rem;margin-top:.2rem;">Entrez uniquement les chiffres, sans l'indicatif. Utilisé pour Mobile Money.</div>
+      </div>
+
+      <!-- Password -->
+      <div class="lv-input-wrap">
+        <label for="password"><i class="bi bi-lock me-1"></i>{{ _t('Password') }} <span class="text-danger">*</span></label>
+        <div class="position-relative">
+          <i class="bi bi-lock-fill lv-input-icon"></i>
+          <input type="password" class="lv-input" id="password" name="password" autocomplete="new-password"
+            placeholder="{{ _t('Minimum 6 caractères') }}"
+            required minlength="6" autocomplete="new-password">
+          <button type="button" class="lv-eye-btn" onclick="togglePass('password','eyeIcon1')" tabindex="-1" aria-label="Afficher le mot de passe">
+            <i class="bi bi-eye" id="eyeIcon1"></i>
+          </button>
+        </div>
+        <!-- Password strength bar -->
+        <div style="height:4px;background:#e5e7eb;border-radius:2px;margin-top:.4rem;overflow:hidden;">
+          <div id="strengthBar" style="height:100%;width:0;border-radius:2px;transition:width .3s,background .3s;"></div>
+        </div>
+        <div id="strengthLabel" style="font-size:.7rem;color:#9ca3af;margin-top:.2rem;"></div>
+        <div class="field-error d-none" id="err-password"><i class="bi bi-exclamation-circle-fill"></i> <span></span></div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="lv-input-wrap">
+        <label for="confirm_password"><i class="bi bi-lock-fill me-1"></i>{{ _t('Confirmer le mot de passe') }} <span class="text-danger">*</span></label>
+        <div class="position-relative">
+          <i class="bi bi-lock-fill lv-input-icon"></i>
+          <input type="password" class="lv-input" id="confirm_password" name="confirm_password" autocomplete="new-password"
+            placeholder="{{ _t('Répétez votre mot de passe') }}"
+            required autocomplete="new-password">
+          <button type="button" class="lv-eye-btn" onclick="togglePass('confirm_password','eyeIcon2')" tabindex="-1" aria-label="Afficher le mot de passe">
+            <i class="bi bi-eye" id="eyeIcon2"></i>
+          </button>
+        </div>
+        <div class="field-error d-none" id="err-confirm"><i class="bi bi-exclamation-circle-fill"></i> <span></span></div>
+      </div>
+
+      <!-- Language Preference -->
+      <div class="lv-input-wrap">
+        <label for="language"><i class="bi bi-globe me-1"></i>{{ _t('Langue préférée') }} / Language</label>
+        <div class="position-relative">
+          <i class="bi bi-translate lv-input-icon"></i>
+          <select class="lv-input" id="language" name="language" style="padding-left: 3.1rem; appearance: none;">
+            <option value="fr" id="optFr">🇫🇷 Français</option>
+            <option value="en" id="optEn">🇬🇧 English</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Terms -->
+      <div style="margin-bottom:1.2rem;">
+        <label class="lv-terms">
+          <input type="checkbox" id="terms" name="terms" required>
+          <span>{{ _t("J'accepte les") }} <a href="{{ url_for('main.terms') }}" target="_blank">{{ _t("Conditions Générales d'Utilisation") }}</a></span>
+        </label>
+        <label class="lv-terms">
+          <input type="checkbox" id="privacy" name="privacy" required>
+          <span>{{ _t("J'accepte la") }} <a href="{{ url_for('main.privacy_policy') }}" target="_blank">{{ _t("Politique de Confidentialité") }}</a></span>
+        </label>
+      </div>
+
+      <!-- Hidden Input for Firebase Token -->
+      <input type="hidden" name="id_token" id="id_token">
+
+      <!-- Submit -->
+      <button type="submit" class="btn-lv-primary" id="registerBtn">
+        <span class="spinner"></span>
+        <span class="btn-text"><i class="bi bi-person-check-fill"></i> {{ _t("Créer mon compte") }}</span>
+      </button>
+    </form>
+
+    <div class="lv-divider">{{ _t('ou') }}</div>
+
+    <button type="button" class="btn-lv-secondary" id="googleBtn" style="width: 100%; padding: 1.1rem; border-radius: .9rem; border: 1.5px solid #e2e8f0; background: #fff; color: #1e293b; font-size: 1.05rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.75rem; transition: all 0.2s; margin-bottom: 1.5rem;">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 24px;">
+      Continuer avec Google
+    </button>
+    <div class="lv-login-link">
+      {{ _t('Vous avez déjà un compte ?') }}
+      <a href="{{ url_for('auth.login') }}">{{ _t('Se connecter') }}</a>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT: Visual ══ -->
+  <div class="auth-right">
+    <img src="{{ url_for('static', filename='img_register_bg.png') }}" alt="Cameroun" class="auth-right-img">
+    <div class="auth-right-overlay"></div>
+    <div class="auth-right-content">
+      <h2 class="brand-tagline" style="color:#fff;">
+        Mobilité d'Élite & Véhicules VIP<br>au Cameroun
+      </h2>
+      <p style="color:#fff;font-size:.95rem;">
+        Louez des SUV 4x4, berlines de prestige et profitez de services de conciergerie privée 24/7.
+      </p>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB_7q5GxMPuYu31KqHpuKYHUla6D19yhAo",
+    authDomain: "3mservices-prod.firebaseapp.com",
+    projectId: "3mservices-prod",
+    storageBucket: "3mservices-prod.firebasestorage.app",
+    messagingSenderId: "1079451092562",
+    appId: "1:1079451092562:web:e1ba8824bba49426cd018b",
+    measurementId: "G-N9SHP4Q87Z"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Toggle password visibility
+  window.togglePass = function(inputId, iconId) {
+    const inp  = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    inp.type   = (inp.type === 'password') ? 'text' : 'password';
+    icon.className = (inp.type === 'text') ? 'bi bi-eye-slash' : 'bi bi-eye';
+  }
+
+  // Show / hide a field error
+  function showErr(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.querySelector('span').innerHTML = msg;
+    el.classList.remove('d-none');
+  }
+  function clearErr(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('d-none');
+  }
+
+  // Auto-detect browser language and pre-select (only en or fr supported)
+  (function autoDetectLanguage() {
+    const saved = '{{ form_data.get("language", "") }}';
+    if (saved) return; // don't override if user already selected
+    const lang = (navigator.language || navigator.userLanguage || 'fr').toLowerCase();
+    const sel = document.getElementById('language');
+    if (!sel) return;
+    if (lang.startsWith('en')) {
+      sel.value = 'en';
+    } else {
+      sel.value = 'fr'; // default to French
+    }
+  })();
+
+  // Password strength indicator
+  document.getElementById('password').addEventListener('input', function () {
+    const val  = this.value;
+    const bar  = document.getElementById('strengthBar');
+    const lbl  = document.getElementById('strengthLabel');
+    let score  = 0;
+    if (val.length >= 6)  score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^a-zA-Z0-9]/.test(val)) score++;
+    const levels = [
+      { w:'0%',   bg:'transparent', txt:'' },
+      { w:'25%',  bg:'#ef4444', txt:'Très faible' },
+      { w:'45%',  bg:'#f97316', txt:'Faible' },
+      { w:'65%',  bg:'#eab308', txt:'Moyen' },
+      { w:'85%',  bg:'#22c55e', txt:'Fort' },
+      { w:'100%', bg:'#16a34a', txt:'Très fort' },
+    ];
+    const lvl  = levels[Math.min(score, 5)];
+    bar.style.width      = lvl.w;
+    bar.style.background = lvl.bg;
+    lbl.textContent      = lvl.txt;
+    lbl.style.color      = lvl.bg;
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const form    = document.getElementById('registerForm');
+    const password = document.getElementById('password');
+    const confirm  = document.getElementById('confirm_password');
+    const btn      = document.getElementById('registerBtn');
+    const phoneNum = document.getElementById('phone_number');
+    const username = document.getElementById('username');
+    const email    = document.getElementById('email');
+
+    // Real-time username validation
+    username.addEventListener('input', function () {
+      const ok = /^[a-zA-ZÀ-ÿ ]{3,50}$/.test(this.value);
+      if (!ok && this.value.length > 0)
+        showErr('err-username', '3-50 caractères : lettres et espaces uniquement.');
+      else clearErr('err-username');
+    });
+
+    // Real-time email
+    // Real-time email
+    email.addEventListener('blur', function () {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (this.value && !emailRegex.test(this.value.trim()))
+        showErr('err-email', 'Adresse email invalide. Ex : nom@domaine.com');
+      else clearErr('err-email');
+    });
+
+    // Real-time phone number (digits only)
+    phoneNum.addEventListener('input', function () {
+      const clean = this.value.replace(/[\s\-]/g, '');
+      const phoneCode = document.getElementById('phone_code').value;
+      if (clean) {
+          if (phoneCode === '+237' || phoneCode === '237') {
+              if (!/^(6|2)\d{8}$/.test(clean)) {
+                  showErr('err-phone', 'Numéro camerounais invalide (9 chiffres, commence par 6 ou 2).');
+              } else {
+                  clearErr('err-phone');
+              }
+          } else {
+              if (!/^\d{6,15}$/.test(clean)) {
+                  showErr('err-phone', 'Entrez entre 6 et 15 chiffres (sans l\'indicatif).');
+              } else {
+                  clearErr('err-phone');
+              }
+          }
+      } else {
+          clearErr('err-phone');
+      }
+    });
+
+    // Real-time password match
+    confirm.addEventListener('input', function () {
+      if (this.value && this.value !== password.value)
+        showErr('err-confirm', 'Les mots de passe ne correspondent pas.');
+      else clearErr('err-confirm');
+    });
+
+    // Final submit validation
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      let valid = true;
+
+      if (!/^[a-zA-ZÀ-ÿ ]{3,50}$/.test(username.value)) {
+        showErr('err-username', '3-50 caractères : lettres et espaces uniquement.');
+        valid = false;
+      }
+      
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email.value.trim())) {
+        showErr('err-email', 'Adresse email invalide.');
+        valid = false;
+      }
+      
+      const cleanPhone = phoneNum.value.replace(/[\s\-]/g, '');
+      const phoneCode = document.getElementById('phone_code').value;
+      if (phoneCode === '+237' || phoneCode === '237') {
+          if (!/^(6|2)\d{8}$/.test(cleanPhone)) {
+              showErr('err-phone', 'Numéro camerounais invalide (9 chiffres, commence par 6 ou 2).');
+              valid = false;
+          }
+      } else if (!cleanPhone || !/^\d{6,15}$/.test(cleanPhone)) {
+        showErr('err-phone', 'Numéro invalide. Ex : 6 12 34 56 78');
+        valid = false;
+      }
+      
+      const passVal = password.value;
+      if (passVal.length < 8 || !/[a-z]/.test(passVal) || !/\d/.test(passVal) || !/[^a-zA-Z0-9]/.test(passVal)) {
+        showErr('err-password', 'Le mot de passe doit contenir au moins 8 caractères, 1 minuscule, 1 chiffre et 1 caractère spécial.');
+        valid = false;
+      }
+      if (confirm.value !== password.value) {
+        showErr('err-confirm', 'Les mots de passe ne correspondent pas.');
+        valid = false;
+      }
+      const termsChecked   = document.getElementById('terms').checked;
+      const privacyChecked = document.getElementById('privacy').checked;
+      if (!termsChecked || !privacyChecked) {
+        valid = false;
+        alert('Veuillez accepter les conditions générales et la politique de confidentialité.');
+      }
+
+      if (!valid) {
+        // Scroll to first error
+        const firstErr = form.querySelector('.field-error:not(.d-none)');
+        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email.value.trim(), password.value.trim());
+        const token = await userCredential.user.getIdToken();
+        document.getElementById('id_token').value = token;
+        form.submit();
+      } catch (error) {
+        alert("Erreur lors de l'inscription via Firebase : " + error.message);
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    });
+
+    // Google Sign-In
+    document.getElementById('googleBtn').addEventListener('click', async function () {
+      const provider = new GoogleAuthProvider();
+      const googleBtn = this;
+      googleBtn.style.opacity = '0.7';
+      googleBtn.disabled = true;
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const token = await result.user.getIdToken();
+        document.getElementById('id_token').value = token;
+        
+        // Populate standard form fields with fallback values if they are empty
+        if (!email.value) email.value = result.user.email;
+        if (!username.value) username.value = result.user.displayName || result.user.email.split('@')[0];
+        if (!password.value) password.value = "Google_Login_123!"; // Dummy required fields for Flask form check
+        if (!confirm.value) confirm.value = "Google_Login_123!";
+        if (!phoneNum.value) phoneNum.value = "000000";
+        document.getElementById('terms').checked = true;
+        document.getElementById('privacy').checked = true;
+        
+        form.submit();
+      } catch (error) {
+        alert("Erreur de connexion Google : " + error.message);
+        googleBtn.style.opacity = '1';
+        googleBtn.disabled = false;
+      }
+    });
+  });
+</script>
+{% endblock %}

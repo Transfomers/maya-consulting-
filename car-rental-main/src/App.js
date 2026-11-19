@@ -1,6 +1,6 @@
 import "./dist/styles.css";
 import "./styles/Animations.css";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import About from "./Pages/About";
 import Home from "./Pages/Home";
 import Navbar from "./components/Navbar";
@@ -12,22 +12,23 @@ import ApartmentsPage from "./Pages/ApartmentsPage";
 import PwaInstallPrompt from "./components/PwaInstallPrompt";
 import ScrollReveal from "./components/ScrollReveal";
 import ScrollToTop from "./components/ScrollToTop";
-import AdminLogin from "./Pages/Admin/AdminLogin";
-import AdminDashboard from "./Pages/Admin/AdminDashboard";
 import ClientPortalModal from "./components/ClientPortalModal";
 import { LanguageProvider } from "./context/LanguageContext";
 
-function App() {
-  const location = useLocation();
-  const isAdminPath = location.pathname.startsWith("/admin");
+// Forward any administrative access directly to the official 3M SERVICES Admin Control Center (Port 5002)
+const AdminRedirect = () => {
+  window.location.replace("http://127.0.0.1:5002/admin/dashboard");
+  return null;
+};
 
+function App() {
   return (
     <LanguageProvider>
       <ScrollToTop />
       <ScrollReveal />
-      {!isAdminPath && <PwaInstallPrompt />}
-      {!isAdminPath && <Navbar />}
-      {!isAdminPath && <ClientPortalModal />}
+      <PwaInstallPrompt />
+      <Navbar />
+      <ClientPortalModal />
       <Routes>
         <Route index path="/" element={<Home />} />
         <Route path="about" element={<About />} />
@@ -40,8 +41,9 @@ function App() {
         <Route path="testimonials" element={<TestimonialsPage />} />
         <Route path="team" element={<Team />} />
         <Route path="contact" element={<Contact />} />
-        <Route path="admin/login" element={<AdminLogin />} />
-        <Route path="admin" element={<AdminDashboard />} />
+        {/* Admin RQ route removed; automatically forwards to the main Flask Admin */}
+        <Route path="admin" element={<AdminRedirect />} />
+        <Route path="admin/*" element={<AdminRedirect />} />
       </Routes>
     </LanguageProvider>
   );

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Logs d'Audit Logistiques - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+    {% include 'admin/_super_parcel_subnav.html' %}
+
+    <!-- Filter Console -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-funnel text-primary me-2"></i>Filtrer le Registre d'Audit</h5>
+        <form method="GET" action="{{ url_for('admin.super_parcel_audit') }}" class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label small fw-bold text-uppercase text-muted">Type d'Action</label>
+                <select name="action" class="form-select">
+                    <option value="">Toutes les actions logistiques</option>
+                    {% for act in actions %}
+                    <option value="{{ act }}" {% if selected_action == act %}selected{% endif %}>{{ act | replace('_', ' ') | title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 d-flex gap-2">
+                <a href="{{ url_for('admin.super_parcel_audit') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold w-50">Réinitialiser</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold w-50"><i class="bi bi-filter me-1"></i>Filtrer</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Audit Table -->
+    <div class="card border-0 shadow-sm p-4">
+        <h5 class="fw-bold mb-4"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Registre des Transactions Fret & Colis</h5>
+        {% if logs %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Horodatage</th>
+                            <th>Opérateur / Acteur</th>
+                            <th>Action</th>
+                            <th>Colis Cible</th>
+                            <th>Détails de l'Opération</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td class="text-nowrap small">{{ log.created_at.strftime('%d/%m/%Y à %H:%M:%S') }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ log.user.username if log.user else 'Système' }}</div>
+                                <div class="small text-muted" style="font-size:0.75rem;">Role: {{ log.user.role | replace('_', ' ') | title if log.user else 'System' }}</div>
+                            </td>
+                            <td>
+                                <span class="badge {% if 'PAID' in log.action or 'DELIVERED' in log.action %}bg-success{% elif 'LOADED' in log.action or 'ASSIGNED' in log.action %}bg-info{% elif 'REJECTED' in log.action %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ log.action }}
+                                </span>
+                            </td>
+                            <td class="fw-bold">
+                                {% if log.target_id %}
+                                    #{{ log.target_id }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td class="small text-muted">{{ log.details or 'Aucun détail' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-journals fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted fw-bold">Aucune transaction correspondante dans le registre d'audit.</h6>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

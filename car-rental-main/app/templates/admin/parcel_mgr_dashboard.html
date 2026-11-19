@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Head of Agency - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mgr-card {
+        background: var(--glass-bg-light);
+        backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 1.25rem;
+        box-shadow: 0 4px 15px rgba(31, 38, 135, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    body.dark-mode .mgr-card {
+        background: var(--glass-bg-dark);
+        border-color: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    }
+    .mgr-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(31, 38, 135, 0.1);
+    }
+    .kpi-title {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: var(--text-muted-light);
+    }
+    body.dark-mode .kpi-title {
+        color: var(--text-muted-dark);
+    }
+    .dashboard-header-card {
+        background: #ffffff !important;
+        border: 1px solid rgba(201, 42, 42, 0.08) !important;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
+        color: #1e293b !important;
+    }
+    .dashboard-header-card h2 {
+        color: #0f172a !important;
+    }
+    .dashboard-header-card p,
+    .dashboard-header-card .small {
+        color: #475569 !important;
+    }
+    .dashboard-header-card .block-title {
+        color: #C92A2A !important;
+    }
+    .dashboard-header-card i {
+        color: #C92A2A !important;
+    }
+    body.dark-mode .dashboard-header-card {
+        background: linear-gradient(135deg, #0f172a 0%, #3a0d1b 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        color: #ffffff !important;
+    }
+    body.dark-mode .dashboard-header-card h2 {
+        color: #ffffff !important;
+    }
+    body.dark-mode .dashboard-header-card p,
+    body.dark-mode .dashboard-header-card .small {
+        color: rgba(255, 255, 255, 0.75) !important;
+    }
+    body.dark-mode .dashboard-header-card .block-title {
+        color: #ffc107 !important;
+    }
+    body.dark-mode .dashboard-header-card i {
+        color: #ffc107 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+
+    <!-- Dashboard Header -->
+    <div class="card border-0 shadow-sm mb-4 p-4 fade-in dashboard-header-card">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h2 class="mb-1 fw-bold"><i class="bi bi-bar-chart-line-fill me-2"></i>Logistique & Performance Colis</h2>
+                <p class="mb-0">Supervision stratégique, contrôle des recettes et volume de colis de l'agence.</p>
+            </div>
+            <div class="text-end">
+                <span class="fs-4 fw-bold block-title">{{ total_revenue | int }} FCFA</span>
+                <div class="small">Recette Globale Scoped (Billets + Colis)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI GRID -->
+    <div class="row g-3 mb-4">
+        <!-- Parcels Today -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card mgr-card border-0 p-4">
+                <span class="kpi-title">Colis Reçus (Jour)</span>
+                <h2 class="fw-bold mt-2 mb-1 text-primary">{{ total_today }}</h2>
+                <span class="small text-muted">Aujourd'hui</span>
+            </div>
+        </div>
+        <!-- Monthly Parcels -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card mgr-card border-0 p-4">
+                <span class="kpi-title">Volume Mensuel</span>
+                <h2 class="fw-bold mt-2 mb-1 text-info">{{ total_monthly }}</h2>
+                <span class="small text-muted">Derniers 30 jours</span>
+            </div>
+        </div>
+        <!-- In Transit -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card mgr-card border-0 p-4">
+                <span class="kpi-title">En Transit</span>
+                <h2 class="fw-bold mt-2 mb-1 text-warning">{{ in_transit }}</h2>
+                <span class="small text-muted">Sur la route</span>
+            </div>
+        </div>
+        <!-- Delivered Rate -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card mgr-card border-0 p-4">
+                <span class="kpi-title">Taux de Livraison</span>
+                <h2 class="fw-bold mt-2 mb-1 text-success">{{ delivered_rate }} %</h2>
+                <span class="small text-muted">Succès logistique</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Breakdown Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card p-3 border-0 shadow-sm text-center" style="background-color: #198754 !important; color: white !important;">
+                <span class="small text-uppercase fw-bold" style="color: white !important; opacity: 0.85;">Chiffre d'Affaires Global</span>
+                <h3 class="fw-bold mt-1 mb-0" style="color: white !important;">{{ total_revenue | int }} FCFA</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 border-0 shadow-sm text-center">
+                <span class="small text-uppercase text-muted fw-bold">Recette Cargo (Colis)</span>
+                <h3 class="fw-bold text-primary mt-1 mb-0">{{ parcel_revenue | int }} FCFA</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 border-0 shadow-sm text-center">
+                <span class="small text-uppercase text-muted fw-bold">Recette Ticket (Voyageurs)</span>
+                <h3 class="fw-bold text-warning mt-1 mb-0">{{ ticket_revenue | int }} FCFA</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div class="row g-4 mb-4">
+        <!-- Top Routes -->
+        <div class="col-lg-12">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-map text-primary me-2"></i>Performance des Lignes (Cargo Colis)</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle table-sm small">
+                        <thead>
+                            <tr>
+                                <th>Ligne</th>
+                                <th>Nombre Colis</th>
+                                <th class="text-end">Recettes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for route in top_routes %}
+                            <tr>
+                                <td class="fw-semibold">{{ route.route }}</td>
+                                <td>{{ route.count }}</td>
+                                <td class="text-end fw-bold text-success">{{ route.revenue | int }} F</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Shortcuts for Head of Agency -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-grid-fill text-warning me-2"></i>Rapports Stratégiques & Contrôle</h5>
+        <div class="row g-2">
+            <div class="col-md-3">
+                <a href="{{ url_for('admin.manager_trip_cargo') }}" class="btn btn-outline-primary w-100 p-2.5 rounded-3 fw-bold small text-nowrap">
+                    <i class="bi bi-bus-front"></i> Performance Fret par Voyage
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('admin.manager_parcel_monitoring') }}" class="btn btn-outline-info w-100 p-2.5 rounded-3 fw-bold small text-nowrap">
+                    <i class="bi bi-search"></i> Timeline & Recherche
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('admin.manager_parcel_exceptions') }}" class="btn btn-outline-danger w-100 p-2.5 rounded-3 fw-bold small text-nowrap">
+                    <i class="bi bi-exclamation-triangle"></i> Exceptions & Litiges
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('admin.finance') }}" class="btn btn-outline-success w-100 p-2.5 rounded-3 fw-bold small text-nowrap">
+                    <i class="bi bi-wallet2"></i> Finances Caisse & Sessions
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scoped Supervision Console Shortcuts -->
+    <div class="card border-0 shadow-sm p-4">
+        <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Supervision Globale de l'Agence</h5>
+        <div class="row g-2">
+            <div class="col-md-4">
+                <a href="{{ url_for('admin.super_parcel_registry') }}" class="btn btn-outline-primary w-100 p-2.5 rounded-3 fw-bold small text-nowrap">
+                    <i class="bi bi-list-stars"></i> Registre National Scoped
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('admin.super_parcel_routes') }}" class="btn btn-outline-warning w-100 p-2.5 rounded-3 fw-bold small text-nowrap">
+                    <i class="bi bi-map"></i> Lignes & Analyses Scoped
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('admin.super_parcel_incidents') }}" class="btn btn-outline-danger w-100 p-2.5 rounded-3 fw-bold small text-nowrap">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Gestion des Litiges & Incidents
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

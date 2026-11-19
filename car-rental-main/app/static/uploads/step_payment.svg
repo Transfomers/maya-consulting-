@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" fill="none">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="400" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fef9e7"/>
+      <stop offset="100%" stop-color="#fdf2d5"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bg3)"/>
+  <!-- Phone body -->
+  <rect x="140" y="30" width="120" height="195" rx="20" fill="#2d2d3a" stroke="#3d3d4a" stroke-width="2"/>
+  <rect x="148" y="45" width="104" height="165" rx="12" fill="#ffffff"/>
+  <!-- Phone notch -->
+  <rect x="175" y="33" width="50" height="6" rx="3" fill="#1d1d2a"/>
+  <!-- Screen content - payment UI -->
+  <rect x="158" y="60" width="84" height="10" rx="4" fill="#701D36" opacity="0.8"/>
+  <rect x="158" y="78" width="60" height="6" rx="3" fill="#999"/>
+  <!-- Amount -->
+  <text x="200" y="112" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#701D36">5,000 F</text>
+  <!-- Orange Money button -->
+  <rect x="158" y="128" width="84" height="24" rx="8" fill="#ff6600"/>
+  <text x="200" y="144" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff">Orange Money</text>
+  <!-- MTN button -->
+  <rect x="158" y="158" width="84" height="24" rx="8" fill="#ffcc00"/>
+  <text x="200" y="174" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333">MTN MoMo</text>
+  <!-- Success shield icon -->
+  <g transform="translate(310, 55)">
+    <path d="M0,-28 C0,-28 -24,-18 -24,5 C-24,22 -8,35 0,40 C8,35 24,22 24,5 C24,-18 0,-28 0,-28Z" fill="#0d9488" opacity="0.9"/>
+    <polyline points="-9,5 -3,12 11,-2" stroke="#ffffff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- Floating coins -->
+  <circle cx="80" cy="80" r="16" fill="#f59e0b" opacity="0.7"/>
+  <text x="80" y="85" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#fff">F</text>
+  <circle cx="95" cy="120" r="12" fill="#f59e0b" opacity="0.5"/>
+  <text x="95" y="124" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#fff">F</text>
+  <circle cx="70" cy="155" r="10" fill="#f59e0b" opacity="0.35"/>
+  <!-- Sparkles -->
+  <circle cx="340" cy="180" r="4" fill="#701D36" opacity="0.15"/>
+  <circle cx="55" cy="45" r="3" fill="#0d9488" opacity="0.2"/>
+  <circle cx="350" cy="130" r="5" fill="#f59e0b" opacity="0.2"/>
+</svg>

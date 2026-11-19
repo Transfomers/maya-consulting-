@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('Paiement Envoi Colis') }} - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-card {
+        background: var(--glass-bg-light);
+        border: 1.5px solid rgba(201, 42, 42, 0.12);
+        border-radius: 2rem;
+        box-shadow: 0 12px 48px rgba(201, 42, 42, 0.05);
+        backdrop-filter: blur(var(--glass-blur));
+        padding: 2.5rem;
+    }
+    body.dark-mode .checkout-card {
+        background: var(--glass-bg-dark);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+    .payment-method-card {
+        border: 2px solid var(--input-border-light);
+        border-radius: 1.25rem;
+        padding: 1.25rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        background-color: var(--input-bg-light);
+        position: relative;
+    }
+    body.dark-mode .payment-method-card {
+        border-color: var(--input-border-dark);
+        background-color: var(--input-bg-dark);
+    }
+    .payment-method-card.active {
+        border-color: var(--primary-light) !important;
+        background-color: rgba(201, 42, 42, 0.04) !important;
+    }
+    body.dark-mode .payment-method-card.active {
+        border-color: var(--accent-dark) !important;
+        background-color: rgba(224, 171, 65, 0.04) !important;
+    }
+    .payment-method-card input[type="radio"] {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
+    .provider-logo {
+        height: 38px;
+        object-fit: contain;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="checkout-card fade-in text-start">
+                <!-- Header -->
+                <div class="text-center mb-5 border-bottom pb-4">
+                    <span class="badge bg-warning text-dark px-3 py-2 text-uppercase fw-bold mb-2"><i class="bi bi-wallet2 me-1"></i> {{ _t('Finalisation du Paiement') }}</span>
+                    <h2 class="display-6 fw-bold text-dark mb-1">{{ _t('Paiement de l\'expédition') }}</h2>
+                    <p class="text-muted mb-0">{{ _t('Réglez les frais de transport par Mobile Money pour finaliser l\'expédition.') }}</p>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Left Column: Details -->
+                    <div class="col-md-6">
+                        <h4 class="fw-bold mb-3 text-primary"><i class="bi bi-box-seam me-2"></i>{{ _t('Résumé de l\'envoi') }}</h4>
+                        
+                        <div class="card border-0 p-3 mb-4 text-dark" style="border-radius:1rem; background-color: rgba(0,0,0,0.02);">
+                            <div class="mb-3">
+                                <span class="small text-muted d-block">{{ _t('Code de suivi (provisoire)') }}</span>
+                                <code class="fw-bold text-primary fs-5">{{ parcel.tracking_number }}</code>
+                            </div>
+                            <div class="mb-2">
+                                <span class="small text-muted d-block">{{ _t('Destinataire') }}</span>
+                                <strong class="text-dark">{{ parcel.receiver_name }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="small text-muted d-block">{{ _t('Itinéraire') }}</span>
+                                <strong class="text-dark">{{ parcel.trip.route.origin }} ➔ {{ parcel.trip.route.destination }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="small text-muted d-block">{{ _t('Poids') }}</span>
+                                <strong class="text-dark">{{ parcel.weight }} kg</strong>
+                            </div>
+                        </div>
+
+                        <div class="border-top pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fs-5 text-muted">{{ _t('Frais d\'envoi') }}</span>
+                                <span class="fs-4 fw-bold text-dark">{{ (parcel.weight * 1000)|int }} F</span>
+                            </div>
+                            {% if parcel.has_insurance %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fs-5 text-muted">{{ _t('Assurance') }}</span>
+                                <span class="fs-4 fw-bold text-dark">1 500 F</span>
+                            </div>
+                            {% endif %}
+                            <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                                <h4 class="fw-bold text-dark">{{ _t('Total à Payer') }}</h4>
+                                <h3 class="fw-bold text-success">{{ parcel.price|int }} FCFA</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Form -->
+                    <div class="col-md-6">
+                        <h4 class="fw-bold mb-3 text-primary"><i class="bi bi-credit-card me-2"></i>{{ _t('Mode de Paiement') }}</h4>
+                        
+                        <form id="paymentForm" method="POST" action="{{ url_for('main.payment_parcel', parcel_id=parcel.id) }}" class="needs-validation" novalidate>
+                            {{ csrf_token() if csrf_token else '' }}
+
+                            <div class="d-flex flex-column gap-3 mb-4">
+                                <!-- MoMo -->
+                                <label class="payment-method-card active" id="momo_card">
+                                    <input type="radio" name="payment_method" value="momo" checked onchange="togglePaymentInputs('momo')">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <i class="bi bi-phone-fill fs-3 text-warning"></i>
+                                        <div>
+                                            <h6 class="fw-bold mb-0 text-dark">MTN Mobile Money</h6>
+                                            <span class="small text-muted">Paiement mobile instantané</span>
+                                        </div>
+                                    </div>
+                                </label>
+
+                                <!-- Orange Money -->
+                                <label class="payment-method-card" id="orange_card">
+                                    <input type="radio" name="payment_method" value="orange" onchange="togglePaymentInputs('orange')">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <i class="bi bi-phone-fill fs-3 text-danger"></i>
+                                        <div>
+                                            <h6 class="fw-bold mb-0 text-dark">Orange Money</h6>
+                                            <span class="small text-muted">Paiement mobile instantané</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Mobile Money Inputs -->
+                            <div id="momo_inputs">
+                                <div class="mb-4">
+                                    <label for="phone_number" class="form-label fw-bold">{{ _t('Numéro Mobile Money') }} *</label>
+                                    <input type="tel" class="form-control py-2.5" id="phone_number" name="phone_number" required placeholder="Ex: 677112233" value="{{ current_user.momo_number or '' }}">
+                                    <div class="invalid-feedback">{{ _t('Veuillez saisir votre numéro Mobile Money.') }}</div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success btn-lg w-100 py-3 fw-bold rounded-pill shadow-sm" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border:0;">
+                                <i class="bi bi-shield-lock me-1"></i> {{ _t('Confirmer le paiement') }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function togglePaymentInputs(method) {
+        const momoCard = document.getElementById("momo_card");
+        const orangeCard = document.getElementById("orange_card");
+        const phoneInput = document.getElementById("phone_number");
+        
+        if (method === 'momo') {
+            momoCard.classList.add("active");
+            orangeCard.classList.remove("active");
+            phoneInput.value = "{{ current_user.momo_number or '' }}";
+            phoneInput.placeholder = "Ex: 677112233";
+        } else {
+            orangeCard.classList.add("active");
+            momoCard.classList.remove("active");
+            phoneInput.value = "{{ current_user.orange_number or '' }}";
+            phoneInput.placeholder = "Ex: 699112233";
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

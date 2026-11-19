@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" fill="none">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="400" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f0fdf4"/>
+      <stop offset="100%" stop-color="#e6f7ed"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bg2)"/>
+  <!-- Ticket shape -->
+  <rect x="80" y="55" width="240" height="130" rx="16" fill="#ffffff" stroke="#701D36" stroke-width="2"/>
+  <!-- Dashed line separator -->
+  <line x1="230" y1="65" x2="230" y2="175" stroke="#701D36" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.4"/>
+  <!-- Ticket notches -->
+  <circle cx="230" cy="55" r="10" fill="url(#bg2)"/>
+  <circle cx="230" cy="185" r="10" fill="url(#bg2)"/>
+  <!-- Left side content -->
+  <rect x="100" y="80" width="60" height="6" rx="3" fill="#701D36" opacity="0.7"/>
+  <rect x="100" y="96" width="100" height="8" rx="4" fill="#701D36"/>
+  <rect x="100" y="114" width="80" height="5" rx="2.5" fill="#701D36" opacity="0.35"/>
+  <!-- Route dots -->
+  <circle cx="110" cy="140" r="5" fill="#0d9488"/>
+  <line x1="110" y1="145" x2="110" y2="155" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <circle cx="110" cy="160" r="5" fill="#701D36"/>
+  <rect x="122" y="137" width="50" height="5" rx="2.5" fill="#555" opacity="0.5"/>
+  <rect x="122" y="157" width="50" height="5" rx="2.5" fill="#555" opacity="0.5"/>
+  <!-- Right side - QR code placeholder -->
+  <rect x="250" y="80" width="50" height="50" rx="6" fill="#701D36" opacity="0.12"/>
+  <rect x="257" y="87" width="10" height="10" rx="2" fill="#701D36" opacity="0.5"/>
+  <rect x="270" y="87" width="10" height="10" rx="2" fill="#701D36" opacity="0.3"/>
+  <rect x="283" y="87" width="10" height="10" rx="2" fill="#701D36" opacity="0.5"/>
+  <rect x="257" y="100" width="10" height="10" rx="2" fill="#701D36" opacity="0.3"/>
+  <rect x="270" y="100" width="10" height="10" rx="2" fill="#701D36" opacity="0.5"/>
+  <rect x="283" y="100" width="10" height="10" rx="2" fill="#701D36" opacity="0.3"/>
+  <rect x="257" y="113" width="10" height="10" rx="2" fill="#701D36" opacity="0.5"/>
+  <rect x="270" y="113" width="10" height="10" rx="2" fill="#701D36" opacity="0.3"/>
+  <rect x="283" y="113" width="10" height="10" rx="2" fill="#701D36" opacity="0.5"/>
+  <!-- Checkmark badge -->
+  <circle cx="310" cy="150" r="18" fill="#0d9488"/>
+  <polyline points="300,150 307,157 320,143" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Sparkle -->
+  <circle cx="75" cy="45" r="4" fill="#0d9488" opacity="0.2"/>
+  <circle cx="335" cy="55" r="3" fill="#701D36" opacity="0.15"/>
+  <circle cx="60" cy="200" r="5" fill="#701D36" opacity="0.08"/>
+</svg>

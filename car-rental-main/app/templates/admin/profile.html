@@ -1,0 +1,1559 @@
+{% extends "base.html" %}
+
+{% block title %}Profil & Configuration - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Theme Variables & Layout ─────────────────────────── */
+:root {
+    --primary-color: #C92A2A;
+    --primary-gradient: linear-gradient(135deg, #C92A2A 0%, #A61E1E 100%);
+    --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    --border-radius-lg: 1.25rem;
+    --border-radius-md: 0.75rem;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark-mode {
+    --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.ops-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.ops-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+}
+
+
+
+
+@media (min-width: 993px) {
+    .mobile-pane-back-btn { display: none !important; }
+}
+
+@media (max-width: 992px) {
+    .ops-grid { grid-template-columns: 1fr; }
+    .ops-content { display: none; }
+    .mobile-view-active .ops-sidebar { display: none; }
+    .mobile-view-active .ops-content { display: block; animation: slideIn 0.3s forwards; }
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+}
+
+
+
+/* ── Glassmorphic & Modern Cards ───────────────────────── */
+.profile-card, .ops-nav, .quick-actions, .ops-content {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+    transition: var(--transition-smooth);
+}
+
+body.dark-mode .profile-card, 
+body.dark-mode .ops-nav, 
+body.dark-mode .quick-actions, 
+body.dark-mode .ops-content {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Left Sidebar Widgets ──────────────────────────────── */
+.ops-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.profile-card {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.25rem;
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.75rem;
+    font-weight: 700;
+    box-shadow: 0 8px 25px rgba(201, 42, 42, 0.25);
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+}
+
+body.dark-mode .profile-avatar {
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
+    background: #10b981;
+    border: 3.5px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+}
+
+body.dark-mode .status-dot { border-color: #1e293b; }
+
+.profile-name {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.02em;
+}
+body.dark-mode .profile-name { color: #f8fafc; }
+
+.profile-role {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fff;
+    background: #e0ab41;
+    padding: 0.3rem 0.85rem;
+    border-radius: 999px;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+.profile-role.super-admin { background: #C92A2A; }
+.profile-role.teller { background: #2563eb; }
+
+/* ── Sidebar Navigation ───────────────────────────────── */
+.ops-nav {
+    padding: 0.75rem;
+}
+
+.ops-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.15rem;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    transition: var(--transition-smooth);
+    cursor: pointer;
+    margin-bottom: 0.25rem;
+}
+body.dark-mode .ops-nav-link { color: #94a3b8; }
+
+.ops-nav-link:hover {
+    background: rgba(201, 42, 42, 0.04);
+    color: #C92A2A;
+}
+body.dark-mode .ops-nav-link:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: #f8fafc;
+}
+
+.ops-nav-link.active {
+    background: rgba(201, 42, 42, 0.08);
+    color: #C92A2A;
+}
+body.dark-mode .ops-nav-link.active {
+    background: rgba(224, 171, 65, 0.15);
+    color: #e0ab41;
+}
+
+/* ── Sidebar Quick Actions ────────────────────────────── */
+.quick-actions {
+    padding: 1.5rem;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.8rem 1.15rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+}
+body.dark-mode .quick-action-btn { background: #0f172a; border-color: #334155; color: #cbd5e1; }
+
+.quick-action-btn:hover {
+    border-color: #C92A2A;
+    color: #C92A2A;
+    background: #fff;
+    transform: translateY(-2px);
+}
+body.dark-mode .quick-action-btn:hover { border-color: #e0ab41; color: #e0ab41; background: #1e293b; }
+
+/* ── Main content Pane ────────────────────────────────── */
+.ops-content {
+    padding: 3rem 2.5rem;
+    min-height: 650px;
+}
+
+.ops-tab-pane {
+    display: none;
+    animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ops-tab-pane.active { display: block; }
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ops-section-title {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 2px solid #f1f5f9;
+    letter-spacing: -0.02em;
+}
+body.dark-mode .ops-section-title { color: #f8fafc; border-color: #334155; }
+
+/* ── Modern Form Control Styling ──────────────────────── */
+.ops-input-group { margin-bottom: 1.5rem; }
+.ops-label { display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; }
+body.dark-mode .ops-label { color: #94a3b8; }
+
+.ops-input {
+    width: 100%;
+    padding: 0.85rem 1.15rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--border-radius-md);
+    font-size: 0.95rem;
+    background: #f8fafc;
+    color: #0f172a;
+    transition: var(--transition-smooth);
+}
+body.dark-mode .ops-input { background: #0f172a; border-color: #334155; color: #f8fafc; }
+.ops-input:focus { outline: none; border-color: #C92A2A; box-shadow: 0 0 0 4px rgba(201, 42, 42, 0.08); background: #fff; }
+body.dark-mode .ops-input:focus { border-color: #e0ab41; box-shadow: 0 0 0 4px rgba(224, 171, 65, 0.12); background: #0f172a; }
+
+.ops-btn-primary {
+    background: var(--primary-gradient);
+    color: #fff;
+    border: none;
+    padding: 0.85rem 2.25rem;
+    font-weight: 700;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 15px rgba(201, 42, 42, 0.2);
+}
+.ops-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201, 42, 42, 0.3);
+}
+
+/* ── KPI Metrics Cards ────────────────────────────────── */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.kpi-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+}
+body.dark-mode .kpi-card { background: #0f172a; border-color: #334155; }
+.kpi-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); }
+
+.kpi-icon {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: #C92A2A;
+}
+body.dark-mode .kpi-icon { color: #e0ab41; }
+.kpi-value { font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem; letter-spacing: -0.03em; }
+body.dark-mode .kpi-value { color: #f8fafc; }
+.kpi-label { font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; }
+
+/* ── Connected Devices & Security Items ───────────────── */
+.security-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    transition: var(--transition-smooth);
+}
+body.dark-mode .security-item { background: #0f172a; border-color: #334155; }
+.security-item-icon { font-size: 1.75rem; color: #64748b; margin-right: 1.15rem; }
+.security-item-info h5 { margin: 0 0 0.25rem 0; font-weight: 700; font-size: 1.05rem; }
+.security-item-info p { margin: 0; font-size: 0.85rem; color: #64748b; }
+
+/* ── Modern Table Designs ─────────────────────────────── */
+.ops-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+}
+body.dark-mode .ops-table-wrap { border-color: #334155; }
+
+.ops-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ops-table th {
+    text-align: left;
+    padding: 1rem 1.25rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #64748b;
+    border-bottom: 2px solid #e2e8f0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(248, 250, 252, 0.8);
+}
+body.dark-mode .ops-table th { color: #94a3b8; border-color: #334155; background: rgba(15, 23, 42, 0.8); }
+
+.ops-table td {
+    padding: 1.15rem 1.25rem;
+    font-size: 0.9rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+body.dark-mode .ops-table td { color: #cbd5e1; border-color: #1e293b; }
+.ops-table tr:hover td { background: #f8fafc; }
+body.dark-mode .ops-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+/* ── Badge Styling ────────────────────────────────────── */
+.badge-role {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    display: inline-block;
+}
+.badge-super { background: rgba(201, 42, 42, 0.1); color: #C92A2A; }
+.badge-admin { background: rgba(224, 171, 65, 0.1); color: #b4841f; }
+body.dark-mode .badge-admin { color: #e0ab41; }
+
+/* ── {{ _t('Notifications') }} Center ─────────────────────────────── */
+.notif-item {
+    transition: var(--transition-smooth);
+    cursor: pointer;
+}
+.notif-item:hover { transform: translateY(-2px); }
+.notif-item.unread-notif {
+    background: #fff !important;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05) !important;
+}
+body.dark-mode .notif-item.unread-notif {
+    background: rgba(30, 41, 59, 0.9) !important;
+}
+
+/* Custom Alert Styling */
+.alert-dismissible {
+    position: relative;
+    padding-right: 3rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ops-container">
+    
+    <!-- Flash {{ _t('Notifications') }} -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-4">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show border-0 shadow-sm text-dark align-items-center" role="alert" style="border-radius: 0.75rem; background-color: {{ '#d1e7dd' if category == 'success' else '#f8d7da' }};">
+            <i class="bi bi-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }}-fill me-2 text-{{ 'success' if category == 'success' else 'danger' }}"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    
+<div class="mb-3">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-link text-dark text-decoration-none p-0 d-inline-flex align-items-center">
+        <i class="bi bi-arrow-left fs-4 me-2"></i> 
+        <span class="fw-bold">Retour au Dashboard Admin</span>
+    </a>
+</div>
+<div class="ops-grid">
+
+        
+        <!-- ══ SIDEBAR NAVIGATION & USER INFO ═══════════════ -->
+        <div class="ops-sidebar">
+            
+            <!-- Profile Info Widget -->
+            <div class="profile-card">
+                <div class="profile-avatar-wrapper">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ current_user.avatar_url }}" alt="Avatar" class="profile-avatar">
+                    {% else %}
+                        <div class="profile-avatar">{{ current_user.username[0]|upper }}</div>
+                    {% endif %}
+                    <div class="status-dot"></div>
+                </div>
+                <div class="profile-name">{{ current_user.username }}</div>
+                <div class="profile-role {{ 'super-admin' if current_user.role == 'super_admin' else ('admin-agence' if current_user.role == 'admin_agence' else 'teller') }}">
+                    <i class="bi {% if current_user.role == 'super_admin' %}bi-shield-lock-fill{% elif current_user.role == 'admin_agence' %}bi-building{% else %}bi-person-badge-fill{% endif %} me-1"></i>
+                    {% if current_user.role == 'super_admin' %}
+                        {{ _t('Super Admin') }}
+                    {% elif current_user.role == 'admin_agence' %}
+                        {{ _t('Admin Agence') }}
+                    {% elif current_user.role == 'teller' %}
+                        {{ _t('Agent Guichet') }}
+                    {% elif current_user.role == 'finance_officer' %}
+                        {{ _t('Agent Financier') }}
+                    {% else %}
+                        {{ current_user.role|capitalize }}
+                    {% endif %}
+                </div>
+                
+                {% if current_user.role == 'admin_agence' and current_user.agency %}
+                    <div class="text-muted small fw-bold mt-2 text-uppercase" style="letter-spacing: 0.05em;"><i class="bi bi-building me-1 text-primary"></i> {{ current_user.agency.name }}</div>
+                {% endif %}
+                <div class="text-muted small mt-1 opacity-75"><i class="bi bi-circle-fill text-success me-1" style="font-size:0.5rem;"></i> {{ _t('Dernière connexion: En ligne') }}</div>
+            </div>
+
+            <!-- Tab Navigation Menu -->
+            <nav class="ops-nav">
+                <a class="ops-nav-link active" onclick="switchTab('tab-personal', this)"><i class="bi bi-person-lines-fill fs-5"></i> {{ _t('Mon Profil') }}</a>
+                <a class="ops-nav-link" onclick="switchTab('tab-security', this)"><i class="bi bi-shield-check fs-5"></i> {{ _t('Sécurité & Accès') }}</a>
+                
+                {% if current_user.role != 'teller' %}
+                    <a class="ops-nav-link" onclick="switchTab('tab-analytics', this)"><i class="bi bi-graph-up fs-5"></i> {{ _t('Activités & Perf.') }}</a>
+                    <a class="ops-nav-link" onclick="switchTab('tab-staff', this)"><i class="bi bi-people-fill fs-5"></i> {{ _t('Gérer le Personnel') }}</a>
+                    <a class="ops-nav-link" onclick="switchTab('tab-audit', this)"><i class="bi bi-journal-code fs-5"></i> {{ _t('Journal d\'Audit') }}</a>
+                {% endif %}
+                
+
+                
+                                <a class="ops-nav-link" onclick="switchTab('tab-notifications', this)">
+                    <i class="bi bi-bell-fill fs-5"></i> {{ _t('Centre de Notifications') }}
+                    <span class="badge bg-danger ms-auto rounded-pill" id="globalNotifBadge" style="display: {{ 'inline-block' if alerts.dashboard > 0 else 'none' }}">{{ alerts.dashboard }}</span>
+                </a>
+                {% if current_user.role in ['super_admin', 'admin_agence'] %}
+                <a class="ops-nav-link" onclick="switchTab('tab-contact-messages', this)">
+                    <i class="bi bi-envelope-paper-heart fs-5"></i> {{ _t('Messages Contact') }}
+                    {% set unread_msgs = contact_messages | selectattr('is_read', 'equalto', False) | list | length %}
+                    {% if unread_msgs > 0 %}<span class="badge bg-primary rounded-pill ms-auto">{{ unread_msgs }}</span>{% endif %}
+                </a>
+                {% endif %}
+                
+                {% if current_user.role == 'admin_agence' %}
+                    <a class="ops-nav-link" onclick="switchTab('tab-agency-profile', this)"><i class="bi bi-briefcase fs-5"></i> {{ _t('Profil Agence') }}</a>
+                {% elif current_user.role == 'super_admin' %}
+                    <a class="ops-nav-link" onclick="switchTab('tab-global-settings', this)"><i class="bi bi-globe fs-5"></i> {{ _t('Plateforme Globale') }}</a>
+                    <a class="ops-nav-link" onclick="switchTab('tab-payment-settings', this)"><i class="bi bi-credit-card fs-5"></i> {{ _t('Paiements Mobile Money') }}</a>
+                {% endif %}
+
+            </nav>
+
+            <!-- Quick Actions Panel -->
+            <div class="quick-actions">
+                <h6 class="fw-bold mb-3 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">{{ _t('Actions Rapides') }}</h6>
+                
+                <a href="{{ url_for('admin.dashboard') }}" class="quick-action-btn justify-content-between">
+                    <span><i class="bi bi-speedometer2"></i> {{ _t('Dashboard Admin') }}</span>
+                </a>
+                
+                <a href="{{ url_for('admin.calendar_view') }}" class="quick-action-btn justify-content-between">
+                    <span><i class="bi bi-calendar3"></i> {{ _t('Calendrier Opérationnel') }}</span>
+                </a>
+                
+                <a href="{{ url_for('admin.bookings') }}" class="quick-action-btn justify-content-between">
+                    <span><i class="bi bi-ticket-detailed"></i> {{ _t('Réservations') }}</span>
+                </a>
+            </div>
+            
+        </div>
+
+        <!-- ══ MAIN DASHBOARD PANEL ═════════════════════════ -->
+        <div class="ops-content">
+            
+            <!-- 1. PERSONAL PROFILE TAB -->
+            <div id="tab-personal" class="ops-tab-pane active">
+                <h2 class="ops-section-title"><i class="bi bi-person-lines-fill me-2 text-primary"></i> {{ _t('Informations Personnelles') }}</h2>
+                
+                <form method="POST" action="{{ url_for('admin.profile') }}" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="update_profile">
+                    <div class="row g-3">
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Nom d\'utilisateur') }}</label>
+                            <input type="text" class="ops-input" value="{{ current_user.username }}" disabled style="opacity: 0.7; cursor: not-allowed;">
+                            <small class="text-muted mt-1 d-block"><i class="bi bi-info-circle"></i> {{ _t('Le nom d\'utilisateur est unique et non modifiable.') }}</small>
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Adresse Email') }}</label>
+                            <input type="email" name="email" class="ops-input" value="{{ current_user.email }}" required>
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Numéro de Téléphone') }}</label>
+                            <input type="tel" name="phone" class="ops-input" value="{{ current_user.phone or '' }}" placeholder="Ex: +237 699 333 444">
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Nom Réel / Complet') }}</label>
+                            <input type="text" name="real_name" class="ops-input" value="{{ current_user.real_name or '' }}" placeholder="Ex: Paul Biya">
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Langue de l\'Interface') }}</label>
+                            <select name="language" class="ops-input">
+                                <option value="fr" {% if current_user.language == 'fr' %}selected{% endif %}>{{ _t('Français') }}</option>
+                                <option value="en" {% if current_user.language == 'en' %}selected{% endif %}>{{ _t('English') }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Photo de profil') }}</label>
+                            <div class="d-flex align-items-center gap-3">
+                                {% if current_user.profile_picture %}
+                                    <div class="overflow-hidden rounded-circle flex-shrink-0" style="width: 50px; height: 50px; border: 2.5px solid #C92A2A;">
+                                        <img src="{{ current_user.avatar_url }}" alt="Avatar" class="w-100 h-100" style="object-fit: cover;">
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="removeProfilePic()"><i class="bi bi-trash me-1"></i> {{ _t('Supprimer') }}</button>
+                                {% endif %}
+                                <input type="file" name="profile_picture" class="ops-input flex-grow-1">
+                                <input type="hidden" name="remove_profile_picture" id="removeProfilePicture" value="false">
+                            </div>
+                        </div>
+                        
+                        {% if current_user.role == 'client' %}
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Numéro MTN MoM0') }}</label>
+                            <input type="text" name="momo_number" class="ops-input" value="{{ current_user.momo_number or '' }}" placeholder="e.g. 677123456">
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Numéro Orange Money') }}</label>
+                            <input type="text" name="orange_number" class="ops-input" value="{{ current_user.orange_number or '' }}" placeholder="e.g. 699123456">
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Méthode de Paiement Favorite') }}</label>
+                            <select name="preferred_payment_method" class="ops-input">
+                                <option value="" {% if not current_user.preferred_payment_method %}selected{% endif %}>Sélectionner...</option>
+                                <option value="momo" {% if current_user.preferred_payment_method == 'momo' %}selected{% endif %}>MTN MoMo</option>
+                                <option value="orange" {% if current_user.preferred_payment_method == 'orange' %}selected{% endif %}>Orange Money</option>
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-top">
+                        <button type="submit" class="ops-btn-primary"><i class="bi bi-save2-fill me-2"></i> {{ _t('Mettre à jour les informations') }}</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 2. SECURITY & ACCESS TAB -->
+            <div id="tab-security" class="ops-tab-pane">
+                <h2 class="ops-section-title"><i class="bi bi-shield-check me-2 text-primary"></i> {{ _t('Sécurité & Accès') }}</h2>
+                
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="p-4 rounded-3 border bg-light">
+                            <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-key me-2 text-primary"></i>{{ _t('Modifier le mot de passe') }}</h5>
+                            <form method="POST" action="{{ url_for('admin.profile') }}">
+                                <div class="ops-input-group">
+                                    <label class="ops-label">{{ _t('Mot de passe actuel') }}</label>
+                                    <input type="password" name="current_password" class="ops-input" placeholder="••••••••" required>
+                                </div>
+                                <div class="ops-input-group">
+                                    <label class="ops-label">{{ _t('Nouveau mot de passe') }}</label>
+                                    <input type="password" name="new_password" class="ops-input" placeholder="••••••••" required>
+                                </div>
+                                <div class="ops-input-group">
+                                    <label class="ops-label">{{ _t('Confirmer le nouveau mot de passe') }}</label>
+                                    <input type="password" name="confirm_password" class="ops-input" placeholder="••••••••" required>
+                                </div>
+                                <button type="submit" class="ops-btn-primary w-100 mt-2">{{ _t('Mettre à jour le mot de passe') }}</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="security-item">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-phone-vibrate security-item-icon text-primary"></i>
+                                <div class="security-item-info">
+                                    <h5 class="text-dark">{{ _t('Authentification à deux facteurs (2FA)') }}</h5>
+                                    <p class="text-muted">{{ _t('Sécurisez vos transactions cashless via validations OTP.') }}</p>
+                                </div>
+                            </div>
+                            <span class="badge bg-secondary p-2">{{ _t('Désactivé') }}</span>
+                        </div>
+                        
+                        <div class="security-item">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-laptop security-item-icon text-success"></i>
+                                <div class="security-item-info">
+                                    <h5 class="text-dark">{{ _t('Sessions Actives') }}</h5>
+                                    <p class="text-muted">{{ _t('Session courante connectée sur macOS (Chrome / Safari).') }}</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">{{ _t('Déconnecter') }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. ANALYTICS TAB -->
+            <div id="tab-analytics" class="ops-tab-pane">
+                <h2 class="ops-section-title"><i class="bi bi-graph-up me-2 text-primary"></i> {{ _t('Activité & Performances') }}</h2>
+                
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <i class="bi bi-card-checklist kpi-icon text-primary"></i>
+                        <div class="kpi-value">{{ total_bookings }}</div>
+                        <div class="kpi-label">{{ _t('Contrats VIP signés') }}</div>
+                    </div>
+                    <div class="kpi-card">
+                        <i class="bi bi-cash-stack kpi-icon text-success"></i>
+                        <div class="kpi-value text-success">{{ "{:,.0f}".format(total_revenue) }}</div>
+                        <div class="kpi-label">{{ _t('Recettes VIP (FCFA)') }}</div>
+                    </div>
+                    <div class="kpi-card">
+                        <i class="bi bi-car-front-fill kpi-icon text-danger"></i>
+                        <div class="kpi-value">{{ total_trips }}</div>
+                        <div class="kpi-label">{{ _t('Missions Flotte VIP') }}</div>
+                    </div>
+                    <div class="kpi-card">
+                        <i class="bi bi-x-circle-fill kpi-icon text-danger"></i>
+                        <div class="kpi-value text-danger">{{ cancellations }}</div>
+                        <div class="kpi-label">{{ _t('Annulations') }}</div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info border-0 shadow-sm d-flex align-items-center rounded-3 p-4 bg-opacity-10 bg-info">
+                    <i class="bi bi-info-circle-fill fs-3 me-3 text-info"></i>
+                    <div>
+                        <strong class="text-dark">{{ _t('Reconciliation de Performance:') }}</strong>
+                        <span class="text-muted d-block mt-1">
+                            {{ _t('Ces chiffres sont mis à jour en temps réel à chaque transaction Mobile Money confirmée. Ils correspondent à l\'historique complet de votre agence.') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. STAFF MANAGEMENT TAB -->
+            <div id="tab-staff" class="ops-tab-pane">
+                <h2 class="ops-section-title">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <span><i class="bi bi-people-fill me-2 text-primary"></i> {{ _t('Gestion des Utilisateurs Staff') }}</span>
+                        <a href="{{ url_for('admin.add_admin') }}" class="btn btn-sm btn-primary rounded-pill px-3"><i class="bi bi-plus-lg me-1"></i> {{ _t('Créer Utilisateur Staff') }}</a>
+                    </div>
+                </h2>
+                
+                <!-- Staff Filters -->
+                                <div class="d-flex flex-wrap gap-3 mb-4 p-3 rounded-4 align-items-center shadow-sm" id="notifFilters" style="background: var(--bg-gradient); border: 1px solid rgba(201, 42, 42, 0.1);">
+                    <div class="input-group input-group-sm" style="max-width: 200px;">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" id="notifSearch" class="form-control border-start-0 ps-0" placeholder="{{ _t('Filtrer les alertes...') }}" onkeyup="applyNotifFilters()">
+                    </div>
+                    
+                    <select id="notifFilterStatus" class="form-select form-select-sm" style="width: auto;" onchange="applyNotifFilters()">
+                        <option value="">Statut (Toutes)</option>
+                        <option value="unread">Non lues</option>
+                        <option value="read">Lues</option>
+                    </select>
+
+                    <select id="notifFilterPriority" class="form-select form-select-sm" style="width: auto;" onchange="applyNotifFilters()">
+                        <option value="">Priorité (Toutes)</option>
+                        <option value="success">Succès</option>
+                        <option value="info">Info</option>
+                        <option value="warning">Avertissement</option>
+                        <option value="danger">Danger</option>
+                    </select>
+                    
+                    <div class="input-group input-group-sm" style="width: auto;">
+                        <span class="input-group-text bg-white text-muted"><i class="bi bi-calendar"></i></span>
+                        <input type="date" id="notifFilterDate" class="form-control form-control-sm" onchange="applyNotifFilters()">
+                    </div>
+
+                    {% if current_user.role == 'super_admin' %}
+                    <select id="notifFilterAgency" class="form-select form-select-sm" style="width: auto;" onchange="applyNotifFilters()">
+                        <option value="">Agence (Toutes)</option>
+                        <option value="Globale">Globale</option>
+                        {% for agency in agencies %}
+                        <option value="{{ agency.name }}">{{ agency.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+
+                    <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="resetNotifFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+                </div>
+                
+                <div class="d-flex flex-column gap-3 pe-2" id="notifList" style="max-height: 65vh; overflow-y: auto;">
+                    <style>
+                        #notifList::-webkit-scrollbar { width: 6px; }
+                        #notifList::-webkit-scrollbar-track { background: transparent; }
+                        #notifList::-webkit-scrollbar-thumb { background-color: rgba(201, 42, 42, 0.2); border-radius: 10px; }
+                        
+                        .notif-item {
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            background: white;
+                        }
+                        .notif-item:hover {
+                            transform: translateY(-3px);
+                            box-shadow: 0 12px 25px rgba(0,0,0,0.06) !important;
+                        }
+                        body.dark-mode .notif-item {
+                            background: var(--glass-bg-dark);
+                        }
+                    </style>
+                    {% for notif in notifications %}
+                    <div class="notif-item p-4 border-0 rounded-4 shadow-sm d-flex gap-3 align-items-start {{ 'unread-notif' if not notif.is_read_by_user else 'read-notif' }}"
+                         data-type="{{ notif.type }}" 
+                         data-date="{{ notif.created_at.strftime('%Y-%m-%d') }}"
+                         data-status="{{ 'read' if notif.is_read_by_user else 'unread' }}"
+                         data-agency="{{ notif.agency_name }}"
+                         data-id="{{ notif.id }}"
+                         onclick="{% if not notif.is_read_by_user %}markAsRead(this, {{ notif.id }}){% endif %}"
+                         style="border-left: 6px solid var(--bs-{{ notif.type }}) !important; cursor: {{ 'pointer' if not notif.is_read_by_user else 'default' }}; opacity: {{ '0.65' if notif.is_read_by_user else '1' }};">
+                        
+                        <div class="d-flex align-items-center justify-content-center rounded-circle bg-{{ notif.type }} bg-opacity-10" style="width: 50px; height: 50px; flex-shrink: 0;">
+                            <i class="bi bi-bell-fill fs-4 text-{{ notif.type }}"></i>
+                        </div>
+                        
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="fw-bold mb-1 text-dark notif-title">{{ notif.title }}</h6>
+                                {% if not notif.is_read_by_user %}
+                                    <span class="badge bg-danger rounded-pill px-2 py-1 ms-2">New</span>
+                                {% else %}
+                                    <span class="badge bg-secondary rounded-pill px-2 py-1 ms-2">Lue</span>
+                                {% endif %}
+                            </div>
+                            <p class="mb-1 text-muted small notif-message">{{ notif.message }}</p>
+                            <div class="d-flex gap-3 mt-2">
+                                <span class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-clock me-1"></i> {{ notif.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</span>
+                                <span class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-building me-1"></i> {{ notif.agency_name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted border rounded-3 bg-light">
+                        <i class="bi bi-bell-slash fs-1 mb-3 d-block opacity-50"></i>
+                        <p class="mb-0">Aucune notification disponible.</p>
+                    </div>
+                    {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 5. AUDIT LOGS TAB -->
+            <div id="tab-audit" class="ops-tab-pane">
+                <h2 class="ops-section-title">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <span><i class="bi bi-journal-code me-2 text-primary"></i> {{ _t('Journal d\'Audit Système') }}</span>
+                        <div>
+                            <a href="{{ url_for('admin.export_logs_pdf') }}" class="btn btn-sm btn-outline-danger rounded-pill px-3"><i class="bi bi-file-pdf me-1"></i> PDF</a>
+                            <a href="{{ url_for('admin.export_logs_csv') }}" class="btn btn-sm btn-outline-success rounded-pill px-3"><i class="bi bi-file-csv me-1"></i> CSV</a>
+                        </div>
+                    </div>
+                </h2>
+                
+                <!-- Audit Filters -->
+                                <div class="d-flex flex-wrap gap-3 mb-4 p-3 rounded-4 align-items-center shadow-sm" id="notifFilters" style="background: var(--bg-gradient); border: 1px solid rgba(201, 42, 42, 0.1);">
+                    <div class="input-group input-group-sm" style="max-width: 200px;">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" id="notifSearch" class="form-control border-start-0 ps-0" placeholder="{{ _t('Filtrer les alertes...') }}" onkeyup="applyNotifFilters()">
+                    </div>
+                    
+                    <select id="notifFilterStatus" class="form-select form-select-sm" style="width: auto;" onchange="applyNotifFilters()">
+                        <option value="">Statut (Toutes)</option>
+                        <option value="unread">Non lues</option>
+                        <option value="read">Lues</option>
+                    </select>
+
+                    <select id="notifFilterPriority" class="form-select form-select-sm" style="width: auto;" onchange="applyNotifFilters()">
+                        <option value="">Priorité (Toutes)</option>
+                        <option value="success">Succès</option>
+                        <option value="info">Info</option>
+                        <option value="warning">Avertissement</option>
+                        <option value="danger">Danger</option>
+                    </select>
+                    
+                    <div class="input-group input-group-sm" style="width: auto;">
+                        <span class="input-group-text bg-white text-muted"><i class="bi bi-calendar"></i></span>
+                        <input type="date" id="notifFilterDate" class="form-control form-control-sm" onchange="applyNotifFilters()">
+                    </div>
+
+                    {% if current_user.role == 'super_admin' %}
+                    <select id="notifFilterAgency" class="form-select form-select-sm" style="width: auto;" onchange="applyNotifFilters()">
+                        <option value="">Agence (Toutes)</option>
+                        <option value="Globale">Globale</option>
+                        {% for agency in agencies %}
+                        <option value="{{ agency.name }}">{{ agency.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+
+                    <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="resetNotifFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+                </div>
+                
+                <div class="d-flex flex-column gap-3 pe-2" id="notifList" style="max-height: 65vh; overflow-y: auto;">
+                    <style>
+                        #notifList::-webkit-scrollbar { width: 6px; }
+                        #notifList::-webkit-scrollbar-track { background: transparent; }
+                        #notifList::-webkit-scrollbar-thumb { background-color: rgba(201, 42, 42, 0.2); border-radius: 10px; }
+                        
+                        .notif-item {
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            background: white;
+                        }
+                        .notif-item:hover {
+                            transform: translateY(-3px);
+                            box-shadow: 0 12px 25px rgba(0,0,0,0.06) !important;
+                        }
+                        body.dark-mode .notif-item {
+                            background: var(--glass-bg-dark);
+                        }
+                    </style>
+                    {% for notif in notifications %}
+                    <div class="notif-item p-4 border-0 rounded-4 shadow-sm d-flex gap-3 align-items-start {{ 'unread-notif' if not notif.is_read_by_user else 'read-notif' }}"
+                         data-type="{{ notif.type }}" 
+                         data-date="{{ notif.created_at.strftime('%Y-%m-%d') }}"
+                         data-status="{{ 'read' if notif.is_read_by_user else 'unread' }}"
+                         data-agency="{{ notif.agency_name }}"
+                         data-id="{{ notif.id }}"
+                         onclick="{% if not notif.is_read_by_user %}markAsRead(this, {{ notif.id }}){% endif %}"
+                         style="border-left: 6px solid var(--bs-{{ notif.type }}) !important; cursor: {{ 'pointer' if not notif.is_read_by_user else 'default' }}; opacity: {{ '0.65' if notif.is_read_by_user else '1' }};">
+                        
+                        <div class="d-flex align-items-center justify-content-center rounded-circle bg-{{ notif.type }} bg-opacity-10" style="width: 50px; height: 50px; flex-shrink: 0;">
+                            <i class="bi bi-bell-fill fs-4 text-{{ notif.type }}"></i>
+                        </div>
+                        
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="fw-bold mb-1 text-dark notif-title">{{ notif.title }}</h6>
+                                {% if not notif.is_read_by_user %}
+                                    <span class="badge bg-danger rounded-pill px-2 py-1 ms-2">New</span>
+                                {% else %}
+                                    <span class="badge bg-secondary rounded-pill px-2 py-1 ms-2">Lue</span>
+                                {% endif %}
+                            </div>
+                            <p class="mb-1 text-muted small notif-message">{{ notif.message }}</p>
+                            <div class="d-flex gap-3 mt-2">
+                                <span class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-clock me-1"></i> {{ notif.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</span>
+                                <span class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-building me-1"></i> {{ notif.agency_name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted border rounded-3 bg-light">
+                        <i class="bi bi-bell-slash fs-1 mb-3 d-block opacity-50"></i>
+                        <p class="mb-0">Aucune notification disponible.</p>
+                    </div>
+                    {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 6. NOTIFICATIONS TAB -->
+            <div id="tab-notifications" class="ops-tab-pane">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="ops-section-title mb-0"><i class="bi bi-bell-fill me-2 text-primary"></i> {{ _t('Centre de Notifications') }}</h2>
+                    <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" onclick="markAllNotificationsRead(this)">
+                        <i class="bi bi-check2-all me-1"></i> Marquer tout comme lu
+                    </button>
+                </div>
+                
+                                <div class="d-flex flex-wrap gap-3 mb-4 p-3 rounded-4 align-items-center shadow-sm" id="notifFilters" style="background: var(--bg-gradient); border: 1px solid rgba(201, 42, 42, 0.1);">
+                    <div class="input-group input-group-sm" style="max-width: 200px;">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" id="notifSearch" class="form-control border-start-0 ps-0" placeholder="{{ _t('Filtrer les alertes...') }}" onkeyup="applyNotifFilters()">
+                    </div>
+                    
+                    <select id="notifFilterStatus" class="form-select form-select-sm" style="width: auto;" onchange="applyNotifFilters()">
+                        <option value="">Statut (Toutes)</option>
+                        <option value="unread">Non lues</option>
+                        <option value="read">Lues</option>
+                    </select>
+
+                    <select id="notifFilterPriority" class="form-select form-select-sm" style="width: auto;" onchange="applyNotifFilters()">
+                        <option value="">Priorité (Toutes)</option>
+                        <option value="success">Succès</option>
+                        <option value="info">Info</option>
+                        <option value="warning">Avertissement</option>
+                        <option value="danger">Danger</option>
+                    </select>
+                    
+                    <div class="input-group input-group-sm" style="width: auto;">
+                        <span class="input-group-text bg-white text-muted"><i class="bi bi-calendar"></i></span>
+                        <input type="date" id="notifFilterDate" class="form-control form-control-sm" onchange="applyNotifFilters()">
+                    </div>
+
+                    {% if current_user.role == 'super_admin' %}
+                    <select id="notifFilterAgency" class="form-select form-select-sm" style="width: auto;" onchange="applyNotifFilters()">
+                        <option value="">Agence (Toutes)</option>
+                        <option value="Globale">Globale</option>
+                        {% for agency in agencies %}
+                        <option value="{{ agency.name }}">{{ agency.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+
+                    <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="resetNotifFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+                </div>
+                
+                <div class="d-flex flex-column gap-3 pe-2" id="notifList" style="max-height: 65vh; overflow-y: auto;">
+                    <style>
+                        #notifList::-webkit-scrollbar { width: 6px; }
+                        #notifList::-webkit-scrollbar-track { background: transparent; }
+                        #notifList::-webkit-scrollbar-thumb { background-color: rgba(201, 42, 42, 0.2); border-radius: 10px; }
+                        
+                        .notif-item {
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            background: white;
+                        }
+                        .notif-item:hover {
+                            transform: translateY(-3px);
+                            box-shadow: 0 12px 25px rgba(0,0,0,0.06) !important;
+                        }
+                        body.dark-mode .notif-item {
+                            background: var(--glass-bg-dark);
+                        }
+                    </style>
+                    {% for notif in notifications %}
+                    <div class="notif-item p-4 border-0 rounded-4 shadow-sm d-flex gap-3 align-items-start {{ 'unread-notif' if not notif.is_read_by_user else 'read-notif' }}"
+                         data-type="{{ notif.type }}" 
+                         data-date="{{ notif.created_at.strftime('%Y-%m-%d') }}"
+                         data-status="{{ 'read' if notif.is_read_by_user else 'unread' }}"
+                         data-agency="{{ notif.agency_name }}"
+                         data-id="{{ notif.id }}"
+                         onclick="{% if not notif.is_read_by_user %}markAsRead(this, {{ notif.id }}){% endif %}"
+                         style="border-left: 6px solid var(--bs-{{ notif.type }}) !important; cursor: {{ 'pointer' if not notif.is_read_by_user else 'default' }}; opacity: {{ '0.65' if notif.is_read_by_user else '1' }};">
+                        
+                        <div class="d-flex align-items-center justify-content-center rounded-circle bg-{{ notif.type }} bg-opacity-10" style="width: 50px; height: 50px; flex-shrink: 0;">
+                            <i class="bi bi-bell-fill fs-4 text-{{ notif.type }}"></i>
+                        </div>
+                        
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="fw-bold mb-1 text-dark notif-title">{{ notif.title }}</h6>
+                                {% if not notif.is_read_by_user %}
+                                    <span class="badge bg-danger rounded-pill px-2 py-1 ms-2">New</span>
+                                {% else %}
+                                    <span class="badge bg-secondary rounded-pill px-2 py-1 ms-2">Lue</span>
+                                {% endif %}
+                            </div>
+                            <p class="mb-1 text-muted small notif-message">{{ notif.message }}</p>
+                            <div class="d-flex gap-3 mt-2">
+                                <span class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-clock me-1"></i> {{ notif.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</span>
+                                <span class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-building me-1"></i> {{ notif.agency_name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted border rounded-3 bg-light">
+                        <i class="bi bi-bell-slash fs-1 mb-3 d-block opacity-50"></i>
+                        <p class="mb-0">Aucune notification disponible.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if current_user.role in ['super_admin', 'admin_agence'] %}
+            <div id="tab-contact-messages" class="ops-tab-pane">
+                <h2 class="ops-section-title"><i class="bi bi-envelope-paper-heart me-2 text-primary"></i> Messages de Contact</h2>
+                
+                <div class="d-flex flex-column gap-3 pe-2" style="max-height: 65vh; overflow-y: auto;">
+                    {% for msg in contact_messages %}
+                    <div class="notif-item p-4 border-0 rounded-4 shadow-sm d-flex gap-3 align-items-start {{ 'unread-notif' if not msg.is_read else 'read-notif' }}"
+                         style="border-left: 6px solid var(--bs-{{ 'primary' if not msg.is_read else 'secondary' }}) !important; opacity: {{ '0.65' if msg.is_read else '1' }};">
+                        
+                        <div class="d-flex align-items-center justify-content-center rounded-circle bg-{{ 'primary' if not msg.is_read else 'secondary' }} bg-opacity-10 overflow-hidden" style="width: 50px; height: 50px; flex-shrink: 0;">
+                            {% if msg.associated_user %}
+                                <img src="{{ msg.associated_user.avatar_url }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <i class="bi bi-envelope fs-4 text-{{ 'primary' if not msg.is_read else 'secondary' }}"></i>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">{{ msg.name }} <span class="text-muted small fw-normal ms-2">&lt;{{ msg.email }}&gt;</span>
+                                        {% if msg.associated_user %}
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#clientModalMsg{{ msg.id }}" class="badge bg-info text-decoration-none ms-2" title="Ce client a un compte"><i class="bi bi-person-badge me-1"></i> Profil Client</a>
+                                        {% endif %}
+                                    </h6>
+                                </div>
+                                {% if not msg.is_read %}
+                                    <span class="badge bg-primary rounded-pill px-2 py-1 ms-2">Nouveau</span>
+                                {% else %}
+                                    <span class="badge bg-secondary rounded-pill px-2 py-1 ms-2">Lu</span>
+                                {% endif %}
+                            </div>
+                            <div class="message-preview mb-2 mt-2 text-dark" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#collapseMsg{{ msg.id }}" aria-expanded="false" aria-controls="collapseMsg{{ msg.id }}">
+                                {{ msg.message | truncate(80) }} <span class="text-primary small ms-2">Lire la suite <i class="bi bi-chevron-down"></i></span>
+                            </div>
+                            <div class="collapse" id="collapseMsg{{ msg.id }}">
+                                <div class="card card-body bg-light border-0 text-dark mb-3 mt-1">
+                                    {{ msg.message }}
+                                    <div class="text-end mt-2">
+                                        <button class="btn btn-sm btn-link text-muted p-0" data-bs-toggle="collapse" data-bs-target="#collapseMsg{{ msg.id }}">Réduire <i class="bi bi-chevron-up"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="text-muted small" style="font-size: 0.75rem;"><i class="bi bi-clock me-1"></i> {{ msg.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</span>
+                                <div class="btn-group">
+                                    {% if not msg.is_read %}
+                                    <button class="btn btn-sm btn-outline-primary" onclick="manageContactMsg({{ msg.id }}, 'mark_read')"><i class="bi bi-check2-all"></i> Marquer comme lu</button>
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-outline-danger" onclick="manageContactMsg({{ msg.id }}, 'delete')"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if msg.associated_user %}
+                    <!-- Client Profile Modal -->
+                    <div class="modal fade" id="clientModalMsg{{ msg.id }}" tabindex="-1" aria-labelledby="clientModalLabel{{ msg.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content border-0 rounded-4 shadow-lg">
+                                <div class="modal-header bg-light border-0">
+                                    <h5 class="modal-title fw-bold" id="clientModalLabel{{ msg.id }}">
+                                        <i class="bi bi-person-circle text-primary me-2"></i>Profil de {{ msg.associated_user.username }}
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-4">
+                                    <div class="row mb-4 align-items-center">
+                                        <div class="col-auto">
+                                            <img src="{{ msg.associated_user.avatar_url }}" alt="Avatar" class="rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+                                        </div>
+                                        <div class="col">
+                                            <h4 class="fw-bold mb-1">{{ msg.associated_user.username }}</h4>
+                                            <p class="text-muted mb-0"><i class="bi bi-envelope me-1"></i> {{ msg.associated_user.email }}</p>
+                                            <p class="text-muted mb-0"><i class="bi bi-telephone me-1"></i> {{ msg.associated_user.phone or 'Non renseigné' }}</p>
+                                        </div>
+                                        <div class="col-auto text-end">
+                                            <span class="badge bg-{{ 'success' if not msg.associated_user.is_suspended else 'danger' }} mb-2">
+                                                {{ 'Actif' if not msg.associated_user.is_suspended else 'Suspendu' }}
+                                            </span><br>
+                                            <small class="text-muted">Inscrit le: {{ msg.associated_user.created_at.strftime('%d/%m/%Y') }}</small>
+                                        </div>
+                                    </div>
+                                    <h6 class="fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>Historique des Réservations</h6>
+                                    {% set user_bookings = msg.associated_user.bookings.all()|sort(attribute='created_at', reverse=True) %}
+                                    {% if user_bookings %}
+                                        <div class="list-group list-group-flush mb-3">
+                                        {% for b in user_bookings[:5] %}
+                                            <div class="list-group-item px-0 py-3 border-bottom">
+                                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                                    <h6 class="mb-1 fw-bold">{{ b.trip.route.departure_city }} <i class="bi bi-arrow-right mx-1 text-muted"></i> {{ b.trip.route.arrival_city }}</h6>
+                                                    <span class="badge bg-{{ 'success' if b.status == 'confirmed' else 'warning' if b.status == 'pending' else 'danger' }}">{{ b.status|capitalize }}</span>
+                                                </div>
+                                                <p class="mb-1 text-muted small">
+                                                    Voyage le: {{ b.trip.departure_time.strftime('%d/%m/%Y à %H:%M') }}<br>
+                                                    Agence: <strong>{{ b.trip.agency.name }}</strong> | Montant: {{ b.total_price }} FCFA
+                                                </p>
+                                            </div>
+                                        {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-light text-center mb-0">
+                                            Aucune réservation trouvée pour ce client.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="modal-footer border-0 bg-light">
+                                    <a href="{{ url_for('admin.edit_user', id=msg.associated_user.id) }}" class="btn btn-primary"><i class="bi bi-pencil-square me-2"></i>Gérer le compte</a>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-5 text-muted border rounded-3 bg-light">
+                        <i class="bi bi-envelope-slash fs-1 mb-3 d-block opacity-50"></i>
+                        <p class="mb-0">Aucun message de contact reçu.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if current_user.role == 'admin_agence' %}
+            <!-- 7. AGENCY PROFILE TAB (Functional Form) -->
+            <div id="tab-agency-profile" class="ops-tab-pane">
+                <h2 class="ops-section-title"><i class="bi bi-briefcase me-2 text-primary"></i> Profil de l'Agence</h2>
+                
+                <form method="POST" action="{{ url_for('admin.profile') }}" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="update_agency">
+                    
+                    <div class="row g-3">
+                        <div class="col-md-12 text-center mb-4">
+                            <div class="d-inline-block position-relative">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-muted border overflow-hidden shadow-sm" style="width: 110px; height: 110px;">
+                                    {% if current_user.agency and current_user.agency.logo %}
+                                        <img src="{{ url_for('static', filename='uploads/' ~ current_user.agency.logo) }}" alt="Logo Agence" class="w-100 h-100" style="object-fit: cover;">
+                                    {% else %}
+                                        <i class="bi bi-building fs-1"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <label for="agency_logo" class="form-label small fw-bold text-muted text-uppercase">Logo de l'Agence</label>
+                                <input type="file" id="agency_logo" name="agency_logo" class="form-control form-control-sm mx-auto" style="max-width: 250px;">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">Nom de l'Agence</label>
+                            <input type="text" name="agency_name" class="ops-input" value="{{ current_user.agency.name if current_user.agency else '' }}" required>
+                        </div>
+                        
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">Ville Principale</label>
+                            <input type="text" name="agency_city" class="ops-input" value="{{ current_user.agency.city if current_user.agency else '' }}" required>
+                        </div>
+                        
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">Email de Contact</label>
+                            <input type="email" name="agency_email" class="ops-input" value="{{ current_user.agency.email if current_user.agency and current_user.agency.email else '' }}">
+                        </div>
+                        
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">Téléphone de l'Agence</label>
+                            <input type="tel" name="agency_phone" class="ops-input" value="{{ current_user.agency.phone if current_user.agency and current_user.agency.phone else '' }}">
+                        </div>
+                        
+                        <div class="col-12 ops-input-group">
+                            <label class="ops-label">Adresse Complète</label>
+                            <input type="text" name="agency_address" class="ops-input" value="{{ current_user.agency.address if current_user.agency and current_user.agency.address else '' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-top">
+                        <button type="submit" class="ops-btn-primary"><i class="bi bi-save me-2"></i> Sauvegarder les modifications</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            {% if current_user.role == 'super_admin' %}
+            <!-- 8. GLOBAL SYSTEM SETTINGS TAB (Functional Form) -->
+            <div id="tab-global-settings" class="ops-tab-pane">
+                <h2 class="ops-section-title"><i class="bi bi-globe me-2 text-primary"></i> Configuration Globale</h2>
+                
+                <form method="POST" action="{{ url_for('admin.profile') }}">
+                    <input type="hidden" name="action" value="update_global">
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">Nom de la Plateforme</label>
+                            <input type="text" name="platform_name" class="ops-input" value="{{ global_settings.platform_name }}" required>
+                        </div>
+                        
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">Email Support Principal</label>
+                            <input type="email" name="support_email" class="ops-input" value="{{ global_settings.support_email }}" required>
+                        </div>
+                        
+                        <div class="col-12 mt-3">
+                            <div class="card border-danger bg-danger bg-opacity-10 p-4 rounded-3 border">
+                                <div class="d-flex align-items-center gap-3">
+                                    <i class="bi bi-cone-striped fs-2 text-danger"></i>
+                                    <div>
+                                        <h5 class="fw-bold mb-1 text-danger">Mode Maintenance</h5>
+                                        <p class="text-muted small mb-3">
+                                            Activer le mode maintenance suspend l'accès public des clients aux réservations et redirige vers une page d'attente.
+                                        </p>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" name="maintenance_mode" id="maintenance_mode" value="true" {% if global_settings.maintenance_mode %}checked{% endif %}>
+                                            <label class="form-check-label fw-bold text-dark" for="maintenance_mode">Activer la Maintenance Générale</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-top">
+                        <button type="submit" class="ops-btn-primary"><i class="bi bi-check-circle me-2"></i> Appliquer les paramètres globaux</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 9. PAYMENT CONFIGURATION TAB (Functional Form) -->
+            <div id="tab-payment-settings" class="ops-tab-pane">
+                <h2 class="ops-section-title"><i class="bi bi-credit-card me-2 text-primary"></i> Passerelles de Paiement Cashless</h2>
+                
+                <form method="POST" action="{{ url_for('admin.profile') }}">
+                    <input type="hidden" name="action" value="update_payments">
+                    
+                    <h5 class="fw-bold mb-3 text-secondary border-bottom pb-2">Configuration Mobile Money (MTN MoMo & Orange Money)</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">Merchant ID Unique</label>
+                            <input type="text" name="momo_merchant" class="ops-input" value="{{ payment_settings.momo_merchant }}" required>
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">Clé Secrète API</label>
+                            <input type="password" name="momo_secret" class="ops-input" value="{{ payment_settings.momo_secret }}" required>
+                        </div>
+                    </div>
+                    
+                    <h5 class="fw-bold mb-3 text-secondary border-bottom pb-2">Configuration Stripe (Secours / International)</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">Clé Publique Stripe</label>
+                            <input type="text" name="stripe_public" class="ops-input" value="{{ payment_settings.stripe_public }}">
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">Clé Secrète Stripe</label>
+                            <input type="password" name="stripe_secret" class="ops-input" value="{{ payment_settings.stripe_secret }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-top">
+                        <button type="submit" class="ops-btn-primary"><i class="bi bi-save me-2"></i> Sauvegarder les clés de paiement</button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+function switchTab(tabId, navElement) {
+    // Hide all tabs
+    document.querySelectorAll('.ops-tab-pane').forEach(el => el.classList.remove('active'));
+    // Show selected tab
+    const selectedTab = document.getElementById(tabId);
+    selectedTab.classList.add('active');
+    
+    // Update nav styling
+    document.querySelectorAll('.ops-nav-link').forEach(el => el.classList.remove('active'));
+    if (navElement) {
+        navElement.classList.add('active');
+    }
+
+    // Mobile logic: Hide sidebar, show content
+    if (window.innerWidth <= 992) {
+        document.querySelector('.ops-grid').classList.add('mobile-view-active');
+        
+        // Inject back button if not exists
+        const header = selectedTab.querySelector('h5, h4');
+        if (header && !selectedTab.querySelector('.mobile-pane-back-btn')) {
+            const backBtn = document.createElement('button');
+            backBtn.className = 'btn btn-link text-dark p-0 me-3 mobile-pane-back-btn';
+            backBtn.innerHTML = '<i class="bi bi-arrow-left fs-3"></i>';
+            backBtn.onclick = function(e) {
+                e.preventDefault();
+                closeMobileTab();
+            };
+            header.insertBefore(backBtn, header.firstChild);
+        }
+        
+        // Update URL hash for back button support
+        history.pushState({tab: tabId}, null, "#" + tabId);
+    }
+}
+
+function closeMobileTab() {
+    document.querySelector('.ops-grid').classList.remove('mobile-view-active');
+    history.pushState(null, null, window.location.pathname);
+}
+
+// Handle browser back button
+window.addEventListener('popstate', function(event) {
+    let hash = window.location.hash.substring(1);
+    if (hash && document.getElementById(hash)) {
+        switchTab(hash, document.querySelector(`[onclick*="${hash}"]`));
+    } else {
+        closeMobileTab();
+    }
+});
+
+// Initialize on load
+document.addEventListener("DOMContentLoaded", function() {
+    let hash = window.location.hash.substring(1);
+    if (hash && document.getElementById(hash) ) {
+        switchTab(hash, document.querySelector(`[onclick*="${hash}"]`));
+    }
+});
+
+// Filters logic for Staff
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('staffSearch');
+    const filterRole = document.getElementById('staffFilterRole');
+    const filterDate = document.getElementById('staffFilterDate');
+    const tableBody = document.getElementById('staffTableBody');
+    
+    if(!tableBody) return;
+
+    function applyStaffFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const roleValue = filterRole.value;
+        const sortValue = filterDate.value;
+        
+        let rows = Array.from(tableBody.querySelectorAll('tr.staff-row'));
+        
+        rows.forEach(row => {
+            const targetRole = row.getAttribute('data-role');
+            const rowText = row.innerText.toLowerCase();
+            
+            const matchesSearch = rowText.includes(searchTerm);
+            const matchesRole = (roleValue === "" || targetRole === roleValue);
+            
+            if (matchesSearch && matchesRole) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        rows.sort((a, b) => {
+            const dateA = parseFloat(a.getAttribute('data-date'));
+            const dateB = parseFloat(b.getAttribute('data-date'));
+            return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyStaffFilters);
+    if(filterRole) filterRole.addEventListener('change', applyStaffFilters);
+    if(filterDate) filterDate.addEventListener('change', applyStaffFilters);
+    
+    window.resetStaffFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterRole) filterRole.value = '';
+        if(filterDate) filterDate.value = 'newest';
+        applyStaffFilters();
+    };
+});
+
+// Filters logic for Audit Logs
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('logSearch');
+    const filterType = document.getElementById('filterType');
+    const filterDate = document.getElementById('filterDate');
+    const tableBody = document.getElementById('auditTableBody');
+    
+    if(!tableBody) return;
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const typeValue = filterType.value.toLowerCase();
+        const sortValue = filterDate.value;
+        
+        let rows = Array.from(tableBody.querySelectorAll('tr.audit-row'));
+        
+        rows.forEach(row => {
+            const targetType = row.getAttribute('data-type').toLowerCase();
+            const rowText = row.innerText.toLowerCase();
+            
+            const matchesSearch = rowText.includes(searchTerm);
+            const matchesType = (typeValue === "" || targetType.includes(typeValue));
+            
+            if (matchesSearch && matchesType) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        rows.sort((a, b) => {
+            const dateA = parseFloat(a.getAttribute('data-date'));
+            const dateB = parseFloat(b.getAttribute('data-date'));
+            return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyFilters);
+    if(filterType) filterType.addEventListener('change', applyFilters);
+    if(filterDate) filterDate.addEventListener('change', applyFilters);
+    
+    window.resetFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterType) filterType.value = '';
+        if(filterDate) filterDate.value = 'newest';
+        applyFilters();
+    };
+});
+
+// Filters logic for {{ _t('Notifications') }}
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('notifSearch');
+    const filterType = document.getElementById('notifFilterType');
+    const listContainer = document.getElementById('notifList');
+    
+    if(!listContainer) return;
+
+    function applyNotifFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const typeValue = filterType.value;
+        
+        let items = Array.from(listContainer.querySelectorAll('.notif-item'));
+        
+        items.forEach(item => {
+            const targetType = item.getAttribute('data-type');
+            const itemText = item.innerText.toLowerCase();
+            
+            const matchesSearch = itemText.includes(searchTerm);
+            const matchesType = (typeValue === "" || targetType === typeValue);
+            
+            if (matchesSearch && matchesType) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyNotifFilters);
+    if(filterType) filterType.addEventListener('change', applyNotifFilters);
+    
+    window.resetNotifFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterType) filterType.value = '';
+        applyNotifFilters();
+    };
+});
+
+// AJAX Mark Notification as Read
+function manageContactMsg(msgId, action) {
+    if(!confirm(action === 'delete' ? 'Voulez-vous vraiment supprimer ce message ?' : 'Marquer comme lu ?')) return;
+    
+    const formData = new FormData();
+    formData.append('action', action);
+    
+    fetch(`/admin/manage_contact_message/${msgId}`, {
+        method: 'POST',
+        body: formData
+    }).then(res => res.json()).then(data => {
+        if(data.success) {
+            window.location.reload();
+        }
+    });
+}
+
+// AJAX Mark Notification as Read
+function markAllNotificationsRead(btn) {
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+    btn.disabled = true;
+    fetch('/api/notifications/read-all', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.success) {
+            window.location.reload();
+        } else {
+            btn.innerHTML = '<i class="bi bi-check2-all me-1"></i> Marquer tout comme lu';
+            btn.disabled = false;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        btn.innerHTML = '<i class="bi bi-check2-all me-1"></i> Marquer tout comme lu';
+        btn.disabled = false;
+    });
+}
+
+function markAsRead(element, notifId) {
+    if(!element.classList.contains('unread-notif')) return;
+
+    fetch(`/admin/notifications/${notifId}/read`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            element.classList.remove('unread-notif');
+            element.classList.add('read-notif');
+            
+            // Remove the unread badge from the item
+            const newBadge = element.querySelector('.badge.bg-danger');
+            if (newBadge) newBadge.remove();
+            
+            // Decrement global sidebar badge
+            const globalBadge = document.getElementById('globalNotifBadge');
+            if (globalBadge) {
+                let count = parseInt(globalBadge.innerText);
+                if (!isNaN(count) && count > 0) {
+                    count--;
+                    if(count === 0) globalBadge.style.display = 'none';
+                    else globalBadge.innerText = count;
+                }
+            }
+        }
+    });
+}
+
+function removeProfilePic() {
+    if (confirm("{{ _t('Voulez-vous vraiment supprimer votre photo de profil ?') }}")) {
+        document.getElementById('removeProfilePicture').value = 'true';
+        document.querySelector('#tab-personal form').submit();
+    }
+}
+</script>
+{% endblock %}

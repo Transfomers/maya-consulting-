@@ -203,9 +203,18 @@ export const saveOrderAndCustomerAccount = ({
     totalPrice: safePrice,
     paidAmount: 0,
     balance: safePrice,
-    status: "Confirmée",
+    status: "Demande reçue", // Official 3M Lifecycle Status #1 (Page 5 & 13)
     source,
     createdAt: now,
+    messages: [
+      {
+        id: `msg-sys-${Date.now()}`,
+        text: `Bonjour ${customer.name}, votre demande de réservation (${orderRef}) pour ${itemName} a bien été reçue par notre conciergerie 3M Services. Un conseiller examine votre dossier et vous contacte ici même dans les plus brefs délais.`,
+        sender: "Conciergerie 3M",
+        role: "system",
+        timestamp: now
+      }
+    ],
     internalNotes: [
       {
         id: `nt-${Date.now()}`,
@@ -269,4 +278,101 @@ export const getClientOrders = (client) => {
       (clientName && bName === clientName)
     );
   });
+};
+
+/**
+ * In-Platform Live Chat: add message tied to booking (Phase D)
+ */
+export const addBookingMessage = (bookingId, text, senderName, role = "client") => {
+  if (!bookingId || !text || !text.trim()) return null;
+  const store = getCrmStore();
+  const bIndex = (store.bookings || []).findIndex((b) => b.id === bookingId);
+  if (bIndex === -1) return null;
+
+  const msg = {
+    id: `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    text: text.trim(),
+    sender: senderName || "Client",
+    role,
+    timestamp: new Date().toISOString()
+  };
+
+  const booking = store.bookings[bIndex];
+  booking.messages = booking.messages || [];
+  booking.messages.push(msg);
+
+  // Transition to "En discussion" if currently "Demande reçue"
+  if (["Demande reçue", "En attente", "Request received"].includes(booking.status)) {
+    booking.status = "En discussion";
+  }
+
+  store.bookings[bIndex] = booking;
+  saveCrmStore(store);
+
+  // Sync to Express backend
+  fetch(`${API_BASE}/bookings/${bookingId}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(msg)
+  }).catch(() => {});
+
+  return msg;
+};
+
+/**
+ * Get messages tied to a specific booking
+ */
+export const getBookingMessages = (bookingId) => {
+  if (!bookingId) return [];
+  const store = getCrmStore();
+  const booking = (store.bookings || []).find((b) => b.id === bookingId);
+  return booking && booking.messages ? booking.messages : [];
+};
+
+/**
+ * Generate official voucher data with QR payload (Phase E)
+ */
+export const getBookingVoucher = (bookingId) => {
+  if (!bookingId) return null;
+  const store = getCrmStore();
+  const booking = (store.bookings || []).find((b) => b.id === bookingId);
+  if (!booking) return null;
+
+  const voucherNum = `3M-VCH-${booking.id.replace(/^3M-RES-/, "")}`;
+  const isConfirmed = ["Confirmée", "Confirmed", "Prêt pour départ", "En cours", "Terminée"].includes(booking.status);
+
+  const qrPayload = JSON.stringify({
+    voucher: voucherNum,
+    bookingId: booking.id,
+    client: booking.clientName,
+    phone: booking.phone,
+    vehicle: booking.carName,
+    dates: `${booking.pickTime} -> ${booking.dropTime || booking.pickTime}`,
+    status: booking.status,
+    verified: isConfirmed
+  });
+
+  return {
+    voucherNumber: voucherNum,
+    bookingId: booking.id,
+    clientName: booking.clientName,
+    phone: booking.phone,
+    email: booking.email || "",
+    carName: booking.carName,
+    itemCategory: booking.itemCategory || "Véhicule VIP",
+    pickupLocation: booking.pickUp || "Agence Omnisports, Yaoundé",
+    dropoffLocation: booking.dropOff || booking.pickUp || "Agence Omnisports, Yaoundé",
+    pickTime: booking.pickTime,
+    dropTime: booking.dropTime || booking.pickTime,
+    days: booking.days || 1,
+    totalPrice: booking.totalPrice,
+    paidAmount: booking.paidAmount || 0,
+    balance: booking.balance !== undefined ? booking.balance : (Number(booking.totalPrice) || 0) - (Number(booking.paidAmount) || 0),
+    paymentStatus: booking.paymentStatus || (booking.paidAmount >= booking.totalPrice ? "Payée" : "En attente"),
+    status: booking.status,
+    qrPayload,
+    isConfirmed,
+    emergencyConcierge: "+237 690 00 00 00",
+    terms: "Présenter une pièce d'identité valide (CNI ou Passeport) et ce voucher lors de la prise en charge du véhicule."
+  };
 };

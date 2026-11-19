@@ -1,0 +1,1821 @@
+{% extends "base.html" %}
+
+{% block title %}Mon Tableau de Bord Voyages - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Premium Dashboard Styles */
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+        color: #ffffff;
+        border-radius: 2rem;
+        padding: 2.5rem;
+        box-shadow: 0 12px 40px rgba(201, 42, 42, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .dashboard-header h1 {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 800;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Left Sidebar Cards */
+    .sidebar-card {
+        border-radius: 1.5rem;
+        background: var(--glass-bg-light);
+        border: 1.5px solid rgba(201, 42, 42, 0.08);
+        box-shadow: 0 8px 32px rgba(201, 42, 42, 0.04);
+        transition: all 0.3s ease;
+    }
+    body.dark-mode .sidebar-card {
+        background: var(--glass-bg-dark);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+    .sidebar-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(201, 42, 42, 0.08);
+    }
+
+    /* Loyalty Gold Progress Bar */
+    .loyalty-progress-bar {
+        background: linear-gradient(90deg, var(--accent-dark) 0%, #ffc107 100%) !important;
+    }
+
+    /* Premium Dynamic Ticket Cards */
+    .ticket-card {
+        border-radius: 1.8rem;
+        background: var(--glass-bg-light);
+        border: 1.5px solid rgba(201, 42, 42, 0.08);
+        box-shadow: 0 6px 24px rgba(0,0,0,0.04);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        position: relative;
+    }
+    body.dark-mode .ticket-card {
+        background: var(--glass-bg-dark);
+        border-color: rgba(255,255,255,0.06);
+        box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+    }
+    .ticket-card:hover {
+        transform: translateY(-6px) scale(1.005);
+        box-shadow: 0 16px 40px rgba(201, 42, 42, 0.12);
+    }
+
+    /* Status border identifiers */
+    .border-upcoming { border-left: 8px solid #2563eb !important; }
+    .border-completed { border-left: 8px solid #10b981 !important; }
+    .border-cancelled { border-left: 8px solid #ef4444 !important; }
+    .border-delayed { border-left: 8px solid #f59e0b !important; }
+
+    /* Timeline visual connector */
+    .timeline-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+    .timeline-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: var(--primary-light);
+        border: 3px solid #ffffff;
+        box-shadow: 0 0 0 2px var(--primary-light);
+        z-index: 2;
+    }
+    body.dark-mode .timeline-dot {
+        background-color: var(--accent-dark);
+        box-shadow: 0 0 0 2px var(--accent-dark);
+        border-color: #2a161c;
+    }
+    .timeline-line {
+        flex-grow: 1;
+        height: 3px;
+        background: repeating-linear-gradient(90deg, var(--input-border-light) 0 4px, transparent 4px 8px);
+        z-index: 1;
+        margin: 0 -4px;
+    }
+    body.dark-mode .timeline-line {
+        background: repeating-linear-gradient(90deg, var(--input-border-dark) 0 4px, transparent 4px 8px);
+    }
+
+    /* Modern Tabs Pills styling */
+    .nav-pills .nav-link-tab {
+        border-radius: 2rem;
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 700;
+        color: var(--text-light);
+        background-color: rgba(201, 42, 42, 0.05);
+        border: 1.5px solid transparent;
+        padding: 0.7rem 1.6rem;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    body.dark-mode .nav-pills .nav-link-tab {
+        color: var(--text-dark);
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    .nav-pills .nav-link-tab.active, .nav-pills .nav-link-tab:hover {
+        background-color: var(--primary-light) !important;
+        color: #ffffff !important;
+        border-color: var(--primary-light);
+        box-shadow: 0 4px 15px rgba(201, 42, 42, 0.2);
+    }
+    body.dark-mode .nav-pills .nav-link-tab.active {
+        background-color: var(--accent-dark) !important;
+        color: #1a2330 !important;
+        border-color: var(--accent-dark);
+        box-shadow: 0 4px 15px rgba(224, 171, 65, 0.3);
+    }
+
+    /* 2D Bus Seat Grid styling */
+    .bus-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        background: #f1f5f9;
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        border: 2px solid #cbd5e1;
+    }
+    body.dark-mode .bus-grid {
+        background: #23181c;
+        border-color: var(--input-border-dark);
+    }
+    .seat-box {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        border-radius: 8px;
+        border: 1.5px solid #94a3b8;
+        background-color: #ffffff;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+    body.dark-mode .seat-box {
+        background-color: #2c1d22;
+        border-color: #5c3540;
+        color: #eed6db;
+    }
+    .seat-box.my-seat {
+        background: linear-gradient(135deg, var(--accent-dark) 0%, #ffb74d 100%) !important;
+        color: #1a2330 !important;
+        border-color: var(--accent-dark) !important;
+        box-shadow: 0 0 10px rgba(224,171,65,0.4);
+    }
+    .seat-box.occupied {
+        background-color: #cbd5e1 !important;
+        color: #94a3b8 !important;
+        border-color: #cbd5e1 !important;
+        cursor: not-allowed;
+    }
+    body.dark-mode .seat-box.occupied {
+        background-color: #38272c !important;
+        color: #5c454c !important;
+        border-color: #38272c !important;
+    }
+
+    /* Quick status metric labels */
+    .metric-badge {
+        font-size: 1.6rem;
+        font-weight: 800;
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    /* Mobile Enhancements based on user sketch */
+    @media (max-width: 991px) {
+        .dashboard-header {
+            padding: 1.5rem 1rem;
+            border-radius: 1.5rem;
+        }
+        .mobile-profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1rem;
+        }
+        .mobile-profile-header .rounded-circle {
+            width: 70px !important;
+            height: 70px !important;
+            border-width: 2px !important;
+        }
+        .mobile-greeting {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .mobile-greeting h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0;
+        }
+        
+        .mobile-tabs-scroll {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            padding: 0.5rem !important;
+            width: 100% !important;
+        }
+        .mobile-tabs-scroll::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        .mobile-tabs-scroll .nav-item {
+            flex: 1 1 auto !important;
+            display: block !important;
+            max-width: 48%; /* Allows two buttons per row, or fits wrap layout */
+        }
+        @media (max-width: 575px) {
+            .mobile-tabs-scroll {
+                flex-wrap: nowrap !important;
+                gap: 4px !important;
+                padding: 0.25rem 0 !important;
+            }
+            .mobile-tabs-scroll .nav-item {
+                flex: 1 1 0% !important;
+                width: auto !important;
+                max-width: none !important;
+            }
+        }
+        .mobile-tabs-scroll .nav-link-tab {
+            white-space: nowrap !important;
+            font-size: 0.72rem !important;
+            padding: 0.4rem 0.6rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 1.5rem !important;
+            border: 1.2px solid rgba(201, 42, 42, 0.1) !important;
+            background-color: rgba(201, 42, 42, 0.03) !important;
+            color: var(--text-light) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            font-weight: 700 !important;
+            box-shadow: 0 1px 3px rgba(201, 42, 42, 0.02) !important;
+            width: 100% !important;
+        }
+        @media (max-width: 575px) {
+            .mobile-tabs-scroll .nav-link-tab {
+                font-size: 0.62rem !important;
+                padding: 0.35rem 0.2rem !important;
+                border-radius: 0.5rem !important;
+                min-width: 0 !important;
+            }
+            .mobile-tabs-scroll .nav-link-tab i {
+                display: none !important;
+            }
+        }
+        body.dark-mode .mobile-tabs-scroll .nav-link-tab {
+            border: 1.2px solid rgba(255, 255, 255, 0.08) !important;
+            background-color: rgba(255, 255, 255, 0.02) !important;
+            color: var(--text-dark) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+        }
+        .mobile-tabs-scroll .nav-link-tab.active {
+            background-color: var(--primary-light) !important;
+            color: #ffffff !important;
+            border-color: var(--primary-light) !important;
+            box-shadow: 0 2px 8px rgba(201, 42, 42, 0.15) !important;
+        }
+        body.dark-mode .mobile-tabs-scroll .nav-link-tab.active {
+            background-color: var(--accent-dark) !important;
+            color: #1a2330 !important;
+            border-color: var(--accent-dark) !important;
+            box-shadow: 0 2px 8px rgba(224, 171, 65, 0.25) !important;
+        }
+        
+        .mobile-filter-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 0.5rem;
+            position: relative;
+        }
+        .mobile-search-btn-only {
+            width: 44px;
+            height: 44px;
+            border-radius: 50% !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 0;
+        }
+        .mobile-search-wrapper {
+            transition: width 0.3s ease;
+            width: 44px;
+        }
+        .mobile-search-wrapper.expanded {
+            width: 45%;
+        }
+        
+        .mobile-refresh-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50% !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 0;
+        }
+        
+        .mobile-filter-row .input-group, .mobile-filter-row select {
+            border-radius: 2rem;
+        }
+        .mobile-refresh-btn span {
+            display: none;
+        }
+        
+        .mobile-assistance-title {
+            position: relative;
+        }
+        .mobile-assistance-title::after {
+            content: "~~~~~~~~~~";
+            display: block;
+            color: rgba(201, 42, 42, 0.4);
+            font-size: 0.9rem;
+            margin-top: 4px;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        .mobile-assistance-icons {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 1rem;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+        .mobile-assistance-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+        .mobile-assistance-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: 2px solid;
+            background: transparent;
+        }
+        .mobile-assistance-item.whatsapp .mobile-assistance-icon {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        .mobile-assistance-item.call .mobile-assistance-icon {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+        .mobile-assistance-item.notes .mobile-assistance-icon {
+            border-color: #64748b;
+            color: #64748b;
+        }
+        .mobile-assistance-item span {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .desktop-assistance-btns {
+            display: none !important;
+        }
+    }
+    @media (min-width: 992px) {
+        .mobile-assistance-icons {
+            display: none !important;
+        }
+    }
+
+    /* ── Mobile ticket card fixes (≤767px) ── */
+    @media (max-width: 767px) {
+        /* Stack the 3-column ticket card layout vertically */
+        .ticket-card .row.g-4 > [class*='col-md-'] {
+            border-left: none !important;
+            border-top: 1px solid rgba(0,0,0,.07);
+            padding-top: 1rem !important;
+            padding-left: 0 !important;
+        }
+        .ticket-card .row.g-4 > [class*='col-md-']:first-child {
+            border-top: none;
+            padding-top: 0 !important;
+        }
+
+        /* Shrink city names so they don't overflow on tiny screens */
+        .ticket-card .fs-4.fw-bold { font-size: 1.1rem !important; }
+
+        /* Timeline: make it compact so it doesn't crush city names */
+        .timeline-container { gap: 4px; }
+        .timeline-line { margin: 0; }
+
+        /* Action button groups: wrap on very small screens */
+        .ticket-card .d-flex.gap-2 { flex-wrap: wrap; }
+        .ticket-card .d-flex.gap-2 .btn {
+            min-width: calc(50% - 4px);
+            flex: 1 1 auto;
+            font-size: 0.78rem !important;
+            padding: 0.45rem 0.3rem !important;
+        }
+
+        /* Price section alignment on mobile */
+        .ticket-card [class*='col-md-3'].text-end { text-align: left !important; }
+        .ticket-card [class*='col-md-3'] .d-flex.flex-column { align-items: flex-start; }
+
+        /* Status badges: allow wrapping */
+        .ticket-card .d-flex.justify-content-between { flex-wrap: wrap !important; gap: 0.5rem !important; }
+        .ticket-card .d-flex.gap-2 .badge { font-size: 0.7rem; white-space: normal; }
+
+        /* Header of each card: stack vertically */
+        .ticket-card > .d-flex.justify-content-between.align-items-center { align-items: flex-start !important; }
+        .ticket-card > .d-flex h4 { font-size: 1rem; }
+
+        /* Seat details: allow horizontal scroll if needed */
+        .ticket-card .d-flex.gap-4 { flex-wrap: wrap; gap: 1rem !important; }
+
+        /* Make border-start columns look like border-top on mobile */
+        .border-start.border-secondary { 
+            border-left: none !important; 
+            border-top: 1px solid rgba(0,0,0,0.07) !important;
+            padding-top: 0.75rem !important;
+        }
+        body.dark-mode .border-start.border-secondary {
+            border-top-color: rgba(255,255,255,0.07) !important;
+        }
+
+        /* Passenger detail column: no left border on mobile */
+        .ticket-card .px-md-4 { padding-left: 0 !important; padding-right: 0 !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 animate-col">
+    
+    <!-- Top Status Header & Search Bar Banner -->
+    <div class="dashboard-header mb-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-6 d-flex align-items-center gap-4 mobile-profile-header">
+                <!-- User Profile Picture Avatar -->
+                <div class="rounded-circle overflow-hidden bg-white text-dark d-flex align-items-center justify-content-center shadow-lg flex-shrink-0" style="width: 90px; height: 90px; border: 4px solid rgba(255,255,255,0.4);">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ current_user.avatar_url }}" class="w-100 h-100" style="object-fit: cover;">
+                    {% else %}
+                        <i class="bi bi-person-circle fs-1 text-primary"></i>
+                    {% endif %}
+                </div>
+                <!-- Welcome Text -->
+                <div class="mobile-greeting">
+                    <span class="badge bg-white text-dark py-2 px-3 fw-bold mb-2 rounded-pill shadow-sm d-none d-lg-inline-block"><i class="fas fa-id-badge me-1 text-primary"></i> {{ _t('Espace Client 3M SERVICES') }}</span>
+                    <h1 class="display-6 mb-1 text-white fw-bold">Bonjour, {{ current_user.username }}</h1>
+                    <p class="lead mb-0 text-white-50 fs-6" style="font-size: 0.9rem !important;">{{ _t('Gérez vos contrats de location VIP, suivez vos véhicules et téléchargez vos factures en 1 clic.') }}</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <!-- Live Metric Counters -->
+                <div class="row g-3 text-center mobile-stats-row">
+                    <div class="col-6">
+                        <div class="bg-white bg-opacity-10 border border-white border-opacity-10 rounded-3 p-3 text-white">
+                            <div class="small text-white-50">Locations VIP</div>
+                            <div class="metric-badge">{{ total_tickets }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-white bg-opacity-10 border border-white border-opacity-10 rounded-3 p-3 text-white">
+                            <div class="small text-white-50">{{ _t('Total Réglé') }}</div>
+                            <div class="metric-badge fs-5">{{ total_spent|int }} FCFA</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nearest Agency Finder Widget -->
+    <div class="sidebar-card p-4 mb-5" id="nearestAgencyWidget">
+        <h5 class="fw-bold mb-2 text-primary" style="color: var(--primary-light) !important;"><i class="bi bi-geo-fill me-2"></i> {{ _t('Agence la plus proche') }}</h5>
+        <p class="small text-muted mb-3">{{ _t('Recherchez l\'agence 3M SERVICES la plus proche de votre position géographique.') }}</p>
+        <div id="nearestAgencyContent" class="d-none mb-3">
+            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-4 border text-dark">
+                <div>
+                    <h6 class="fw-bold mb-1" id="nearAgencyName">--</h6>
+                    <span class="small text-muted d-block text-dark" id="nearAgencyAddr">--</span>
+                    <span class="small text-muted d-block text-dark" id="nearAgencyPhone">--</span>
+                </div>
+                <div class="text-end">
+                    <span class="fs-4 fw-bold text-success" id="nearAgencyDist">--</span>
+                    <span class="d-block small text-muted">{{ _t('de vous') }}</span>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-outline-primary btn-sm rounded-pill fw-bold" onclick="findNearestAgency()"><i class="bi bi-pin-angle-fill me-1"></i> {{ _t('Trouver mon agence la plus proche') }}</button>
+    </div>
+
+    <!-- Active Search & Interactive Filters Bar -->
+    <div class="sidebar-card p-3 p-lg-4 mb-5">
+        <div class="mobile-filter-container d-lg-none">
+            <!-- Expandable Search -->
+            <div class="mobile-search-wrapper" id="mobileSearchWrapper">
+                <button type="button" class="btn btn-outline-secondary mobile-search-btn-only" id="btnOpenMobileSearch">
+                    <i class="fas fa-search"></i>
+                </button>
+                <div class="input-group d-none" id="mobileSearchInputGroup">
+                    <input type="text" id="searchQueryMobile" class="form-control py-2 px-2" placeholder="{{ _t('Rechercher...') }}" style="border-radius: 2rem 0 0 2rem; font-size: 0.85rem;">
+                    <button class="btn btn-secondary border-0" type="button" id="btnCloseMobileSearch" style="border-radius: 0 2rem 2rem 0; padding: 0 0.5rem;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex-grow-1" id="mobileStatusWrapper">
+                <select id="statusFilterMobile" class="form-select py-2 px-1 text-center" style="border-radius: 2rem; font-size: 0.85rem;">
+                    <option value="all" selected>{{ _t('Tous') }}</option>
+                    <option value="upcoming">{{ _t('À venir') }}</option>
+                    <option value="completed">{{ _t('Terminé') }}</option>
+                    <option value="cancelled">{{ _t('Annulé') }}</option>
+                </select>
+            </div>
+            
+            <button type="button" id="btnClearFiltersMobile" class="btn btn-outline-secondary mobile-refresh-btn shadow-sm">
+                <i class="fas fa-undo"></i>
+            </button>
+        </div>
+        
+        <div class="row g-3 text-start align-items-end d-none d-lg-flex">
+            <div class="col-md-5">
+                <label for="searchQuery" class="form-label fw-bold">{{ _t('Rechercher par référence ou ville') }}</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                    <input type="text" id="searchQuery" class="form-control border-start-0 py-2.5" placeholder="{{ _t('Filtrer...') }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label for="statusFilter" class="form-label fw-bold">{{ _t('Statut du voyage') }}</label>
+                <select id="statusFilter" class="form-select py-2.5 px-3">
+                    <option value="all" selected>{{ _t('Tous les statuts') }}</option>
+                    <option value="upcoming">{{ _t('À venir') }}</option>
+                    <option value="completed">{{ _t('Terminé') }}</option>
+                    <option value="cancelled">{{ _t('Annulé') }}</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex justify-content-end">
+                <button type="button" id="btnClearFilters" class="btn btn-outline-secondary py-2.5 w-100 rounded-pill shadow-sm">
+                    <i class="fas fa-undo"></i> <span class="ms-1">{{ _t('Réinitialiser') }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <!-- ================= LEFT SIDEBAR AREA ================= -->
+        <div class="col-lg-3 order-last order-lg-first mt-4 mt-lg-0">
+            <div class="d-flex flex-column gap-4">
+                
+
+                <!-- Support emergency Card -->
+                <div class="sidebar-card p-4 text-start">
+                    <h5 class="fw-bold mb-3 text-lg-start text-center mobile-assistance-title" style="color: var(--primary-light);"><i class="bi bi-headset me-1 d-none d-lg-inline-block"></i> Assistance Voyage</h5>
+                    <p class="small text-muted mb-3 text-lg-start text-center">Notre équipe d'assistance client est à votre disposition 24h/24 et 7j/7 pour vos demandes.</p>
+                    
+                    <div class="d-flex flex-column gap-2">
+                        <a href="https://wa.me/237698481075" class="btn btn-outline-success w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 2rem;" target="_blank">
+                            <i class="bi bi-whatsapp"></i> WhatsApp Support
+                        </a>
+                        <a href="tel:+237698481075" class="btn btn-outline-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 2rem;">
+                            <i class="bi bi-telephone-fill"></i> Urgence +237 698 481 075
+                        </a>
+                        <button type="button" class="btn btn-outline-secondary w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 2rem;" data-bs-toggle="modal" data-bs-target="#cancellationPolicyModal">
+                            <i class="bi bi-file-earmark-ruled"></i> Règles d'annulation
+                        </button>
+                    </div>
+
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- ================= MAIN DASHBOARD AREA ================= -->
+        <div class="col-lg-9">
+            
+            <!-- Tabs Navigation -->
+            <ul class="nav nav-pills mb-4 gap-2 flex-nowrap mobile-tabs-scroll" id="pills-tab" role="tablist">
+                <li class="nav-item flex-grow-1" role="presentation">
+                    <button class="nav-link-tab active w-100" id="pills-upcoming-tab" data-bs-toggle="pill" data-bs-target="#pills-upcoming" type="button" role="tab" aria-controls="pills-upcoming" aria-selected="true" style="font-size: 1.1rem; padding: 0.75rem 1rem;">
+                        🚗 <span class="fw-bold">{{ _t('Mes Locations VIP') }}</span>
+                    </button>
+                </li>
+                <li class="nav-item flex-grow-1" role="presentation">
+                    <button class="nav-link-tab w-100" id="pills-parcels-tab" data-bs-toggle="pill" data-bs-target="#pills-parcels" type="button" role="tab" aria-controls="pills-parcels" aria-selected="false" style="font-size: 1.1rem; padding: 0.75rem 1rem;">
+                        🛎️ <span class="fw-bold">{{ _t('Conciergerie & Demandes') }}</span>
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="pills-tabContent">
+                
+                <!-- ================= TAB: LOCATIONS VIP ================= -->
+                <div class="tab-pane fade show active" id="pills-upcoming" role="tabpanel" aria-labelledby="pills-upcoming-tab">
+                    <div id="upcoming-container" class="d-flex flex-column gap-4">
+                        {% set trip_count = namespace(value=0) %}
+                        {% if bookings %}
+                            {% for booking in bookings %}
+                                {% set trip_count.value = trip_count.value + 1 %}
+                                
+                                {% set is_cancelled = (booking.status == 'cancelled') %}
+                                {% set is_past = (not is_cancelled and booking.trip.status == 'completed') %}
+                                {% set is_active = (not is_cancelled and not is_past) %}
+                                
+                                <!-- Dynamic Car Rental Contract Card -->
+                                <div class="ticket-card p-4 {% if is_cancelled %}border-danger border-opacity-25 bg-danger bg-opacity-10{% elif is_past %}border-completed{% else %}border-upcoming{% endif %}" data-id="{{ booking.id }}" data-code="{{ booking.booking_code or booking.id }}" data-origin="{{ booking.trip.route.origin }}" data-destination="{{ booking.trip.route.destination }}" data-date="{{ booking.trip.departure_time.strftime('%Y-%m-%d') }}" data-payment="paid">
+                                    
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 pb-3 border-bottom border-secondary border-opacity-10">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <h4 class="fw-bold mb-0 text-dark">
+                                                <i class="bi bi-car-front-fill text-danger me-1"></i>
+                                                {{ booking.trip.bus.brand if booking.trip and booking.trip.bus else '3M' }} {{ booking.trip.bus.model if booking.trip and booking.trip.bus else 'Véhicule VIP' }}
+                                            </h4>
+                                            {% if is_cancelled %}
+                                                <span class="badge bg-danger px-3 py-1.5 rounded-pill"><i class="fas fa-times-circle me-1"></i> Contrat Annulé</span>
+                                            {% elif is_past %}
+                                                <span class="badge bg-success px-3 py-1.5 rounded-pill"><i class="fas fa-check-circle me-1"></i> Location Terminée</span>
+                                            {% else %}
+                                                <span class="badge bg-danger text-white px-3 py-1.5 rounded-pill"><i class="bi bi-shield-check me-1"></i> Flotte VIP Active</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            {% if is_cancelled %}
+                                                <span class="badge bg-secondary py-2 px-3 fw-bold rounded-pill">Remboursement Traité</span>
+                                            {% else %}
+                                                <span class="badge bg-success py-2 px-3 fw-bold rounded-pill"><i class="bi bi-shield-check"></i> Réglé {{ booking.price_paid|int }} FCFA</span>
+                                            {% endif %}
+                                            
+                                            {% if is_active %}
+                                                <span class="badge bg-primary py-2 px-3 fw-bold rounded-pill"><i class="bi bi-check2-circle"></i> Confirmé</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-4 align-items-center">
+                                        <!-- Mission & Period details -->
+                                        <div class="col-md-5">
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="text-start">
+                                                    <small class="text-muted d-block">Prise en charge</small>
+                                                    <div class="fs-5 fw-bold text-dark">{{ booking.trip.route.origin }}</div>
+                                                    <div class="small fw-semibold text-primary mt-1">{{ booking.trip.departure_time.strftime('%H:%M') }}</div>
+                                                    <div class="small text-muted">{{ booking.trip.departure_time.strftime('%d/%m/%Y') }}</div>
+                                                </div>
+                                                
+                                                <div class="timeline-container flex-grow-1">
+                                                    <div class="timeline-dot"></div>
+                                                    <div class="timeline-line"></div>
+                                                    <div class="timeline-dot"></div>
+                                                </div>
+
+                                                <div class="text-end">
+                                                    <small class="text-muted d-block">Restitution</small>
+                                                    <div class="fs-5 fw-bold text-dark">{{ booking.trip.route.destination }}</div>
+                                                    <div class="small fw-semibold text-primary mt-1">{{ booking.trip.arrival_time.strftime('%H:%M') }}</div>
+                                                    <div class="small text-muted">{{ booking.trip.arrival_time.strftime('%d/%m/%Y') }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Passenger and reference details -->
+                                        <div class="col-md-4 border-start border-secondary border-opacity-10 px-md-4">
+                                            <div class="d-flex flex-column gap-2 text-start">
+                                                <div>
+                                                    <div class="small text-muted">{{ _t('CLIENT VIP') }}</div>
+                                                    <div class="fw-bold text-dark">{{ booking.passenger_name }}</div>
+                                                </div>
+                                                <div class="d-flex gap-4">
+                                                    <div>
+                                                        <div class="small text-muted">{{ _t('FORMULE') }}</div>
+                                                        <div class="badge bg-light text-dark border px-2 py-1 fw-bold fs-6">Avec Chauffeur VIP</div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="small text-muted">{{ _t('RÉF CONTRAT') }}</div>
+                                                        <code class="text-primary fw-bold fs-6">{{ booking.booking_code or booking.id }}</code>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Actions -->
+                                        <div class="col-md-3 text-md-end d-flex flex-column justify-content-center" style="min-height: 100px;">
+                                            <div class="d-flex flex-column gap-2">
+                                                {% if not is_cancelled %}
+                                                <div class="d-flex gap-2 flex-nowrap">
+                                                    <button type="button" class="btn btn-primary flex-fill py-2 px-1 text-center text-nowrap" style="border-radius: 2rem; font-size: 0.82rem; min-width: 0; text-overflow: ellipsis; overflow: hidden;" onclick="openTicketModal('{{ booking.booking_code or booking.id }}', '{{ booking.passenger_name }}', '{{ booking.trip.route.origin }} ➔ {{ booking.trip.route.destination }}', '{{ booking.trip.departure_time.strftime('%d/%m/%Y %H:%M') }}', 'VIP', '{{ booking.price_paid|int }}')">                                                            
+                                                        <i class="bi bi-file-earmark-text"></i> {{ _t('Contrat') }}
+                                                    </button>
+                                                    <a href="{{ url_for('main.ticket_pdf', booking_id=booking.id) }}" class="btn btn-outline-primary flex-fill py-2 px-1 text-center text-nowrap" style="border-radius: 2rem; font-size: 0.82rem; min-width: 0; text-overflow: ellipsis; overflow: hidden;" target="_blank">
+                                                        <i class="fas fa-file-pdf"></i> Facture
+                                                    </a>
+                                                </div>
+                                                {% endif %}
+                                                
+                                                {% if is_active %}
+                                                <div class="d-flex gap-2 flex-nowrap">
+                                                    <a href="https://wa.me/237691786447?text=Bonjour,%20je%20vous%20contacte%20concernant%20mon%20contrat%20location%20{{ booking.booking_code or booking.id }}" target="_blank" class="btn btn-success flex-fill py-2 text-nowrap" style="border-radius: 2rem; font-size: 0.82rem; min-width: 0;">
+                                                        <i class="bi bi-whatsapp"></i> Chauffeur
+                                                    </a>
+                                                    <button type="button" class="btn btn-outline-danger flex-fill py-2 text-nowrap" style="border-radius: 2rem; font-size: 0.82rem; min-width: 0; text-overflow: ellipsis; overflow: hidden;" onclick="openCancelModal('{{ booking.id }}', '{{ booking.booking_code or booking.id }}', '{{ booking.trip.departure_time.strftime('%d/%m/%Y %H:%M') }}')">
+                                                        <i class="fas fa-times"></i> {{ _t('Annuler') }}
+                                                    </button>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if trip_count.value == 0 %}
+                            <div class="alert alert-info border-0 p-4" style="border-radius:1.5rem;">
+                                <i class="fas fa-info-circle me-2"></i> Vous n'avez aucun historique de voyage. 
+                                <a href="{{ url_for('main.search') }}" class="alert-link fw-semibold ms-1">Rechercher des voyages</a> pour planifier votre prochain départ !
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="pills-parcels" role="tabpanel" aria-labelledby="pills-parcels-tab">
+                    <div id="parcels-container" class="d-flex flex-column gap-4 text-start">
+                        {% if parcels %}
+                            {% for parcel in parcels %}
+                                <!-- Dynamic Parcel Card -->
+                                <div class="ticket-card p-4 border-upcoming" data-id="{{ parcel.id }}" data-code="{{ parcel.tracking_number }}" data-origin="{{ parcel.trip.route.origin if parcel.trip else parcel.agency.city }}" data-destination="{{ parcel.receiver_city }}" data-date="{{ parcel.created_at.strftime('%Y-%m-%d') }}">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 pb-3 border-bottom border-secondary border-opacity-10">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <h4 class="fw-bold mb-0 text-dark">{{ parcel.agency.name }}</h4>
+                                            <span class="badge bg-primary px-3 py-1.5 rounded-pill"><i class="fas fa-box me-1"></i> {{ parcel.parcel_type }}</span>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            {% if parcel.payment_status == 'paid' %}
+                                                <span class="badge bg-success py-2 px-3 fw-bold rounded-pill"><i class="bi bi-shield-check"></i> Payé via {{ parcel.payment_method | upper }}</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark py-2 px-3 fw-bold rounded-pill"><i class="bi bi-exclamation-triangle"></i> En attente de paiement</span>
+                                            {% endif %}
+                                            
+                                            {% if parcel.status == 'assigned' %}
+                                                <span class="badge bg-primary py-2 px-3 fw-bold rounded-pill"><i class="bi bi-clock-history"></i> ASSIGNED TO TRIP</span>
+                                            {% elif parcel.status == 'sent' %}
+                                                <span class="badge bg-info py-2 px-3 fw-bold rounded-pill"><i class="bi bi-truck"></i> En acheminement</span>
+                                            {% elif parcel.status == 'delivered' %}
+                                                <span class="badge bg-success py-2 px-3 fw-bold rounded-pill"><i class="bi bi-check-circle"></i> Livré</span>
+                                            {% elif parcel.status == 'cancelled' %}
+                                                <span class="badge bg-danger py-2 px-3 fw-bold rounded-pill"><i class="bi bi-x-circle"></i> Annulé</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary py-2 px-3 fw-bold rounded-pill">Enregistré</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-4 align-items-center">
+                                        <div class="col-md-5">
+                                            <div class="d-flex align-items-center justify-content-between gap-3">
+                                                <div class="text-start">
+                                                    <div class="fs-4 fw-bold text-dark">{{ parcel.trip.route.origin if parcel.trip else parcel.agency.city }}</div>
+                                                    <div class="small fw-semibold text-primary mt-1">Départ</div>
+                                                </div>
+                                                
+                                                <div class="timeline-container flex-grow-1">
+                                                    <div class="timeline-dot"></div>
+                                                    <div class="timeline-line"></div>
+                                                    <div class="timeline-dot"></div>
+                                                </div>
+
+                                                <div class="text-end">
+                                                    <div class="fs-4 fw-bold text-dark">{{ parcel.receiver_city }}</div>
+                                                    <div class="small fw-semibold text-primary mt-1">Arrivée</div>
+                                                </div>
+                                            </div>
+                                            {% if parcel.trip %}
+                                                <div class="small text-muted mt-2 text-center">
+                                                    <i class="bi bi-clock"></i> Voyage : {{ parcel.trip.departure_time.strftime('%d/%m/%Y à %H:%M') }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="col-md-4 border-start border-secondary border-opacity-10 px-md-4">
+                                            <div class="d-flex flex-column gap-2 text-start">
+                                                <div>
+                                                    <div class="small text-muted">DESTINATAIRE</div>
+                                                    <div class="fw-bold text-dark">{{ parcel.receiver_name }}</div>
+                                                    <div class="small text-muted">{{ parcel.receiver_phone }}</div>
+                                                    {% if parcel.receiver_address %}
+                                                        <div class="small text-muted-dark"><i class="bi bi-geo-alt"></i> {{ parcel.receiver_address }}</div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="d-flex gap-4">
+                                                    <div>
+                                                        <div class="small text-muted">POIDS</div>
+                                                        <div class="badge bg-light text-dark border px-2 py-1 fw-bold fs-6">{{ parcel.weight }} kg</div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="small text-muted">SUIVI (TRACKING)</div>
+                                                        <code class="text-primary fw-bold fs-6">{{ parcel.tracking_number }}</code>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3 text-md-end d-flex flex-column justify-content-between" style="min-height: 120px;">
+                                            <div>
+                                                <div class="small text-muted">MONTANT PAYÉ</div>
+                                                <div class="fs-3 fw-bold text-success">{{ parcel.price|int }} FCFA</div>
+                                            </div>
+                                                <div class="d-flex flex-column flex-sm-row gap-2 mt-3">
+                                                    <button type="button" class="btn btn-primary flex-fill py-2" style="border-radius: 2rem; font-size: 0.82rem; min-width: 0;" onclick="openParcelModal('{{ parcel.tracking_number }}', '{{ parcel.sender_name|escape }}', '{{ parcel.receiver_name|escape }}', '{{ parcel.trip.route.origin if parcel.trip else parcel.agency.city }} ➔ {{ parcel.receiver_city }}', '{{ parcel.weight }}', '{{ parcel.price|int }}')">
+                                                        <i class="fas fa-qrcode"></i> Reçu Digital
+                                                    </button>
+                                                    <a href="{{ url_for('main.parcel_pdf', parcel_id=parcel.id) }}" class="btn btn-outline-primary flex-fill py-2" style="border-radius: 2rem; font-size: 0.82rem; min-width: 0;" target="_blank">
+                                                        <i class="fas fa-file-pdf"></i> PDF
+                                                    </a>
+                                                </div>
+                                                {% if parcel.trip %}
+                                                    <button type="button" class="btn btn-outline-info py-2" style="border-radius: 2rem; font-size: 0.82rem; min-width: 0;" onclick="openGpsTracker('{{ parcel.trip.route.origin|escape }}', '{{ parcel.trip.route.destination|escape }}', {{ parcel.trip.id }})">
+                                                        <i class="fas fa-map-marker-alt"></i> Suivre Bus GPS
+                                                    </button>
+                                                {% endif %}
+                                                <button type="button" class="btn btn-outline-danger py-2" style="border-radius: 2rem; font-size: 0.82rem; min-width: 0;" data-bs-toggle="modal" data-bs-target="#clientReportIncidentModal{{ parcel.id }}">
+                                                    <i class="bi bi-exclamation-triangle"></i> Signaler un litige
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Client Report Incident Modal -->
+                                <div class="modal fade" id="clientReportIncidentModal{{ parcel.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content text-start" style="border-radius:2rem; overflow:hidden; border:none;">
+                                            <form method="POST" action="{{ url_for('admin.report_incident') }}" enctype="multipart/form-data">
+                                                <input type="hidden" name="parcel_id" value="{{ parcel.id }}">
+                                                <div class="modal-header bg-danger text-white border-0 py-3">
+                                                    <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Signaler un Incident / Litige</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body p-4">
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold text-muted text-uppercase">Référence du Colis</label>
+                                                        <input type="text" class="form-control" value="{{ parcel.tracking_number }}" readonly>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold text-muted text-uppercase">Type d'Incident</label>
+                                                        <select name="type" class="form-select" required>
+                                                            <option value="Delayed Parcel">Delayed Parcel (Colis en retard)</option>
+                                                            <option value="Lost Parcel">Lost Parcel (Colis perdu)</option>
+                                                            <option value="Customer Complaint">Customer Complaint (Réclamation client)</option>
+                                                            <option value="Wrong Receiver">Wrong Receiver (Mauvais colis / destinataire)</option>
+                                                            <option value="Damaged Parcel">Damaged Parcel (Colis endommagé)</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold text-muted text-uppercase">Description du problème</label>
+                                                        <textarea name="description" class="form-control" rows="4" placeholder="Décrivez le problème en détail pour notre équipe d'enquête..." required></textarea>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold text-muted text-uppercase">Photo du colis (Optionnel)</label>
+                                                        <input type="file" name="photo" class="form-control" accept="image/*">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold text-muted text-uppercase">Photo du reçu / bordereau (Optionnel)</label>
+                                                        <input type="file" name="receipt_photo" class="form-control" accept="image/*">
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer border-0">
+                                                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Annuler</button>
+                                                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">Envoyer Réclamation</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-info border-0 p-4" style="border-radius:1.5rem;">
+                                <i class="fas fa-info-circle me-2"></i> Vous n'avez aucun colis enregistré pour expédition. 
+                                <a href="{{ url_for('main.search', trip_type='send_parcel') }}" class="alert-link fw-semibold ms-1">Expédier un colis</a> dès maintenant !
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- Modal 1: Boarding Pass view ticket -->
+<div class="modal fade" id="ticketDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:2rem; overflow:hidden; border:none; background: var(--input-bg-light);">
+            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, var(--primary-light), var(--primary-dark)); color: #fff; padding: 1.8rem;">
+                <h5 class="modal-title fw-bold" id="ticketModalTitle"><i class="fas fa-ticket-alt me-2"></i></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <!-- QR Code image -->
+                <div class="mb-3 p-3 rounded text-dark text-center" style="background:#f8fafc; border: 1.5px dashed #cbd5e1;">
+                    <img id="modalTicketQrImage" src="" alt="QR Code" style="width: 180px; max-width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; margin-bottom: 10px;">
+                    <div class="fw-bold text-dark mb-1" style="font-size: 1.1rem; letter-spacing: 2px;" id="modalTicketCode">3M SERVICES-10382-VIP</div>
+                    <div class="text-muted small">Code Digital du Billet (Scannable)</div>
+                </div>
+
+
+
+                <div class="text-start p-3 bg-light rounded-3 text-dark small mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Passager :</span>
+                        <strong id="modalPassengerName">Marc Kamdem</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Ligne de voyage :</span>
+                        <strong id="modalRouteLine">Douala ➔ Yaoundé</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Départ prévu :</span>
+                        <strong id="modalDepartureTime" class="text-primary">27/05/2026 à 23:44</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Numéro Siège :</span>
+                        <span class="badge bg-warning text-dark fw-bold" id="modalSeatNumber">1A</span>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 mb-2">
+                                                    <button type="button" class="btn btn-primary w-50 py-2" style="border-radius:2rem;" onclick="triggerDownloadAlert('Billet_BoardingPass.pdf')">
+                                                        <i class="fas fa-file-pdf me-1"></i> Imprimer PDF
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-success w-50 py-2" style="border-radius:2rem;" id="modalShareBtn">
+                                                        <i class="fas fa-share-alt me-1"></i> Partager
+                                                    </button>
+                                                </div>
+                                                <button type="button" class="btn btn-outline-info w-100 py-2" style="border-radius:2rem;" id="modalCalendarBtn">
+                                                    <i class="fas fa-calendar-plus me-1"></i> Ajouter au Calendrier
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+<!-- Modal 2: 2D Interactive Seat Map Visualization -->
+<div class="modal fade" id="seatVisualizationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:2rem; overflow:hidden; border:none; background: var(--input-bg-light);">
+            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, var(--primary-light), var(--primary-dark)); color: #fff; padding: 1.5rem;">
+                <h5 class="modal-title fw-bold"><i class="fas fa-chair me-2"></i> Plan de Cabine - 3M SERVICES VIP</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <p class="text-muted small mb-4">Voici la disposition de votre place en cabine. Vos sièges voisins immédiats sont grisés s'ils sont déjà occupés.</p>
+                
+                <!-- Bus Visual Seat 2D Grid Mockup -->
+                <div class="bus-grid mx-auto mb-4" style="max-width: 320px;">
+                    <div class="col-12 text-center text-muted fw-semibold small mb-3 border-bottom pb-2" style="grid-column: 1 / -1;">
+                        <i class="fas fa-dharmachakra"></i> Cabine Chauffeur / Avant du Bus
+                    </div>
+                    
+                    <div class="seat-box occupied">1A</div>
+                    <div class="seat-box occupied">1B</div>
+                    <div class="seat-box" id="seat-1C">1C</div>
+                    <div class="seat-box" id="seat-1D">1D</div>
+                    
+                    <div class="seat-box" id="seat-2A">2A</div>
+                    <div class="seat-box occupied">2B</div>
+                    <div class="seat-box" id="seat-2C">2C</div>
+                    <div class="seat-box my-seat" id="mySeatPlaceholder">3A</div>
+                    
+                    <div class="seat-box" id="seat-3B">3B</div>
+                    <div class="seat-box" id="seat-3C">3C</div>
+                    <div class="seat-box occupied">3D</div>
+                    <div class="seat-box" id="seat-4A">4A</div>
+                    
+                    <div class="col-12 text-center text-muted small py-1 my-1 border-top border-bottom" style="grid-column: 1 / -1;">
+                        <i class="bi bi-door-open-fill"></i> Allée Centrale / Portes
+                    </div>
+                    
+                    <div class="seat-box occupied">5A</div>
+                    <div class="seat-box" id="seat-5B">5B</div>
+                    <div class="seat-box" id="seat-5C">5C</div>
+                    <div class="seat-box occupied">5D</div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 small text-muted">
+                    <span class="d-flex align-items-center gap-1"><span class="d-inline-block rounded" style="width:14px; height:14px; background:linear-gradient(135deg, var(--accent-dark) 0%, #ffb74d 100%);"></span> Ma Place</span>
+                    <span class="d-flex align-items-center gap-1"><span class="d-inline-block rounded bg-secondary" style="width:14px; height:14px; opacity:0.6;"></span> Occupé</span>
+                    <span class="d-flex align-items-center gap-1"><span class="d-inline-block rounded border" style="width:14px; height:14px; background:#fff;"></span> Disponible</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3: Live GPS Trip Tracker -->
+<div class="modal fade" id="gpsTrackerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:2rem; overflow:hidden; border:none; background: var(--input-bg-light);">
+            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, var(--primary-light), var(--primary-dark)); color: #fff; padding: 1.5rem;">
+                <h5 class="modal-title fw-bold"><i class="fas fa-map-marker-alt me-2"></i> Localisation du Bus en Direct</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                
+                <!-- Live GPS Signal Icon -->
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="spinner-grow text-success" role="status" style="width: 2rem; height: 2rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <h4 class="fw-bold text-dark mb-1" id="gpsRouteTitle">Douala ➔ Yaoundé</h4>
+                <p class="text-muted small mb-3">Signal GPS Actif.</p>
+
+                <!-- Leaflet Live Map -->
+                <div id="gpsMap" class="rounded-4 mb-3 border shadow-sm" style="height: 220px; z-index: 1;"></div>
+
+                <div class="p-3 bg-light rounded-3 text-dark small text-start mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Statut Véhicule :</span>
+                        <strong class="text-success"><i class="bi bi-dot"></i> Véhicule prêt & inspecté</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Compte à rebours :</span>
+                        <strong class="text-primary" id="gpsCountdown">Mise à disposition imminente</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Position actuelle :</span>
+                        <strong class="text-dark" id="gpsPositionText">Showroom 3M SERVICES Omnisports</strong>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-primary w-100 py-2.5 rounded-pill fw-bold" data-bs-dismiss="modal">
+                    Fermer le radar GPS
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 4: Cancellation Policy and Refund Preview -->
+<div class="modal fade" id="cancelRequestModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:2rem; overflow:hidden; border:none; background: var(--input-bg-light);">
+            <div class="modal-header border-0 pb-0" style="background: #ef4444; color: #fff; padding: 1.5rem;">
+                <h5 class="modal-title fw-bold"><i class="fas fa-exclamation-triangle me-2"></i> Confirmer l'annulation de la location</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <p class="text-dark fw-bold mb-3">Voulez-vous vraiment annuler votre réservation de véhicule VIP ?</p>
+                
+                <div class="text-start p-3 bg-danger bg-opacity-10 border border-danger border-opacity-20 rounded-3 text-dark small mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Référence Contrat :</span>
+                        <strong id="cancelModalCode" class="text-danger">3M SERVICES-10382-VIP</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Mise à disposition :</span>
+                        <strong id="cancelModalDate">27/05/2026 à 23:44</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 border-top pt-2">
+                        <span>Remboursement Mobile Money :</span>
+                        <strong class="text-success">Éligible (95% remboursé)</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Numéro de Remboursement MoMo :</span>
+                        <strong id="cancelModalMomo">{{ current_user.phone or "+237 6xx xxx xxx" }}</strong>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning text-start small border-0 py-2.5 px-3 mb-4" style="border-radius:0.8rem;">
+                    <i class="bi bi-info-circle-fill"></i> Conformément aux politiques de l'agence, des frais de transaction administrative de 5% sont retenus pour tout remboursement par Mobile Money.
+                </div>
+
+                <form id="cancelTicketForm" action="" method="POST" class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger w-50 py-2.5 rounded-pill fw-bold">
+                        <i class="fas fa-check-circle me-1"></i> Valider l'Annulation
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary w-50 py-2.5 rounded-pill fw-bold" data-bs-dismiss="modal">
+                        Garder mon ticket
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 5: Static rules Cancellation policy terms -->
+<div class="modal fade" id="cancellationPolicyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:2rem; overflow:hidden; border:none; background: var(--input-bg-light);">
+            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, var(--primary-light), var(--primary-dark)); color: #fff; padding: 1.5rem;">
+                <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-ruled me-2"></i> Conditions Générales d'Annulation</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="small text-muted text-start" style="line-height:1.6;">
+                    <h6 class="fw-bold text-dark mb-2">1. Délais et Barèmes de retenues</h6>
+                    <p class="mb-3">Toute demande de remboursement s'effectue via l'espace client. Le montant recrédité dépend directement de la ponctualité de votre notification :</p>
+                    <ul>
+                        <li class="mb-1"><strong>Plus de 6 heures avant le départ</strong> : Retenue administrative forfaitaire de 5%. Remboursement recrédité de <strong>95%</strong>.</li>
+                        <li class="mb-1"><strong>Entre 6 heures et 2 heures avant le départ</strong> : Retenue administrative de 15%. Remboursement recrédité de <strong>85%</strong>.</li>
+                        <li class="mb-3"><strong>Moins de 2 heures avant le départ</strong> : Billet considéré comme perdu. Aucun remboursement possible.</li>
+                    </ul>
+
+                    <h6 class="fw-bold text-dark mb-2">2. Délais de versement par Mobile Money</h6>
+                    <p class="mb-0">Les versement API par Orange Money et MTN Mobile Money sont entièrement sécurisés et s'exécutent automatiquement sous un délai moyen estimé à **moins de 2 heures** à compter de la validation en ligne.</p>
+                </div>
+                <button type="button" class="btn btn-primary w-100 py-2.5 mt-4 rounded-pill fw-bold" data-bs-dismiss="modal">
+                    J'ai compris
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 6: Dynamic Reschedule & Modification Engine -->
+<div class="modal fade" id="modifyReservationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:2rem; overflow:hidden; border:none; background: var(--input-bg-light);">
+            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, var(--primary-light), var(--primary-dark)); color: #fff; padding: 1.5rem;">
+                <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2"></i> Modifier ma réservation</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-start">
+                <form id="rescheduleForm" onsubmit="submitModificationForm(event)">
+                    <input type="hidden" id="modifyBookingId">
+                    <input type="hidden" id="modifyOrigin">
+                    <input type="hidden" id="modifyDestination">
+                    <input type="hidden" id="modifyOldSeat">
+                    
+                    <div class="mb-3">
+                        <label for="modifyPassengerName" class="form-label fw-bold">Nom complet du passager</label>
+                        <input type="text" id="modifyPassengerName" class="form-control" required>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="modifyPhone" class="form-label fw-bold">Numéro de téléphone</label>
+                            <input type="tel" id="modifyPhone" class="form-control" placeholder="+237 6xx xxx xxx">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="modifyEmergency" class="form-label fw-bold">Contact d'Urgence</label>
+                            <input type="tel" id="modifyEmergency" class="form-control" placeholder="+237 6xx xxx xxx" value="+237 677 889 900">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="modifyDate" class="form-label fw-bold">Nouvelle date de voyage</label>
+                        <input type="date" id="modifyDate" class="form-control" placeholder="Sélectionnez..." onchange="fetchAvailableTripsForDate()">
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="modifyHour" class="form-label fw-bold">Heure de départ</label>
+                            <select id="modifyHour" class="form-select" onchange="fetchAvailableSeatsForTrip()">
+                                <option value="" selected>Sélectionnez une date d'abord</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="modifySeat" class="form-label fw-bold">Changer de siège</label>
+                            <select id="modifySeat" class="form-select">
+                                <option value="" selected>Sélectionnez un horaire d'abord</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-50 py-2.5 rounded-pill fw-bold">
+                            <i class="fas fa-save me-1"></i> Enregistrer
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary w-50 py-2.5 rounded-pill fw-bold" data-bs-dismiss="modal">
+                            Annuler
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let rescheduleDatePicker;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 0. Activate tab from URL hash (e.g., #pills-parcels)
+    const hash = window.location.hash;
+    if (hash) {
+        const triggerEl = document.querySelector(`button[data-bs-target="${hash}"]`);
+        if (triggerEl) {
+            const tab = new bootstrap.Tab(triggerEl);
+            tab.show();
+            // Scroll to the content so it's visible on mobile
+            setTimeout(() => {
+                const targetPane = document.querySelector(hash);
+                if (targetPane) {
+                    targetPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 300);
+        }
+    }
+
+    // 1. Initialize Flatpickr for Reschedule Date Selector
+    const modifyDateInput = document.getElementById('modifyDate');
+    if (modifyDateInput) {
+        rescheduleDatePicker = flatpickr(modifyDateInput, {
+            locale: "fr",
+            minDate: "today",
+            altInput: true,
+            altFormat: "d/m/Y",
+            dateFormat: "Y-m-d",
+            defaultDate: "today"
+        });
+    }
+
+    // 2. Load Navbar Avatar inside Loyalty Profile Card if it exists
+    const currentUsername = "{{ current_user.username if current_user.is_authenticated else '' }}";
+    if (currentUsername) {
+        {% if current_user.profile_picture %}
+            const avatarUrl = "{{ current_user.avatar_url }}";
+            localStorage.setItem(`avatar_${currentUsername}`, avatarUrl);
+            const loyaltyAvatar = document.getElementById('loyaltyAvatar');
+            const loyaltyIcon = document.getElementById('loyaltyIcon');
+            if (loyaltyAvatar && loyaltyIcon) {
+                loyaltyAvatar.src = avatarUrl;
+                loyaltyAvatar.classList.remove('d-none');
+                loyaltyIcon.classList.add('d-none');
+            }
+        {% else %}
+            localStorage.removeItem(`avatar_${currentUsername}`);
+            const loyaltyAvatar = document.getElementById('loyaltyAvatar');
+            const loyaltyIcon = document.getElementById('loyaltyIcon');
+            if (loyaltyAvatar && loyaltyIcon) {
+                loyaltyAvatar.classList.add('d-none');
+                loyaltyAvatar.src = "";
+                loyaltyIcon.classList.remove('d-none');
+            }
+        {% endif %}
+    }
+
+    // 3. Client Side Dynamic Search & Filters System
+    const searchQuery = document.getElementById('searchQuery');
+    const statusFilter = document.getElementById('statusFilter');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+
+    function executeFiltering() {
+        const queryText = searchQuery.value.trim().toLowerCase();
+        const activeStatus = statusFilter.value;
+
+        // Fetch all ticket cards across all tabs
+        const cards = document.querySelectorAll('.ticket-card');
+
+        cards.forEach(card => {
+            const code = card.getAttribute('data-code').toLowerCase();
+            const origin = card.getAttribute('data-origin').toLowerCase();
+            const destination = card.getAttribute('data-destination').toLowerCase();
+            
+            // Text Match condition
+            const textMatch = code.includes(queryText) || origin.includes(queryText) || destination.includes(queryText);
+            
+            // Toggle Display Node based on conditions
+            if (textMatch) {
+                card.classList.remove('d-none');
+            } else {
+                card.classList.add('d-none');
+            }
+        });
+    }
+
+    if (searchQuery && statusFilter) {
+        searchQuery.addEventListener('input', executeFiltering);
+        statusFilter.addEventListener('change', function() {
+            // tab switching dynamically based on status dropdown selections for optimal UX!
+            const upcomingTab = document.getElementById('pills-upcoming-tab');
+            const pastTab = document.getElementById('pills-past-tab');
+            const cancelledTab = document.getElementById('pills-cancelled-tab');
+            const refundsTab = document.getElementById('pills-refunds-tab');
+
+            if (statusFilter.value === 'all') {
+                // Show all panes simultaneously for "Tous les statuts"
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.add('active', 'show');
+                });
+                document.querySelectorAll('.nav-link-tab').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+            } else {
+                if (statusFilter.value === 'upcoming' && upcomingTab) upcomingTab.click();
+                if (statusFilter.value === 'completed' && pastTab) pastTab.click();
+                if (statusFilter.value === 'cancelled' && cancelledTab) cancelledTab.click();
+            }
+            executeFiltering();
+        });
+        
+        // When clicking a tab manually, update the filter to match, and ensure isolation
+        document.querySelectorAll('.nav-link-tab').forEach(tabBtn => {
+            tabBtn.addEventListener('click', function() {
+                // Remove active/show from all panes to restore isolation
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('active', 'show');
+                });
+                const target = document.querySelector(this.getAttribute('data-bs-target'));
+                if(target) target.classList.add('active', 'show');
+                
+                if (this.id === 'pills-upcoming-tab') statusFilter.value = 'upcoming';
+                else if (this.id === 'pills-past-tab') statusFilter.value = 'completed';
+                else if (this.id === 'pills-cancelled-tab') statusFilter.value = 'cancelled';
+                
+                // Sync mobile dropdown
+                const mobileFilter = document.getElementById('statusFilterMobile');
+                if (mobileFilter) mobileFilter.value = statusFilter.value;
+                
+                executeFiltering();
+            });
+        });
+    }
+
+    if (btnClearFilters) {
+        btnClearFilters.addEventListener('click', function() {
+            searchQuery.value = '';
+            statusFilter.value = 'all';
+            
+            // Show all cards
+            const cards = document.querySelectorAll('.ticket-card');
+            cards.forEach(card => card.classList.remove('d-none'));
+
+            // Show all panes simultaneously
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.add('active', 'show');
+            });
+            document.querySelectorAll('.nav-link-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Sync mobile dropdown and search
+            const mobileFilter = document.getElementById('statusFilterMobile');
+            if (mobileFilter) mobileFilter.value = 'all';
+            const mobileSearch = document.getElementById('searchQueryMobile');
+            if (mobileSearch) mobileSearch.value = '';
+        });
+    }
+});
+
+// 4. Modal Boarding Pass Detail Launcher
+function openTicketModal(code, passenger, route, date, seat, price) {
+    document.getElementById('modalTicketCode').textContent = code;
+    document.getElementById('modalTicketQrImage').src = '/generate_qr/' + code;
+    document.getElementById('modalPassengerName').textContent = passenger;
+    document.getElementById('modalRouteLine').textContent = route;
+    document.getElementById('modalDepartureTime').textContent = date;
+    document.getElementById('modalSeatNumber').textContent = seat;
+    
+    // Share Button handler
+    const shareBtn = document.getElementById('modalShareBtn');
+    if(shareBtn) {
+        shareBtn.onclick = () => {
+            const shareData = {
+                title: 'Ma Réservation VIP 3M SERVICES',
+                text: `Contrat VIP ${code} pour la mission ${route} le ${date}. Véhicule VIP avec chauffeur. 3M SERVICES SARL.`,
+                url: window.location.origin + '/my-bookings'
+            };
+            if(navigator.share) {
+                navigator.share(shareData).catch(err => console.log(err));
+            } else {
+                navigator.clipboard.writeText(shareData.text);
+                alert("Détails du contrat VIP copiés dans le presse-papiers !");
+            }
+        };
+    }
+    
+    // Calendar Button handler
+    const calBtn = document.getElementById('modalCalendarBtn');
+    if(calBtn) {
+        calBtn.onclick = () => {
+            const dateParts = date.split(' '); // "dd/mm/yyyy hh:mm"
+            const dParts = dateParts[0].split('/');
+            const tParts = dateParts[1].split(':');
+            
+            const start = new Date(dParts[2], dParts[1]-1, dParts[0], tParts[0], tParts[1]);
+            const end = new Date(start.getTime() + 3 * 60 * 60 * 1000); // 3h estimate
+            
+            const formatICSDate = (d) => {
+                return d.toISOString().replace(/-|:|\.\d+/g, '');
+            };
+            
+            const icsContent = 
+                "BEGIN:VCALENDAR\n" +
+                "VERSION:2.0\n" +
+                "BEGIN:VEVENT\n" +
+                "SUMMARY:Voyage 3M SERVICES - " + route + "\n" +
+                "DTSTART:" + formatICSDate(start) + "\n" +
+                "DTEND:" + formatICSDate(end) + "\n" +
+                "DESCRIPTION:Reference: " + code + ". Siege: " + seat + ". Voyageur: " + passenger + ".\n" +
+                "LOCATION:Agence de depart 3M SERVICES\n" +
+                "END:VEVENT\n" +
+                "END:VCALENDAR";
+                
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `voyage_${code}.ics`;
+            document.body.appendChild(link);
+            link.click();
+            window.URL.revokeObjectURL(link.href);
+            document.body.removeChild(link);
+        };
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('ticketDetailModal'));
+    modal.show();
+}
+
+// 5. Modal 2D Interactive Seat Map Visualization Launcher
+function openSeatMapModal(seatNumber) {
+    const seatPlaceholder = document.getElementById('mySeatPlaceholder');
+    if (seatPlaceholder) {
+        seatPlaceholder.textContent = seatNumber;
+    }
+    const modal = new bootstrap.Modal(document.getElementById('seatVisualizationModal'));
+    modal.show();
+}
+
+// 6. GPS Live radar tracker simulation launcher
+let gpsMapInstance = null;
+let gpsMarker = null;
+
+function openGpsTracker(origin, destination, tripId) {
+    document.getElementById('gpsRouteTitle').textContent = `${origin} ➔ ${destination}`;
+    
+    const modal = new bootstrap.Modal(document.getElementById('gpsTrackerModal'));
+    modal.show();
+    
+    setTimeout(() => {
+        if (gpsMapInstance) {
+            gpsMapInstance.remove();
+        }
+        
+        gpsMapInstance = L.map('gpsMap').setView([3.95, 10.6], 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(gpsMapInstance);
+        
+        fetch(`/api/trip/${tripId}/location`)
+            .then(res => res.json())
+            .then(data => {
+                const busLatLng = [data.latitude, data.longitude];
+                gpsMapInstance.setView(busLatLng, 10);
+                
+                gpsMarker = L.marker(busLatLng).addTo(gpsMapInstance)
+                    .bindPopup('<b>Bus 3M SERVICES</b><br>Position du bus en temps réel.').openPopup();
+                    
+                document.getElementById('gpsPositionText').innerText = `Latitude: ${data.latitude.toFixed(4)}, Longitude: ${data.longitude.toFixed(4)}`;
+            })
+            .catch(err => console.error("Error loading GPS location", err));
+    }, 400);
+}
+
+// Nearest Agency Finder
+function findNearestAgency() {
+    if (!navigator.geolocation) {
+        alert("La géolocalisation n'est pas supportée par votre navigateur.");
+        return;
+    }
+    
+    const widget = document.getElementById('nearestAgencyContent');
+    const nameEl = document.getElementById('nearAgencyName');
+    const addrEl = document.getElementById('nearAgencyAddr');
+    const phoneEl = document.getElementById('nearAgencyPhone');
+    const distEl = document.getElementById('nearAgencyDist');
+    
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        
+        try {
+            const response = await fetch(`/api/agencies/nearest?lat=${lat}&lon=${lon}`);
+            const data = await response.json();
+            if(data.success && data.agencies.length > 0) {
+                const nearest = data.agencies[0];
+                nameEl.innerText = nearest.name;
+                addrEl.innerText = `${nearest.city}, ${nearest.address}`;
+                phoneEl.innerText = nearest.phone || 'Non spécifié';
+                distEl.innerText = `${nearest.distance} km`;
+                widget.classList.remove('d-none');
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }, (err) => {
+        alert("Impossible d'accéder à votre position GPS. Veuillez vérifier vos permissions de localisation.");
+    });
+}
+
+// 7. Cancellation Modal Launcher connected with refund tracking preview
+function openCancelModal(bookingId, code, departureDate) {
+    document.getElementById('cancelModalCode').textContent = code;
+    document.getElementById('cancelModalDate').textContent = departureDate;
+    
+    // Set dynamic form action to match EXACT backend route `/cancel-booking/<booking_id>`
+    const cancelForm = document.getElementById('cancelTicketForm');
+    if (cancelForm) {
+        cancelForm.action = `/cancel-booking/${bookingId}`;
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('cancelRequestModal'));
+    modal.show();
+}
+
+let modifyModalInstance = null;
+
+// 8. Reschedule / Modify Modal Launcher
+function openModifyModal(bookingId, passengerName, seatNumber, departureDate, phoneNumber, origin, destination) {
+    document.getElementById('modifyBookingId').value = bookingId;
+    document.getElementById('modifyPassengerName').value = passengerName;
+    document.getElementById('modifyPhone').value = phoneNumber || '';
+    document.getElementById('modifyOrigin').value = origin;
+    document.getElementById('modifyDestination').value = destination;
+    document.getElementById('modifyOldSeat').value = seatNumber;
+    
+    document.getElementById('modifyDate').value = departureDate;
+    
+    // Automatically trigger fetch for current date to pre-fill hours
+    fetchAvailableTripsForDate();
+    
+    const modalElement = document.getElementById('modifyReservationModal');
+    modifyModalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+    modifyModalInstance.show();
+}
+
+function fetchAvailableTripsForDate() {
+    const origin = document.getElementById('modifyOrigin').value;
+    const destination = document.getElementById('modifyDestination').value;
+    const selectedDate = document.getElementById('modifyDate').value;
+    const modifyHour = document.getElementById('modifyHour');
+    const modifySeat = document.getElementById('modifySeat');
+    
+    modifyHour.innerHTML = '<option value="" selected>Chargement...</option>';
+    modifySeat.innerHTML = '<option value="" selected>Sélectionnez un horaire d\'abord</option>';
+    
+    if (!selectedDate || !origin || !destination) return;
+
+    fetch(`/api/search_buses?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&date=${selectedDate}`)
+        .then(response => response.json())
+        .then(data => {
+            modifyHour.innerHTML = '<option value="" selected>Choisissez une heure</option>';
+            if (data && data.buses && data.buses.length > 0) {
+                data.buses.forEach(trip => {
+                    const option = document.createElement('option');
+                    option.value = trip.id;
+                    option.textContent = `${trip.departure_time} - ${trip.bus_name || 'Bus'} (${trip.available_seats} places)`;
+                    modifyHour.appendChild(option);
+                });
+            } else {
+                modifyHour.innerHTML = '<option value="" selected>Aucun trajet disponible</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching trips:', error);
+            modifyHour.innerHTML = '<option value="" selected>Erreur de chargement</option>';
+        });
+}
+
+function fetchAvailableSeatsForTrip() {
+    const tripId = document.getElementById('modifyHour').value;
+    const modifySeat = document.getElementById('modifySeat');
+    const oldSeat = document.getElementById('modifyOldSeat').value;
+    
+    modifySeat.innerHTML = '<option value="" selected>Chargement...</option>';
+    
+    if (!tripId) {
+        modifySeat.innerHTML = '<option value="" selected>Sélectionnez un horaire d\'abord</option>';
+        return;
+    }
+
+    fetch(`/api/trip/${tripId}/seats`)
+        .then(response => response.json())
+        .then(data => {
+            modifySeat.innerHTML = '<option value="" selected>Choisissez un siège</option>';
+            // Add the current seat if the user wants to keep it
+            const optionOld = document.createElement('option');
+            optionOld.value = oldSeat;
+            optionOld.textContent = `${oldSeat} (Actuel)`;
+            modifySeat.appendChild(optionOld);
+
+            const capacity = data.capacity || 70;
+            const bookedSeats = data.booked_seats || [];
+            const cols = ['A', 'B', 'C', 'D'];
+            const rowCount = Math.ceil(capacity / 4);
+            
+            for (let i = 1; i <= rowCount; i++) {
+                for (let j = 0; j < cols.length; j++) {
+                    const seatName = i + cols[j];
+                    // Skip if booked or if it's the old seat (already added)
+                    if (!bookedSeats.includes(seatName) && seatName !== oldSeat) {
+                        const option = document.createElement('option');
+                        option.value = seatName;
+                        option.textContent = seatName;
+                        modifySeat.appendChild(option);
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching seats:', error);
+            modifySeat.innerHTML = '<option value="" selected>Erreur de chargement</option>';
+        });
+}
+
+// 9. Reschedule Submission Handler
+function submitModificationForm(event) {
+    event.preventDefault();
+    const bookingId = document.getElementById('modifyBookingId').value;
+    const newName = document.getElementById('modifyPassengerName').value;
+    const newPhone = document.getElementById('modifyPhone').value;
+    const newEmergency = document.getElementById('modifyEmergency').value;
+    const tripId = document.getElementById('modifyHour').value;
+    const newSeat = document.getElementById('modifySeat').value;
+    
+    if (!tripId || !newSeat) {
+        alert("Veuillez choisir un horaire et un siège.");
+        return;
+    }
+
+    // Save to backend
+    fetch(`/api/modify_booking/${bookingId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            passenger_name: newName,
+            phone: newPhone,
+            emergency_contact: newEmergency,
+            trip_id: tripId,
+            seat_number: newSeat
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            alert(`🎉 Modification réussie !`);
+            window.location.reload();
+        } else {
+            alert(`Erreur: ${data.error || data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error updating booking:', error);
+        alert('Une erreur est survenue lors de la mise à jour.');
+    });
+}
+
+function triggerDownloadAlert(filename) {
+    alert(`📥 Téléchargement de ${filename} réussi !\nFichier enregistré avec succès.`);
+}
+</script>
+<script>
+    // Mobile Search toggle inline
+    document.getElementById('btnOpenMobileSearch')?.addEventListener('click', function() {
+        const wrapper = document.getElementById('mobileSearchWrapper');
+        wrapper.classList.add('expanded');
+        this.classList.add('d-none');
+        document.getElementById('mobileSearchInputGroup').classList.remove('d-none');
+        document.getElementById('mobileSearchInputGroup').classList.add('d-flex');
+        setTimeout(() => document.getElementById('searchQueryMobile').focus(), 100);
+    });
+    
+    document.getElementById('btnCloseMobileSearch')?.addEventListener('click', function() {
+        const wrapper = document.getElementById('mobileSearchWrapper');
+        wrapper.classList.remove('expanded');
+        document.getElementById('mobileSearchInputGroup').classList.add('d-none');
+        document.getElementById('mobileSearchInputGroup').classList.remove('d-flex');
+        document.getElementById('btnOpenMobileSearch').classList.remove('d-none');
+        document.getElementById('searchQueryMobile').value = '';
+        
+        const desktopSearch = document.getElementById('searchQuery');
+        if(desktopSearch) {
+            desktopSearch.value = '';
+            desktopSearch.dispatchEvent(new Event('keyup'));
+        }
+    });
+    
+    // Sync mobile and desktop search inputs (optional depending on how filter JS is hooked up)
+    document.getElementById('searchQueryMobile')?.addEventListener('input', function(e) {
+        const desktopSearch = document.getElementById('searchQuery');
+        if(desktopSearch) {
+            desktopSearch.value = e.target.value;
+            desktopSearch.dispatchEvent(new Event('keyup'));
+        }
+    });
+
+    document.getElementById('statusFilterMobile')?.addEventListener('change', function(e) {
+        const desktopFilter = document.getElementById('statusFilter');
+        if(desktopFilter) {
+            desktopFilter.value = e.target.value;
+            desktopFilter.dispatchEvent(new Event('change'));
+        }
+    });
+    
+    document.getElementById('btnClearFiltersMobile')?.addEventListener('click', function(e) {
+        const desktopClear = document.getElementById('btnClearFilters');
+        if(desktopClear) desktopClear.click();
+    });
+
+    // 4.5 Modal Parcel Detail Launcher
+    function openParcelModal(code, sender, receiver, route, weight, price) {
+        document.getElementById('modalParcelCode').textContent = code;
+        document.getElementById('modalParcelQrImage').src = '/generate_parcel_qr/' + code;
+        document.getElementById('modalParcelSender').textContent = sender;
+        document.getElementById('modalParcelReceiver').textContent = receiver;
+        document.getElementById('modalParcelRoute').textContent = route;
+        document.getElementById('modalParcelWeight').textContent = weight + ' kg';
+        
+        // Share Button handler
+        const shareBtn = document.getElementById('modalParcelShareBtn');
+        if(shareBtn) {
+            shareBtn.onclick = () => {
+                const shareData = {
+                    title: 'Reçu de Colis 3M SERVICES',
+                    text: `Colis ${code}. Expéditeur: ${sender}. Destinataire: ${receiver}. Trajet: ${route}. Poids: ${weight}kg. 3M SERVICES vous remercie de votre confiance!`,
+                    url: window.location.origin + '/my-bookings'
+                };
+                if(navigator.share) {
+                    navigator.share(shareData).catch(err => console.log(err));
+                } else {
+                    navigator.clipboard.writeText(shareData.text);
+                    alert("Informations du colis copiées dans le presse-papiers!");
+                }
+            };
+        }
+        
+        new bootstrap.Modal(document.getElementById('parcelDetailModal')).show();
+    }
+    
+    // Make openParcelModal global
+    window.openParcelModal = openParcelModal;
+</script>
+
+<!-- Modal: Parcel Detail (Digital Card) -->
+<div class="modal fade" id="parcelDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:2rem; overflow:hidden; border:none; background: var(--input-bg-light);">
+            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, var(--primary-light), var(--primary-dark)); color: #fff; padding: 1.8rem;">
+                <h5 class="modal-title fw-bold"><i class="fas fa-box me-2"></i> Reçu de Colis Digital</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <!-- QR Code image -->
+                <div class="mb-3 p-3 rounded text-dark text-center" style="background:#f8fafc; border: 1.5px dashed #cbd5e1;">
+                    <img id="modalParcelQrImage" src="" alt="QR Code Colis" style="width: 180px; max-width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; margin-bottom: 10px;">
+                    <div class="fw-bold text-dark mb-1" style="font-size: 1.1rem; letter-spacing: 2px;" id="modalParcelCode">TRACKING-XXXX</div>
+                    <div class="text-muted small">Code Digital du Colis (Scannable)</div>
+                </div>
+
+                <div class="text-start p-3 bg-light rounded-3 text-dark small mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Expéditeur :</span>
+                        <strong id="modalParcelSender"></strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Destinataire :</span>
+                        <strong id="modalParcelReceiver"></strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Trajet :</span>
+                        <strong id="modalParcelRoute"></strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Poids :</span>
+                        <span class="badge bg-warning text-dark fw-bold" id="modalParcelWeight"></span>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 mb-2">
+                    <button type="button" class="btn btn-outline-success w-100 py-2" style="border-radius:2rem;" id="modalParcelShareBtn">
+                        <i class="fas fa-share-alt me-1"></i> Partager le Reçu (WhatsApp/SMS)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

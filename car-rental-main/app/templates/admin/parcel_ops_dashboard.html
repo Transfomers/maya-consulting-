@@ -1,0 +1,187 @@
+{% extends "admin/parcel_ops_base.html" %}
+
+{% block title %}Dashboard Colis Operations{% endblock %}
+{% block page_title %}Dashboard Opérationnel Colis{% endblock %}
+
+{% block head_extra %}
+<style>
+    .ops-revenue-card {
+        background: #fbf2f4 !important;
+        border: 1px solid rgba(201, 42, 42, 0.12) !important;
+        color: #C92A2A !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .ops-revenue-card h2, 
+    .ops-revenue-card span,
+    .ops-revenue-card div,
+    .ops-revenue-card i {
+        color: #C92A2A !important;
+    }
+    .ops-revenue-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(201, 42, 42, 0.1) !important;
+    }
+    body.dark-mode .ops-revenue-card {
+        background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-dark) 100%) !important;
+        border: none !important;
+        color: #ffffff !important;
+    }
+    body.dark-mode .ops-revenue-card h2,
+    body.dark-mode .ops-revenue-card span,
+    body.dark-mode .ops-revenue-card div,
+    body.dark-mode .ops-revenue-card i {
+        color: #ffffff !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Overview Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Daily Revenue -->
+        <div class="col-md-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-start ops-revenue-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-uppercase">Chiffre d'Affaires Colis</span>
+                    <i class="bi bi-cash-coin fs-3"></i>
+                </div>
+                <h2 class="fw-bold mb-0">{{ daily_revenue | int }} FCFA</h2>
+                <div class="small mt-1">Recettes d'aujourd'hui</div>
+            </div>
+        </div>
+
+        <!-- Today's Bookings -->
+        <div class="col-md-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-start">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-uppercase text-muted">Colis Reçus Aujourd'hui</span>
+                    <i class="bi bi-box-seam fs-3 text-primary"></i>
+                </div>
+                <h2 class="fw-bold mb-0 text-primary">{{ parcels_today }}</h2>
+                <div class="small text-muted mt-1">Nouveaux colis à traiter</div>
+            </div>
+        </div>
+
+        <!-- In Transit -->
+        <div class="col-md-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-start">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-uppercase text-muted">En Transit</span>
+                    <i class="bi bi-truck fs-3 text-warning"></i>
+                </div>
+                <h2 class="fw-bold mb-0 text-warning">{{ in_transit }}</h2>
+                <div class="small text-muted mt-1">Colis chargés et en cours de trajet</div>
+            </div>
+        </div>
+
+        <!-- Arrived -->
+        <div class="col-md-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-start">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-uppercase text-muted">Colis Arrivés</span>
+                    <i class="bi bi-pin-map-fill fs-3 text-info"></i>
+                </div>
+                <h2 class="fw-bold mb-0 text-info">{{ arrived }}</h2>
+                <div class="small text-muted mt-1">En attente de livraison au destinataire</div>
+            </div>
+        </div>
+
+        <!-- Delivered -->
+        <div class="col-md-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-start">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-uppercase text-muted">Colis Livrés</span>
+                    <i class="bi bi-check2-circle fs-3 text-success"></i>
+                </div>
+                <h2 class="fw-bold mb-0 text-success">{{ delivered }}</h2>
+                <div class="small text-muted mt-1">Livraisons effectuées aujourd'hui</div>
+            </div>
+        </div>
+
+        <!-- Pending Assignment -->
+        <div class="col-md-4 col-sm-6">
+            <div class="card p-3 border-0 shadow-sm text-start">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-bold text-uppercase text-muted">En Attente d'Assignation</span>
+                    <i class="bi bi-hourglass-split fs-3 text-danger"></i>
+                </div>
+                <h2 class="fw-bold mb-0 text-danger">{{ pending_assignment }}</h2>
+                <div class="small text-muted mt-1">Colis à affecter à un trajet</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Active Trips Widget -->
+    <div class="row g-4 mb-4 text-start">
+        <div class="col-lg-6">
+            <div class="card p-4 border-0 shadow-sm h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-bus-front text-primary me-2"></i>Voyages Actifs au Départ</h5>
+                    <span class="badge bg-primary rounded-pill px-3 py-1.5 fw-bold">{{ active_trips_count }} départs</span>
+                </div>
+                <p class="text-muted small">Affectez et chargez physiquement les colis sur ces lignes régulières aujourd'hui.</p>
+                <div class="alert alert-info border-0 p-3 mb-0" style="border-radius: 10px; background: rgba(112,29,54,0.04);">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-info-circle-fill text-primary fs-3"></i>
+                        <div>
+                            <strong class="text-dark">Processus Opérationnel Simplifié:</strong>
+                            <div class="small text-muted">Valider les colis ➔ Enregistrer le paiement ➔ Assigner au Voyage ➔ Charger ➔ Déclarer l'Arrivée ➔ Confirmer OTP et Livrer.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Actions -->
+        <div class="col-lg-6">
+            <div class="card p-4 border-0 shadow-sm h-100">
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-clock-history text-success me-2"></i>Flux de Colis Récents</h5>
+                {% if recent_parcels %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle table-sm small">
+                            <thead>
+                                <tr>
+                                    <th>N° Suivi</th>
+                                    <th>Destinataire</th>
+                                    <th>Tarif</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in recent_parcels %}
+                                <tr>
+                                    <td class="fw-bold">{{ p.tracking_number }}</td>
+                                    <td>
+                                        <div class="fw-semibold">{{ p.receiver_name }}</div>
+                                        <div class="text-muted small" style="font-size: 0.72rem;">{{ p.receiver_city }}</div>
+                                    </td>
+                                    <td class="fw-bold">{{ p.price | int }} F</td>
+                                    <td>
+                                        {% if p.status == 'pending' %}
+                                            <span class="badge bg-warning-subtle text-warning border px-2 py-1">En attente</span>
+                                        {% elif p.status == 'validated' %}
+                                            <span class="badge bg-info-subtle text-info border px-2 py-1">Validé</span>
+                                        {% elif p.status == 'paid' or p.status == 'assigned' %}
+                                            <span class="badge bg-primary-subtle text-primary border px-2 py-1">Payé/Assigné</span>
+                                        {% elif p.status == 'loaded' or p.status == 'in_transit' %}
+                                            <span class="badge bg-warning text-white border px-2 py-1">Transit</span>
+                                        {% elif p.status == 'delivered' %}
+                                            <span class="badge bg-success-subtle text-success border px-2 py-1">Livré</span>
+                                        {% else %}
+                                            <span class="badge bg-danger-subtle text-danger border px-2 py-1">{{ p.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center py-4 mb-0">Aucun colis enregistré récemment.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

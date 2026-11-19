@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Supervision Logistique Globale - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+    .super-card {
+        background: var(--glass-bg-light);
+        backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid rgba(201, 42, 42, 0.1) !important;
+        border-radius: 1.25rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        color: #1e293b !important;
+    }
+    body.dark-mode .super-card {
+        background: var(--glass-bg-dark);
+        border-color: rgba(255, 255, 255, 0.06) !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+        color: #ffffff !important;
+    }
+    .super-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(201, 42, 42, 0.15);
+    }
+    .kpi-title {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #64748b !important;
+    }
+    body.dark-mode .kpi-title {
+        color: var(--text-muted-dark) !important;
+    }
+    .dashboard-header-card {
+        background: #ffffff !important;
+        border: 1px solid rgba(201, 42, 42, 0.08) !important;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
+        color: #1e293b !important;
+    }
+    .dashboard-header-card h2 {
+        color: #0f172a !important;
+    }
+    .dashboard-header-card p,
+    .dashboard-header-card .small {
+        color: #475569 !important;
+    }
+    .dashboard-header-card .block-title {
+        color: #C92A2A !important;
+    }
+    .dashboard-header-card i {
+        color: #C92A2A !important;
+    }
+    body.dark-mode .dashboard-header-card {
+        background: linear-gradient(135deg, #0f172a 0%, #3a0d1b 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        color: #ffffff !important;
+    }
+    body.dark-mode .dashboard-header-card h2 {
+        color: #ffffff !important;
+    }
+    body.dark-mode .dashboard-header-card p,
+    body.dark-mode .dashboard-header-card .small {
+        color: rgba(255, 255, 255, 0.75) !important;
+    }
+    body.dark-mode .dashboard-header-card .block-title {
+        color: #ffc107 !important;
+    }
+    body.dark-mode .dashboard-header-card i {
+        color: #ffc107 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+    {% include 'admin/_super_parcel_subnav.html' %}
+
+    <!-- Dashboard Header -->
+    <div class="card border-0 shadow-sm mb-4 p-4 fade-in dashboard-header-card">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h2 class="mb-1 fw-bold"><i class="bi bi-shield-shaded me-2"></i>Logistique & Performance Colis (Super Admin)</h2>
+                <p class="mb-0">Supervision stratégique nationale, contrôle des recettes et volume de fret de toutes les agences.</p>
+            </div>
+            <div class="text-end">
+                <span class="fs-4 fw-bold block-title">{{ global_total_rev | int }} FCFA</span>
+                <div class="small fw-semibold">Chiffre d'Affaires Global (Billets + Colis)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Scoped Agency Section -->
+    {% if agency %}
+    <div class="alert alert-info border-0 shadow-sm mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div>
+                <h5 class="fw-bold mb-1"><i class="bi bi-building me-2"></i>Agence Active : {{ agency.name }}</h5>
+                <p class="mb-0 small">Affichage des statistiques spécifiques et des données de facturation pour cette agence.</p>
+            </div>
+            <a href="{{ url_for('admin.select_agency', clear=1) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+                <i class="bi bi-x-circle me-1"></i> Tout Voir
+            </a>
+        </div>
+        <div class="text-md-end">
+            <span class="fw-bold fs-5 text-primary">{{ scoped_total_rev | int }} FCFA</span>
+            <div class="small text-muted">Recette Globale Scoped (Billets + Colis)</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- KPI GRID -->
+    <div class="row g-3 mb-4">
+        <!-- Parcels Today -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card super-card border-0 p-4">
+                <span class="kpi-title">Colis Reçus (Global)</span>
+                <h2 class="fw-bold mt-2 mb-1 text-primary">{{ global_today_count }}</h2>
+                <span class="small text-muted">Aujourd'hui / {{ global_month_count }} ce mois</span>
+            </div>
+        </div>
+
+        <!-- In Transit -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card super-card border-0 p-4">
+                <span class="kpi-title">En Transit (National)</span>
+                <h2 class="fw-bold mt-2 mb-1 text-warning">{{ global_in_transit }}</h2>
+                <span class="small text-muted">Paquets dans les bus</span>
+            </div>
+        </div>
+
+        <!-- Success Rate -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card super-card border-0 p-4">
+                <span class="kpi-title">Taux de Livraison</span>
+                <h2 class="fw-bold mt-2 mb-1 text-success">{{ global_success_rate }}%</h2>
+                <span class="small text-muted">Moyenne nationale</span>
+            </div>
+        </div>
+
+        <!-- Active Agencies -->
+        <div class="col-md-3 col-sm-6">
+            <div class="card super-card border-0 p-4">
+                <span class="kpi-title">Agences Actives</span>
+                <h2 class="fw-bold mt-2 mb-1 text-info">{{ active_agencies_count }}</h2>
+                <span class="small text-muted">Centres logistiques connectés</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scoped Agency Metrics Grid (If Selected) -->
+    {% if agency %}
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-activity text-primary me-2"></i>Mesures Spécifiques à l'Agence</h5>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="p-3 border rounded">
+                    <div class="small text-muted">Chiffre d'Affaires Colis</div>
+                    <div class="fs-5 fw-bold text-dark">{{ scoped_parcel_rev | int }} FCFA</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 border rounded">
+                    <div class="small text-muted">Chiffre d'Affaires Billets</div>
+                    <div class="fs-5 fw-bold text-dark">{{ scoped_ticket_rev | int }} FCFA</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 border rounded">
+                    <div class="small text-muted">Reçus Aujourd'hui</div>
+                    <div class="fs-5 fw-bold text-dark">{{ scoped_today_count }} Colis</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 border rounded">
+                    <div class="small text-muted">Taux Réussite</div>
+                    <div class="fs-5 fw-bold text-dark">{{ scoped_success_rate }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Global Activities -->
+    <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Flux de Colis Récents (National)</h5>
+            
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Time Filters Button Group -->
+                <div class="btn-group btn-group-sm" role="group" aria-label="Time filters">
+                    <a href="{{ url_for('admin.super_parcel_dashboard', range='day') }}" class="btn {% if selected_range == 'day' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Jour</a>
+                    <a href="{{ url_for('admin.super_parcel_dashboard', range='week') }}" class="btn {% if selected_range == 'week' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Semaine</a>
+                    <a href="{{ url_for('admin.super_parcel_dashboard', range='month') }}" class="btn {% if selected_range == 'month' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Mois</a>
+                    <a href="{{ url_for('admin.super_parcel_dashboard', range='all') }}" class="btn {% if selected_range == 'all' or not selected_range %}btn-primary{% else %}btn-outline-secondary{% endif %}">Tout</a>
+                </div>
+
+                <!-- Export Buttons -->
+                <button onclick="exportTableToCSV('flux_colis_recents.csv')" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                    <i class="bi bi-filetype-csv me-1"></i> CSV
+                </button>
+                <button onclick="exportTableToPDF()" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                    <i class="bi bi-file-pdf me-1"></i> PDF
+                </button>
+            </div>
+        </div>
+
+        {% if recent_parcels %}
+            <div id="recentParcelsTableContainer" class="table-responsive">
+                <table id="recentParcelsTable" class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Code Colis</th>
+                            <th>Expéditeur</th>
+                            <th>Destinataire</th>
+                            <th>Agence Origine</th>
+                            <th>Date d'Enregistrement</th>
+                            <th>Prix</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in recent_parcels %}
+                        <tr>
+                            <td class="fw-bold">#{{ p.tracking_number }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ p.sender_name }}</div>
+                                <div class="small text-muted">{{ p.sender_phone }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ p.receiver_name }}</div>
+                                <div class="small text-muted">{{ p.receiver_city }}</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ p.agency.name }}</span>
+                            </td>
+                            <td>{{ p.created_at.strftime('%d/%m/%Y à %H:%M') }}</td>
+                            <td class="fw-semibold text-primary">{{ p.price | int }} FCFA</td>
+                            <td>
+                                <span class="badge {% if p.status == 'delivered' %}bg-success{% elif p.status in ['loaded', 'in_transit'] %}bg-warning{% elif p.status == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ p.status | upper }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-box-seam fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted fw-bold">Aucun colis n'a été enregistré récemment.</h6>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function exportTableToCSV(filename) {
+    var csv = [];
+    var rows = document.querySelectorAll("#recentParcelsTable tr");
+    
+    for (var i = 0; i < rows.length; i++) {
+        var row = [], cols = rows[i].querySelectorAll("td, th");
+        
+        for (var j = 0; j < cols.length; j++) {
+            let text = cols[j].innerText.trim().replace(/\s+/g, ' ').replace(/"/g, '""');
+            row.push('"' + text + '"');
+        }
+        csv.push(row.join(","));        
+    }
+
+    var csvFile = new Blob([csv.join("\n")], {type: "text/csv;charset=utf-8;"});
+    var downloadLink = document.createElement("a");
+    downloadLink.download = filename;
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+
+function exportTableToPDF() {
+    var printContent = document.getElementById("recentParcelsTableContainer").innerHTML;
+    var style = `
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
+            h2 { color: #C92A2A; border-bottom: 2px solid #C92A2A; padding-bottom: 8px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; }
+            th { background-color: #f8f9fa; color: #495057; font-weight: bold; }
+            .badge { border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block; }
+            .bg-success { background-color: #d1e7dd; color: #0f5132; }
+            .bg-warning { background-color: #fff3cd; color: #664d03; }
+            .bg-danger { background-color: #f8d7da; color: #842029; }
+            .bg-secondary { background-color: #e2e3e5; color: #41464b; }
+        </style>
+    `;
+    var win = window.open("", "", "height=700,width=1000");
+    win.document.write("<html><head><title>Flux de Colis Récents (National)</title>" + style + "</head><body>");
+    win.document.write("<h2>Flux de Colis Récents (National)</h2>");
+    win.document.write(printContent);
+    win.document.write("</body></html>");
+    win.document.close();
+    win.focus();
+    setTimeout(function() {
+        win.print();
+        win.close();
+    }, 250);
+}
+</script>
+{% endblock %}

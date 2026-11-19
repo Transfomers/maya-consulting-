@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Centre de Notifications - 3M SERVICES{% endblock %}
+
+{% block content %}
+<style>
+.notif-center-wrap { max-width: 1300px; margin: 0 auto; padding: 2rem 1rem; }
+.tab-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: 2px solid transparent;
+    text-decoration: none;
+    transition: all 0.2s;
+    color: #6b7280;
+    background: #f3f4f6;
+}
+.tab-pill:hover { background: #e5e7eb; color: #111; }
+.tab-pill.active {
+    background: linear-gradient(135deg, #6e0c28, #9b1c3e);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(110,12,40,0.25);
+}
+.tab-pill .badge-count {
+    background: rgba(255,255,255,0.25);
+    border-radius: 999px;
+    padding: 0 0.45rem;
+    font-size: 0.72rem;
+    min-width: 1.3rem;
+    text-align: center;
+}
+.tab-pill:not(.active) .badge-count { background: rgba(0,0,0,0.08); color: #111; }
+.notif-card {
+    border-radius: 1rem;
+    border: 1px solid #f0f0f0;
+    background: #fff;
+    transition: transform 0.18s, box-shadow 0.18s;
+}
+.notif-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.07); }
+.notif-card.unread { border-left: 4px solid; }
+.notif-card.unread.type-success { border-left-color: #22c55e; }
+.notif-card.unread.type-warning { border-left-color: #f59e0b; }
+.notif-card.unread.type-danger  { border-left-color: #ef4444; }
+.notif-card.unread.type-info    { border-left-color: #3b82f6; }
+.cat-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.filter-glass {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+}
+</style>
+
+<div class="notif-center-wrap">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold mb-1" style="font-size:1.7rem;">
+                <i class="bi bi-bell-fill me-2 text-danger"></i>Centre de Notifications
+            </h1>
+            <p class="text-muted mb-0 small">
+                {% if current_user.role == 'super_admin' %}
+                    Alertes plateforme — Finances, Agences, Sécurité, Opérations & Shifts.
+                {% else %}
+                    Activités de votre agence — Réservations, Paiements, Colis, Shifts & Opérations.
+                {% endif %}
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <form action="{{ url_for('admin.read_all_notifications') }}" method="POST"
+                  onsubmit="return confirm('Marquer toutes les notifications comme lues ?');">
+                <button class="btn btn-outline-secondary rounded-pill px-4 fw-semibold" type="submit">
+                    <i class="bi bi-check-all me-1"></i> Tout marquer lu
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        {# "All" tab #}
+        <a href="{{ url_for('admin.notifications') }}?status={{ selected_status }}"
+           class="tab-pill {% if not selected_category %}active{% endif %}">
+            <i class="bi bi-grid-3x3-gap-fill"></i> Toutes
+            <span class="badge-count">{{ notifications|length }}</span>
+        </a>
+        {% for cat_key, cat_label, cat_color in category_groups %}
+        {% set cat_count = notifications | selectattr('category', 'equalto', cat_key) | list | length %}
+        <a href="{{ url_for('admin.notifications') }}?status={{ selected_status }}&category={{ cat_key }}"
+           class="tab-pill {% if selected_category == cat_key %}active{% endif %}">
+            {{ cat_label }}
+            {% if cat_count > 0 %}
+                <span class="badge-count">{{ cat_count }}</span>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-glass">
+        <form method="GET" action="{{ url_for('admin.notifications') }}" class="row g-2 align-items-end">
+            <input type="hidden" name="category" value="{{ selected_category or '' }}">
+
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-muted mb-1">Statut</label>
+                <select name="status" class="form-select form-select-sm border-2">
+                    <option value="unread" {% if selected_status=='unread' %}selected{% endif %}>Non lues</option>
+                    <option value="read"   {% if selected_status=='read'   %}selected{% endif %}>Lues</option>
+                    <option value="archived" {% if selected_status=='archived' %}selected{% endif %}>Archivées</option>
+                    <option value="all"    {% if selected_status=='all'    %}selected{% endif %}>Toutes</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-muted mb-1">Priorité</label>
+                <select name="type" class="form-select form-select-sm border-2">
+                    <option value="">-- Toutes --</option>
+                    <option value="info"    {% if selected_type=='info'    %}selected{% endif %}>ℹ️ Info</option>
+                    <option value="success" {% if selected_type=='success' %}selected{% endif %}>✅ Succès</option>
+                    <option value="warning" {% if selected_type=='warning' %}selected{% endif %}>⚠️ Attention</option>
+                    <option value="danger"  {% if selected_type=='danger'  %}selected{% endif %}>🔴 Urgent</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted mb-1">Date</label>
+                <input type="date" name="date" class="form-control form-control-sm border-2"
+                       value="{{ selected_date or '' }}">
+            </div>
+
+            {% if current_user.role == 'super_admin' %}
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted mb-1">Agence</label>
+                <select name="agency_id" class="form-select form-select-sm border-2">
+                    <option value="">-- Toutes les agences --</option>
+                    {% for agency in agencies %}
+                    <option value="{{ agency.id }}" {% if selected_agency == agency.id %}selected{% endif %}>
+                        {{ agency.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <div class="col-md-2 d-flex gap-1">
+                <button type="submit" class="btn btn-sm btn-primary fw-bold w-100">
+                    <i class="bi bi-funnel-fill me-1"></i> Filtrer
+                </button>
+                <a href="{{ url_for('admin.notifications') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="d-flex flex-column gap-3">
+        {% for notif in notifications %}
+        {% set type_map = {'success': 'type-success', 'warning': 'type-warning', 'danger': 'type-danger', 'info': 'type-info'} %}
+        {% set icon_map = {'success': 'bi-check-circle-fill text-success', 'warning': 'bi-exclamation-triangle-fill text-warning', 'danger': 'bi-x-circle-fill text-danger', 'info': 'bi-info-circle-fill text-primary'} %}
+        {% set bg_map   = {'financial':'#dcfce7','agency_mgmt':'#dbeafe','shift_admin':'#fef9c3','operations':'#cffafe','security':'#fee2e2','booking':'#dcfce7','parcel':'#dbeafe','payment':'#fef9c3','wallet':'#e0f2fe','shift':'#f3f4f6','ops_agency':'#fee2e2','system':'#f3f4f6','passenger':'#dcfce7','travel':'#cffafe','parcel_client':'#dbeafe','refund':'#fef9c3'} %}
+
+        <div class="notif-card p-3 {% if not notif.is_read %}unread {{ type_map.get(notif.type, 'type-info') }}{% endif %}">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div class="d-flex align-items-start gap-3">
+                    <!-- Type Icon -->
+                    <div class="fs-2 mt-1">
+                        <i class="bi {{ icon_map.get(notif.type, 'bi-bell-fill text-secondary') }}"></i>
+                    </div>
+                    <div>
+                        <!-- Category badge -->
+                        <span class="cat-badge me-1" style="background:{{ bg_map.get(notif.category, '#f3f4f6') }}; color:#111;">
+                            {{ notif.category | upper | replace('_', ' ') }}
+                        </span>
+                        {% if not notif.is_read %}
+                        <span class="badge bg-danger rounded-pill" style="font-size:0.65rem;">NOUVEAU</span>
+                        {% endif %}
+                        <h6 class="fw-bold mt-1 mb-1 {% if notif.is_read %}text-muted{% endif %}" style="font-size:0.97rem;">
+                            {{ notif.title }}
+                        </h6>
+                        <p class="mb-1 text-dark" style="font-size:0.9rem;">{{ notif.message }}</p>
+                        <div class="d-flex align-items-center gap-3">
+                            <small class="text-muted">
+                                <i class="bi bi-clock me-1"></i>{{ notif.created_at.strftime('%d/%m/%Y %H:%M') }}
+                            </small>
+                            {% if notif.agency %}
+                            <small class="text-muted">
+                                <i class="bi bi-building me-1"></i>{{ notif.agency.name }}
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-1 flex-shrink-0 mt-1">
+                    {% if not notif.is_read %}
+                    <a href="{{ url_for('admin.read_notification', id=notif.id) }}"
+                       class="btn btn-sm btn-outline-success rounded-pill px-3"
+                       title="Marquer comme lu">
+                        <i class="bi bi-check-lg"></i>
+                    </a>
+                    {% endif %}
+                    {% if not notif.is_archived %}
+                    <form action="{{ url_for('admin.archive_notification', id=notif.id) }}" method="POST" class="d-inline">
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" title="Archiver">
+                            <i class="bi bi-archive"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                    <form action="{{ url_for('admin.delete_notification', id=notif.id) }}" method="POST"
+                          class="d-inline" onsubmit="return confirm('Supprimer cette notification ?');">
+                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Supprimer">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-5 bg-white rounded-3 border">
+            <i class="bi bi-bell-slash fs-1 text-muted d-block mb-3"></i>
+            <h5 class="fw-bold text-dark">Aucune notification</h5>
+            <p class="text-muted small mb-0">
+                Aucune alerte dans cette catégorie pour le moment.
+                {% if selected_category %}
+                <a href="{{ url_for('admin.notifications') }}?status={{ selected_status }}" class="ms-1">Voir toutes</a>
+                {% endif %}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

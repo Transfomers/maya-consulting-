@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Logs d'Audit - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h3 class="mb-1 fw-bold"><i class="bi bi-file-earmark-medical text-primary me-2"></i> Audit & Logs Système</h3>
+                <p class="text-muted mb-0">Suivi complet en temps réel des actions et changements destructeurs effectués sur la plateforme.</p>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="d-flex flex-wrap gap-2 mb-4 bg-light p-3 rounded-3 border align-items-center">
+            <div class="input-group" style="max-width: 250px;">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" id="logsSearch" class="form-control border-start-0 ps-0" placeholder="Rechercher...">
+            </div>
+            
+            <!-- Explicit Date Picker Filter -->
+            <div class="input-group" style="max-width: 200px;">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-date"></i></span>
+                <input type="date" id="logsFilterExactDate" class="form-control border-start-0" title="Filtrer par date exacte">
+            </div>
+            
+            <select id="logsFilterSort" class="form-select" style="width: auto;">
+                <option value="newest">Du plus récent</option>
+                <option value="oldest">Du plus ancien</option>
+            </select>
+            
+            <button class="btn btn-outline-secondary" onclick="resetLogsFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr class="table-light">
+                        <th>Date & Heure</th>
+                        <th>Utilisateur (Acteur)</th>
+                        <th>Action</th>
+                        <th>Ressource Cible</th>
+                        <th>Détails de l'Action</th>
+                        <th>Adresse IP</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody">
+                    {% for log in logs %}
+                    <tr class="log-row" data-date="{{ log.created_at.timestamp() }}" data-exact-date="{{ log.created_at.strftime('%Y-%m-%d') }}">
+                        <td class="text-nowrap">{{ log.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                        <td>
+                            {% if log.user %}
+                                <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-semibold"><i class="bi bi-person me-1"></i> {{ log.user.username }}</span>
+                            {% else %}
+                                <span class="text-muted">Système</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if 'DELETED' in log.action or 'CANCELLED' in log.action %}
+                                <span class="badge bg-danger-soft text-danger px-3 py-2 rounded-pill fw-bold">{{ log.action }}</span>
+                            {% elif 'CREATED' in log.action %}
+                                <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill fw-bold">{{ log.action }}</span>
+                            {% elif 'SUSPENDED' in log.action %}
+                                <span class="badge bg-warning-soft text-warning px-3 py-2 rounded-pill fw-bold">{{ log.action }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary-soft text-secondary px-3 py-2 rounded-pill fw-bold">{{ log.action }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.target_type %}
+                                <strong class="text-dark">{{ log.target_type }}</strong> <small class="text-muted">#{{ log.target_id }}</small>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-wrap" style="max-width: 300px;">{{ log.details }}</td>
+                        <td><code class="text-muted fs-6">{{ log.ip_address or '0.0.0.0' }}</code></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-file-earmark-medical fs-1 d-block mb-3"></i>
+                            Aucun log d'audit enregistré pour le moment.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('logsSearch');
+    const filterExactDate = document.getElementById('logsFilterExactDate');
+    const filterSort = document.getElementById('logsFilterSort');
+    const tableBody = document.getElementById('logsTableBody');
+    
+    if(!tableBody) return;
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const exactDateValue = filterExactDate.value;
+        const sortValue = filterSort.value;
+        
+        let rows = Array.from(tableBody.querySelectorAll('tr.log-row'));
+        
+        rows.forEach(row => {
+            const rowText = row.innerText.toLowerCase();
+            const rowExactDate = row.getAttribute('data-exact-date');
+            
+            const matchesSearch = rowText.includes(searchTerm);
+            const matchesDate = (exactDateValue === "" || rowExactDate === exactDateValue);
+            
+            if (matchesSearch && matchesDate) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        rows.sort((a, b) => {
+            const dateA = parseFloat(a.getAttribute('data-date'));
+            const dateB = parseFloat(b.getAttribute('data-date'));
+            return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyFilters);
+    if(filterExactDate) filterExactDate.addEventListener('change', applyFilters);
+    if(filterSort) filterSort.addEventListener('change', applyFilters);
+    
+    window.resetLogsFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterExactDate) filterExactDate.value = '';
+        if(filterSort) filterSort.value = 'newest';
+        applyFilters();
+    };
+});
+</script>
+{% endblock %}

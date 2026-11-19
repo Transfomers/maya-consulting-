@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Paramètres Système - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <!-- Sidebar Navigation -->
+            <div class="list-group shadow-sm border-0" style="border-radius: 1rem; overflow: hidden;">
+                <a href="#userProfile" class="list-group-item list-group-item-action {% if current_user.role not in ['admin_agence', 'super_admin'] %}active{% endif %} fw-semibold" data-bs-toggle="list">
+                    <i class="bi bi-person-badge me-2"></i> Mon Profil
+                </a>
+                
+                {% if current_user.role == 'admin_agence' %}
+                    <a href="#agencyProfile" class="list-group-item list-group-item-action active fw-semibold" data-bs-toggle="list">
+                        <i class="bi bi-briefcase me-2"></i> Profil de l'Agence
+                    </a>
+                    <a href="#notifications" class="list-group-item list-group-item-action fw-semibold" data-bs-toggle="list">
+                        <i class="bi bi-bell me-2"></i> Alertes & Notifications
+                    </a>
+                {% elif current_user.role == 'super_admin' %}
+                    <a href="#globalSettings" class="list-group-item list-group-item-action active fw-semibold" data-bs-toggle="list">
+                        <i class="bi bi-globe me-2"></i> Plateforme Globale
+                    </a>
+                    <a href="#paymentSettings" class="list-group-item list-group-item-action fw-semibold" data-bs-toggle="list">
+                        <i class="bi bi-credit-card me-2"></i> Passerelles de Paiement
+                    </a>
+                    <a href="#emailSettings" class="list-group-item list-group-item-action fw-semibold" data-bs-toggle="list">
+                        <i class="bi bi-envelope-at me-2"></i> Serveur Email (SMTP)
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="tab-content">
+                <!-- User Profile Tab -->
+                <div class="tab-pane fade {% if current_user.role not in ['admin_agence', 'super_admin'] %}show active{% endif %}" id="userProfile">
+                    <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                            <h4 class="fw-bold"><i class="bi bi-person-badge text-primary me-2"></i> Profil Utilisateur</h4>
+                            <p class="text-muted">Mettez à jour vos informations de connexion personnelles.</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form method="POST" action="{{ url_for('admin.settings') }}">
+                                <input type="hidden" name="action" value="update_profile">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nom d'utilisateur</label>
+                                        <input type="text" class="form-control" name="username" value="{{ current_user.username }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" name="email" value="{{ current_user.email }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Numéro de Téléphone</label>
+                                        <input type="tel" class="form-control" name="phone" value="{{ current_user.phone or '' }}">
+                                    </div>
+                                    <div class="col-12 mt-4">
+                                        <h6 class="fw-bold mb-3 border-bottom pb-2">Sécurité (Mot de Passe)</h6>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nouveau mot de passe</label>
+                                        <input type="password" class="form-control" name="new_password" placeholder="Laisser vide pour ne pas changer">
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-end">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="bi bi-save me-2"></i> Mettre à jour mon profil</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {% if current_user.role == 'admin_agence' %}
+                
+                <!-- Agency Profile Tab -->
+                <div class="tab-pane fade show active" id="agencyProfile">
+                    <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                            <h4 class="fw-bold"><i class="bi bi-briefcase text-primary me-2"></i> Profil de l'Agence</h4>
+                            <p class="text-muted">Mettez à jour les informations publiques de votre agence de transport.</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form method="POST" action="{{ url_for('admin.settings') }}">
+                                <input type="hidden" name="action" value="update_agency">
+                                <div class="row g-3">
+                                    <div class="col-md-12 text-center mb-3">
+                                        <div class="d-inline-block position-relative">
+                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-muted border" style="width: 100px; height: 100px; font-size: 2rem;">
+                                                <i class="bi bi-building"></i>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle" title="Changer le logo">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nom de l'Agence</label>
+                                        <input type="text" class="form-control" name="agency_name" value="{{ current_user.agency.name }}" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label">Ville Principale</label>
+                                        <input type="text" class="form-control" name="agency_city" value="{{ current_user.agency.city }}" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email de Contact</label>
+                                        <input type="email" class="form-control" name="agency_email" value="{{ current_user.agency.email or '' }}">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label">Téléphone</label>
+                                        <input type="tel" class="form-control" name="agency_phone" value="{{ current_user.agency.phone or '' }}">
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label class="form-label">Adresse Complète</label>
+                                        <input type="text" class="form-control" name="agency_address" value="{{ current_user.agency.address or '' }}">
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-end">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="bi bi-save me-2"></i> Sauvegarder les modifications</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications Settings Tab -->
+                <div class="tab-pane fade" id="notifications">
+                    <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                            <h4 class="fw-bold"><i class="bi bi-bell text-primary me-2"></i> Préférences de Notification</h4>
+                            <p class="text-muted">Gérez comment et quand vous recevez des alertes système.</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form method="POST" action="{{ url_for('admin.settings') }}">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="notifBookings" checked>
+                                    <label class="form-check-label fw-semibold" for="notifBookings">Nouvelles Réservations VIP</label>
+                                    <small class="d-block text-muted">Recevoir un email lorsqu'un client réserve un véhicule de votre flotte.</small>
+                                </div>
+                                
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="notifCancellations" checked>
+                                    <label class="form-check-label fw-semibold" for="notifCancellations">Annulations de Réservations</label>
+                                    <small class="d-block text-muted">Alerte immédiate en cas d'annulation de contrat par un client.</small>
+                                </div>
+                                
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="notifSystem">
+                                    <label class="form-check-label fw-semibold" for="notifSystem">Mises à jour Système</label>
+                                    <small class="d-block text-muted">Recevoir les annonces de maintenance de 3M SERVICES.</small>
+                                </div>
+                                
+                                <div class="mt-4 text-end">
+                                    <button type="button" class="btn btn-primary rounded-pill px-4"><i class="bi bi-save me-2"></i> Mettre à jour les préférences</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {% elif current_user.role == 'super_admin' %}
+                
+                <!-- Global Platform Settings -->
+                <div class="tab-pane fade show active" id="globalSettings">
+                    <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                            <h4 class="fw-bold"><i class="bi bi-globe text-primary me-2"></i> Configuration de la Plateforme</h4>
+                            <p class="text-muted">Paramètres globaux affectant tout le système 3M SERVICES.</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form method="POST" action="{{ url_for('admin.settings') }}">
+                                <input type="hidden" name="action" value="update_global">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nom de la Plateforme</label>
+                                        <input type="text" class="form-control" value="3M SERVICES" name="platform_name">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email de Support Principal</label>
+                                        <input type="email" class="form-control" value="contact@3mservice.shop" name="support_email">
+                                    </div>
+                                    
+                                    <div class="col-12 mt-4">
+                                        <div class="alert alert-warning d-flex align-items-center rounded-3 border-0 shadow-sm">
+                                            <i class="bi bi-cone-striped fs-3 me-3"></i>
+                                            <div>
+                                                <strong>Mode Maintenance :</strong>
+                                                <div class="form-check form-switch mt-1">
+                                                    <input class="form-check-input" type="checkbox" id="maintenanceMode">
+                                                    <label class="form-check-label" for="maintenanceMode">Activer le mode maintenance (suspend l'accès public)</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-end">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="bi bi-save me-2"></i> Appliquer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Gateways (Mock) -->
+                <div class="tab-pane fade" id="paymentSettings">
+                    <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                            <h4 class="fw-bold"><i class="bi bi-credit-card text-primary me-2"></i> Passerelles de Paiement</h4>
+                            <p class="text-muted">Configuration des API pour les paiements en ligne.</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form method="POST" action="{{ url_for('admin.settings') }}">
+                                <h6 class="fw-bold mb-3 text-secondary border-bottom pb-2">Configuration Mobile Money (MTN/Orange)</h6>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Merchant ID</label>
+                                        <input type="password" class="form-control" value="MOMO_123456" name="momo_merchant">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">API Secret Key</label>
+                                        <input type="password" class="form-control" value="xxxxxxxxxxxxxxxxxxxx" name="momo_secret">
+                                    </div>
+                                </div>
+                                
+                                <h6 class="fw-bold mb-3 text-secondary border-bottom pb-2">Configuration Stripe (Cartes Bancaires)</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Stripe Public Key</label>
+                                        <input type="password" class="form-control" value="pk_live_xxxxxxxxxxx" name="stripe_public">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Stripe Secret Key</label>
+                                        <input type="password" class="form-control" value="sk_live_xxxxxxxxxxx" name="stripe_secret">
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 text-end">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="bi bi-save me-2"></i> Sauvegarder les clés API</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMTP Server (Mock) -->
+                <div class="tab-pane fade" id="emailSettings">
+                    <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                            <h4 class="fw-bold"><i class="bi bi-envelope-at text-primary me-2"></i> Serveur Email (SMTP)</h4>
+                            <p class="text-muted">Configuration de l'envoi d'emails système (Tickets, Factures).</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <form method="POST" action="{{ url_for('admin.settings') }}">
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label class="form-label">SMTP Host</label>
+                                        <input type="text" class="form-control" value="smtp.3mservice.shop" name="smtp_host">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Port</label>
+                                        <input type="number" class="form-control" value="587" name="smtp_port">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Username</label>
+                                        <input type="text" class="form-control" value="no-reply@3mservice.shop" name="smtp_user">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Password</label>
+                                        <input type="password" class="form-control" value="********" name="smtp_pass">
+                                    </div>
+                                </div>
+                                <div class="mt-4 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-send me-2"></i> Tester la connexion</button>
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="bi bi-save me-2"></i> Sauvegarder</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

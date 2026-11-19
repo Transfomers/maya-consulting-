@@ -1,0 +1,231 @@
+{% extends "admin/parcel_ops_base.html" %}
+
+{% block title %}Demandes de Colis{% endblock %}
+{% block page_title %}Validation des Demandes de Colis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 text-start">
+    <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-clock-history text-warning me-2"></i>Demandes en Attente de Traitement</h5>
+            <span class="badge bg-warning text-dark px-3 py-1.5 fw-bold">{{ requests | length }} demandes</span>
+        </div>
+
+        {% if requests %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th>N° Suivi</th>
+                            <th>Expéditeur</th>
+                            <th>Destinataire</th>
+                            <th>Type & Poids</th>
+                            <th>Photos</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in requests %}
+                        <tr>
+                            <td class="fw-bold text-nowrap">{{ r.tracking_number }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ r.sender_name }}</div>
+                                <div class="small text-muted">{{ r.sender_phone or '' }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ r.receiver_name }}</div>
+                                <div class="small text-muted">{{ r.receiver_phone }} ({{ r.receiver_city }})</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ r.parcel_type }}</span>
+                                <div class="fw-semibold text-primary mt-1">{{ r.weight }} kg</div>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    {% if r.front_image %}
+                                        <button class="btn btn-outline-secondary btn-sm p-1 rounded" onclick="viewPhoto('{{ url_for('static', filename='uploads/parcels/' ~ r.front_image) }}')" title="Face">
+                                            <i class="bi bi-image fs-6"></i> Face
+                                        </button>
+                                    {% endif %}
+                                    {% if r.side_image %}
+                                        <button class="btn btn-outline-secondary btn-sm p-1 rounded" onclick="viewPhoto('{{ url_for('static', filename='uploads/parcels/' ~ r.side_image) }}')" title="Profil">
+                                            <i class="bi bi-image fs-6"></i> Profil
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-success me-1 fw-bold rounded-pill px-3" onclick="openValidateModal({{ r.id }}, '{{ r.tracking_number }}', {{ r.weight }}, '{{ r.parcel_type }}', {{ 'true' if r.is_fragile else 'false' }}, {{ 'true' if r.has_insurance else 'false' }}, '{{ r.description | replace("'", "\\'") }}')">
+                                    <i class="bi bi-check-circle"></i> Valider
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3" onclick="openRejectModal({{ r.id }}, '{{ r.tracking_number }}')">
+                                    <i class="bi bi-x-circle"></i> Rejeter
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted fw-bold">Aucune demande de colis en attente.</h6>
+                <p class="text-muted small mb-0">Les expéditions créées par les clients apparaîtront ici pour validation physique.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- VALIDATE MODAL -->
+<div class="modal fade" id="validateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-check-circle me-2"></i>Valider le Colis <span id="vTracking"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="validateForm" method="POST" action="">
+                <div class="modal-body p-4 text-start">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description client</label>
+                        <p class="text-muted small border p-2.5 rounded bg-light" id="vDesc">--</p>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label for="vType" class="form-label fw-bold">Type de Colis</label>
+                            <select class="form-select" id="vType" name="parcel_type" required>
+                                <option value="Document">Document</option>
+                                <option value="Electronics">Électronique</option>
+                                <option value="Clothes">Vêtements</option>
+                                <option value="Food">Nourriture</option>
+                                <option value="Fragile">Fragile</option>
+                                <option value="Other">Autre</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label for="vWeight" class="form-label fw-bold">Poids Réel (kg)</label>
+                            <input type="number" class="form-control" id="vWeight" name="weight" required min="0.1" step="0.1" oninput="recalcPrice()">
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-4 mt-3 mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="vFragile" name="is_fragile" value="true">
+                            <label class="form-check-label small fw-bold" for="vFragile">Fragile</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="vInsurance" name="has_insurance" value="true" onchange="recalcPrice()">
+                            <label class="form-check-label small fw-bold" for="vInsurance">Assurance (+1 500 F)</label>
+                        </div>
+                    </div>
+
+                    <!-- Computed Price Card -->
+                    <div class="alert alert-info d-flex justify-content-between align-items-center p-3 border-0 rounded-3 mb-0" style="background: rgba(201, 42, 42, 0.05);">
+                        <div>
+                            <span class="small text-muted fw-bold">Tarif Estimé (Poids Réel)</span>
+                        </div>
+                        <div>
+                            <strong class="fs-4 text-success" id="vComputedPrice">0 FCFA</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Valider Colis</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- REJECT MODAL -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-x-circle me-2"></i>Rejeter le Colis <span id="rTracking"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="rejectForm" method="POST" action="">
+                <div class="modal-body p-4 text-start">
+                    <div class="mb-3">
+                        <label for="rReason" class="form-label fw-bold">Motif du Rejet</label>
+                        <textarea class="form-control" id="rReason" name="rejection_reason" rows="3" required placeholder="Saisir la raison du rejet physique..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">Confirmer le Rejet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- PHOTO VIEWER MODAL -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-body p-1 text-center bg-dark rounded overflow-hidden position-relative">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow-lg" data-bs-dismiss="modal" aria-label="Close" style="z-index:9999;"></button>
+                <img src="" id="photoViewTarget" class="img-fluid rounded" style="max-height:80vh; object-fit:contain;">
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let validateModal, rejectModal, photoModal;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        validateModal = new bootstrap.Modal(document.getElementById('validateModal'));
+        rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
+        photoModal = new bootstrap.Modal(document.getElementById('photoModal'));
+    });
+
+    function viewPhoto(url) {
+        document.getElementById('photoViewTarget').src = url;
+        photoModal.show();
+    }
+
+    function openValidateModal(id, tracking, weight, type, fragile, insurance, desc) {
+        document.getElementById('vTracking').innerText = `#${tracking}`;
+        document.getElementById('vDesc').innerText = desc || "Aucune description.";
+        document.getElementById('vType').value = type;
+        document.getElementById('vWeight').value = weight;
+        document.getElementById('vFragile').checked = fragile;
+        document.getElementById('vInsurance').checked = insurance;
+        
+        // Form Action
+        document.getElementById('validateForm').action = `/admin/parcel/ops/request/${id}/validate`;
+        
+        recalcPrice();
+        validateModal.show();
+    }
+
+    function openRejectModal(id, tracking) {
+        document.getElementById('rTracking').innerText = `#${tracking}`;
+        document.getElementById('rejectForm').action = `/admin/parcel/ops/request/${id}/reject`;
+        rejectModal.show();
+    }
+
+    function recalcPrice() {
+        const weight = parseFloat(document.getElementById('vWeight').value) || 0;
+        const insurance = document.getElementById('vInsurance').checked;
+        
+        if (weight <= 0) {
+            document.getElementById('vComputedPrice').innerText = "0 FCFA";
+            return;
+        }
+
+        const base = Math.max(1000, Math.round(weight * 1000));
+        const total = base + (insurance ? 1500 : 0);
+        document.getElementById('vComputedPrice').innerText = `${total.toLocaleString()} FCFA`;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "admin/parcel_ops_base.html" %}
+
+{% block title %}Daily Report Colis{% endblock %}
+{% block page_title %}Rapport Journalier d'Activité Colis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 text-start">
+    <!-- Summary stats panel -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card p-3 border-0 shadow-sm">
+                <span class="small text-muted fw-bold text-uppercase">Recette Totale Colis</span>
+                <h3 class="fw-bold text-success mt-1 mb-0">{{ total_revenue | int }} FCFA</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 border-0 shadow-sm">
+                <span class="small text-muted fw-bold text-uppercase">Réglements Cash</span>
+                <h3 class="fw-bold text-dark mt-1 mb-0">{{ cash_revenue | int }} FCFA</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 border-0 shadow-sm">
+                <span class="small text-muted fw-bold text-uppercase">Réglements MoMo</span>
+                <h3 class="fw-bold text-primary mt-1 mb-0">{{ momo_revenue | int }} FCFA</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 border-0 shadow-sm">
+                <span class="small text-muted fw-bold text-uppercase">Réglements Orange Money</span>
+                <h3 class="fw-bold text-warning mt-1 mb-0">{{ orange_revenue | int }} FCFA</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weight & volume -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card p-3 border-0 shadow-sm">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-2.5 bg-info-soft text-info rounded-circle"><i class="bi bi-speedometer2 fs-4"></i></div>
+                    <div>
+                        <span class="small text-muted fw-bold d-block text-uppercase">Volume Total Transité</span>
+                        <strong class="fs-4 text-dark">{{ total_weight | round(1) }} kg</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3 border-0 shadow-sm">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-2.5 bg-success-soft text-success rounded-circle"><i class="bi bi-box-seam fs-4"></i></div>
+                    <div>
+                        <span class="small text-muted fw-bold d-block text-uppercase">Nombre d'Articles Traités</span>
+                        <strong class="fs-4 text-dark">{{ total_items }} pièces</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed List of Today's Transactions -->
+    <div class="card border-0 shadow-sm p-4">
+        <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-card-list text-primary me-2"></i>Détail des colis d'aujourd'hui</h5>
+        {% if parcels %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle table-sm small">
+                    <thead>
+                        <tr>
+                            <th>N° Suivi</th>
+                            <th>Destinataire</th>
+                            <th>Ville Cible</th>
+                            <th>Poids</th>
+                            <th>Mode Paiement</th>
+                            <th>Montant</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in parcels %}
+                        <tr>
+                            <td class="fw-bold">{{ p.tracking_number }}</td>
+                            <td>{{ p.receiver_name }}</td>
+                            <td class="fw-semibold text-primary">{{ p.receiver_city }}</td>
+                            <td>{{ p.weight }} kg</td>
+                            <td class="text-capitalize">{{ p.payment_method or 'En attente' }}</td>
+                            <td class="fw-bold text-success">{{ p.price | int }} F</td>
+                            <td>
+                                {% if p.status == 'pending' %}
+                                    <span class="badge bg-warning-subtle text-warning">En attente</span>
+                                {% elif p.status == 'validated' %}
+                                    <span class="badge bg-info-subtle text-info">Validé</span>
+                                {% elif p.status == 'paid' or p.status == 'assigned' %}
+                                    <span class="badge bg-primary-subtle text-primary">Payé</span>
+                                {% elif p.status == 'loaded' %}
+                                    <span class="badge bg-warning text-white">Chargé</span>
+                                {% elif p.status == 'delivered' %}
+                                    <span class="badge bg-success-subtle text-success">Livré</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark border">{{ p.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted text-center py-4 mb-0">Aucun colis traité aujourd'hui.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

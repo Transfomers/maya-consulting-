@@ -1,0 +1,484 @@
+{% extends "base.html" %}
+{% block title %}Verify Your Email - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+  .navbar, .footer { display: none !important; }
+  main { padding: 0 !important; }
+
+  .otp-page {
+    min-height: 100vh;
+    display: flex;
+    background: #f8fafc;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .otp-left {
+    flex: 0 0 560px;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 4.5rem;
+    background: #fff;
+    position: relative;
+    z-index: 2;
+    box-shadow: 4px 0 40px rgba(0, 0, 0, .07);
+  }
+  body.dark-mode .otp-left { background: #1f2937; }
+
+  .otp-logo {
+    display: flex; align-items: center; gap: .7rem; margin-bottom: 2.5rem;
+  }
+  .otp-logo img { height: 36px; }
+  body.dark-mode .otp-logo img { filter: brightness(0) invert(1); }
+  .otp-logo span { font-size: 1.3rem; font-weight: 800; color: #C92A2A; letter-spacing: -.02em; }
+
+  .otp-container {
+    width: 100%;
+  }
+
+  .otp-title {
+    font-size: 2.2rem; font-weight: 800; color: #1e293b; line-height: 1.2; margin-bottom: .75rem;
+  }
+  body.dark-mode .otp-title { color: #f1f5f9; }
+
+  .otp-subtitle {
+    color: #64748b; font-size: .95rem; margin-bottom: 2rem; line-height: 1.6;
+  }
+  body.dark-mode .otp-subtitle { color: #94a3b8; }
+  .otp-email-display {
+    color: #1e293b; font-weight: 700; display: block; margin-top: 0.25rem; font-size: 1.05rem;
+  }
+  body.dark-mode .otp-email-display { color: #f1f5f9; }
+  
+  .otp-inputs-wrapper {
+    display: flex; justify-content: space-between; gap: 0.75rem; margin-bottom: 1.5rem;
+  }
+  .otp-digit-input {
+    width: 3.5rem; height: 4.5rem;
+    font-size: 2rem; text-align: center; font-weight: 700;
+    border: 1.8px solid #cbd5e1; border-radius: 0.75rem;
+    background: #f8fafc; color: #1e293b;
+    outline: none; transition: all 0.2s;
+  }
+  .otp-digit-input:focus {
+    border-color: #C92A2A; box-shadow: 0 0 0 3px rgba(201, 42, 42, .15); background: #fff;
+  }
+  body.dark-mode .otp-digit-input {
+    background: #374151; border-color: #4b5563; color: #f1f5f9;
+  }
+  body.dark-mode .otp-digit-input:focus { border-color: #a02a4f; background: #1f2937; }
+
+  .btn-lv-primary {
+    width: 100%; padding: 1.1rem;
+    background: linear-gradient(135deg, #C92A2A 0%, #A61E1E 100%);
+    color: #fff; border: none; border-radius: .9rem;
+    font-size: 1.1rem; font-weight: 700; cursor: pointer;
+    transition: all .25s; box-shadow: 0 4px 20px rgba(201, 42, 42, .25);
+  }
+  .btn-lv-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5c1628 0%, #C92A2A 100%);
+    box-shadow: 0 6px 28px rgba(201, 42, 42, .35); transform: translateY(-1px);
+  }
+  .btn-lv-primary:disabled {
+    background: #cbd5e1; color: #94a3b8; cursor: not-allowed; box-shadow: none;
+  }
+  body.dark-mode .btn-lv-primary:disabled {
+    background: #4b5563; color: #6b7280;
+  }
+
+  .timer-section {
+    text-align: center; margin: 1.5rem 0; font-size: 0.95rem; color: #64748b;
+  }
+  body.dark-mode .timer-section { color: #94a3b8; }
+  .timer-count {
+    font-weight: 700; color: #C92A2A; font-size: 1.1rem; margin-top: 0.25rem; display: block;
+  }
+  body.dark-mode .timer-count { color: #f43f5e; }
+  
+  .error-timer-msg {
+    color: #e11d48; font-weight: 600;
+  }
+
+  .secondary-actions {
+    text-align: center; margin-top: 2rem; font-size: 0.9rem; color: #64748b;
+    border-top: 1.5px solid #f1f5f9; padding-top: 1.5rem;
+  }
+  body.dark-mode .secondary-actions { border-color: #374151; color: #94a3b8; }
+  
+  .resend-btn {
+    background: none; border: none; color: #C92A2A; font-weight: 700; cursor: pointer;
+    padding: 0; text-decoration: underline; transition: color 0.2s;
+  }
+  .resend-btn:hover:not(:disabled) {
+    color: #A61E1E;
+  }
+  .resend-btn:disabled {
+    color: #94a3b8; cursor: not-allowed; text-decoration: none;
+  }
+
+  .change-email-section {
+    text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #64748b;
+  }
+  .change-email-link {
+    color: #C92A2A; font-weight: 700; text-decoration: none;
+  }
+  .change-email-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Security Notice */
+  .security-notice {
+    background: #fffbeb; border: 1.5px solid #fef3c7; border-radius: 0.9rem;
+    padding: 1.1rem; margin-top: 2.5rem; display: flex; gap: 0.8rem; align-items: flex-start;
+  }
+  body.dark-mode .security-notice { background: rgba(251, 191, 36, 0.08); border-color: rgba(251, 191, 36, 0.15); }
+  .security-icon {
+    font-size: 1.4rem; color: #d97706; line-height: 1;
+  }
+  .security-text {
+    font-size: 0.82rem; color: #b45309; line-height: 1.4; margin: 0;
+  }
+  .security-text strong { display: block; margin-bottom: 0.15rem; }
+
+  /* Success Screen State */
+  .success-card {
+    text-align: center; padding: 2rem 1rem;
+  }
+  .success-icon {
+    width: 72px; height: 72px; background: #ecfdf5; color: #10b981;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; margin: 0 auto 1.5rem;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+  }
+  .success-title {
+    font-size: 1.8rem; font-weight: 800; color: #065f46; margin-bottom: 0.5rem;
+  }
+  .success-subtitle {
+    color: #047857; font-size: 1rem; margin-bottom: 2rem;
+  }
+  .success-redirect {
+    color: #6b7280; font-size: 0.9rem;
+  }
+
+  /* Inline Error Banner */
+  .lv-alert {
+    border-radius: 0.9rem; padding: 0.9rem 1.1rem; margin-bottom: 1.5rem; font-size: .88rem;
+    font-weight: 600; display: flex; align-items: center; gap: .6rem;
+    border: 1.5px solid;
+  }
+  .lv-alert-danger {
+    background: #fef2f2; color: #991b1b; border-color: #fecaca;
+  }
+  .lv-alert-success {
+    background: #ecfdf5; color: #065f46; border-color: #a7f3d0;
+  }
+  .lv-alert-icon {
+    font-size: 1.1rem;
+  }
+
+  .otp-right {
+    flex: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .otp-right-img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center;
+  }
+  .otp-right-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(15, 5, 10, .92) 0%, rgba(60, 10, 25, .55) 45%, rgba(0, 0, 0, .15) 100%);
+  }
+  
+  @media (max-width: 860px) {
+    .otp-page { flex-direction: column-reverse; }
+    .otp-left { flex: none; max-width: 100%; padding: 3rem 1.5rem; }
+    .otp-right { min-height: 200px; flex: none; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="otp-page">
+  <div class="otp-left">
+    <div class="otp-logo">
+      <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES">
+      <span>3M SERVICES</span>
+    </div>
+
+    <div class="otp-container" id="otpCardContent">
+      <h1 class="otp-title">Verify Your Email</h1>
+      <p class="otp-subtitle">
+        We've sent a <strong>6-digit verification code</strong> to:
+        <span class="otp-email-display">{{ masked_email }}</span>
+      </p>
+
+      <!-- Alert Banner -->
+      <div id="alertBanner" style="display: none;"></div>
+
+      <form id="otpSubmitForm">
+        <div class="otp-inputs-wrapper" id="otpInputs">
+          <input type="text" class="otp-digit-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="one-time-code">
+          <input type="text" class="otp-digit-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-digit-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-digit-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-digit-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-digit-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+        </div>
+
+        <button type="submit" class="btn-lv-primary" id="verifyBtn" disabled>Verify Email</button>
+      </form>
+
+      <div class="timer-section">
+        Code expires in
+        <span class="timer-count" id="countdownTimer">10:00</span>
+      </div>
+
+      <div class="secondary-actions">
+        Didn't receive the code?<br>
+        <button class="resend-btn" id="resendBtn" disabled>Resend Code (<span id="resendCountdown">60</span>s)</button>
+      </div>
+
+      <div class="change-email-section">
+        Wrong email?<br>
+        <a href="{{ url_for('auth.register') }}" class="change-email-link">Change Email</a>
+      </div>
+
+      <div class="security-notice">
+        <span class="security-icon">🔒</span>
+        <p class="security-text">
+          <strong>Never share this verification code with anyone.</strong>
+          3M SERVICES will never ask for your code by phone or chat.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="otp-right">
+    <img src="{{ url_for('static', filename='img_login_bg.png') }}" alt="3M SERVICES" class="otp-right-img">
+    <div class="otp-right-overlay"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const inputs = document.querySelectorAll('.otp-digit-input');
+  const verifyBtn = document.getElementById('verifyBtn');
+  const otpForm = document.getElementById('otpSubmitForm');
+  const alertBanner = document.getElementById('alertBanner');
+  const cardContent = document.getElementById('otpCardContent');
+  
+  const email = "{{ email }}";
+
+  // Focus the first input automatically
+  if (inputs.length > 0) {
+    inputs[0].focus();
+  }
+
+  // Handle key listeners for individual input behavior
+  inputs.forEach((input, index) => {
+    input.addEventListener('input', (e) => {
+      // Clean non-numeric
+      input.value = input.value.replace(/[^0-9]/g, '');
+      
+      // Auto move next
+      if (input.value !== '' && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+      checkInputsFilled();
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace') {
+        if (input.value === '' && index > 0) {
+          inputs[index - 1].focus();
+          inputs[index - 1].value = '';
+        } else {
+          input.value = '';
+        }
+        checkInputsFilled();
+      }
+    });
+
+    // Support paste
+    input.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pastedData = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+      for (let i = 0; i < pastedData.length; i++) {
+        if (inputs[i]) {
+          inputs[i].value = pastedData[i];
+        }
+      }
+      // Focus the last completed input or first empty
+      const focusIndex = Math.min(pastedData.length, inputs.length - 1);
+      inputs[focusIndex].focus();
+      checkInputsFilled();
+    });
+  });
+
+  function checkInputsFilled() {
+    const code = Array.from(inputs).map(i => i.value).join('');
+    verifyBtn.disabled = (code.length !== 6);
+  }
+
+  function showAlert(message, type = 'danger') {
+    alertBanner.className = `lv-alert lv-alert-${type}`;
+    let icon = type === 'danger' ? '❌' : '✅';
+    if (message.includes('expired') || message.includes('expiré')) icon = '⏰';
+    alertBanner.innerHTML = `<span class="lv-alert-icon">${icon}</span> <span>${message}</span>`;
+    alertBanner.style.display = 'flex';
+  }
+
+  // Handle Form Submit (AJAX validation)
+  otpForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = Array.from(inputs).map(i => i.value).join('');
+    
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = 'Verifying...';
+    alertBanner.style.display = 'none';
+
+    try {
+      const response = await fetch("{{ url_for('auth.verify_otp') }}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email,
+          otp: code,
+          purpose: 'email_verification'
+        })
+      });
+
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        // Show Success Screen
+        cardContent.innerHTML = `
+          <div class="success-card">
+            <div class="success-icon">✓</div>
+            <h2 class="success-title">Email Verified!</h2>
+            <p class="success-subtitle">Your account has been successfully verified.</p>
+            <div class="success-redirect">Redirecting to home page...</div>
+          </div>
+        `;
+        setTimeout(() => {
+          window.location.href = "{{ url_for('main.index') }}";
+        }, 2500);
+      } else {
+        // Show specific error messages
+        let errorMsg = result.message || 'The verification code you entered is incorrect.';
+        if (errorMsg.includes('expiré') || errorMsg.includes('expired')) {
+          errorMsg = 'Your verification code has expired. Request a new code.';
+        } else if (errorMsg.includes('tentatives') || errorMsg.includes('attempts')) {
+          errorMsg = 'Too many incorrect attempts. Please request a new verification code.';
+        } else {
+          errorMsg = 'The verification code you entered is incorrect.';
+        }
+        showAlert(errorMsg, 'danger');
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Verify Email';
+      }
+    } catch (err) {
+      showAlert('An unexpected connection error occurred. Please try again.', 'danger');
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'Verify Email';
+    }
+  });
+
+  // Countdown timer for OTP expiration (10 minutes)
+  let expirationTime = 600; // 10 minutes in seconds
+  const expirationTimerEl = document.getElementById('countdownTimer');
+
+  const expirationInterval = setInterval(() => {
+    if (expirationTime <= 0) {
+      clearInterval(expirationInterval);
+      expirationTimerEl.className = 'error-timer-msg';
+      expirationTimerEl.textContent = 'This verification code has expired.';
+      verifyBtn.disabled = true;
+      // Invalidate inputs
+      inputs.forEach(i => i.disabled = true);
+      showAlert('Your verification code has expired. Request a new code.', 'danger');
+    } else {
+      expirationTime--;
+      const minutes = Math.floor(expirationTime / 60).toString().padStart(2, '0');
+      const seconds = (expirationTime % 60).toString().padStart(2, '0');
+      expirationTimerEl.textContent = `${minutes}:${seconds}`;
+    }
+  }, 1000);
+
+  // Resend code countdown timer (60 seconds)
+  const resendBtn = document.getElementById('resendBtn');
+  const resendCountdownEl = document.getElementById('resendCountdown');
+  let resendTimeout = 60;
+
+  function startResendTimer() {
+    resendBtn.disabled = true;
+    resendTimeout = 60;
+    resendCountdownEl.textContent = resendTimeout;
+    
+    const resendInterval = setInterval(() => {
+      resendTimeout--;
+      if (resendTimeout <= 0) {
+        clearInterval(resendInterval);
+        resendBtn.disabled = false;
+        resendBtn.innerHTML = 'Resend Code';
+      } else {
+        resendCountdownEl.textContent = resendTimeout;
+      }
+    }, 1000);
+  }
+
+  // Start the initial resend timer
+  startResendTimer();
+
+  // Handle Resend Click
+  resendBtn.addEventListener('click', async () => {
+    resendBtn.disabled = true;
+    resendBtn.textContent = 'Sending...';
+    alertBanner.style.display = 'none';
+
+    try {
+      const response = await fetch("{{ url_for('auth.api_resend_otp') }}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email,
+          purpose: 'email_verification'
+        })
+      });
+
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        showAlert('A new verification code has been sent to your email.', 'success');
+        // Reset inputs
+        inputs.forEach(i => {
+          i.value = '';
+          i.disabled = false;
+        });
+        inputs[0].focus();
+        verifyBtn.disabled = true;
+        
+        // Reset expiration timer (10 mins)
+        expirationTime = 600;
+        expirationTimerEl.className = 'timer-count';
+        
+        // Restart resend timer
+        startResendTimer();
+      } else {
+        showAlert(result.message || 'Failed to resend code. Please try again.', 'danger');
+        resendBtn.disabled = false;
+        resendBtn.innerHTML = 'Resend Code';
+      }
+    } catch (err) {
+      showAlert('Failed to resend code. Please check your internet connection.', 'danger');
+      resendBtn.disabled = false;
+      resendBtn.innerHTML = 'Resend Code';
+    }
+  });
+</script>
+{% endblock %}

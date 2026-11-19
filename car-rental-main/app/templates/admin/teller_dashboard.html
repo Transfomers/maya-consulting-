@@ -1,0 +1,143 @@
+{% extends "admin/teller_base.html" %}
+
+{% block title %}Tableau de Bord{% endblock %}
+{% block page_title %}Aperçu de la journée{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Stat 1 -->
+    <div class="col-md-4">
+        <div class="card border-0 rounded-4 h-100 fade-in stat-card" style="background: linear-gradient(135deg, var(--pos-brand), var(--pos-brand-dark)); color: white; box-shadow: 0 10px 20px rgba(139,24,50,0.2);">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-white-50 fw-bold mb-2 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.8rem;">Locations Enregistrées (Auj.)</h6>
+                    <h2 class="fw-bold mb-0 display-6">{{ today_tickets }}</h2>
+                </div>
+                <div class="p-3 bg-white bg-opacity-10 rounded-circle text-center d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                    <i class="bi bi-car-front-fill fs-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stat 2 -->
+    <div class="col-md-4">
+        <div class="card border-0 rounded-4 h-100 fade-in stat-card">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-muted fw-bold mb-2 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.8rem;">Recette (MOMO)</h6>
+                    <h2 class="fw-bold mb-0 display-6" style="color: #ff9800;">{{ today_momo }} <small class="fs-6 text-muted">FCFA</small></h2>
+                </div>
+                <div class="p-3 rounded-circle text-center d-flex align-items-center justify-content-center" style="width: 64px; height: 64px; background: #fff3e0; color: #ff9800;">
+                    <i class="bi bi-phone-vibrate fs-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat 3 -->
+    <div class="col-md-4">
+        <div class="card border-0 rounded-4 h-100 fade-in stat-card">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-muted fw-bold mb-2 text-uppercase" style="letter-spacing: 0.5px; font-size: 0.8rem;">Recette (OM)</h6>
+                    <h2 class="fw-bold mb-0 display-6" style="color: #ff6600;">{{ today_orange }} <small class="fs-6 text-muted">FCFA</small></h2>
+                </div>
+                <div class="p-3 rounded-circle text-center d-flex align-items-center justify-content-center" style="width: 64px; height: 64px; background: #fff0eb; color: #ff6600;">
+                    <i class="bi bi-phone fs-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 fade-in">
+    <!-- Quick Actions -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-lightning-charge-fill text-warning me-2"></i> Actions Rapides</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <a href="{{ url_for('admin.teller_book') }}" class="text-decoration-none">
+                            <div class="p-4 border rounded-4 bg-light text-center h-100 pos-action-card transition-all">
+                                <i class="bi bi-car-front-fill d-block mb-3" style="font-size: 2.5rem; color: var(--pos-brand);"></i>
+                                <h6 class="fw-bold text-dark mb-1">Nouvelle Réservation Location</h6>
+                                <p class="small text-muted mb-0">Créer un contrat manuel au comptoir agence</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="#" onclick="document.getElementById('qrScannerModal').style.display='block'" class="text-decoration-none">
+                            <div class="p-4 border rounded-4 bg-light text-center h-100 pos-action-card transition-all">
+                                <i class="bi bi-qr-code-scan d-block mb-3" style="font-size: 2.5rem; color: #475569;"></i>
+                                <h6 class="fw-bold text-dark mb-1">Vérifier Contrat Client</h6>
+                                <p class="small text-muted mb-0">Valider la prise en charge d'un véhicule VIP</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upcoming Next -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-primary me-2"></i> Sorties & Missions VIP</h5>
+                <a href="{{ url_for('admin.teller_trips') }}" class="btn btn-sm btn-light rounded-pill">Tout voir</a>
+            </div>
+            <div class="card-body p-4">
+                {% for trip in upcoming_trips %}
+                <div class="d-flex align-items-center mb-3 p-3 border rounded-3 bg-light trip-list-item transition-all">
+                    <div class="me-3 text-center">
+                        <div class="fw-bold fs-5 text-dark">{{ trip.departure_time.strftime('%H:%M') }}</div>
+                        <span class="badge bg-{{ 'success' if trip.status == 'boarding' else 'primary' }} rounded-pill" style="font-size: 0.65rem;">
+                            {{ trip.status | upper }}
+                        </span>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">{{ trip.route.origin }} <i class="bi bi-arrow-right text-muted mx-1"></i> {{ trip.route.destination }}</div>
+                        <div class="small text-muted">Véhicule: <span class="fw-semibold">{{ trip.bus.brand }} {{ trip.bus.model }}</span></div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-calendar-x fs-1 opacity-25 mb-3 d-block"></i>
+                    <p class="mb-0">Aucun départ prévu prochainement.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--pos-shadow);
+    }
+    .pos-action-card {
+        background: #f8fafc;
+        border: 2px solid transparent !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .pos-action-card:hover {
+        background: white !important;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        border-color: var(--pos-brand-light) !important;
+        transform: translateY(-4px);
+    }
+    .trip-list-item:hover {
+        background: white !important;
+        border-color: #cbd5e1 !important;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+</style>
+{% endblock %}

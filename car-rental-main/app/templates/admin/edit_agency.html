@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier l'Agence - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+                <div class="mb-4">
+                    <h3 class="fw-bold"><i class="bi bi-pencil text-primary me-2"></i> Modifier l'Agence: {{ agency.name }}</h3>
+                    <p class="text-muted">Mettez à jour le profil, les coordonnées de contact, ou le hub principal de l'agence.</p>
+                </div>
+
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Nom de l'Agence</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ agency.name }}" required>
+                            <div class="invalid-feedback">Le nom de l'agence est obligatoire.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="city" class="form-label">Ville Siège / Hub Principal</label>
+                            <select class="form-select" id="city" name="city" required>
+                                <option value="Douala" {% if agency.city == 'Douala' %}selected{% endif %}>Douala</option>
+                                <option value="Yaoundé" {% if agency.city == 'Yaoundé' %}selected{% endif %}>Yaoundé</option>
+                                <option value="Bafoussam" {% if agency.city == 'Bafoussam' %}selected{% endif %}>Bafoussam</option>
+                                <option value="Garoua" {% if agency.city == 'Garoua' %}selected{% endif %}>Garoua</option>
+                                <option value="Bamenda" {% if agency.city == 'Bamenda' %}selected{% endif %}>Bamenda</option>
+                            </select>
+                            <div class="invalid-feedback">La ville de l'agence est obligatoire.</div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label for="address" class="form-label">Adresse Complète</label>
+                            <input type="text" class="form-control" id="address" name="address" value="{{ agency.address or '' }}" placeholder="Ex: Rue Akwa, face ancienne boulangerie, Douala">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Numéro de Téléphone Professionnel</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="{{ agency.phone or '' }}" placeholder="Ex: +237 670 123 456">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Adresse Email de Contact</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ agency.email or '' }}" placeholder="Ex: contact@finevoyage.cm">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <a href="{{ url_for('admin.agencies') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-arrow-left me-2"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                            <i class="bi bi-check-circle me-2"></i> Enregistrer les Modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

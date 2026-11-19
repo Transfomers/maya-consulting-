@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}Registre National des Colis - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+    {% include 'admin/_super_parcel_subnav.html' %}
+
+    <!-- Filter Console -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-funnel-fill text-primary me-2"></i>Console de Filtrage des Colis</h5>
+        <form method="GET" action="{{ url_for('admin.super_parcel_registry') }}" class="row g-3">
+            {% if current_user.role == 'super_admin' %}
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-muted">Agence d'Origine</label>
+                <select name="agency_id" class="form-select">
+                    <option value="">Toutes les agences</option>
+                    {% for ag in agencies %}
+                    <option value="{{ ag.id }}" {% if selected_agency_id == ag.id %}selected{% endif %}>{{ ag.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-muted">Statut</label>
+                <select name="status" class="form-select">
+                    <option value="">Tous les statuts</option>
+                    <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>En attente (Pending)</option>
+                    <option value="validated" {% if selected_status == 'validated' %}selected{% endif %}>Validé</option>
+                    <option value="paid" {% if selected_status == 'paid' %}selected{% endif %}>Payé</option>
+                    <option value="assigned" {% if selected_status == 'assigned' %}selected{% endif %}>Assigné</option>
+                    <option value="loaded" {% if selected_status == 'loaded' %}selected{% endif %}>Chargé</option>
+                    <option value="in_transit" {% if selected_status == 'in_transit' %}selected{% endif %}>En transit</option>
+                    <option value="arrived" {% if selected_status == 'arrived' %}selected{% endif %}>Arrivé</option>
+                    <option value="delivered" {% if selected_status == 'delivered' %}selected{% endif %}>Livré</option>
+                    <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Rejeté</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase text-muted">Recherche Textuelle</label>
+                <input type="text" name="search" class="form-control" placeholder="Nom, Téléphone, Tracking..." value="{{ search }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-muted">Du</label>
+                <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-uppercase text-muted">Au</label>
+                <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+            </div>
+            <div class="col-12 d-flex justify-content-end gap-2 mt-4">
+                <a href="{{ url_for('admin.super_parcel_registry') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">Effacer</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold"><i class="bi bi-search me-1"></i>Rechercher</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Registry List -->
+    <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h5 class="fw-bold mb-0"><i class="bi bi-list-columns text-primary me-2"></i>Registre des Expéditions ({{ parcels | length }} trouvés)</h5>
+            <button class="btn btn-sm btn-outline-danger rounded-pill fw-bold" onclick="downloadPDF()">
+                <i class="bi bi-file-earmark-pdf-fill me-1"></i>Télécharger PDF
+            </button>
+        </div>
+
+        {% if parcels %}
+            <div class="table-responsive" id="registryTableContainer">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>N° Tracking</th>
+                            <th>Origine</th>
+                            <th>Destinataire / Ville</th>
+                            <th>Expéditeur / Contact</th>
+                            <th>Fret Details</th>
+                            <th>Prix</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in parcels %}
+                        <tr>
+                            <td class="fw-bold">#{{ p.tracking_number }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ p.agency.name }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ p.receiver_name }}</div>
+                                <div class="small text-muted">{{ p.receiver_city }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ p.sender_name }}</div>
+                                <div class="small text-muted">{{ p.sender_phone }}</div>
+                            </td>
+                            <td>
+                                <div class="small"><span class="fw-bold">Poids:</span> {{ p.weight }} kg</div>
+                                <div class="small"><span class="fw-bold">Type:</span> {{ p.parcel_type }}</div>
+                                <div class="small text-muted fst-italic mt-1"><span class="fw-bold text-dark">Contenu:</span> {{ p.description }}</div>
+                                {% if p.is_fragile %}
+                                    <span class="badge bg-danger-soft text-danger border" style="font-size:0.7rem;">Fragile</span>
+                                {% endif %}
+                                {% if p.has_insurance %}
+                                    <span class="badge bg-success-soft text-success border" style="font-size:0.7rem;">Assuré</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-semibold text-nowrap">{{ p.price | int }} FCFA</td>
+                            <td>
+                                <span class="badge {% if p.status == 'delivered' %}bg-success{% elif p.status in ['loaded', 'in_transit', 'arrived'] %}bg-warning{% elif p.status == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ p.status | upper }}
+                                </span>
+                            </td>
+                            <td class="text-end align-middle">
+                                <div class="d-flex justify-content-end gap-2 flex-nowrap">
+                                    <a href="{{ url_for('admin.super_parcel_tracking', tracking_code=p.tracking_number) }}" class="btn btn-sm btn-outline-primary rounded-circle shadow-sm" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="Suivi GPS & Timeline">
+                                        <i class="bi bi-geo-alt"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-secondary rounded-circle shadow-sm" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" data-bs-toggle="modal" data-bs-target="#detailModal{{ p.id }}" title="Infos">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-circle shadow-sm" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" data-bs-toggle="modal" data-bs-target="#reportIncidentModal{{ p.id }}" title="Signaler Incident">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted fw-bold">Aucun colis correspondant aux critères de recherche n'a été trouvé.</h6>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if parcels %}
+        {% for p in parcels %}
+        <!-- Detail Modal -->
+        <div class="modal fade" id="detailModal{{ p.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Colis #{{ p.tracking_number }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <!-- Printable Content (Styled for PDF) -->
+                    <div class="modal-body text-start bg-white text-dark p-4" id="printModalContent{{ p.id }}" style="font-family: Arial, sans-serif; color: #000 !important;">
+                        <div class="text-center mb-4" style="border-bottom: 2px solid #000; padding-bottom: 10px;">
+                            <h3 style="margin-bottom: 5px; font-weight: bold; color: #000 !important;">Reçu de Colis 3M SERVICES</h3>
+                            <p style="font-size: 1.1rem; color: #333 !important; margin: 0;">Tracking: <strong>#{{ p.tracking_number }}</strong></p>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <h5 style="font-weight: bold; color: #000 !important; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Expéditeur</h5>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Nom:</strong> {{ p.sender_name }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Téléphone:</strong> {{ p.sender_phone }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Email:</strong> {{ p.sender_email or 'Non renseigné' }}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <h5 style="font-weight: bold; color: #000 !important; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Destinataire</h5>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Nom:</strong> {{ p.receiver_name }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Téléphone:</strong> {{ p.receiver_phone }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Ville d'arrivée:</strong> {{ p.receiver_city }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Adresse:</strong> {{ p.receiver_address or 'Non renseignée' }}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <h5 style="font-weight: bold; color: #000 !important; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Caractéristiques du Colis</h5>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Description:</strong> {{ p.description }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Type:</strong> {{ p.parcel_type }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Nombre de pièces:</strong> {{ p.num_items }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Poids:</strong> {{ p.weight }} kg</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Fragile:</strong> {{ 'Oui' if p.is_fragile else 'Non' }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Assurance:</strong> {{ 'Oui' if p.has_insurance else 'Non' }}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <h5 style="font-weight: bold; color: #000 !important; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Logistique & Financement</h5>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Tarif total:</strong> {{ p.price | int }} FCFA</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Mode de Paiement:</strong> {{ p.payment_method | upper }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Statut Paiement:</strong> {{ p.payment_status | upper }}</p>
+                            <p style="margin: 3px 0; color: #000 !important;"><strong>Voyage assigné:</strong> #{{ p.trip_id if p.trip_id else 'Non assigné' }} (Chauffeur: {{ p.trip.driver.name if p.trip and p.trip.driver else 'Non assigné' }})</p>
+                            
+                            {% if p.otp_code %}
+                                <p style="margin: 8px 0; color: #000 !important;"><strong>OTP Code Retrait:</strong> <span style="background: #eee; padding: 2px 5px; border: 1px solid #ccc;">{{ p.otp_code }}</span></p>
+                            {% endif %}
+                            {% if p.rejection_reason %}
+                                <p style="margin: 3px 0; color: #d9534f !important;"><strong>Raison de Rejet:</strong> {{ p.rejection_reason }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Actions -->
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-primary rounded-pill px-3" onclick="downloadModalPDF('{{ p.id }}', '{{ p.tracking_number }}')">
+                            <i class="bi bi-download me-1"></i> Télécharger PDF
+                        </button>
+                        <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Incident Modal -->
+        <div class="modal fade" id="reportIncidentModal{{ p.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form method="POST" action="{{ url_for('admin.report_incident') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="parcel_id" value="{{ p.id }}">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Signaler un Incident</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-start">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Numéro de Colis (Auto)</label>
+                                <input type="text" class="form-control" value="{{ p.tracking_number }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Numéro de Voyage (Auto)</label>
+                                <input type="text" class="form-control" value="Trip #{{ p.trip_id if p.trip_id else 'N/A' }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Type d'Incident</label>
+                                <select name="type" class="form-select" required>
+                                    <option value="Lost Parcel">Lost Parcel (Colis perdu)</option>
+                                    <option value="Damaged Parcel">Damaged Parcel (Colis endommagé)</option>
+                                    <option value="Delayed Parcel">Delayed Parcel (Colis en retard)</option>
+                                    <option value="Wrong Receiver">Wrong Receiver (Mauvais destinataire)</option>
+                                    <option value="Customer Complaint">Customer Complaint (Réclamation client)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Description des Faits</label>
+                                <textarea name="description" class="form-control" rows="4" placeholder="Décrire précisément l'incident..." required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Ajouter Photo (Optionnel)</label>
+                                <input type="file" name="photo" class="form-control" accept="image/*">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">Signaler Incident</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function downloadPDF() {
+    var originalElement = document.getElementById('registryTableContainer');
+    
+    // Create a clone to manipulate safely without touching the UI
+    var clone = originalElement.cloneNode(true);
+    clone.style.backgroundColor = '#ffffff';
+    clone.style.padding = '20px';
+    
+    // Add a title to the PDF
+    var title = document.createElement('h2');
+    title.innerText = 'Registre des Expéditions';
+    title.style.textAlign = 'center';
+    title.style.marginBottom = '20px';
+    title.style.color = '#000000';
+    clone.insertBefore(title, clone.firstChild);
+    
+    // Add Company Logo
+    var logo = document.createElement('img');
+    logo.src = "{{ url_for('static', filename='logorv.png') }}";
+    logo.style.width = "100px";
+    logo.style.display = "block";
+    logo.style.margin = "0 auto 15px auto";
+    clone.insertBefore(logo, clone.firstChild);
+    
+    // Hide actions column in clone
+    var actionsCells = clone.querySelectorAll('th:last-child, td:last-child');
+    actionsCells.forEach(cell => cell.style.display = 'none');
+    
+    // Ensure badges keep their background but text is readable, or just force basic text
+    var allElements = clone.querySelectorAll('*');
+    allElements.forEach(el => {
+        el.style.color = '#000000';
+        if (el.tagName === 'TABLE') {
+            el.style.width = '100%';
+            el.style.borderCollapse = 'collapse';
+            el.style.tableLayout = 'auto';
+        }
+        if (el.tagName === 'TH' || el.tagName === 'TD') {
+            el.style.padding = '8px 5px';
+            el.style.borderBottom = '1px solid #e5e7eb';
+            el.style.fontSize = '10px';
+            el.style.textAlign = 'left';
+            el.style.wordBreak = 'break-word';
+        }
+        // Remove bootstrap shadow/border for cleaner print
+        el.classList.remove('shadow-sm', 'border');
+    });
+    
+    // We need to append the clone to body (hidden) so html2canvas can read it properly
+    var container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.width = '11in'; // Match landscape width
+    container.appendChild(clone);
+    document.body.appendChild(container);
+    
+    var opt = {
+      margin:       0.5,
+      filename:     'registre_expeditions.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1200 },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+    };
+
+    html2pdf().set(opt).from(clone).save().then(function() {
+        // Cleanup
+        document.body.removeChild(container);
+    });
+}
+
+function downloadModalPDF(parcelId, trackingNumber) {
+    var element = document.getElementById('printModalContent' + parcelId);
+    
+    var opt = {
+      margin:       0.5,
+      filename:     'colis_' + trackingNumber + '.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+}
+</script>
+{% endblock %}

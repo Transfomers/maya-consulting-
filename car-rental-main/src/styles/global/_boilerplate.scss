@@ -10,12 +10,17 @@
 html {
   font-size: 62.5%;
   scroll-behavior: smooth;
+  font-family: $titles-font;
 }
 
 body {
   background-color: $bg-white;
   font-family: $titles-font;
   position: relative;
+}
+
+button, input, select, textarea, optgroup {
+  font-family: inherit;
 }
 
 .container {

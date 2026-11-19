@@ -29,8 +29,8 @@ export const ROUTES = {
   CONTACT: "/contact",
   TEAM: "/team",
   TESTIMONIALS: "/testimonials",
-  ADMIN: "/admin",
-  ADMIN_LOGIN: "/admin/login"
+  ADMIN: "http://127.0.0.1:5002/admin/dashboard",
+  ADMIN_LOGIN: "http://127.0.0.1:5002/login"
 };
 
 export const BOOKING_STATUSES = {

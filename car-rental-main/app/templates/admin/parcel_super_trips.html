@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Suivi Logistique des Voyages - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+    {% include 'admin/_super_parcel_subnav.html' %}
+
+    <!-- Filter Console -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-funnel-fill text-primary me-2"></i>Console de Filtrage des Voyages</h5>
+        <form method="GET" action="{{ url_for('admin.super_parcel_trips') }}" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-muted">Du (Date Départ)</label>
+                <input type="date" name="date_from" class="form-control" value="{{ date_from or '' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-muted">Au (Date Départ)</label>
+                <input type="date" name="date_to" class="form-control" value="{{ date_to or '' }}">
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold w-50"><i class="bi bi-search me-1"></i>Filtrer</button>
+                <a href="{{ url_for('admin.super_parcel_trips') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold w-50">Effacer</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-bus-front text-primary me-2"></i>Capacité Cargo & Fret des Voyages</h4>
+                <p class="text-muted small mb-0">Surveillance en temps réel de la charge utile des bus, des manifestes de colis et de la rentabilité.</p>
+            </div>
+        </div>
+
+        {% if trips %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Voyage / Ligne</th>
+                            <th>Départ / Bus</th>
+                            <th class="text-center">Colis Chargés</th>
+                            <th>Poids Cargo (% Capacité)</th>
+                            <th>Revenu Billets</th>
+                            <th>Revenu Colis</th>
+                            <th class="fw-bold">Total Recettes</th>
+                            <th class="text-end">Manifeste</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in trips %}
+                        {% set trip = item.trip %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-primary">{{ trip.route.origin }} ➔ {{ trip.route.destination }}</div>
+                                <div class="small text-muted" style="font-size:0.75rem;"><i class="bi bi-calendar-event me-1"></i>Date de création: {{ trip.departure_time.strftime('%d/%m/%Y') }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ trip.departure_time.strftime('%H:%M') }}</div>
+                                <div class="small text-muted" style="font-size: 0.75rem;">
+                                    <i class="bi bi-truck me-1"></i>{{ trip.bus.bus_number }}
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border">{{ item.parcel_count }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center justify-content-between small mb-1">
+                                    <span>{{ item.total_weight | round(1) }}kg / {{ item.cargo_cap | int }}kg</span>
+                                    <span class="fw-bold">{{ item.capacity_usage }}%</span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar {% if item.capacity_usage > 90 %}bg-danger{% elif item.capacity_usage > 70 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ item.capacity_usage }}%;" aria-valuenow="{{ item.capacity_usage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </td>
+                            <td class="text-nowrap">{{ item.tickets_revenue | int }} FCFA</td>
+                            <td class="text-nowrap text-success">{{ item.parcels_revenue | int }} FCFA</td>
+                            <td class="fw-bold text-nowrap">{{ item.total_revenue | int }} FCFA</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="collapse" data-bs-target="#manifestCollapse{{ trip.id }}" aria-expanded="false">
+                                    <i class="bi bi-file-earmark-text me-1"></i> Voir Manifeste
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="collapse-row">
+                            <td colspan="8" class="p-0 border-0">
+                                <div class="collapse" id="manifestCollapse{{ trip.id }}">
+                                    <div class="p-3 bg-light border-start border-primary border-4 my-2 mx-3 rounded">
+                                        <h6 class="fw-bold mb-3"><i class="bi bi-file-text me-2"></i>Manifeste de Fret - Voyage #{{ trip.id }}</h6>
+                                        {% if item.parcels %}
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-bordered bg-white mb-0 align-middle">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>N° Tracking</th>
+                                                            <th>Destinataire</th>
+                                                            <th>Description</th>
+                                                            <th>Poids</th>
+                                                            <th>Statut</th>
+                                                            <th>Paiement</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for p in item.parcels %}
+                                                        <tr>
+                                                            <td class="fw-bold">#{{ p.tracking_number }}</td>
+                                                            <td>
+                                                                <div>{{ p.receiver_name }}</div>
+                                                                <div class="small text-muted" style="font-size:0.7rem;">{{ p.receiver_city }}</div>
+                                                            </td>
+                                                            <td>{{ p.description }} ({{ p.parcel_type }})</td>
+                                                            <td>{{ p.weight }} kg</td>
+                                                            <td>
+                                                                <span class="badge {% if p.status == 'delivered' %}bg-success{% elif p.status == 'loaded' %}bg-primary{% else %}bg-warning{% endif %}" style="font-size: 0.7rem;">
+                                                                    {{ p.status | upper }}
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge {% if p.payment_status == 'paid' %}bg-success-soft text-success border{% else %}bg-danger-soft text-danger border{% endif %}" style="font-size: 0.7rem;">
+                                                                    {{ p.payment_status | upper }}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        {% else %}
+                                            <p class="text-muted small mb-0">Aucun colis n'est actuellement affecté à ce voyage.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-bus-front fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted fw-bold">Aucun voyage logistique enregistré.</h6>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Politique de Confidentialité - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <i class="bi bi-shield-check text-primary mb-3" style="font-size: 4rem;"></i>
+                        <h1 class="fw-bold mb-3">Politique de Confidentialité</h1>
+                        <p class="text-muted">Dernière mise à jour : {{ current_time.strftime('%d %B %Y') if current_time else 'Aujourd\'hui' }}</p>
+                    </div>
+
+                    <div class="privacy-section mb-4">
+                        <h4 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-database me-2"></i>{{ _t('1. Informations Collectées') }}</h4>
+                        <p>{{ _t('Pour vous offrir nos services, nous collectons les informations personnelles suivantes lors de la création de votre compte ou de vos réservations :') }}</p>
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check2 text-success me-2"></i>{{ _t('Nom Complet') }}</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check2 text-success me-2"></i>{{ _t('Adresse E-mail') }}</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check2 text-success me-2"></i>{{ _t('Numéro de Téléphone') }}</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check2 text-success me-2"></i>{{ _t('Adresse Physique') }}</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check2 text-success me-2"></i>{{ _t('Date de Naissance') }}</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check2 text-success me-2"></i>{{ _t('Informations de Réservation') }}</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check2 text-success me-2"></i>{{ _t('Informations de Paiement (Mobile Money, Carte)') }}</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check2 text-success me-2"></i>{{ _t('Informations sur votre Appareil (Logs de connexion)') }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section mb-4">
+                        <h4 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-gear me-2"></i>{{ _t('2. Pourquoi utilisons-nous vos données ?') }}</h4>
+                        <p>{{ _t('Vos données sont strictement utilisées pour les finalités suivantes :') }}</p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 h-100">
+                                    <strong>{{ _t('Création de Compte') }}</strong>
+                                    <p class="small text-muted mb-0 mt-1">{{ _t('Gérer et sécuriser votre accès à l\'Espace Client.') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 h-100">
+                                    <strong>{{ _t('Gestion des Réservations') }}</strong>
+                                    <p class="small text-muted mb-0 mt-1">{{ _t('Émettre vos contrats de location VIP et vous notifier de la mise à disposition du véhicule.') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 h-100">
+                                    <strong>{{ _t('Traitement des Paiements') }}</strong>
+                                    <p class="small text-muted mb-0 mt-1">{{ _t('Vérifier les transactions financières et factures de manière sécurisée.') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 h-100">
+                                    <strong>{{ _t('Service Client & Conciergerie') }}</strong>
+                                    <p class="small text-muted mb-0 mt-1">{{ _t('Vous assister 24/7 pour vos missions VIP, transferts aéroport ou conciergerie.') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 h-100">
+                                    <strong>{{ _t('Prévention des Fraudes') }}</strong>
+                                    <p class="small text-muted mb-0 mt-1">{{ _t('Détecter les activités suspectes ou les paiements frauduleux.') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 h-100">
+                                    <strong>{{ _t('Surveillance de la Sécurité') }}</strong>
+                                    <p class="small text-muted mb-0 mt-1">{{ _t('Protéger la plateforme contre les attaques informatiques.') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="privacy-section mb-4">
+                        <h4 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-person-check me-2"></i>{{ _t('3. Vos Droits (RGPD / Données Personnelles)') }}</h4>
+                        <p>{{ _t('En tant qu\'utilisateur de 3M SERVICES, vous disposez d\'un contrôle total sur vos données :') }}</p>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="bi bi-dot text-primary fs-4"></i> <strong>{{ _t('Consulter votre profil :') }}</strong> {{ _t('Vous pouvez accéder à tout moment à vos données via votre Tableau de Bord.') }}</li>
+                            <li class="mb-2"><i class="bi bi-dot text-primary fs-4"></i> <strong>{{ _t('Modifier votre profil :') }}</strong> {{ _t('Mettez à jour vos informations personnelles facilement.') }}</li>
+                            <li class="mb-2"><i class="bi bi-dot text-primary fs-4"></i> <strong>{{ _t('Télécharger vos données :') }}</strong> {{ _t('Demandez un export de toutes vos données personnelles.') }}</li>
+                            <li class="mb-2"><i class="bi bi-dot text-primary fs-4"></i> <strong>{{ _t('Gérer les préférences de notification :') }}</strong> {{ _t('Activez ou désactivez les SMS, Emails et Push selon vos choix.') }}</li>
+                            <li class="mb-2"><i class="bi bi-dot text-danger fs-4"></i> <strong>{{ _t('Suppression de compte :') }}</strong> {{ _t('Vous avez le droit d\'exiger l\'effacement complet de votre compte et de l\'historique associé (Droit à l\'oubli).') }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-center mt-5 pt-4 border-top">
+                        <p class="text-muted small">{{ _t('En utilisant les services 3M SERVICES, vous acceptez cette politique.') }}</p>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary rounded-pill px-4">{{ _t('Créer un compte') }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

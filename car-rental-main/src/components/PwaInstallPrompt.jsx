@@ -94,7 +94,7 @@ function PwaInstallPrompt() {
         boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2), 0 1px 4px rgba(0,0,0,0.08)",
         border: "1px solid #e5e7eb",
         zIndex: 999999,
-        fontFamily: "'Rubik', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: "'Poppins', -apple-system, BlinkMacSystemFont, sans-serif",
         animation: "slideInPwa 0.25s ease-out",
         boxSizing: "border-box"
       }}

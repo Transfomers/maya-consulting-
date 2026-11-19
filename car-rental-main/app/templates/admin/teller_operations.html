@@ -1,0 +1,386 @@
+{% extends "admin/teller_base.html" %}
+
+{% block title %}Départs du Jour{% endblock %}
+{% block page_title %}Mes Voyages & Opérations{% endblock %}
+
+{% block content %}
+    <div class="card border-0 shadow-sm rounded-4 fade-in">
+            <div class="d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs border-bottom-0" id="tellerTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-semibold" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab"><i class="bi bi-calendar-event me-2"></i> À venir</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-semibold" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab"><i class="bi bi-clock-history me-2"></i> Voyages Passés</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-semibold text-warning" id="unpaid-tab" data-bs-toggle="tab" data-bs-target="#unpaid" type="button" role="tab"><i class="bi bi-cash-coin me-2"></i> À Payer <span class="badge bg-warning rounded-pill ms-1">{{ unpaid_bookings|length }}</span></button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-semibold text-danger" id="cancelled-tab" data-bs-toggle="tab" data-bs-target="#cancelled" type="button" role="tab"><i class="bi bi-x-circle me-2"></i> Annulations</button>
+                    </li>
+                </ul>
+                
+                <div class="pe-3 pb-2">
+                    <div class="input-group input-group-sm" style="width: 250px;">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0" id="tableFilterInput" placeholder="Filtrer (ex: Douala, Nom)...">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="tab-content" id="tellerTabsContent">
+                
+                <!-- UPCOMING TRIPS -->
+                <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Départ</th>
+                                    <th>Ligne</th>
+                                    <th>Bus & Chauffeur</th>
+                                    <th>Occupation</th>
+                                    <th>Statut Actuel</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trip in upcoming_trips %}
+                                <tr>
+                                    <td class="fw-bold text-primary">{{ trip.departure_time.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>{{ trip.route.origin }} ➔ {{ trip.route.destination }}</td>
+                                    <td>{{ trip.bus.bus_number }} <br><small class="text-muted">{{ trip.bus.driver_name or 'Non assigné' }}</small></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                                {% set capacity = trip.capacity if trip.capacity > 0 else 1 %}
+                                                <div class="progress-bar {% if trip.occupied_seats >= trip.capacity %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ (trip.occupied_seats / capacity) * 100 }}%;"></div>
+                                            </div>
+                                            <span class="small fw-bold">{{ trip.occupied_seats }}/{{ trip.capacity }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if trip.status == 'scheduled' %}
+                                            <span class="badge bg-secondary-soft text-secondary">Programmé</span>
+                                        {% elif trip.status == 'boarding' %}
+                                            <span class="badge bg-warning-soft text-warning spinner-grow spinner-grow-sm me-1" role="status"></span>
+                                            <span class="badge bg-warning-soft text-warning">Embarquement</span>
+                                        {% elif trip.status == 'departed' %}
+                                            <span class="badge bg-primary-soft text-primary">En Route</span>
+                                        {% elif trip.status == 'delayed' %}
+                                            <span class="badge bg-danger-soft text-danger">Retardé</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark">{{ trip.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="dropdown d-inline-block">
+                                            <button class="btn btn-sm btn-outline-primary rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                Gérer
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                <li><a class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='boarding') }}"><i class="bi bi-box-arrow-in-right me-2 text-warning"></i> Mise à disposition Véhicule</a></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='departed') }}"><i class="bi bi-car-front-fill me-2 text-primary"></i> Départ en Mission VIP</a></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='delayed') }}"><i class="bi bi-clock-history me-2 text-danger"></i> Signaler un Retard</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='arrived') }}"><i class="bi bi-geo-alt me-2 text-success"></i> Mission Terminée / Retour Flotte</a></li>
+                                                <li><a class="dropdown-item text-danger" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='cancelled') }}"><i class="bi bi-x-circle me-2"></i> Annuler la Mission</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="5" class="text-center py-4 text-muted">Aucun voyage à venir.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PAST TRIPS -->
+                <div class="tab-pane fade" id="past" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Départ</th>
+                                    <th>Ligne</th>
+                                    <th>Arrivée (Est.)</th>
+                                    <th>Passagers</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trip in past_trips %}
+                                <tr>
+                                    <td class="text-muted">{{ trip.departure_time.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td class="fw-semibold">{{ trip.route.origin }} ➔ {{ trip.route.destination }}</td>
+                                    <td class="text-muted">{{ trip.arrival_time.strftime('%H:%M') }}</td>
+                                    <td>{{ trip.occupied_seats }}</td>
+                                    <td><span class="badge bg-secondary-soft text-secondary">Terminé</span></td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="5" class="text-center py-4 text-muted">Aucun voyage passé.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- UNPAID BOOKINGS -->
+                <div class="tab-pane fade" id="unpaid" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Passager</th>
+                                    <th>Téléphone</th>
+                                    <th>Trajet & Départ</th>
+                                    <th>Siège</th>
+                                    <th>Montant</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in unpaid_bookings %}
+                                <tr>
+                                    <td class="fw-semibold">{{ b.passenger_name or b.user.username }}</td>
+                                    <td>{{ b.user.phone or 'N/A' }}</td>
+                                    <td>
+                                        <div>{{ b.trip.route.origin }} ➔ {{ b.trip.route.destination }}</div>
+                                        <div class="small text-muted">{{ b.trip.departure_time.strftime('%d/%m %H:%M') }}</div>
+                                    </td>
+                                    <td><span class="badge bg-light border text-dark">{{ b.seat_number }}</span></td>
+                                    <td class="fw-bold text-danger">{{ b.price_paid }} FCFA</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill me-1" onclick="openChangeSeatModal({{ b.id }}, {{ b.trip_id }}, '{{ b.seat_number }}')">Changer Siège</button>
+                                        {% if caisse %}
+                                        <button class="btn btn-sm btn-success rounded-pill" onclick="openPayModal({{ b.id }}, {{ b.price_paid }}, '{{ b.booking_code }}')">Encaisser</button>
+                                        {% else %}
+                                        <button class="btn btn-sm btn-secondary rounded-pill" disabled title="Caisse fermée">Encaisser</button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="6" class="text-center py-4 text-muted">Aucune réservation en attente de paiement.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CANCELLED TRIPS -->
+                <div class="tab-pane fade" id="cancelled" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date Prévue</th>
+                                    <th>Ligne</th>
+                                    <th>Passagers affectés</th>
+                                    <th>Remboursements</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trip in cancelled_trips %}
+                                <tr>
+                                    <td class="text-danger fw-semibold">{{ trip.departure_time.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>{{ trip.route.origin }} ➔ {{ trip.route.destination }}</td>
+                                    <td>{{ trip.occupied_seats }} passagers</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill">Gérer Remboursements</button>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="4" class="text-center py-4 text-muted">Aucune annulation.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Modals for Teller Operations -->
+
+    <!-- Pay Modal -->
+    <div class="modal fade" id="payModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <form id="payForm" method="POST" action="">
+                    <div class="modal-header bg-light border-0">
+                        <h5 class="modal-title fw-bold"><i class="bi bi-cash-coin text-success me-2"></i> Encaisser le Billet</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4 text-center">
+                        <h4 class="mb-3">Montant à payer : <span class="text-success fw-bold" id="payAmountDisplay"></span></h4>
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold small">Méthode de paiement</label>
+                            <select name="payment_method" class="form-select" id="payMethodSelect">
+                                <option value="Cash">Espèces (Cash)</option>
+                                <option value="Mobile Money">Mobile Money (MOMO/OM)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 text-start d-none" id="payRefGroup">
+                            <label class="form-label fw-bold small">Réf. Transaction</label>
+                            <input type="text" name="payment_ref" class="form-control" placeholder="ID de la transaction">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 justify-content-center">
+                        <button type="submit" class="btn btn-pos-success px-5 rounded-pill"><i class="bi bi-check-circle me-2"></i> Valider Paiement</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Seat Modal -->
+    <div class="modal fade" id="changeSeatModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light border-0">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i> Changer de Siège</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-muted small mb-3">Sélectionnez le nouveau siège pour le passager (Siège Actuel: <span id="currentSeatDisplay" class="fw-bold text-dark"></span>)</p>
+                    <div id="seatMapContainer" class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Pay Modal Logic
+    let payModalInstance;
+    document.addEventListener("DOMContentLoaded", function() {
+        payModalInstance = new bootstrap.Modal(document.getElementById('payModal'));
+    });
+    const payMethodSelect = document.getElementById('payMethodSelect');
+    const payRefGroup = document.getElementById('payRefGroup');
+    
+    payMethodSelect.addEventListener('change', function() {
+        if(this.value.includes('Mobile Money')) {
+            payRefGroup.classList.remove('d-none');
+        } else {
+            payRefGroup.classList.add('d-none');
+        }
+    });
+
+    function openPayModal(bookingId, amount, code) {
+        document.getElementById('payForm').action = `/admin/teller/booking/${bookingId}/pay`;
+        document.getElementById('payAmountDisplay').innerText = amount + ' FCFA';
+        payModalInstance.show();
+    }
+
+    // Change Seat Logic
+    let changeSeatModalInstance;
+    document.addEventListener("DOMContentLoaded", function() {
+        changeSeatModalInstance = new bootstrap.Modal(document.getElementById('changeSeatModal'));
+    });
+    let currentChangeBookingId = null;
+    
+    async function openChangeSeatModal(bookingId, tripId, currentSeat) {
+        currentChangeBookingId = bookingId;
+        document.getElementById('currentSeatDisplay').innerText = currentSeat;
+        document.getElementById('seatMapContainer').innerHTML = '<div class="spinner-border text-primary"></div>';
+        changeSeatModalInstance.show();
+        
+        try {
+            const response = await fetch(`/api/trip/${tripId}/seats`);
+            const data = await response.json();
+            renderSimpleBusLayout(data.capacity, data.booked_seats, currentSeat);
+        } catch(e) {
+            document.getElementById('seatMapContainer').innerHTML = '<div class="text-danger">Erreur de chargement.</div>';
+        }
+    }
+    
+    function renderSimpleBusLayout(capacity, bookedSeats, currentSeat) {
+        let layout = `<div style="background:#f8fafc; border:2px solid #e2e8f0; border-radius:1rem; padding:1.5rem; max-width:280px; margin:0 auto;">
+                        <div style="text-align:right; border-bottom:2px dashed #cbd5e1; margin-bottom:1rem; padding-bottom:0.5rem;">
+                            <i class="bi bi-circle text-muted fs-4"></i>
+                        </div>`;
+        const rows = Math.ceil(capacity / 4);
+        
+        for (let r = 1; r <= rows; r++) {
+            layout += `<div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">`;
+            
+            // Left pair
+            layout += `<div style="display:flex; gap:0.3rem;">`;
+            ['A', 'B'].forEach(col => {
+                let s = r + col;
+                let isOccupied = bookedSeats.includes(s) && s !== currentSeat;
+                let btnClass = isOccupied ? 'btn-danger opacity-50' : (s === currentSeat ? 'btn-warning' : 'btn-success');
+                layout += `<button class="btn btn-sm ${btnClass}" style="width:32px;height:32px;padding:0;" ${isOccupied ? 'disabled' : ''} onclick="submitSeatChange('${s}')">${s}</button>`;
+            });
+            layout += `</div>`;
+            
+            layout += `<div style="width:20px;"></div>`; // Aisle
+            
+            // Right pair
+            layout += `<div style="display:flex; gap:0.3rem;">`;
+            ['C', 'D'].forEach(col => {
+                let s = r + col;
+                let isOccupied = bookedSeats.includes(s) && s !== currentSeat;
+                let btnClass = isOccupied ? 'btn-danger opacity-50' : (s === currentSeat ? 'btn-warning' : 'btn-success');
+                layout += `<button class="btn btn-sm ${btnClass}" style="width:32px;height:32px;padding:0;" ${isOccupied ? 'disabled' : ''} onclick="submitSeatChange('${s}')">${s}</button>`;
+            });
+            layout += `</div></div>`;
+        }
+        layout += `</div>`;
+        document.getElementById('seatMapContainer').innerHTML = layout;
+    }
+    
+    async function submitSeatChange(newSeat) {
+        if(!confirm(`Confirmez-vous le changement vers le siège ${newSeat} ?`)) return;
+        
+        try {
+            const res = await fetch(`/api/booking/${currentChangeBookingId}/change_seat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ new_seat: newSeat })
+            });
+            const data = await res.json();
+            if(data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        } catch(e) {
+            alert('Erreur réseau.');
+        }
+    }
+    // Table Filter Logic
+    document.getElementById('tableFilterInput').addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        // Find the currently active tab pane
+        const activeTabPane = document.querySelector('.tab-pane.active');
+        if(!activeTabPane) return;
+        
+        const rows = activeTabPane.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            // Skip rows that are empty states (colspan)
+            if(row.cells.length === 1 && row.cells[0].colSpan > 1) return;
+            
+            const text = row.innerText.toLowerCase();
+            if(text.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

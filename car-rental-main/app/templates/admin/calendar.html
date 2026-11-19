@@ -1,0 +1,907 @@
+{% extends "base.html" %}
+{% block title %}Planning Disponibilité Flotte VIP - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+<style>
+/* ── Layout ─────────────────────────────────────────── */
+.cal-page { display: flex; gap: 0; height: calc(100vh - 80px); overflow: hidden; }
+
+/* Left sidebar */
+.cal-sidebar {
+  width: 260px; min-width: 240px; max-width: 280px;
+  background: #ffffff;
+  color: #374151; display:flex; flex-direction:column; padding:1.25rem 1rem;
+  overflow-y:auto; flex-shrink:0; border-right:1px solid #e5e7eb;
+  transition: margin-left 0.3s cubic-bezier(.4,0,.2,1);
+}
+.cal-sidebar.collapsed { margin-left: -280px; }
+.cal-sidebar h6 { color: #64748b; text-transform:uppercase; font-size:.75rem; letter-spacing:.05em; font-weight:700; margin:1.5rem 0 .5rem; }
+.cal-sidebar label { font-size:.85rem; color: #475569; display:flex; align-items:center; gap:.5rem; cursor:pointer; padding:.3rem 0; }
+.cal-sidebar select, .cal-sidebar input[type=date] {
+  width:100%; background: #f8fafc; border:1px solid #cbd5e1; color: #1e293b;
+  border-radius:.5rem; padding:.45rem .6rem; font-size:.85rem; margin-top:.2rem;
+}
+.cal-sidebar select:focus, .cal-sidebar input[type=date]:focus { outline:none; border-color:#C92A2A; }
+
+body.dark-mode .cal-sidebar { background: #1f2937; color: #e2e8f0; border-right-color: #374151; }
+body.dark-mode .cal-sidebar h6 { color: #94a3b8; }
+body.dark-mode .cal-sidebar label { color: #cbd5e1; }
+body.dark-mode .cal-sidebar select, body.dark-mode .cal-sidebar input[type=date] { background: #374151; border-color: #4b5563; color: #f8fafc; }
+
+.legend-dot { width:12px; height:12px; border-radius:50%; display:inline-block; flex-shrink:0; }
+
+.btn-new-trip {
+  margin-bottom: 1rem; padding:.6rem 1.25rem; border-radius:999px; font-weight:500;
+  background:#ffffff; color:#374151; border:1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  cursor:pointer; font-size:.95rem; transition:box-shadow .2s, background .2s;
+  display: flex; align-items: center; gap: 0.75rem; width: fit-content;
+}
+.btn-new-trip:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: #f8fafc; }
+body.dark-mode .btn-new-trip { background: #374151; color: #e2e8f0; border-color: #4b5563; }
+body.dark-mode .btn-new-trip:hover { background: #4b5563; }
+
+/* Main calendar area */
+.cal-main { flex:1; overflow-y:auto; padding:0; min-width:0; background:#ffffff; position:relative; display: flex; flex-direction: column; }
+body.dark-mode .cal-main { background:#111827; }
+
+/* Calendar wrapper */
+.calendar-wrapper {
+  flex: 1;
+  padding: 1.25rem 1.25rem 1.25rem 4.5rem; /* Room for toggle button */
+  overflow-x: auto;
+}
+
+/* Toggle Sidebar Button */
+.btn-toggle-sidebar {
+    position: absolute;
+    top: 1.15rem;
+    left: 1.25rem;
+    z-index: 50;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    color: #475569;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: background 0.2s;
+}
+.btn-toggle-sidebar:hover { background: #f1f5f9; color: #0f172a; }
+body.dark-mode .btn-toggle-sidebar { color: #cbd5e1; }
+body.dark-mode .btn-toggle-sidebar:hover { background: #334155; color: #fff; }
+
+/* FullCalendar custom overrides */
+.fc { min-width: 700px; height:100%; font-family:'Poppins', sans-serif; } /* min-width forces scroll on small screens instead of squishing */
+.fc .fc-toolbar-title { font-size:1.35rem; font-weight:400; color:#3c4043; letter-spacing: -0.02em; }
+body.dark-mode .fc .fc-toolbar-title { color:#e2e8f0; }
+.fc .fc-button { background:#ffffff !important; border:1px solid #dadce0 !important; color:#3c4043 !important; font-size:.85rem; border-radius:.25rem !important; box-shadow:none !important; text-transform:capitalize; font-weight:500; }
+.fc .fc-button:hover { background:#f1f3f4 !important; }
+body.dark-mode .fc .fc-button { background:#374151 !important; border-color:#4b5563 !important; color:#e2e8f0 !important; }
+body.dark-mode .fc .fc-button:hover { background:#4b5563 !important; }
+.fc .fc-button-active { background:#e8f0fe !important; color:#1967d2 !important; border-color:#d2e3fc !important; }
+body.dark-mode .fc .fc-button-active { background:#0B0F19 !important; color:#fff !important; border-color:#C92A2A !important; }
+.fc .fc-daygrid-day-number, .fc .fc-col-header-cell-cushion { color:#70757a; font-weight:500; font-size:.82rem; text-transform:uppercase; }
+body.dark-mode .fc .fc-daygrid-day-number,
+body.dark-mode .fc .fc-col-header-cell-cushion { color:#94a3b8; }
+body.dark-mode .fc .fc-scrollgrid { border-color:#374151; }
+body.dark-mode .fc td, body.dark-mode .fc th { border-color:#374151; }
+body.dark-mode .fc .fc-daygrid-day { background:#111827; }
+
+/* Google Calendar Style "Today" Marker */
+.fc .fc-daygrid-day.fc-day-today { background: transparent !important; }
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+    background: #1a73e8; color: #fff; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-top: 4px;
+}
+body.dark-mode .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number { background: #8ab4f8; color: #202124; }
+.fc .fc-daygrid-day.fc-day-today .fc-col-header-cell-cushion { color: #1a73e8; font-weight: 700; }
+body.dark-mode .fc .fc-daygrid-day.fc-day-today .fc-col-header-cell-cushion { color: #8ab4f8; }
+
+.fc-event { border-radius:.4rem !important; padding:2px 4px !important; font-size:.75rem !important; cursor:pointer; border:none !important; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.fc-event:hover { opacity:.88; filter:brightness(1.05); }
+.fc-event-title { font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* Right detail panel */
+.cal-panel {
+  width:360px; min-width:320px; background:#fff; border-left:1px solid #e5e7eb;
+  display:flex; flex-direction:column; overflow-y:auto; flex-shrink:0;
+  margin-right: -360px; transition: margin-right 0.3s cubic-bezier(.4,0,.2,1);
+}
+.cal-panel.open { margin-right: 0; }
+body.dark-mode .cal-panel { background:#1f2937; border-color:#374151; }
+.panel-header {
+  padding:1rem 1.25rem .75rem; border-bottom:1px solid #f1f5f9;
+  background:linear-gradient(135deg,#C92A2A,#A61E1E); color:#fff;
+  position:sticky; top:0; z-index:10;
+}
+body.dark-mode .panel-header { border-color:#374151; }
+.panel-body { padding:1rem 1.25rem; flex:1; }
+.panel-stat { background:#f8fafc; border-radius:.75rem; padding:.7rem 1rem; margin-bottom:.75rem; }
+body.dark-mode .panel-stat { background:#111827; }
+.panel-stat small { color:#64748b; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; }
+.panel-stat strong { display:block; font-size:1.1rem; font-weight:700; color:#1e293b; }
+body.dark-mode .panel-stat strong { color:#e2e8f0; }
+.occupancy-bar { height:8px; border-radius:4px; background:#e5e7eb; overflow:hidden; margin:.3rem 0 .1rem; }
+.occupancy-fill { height:100%; border-radius:4px; transition:width .5s; }
+.seat-map { display:grid; grid-template-columns:1fr 1fr 10px 1fr 1fr; gap:5px; margin:.5rem 0; }
+.seat-box {
+  aspect-ratio:1; border-radius:.35rem; display:flex; align-items:center;
+  justify-content:center; font-size:.65rem; font-weight:700;
+  border:1.5px solid transparent; cursor:default; transition:transform .15s;
+}
+.seat-box:hover { transform:scale(1.1); }
+.seat-free { background:#dcfce7; border-color:#86efac; color:#166534; }
+.seat-confirmed { background:#dbeafe; border-color:#93c5fd; color:#1d4ed8; }
+.seat-locked { background:#fef9c3; border-color:#fde047; color:#854d0e; }
+.passenger-table { width:100%; border-collapse:collapse; font-size:.78rem; }
+.passenger-table th { background:#f1f5f9; padding:.4rem .6rem; font-weight:600; color:#475569; text-align:left; }
+body.dark-mode .passenger-table th { background:#374151; color:#94a3b8; }
+.passenger-table td { padding:.4rem .6rem; border-bottom:1px solid #f1f5f9; color:#1e293b; }
+body.dark-mode .passenger-table td { border-color:#374151; color:#e2e8f0; }
+.panel-actions { padding:.75rem 1.25rem 1rem; border-top:1px solid #f1f5f9; display:flex; flex-direction:column; gap:.5rem; }
+body.dark-mode .panel-actions { border-color:#374151; }
+.panel-actions .btn { border-radius:.6rem; font-size:.82rem; font-weight:600; }
+.panel-close { position:absolute; top:.75rem; right:1rem; background:rgba(255,255,255,.2); border:none; color:#fff; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.panel-close:hover { background:rgba(255,255,255,.35); }
+
+/* Status badges */
+.badge-confirmed { background:#dcfce7; color:#166534; padding:.2rem .6rem; border-radius:999px; font-size:.7rem; font-weight:700; }
+.badge-cancelled { background:#fee2e2; color:#991b1b; padding:.2rem .6rem; border-radius:999px; font-size:.7rem; font-weight:700; }
+.badge-scheduled { background:#dbeafe; color:#1d4ed8; padding:.2rem .6rem; border-radius:999px; font-size:.7rem; font-weight:700; }
+.badge-locked { background:#fef9c3; color:#854d0e; padding:.2rem .6rem; border-radius:999px; font-size:.7rem; font-weight:700; }
+
+/* Modal */
+.modal-content { border-radius:1rem; border:none; box-shadow:0 25px 60px rgba(0,0,0,.2); }
+body.dark-mode .modal-content { background:#1f2937; color:#e2e8f0; }
+body.dark-mode .modal-header { border-color:#374151; }
+body.dark-mode .modal-footer { border-color:#374151; }
+body.dark-mode .form-control, body.dark-mode .form-select { background:#374151 !important; color:#e2e8f0 !important; border-color:#4b5563 !important; }
+.recurrence-days { display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.5rem; }
+.day-btn { padding:.3rem .6rem; border-radius:999px; font-size:.75rem; font-weight:700; border:1.5px solid #d1d5db; background:#fff; cursor:pointer; transition:all .15s; color:#374151; }
+.day-btn.active { background:#C92A2A; border-color:#C92A2A; color:#fff; }
+.conflict-alert { border-radius:.6rem; padding:.6rem 1rem; font-size:.82rem; font-weight:600; margin-top:.5rem; display:none; }
+.conflict-alert.show { display:flex; align-items:center; gap:.5rem; }
+
+/* Calendar view toolbar */
+.cal-toolbar { display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem; flex-wrap:wrap; }
+.cal-toolbar .view-btn { padding:.3rem .75rem; border-radius:.5rem; border:1.5px solid #C92A2A; background:#fff; color:#C92A2A; font-size:.8rem; font-weight:700; cursor:pointer; transition:all .15s; }
+.cal-toolbar .view-btn.active { background:#C92A2A; color:#fff; }
+
+/* Responsive */
+@media (max-width:992px) {
+  .cal-page { flex-direction:column; height:auto; }
+  .cal-sidebar { width:100%; max-width:100%; flex-direction:row; flex-wrap:wrap; gap:1rem; margin-left: 0 !important; }
+  .cal-sidebar.collapsed { display: none; }
+  .cal-panel { width:100%; border-left:none; border-top:1px solid #e5e7eb; margin-right: 0 !important; display:none; }
+  .cal-panel.open { display:flex; }
+  .btn-toggle-sidebar { position: relative; top: 0; left: 0; margin-bottom: 0.5rem; display: inline-flex; }
+  .calendar-wrapper { padding: 0.75rem; }
+}
+@media (min-width:993px) {
+  /* Push fullcalendar title to the right to make room for the toggle button */
+  .fc-toolbar-chunk:first-child { margin-left: 3rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cal-page">
+
+  <!-- ══ LEFT SIDEBAR ══════════════════════════════════ -->
+  <aside class="cal-sidebar">
+    <button class="btn-new-trip" onclick="openCreateModal()">
+      <svg width="24" height="24" viewBox="0 0 36 36" style="margin-right:2px;"><path fill="#34A853" d="M16 16v14h4V20z"></path><path fill="#4285F4" d="M30 16H20l-4 4h14z"></path><path fill="#FBBC05" d="M6 16v4h10l4-4z"></path><path fill="#EA4335" d="M20 16V6h-4v14z"></path><path fill="none" d="M0 0h36v36H0z"></path></svg>
+      Créer
+    </button>
+
+    <h6>Filtrer par Véhicule VIP</h6>
+    <select id="filterBus" onchange="refreshCalendar()">
+      <option value="">Tous les véhicules VIP</option>
+      {% for bus in buses %}
+        <option value="{{ bus.id }}">{{ bus.bus_number }} — {{ bus.brand }} {{ bus.model }}</option>
+      {% endfor %}
+    </select>
+
+    <h6>Filtrer par Mission</h6>
+    <select id="filterRoute" onchange="refreshCalendar()">
+      <option value="">Toutes les missions</option>
+      {% for route in routes %}
+        <option value="{{ route.id }}">{{ route.origin }} → {{ route.destination }}</option>
+      {% endfor %}
+    </select>
+
+    <h6>Filtrer par Statut</h6>
+    <select id="filterStatus" onchange="refreshCalendar()">
+      <option value="">Tous les statuts</option>
+      <option value="scheduled">Planifié</option>
+      <option value="cancelled">Annulé</option>
+      <option value="completed">Terminé</option>
+    </select>
+
+    <h6>Légende</h6>
+    <label><span class="legend-dot" style="background:#198754;"></span> Disponible</label>
+    <label><span class="legend-dot" style="background:#0d6efd;"></span> Réservations actives</label>
+    <label><span class="legend-dot" style="background:#fd7e14;"></span> Complet</label>
+    <label><i class="bi bi-arrow-repeat" style="font-size:.9rem;color:#a78bfa;"></i> Voyage récurrent</label>
+  </aside>
+
+  <!-- ══ MAIN CALENDAR ════════════════════════════════ -->
+  <main class="cal-main">
+    <button id="toggleSidebarBtn" class="btn-toggle-sidebar" onclick="toggleSidebar()" title="Menu principal">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="calendar-wrapper">
+      <div id="calendar"></div>
+    </div>
+  </main>
+
+  <!-- ══ RIGHT DETAIL PANEL ═══════════════════════════ -->
+  <aside class="cal-panel" id="detailPanel">
+    <div class="panel-header" style="position:relative;">
+      <button class="panel-close" onclick="closePanel()"><i class="bi bi-x"></i></button>
+      <div id="panelRoute" style="font-size:1.1rem;font-weight:800;margin-bottom:.25rem;">—</div>
+      <div id="panelMeta" style="font-size:.8rem;opacity:.85;"></div>
+      <div id="panelBadge" style="margin-top:.4rem;"></div>
+    </div>
+
+    <div class="panel-body">
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem;">
+        <div class="panel-stat">
+          <small>Départ</small>
+          <strong id="panelDepart">—</strong>
+        </div>
+        <div class="panel-stat">
+          <small>Arrivée</small>
+          <strong id="panelArrive">—</strong>
+        </div>
+        <div class="panel-stat">
+          <small>Véhicule VIP</small>
+          <strong id="panelBus" style="font-size:.85rem;">—</strong>
+        </div>
+        <div class="panel-stat">
+          <small>Tarif Location / Jour</small>
+          <strong id="panelPrice">—</strong>
+        </div>
+      </div>
+
+      <!-- Occupancy bar -->
+      <div style="margin-bottom:.75rem;">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:#64748b;margin-bottom:.25rem;">
+          <span>Disponibilité du Véhicule</span>
+          <span id="panelOccupancyLabel">0/0</span>
+        </div>
+        <div class="occupancy-bar"><div class="occupancy-fill" id="panelOccupancyBar" style="width:0%;background:#0d6efd;"></div></div>
+        <div id="panelOccupancyPct" style="font-size:.72rem;color:#64748b;text-align:right;margin-top:.15rem;"></div>
+      </div>
+
+      <!-- Recurrence badge -->
+      <div id="panelRecurrence" style="display:none;margin-bottom:.75rem;padding:.5rem .75rem;background:#f5f3ff;border-radius:.6rem;border-left:3px solid #a78bfa;font-size:.78rem;color:#6d28d9;">
+        <i class="bi bi-arrow-repeat me-1"></i> <span id="panelRecurrenceText"></span>
+      </div>
+
+      <!-- Passenger list -->
+      <div style="font-size:.78rem;font-weight:700;color:#374151;margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem;">
+        <i class="bi bi-people-fill" style="color:#C92A2A;"></i> Contrats & Clients VIP
+        <span id="panelBookingCount" style="background:#e5e7eb;border-radius:999px;padding:.1rem .5rem;font-size:.7rem;color:#374151;">0</span>
+      </div>
+      <div style="overflow-x:auto;margin-bottom:.5rem;">
+        <table class="passenger-table">
+          <thead>
+            <tr><th>Réf Contrat</th><th>Client VIP</th><th>Formule</th><th>Statut</th><th>Tarif</th></tr>
+          </thead>
+          <tbody id="panelPassengers">
+            <tr><td colspan="5" style="text-align:center;padding:1rem;color:#94a3b8;">Aucun contrat de location</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="panel-actions">
+      <a id="panelEditBtn" href="#" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-pencil-square me-1"></i> Modifier
+      </a>
+      <button id="panelDuplicateBtn" onclick="openDuplicateModal()" class="btn btn-outline-info btn-sm">
+        <i class="bi bi-copy me-1"></i> Dupliquer sur une autre date
+      </button>
+      <button id="panelCancelBtn" onclick="cancelCurrentTrip()" class="btn btn-outline-warning btn-sm">
+        <i class="bi bi-x-circle me-1"></i> Annuler ce voyage
+      </button>
+      <button id="panelDeleteBtn" onclick="deleteCurrentTrip()" class="btn btn-outline-danger btn-sm">
+        <i class="bi bi-trash me-1"></i> Supprimer
+      </button>
+    </div>
+  </aside>
+</div>
+
+<!-- ══ CREATE TRIP MODAL ════════════════════════════════ -->
+<div class="modal fade" id="createTripModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header" style="background:linear-gradient(135deg,#C92A2A,#A61E1E);color:#fff;border-radius:1rem 1rem 0 0;">
+        <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>Créer un Voyage</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="padding:1.5rem;">
+        <div class="row g-3">
+          <!-- Route -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Ligne (Trajet) <span class="text-danger">*</span></label>
+            <select id="newRoute" class="form-select" onchange="prefillPrice()">
+              <option value="">-- Sélectionner --</option>
+              {% for route in routes %}
+                <option value="{{ route.id }}" data-price="{{ route.base_price }}">{{ route.origin }} → {{ route.destination }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <!-- Bus -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Bus <span class="text-danger">*</span></label>
+            <select id="newBus" class="form-select" onchange="checkConflict()">
+              <option value="">-- Sélectionner --</option>
+              {% for bus in buses %}
+                <option value="{{ bus.id }}" data-capacity="{{ bus.capacity }}">{{ bus.bus_number }} — {{ bus.model }} ({{ bus.capacity }} places)</option>
+              {% endfor %}
+            </select>
+          </div>
+          <!-- Departure -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Départ <span class="text-danger">*</span></label>
+            <input type="datetime-local" id="newDeparture" class="form-control" oninput="checkConflict()">
+          </div>
+          <!-- Arrival -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Arrivée <span class="text-danger">*</span></label>
+            <input type="datetime-local" id="newArrival" class="form-control" oninput="checkConflict()">
+          </div>
+          <!-- Price -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Prix / Siège (FCFA) <span class="text-danger">*</span></label>
+            <input type="number" id="newPrice" class="form-control" placeholder="ex: 5000" min="0">
+          </div>
+          <!-- Capacity -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Capacité (sièges)</label>
+            <input type="number" id="newCapacity" class="form-control" placeholder="Laisser vide = auto">
+          </div>
+          <!-- Status placeholder -->
+          <div class="col-md-4 d-flex align-items-end">
+            <div class="conflict-alert alert alert-danger w-100" id="conflictAlert" role="alert">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <span id="conflictMsg"></span>
+            </div>
+          </div>
+
+          <!-- Recurrence section -->
+          <div class="col-12">
+            <hr style="margin:.25rem 0;">
+            <label class="form-label fw-semibold"><i class="bi bi-arrow-repeat me-1" style="color:#a78bfa;"></i>Récurrence</label>
+            <select id="newRecurrenceType" class="form-select" onchange="toggleRecurrenceUI()">
+              <option value="none">Aucune — Voyage unique</option>
+              <option value="daily">🔁 Quotidien</option>
+              <option value="weekly">🔁 Hebdomadaire</option>
+              <option value="monthly">🔁 Mensuel</option>
+              <option value="yearly">🔁 Annuel</option>
+            </select>
+          </div>
+
+          <!-- Weekly days picker -->
+          <div class="col-12" id="weekdayPicker" style="display:none;">
+            <label class="form-label fw-semibold" style="font-size:.82rem;">Jours de la semaine</label>
+            <div class="recurrence-days">
+              <button type="button" class="day-btn" data-day="MON">Lun</button>
+              <button type="button" class="day-btn" data-day="TUE">Mar</button>
+              <button type="button" class="day-btn" data-day="WED">Mer</button>
+              <button type="button" class="day-btn" data-day="THU">Jeu</button>
+              <button type="button" class="day-btn" data-day="FRI">Ven</button>
+              <button type="button" class="day-btn" data-day="SAT">Sam</button>
+              <button type="button" class="day-btn" data-day="SUN">Dim</button>
+            </div>
+          </div>
+
+          <!-- Recurrence end date -->
+          <div class="col-md-6" id="recurrenceEndRow" style="display:none;">
+            <label class="form-label fw-semibold" style="font-size:.82rem;">Date de fin</label>
+            <input type="date" id="newRecurrenceEnd" class="form-control">
+          </div>
+
+          <!-- Preview chip -->
+          <div class="col-12" id="recurrencePreview" style="display:none;">
+            <div style="background:#f5f3ff;border-radius:.6rem;padding:.5rem .75rem;border-left:3px solid #a78bfa;font-size:.82rem;color:#6d28d9;" id="recurrencePreviewText"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" onclick="submitCreateTrip()" id="createSubmitBtn">
+          <i class="bi bi-calendar-plus me-1"></i> Créer le Voyage
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DUPLICATE TRIP MODAL ════════════════════════════ -->
+<div class="modal fade" id="duplicateModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-bold"><i class="bi bi-copy me-1"></i> Dupliquer le voyage</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label fw-semibold">Nouvelle date</label>
+        <input type="date" id="duplicateDate" class="form-control">
+        <div class="form-text">L'heure de départ sera conservée.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn btn-primary btn-sm" onclick="submitDuplicate()">Dupliquer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales-all.global.min.js"></script>
+<script>
+// ─── State ─────────────────────────────────────────────
+let calendar;
+let currentTripId = null;
+let conflictDebounce = null;
+
+// ─── FullCalendar Init ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+  const calEl = document.getElementById('calendar');
+
+  calendar = new FullCalendar.Calendar(calEl, {
+    initialView: 'dayGridMonth',
+    locale: 'fr',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    buttonText: { today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour' },
+    height: 'auto',
+    editable: true,
+    selectable: true,
+    nowIndicator: true,
+    eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+    events: fetchEvents,
+
+    // Click on event → open detail panel
+    eventClick: function (info) {
+      openPanel(info.event.id);
+    },
+
+    // Click empty slot → open create modal with prefilled date
+    dateClick: function (info) {
+      const dt = info.dateStr.length === 10 ? info.dateStr + 'T08:00' : info.dateStr.substring(0, 16);
+      document.getElementById('newDeparture').value = dt;
+      const arrDt = new Date(dt);
+      arrDt.setHours(arrDt.getHours() + 4);
+      document.getElementById('newArrival').value = arrDt.toISOString().substring(0, 16);
+      openCreateModal();
+    },
+
+    // Drag and drop → reschedule
+    eventDrop: function (info) {
+      const tripId = info.event.id;
+      const start = info.event.start.toISOString();
+      const end = info.event.end ? info.event.end.toISOString() : null;
+
+      fetch(`/api/admin/trip/${tripId}/move`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+        body: JSON.stringify({ start, end })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          showToast('⚠️ ' + (data.message || data.error), 'danger');
+          info.revert();
+        } else {
+          showToast('✅ Voyage reprogrammé avec succès !', 'success');
+        }
+      })
+      .catch(() => { showToast('Erreur réseau', 'danger'); info.revert(); });
+    },
+
+    // Custom event rendering — add recurring icon + seat chip
+    eventContent: function (arg) {
+      const p = arg.event.extendedProps;
+      const pct = p.fill_pct || 0;
+      const recurIcon = p.is_recurring ? '<span style="margin-left:3px;font-size:.75em;">🔁</span>' : '';
+      const seatChip = `<span style="background:rgba(255,255,255,.25);border-radius:8px;padding:0 4px;font-size:.65rem;margin-left:3px;">${p.booked||0}/${p.capacity||'?'}</span>`;
+      return {
+        html: `<div class="fc-event-title">${arg.event.title}${recurIcon}${seatChip}</div><div style="font-size:.65rem;opacity:.9;">${arg.timeText}</div>`
+      };
+    }
+  });
+
+  calendar.render();
+
+  // Day-picker buttons
+  document.querySelectorAll('.day-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      updateRecurrencePreview();
+    });
+  });
+});
+
+// Sidebar Toggle Function
+function toggleSidebar() {
+  const sidebar = document.querySelector('.cal-sidebar');
+  sidebar.classList.toggle('collapsed');
+  // Delay calendar resize to allow CSS transition to finish smoothly
+  setTimeout(() => { if(calendar) calendar.updateSize(); }, 300);
+}
+
+// ─── Events feed function ───────────────────────────────
+function fetchEvents(fetchInfo, successCallback, failureCallback) {
+  const busId = document.getElementById('filterBus').value;
+  const routeId = document.getElementById('filterRoute').value;
+  const status = document.getElementById('filterStatus').value;
+
+  const params = new URLSearchParams({
+    start: fetchInfo.startStr,
+    end: fetchInfo.endStr,
+    ...(busId && { bus_id: busId }),
+    ...(routeId && { route_id: routeId }),
+    ...(status && { status: status }),
+  });
+
+  fetch('/api/admin/calendar/events?' + params.toString())
+    .then(r => r.json())
+    .then(data => successCallback(data))
+    .catch(err => failureCallback(err));
+}
+
+function refreshCalendar() {
+  if (calendar) calendar.refetchEvents();
+}
+
+// ─── Detail Panel ───────────────────────────────────────
+function openPanel(tripId) {
+  currentTripId = tripId;
+  const panel = document.getElementById('detailPanel');
+  panel.classList.add('open');
+  setTimeout(() => { if(calendar) calendar.updateSize(); }, 300);
+
+  fetch(`/api/admin/trip/${tripId}`)
+    .then(r => r.json())
+    .then(d => renderPanel(d));
+}
+
+function renderPanel(d) {
+  // Header
+  document.getElementById('panelRoute').textContent = `${d.origin} → ${d.destination}`;
+  document.getElementById('panelMeta').textContent = `${d.agency}`;
+
+  const statusMap = { scheduled: 'badge-scheduled', confirmed: 'badge-confirmed', cancelled: 'badge-cancelled' };
+  const labelMap = { scheduled: 'Planifié', confirmed: 'Confirmé', cancelled: 'Annulé' };
+  document.getElementById('panelBadge').innerHTML =
+    `<span class="${statusMap[d.status] || 'badge-scheduled'}">${labelMap[d.status] || d.status}</span>` +
+    (d.is_recurring ? ' <span style="background:#ede9fe;color:#6d28d9;border-radius:999px;padding:.15rem .5rem;font-size:.7rem;font-weight:700;">🔁 Récurrent</span>' : '');
+
+  // Stats
+  document.getElementById('panelDepart').textContent = d.departure;
+  document.getElementById('panelArrive').textContent = d.arrival;
+  document.getElementById('panelBus').textContent = d.bus;
+  document.getElementById('panelPrice').textContent = (d.price || 0).toLocaleString('fr-FR') + ' FCFA';
+
+  // Occupancy
+  const pct = d.fill_pct || 0;
+  document.getElementById('panelOccupancyLabel').textContent = `${d.confirmed_count + d.locked_count}/${d.capacity}`;
+  document.getElementById('panelOccupancyBar').style.width = pct + '%';
+  document.getElementById('panelOccupancyBar').style.background = pct >= 100 ? '#fd7e14' : pct >= 70 ? '#f59e0b' : '#0d6efd';
+  document.getElementById('panelOccupancyPct').textContent = pct + '% occupé';
+
+  // Seat map
+  const seatMap = document.getElementById('panelSeatMap');
+  seatMap.innerHTML = '';
+  const capacity = d.capacity || 40;
+  const rows = Math.ceil(capacity / 4);
+  const maxRows = Math.min(rows, 15); // Show up to 15 rows (60 seats)
+  
+  for (let row = 1; row <= maxRows; row++) {
+    const letters = ['A', 'B', 'C', 'D'];
+    letters.forEach(letter => {
+      const seat = `${row}${letter}`;
+      const status = d.booked_seats[seat];
+      const cls = status === 'confirmed' ? 'seat-confirmed' : status === 'locked' ? 'seat-locked' : 'seat-free';
+      const title = status ? `Siège ${seat}: ${status}` : `Siège ${seat}: Libre`;
+      seatMap.innerHTML += `<div class="seat-box ${cls}" title="${title}">${seat}</div>`;
+      
+      // Add aisle gap
+      if (letter === 'B') {
+        seatMap.innerHTML += `<div></div>`;
+      }
+    });
+  }
+  if (capacity > 60) {
+    seatMap.innerHTML += `<div style="grid-column:1/-1;font-size:.7rem;color:#64748b;text-align:center;">... +${capacity - 60} sièges supplémentaires</div>`;
+  }
+
+  // Recurrence
+  const recDiv = document.getElementById('panelRecurrence');
+  if (d.recurrence) {
+    recDiv.style.display = 'block';
+    const labels = { daily: 'Quotidien', weekly: 'Hebdomadaire', monthly: 'Mensuel', yearly: 'Annuel' };
+    let text = labels[d.recurrence.type] || d.recurrence.type;
+    if (d.recurrence.days && d.recurrence.days.length) {
+      const dayLabels = { MON:'Lun', TUE:'Mar', WED:'Mer', THU:'Jeu', FRI:'Ven', SAT:'Sam', SUN:'Dim' };
+      text += ' — ' + d.recurrence.days.map(x => dayLabels[x] || x).join(', ');
+    }
+    if (d.recurrence.end_date) text += ` jusqu'au ${d.recurrence.end_date}`;
+    document.getElementById('panelRecurrenceText').textContent = text;
+  } else {
+    recDiv.style.display = 'none';
+  }
+
+  // Passengers
+  const tbody = document.getElementById('panelPassengers');
+  document.getElementById('panelBookingCount').textContent = d.bookings.length;
+  if (d.bookings.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:#94a3b8;">Aucun passager</td></tr>';
+  } else {
+    tbody.innerHTML = d.bookings.map(b => {
+      const sbadge = b.status === 'confirmed'
+        ? '<span class="badge-confirmed">Confirmé</span>'
+        : '<span class="badge-locked">Verrouillé</span>';
+      return `<tr>
+        <td style="font-weight:700;font-size:.72rem;">${b.code}</td>
+        <td>${b.passenger}</td>
+        <td><span style="background:#e5e7eb;padding:.1rem .4rem;border-radius:4px;font-weight:700;">${b.seat}</span></td>
+        <td>${sbadge}</td>
+        <td style="font-weight:700;">${(b.price||0).toLocaleString('fr-FR')}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Action button links
+  document.getElementById('panelEditBtn').href = `/admin/trip/edit/${d.id}`;
+  document.getElementById('panelCancelBtn').style.display = d.status === 'cancelled' ? 'none' : 'flex';
+}
+
+function closePanel() {
+  document.getElementById('detailPanel').classList.remove('open');
+  currentTripId = null;
+  setTimeout(() => { if(calendar) calendar.updateSize(); }, 300);
+}
+
+// ─── Cancel trip from panel ─────────────────────────────
+function cancelCurrentTrip() {
+  if (!currentTripId) return;
+  if (!confirm('Annuler ce voyage ? Tous les passagers seront notifiés et remboursés.')) return;
+  
+  fetch(`/api/admin/trip/${currentTripId}/cancel`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showToast('✅ Voyage annulé !', 'success');
+      calendar.refetchEvents();
+      document.getElementById('sidePanel').classList.remove('open');
+    } else {
+      showToast('❌ ' + (data.error || 'Erreur'), 'danger');
+    }
+  });
+}
+
+// ─── Delete trip from panel ─────────────────────────────
+function deleteCurrentTrip() {
+  if (!currentTripId) return;
+  if (!confirm('Supprimer DÉFINITIVEMENT ce voyage de la base de données ?')) return;
+  
+  fetch(`/api/admin/trip/${currentTripId}/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showToast('✅ Voyage supprimé !', 'success');
+      calendar.refetchEvents();
+      document.getElementById('sidePanel').classList.remove('open');
+    } else {
+      showToast('❌ ' + (data.error || 'Erreur'), 'danger');
+    }
+  });
+}
+
+// ─── Duplicate modal ────────────────────────────────────
+function openDuplicateModal() {
+  document.getElementById('duplicateDate').value = new Date().toISOString().substring(0, 10);
+  new bootstrap.Modal(document.getElementById('duplicateModal')).show();
+}
+
+function submitDuplicate() {
+  if (!currentTripId) return;
+  const date = document.getElementById('duplicateDate').value;
+  if (!date) return showToast('Veuillez choisir une date.', 'warning');
+
+  fetch(`/api/admin/trip/${currentTripId}/duplicate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+    body: JSON.stringify({ date })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      bootstrap.Modal.getInstance(document.getElementById('duplicateModal')).hide();
+      showToast('✅ Voyage dupliqué !', 'success');
+      calendar.refetchEvents();
+    } else {
+      showToast('❌ ' + (data.error || 'Erreur'), 'danger');
+    }
+  });
+}
+
+// ─── Create Trip Modal ──────────────────────────────────
+function openCreateModal() {
+  document.getElementById('conflictAlert').classList.remove('show');
+  document.getElementById('newRecurrenceType').value = 'none';
+  document.getElementById('weekdayPicker').style.display = 'none';
+  document.getElementById('recurrenceEndRow').style.display = 'none';
+  document.getElementById('recurrencePreview').style.display = 'none';
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+  new bootstrap.Modal(document.getElementById('createTripModal')).show();
+}
+
+function prefillPrice() {
+  const sel = document.getElementById('newRoute');
+  const opt = sel.options[sel.selectedIndex];
+  const price = opt.dataset.price;
+  if (price) document.getElementById('newPrice').value = price;
+  const busOpt = document.getElementById('newBus').options[document.getElementById('newBus').selectedIndex];
+  if (busOpt && busOpt.dataset.capacity) document.getElementById('newCapacity').value = busOpt.dataset.capacity;
+}
+
+function toggleRecurrenceUI() {
+  const type = document.getElementById('newRecurrenceType').value;
+  document.getElementById('weekdayPicker').style.display = type === 'weekly' ? 'block' : 'none';
+  document.getElementById('recurrenceEndRow').style.display = type !== 'none' ? 'block' : 'none';
+  document.getElementById('recurrencePreview').style.display = type !== 'none' ? 'block' : 'none';
+  updateRecurrencePreview();
+}
+
+function updateRecurrencePreview() {
+  const type = document.getElementById('newRecurrenceType').value;
+  const labels = { daily: 'Quotidien', weekly: 'Hebdomadaire', monthly: 'Mensuel', yearly: 'Annuel' };
+  const dayLabels = { MON:'Lun', TUE:'Mar', WED:'Mer', THU:'Jeu', FRI:'Ven', SAT:'Sam', SUN:'Dim' };
+  let text = labels[type] || '';
+  if (type === 'weekly') {
+    const active = [...document.querySelectorAll('.day-btn.active')].map(b => dayLabels[b.dataset.day]).join(', ');
+    text += active ? ` — ${active}` : ' — (sélectionnez des jours)';
+  }
+  const endDate = document.getElementById('newRecurrenceEnd').value;
+  if (endDate) text += ` jusqu'au ${endDate}`;
+  text += ' · Les instances seront créées pour les 90 prochains jours.';
+  document.getElementById('recurrencePreviewText').textContent = '🔁 ' + text;
+}
+
+function checkConflict() {
+  clearTimeout(conflictDebounce);
+  conflictDebounce = setTimeout(_doConflictCheck, 600);
+}
+
+function _doConflictCheck() {
+  const busId = document.getElementById('newBus').value;
+  const dep = document.getElementById('newDeparture').value;
+  const arr = document.getElementById('newArrival').value;
+  if (!busId || !dep || !arr) return;
+
+  fetch('/api/admin/conflict-check', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+    body: JSON.stringify({ bus_id: parseInt(busId), departure_time: dep, arrival_time: arr })
+  })
+  .then(r => r.json())
+  .then(data => {
+    const alert = document.getElementById('conflictAlert');
+    const btn = document.getElementById('createSubmitBtn');
+    if (data.conflict) {
+      alert.classList.add('show');
+      document.getElementById('conflictMsg').textContent = data.message;
+      btn.disabled = true;
+    } else {
+      alert.classList.remove('show');
+      btn.disabled = false;
+    }
+  });
+}
+
+function submitCreateTrip() {
+  const routeId = document.getElementById('newRoute').value;
+  const busId = document.getElementById('newBus').value;
+  const departure = document.getElementById('newDeparture').value;
+  const arrival = document.getElementById('newArrival').value;
+  const price = document.getElementById('newPrice').value;
+  const capacity = document.getElementById('newCapacity').value;
+  const recType = document.getElementById('newRecurrenceType').value;
+
+  if (!routeId || !busId || !departure || !arrival || !price) {
+    showToast('Veuillez remplir tous les champs obligatoires.', 'warning');
+    return;
+  }
+
+  const recurrence = { type: recType };
+  if (recType === 'weekly') {
+    recurrence.days = [...document.querySelectorAll('.day-btn.active')].map(b => b.dataset.day);
+  }
+  const endDate = document.getElementById('newRecurrenceEnd').value;
+  if (endDate) recurrence.end_date = endDate;
+
+  const payload = {
+    route_id: parseInt(routeId),
+    bus_id: parseInt(busId),
+    departure_time: departure,
+    arrival_time: arrival,
+    price: parseFloat(price),
+    capacity: capacity ? parseInt(capacity) : 0,
+    recurrence
+  };
+
+  const btn = document.getElementById('createSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Création...';
+
+  fetch('/api/admin/trip/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-calendar-plus me-1"></i> Créer le Voyage';
+    if (data.success) {
+      bootstrap.Modal.getInstance(document.getElementById('createTripModal')).hide();
+      const msg = data.instances_created > 1
+        ? `✅ ${data.instances_created} voyages créés (récurrence 90 jours) !`
+        : '✅ Voyage créé avec succès !';
+      showToast(msg, 'success');
+      calendar.refetchEvents();
+    } else {
+      showToast('❌ ' + (data.error || 'Erreur') + (data.message ? ': ' + data.message : ''), 'danger');
+    }
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-calendar-plus me-1"></i> Créer le Voyage';
+    showToast('Erreur réseau. Réessayez.', 'danger');
+  });
+}
+
+// ─── Helpers ───────────────────────────────────────────
+function getCSRF() {
+  return document.cookie.split(';').map(c => c.trim())
+    .find(c => c.startsWith('csrftoken='))?.split('=')[1] || '';
+}
+
+function showToast(msg, type = 'success') {
+  const colors = { success: '#198754', danger: '#dc3545', warning: '#f59e0b', info: '#0d6efd' };
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;background:${colors[type]||'#198754'};color:#fff;padding:.75rem 1.25rem;border-radius:.75rem;box-shadow:0 8px 30px rgba(0,0,0,.18);font-weight:600;font-size:.88rem;max-width:340px;animation:slideUp .3s ease;`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// Slide-up toast animation
+const style = document.createElement('style');
+style.textContent = `@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

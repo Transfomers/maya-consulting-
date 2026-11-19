@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Mon Centre de Notifications - 3M SERVICES{% endblock %}
+
+{% block content %}
+<style>
+.notification-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+.notification-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+}
+@media (max-width: 991px) {
+    .notification-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.sidebar-menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: none;
+    background: none;
+    border-radius: 0.75rem;
+    color: var(--text-muted-light);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: left;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+.sidebar-menu-btn:hover, .sidebar-menu-btn.active {
+    background: rgba(201, 42, 42, 0.06);
+    color: var(--primary-light) !important;
+}
+body.dark-mode .sidebar-menu-btn:hover, body.dark-mode .sidebar-menu-btn.active {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--accent-dark) !important;
+}
+.notif-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 1.25rem;
+    background: var(--glass-bg-light, #ffffff);
+}
+body.dark-mode .notif-card {
+    background: var(--glass-bg-dark, #1a2330);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.notif-card.unread {
+    background: rgba(201, 42, 42, 0.03);
+}
+body.dark-mode .notif-card.unread {
+    background: rgba(224, 171, 65, 0.05);
+}
+body.dark-mode h1,
+body.dark-mode h5,
+body.dark-mode .notif-card .text-dark,
+body.dark-mode .notif-card strong,
+body.dark-mode .notif-card .fw-bold {
+    color: #f8fafc !important;
+}
+body.dark-mode .notif-card .text-muted,
+body.dark-mode p.text-muted {
+    color: #94a3b8 !important;
+}
+}
+.notif-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+</style>
+
+<div class="notification-container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="fw-bold mb-1" style="color: var(--text-dark, #000);"><i class="bi bi-bell-fill me-2" style="color: var(--primary-light);"></i>{{ _t('Mes Notifications') }}</h1>
+            <p class="text-muted mb-0">Suivez vos confirmations de locations VIP, mises à disposition de véhicules et alertes conciergerie.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <form action="{{ url_for('client.read_all_notifications') }}" method="POST" onsubmit="return confirm('Marquer toutes les notifications comme lues ?');">
+                <button type="submit" class="btn btn-outline-primary rounded-pill px-3 px-md-4 fw-bold" title="Tout marquer lu">
+                    <i class="bi bi-check-all"></i> <span class="d-none d-md-inline ms-1">Tout marquer lu</span>
+                </button>
+            </form>
+            <a href="{{ url_for('client.profile') }}" class="btn btn-primary rounded-pill px-3 px-md-4 fw-bold" title="Préférences">
+                <i class="bi bi-sliders"></i> <span class="d-none d-md-inline ms-1">Préférences</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="notification-grid animate-fade-in">
+        
+        <!-- Left Sidebar Navigation -->
+        <div>
+            <div class="card border-0 shadow-sm p-3 notif-card">
+                <div class="d-flex flex-column gap-2">
+                    <a href="{{ url_for('client.profile') }}" class="sidebar-menu-btn">
+                        <i class="bi bi-person-bounding-box fs-5"></i> Mon Profil
+                    </a>
+                    <a href="{{ url_for('client.notifications') }}?status=unread" class="sidebar-menu-btn {% if selected_status == 'unread' %}active{% endif %}">
+                        <i class="bi bi-envelope fs-5"></i> Non lues (Unread)
+                    </a>
+                    <a href="{{ url_for('client.notifications') }}?status=read" class="sidebar-menu-btn {% if selected_status == 'read' %}active{% endif %}">
+                        <i class="bi bi-envelope-open fs-5"></i> Lues (Read)
+                    </a>
+                    <a href="{{ url_for('client.notifications') }}?status=archived" class="sidebar-menu-btn {% if selected_status == 'archived' %}active{% endif %}">
+                        <i class="bi bi-archive fs-5"></i> Archivées
+                    </a>
+                    <a href="{{ url_for('client.notifications') }}?status=all" class="sidebar-menu-btn {% if selected_status == 'all' %}active{% endif %}">
+                        <i class="bi bi-bell fs-5"></i> Toutes (All)
+                    </a>
+                    <hr class="my-2">
+                    <a href="{{ url_for('main.my_bookings') }}" class="sidebar-menu-btn">
+                        <i class="bi bi-clock-history fs-5"></i> Historique Voyages
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Content Area -->
+        <div class="d-flex flex-column gap-3">
+            
+            <!-- Filters -->
+            <div class="card border-0 shadow-sm p-3 notif-card">
+                <form method="GET" action="{{ url_for('client.notifications') }}" class="row g-2 align-items-center">
+                    <input type="hidden" name="status" value="{{ selected_status }}">
+                    <div class="col-md-4">
+                        <select name="category" class="form-select border-2">
+                            <option value="">-- Catégories --</option>
+                            <option value="booking" {% if selected_category == 'booking' %}selected{% endif %}>🎫 Réservations</option>
+                            <option value="payment" {% if selected_category == 'payment' %}selected{% endif %}>💳 Paiements</option>
+                            <option value="travel"  {% if selected_category == 'travel'  %}selected{% endif %}>🚌 Trajets</option>
+                            <option value="parcel"  {% if selected_category == 'parcel'  %}selected{% endif %}>📦 Colis</option>
+                            <option value="system"  {% if selected_category == 'system'  %}selected{% endif %}>⚙️ Sécurité & Système</option>
+                            <option value="promotion" {% if selected_category == 'promotion' %}selected{% endif %}>🎁 Promotions</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="type" class="form-select border-2">
+                            <option value="">-- Importance --</option>
+                            <option value="info" {% if selected_type == 'info' %}selected{% endif %}>Standard (Bleu)</option>
+                            <option value="success" {% if selected_type == 'success' %}selected{% endif %}>Succès (Vert)</option>
+                            <option value="warning" {% if selected_type == 'warning' %}selected{% endif %}>Important (Jaune)</option>
+                            <option value="danger" {% if selected_type == 'danger' %}selected{% endif %}>Urgent (Rouge)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" name="date" class="form-control border-2" value="{{ selected_date or '' }}">
+                    </div>
+                    <div class="col-md-2 d-flex gap-1">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Filtrer</button>
+                        <a href="{{ url_for('client.notifications') }}?status={{ selected_status }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-counterclockwise"></i></a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Notifications List -->
+            {% for notif in notifications %}
+            <div class="card border-0 shadow-sm p-3 p-md-4 notif-card position-relative {% if not notif.is_read %}unread border-start border-4 border-{{ 'danger' if notif.type == 'danger' else 'warning' if notif.type == 'warning' else 'success' if notif.type == 'success' else 'primary' }}{% else %}opacity-75{% endif %}">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                    <div class="d-flex align-items-start gap-3 w-100 w-md-auto" style="flex: 1; min-width: 0;">
+                        <div class="fs-3 text-{{ notif.type }} mt-1 flex-shrink-0">
+                            {% if notif.category == 'booking' %}
+                                <i class="bi bi-car-front-fill"></i>
+                            {% elif notif.category == 'parcel' %}
+                                <i class="bi bi-box-seam-fill"></i>
+                            {% elif notif.category == 'travel' %}
+                                <i class="bi bi-car-front-fill"></i>
+                            {% elif notif.category == 'payment' %}
+                                <i class="bi bi-credit-card-fill"></i>
+                            {% elif notif.type == 'danger' or notif.type == 'warning' %}
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                            {% else %}
+                                <i class="bi bi-bell-fill"></i>
+                            {% endif %}
+                        </div>
+                        <div style="min-width: 0;">
+                            <span class="badge border px-2 py-1 rounded-pill mb-2 small fw-bold" style="font-size: 0.65rem; background: rgba(201, 42, 42, 0.1); color: var(--primary-light);">
+                                {{ notif.category | upper }}
+                            </span>
+                            <h5 class="fw-bold mb-1 {% if notif.is_read %}text-muted{% endif %}" style="word-wrap: break-word;">{{ notif.title }}</h5>
+                            <p class="mb-2" style="font-size: 0.95rem; word-wrap: break-word;">{{ notif.message }}</p>
+                            <small class="text-muted"><i class="bi bi-clock me-1"></i> {{ notif.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-1">
+                        {% if not notif.is_read %}
+                        <a href="{{ url_for('client.read_notification', id=notif.id) }}" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-bold">
+                            <i class="bi bi-check"></i> Lu
+                        </a>
+                        {% endif %}
+                        {% if not notif.is_archived %}
+                        <form action="{{ url_for('client.archive_notification', id=notif.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1">
+                                <i class="bi bi-archive"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                        <form action="{{ url_for('client.delete_notification', id=notif.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer définitivement cette notification ?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card border-0 shadow-sm p-5 text-center notif-card">
+                <i class="bi bi-bell-slash fs-1 text-muted mb-3 d-block"></i>
+                <h5 class="fw-bold">Aucune notification</h5>
+                <p class="text-muted small mb-0">Vous n'avez pas de notifications correspondant à ces filtres dans votre boîte.</p>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

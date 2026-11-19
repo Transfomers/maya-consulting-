@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Administrateurs - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h3 class="mb-1 fw-bold"><i class="bi bi-shield-lock text-primary me-2"></i> Administrateurs d'Agences</h3>
+                <p class="text-muted mb-0">Comptes administratifs affectés à la gestion d'agences de transport spécifiques.</p>
+            </div>
+            <a href="{{ url_for('admin.add_admin') }}" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                <i class="bi bi-plus-circle me-2"></i> Créer un Administrateur
+            </a>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="d-flex flex-wrap gap-2 mb-4 bg-light p-3 rounded-3 border align-items-center">
+            <div class="input-group" style="max-width: 250px;">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" id="adminsSearch" class="form-control border-start-0 ps-0" placeholder="Chercher un admin, email...">
+            </div>
+            
+            <select id="adminsFilterStatus" class="form-select" style="width: auto;">
+                <option value="">Statut (Tous)</option>
+                <option value="actif">Actif</option>
+                <option value="suspendu">Suspendu</option>
+            </select>
+            
+            <select id="adminsFilterDate" class="form-select" style="width: auto;">
+                <option value="newest">Du plus récent</option>
+                <option value="oldest">Du plus ancien</option>
+            </select>
+            
+            <button class="btn btn-outline-secondary" onclick="resetAdminsFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom d'Administrateur</th>
+                        <th>Agence Gérée</th>
+                        <th>Adresse Email</th>
+                        <th>Téléphone</th>
+                        <th>Date d'Affectation</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="adminsTableBody">
+                    {% for admin in admins %}
+                    <tr class="admin-row {% if admin.is_suspended %}table-warning-soft{% endif %}"
+                        data-status="{{ 'suspendu' if admin.is_suspended else 'actif' }}"
+                        data-date="{{ admin.created_at.timestamp() if admin.created_at else 0 }}">
+                        <td class="fw-bold">#{{ admin.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle bg-success-soft text-success d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-person-badge"></i>
+                                </div>
+                                <div>
+                                    <span class="fw-bold">{{ admin.username }}</span>
+                                    {% if admin.is_suspended %}
+                                        <span class="badge bg-danger ms-2 px-2 py-1 rounded-pill" style="font-size: 0.65rem;"><i class="bi bi-lock-fill me-1"></i>SUSPENDU</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if admin.agency %}
+                                <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-semibold">{{ admin.agency.name }}</span>
+                            {% else %}
+                                <span class="text-danger small fw-semibold"><i class="bi bi-exclamation-triangle me-1"></i> Aucune agence liée</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ admin.email }}</td>
+                        <td class="fw-semibold">{{ admin.phone or 'Non spécifié' }}</td>
+                        <td>{{ admin.created_at.strftime('%d/%m/%Y') if admin.created_at else 'N/A' }}</td>
+                        <td class="text-end text-nowrap">
+                            <a href="{{ url_for('admin.edit_admin', id=admin.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 me-1">
+                                <i class="bi bi-pencil me-1"></i> Modifier
+                            </a>
+                            <a href="{{ url_for('admin.toggle_admin_status', id=admin.id) }}" class="btn btn-sm btn-outline-{{ 'success' if admin.is_suspended else 'warning' }} rounded-pill px-3 py-1 me-1">
+                                <i class="bi bi-{{ 'unlock' if admin.is_suspended else 'lock' }} me-1"></i> {{ 'Activer' if admin.is_suspended else 'Suspendre' }}
+                            </a>
+                            <a href="{{ url_for('admin.delete_admin', id=admin.id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" onclick="return confirm('Voulez-vous supprimer cet administrateur ?');">
+                                <i class="bi bi-trash me-1"></i> Supprimer
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-shield-x fs-1 d-block mb-3"></i>
+                            Aucun administrateur d'agence créé pour le moment.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('adminsSearch');
+    const filterStatus = document.getElementById('adminsFilterStatus');
+    const filterDate = document.getElementById('adminsFilterDate');
+    const tableBody = document.getElementById('adminsTableBody');
+    
+    if(!tableBody) return;
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = filterStatus.value.toLowerCase();
+        const sortValue = filterDate.value;
+        
+        let rows = Array.from(tableBody.querySelectorAll('tr.admin-row'));
+        
+        rows.forEach(row => {
+            const targetStatus = row.getAttribute('data-status');
+            const rowText = row.innerText.toLowerCase();
+            
+            const matchesSearch = rowText.includes(searchTerm);
+            const matchesStatus = (statusValue === "" || targetStatus === statusValue);
+            
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        rows.sort((a, b) => {
+            const dateA = parseFloat(a.getAttribute('data-date'));
+            const dateB = parseFloat(b.getAttribute('data-date'));
+            return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyFilters);
+    if(filterStatus) filterStatus.addEventListener('change', applyFilters);
+    if(filterDate) filterDate.addEventListener('change', applyFilters);
+    
+    window.resetAdminsFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterStatus) filterStatus.value = '';
+        if(filterDate) filterDate.value = 'newest';
+        applyFilters();
+    };
+});
+</script>
+{% endblock %}

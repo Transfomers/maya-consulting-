@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} – {{ title }} | 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hide nav & footer for full-page error display */
+.navbar, .footer { display: none !important; }
+main { padding: 0 !important; }
+
+body {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+body.dark-mode {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.success-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+}
+
+/* Centered error card */
+.success-card {
+    background: #ffffff;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 580px;
+    padding: 3rem 2.5rem;
+    text-align: center;
+    animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(30px);
+}
+body.dark-mode .success-card {
+    background: #1e293b;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes fadeSlideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animated error icon */
+.success-icon-wrap {
+    width: 96px;
+    height: 96px;
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 0 0 12px rgba(239, 68, 68, 0.15), 0 8px 16px rgba(185, 28, 28, 0.3);
+    animation: scalePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+body.dark-mode .success-icon-wrap {
+    background: rgba(185, 28, 28, 0.2);
+}
+
+@keyframes scalePop {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+.success-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ef4444, #b91c1c); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+}
+body.dark-mode .success-title { color: #f8fafc; }
+
+.success-subtitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #C92A2A;
+    margin-bottom: 1rem;
+}
+
+.success-message {
+    color: #64748b;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    font-weight: 500;
+}
+body.dark-mode .success-message { color: #94a3b8; }
+
+/* Buttons */
+.btn-bordeaux {
+    background: linear-gradient(135deg, #C92A2A 0%, #A61E1E 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.85rem 1.5rem;
+    font-weight: 700;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(201, 42, 42, 0.25);
+    text-decoration: none;
+    display: inline-block;
+}
+.btn-bordeaux:hover {
+    background: linear-gradient(135deg, #5c1628 0%, #C92A2A 100%);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201, 42, 42, 0.35);
+}
+
+.btn-outline-gray {
+    background: transparent;
+    color: #475569;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 0.75rem;
+    padding: 0.85rem 1.5rem;
+    font-weight: 700;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+body.dark-mode .btn-outline-gray {
+    color: #cbd5e1;
+    border-color: #475569;
+}
+.btn-outline-gray:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+body.dark-mode .btn-outline-gray:hover {
+    background: #334155;
+    color: #f8fafc;
+}
+
+.actions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+@media (min-width: 576px) {
+    .actions-grid {
+        flex-direction: row;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-icon-wrap">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        
+        <h1 class="success-title">{{ code }} Error</h1>
+        
+        <div class="success-subtitle d-flex align-items-center justify-content-center gap-2 mt-2">
+            <span class="text-uppercase tracking-wider fw-extrabold" style="font-size: 0.9rem; letter-spacing: 0.05em; color: #C92A2A;">{{ title }}</span>
+        </div>
+        
+        <p class="success-message mt-3">
+            {{ description }}
+        </p>
+
+        {% if code == 503 %}
+        <!-- Maintenance countdown bar -->
+        <p class="success-message" style="font-size:.82rem; margin-top: -1rem;">Nous revenons dans un instant. Merci de votre patience.</p>
+        {% endif %}
+
+        <div class="actions-grid">
+            <a href="{{ url_for('main.index') }}" class="btn-bordeaux">
+                <i class="bi bi-house-fill me-1"></i> Retour à l'accueil
+            </a>
+            {% if code != 503 %}
+            <a href="javascript:history.back()" class="btn-outline-gray">
+                <i class="bi bi-arrow-left me-1"></i> Page précédente
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  {% if code == 503 %}
+  // Auto-refresh after 30s for maintenance
+  setTimeout(function() { window.location.reload(); }, 30000);
+  {% endif %}
+</script>
+{% endblock %}

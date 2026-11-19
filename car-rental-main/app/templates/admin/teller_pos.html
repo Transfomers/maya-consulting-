@@ -1,0 +1,1296 @@
+{% extends "admin/teller_base.html" %}
+
+{% block title %}Réservation Manuelle{% endblock %}
+{% block page_title %}Nouvelle Réservation{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Layout */
+    .pos-top-panel {
+        margin-bottom: 1.5rem;
+    }
+    .pos-bottom-container {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 1.5rem;
+        padding-bottom: 2rem;
+    }
+    
+    
+    }
+    
+    
+    }
+    
+    @media (max-width: 992px) {
+        .pos-booking-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .pos-right-panel {
+            position: static !important;
+        }
+    }
+    
+    /* Seat Map Styles */
+    .bus-layout {
+        background: #f8fafc;
+        border-radius: 1.5rem;
+        padding: 2rem 1.5rem;
+        max-width: 320px;
+        margin: 0 auto;
+        border: 2px solid #e2e8f0;
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .driver-section {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 2px dashed #94a3b8;
+    }
+    .steering-wheel {
+        width: 30px;
+        height: 30px;
+        border: 4px solid #475569;
+        border-radius: 50%;
+    }
+    .seat-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.6rem;
+        align-items: center;
+    }
+    .seat-pair {
+        display: flex;
+        gap: 0.4rem;
+    }
+    .bus-aisle {
+        width: 30px;
+        text-align: center;
+        color: #475569;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    .seat-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .seat-btn.available { background-color: #22c55e; color: #fff; }
+    .seat-btn.available:hover { background-color: #16a34a; transform: scale(1.05); }
+    .seat-btn.occupied { background-color: #ef4444; color: #fff; cursor: not-allowed; opacity: 0.7; }
+    .seat-btn.selected { background-color: var(--pos-brand) !important; color: #fff !important; transform: scale(1.1) !important; border: 2px solid #fff !important; box-shadow: 0 0 10px rgba(139,24,50,0.4); }
+    
+    /* Segmented Buttons */
+    .segmented-control {
+        display: flex;
+        background: #f1f5f9;
+        border-radius: 0.75rem;
+        padding: 4px;
+    }
+    .segmented-control input[type="radio"] { display: none; }
+    .segmented-control label {
+        flex: 1;
+        text-align: center;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #64748b;
+        transition: all 0.2s;
+        margin: 0;
+    }
+    .segmented-control input[type="radio"]:checked + label {
+        background: white;
+        color: var(--pos-brand);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    /* Payment Method Cards */
+    .payment-method-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        background: white;
+        font-weight: 600;
+        color: #475569;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .payment-method-card:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+    .payment-method-card.active {
+        border-color: var(--pos-brand);
+        background: #fff5f7;
+        color: var(--pos-brand);
+    }
+    .payment-method-card i { font-size: 1.5rem; }
+    
+    /* Trip Result Cards */
+    .trip-result-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .trip-result-card:hover {
+        border-color: #cbd5e1;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .trip-result-card.active {
+        border-color: var(--pos-brand);
+        background: #fff5f7;
+        box-shadow: 0 4px 15px rgba(139,24,50,0.1);
+    }
+    
+    /* Status Badge */
+    .client-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .badge-new { background: #e0e7ff; color: #4338ca; }
+    .badge-existing { background: #dcfce7; color: #15803d; }
+</style>
+{% endblock %}
+
+{% block content %}
+<form id="posCheckoutForm" method="POST" action="{{ url_for('admin.teller_book') }}">
+    
+    {% if not caisse %}
+    <div class="alert alert-danger mb-3 fw-bold text-center rounded-4 shadow-sm border-0">
+        <i class="bi bi-lock-fill me-2"></i> Opérations suspendues - Caisse Fermée
+    </div>
+    {% endif %}
+
+    <!-- TOP PANEL: PASSENGER -->
+    <div class="pos-top-panel">
+        <div class="card border-0 shadow-sm rounded-4" style="border-top: 5px solid var(--pos-brand) !important;">
+            <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-person-fill text-muted me-2"></i> Informations du Passager</h5>
+                    <span id="freqTravelerBadge" class="badge bg-warning text-dark fw-bold d-none" style="font-size:0.75rem;"><i class="bi bi-star-fill me-1"></i> <span id="freqTravelerTrips">Fidèle</span></span>
+                </div>
+                <span id="clientStatusBadge" class="client-badge badge-new d-none">Nouveau Client</span>
+            </div>
+            
+            <div class="card-body p-4 pt-3">
+                <div class="row g-3 align-items-end">
+                    <!-- Phone -->
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted">📱 Téléphone <span class="text-danger">*</span></label>
+                        <div class="input-group shadow-sm rounded-3">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="tel" class="form-control border-start-0 ps-0 fw-bold" style="letter-spacing: 1px;" name="passenger_phone" id="passengerPhone" placeholder="Ex: 6XXXXXXXX" required oninput="debounceSearchClient()">
+                        </div>
+                        <div id="clientSearchStatus" class="small mt-1 fw-semibold text-primary" style="position: absolute;"></div>
+                    </div>
+                    
+                    <!-- Name -->
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted">👤 Nom Complet <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control bg-light border-0 fw-semibold shadow-sm" name="passenger_name" id="passengerName" placeholder="John Doe" required>
+                    </div>
+                    
+                    <!-- Gender -->
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted">🧬 Sexe</label>
+                        <div class="segmented-control shadow-sm">
+                            <input type="radio" name="passenger_gender" id="genderM" value="M">
+                            <label for="genderM">Homme</label>
+                            
+                            <input type="radio" name="passenger_gender" id="genderF" value="F">
+                            <label for="genderF">Femme</label>
+                            
+                            <input type="radio" name="passenger_gender" id="genderNone" value="" checked>
+                            <label for="genderNone">N/A</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Accordion toggle -->
+                    <div class="col-md-3">
+                        <button class="btn btn-light w-100 fw-bold shadow-sm text-muted text-uppercase small" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdditionalInfo" style="padding: 0.6rem;">
+                            <i class="bi bi-three-dots me-2"></i> Plus d'infos
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Additional Info (Collapsible) -->
+                <div class="collapse mt-3" id="collapseAdditionalInfo">
+                    <div class="row g-3 pt-3 border-top">
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold">Catégorie Passager</label>
+                            <select class="form-select form-select-sm bg-light border-0 fw-semibold" name="passenger_category">
+                                <option value="Adult" selected>Adulte (Adult)</option>
+                                <option value="Child">Enfant (Child)</option>
+                                <option value="Student">Étudiant (Student)</option>
+                                <option value="Senior Citizen">Senior (Senior Citizen)</option>
+                                <option value="Special Passenger">Passager Spécial (Special)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold">Email (Optionnel)</label>
+                            <input type="email" class="form-control form-control-sm bg-light border-0" name="passenger_email" placeholder="client@email.com">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold">Numéro CNI / Passeport (Optionnel)</label>
+                            <input type="text" class="form-control form-control-sm bg-light border-0" name="passenger_cni" placeholder="Ex: 123456789">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold">Date Naissance (Optionnel)</label>
+                            <input type="date" class="form-control form-control-sm bg-light border-0" name="passenger_dob">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold">Contact d'Urgence</label>
+                            <input type="tel" class="form-control form-control-sm bg-light border-0" name="passenger_emergency" placeholder="Ex: 6XXXXXXXX">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM CONTAINER (2 columns) -->
+    <div class="pos-bottom-container">
+        
+        <!-- COLUMN 1: CENTER TRIP/SEAT -->
+        <div class="pos-main-panel">
+            
+            <!-- Step 2: Search Trajet -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-car-front-fill text-danger me-2"></i> Trouver une Mission / Véhicule VIP</h5>
+                    
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Départ</label>
+                            <select class="form-select form-select-lg bg-light border-0 fw-semibold" id="searchOrigin">
+                                <option value="">Sélectionner...</option>
+                                <option value="Douala">Douala</option>
+                                <option value="Yaoundé">Yaoundé</option>
+                                <option value="Bafoussam">Bafoussam</option>
+                                <option value="Kribi">Kribi</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Arrivée</label>
+                            <select class="form-select form-select-lg bg-light border-0 fw-semibold" id="searchDest">
+                                <option value="">Sélectionner...</option>
+                                <option value="Yaoundé">Yaoundé</option>
+                                <option value="Douala">Douala</option>
+                                <option value="Bafoussam">Bafoussam</option>
+                                <option value="Kribi">Kribi</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Type de Voyage</label>
+                            <select class="form-select form-select-lg bg-light border-0 fw-semibold" name="trip_type" id="tripType" onchange="toggleReturnDate()">
+                                <option value="one_way" selected>{{ _t('Aller Simple') }}</option>
+                                <option value="round_trip">{{ _t('Aller-Retour') }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Date Aller</label>
+                            <input type="date" class="form-control form-control-lg bg-light border-0 fw-semibold" id="searchDate" value="{{ today_str }}">
+                        </div>
+                        <div class="col-md-3 d-none" id="returnDateGroup">
+                            <label class="form-label small fw-bold text-muted">Date Retour</label>
+                            <input type="date" class="form-control form-control-lg bg-light border-0 fw-semibold" name="return_date" id="returnDate">
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="button" class="btn btn-pos-primary btn-lg w-100 fw-bold shadow-sm rounded-pill" onclick="searchTrips()"><i class="bi bi-search me-2"></i> Rechercher les voyages</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2.5: Luggage Information -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-luggage-fill text-primary me-2"></i> Informations Bagages</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Nombre de Bagages</label>
+                            <input type="number" class="form-control bg-light border-0 fw-semibold" name="bags_count" id="bagsCount" value="0" min="0" oninput="calculateTotalAmount()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Poids Total (kg)</label>
+                            <input type="number" step="0.1" class="form-control bg-light border-0" name="luggage_weight" id="luggageWeight" value="0.0" min="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Frais Supplémentaires (FCFA)</label>
+                            <input type="number" class="form-control bg-light border-0 fw-semibold" name="luggage_charge" id="luggageCharge" value="0" min="0" oninput="calculateTotalAmount()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2.6: Boarding Information -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-geo-fill text-primary me-2"></i> Embarquement & Instructions</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Point d'Embarquement</label>
+                            <input type="text" class="form-control bg-light border-0 fw-semibold" name="boarding_point" placeholder="Ex: Terminal Agence Akwa">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Heure d'Embarquement</label>
+                            <input type="time" class="form-control bg-light border-0 fw-semibold" name="boarding_time">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Instructions Spéciales</label>
+                            <input type="text" class="form-control bg-light border-0 fw-semibold" name="special_instructions" placeholder="Ex: Siège avant requis">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 3: Trip Results -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4" id="tripsPanel" style="display: none;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-card-checklist me-2 text-primary"></i> Voyages Disponibles</h5>
+                    
+                    <div id="outboundTripsSection">
+                        <h6 class="fw-bold text-muted mb-2 text-uppercase small" id="outboundSectionTitle" style="display: none;">Aller (Outbound)</h6>
+                        <div id="tripsResults" class="d-flex flex-column gap-3 overflow-auto mb-3" style="max-height: 350px; padding-right: 10px;">
+                            <!-- Results populated by JS -->
+                        </div>
+                    </div>
+                    
+                    <div id="returnTripsSection" style="display: none;">
+                        <h6 class="fw-bold text-muted mb-2 text-uppercase small">Retour (Inbound)</h6>
+                        <div id="returnTripsResults" class="d-flex flex-column gap-3 overflow-auto" style="max-height: 350px; padding-right: 10px;">
+                            <!-- Results populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 4: Seat Map -->
+            <div class="card border-0 shadow-sm rounded-4" id="seatPanel" style="display: none;">
+                <div class="card-body p-4 text-center">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-grid-3x3-gap-fill me-2 text-primary"></i> Plan du Bus</h5>
+                    
+                    <div class="d-flex justify-content-center gap-4 mb-3 fw-bold small text-muted">
+                        <div class="d-flex align-items-center"><span class="d-inline-block rounded me-2" style="width:16px;height:16px;background:#22c55e;"></span> Libre</div>
+                        <div class="d-flex align-items-center"><span class="d-inline-block rounded me-2" style="width:16px;height:16px;background:#ef4444;"></span> Occupé</div>
+                        <div class="d-flex align-items-center"><span class="d-inline-block rounded me-2" style="width:16px;height:16px;background:var(--pos-brand);"></span> Choisi</div>
+                    </div>
+                    
+                    <!-- Tabs for round trip seats -->
+                    <div id="seatTabsContainer" class="mb-3" style="display: none;">
+                        <ul class="nav nav-pills justify-content-center" id="seatTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold" id="outbound-seat-tab" data-bs-toggle="pill" data-bs-target="#outboundSeatPanel" type="button" role="tab">Aller</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold" id="return-seat-tab" data-bs-toggle="pill" data-bs-target="#returnSeatPanel" type="button" role="tab">Retour</button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content" id="seatTabsContent">
+                        <div class="tab-pane fade show active" id="outboundSeatPanel" role="tabpanel">
+                            <h6 class="fw-bold mb-2 text-muted text-uppercase small" id="outboundSeatTitle" style="display: none;">Sièges Aller</h6>
+                            <div class="bus-layout shadow-sm" id="dynamicBusLayout">
+                                <!-- JS Will Render Seats Here -->
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="returnSeatPanel" role="tabpanel">
+                            <h6 class="fw-bold mb-2 text-muted text-uppercase small">Sièges Retour</h6>
+                            <div class="bus-layout shadow-sm" id="dynamicReturnBusLayout">
+                                <!-- JS Will Render Seats Here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- COLUMN 2: RIGHT PAYMENT PANEL  -->
+        <div class="pos-right-panel" style="position: sticky; top: 1rem; height: fit-content;">
+            
+            <!-- Summary & Payment Card -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 pt-4 pb-2">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-credit-card-2-front-fill text-muted me-2"></i> Paiement POS</h5>
+                </div>
+                
+                <div class="card-body p-4">
+                    <input type="hidden" name="trip_id" id="checkoutTripId" required>
+                    <input type="hidden" name="seat_number" id="checkoutSeatNumber" required>
+                    
+                    <input type="hidden" name="return_trip_id" id="checkoutReturnTripId">
+                    <input type="hidden" name="return_seat_number" id="checkoutReturnSeatNumber">
+                    
+                    <input type="hidden" name="price_paid" id="checkoutPrice" required>
+                    <input type="hidden" name="payment_method" id="paymentMethodHidden" value="MTN Mobile Money">
+                    <input type="hidden" name="booking_action" id="bookingAction" value="confirm">
+                    
+                    <!-- Summary Box -->
+                    <div class="bg-light rounded-4 p-3 mb-4 border border-white shadow-sm">
+                        <div id="outboundSummaryGroup">
+                            <h6 class="fw-bold text-muted small text-uppercase mb-2" id="outboundSummaryTitle" style="display: none;">Aller (Outbound)</h6>
+                            <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light">
+                                <span class="text-muted fw-semibold small">Trajet:</span>
+                                <span class="fw-bold text-dark" id="summaryRoute">--</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light">
+                                <span class="text-muted fw-semibold small">Départ:</span>
+                                <span class="fw-bold text-dark" id="summaryTime">--</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted fw-semibold small">Siège(s):</span>
+                                <span class="fw-bold text-primary fs-6" id="summarySeat">--</span>
+                            </div>
+                        </div>
+                        
+                        <div id="returnSummaryGroup" style="display: none;" class="mt-3 pt-2 border-top border-2">
+                            <h6 class="fw-bold text-muted small text-uppercase mb-2">Retour (Inbound)</h6>
+                            <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light">
+                                <span class="text-muted fw-semibold small">Trajet:</span>
+                                <span class="fw-bold text-dark" id="summaryReturnRoute">--</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-light">
+                                <span class="text-muted fw-semibold small">Départ:</span>
+                                <span class="fw-bold text-dark" id="summaryReturnTime">--</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted fw-semibold small">Siège(s):</span>
+                                <span class="fw-bold text-primary fs-6" id="summaryReturnSeat">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing Breakdown -->
+                    <h6 class="fw-bold small text-muted text-uppercase mb-3">Tarification</h6>
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-muted">Réduction (FCFA)</label>
+                            <input type="number" class="form-control bg-light border-0 fw-semibold" name="discount_applied" id="discountApplied" value="0" min="0" oninput="calculateTotalAmount()">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-muted">Frais Supp. (FCFA)</label>
+                            <input type="number" class="form-control bg-light border-0 fw-semibold" name="additional_charges" id="additionalCharges" value="0" min="0" oninput="calculateTotalAmount()">
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Methods Grid -->
+                    <h6 class="fw-bold small text-muted text-uppercase mb-3">Méthode de Paiement</h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="payment-method-card active" onclick="selectPaymentMethod('MTN Mobile Money', this)">
+                                <i class="bi bi-phone-vibrate text-warning"></i>
+                                <span class="small">MTN MoMo</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="payment-method-card" onclick="selectPaymentMethod('Orange Money', this)">
+                                <i class="bi bi-phone-fill text-danger"></i>
+                                <span class="small">Orange Money</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reference -->
+                    <div class="mb-4" id="momoRefGroup">
+                        <label class="form-label small fw-bold text-muted">Référence de Paiement</label>
+                        <input type="text" class="form-control bg-light border-0" name="payment_ref" id="paymentRef" placeholder="Référence MTN Mobile Money">
+                    </div>
+
+                    <!-- Payment Status -->
+                    <h6 class="fw-bold small text-muted text-uppercase mb-2">Statut de Paiement</h6>
+                    <select class="form-select bg-light border-0 fw-semibold mb-4" name="payment_status" id="paymentStatus">
+                        <option value="Paid" selected>Payé (Paid)</option>
+                        <option value="Pending">En Attente (Pending)</option>
+                        <option value="Partially Paid">Partiellement Payé (Parti. Paid)</option>
+                    </select>
+                    
+                    <!-- Total & Submit -->
+                    <div class="mt-2 pt-3 border-top border-2 border-light">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="fs-6 fw-bold text-muted text-uppercase">Total</span>
+                            <span class="fs-2 fw-bold text-success" id="summaryTotal">0 <small class="fs-5 text-muted">FCFA</small></span>
+                        </div>
+                        
+                        {% if caisse %}
+                            <div class="d-flex flex-column gap-2">
+                                <button type="submit" class="btn btn-pos-success w-100 py-3 fs-5 fw-bold shadow-lg rounded-pill" id="btnValidate" disabled onclick="setBookingAction('confirm')">
+                                    <i class="bi bi-check-circle-fill me-2"></i> Confirmer & Émettre
+                                </button>
+                                <button type="submit" class="btn btn-outline-secondary w-100 py-2 fw-bold rounded-pill" id="btnSaveReservation" disabled onclick="setBookingAction('save')">
+                                    <i class="bi bi-bookmark-plus-fill me-2"></i> Enregistrer Réservation
+                                </button>
+                            </div>
+                        {% else %}
+                            <button type="button" class="btn btn-secondary w-100 py-3 fs-6 fw-bold shadow-sm rounded-pill" disabled title="Caisse fermée">
+                                <i class="bi bi-lock-fill me-2"></i> Opérations Suspendues
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+</form>
+
+<!-- Receipt Modal -->
+{% if request.args.get('print_receipt') %}
+<div class="modal fade" id="receiptModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-light border-0 rounded-top-4">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-check-circle-fill text-success me-2"></i> Billet(s) Émis avec Succès</h5>
+                <a href="{{ url_for('admin.teller_book') }}" class="btn-close"></a>
+            </div>
+            
+            <div class="modal-body p-4" id="printableReceipt" style="font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;">
+                <!-- Outbound Ticket (Aller) -->
+                <div class="ticket-leg mb-4 pb-4 border-bottom">
+                    <div class="text-center mb-3">
+                        <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES Logo" style="height: 60px; margin-bottom: 15px;">
+                        <h3 class="fw-bold mb-1" style="color: #C92A2A; letter-spacing: 1px;">3M SERVICES</h3>
+                        <p class="small text-muted mb-0 fw-bold text-uppercase" style="letter-spacing: 2px;">Carte d'Embarquement / Boarding Pass {% if request.args.get('return_print_receipt') %}(ALLER){% endif %}</p>
+                        <small class="text-muted fw-bold"><i class="bi bi-building me-1"></i> Agence: {{ current_user.agency.name if current_user.agency else 'Guichet Central' }}</small>
+                    </div>
+                    
+                    <hr style="border-style: dashed; border-color: #cbd5e1; border-width: 2px;">
+                    
+                    <div class="row g-3 text-start small">
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">N° Billet / Ticket No</span>
+                            <strong class="fs-6 text-dark" id="receiptCode">{{ request.args.get('print_receipt') }}</strong>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Date de Réservation</span>
+                            <strong class="text-dark">{{ datetime.now().strftime('%d/%m/%Y %H:%M') }}</strong>
+                        </div>
+                        
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Passager / Passenger</span>
+                            <strong class="fs-6 text-dark text-capitalize" id="receiptPassenger">{{ request.args.get('passenger') }}</strong>
+                            <span class="badge bg-secondary-subtle text-dark border ms-1" id="receiptCategory">{{ request.args.get('category') }}</span>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Téléphone</span>
+                            <strong class="text-dark" id="receiptPhone">{{ request.args.get('phone') }}</strong>
+                        </div>
+                        
+                        <div class="col-12"><hr class="my-1" style="border-color: #f1f5f9;"></div>
+                        
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Départ / From</span>
+                            <strong class="fs-6 text-dark" id="receiptOrigin">{{ request.args.get('departure_city') }}</strong>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Destination / To</span>
+                            <strong class="fs-6 text-dark" id="receiptDest">{{ request.args.get('destination_city') }}</strong>
+                        </div>
+                        
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Date Voyage / Date</span>
+                            <strong class="text-dark" id="receiptTravelDate">{{ request.args.get('travel_date') }}</strong>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Départ / Time</span>
+                            <strong class="text-dark" id="receiptDepartureTime">{{ request.args.get('departure_time') }}</strong>
+                        </div>
+                        
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Bus No / Type</span>
+                            <strong class="text-dark" id="receiptBusNumber">{{ request.args.get('bus_number') }}</strong>
+                            <span class="badge bg-light text-dark border ms-1" id="receiptBusType">{{ request.args.get('bus_type') }}</span>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Siège / Seat</span>
+                            <strong class="fs-5 text-primary" id="receiptSeat">{{ request.args.get('seat') }}</strong>
+                        </div>
+                        
+                        <div class="col-12"><hr class="my-1" style="border-color: #f1f5f9;"></div>
+                        
+                        <!-- Boarding Info -->
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Embarquement / Boarding</span>
+                            <strong class="text-dark" id="receiptBoardingPoint">{{ request.args.get('boarding_point') or 'Terminal Agence' }}</strong>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Heure Embarq.</span>
+                            <strong class="text-dark" id="receiptBoardingTime">{{ request.args.get('boarding_time') or '--:--' }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Return Ticket (Retour) -->
+                {% if request.args.get('return_print_receipt') %}
+                <div class="ticket-leg mb-4 pb-4 border-bottom page-break" style="page-break-before: always; border-top: 2px dashed #cbd5e1; padding-top: 2rem;">
+                    <div class="text-center mb-3">
+                        <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES Logo" style="height: 60px; margin-bottom: 15px;">
+                        <h3 class="fw-bold mb-1" style="color: #C92A2A; letter-spacing: 1px;">3M SERVICES</h3>
+                        <p class="small text-muted mb-0 fw-bold text-uppercase" style="letter-spacing: 2px;">Carte d'Embarquement / Boarding Pass (RETOUR)</p>
+                        <small class="text-muted fw-bold"><i class="bi bi-building me-1"></i> Agence: {{ current_user.agency.name if current_user.agency else 'Guichet Central' }}</small>
+                    </div>
+                    
+                    <hr style="border-style: dashed; border-color: #cbd5e1; border-width: 2px;">
+                    
+                    <div class="row g-3 text-start small">
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">N° Billet / Ticket No</span>
+                            <strong class="fs-6 text-dark">{{ request.args.get('return_print_receipt') }}</strong>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Date de Réservation</span>
+                            <strong class="text-dark">{{ datetime.now().strftime('%d/%m/%Y %H:%M') }}</strong>
+                        </div>
+                        
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Passager / Passenger</span>
+                            <strong class="fs-6 text-dark text-capitalize">{{ request.args.get('passenger') }}</strong>
+                            <span class="badge bg-secondary-subtle text-dark border ms-1">{{ request.args.get('category') }}</span>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Téléphone</span>
+                            <strong class="text-dark">{{ request.args.get('phone') }}</strong>
+                        </div>
+                        
+                        <div class="col-12"><hr class="my-1" style="border-color: #f1f5f9;"></div>
+                        
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Départ / From</span>
+                            <strong class="fs-6 text-dark">{{ request.args.get('destination_city') }}</strong>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Destination / To</span>
+                            <strong class="fs-6 text-dark">{{ request.args.get('departure_city') }}</strong>
+                        </div>
+                        
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Date Voyage / Date</span>
+                            <strong class="text-dark">{{ request.args.get('return_travel_date') }}</strong>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Départ / Time</span>
+                            <strong class="text-dark">{{ request.args.get('return_departure_time') }}</strong>
+                        </div>
+                        
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Bus No / Type</span>
+                            <strong class="text-dark">{{ request.args.get('return_bus_number') }}</strong>
+                            <span class="badge bg-light text-dark border ms-1">{{ request.args.get('return_bus_type') }}</span>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Siège / Seat</span>
+                            <strong class="fs-5 text-primary">{{ request.args.get('return_seat') }}</strong>
+                        </div>
+                        
+                        <div class="col-12"><hr class="my-1" style="border-color: #f1f5f9;"></div>
+                        
+                        <!-- Boarding Info -->
+                        <div class="col-6 mb-2">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Embarquement / Boarding</span>
+                            <strong class="text-dark">{{ request.args.get('boarding_point') or 'Terminal Agence' }}</strong>
+                        </div>
+                        <div class="col-6 mb-2 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Heure Embarq.</span>
+                            <strong class="text-dark">{{ request.args.get('boarding_time') or '--:--' }}</strong>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Financial details + QR Code (Applicable to entire receipt) -->
+                <div class="row g-3 text-start small">
+                    <!-- Luggage & Trip Type -->
+                    <div class="col-6 mb-2">
+                        <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Bagages / Bags</span>
+                        <strong class="text-dark" id="receiptBags">{{ request.args.get('bags') or '0' }} bagage(s)</strong>
+                    </div>
+                    <div class="col-6 mb-2 text-end">
+                        <span class="text-muted d-block text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Type de Trajet</span>
+                        <strong class="text-dark" id="receiptTripType">{% if request.args.get('trip_type') == 'round_trip' %}{{ _t('Aller-Retour') }}{% else %}{{ _t('Aller Simple') }}{% endif %}</strong>
+                    </div>
+                    
+                    <div class="col-12"><hr class="my-1" style="border-color: #f1f5f9;"></div>
+                    
+                    <div class="col-12 bg-light p-3 rounded-4 mb-3 border">
+                        <div class="d-flex justify-content-between mb-1 small text-muted">
+                            <span>Frais Supplémentaires Bagages:</span>
+                            <span class="fw-semibold text-dark">{{ request.args.get('luggage_charge') or '0' }} FCFA</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1 small text-muted">
+                            <span>Statut de Paiement:</span>
+                            <span class="badge {% if request.args.get('payment_status') == 'Paid' or request.args.get('payment_status') == 'paid' %}bg-success-subtle text-success{% else %}bg-warning-subtle text-warning{% endif %} fw-bold">{{ request.args.get('payment_status') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1 small text-muted">
+                            <span>Méthode de Paiement:</span>
+                            <span class="fw-semibold text-dark">{{ request.args.get('payment_method') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between pt-2 border-top fw-bold text-dark fs-5">
+                            <span>NET PAYÉ / TOTAL:</span>
+                            <span class="text-success" id="receiptPrice">{{ request.args.get('price') }} FCFA</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr style="border-style: dashed; border-color: #cbd5e1; border-width: 2px;">
+                
+                <!-- QR Code Block simulator -->
+                <div class="d-flex flex-column align-items-center justify-content-center my-3">
+                    <div class="p-2 border rounded-3 bg-white shadow-sm" style="width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <!-- QR Code visual simulator -->
+                        <div class="w-100 h-100 d-flex flex-wrap" style="gap: 2px; padding: 5px; background: #fff;">
+                            {% for i in range(144) %}
+                                <div style="width: 7px; height: 7px; background: {% if (i % 3 == 0 and i % 5 != 0) or (i < 30 and i % 2 == 0) or (i > 100 and i % 4 == 0) or (i > 30 and i < 60 and i % 3 == 1) %}#000{% else %}#fff{% endif %};"></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <span class="small text-muted mt-2 fw-semibold" style="font-size:0.75rem;">Scannez pour valider la prise en charge</span>
+                </div>
+                
+                <div class="text-center mt-3 pt-3 border-top text-muted small">
+                    <span class="fw-bold d-block text-dark">Conseiller VIP Comptoir: {{ current_user.username }}</span>
+                    <span style="font-size: 0.75rem;">Excellente route avec 3M SERVICES VIP SARL ! Merci de votre confiance.</span>
+                </div>
+            </div>
+            
+            <div class="modal-footer border-0 justify-content-center bg-light rounded-bottom-4">
+                <button type="button" class="btn btn-pos-primary px-4 fw-bold rounded-pill" onclick="printReceipt()"><i class="bi bi-printer me-2"></i> Imprimer</button>
+                <a id="whatsappBtn" href="#" target="_blank" class="btn btn-success px-4 fw-bold rounded-pill" style="background-color: #25D366; border-color: #25D366;">
+                    <i class="bi bi-whatsapp me-2"></i> WhatsApp
+                </a>
+                <a href="{{ url_for('admin.teller_book') }}" class="btn btn-outline-secondary px-4 fw-bold rounded-pill">Nouveau Client</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    let selectedSeats = new Set();
+    let selectedReturnSeats = new Set();
+    let selectedTripId = '';
+    let selectedReturnTripId = '';
+    let currentTripPrice = 0;
+    let currentReturnTripPrice = 0;
+    let seatPollingInterval = null;
+    let returnSeatPollingInterval = null;
+    
+    // Receipt Printing
+    function printReceipt() {
+        const receiptHtml = document.getElementById('printableReceipt').innerHTML;
+        const originalHtml = document.body.innerHTML;
+        document.body.innerHTML = receiptHtml;
+        window.print();
+        document.body.innerHTML = originalHtml;
+        window.location.reload();
+    }
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.has('print_receipt')) {
+        // WhatsApp link generation
+        let waMessage = `Bonjour {{ request.args.get('passenger') }}, voici votre ticket 3M SERVICES.\n`;
+        waMessage += `Code Aller: {{ request.args.get('print_receipt') }}\n`;
+        waMessage += `Voyage Aller: {{ request.args.get('departure_city') }} -> {{ request.args.get('destination_city') }}\n`;
+        waMessage += `Départ: {{ request.args.get('travel_date') }} à {{ request.args.get('departure_time') }}\n`;
+        waMessage += `Siège: {{ request.args.get('seat') }}\n`;
+        
+        if (urlParams.has('return_print_receipt')) {
+            waMessage += `\nCode Retour: {{ request.args.get('return_print_receipt') }}\n`;
+            waMessage += `Voyage Retour: {{ request.args.get('destination_city') }} -> {{ request.args.get('departure_city') }}\n`;
+            waMessage += `Départ: {{ request.args.get('return_travel_date') }} à {{ request.args.get('return_departure_time') }}\n`;
+            waMessage += `Siège: {{ request.args.get('return_seat') }}\n`;
+        }
+        waMessage += `\nBon voyage !`;
+        
+        const waUrl = `https://wa.me/{{ request.args.get('phone') }}?text=${encodeURIComponent(waMessage)}`;
+        document.getElementById('whatsappBtn').href = waUrl;
+        
+        const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
+        receiptModal.show();
+    }
+    
+    if(!document.getElementById('searchDate').value) {
+        document.getElementById('searchDate').valueAsDate = new Date();
+    }
+    
+    // Show/Hide Reference input for MOMO
+    function selectPaymentMethod(method, element) {
+        document.getElementById('paymentMethodHidden').value = method;
+        
+        const cards = document.querySelectorAll('.payment-method-card');
+        cards.forEach(card => card.classList.remove('active'));
+        element.classList.add('active');
+        
+        const refGroup = document.getElementById('momoRefGroup');
+        const refInput = document.getElementById('paymentRef');
+        
+        refGroup.classList.remove('d-none');
+        refInput.setAttribute('placeholder', `Référence ${method}`);
+    }
+    
+    function setBookingAction(action) {
+        document.getElementById('bookingAction').value = action;
+        const statusSelect = document.getElementById('paymentStatus');
+        if (action === 'save') {
+            statusSelect.value = 'Pending';
+        }
+    }
+    
+    function toggleReturnDate() {
+        const tripType = document.getElementById('tripType').value;
+        const returnGroup = document.getElementById('returnDateGroup');
+        const returnSummary = document.getElementById('returnSummaryGroup');
+        if (tripType === 'round_trip') {
+            returnGroup.classList.remove('d-none');
+            document.getElementById('returnDate').setAttribute('required', 'required');
+            returnSummary.style.display = 'block';
+            document.getElementById('outboundSummaryTitle').style.display = 'block';
+            document.getElementById('outboundSectionTitle').style.display = 'block';
+        } else {
+            returnGroup.classList.add('d-none');
+            document.getElementById('returnDate').removeAttribute('required');
+            document.getElementById('returnDate').value = '';
+            returnSummary.style.display = 'none';
+            document.getElementById('outboundSummaryTitle').style.display = 'none';
+            document.getElementById('outboundSectionTitle').style.display = 'none';
+        }
+        resetCheckout();
+    }
+    
+    function calculateTotalAmount() {
+        const discount = parseFloat(document.getElementById('discountApplied').value || 0);
+        const luggage = parseFloat(document.getElementById('luggageCharge').value || 0);
+        const addCharges = parseFloat(document.getElementById('additionalCharges').value || 0);
+        
+        const baseSeats = Math.max(1, selectedSeats.size);
+        const baseTotal = currentTripPrice * baseSeats;
+        
+        const returnSeats = Math.max(1, selectedReturnSeats.size);
+        const tripType = document.getElementById('tripType').value;
+        const returnTotal = tripType === 'round_trip' ? (currentReturnTripPrice * returnSeats) : 0;
+        
+        const grandTotal = Math.max(0, baseTotal + returnTotal - discount + luggage + addCharges);
+        
+        document.getElementById('checkoutPrice').value = grandTotal;
+        document.getElementById('summaryTotal').innerHTML = `${grandTotal} <small class="fs-6">FCFA</small>`;
+    }
+
+    // ==========================================
+    // CLIENT SEARCH LOGIC
+    // ==========================================
+    let searchTimeout;
+    function debounceSearchClient() {
+        clearTimeout(searchTimeout);
+        const phone = document.getElementById('passengerPhone').value;
+        const statusEl = document.getElementById('clientSearchStatus');
+        const badgeEl = document.getElementById('freqTravelerBadge');
+        
+        if (phone.length < 6) {
+            statusEl.innerHTML = 'Tapez le numéro pour rechercher...';
+            statusEl.className = 'small text-muted';
+            if (badgeEl) badgeEl.classList.add('d-none');
+            return;
+        }
+        
+        statusEl.innerHTML = '<span class="spinner-border spinner-border-sm text-primary me-1"></span> Recherche...';
+        
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/teller/search_client?phone=${phone}`);
+                const data = await response.json();
+                
+                if(data.found) {
+                    statusEl.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i> Client existant trouvé.';
+                    statusEl.className = 'small text-success';
+                    
+                    // Auto-fill name
+                    if(data.name) {
+                        document.getElementById('passengerName').value = data.name;
+                    }
+                    
+                    // Show frequent traveler badge
+                    if(data.trip_count > 0 && badgeEl) {
+                        document.getElementById('freqTravelerTrips').innerText = `${data.trip_count} voyages précédents`;
+                        badgeEl.classList.remove('d-none');
+                        badgeEl.classList.add('d-flex');
+                    } else if (badgeEl) {
+                        badgeEl.classList.add('d-none');
+                        badgeEl.classList.remove('d-flex');
+                    }
+                    
+                } else {
+                    statusEl.innerHTML = '<i class="bi bi-person-plus-fill text-primary"></i> Nouveau client. Un compte sera créé.';
+                    statusEl.className = 'small text-primary';
+                    if (badgeEl) {
+                        badgeEl.classList.add('d-none');
+                        badgeEl.classList.remove('d-flex');
+                    }
+                }
+            } catch(e) {
+                statusEl.innerHTML = 'Erreur lors de la recherche.';
+                statusEl.className = 'small text-danger';
+            }
+        }, 600); // 600ms debounce
+    }
+
+    // ==========================================
+    // TRIP SEARCH LOGIC
+    // ==========================================
+    async function searchTrips() {
+        const origin = document.getElementById('searchOrigin').value;
+        const dest = document.getElementById('searchDest').value;
+        const date = document.getElementById('searchDate').value;
+        const tripType = document.getElementById('tripType').value;
+        const returnDate = document.getElementById('returnDate').value;
+        
+        if(!origin || !dest) {
+            alert("Veuillez sélectionner le point d'origine et de destination.");
+            return;
+        }
+        
+        if(tripType === 'round_trip' && !returnDate) {
+            alert("Veuillez sélectionner une date de retour.");
+            return;
+        }
+        
+        document.getElementById('seatPanel').style.display = 'none';
+        resetCheckout();
+        
+        try {
+            // Outbound search
+            const outboundResponse = await fetch(`/api/trips/search?origin=${origin}&destination=${dest}&date=${date}`);
+            const outboundData = await outboundResponse.json();
+            renderTrips(outboundData.trips || [], 'outbound');
+            
+            // Return search if round trip
+            if (tripType === 'round_trip') {
+                document.getElementById('returnTripsSection').style.display = 'block';
+                const returnResponse = await fetch(`/api/trips/search?origin=${dest}&destination=${origin}&date=${returnDate}`);
+                const returnData = await returnResponse.json();
+                renderTrips(returnData.trips || [], 'return');
+            } else {
+                document.getElementById('returnTripsSection').style.display = 'none';
+            }
+            
+            document.getElementById('tripsPanel').style.display = 'block';
+            
+        } catch(e) {
+            console.error("Search failed", e);
+            const resultsDiv = document.getElementById('tripsResults');
+            resultsDiv.innerHTML = '<div class="alert alert-warning">Erreur de connexion. Veuillez réessayer.</div>';
+            document.getElementById('tripsPanel').style.display = 'block';
+        }
+    }
+    
+    function selectTrip(tripId, price, element, direction = 'outbound') {
+        if (direction === 'outbound') {
+            document.querySelectorAll('#tripsResults .trip-result-card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            
+            selectedTripId = tripId;
+            document.getElementById('checkoutTripId').value = tripId;
+            currentTripPrice = price;
+            
+            const timeText = element.querySelector('.fs-5').innerText.trim();
+            const routeText = element.querySelector('.small').innerText.trim();
+            
+            document.getElementById('summaryRoute').innerText = routeText;
+            document.getElementById('summaryTime').innerText = timeText;
+            
+            loadSeatMap(tripId, 'outbound');
+        } else {
+            document.querySelectorAll('#returnTripsResults .trip-result-card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            
+            selectedReturnTripId = tripId;
+            document.getElementById('checkoutReturnTripId').value = tripId;
+            currentReturnTripPrice = price;
+            
+            const timeText = element.querySelector('.fs-5').innerText.trim();
+            const routeText = element.querySelector('.small').innerText.trim();
+            
+            document.getElementById('summaryReturnRoute').innerText = routeText;
+            document.getElementById('summaryReturnTime').innerText = timeText;
+            
+            loadSeatMap(tripId, 'return');
+        }
+    }
+
+    async function loadSeatMap(tripId, direction = 'outbound') {
+        document.getElementById('seatPanel').style.display = 'block';
+        const tripType = document.getElementById('tripType').value;
+        
+        if (tripType === 'round_trip') {
+            document.getElementById('seatTabsContainer').style.display = 'block';
+        } else {
+            document.getElementById('seatTabsContainer').style.display = 'none';
+        }
+        
+        if (direction === 'outbound') {
+            selectedSeats.clear();
+            updateCheckoutSeats('outbound');
+            
+            try {
+                const response = await fetch(`/api/trip/${tripId}/seats`);
+                const data = await response.json();
+                renderBusLayout(data.capacity, data.booked_seats, 'outbound');
+                
+                if (seatPollingInterval) clearInterval(seatPollingInterval);
+                seatPollingInterval = setInterval(() => pollSeatStatus(tripId, 'outbound'), 3000);
+            } catch(e) {
+                console.error("Seat fetch failed", e);
+            }
+        } else {
+            selectedReturnSeats.clear();
+            updateCheckoutSeats('return');
+            
+            try {
+                const response = await fetch(`/api/trip/${tripId}/seats`);
+                const data = await response.json();
+                renderBusLayout(data.capacity, data.booked_seats, 'return');
+                
+                if (returnSeatPollingInterval) clearInterval(returnSeatPollingInterval);
+                returnSeatPollingInterval = setInterval(() => pollSeatStatus(tripId, 'return'), 3000);
+            } catch(e) {
+                console.error("Return seat fetch failed", e);
+            }
+        }
+    }
+    
+    function pollSeatStatus(tripId, direction = 'outbound') {
+        fetch(`/api/trip/${tripId}/seats`)
+            .then(response => response.json())
+            .then(data => {
+                const occupiedSeats = new Set(data.booked_seats);
+                const selector = direction === 'outbound' ? '#dynamicBusLayout .seat-btn' : '#dynamicReturnBusLayout .seat-btn';
+                const currentSelected = direction === 'outbound' ? selectedSeats : selectedReturnSeats;
+                
+                document.querySelectorAll(selector).forEach(btn => {
+                    const seat = btn.dataset.seat;
+                    if (occupiedSeats.has(seat)) {
+                        btn.classList.remove('available', 'selected');
+                        btn.classList.add('occupied');
+                        btn.disabled = true;
+                        if (currentSelected.has(seat)) {
+                            currentSelected.delete(seat);
+                            updateCheckoutSeats(direction);
+                            const toastDiv = document.createElement('div');
+                            toastDiv.className = 'alert alert-danger position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg';
+                            toastDiv.style.zIndex = '9999';
+                            toastDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i> Le siège <b>${seat}</b> de (${direction === 'outbound' ? 'l\'aller' : 'du retour'}) vient d'être réservé par un autre utilisateur.`;
+                            document.body.appendChild(toastDiv);
+                            setTimeout(() => toastDiv.remove(), 5000);
+                        }
+                    } else {
+                        if (btn.classList.contains('occupied')) {
+                            btn.classList.remove('occupied');
+                            btn.classList.add('available');
+                            btn.disabled = false;
+                        }
+                    }
+                });
+            })
+            .catch(err => console.error("Polling error", err));
+    }
+    
+    function renderBusLayout(capacity, bookedSeats, direction = 'outbound') {
+        const layoutId = direction === 'outbound' ? 'dynamicBusLayout' : 'dynamicReturnBusLayout';
+        const layout = document.getElementById(layoutId);
+        layout.innerHTML = `
+            <div class="driver-section">
+                <div class="steering-wheel"></div>
+            </div>
+        `;
+        
+        const rows = Math.ceil(capacity / 4);
+        
+        for (let r = 1; r <= rows; r++) {
+            let rowHtml = `<div class="seat-row"><div class="seat-pair">`;
+            
+            ['A', 'B'].forEach(col => {
+                let s = r + col;
+                let isOccupied = bookedSeats.includes(s) ? 'occupied' : 'available';
+                rowHtml += `<button type="button" class="seat-btn ${isOccupied}" data-seat="${s}" data-direction="${direction}" ${isOccupied === 'occupied' ? 'disabled' : ''} onclick="toggleSeat('${s}', '${direction}')">${s}</button>`;
+            });
+            
+            rowHtml += `</div><div class="bus-aisle">Allée</div><div class="seat-pair">`;
+            
+            ['C', 'D'].forEach(col => {
+                let s = r + col;
+                let isOccupied = bookedSeats.includes(s) ? 'occupied' : 'available';
+                rowHtml += `<button type="button" class="seat-btn ${isOccupied}" data-seat="${s}" data-direction="${direction}" ${isOccupied === 'occupied' ? 'disabled' : ''} onclick="toggleSeat('${s}', '${direction}')">${s}</button>`;
+            });
+            
+            rowHtml += `</div></div>`;
+            layout.innerHTML += rowHtml;
+        }
+    }
+    
+    function toggleSeat(seat, direction = 'outbound') {
+        const selector = direction === 'outbound' 
+            ? `#dynamicBusLayout .seat-btn[data-seat="${seat}"]`
+            : `#dynamicReturnBusLayout .seat-btn[data-seat="${seat}"]`;
+        const btn = document.querySelector(selector);
+        if (!btn || btn.classList.contains('occupied')) return;
+        
+        const currentSelected = direction === 'outbound' ? selectedSeats : selectedReturnSeats;
+        
+        if (currentSelected.has(seat)) {
+            currentSelected.delete(seat);
+            btn.classList.remove('selected');
+        } else {
+            currentSelected.add(seat);
+            btn.classList.add('selected');
+        }
+        
+        updateCheckoutSeats(direction);
+    }
+    
+    function updateCheckoutSeats(direction = 'outbound') {
+        if (direction === 'outbound') {
+            const input = document.getElementById('checkoutSeatNumber');
+            const summary = document.getElementById('summarySeat');
+            
+            if (selectedSeats.size === 0) {
+                input.value = 'AUTO';
+                summary.innerText = '--';
+            } else {
+                const seatList = Array.from(selectedSeats).join(', ');
+                input.value = seatList;
+                summary.innerText = seatList;
+            }
+        } else {
+            const input = document.getElementById('checkoutReturnSeatNumber');
+            const summary = document.getElementById('summaryReturnSeat');
+            
+            if (selectedReturnSeats.size === 0) {
+                input.value = 'AUTO';
+                summary.innerText = '--';
+            } else {
+                const seatList = Array.from(selectedReturnSeats).join(', ');
+                input.value = seatList;
+                summary.innerText = seatList;
+            }
+        }
+        
+        calculateTotalAmount();
+        
+        const tripSelected = selectedTripId !== '';
+        const tripType = document.getElementById('tripType').value;
+        const returnTripSelected = tripType !== 'round_trip' || selectedReturnTripId !== '';
+        
+        const btnVal = document.getElementById('btnValidate');
+        const btnSave = document.getElementById('btnSaveReservation');
+        if (btnVal) btnVal.disabled = !(tripSelected && returnTripSelected);
+        if (btnSave) btnSave.disabled = !(tripSelected && returnTripSelected);
+    }
+    
+    function resetCheckout() {
+        if (seatPollingInterval) {
+            clearInterval(seatPollingInterval);
+            seatPollingInterval = null;
+        }
+        if (returnSeatPollingInterval) {
+            clearInterval(returnSeatPollingInterval);
+            returnSeatPollingInterval = null;
+        }
+        selectedTripId = '';
+        selectedReturnTripId = '';
+        currentTripPrice = 0;
+        currentReturnTripPrice = 0;
+        selectedSeats.clear();
+        selectedReturnSeats.clear();
+        
+        document.getElementById('checkoutTripId').value = '';
+        document.getElementById('checkoutReturnTripId').value = '';
+        document.getElementById('checkoutSeatNumber').value = '';
+        document.getElementById('checkoutReturnSeatNumber').value = '';
+        
+        document.getElementById('summaryRoute').innerText = '--';
+        document.getElementById('summaryTime').innerText = '--';
+        document.getElementById('summarySeat').innerText = '--';
+        
+        document.getElementById('summaryReturnRoute').innerText = '--';
+        document.getElementById('summaryReturnTime').innerText = '--';
+        document.getElementById('summaryReturnSeat').innerText = '--';
+        
+        document.getElementById('summaryTotal').innerHTML = `0 <small class="fs-6">FCFA</small>`;
+        
+        const btnVal = document.getElementById('btnValidate');
+        const btnSave = document.getElementById('btnSaveReservation');
+        if (btnVal) btnVal.disabled = true;
+        if (btnSave) btnSave.disabled = true;
+    }
+
+    function renderTrips(trips, direction = 'outbound') {
+        const containerId = direction === 'outbound' ? 'tripsResults' : 'returnTripsResults';
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        
+        if(trips.length === 0) {
+            container.innerHTML = '<div class="alert alert-warning text-center rounded-3 border-0 fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Aucun voyage trouvé pour cette date.</div>';
+            return;
+        }
+        
+        trips.forEach(trip => {
+            const seatsLeft = trip.available_seats;
+            const isFull = seatsLeft <= 0;
+            
+            const card = document.createElement('div');
+            card.className = `trip-result-card ${isFull ? 'opacity-50' : ''}`;
+            if(!isFull) {
+                card.onclick = () => selectTrip(trip.id, trip.price, card, direction);
+            }
+            
+            card.innerHTML = `
+                <div class="d-flex flex-column">
+                    <span class="fs-5 fw-bold text-dark"><i class="bi bi-clock text-primary me-2"></i>${trip.time}</span>
+                    <span class="small text-muted fw-semibold mt-1"><i class="bi bi-geo-alt me-1"></i>${trip.origin} → ${trip.destination}</span>
+                </div>
+                <div class="d-flex flex-column align-items-end text-end">
+                    <span class="fs-4 fw-bold text-success">${trip.price} <small class="fs-6 text-muted">FCFA</small></span>
+                    ${isFull 
+                        ? '<span class="badge bg-danger mt-1">Complet</span>'
+                        : `<span class="badge bg-success-subtle text-success mt-1 border border-success border-opacity-25"><i class="bi bi-person-fill me-1"></i>${seatsLeft} places</span>`
+                    }
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill mt-2 fw-bold" ${isFull ? 'disabled' : ''}>
+                        ${isFull ? 'Indisponible' : 'Sélectionner'}
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+</script>
+{% endblock %}

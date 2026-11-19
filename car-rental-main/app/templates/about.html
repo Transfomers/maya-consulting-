@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+{% block title %}{{ _t('À Propos de Nous') }} - 3M SERVICES | Flotte VIP & Location Automobile{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Premium Header */
+    .about-hero {
+        background: linear-gradient(135deg, #0B0F19 0%, #1e1014 50%, var(--primary-light) 100%);
+        color: #fff;
+        padding: 5.5rem 0 4.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .about-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 80% 20%, rgba(201, 42, 42, 0.2) 0%, transparent 60%);
+        opacity: 0.8;
+    }
+
+    /* Common Card Styling */
+    .perf-card, .feature-card, .value-card {
+        background: var(--glass-bg-light);
+        border: 1.5px solid var(--input-border-light);
+        border-radius: 1.5rem;
+        padding: 2.25rem 1.75rem;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+        height: 100%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    }
+    .perf-card:hover, .feature-card:hover, .value-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 35px rgba(201, 42, 42, 0.08);
+    }
+
+    /* Stats Card Specific */
+    .stat-number {
+        font-size: 2.8rem;
+        font-weight: 850;
+        color: var(--primary-light);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Section Badge */
+    .section-badge {
+        display: inline-block;
+        background: rgba(201, 42, 42, 0.06);
+        color: var(--primary-light);
+        border: 1.5px solid rgba(201, 42, 42, 0.15);
+        border-radius: 2rem;
+        padding: 0.4rem 1.2rem;
+        font-size: 0.8rem;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Icon Circle */
+    .circle-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, var(--primary-light), #8c2040);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #fff !important;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 6px 15px rgba(201, 42, 42, 0.15);
+    }
+    .circle-icon i {
+        color: #fff !important;
+    }
+
+    /* Quote Banner */
+    .quote-banner {
+        background: linear-gradient(135deg, rgba(201, 42, 42, 0.04) 0%, rgba(224, 171, 65, 0.06) 100%);
+        border-left: 5px solid var(--primary-light);
+        border-radius: 0.5rem 1.5rem 1.5rem 0.5rem;
+        padding: 2rem;
+        margin: 2.5rem 0;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, #0B0F19 0%, #1a0a0f 60%, var(--primary-dark) 100%);
+        border-radius: 2.5rem;
+        padding: 4.5rem 2rem;
+        color: #fff;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 80% 20%, rgba(224, 171, 65, 0.15) 0%, transparent 50%);
+    }
+
+    /* Dark Mode Overrides */
+    body.dark-mode .perf-card,
+    body.dark-mode .feature-card,
+    body.dark-mode .value-card {
+        background: var(--glass-bg-dark);
+        border-color: var(--input-border-dark);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    body.dark-mode .perf-card:hover,
+    body.dark-mode .feature-card:hover,
+    body.dark-mode .value-card:hover {
+        box-shadow: 0 20px 35px rgba(224, 171, 65, 0.08);
+    }
+    body.dark-mode .section-badge {
+        background: rgba(224, 171, 65, 0.08);
+        color: var(--accent-dark);
+        border-color: rgba(224, 171, 65, 0.2);
+    }
+    body.dark-mode .stat-number {
+        color: var(--accent-dark);
+    }
+    body.dark-mode .quote-banner {
+        background: linear-gradient(135deg, rgba(224, 171, 65, 0.03) 0%, rgba(30, 41, 59, 0.5) 100%);
+        border-left-color: var(--accent-dark);
+    }
+    body.dark-mode .cta-section {
+        background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner (Notre Histoire) -->
+<section class="about-hero">
+    <div class="container position-relative">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="section-badge" style="background: rgba(255,255,255,0.15); color:#fff; border-color:rgba(255,255,255,0.35);">
+                    <i class="bi bi-shield-check me-1"></i> {{ _t('Excellence & Prestige') }}
+                </span>
+                <h1 class="display-4 fw-bold mb-4" style="color:#fff; line-height:1.2;">
+                    {{ _t('Votre Partenaire de Référence en Location de Véhicules VIP') }}
+                </h1>
+                <p class="lead mb-4" style="color:rgba(255,255,255,0.9); font-weight: 500;">
+                    3M SERVICES SARL est une société d'élite basée à Yaoundé, spécialisée dans la location de véhicules haut de gamme, la gestion intégrée de flotte d'entreprise et la conciergerie VIP au Cameroun.
+                </p>
+                <p class="mb-4" style="color:rgba(255,255,255,0.85); line-height: 1.6;">
+                    Nous mettons à votre disposition une flotte exclusive de SUV 4x4 tout-terrain (Toyota Land Cruiser LC300 & LC200 V8, Prado TXL, Hilux), de berlines de prestige (Mercedes-Benz Classe E, Toyota Camry) et de résidences meublées d'exception pour vos séjours, réceptions diplomatiques et déplacements stratégiques.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="http://localhost:3001/models" target="_blank" class="btn btn-primary rounded-pill px-4 py-2 text-white fw-bold" style="background: var(--primary-light) !important; border-color: var(--primary-light) !important;">
+                        <i class="bi bi-car-front-fill me-2"></i> Catalogue Flotte (Port 3001)
+                    </a>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-semibold">
+                        <i class="bi bi-telephone-outbound me-2"></i> Nous Contacter
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center">
+                <img src="{{ url_for('static', filename='img_hero_home.png') }}"
+                     alt="3M SERVICES - Flotte VIP de Prestige" class="img-fluid"
+                     style="border-radius: 2rem; box-shadow: 0 25px 60px rgba(0,0,0,0.6); max-height: 420px; object-fit: cover; width:100%; border: 2px solid rgba(255,255,255,0.15);"
+                     loading="lazy">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dynamic Platform Stats -->
+<section class="py-5" style="background: var(--bg-light); border-bottom: 1px solid var(--input-border-light);">
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <div class="col-6 col-md-3">
+                <div class="perf-card text-center">
+                    <div class="stat-number">7</div>
+                    <div class="text-muted fw-bold mt-1" style="font-size: 0.95rem;">Véhicules VIP d'Exception</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="perf-card text-center">
+                    <div class="stat-number">1 500+</div>
+                    <div class="text-muted fw-bold mt-1" style="font-size: 0.95rem;">Clients VIP Accompagnés</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="perf-card text-center">
+                    <div class="stat-number">5+</div>
+                    <div class="text-muted fw-bold mt-1" style="font-size: 0.95rem;">Années d'Excellence</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="perf-card text-center">
+                    <div class="stat-number">100%</div>
+                    <div class="text-muted fw-bold mt-1" style="font-size: 0.95rem;">Chauffeurs Pro Bilingues</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Nos Prestations Officielles -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-5 text-center justify-content-center">
+            <div class="col-md-8">
+                <span class="section-badge">Nos Prestations de Prestige</span>
+                <h2 class="fw-bold mb-3" style="color: var(--primary-light); font-size: 2.25rem;">
+                    Des Services Conçus pour les Plus Hautes Exigences
+                </h2>
+                <p class="text-muted fs-5">
+                    3M SERVICES combine confort haut de gamme, ponctualité rigoureuse et discrétion absolue pour tous vos besoins de mobilité.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="circle-icon"><i class="bi bi-car-front-fill"></i></div>
+                    <h5 class="fw-bold mb-3">🚗 Flotte VIP de Prestige</h5>
+                    <p class="text-muted mb-0">
+                        Véhicules neufs et rigoureusement entretenus : Land Cruiser LC300, LC200 V8, Prado TXL, Mercedes Classe E, Hilux 4x4, Toyota Camry et RAV4.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="circle-icon"><i class="bi bi-person-badge-fill"></i></div>
+                    <h5 class="fw-bold mb-3">👔 Chauffeurs VIP d'Élite</h5>
+                    <p class="text-muted mb-0">
+                        Chauffeurs professionnels bilingues (Français/Anglais), formés à la conduite défensive, à l'étiquette protocolaire et à la discrétion.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="circle-icon"><i class="bi bi-airplane-fill"></i></div>
+                    <h5 class="fw-bold mb-3">✈️ Navettes Aéroport VIP</h5>
+                    <p class="text-muted mb-0">
+                        Prise en charge personnalisée avec pancarte nominative dès l'atterrissage aux aéroports de Yaoundé-Nsimalen et Douala International.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="circle-icon"><i class="bi bi-building"></i></div>
+                    <h5 class="fw-bold mb-3">🏢 Résidences Meublées</h5>
+                    <p class="text-muted mb-0">
+                        Appartements de luxe meublés et équipés (Bastos, Omnisports, Santa Barbara) avec service de conciergerie, groupe électrogène et sécurité H24.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="circle-icon"><i class="bi bi-shield-shaded"></i></div>
+                    <h5 class="fw-bold mb-3">🛡️ Missions Diplomatiques & Cortèges</h5>
+                    <p class="text-muted mb-0">
+                        Coordination de délégations officielles, cortèges de mariages, visites ministérielles et missions de terrain à travers toutes les régions.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="circle-icon"><i class="bi bi-credit-card-2-front"></i></div>
+                    <h5 class="fw-bold mb-3">💳 Contrats Clairs & Flexibilité</h5>
+                    <p class="text-muted mb-0">
+                        Facturation proforma immédiate, contrats d'entreprise (LLD / LCD), paiement sécurisé Mobile Money, virement bancaire ou espèces en agence.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Notre Mission -->
+<section class="py-5" style="background: var(--bg-light); border-top: 1px solid var(--input-border-light); border-bottom: 1px solid var(--input-border-light);">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5 text-center">
+                <img src="{{ url_for('static', filename='1img_login_bg.png') }}"
+                     alt="3M SERVICES - Standing Automobile" class="img-fluid"
+                     style="border-radius: 2rem; box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-height: 350px; object-fit: cover; width:100%;"
+                     loading="lazy">
+            </div>
+            <div class="col-lg-7">
+                <span class="section-badge">Notre Engagement</span>
+                <h2 class="fw-bold mb-3" style="color: var(--primary-light); font-size: 2.25rem;">
+                    Sécurité, Confort et Ponctualité Irréprochables
+                </h2>
+                <p class="lead text-muted mb-4">
+                    Notre mission est de redéfinir les standards de la location automobile et de l'hébergement haut de gamme au Cameroun.
+                </p>
+                <p class="text-muted mb-4">
+                    Chaque client bénéficie d'une prise en charge personnalisée. Que vous ayez besoin d'un Toyota Land Cruiser pour une mission technique en province, d'une Mercedes Classe E pour un événement d'affaires ou d'une berline avec chauffeur pour vos réceptions, nous vous garantissons le plus haut niveau de service.
+                </p>
+                <div class="quote-banner">
+                    <p class="mb-0 fw-bold fs-5 text-dark" style="font-style: italic;">
+                        « L'élégance de la mobilité, la rigueur du service protocolaire. »
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5">
+    <div class="container">
+        <div class="cta-section">
+            <h2 class="display-6 fw-bold mb-3">Prêt à Réserver Votre Véhicule VIP ?</h2>
+            <p class="fs-5 mb-4 text-white-50" style="max-width: 650px; margin: 0 auto 2.5rem;">
+                Explorez notre catalogue de véhicules de prestige ou contactez notre conciergerie disponible 24/7 pour un devis sur-mesure.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="http://localhost:3001/models" target="_blank" class="btn btn-lg btn-light rounded-pill px-5 fw-bold shadow">
+                    <i class="bi bi-car-front-fill me-2 text-danger"></i> Découvrir la Flotte VIP
+                </a>
+                <a href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20un%20v%C3%A9hicule%20VIP" target="_blank" class="btn btn-lg btn-success rounded-pill px-5 fw-bold shadow">
+                    <i class="bi bi-whatsapp me-2"></i> WhatsApp Conciergerie (+237 691 78 64 47)
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

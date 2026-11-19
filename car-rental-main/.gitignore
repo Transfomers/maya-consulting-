@@ -18,6 +18,13 @@
 .env.test.local
 .env.production.local
 
+# Python venv & SQLite
+venv/
+instance/
+*.db
+__pycache__/
+*.pyc
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

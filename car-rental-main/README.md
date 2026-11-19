@@ -107,6 +107,18 @@ npm start
 # L'application s'ouvre sur http://localhost:3000 (ou port configuré)
 ```
 
+### 5. Démarrer la WebApp Intégrée Flask (Admin & Opérations 3M)
+Pour exécuter l'application web Python/Flask dédiée à la gestion des opérations de flotte, chauffeurs, réservations et caisse :
+```bash
+cd car-rental-main
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+PORT=5002 python3 run.py
+# La WebApp démarre sur http://127.0.0.1:5002
+# Identifiants Super Admin : admin@3mservice.shop / admin3m2026
+```
+
 ---
 
 ## 📦 Build & Déploiement en Production

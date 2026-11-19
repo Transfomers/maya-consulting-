@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Réservations VIP & Contrats — 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Bookings & Contracts Management</h2>
+            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Consultez et suivez l'ensemble des locations de véhicules, dates d'affectation et paiements des clients.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.export_bookings_pdf', filter=current_filter or 'all') }}" class="btn btn-sm btn-outline-danger rounded-2 px-3"><i class="bi bi-file-pdf me-1"></i> PDF</a>
+            <a href="{{ url_for('admin.export_bookings_csv', filter=current_filter or 'all') }}" class="btn btn-sm btn-outline-success rounded-2 px-3"><i class="bi bi-file-csv me-1"></i> CSV</a>
+        </div>
+    </div>
+
+    <div class="card bg-white border shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important; overflow: hidden; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
+        <!-- Filter Bar -->
+        <div class="d-flex flex-wrap gap-2 p-3 border-bottom align-items-center justify-content-between" style="background: #fafbfc; border-color: #eaecf0 !important;">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <div class="input-group input-group-sm" style="max-width: 250px;">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" id="bookingsSearch" class="form-control border-start-0 ps-0" placeholder="Chercher contrat, client...">
+                </div>
+                
+                <select id="bookingsFilterStatus" class="form-select form-select-sm" style="width: auto;">
+                    <option value="">Statut Contrat (Tous)</option>
+                    <option value="confirmé">Confirmé</option>
+                    <option value="en_attente">En attente / Temporaire</option>
+                    <option value="annulé">Annulé</option>
+                </select>
+                
+                <select id="bookingsFilterPaymentStatus" class="form-select form-select-sm" style="width: auto;">
+                    <option value="">Paiement (Tous)</option>
+                    <option value="payé">Payé</option>
+                    <option value="remboursé">Remboursé</option>
+                    <option value="en attente">En Attente</option>
+                </select>
+                
+                <div class="d-inline-flex p-1 bg-white rounded-2 border shadow-xs align-items-center">
+                    <button type="button" class="btn btn-sm rounded-2 px-3 fw-semibold border-0 {% if current_filter == 'all' or not current_filter %}btn-dark text-white{% else %}text-muted bg-transparent{% endif %}" onclick="applyBackendDateFilter('all')">All</button>
+                    <button type="button" class="btn btn-sm rounded-2 px-3 fw-semibold border-0 {% if current_filter == 'day' %}btn-dark text-white{% else %}text-muted bg-transparent{% endif %}" onclick="applyBackendDateFilter('day')">Day</button>
+                    <button type="button" class="btn btn-sm rounded-2 px-3 fw-semibold border-0 {% if current_filter == 'week' %}btn-dark text-white{% else %}text-muted bg-transparent{% endif %}" onclick="applyBackendDateFilter('week')">Week</button>
+                    <button type="button" class="btn btn-sm rounded-2 px-3 fw-semibold border-0 {% if current_filter == 'month' %}btn-dark text-white{% else %}text-muted bg-transparent{% endif %}" onclick="applyBackendDateFilter('month')">Month</button>
+                </div>
+                
+                <button class="btn btn-sm btn-outline-secondary rounded-2" onclick="resetBookingsFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Réf Contrat</th>
+                        <th>Client VIP</th>
+                        <th>Mission & Destination</th>
+                        <th>Période / Dates</th>
+                        <th>Formule</th>
+                        <th>Paiement</th>
+                        <th>Montant Total</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                    {% for booking in bookings %}
+                    <tr class="booking-row {% if booking.status == 'cancelled' %}table-danger-soft{% endif %}" 
+                        data-status="{{ 'confirmé' if booking.status == 'confirmed' else ('annulé' if booking.status == 'cancelled' else 'en_attente') }}" 
+                        data-payment-status="{{ 'payé' if booking.payment_status == 'paid' else ('remboursé' if booking.payment_status == 'refunded' else 'en attente') }}"
+                        data-date="{{ booking.booking_date.timestamp() if booking.booking_date else 0 }}">
+                        <td class="fw-bold text-primary">{{ booking.booking_code or '#' ~ booking.id }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ booking.passenger_name or booking.user.username }}</div>
+                            <div class="small text-muted"><i class="bi bi-telephone me-1"></i>{{ booking.user.phone or 'N/A' }}</div>
+                        </td>
+                        <td>
+                            {% if booking.trip and booking.trip.route %}
+                                <div class="fw-semibold">{{ booking.trip.route.origin }} &rarr; {{ booking.trip.route.destination }}</div>
+                                <div class="small text-muted">{{ booking.trip.route.agency.name }}</div>
+                            {% else %}
+                                <span class="text-muted">Inconnu</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if booking.trip %}
+                                <div class="fw-semibold">{{ booking.trip.departure_time.strftime('%d/%m/%Y %H:%M') }}</div>
+                                <div class="small text-muted">Véhicule: {{ booking.trip.bus.model }} ({{ booking.trip.bus.bus_number }})</div>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark fw-bold border">{{ booking.seat_number }}</span>
+                        </td>
+                        <td>
+                            <div>
+                                {% if booking.payment_method %}
+                                    {% if 'momo' in booking.payment_method.lower() or 'mobile money' in booking.payment_method.lower() %}
+                                        <span class="badge text-dark px-2 py-1 rounded fw-semibold" style="background-color: #ffd54f !important;"><i class="bi bi-phone-vibrate me-1"></i> MTN MoMo</span>
+                                    {% elif 'orange' in booking.payment_method.lower() or 'om' in booking.payment_method.lower() %}
+                                        <span class="badge text-white px-2 py-1 rounded fw-semibold" style="background-color: #ff6600 !important;"><i class="bi bi-phone me-1"></i> Orange Money</span>
+                                    {% else %}
+                                        <span class="text-muted small">Non spécifié</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted small">Non spécifié</span>
+                                {% endif %}
+                            </div>
+                            <div class="mt-1">
+                                {% if booking.payment_status == 'paid' %}
+                                    <span class="badge bg-success-soft text-success px-2 py-1 rounded-pill small" style="font-size: 0.75rem;"><i class="bi bi-cash-stack me-1"></i> Payé</span>
+                                {% elif booking.payment_status == 'refunded' %}
+                                    <span class="badge bg-danger-soft text-danger px-2 py-1 rounded-pill small" style="font-size: 0.75rem;"><i class="bi bi-arrow-counterclockwise me-1"></i> Remboursé</span>
+                                {% else %}
+                                    <span class="badge bg-warning-soft text-warning px-2 py-1 rounded-pill small" style="font-size: 0.75rem;"><i class="bi bi-clock me-1"></i> En Attente</span>
+                                {% endif %}
+                            </div>
+                            {% if booking.upi_reference %}
+                                <div class="small text-muted mt-1" style="font-size: 0.72rem;"><i class="bi bi-hash me-0.5"></i>Ref: {{ booking.upi_reference }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ booking.price_paid | int }} FCFA</div>
+                            {% if booking.refund_amount and booking.refund_amount > 0 %}
+                                <div class="small text-danger" style="font-size: 0.72rem; font-weight: 500;"><i class="bi bi-arrow-return-left me-0.5"></i>Ret: {{ booking.refund_amount | int }} FCFA</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if booking.status == 'confirmed' %}
+                                <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill"><i class="bi bi-check-circle me-1"></i> Confirmé</span>
+                            {% elif booking.status == 'cancelled' %}
+                                <span class="badge bg-danger-soft text-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle me-1"></i> Annulé</span>
+                            {% else %}
+                                <span class="badge bg-warning-soft text-warning px-3 py-2 rounded-pill"><i class="bi bi-lock me-1"></i> Temporaire</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a href="{{ url_for('admin.edit_booking', id=booking.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 me-1">
+                                <i class="bi bi-pencil me-1"></i> Modifier
+                            </a>
+                            {% if booking.status != 'cancelled' %}
+                                <a href="{{ url_for('admin.cancel_booking', id=booking.id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ? Le passager sera remboursé.');">
+                                    <i class="bi bi-x-circle me-1"></i> Annuler Billet
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-1 d-block mb-3"></i>
+                            Aucune réservation enregistrée sur le système.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('bookingsSearch');
+    const filterStatus = document.getElementById('bookingsFilterStatus');
+    const filterPaymentStatus = document.getElementById('bookingsFilterPaymentStatus');
+    const sortOrder = document.getElementById('bookingsSortOrder');
+    const tableBody = document.getElementById('bookingsTableBody');
+    
+    if(!tableBody) return;
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = filterStatus.value.toLowerCase();
+        const paymentStatusValue = filterPaymentStatus ? filterPaymentStatus.value.toLowerCase() : '';
+        const sortValue = sortOrder.value;
+        
+        let rows = Array.from(tableBody.querySelectorAll('tr.booking-row'));
+        
+        rows.forEach(row => {
+            const targetStatus = row.getAttribute('data-status');
+            const targetPaymentStatus = row.getAttribute('data-payment-status') || '';
+            const rowText = row.innerText.toLowerCase();
+            
+            const matchesSearch = rowText.includes(searchTerm);
+            const matchesStatus = (statusValue === "" || targetStatus === statusValue);
+            const matchesPaymentStatus = (paymentStatusValue === "" || targetPaymentStatus === paymentStatusValue);
+            
+            if (matchesSearch && matchesStatus && matchesPaymentStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        rows.sort((a, b) => {
+            const dateA = parseFloat(a.getAttribute('data-date'));
+            const dateB = parseFloat(b.getAttribute('data-date'));
+            return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyFilters);
+    if(filterStatus) filterStatus.addEventListener('change', applyFilters);
+    if(filterPaymentStatus) filterPaymentStatus.addEventListener('change', applyFilters);
+    if(sortOrder) sortOrder.addEventListener('change', applyFilters);
+    
+    window.applyBackendDateFilter = function(value) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('filter', value);
+        window.location.href = url.toString();
+    };
+
+    window.resetBookingsFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterStatus) filterStatus.value = '';
+        if(filterPaymentStatus) filterPaymentStatus.value = '';
+        if(sortOrder) sortOrder.value = 'newest';
+        // Clear backend filter by reloading bookings list
+        window.location.href = "{{ url_for('admin.bookings') }}";
+    };
+});
+</script>
+{% endblock %}

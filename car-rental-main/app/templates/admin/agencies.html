@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Agences - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h3 class="mb-1 fw-bold"><i class="bi bi-building text-primary me-2"></i> Agences de Transport</h3>
+                <p class="text-muted mb-0">Supervision globale des agences et transporteurs partenaires.</p>
+            </div>
+            <a href="{{ url_for('admin.add_agency') }}" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                <i class="bi bi-plus-circle me-2"></i> Enregistrer une Agence
+            </a>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="d-flex flex-wrap gap-2 mb-4 bg-light p-3 rounded-3 border align-items-center">
+            <div class="input-group" style="max-width: 250px;">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" id="agenciesSearch" class="form-control border-start-0 ps-0" placeholder="Chercher une agence, ville...">
+            </div>
+            
+            <select id="agenciesFilterStatus" class="form-select" style="width: auto;">
+                <option value="">Statut (Tous)</option>
+                <option value="actif">Actif</option>
+                <option value="suspendu">Suspendu</option>
+            </select>
+            
+            <select id="agenciesFilterDate" class="form-select" style="width: auto;">
+                <option value="newest">Du plus récent (ID)</option>
+                <option value="oldest">Du plus ancien (ID)</option>
+            </select>
+            
+            <button class="btn btn-outline-secondary" onclick="resetAgenciesFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom de l'Agence</th>
+                        <th>Ville Siège</th>
+                        <th>Adresse Complète</th>
+                        <th>Téléphone</th>
+                        <th>Adresse Email</th>
+                        <th>Nombre de Bus</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="agenciesTableBody">
+                    {% for agency in agencies %}
+                    <tr class="agency-row {% if agency.is_suspended %}table-warning-soft{% endif %}"
+                        data-status="{{ 'suspendu' if agency.is_suspended else 'actif' }}"
+                        data-id="{{ agency.id }}">
+                        <td class="fw-bold">#{{ agency.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded bg-primary-soft text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                                    {{ agency.name[0]|upper }}
+                                </div>
+                                <div>
+                                    <span class="fw-bold fs-6">{{ agency.name }}</span>
+                                    {% if agency.is_suspended %}
+                                        <span class="badge bg-danger ms-2 px-2 py-1 rounded-pill" style="font-size: 0.65rem;"><i class="bi bi-lock-fill me-1"></i>SUSPENDUE</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-light text-dark fw-bold px-3 py-2 border">{{ agency.city }}</span></td>
+                        <td>{{ agency.address or 'Non renseignée' }}</td>
+                        <td class="fw-semibold">{{ agency.phone or 'N/A' }}</td>
+                        <td>{{ agency.email or 'N/A' }}</td>
+                        <td>
+                            <span class="badge bg-info-soft text-info px-3 py-2 rounded-pill fw-bold">
+                                {{ agency.buses.filter_by(is_deleted=False).count() }} bus
+                            </span>
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a href="{{ url_for('admin.edit_agency', id=agency.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 me-1">
+                                <i class="bi bi-pencil me-1"></i> Modifier
+                            </a>
+                            <a href="{{ url_for('admin.toggle_agency_status', id=agency.id) }}" class="btn btn-sm btn-outline-{{ 'success' if agency.is_suspended else 'warning' }} rounded-pill px-3 py-1 me-1">
+                                <i class="bi bi-{{ 'unlock' if agency.is_suspended else 'lock' }} me-1"></i> {{ 'Activer' if agency.is_suspended else 'Suspendre' }}
+                            </a>
+                            <a href="{{ url_for('admin.delete_agency', id=agency.id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette agence ? Les dépendances seront vérifiées.');">
+                                <i class="bi bi-trash me-1"></i> Supprimer
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-building-x fs-1 d-block mb-3"></i>
+                            Aucune agence de transport enregistrée sur la plateforme.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('agenciesSearch');
+    const filterStatus = document.getElementById('agenciesFilterStatus');
+    const filterDate = document.getElementById('agenciesFilterDate');
+    const tableBody = document.getElementById('agenciesTableBody');
+    
+    if(!tableBody) return;
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = filterStatus.value.toLowerCase();
+        const sortValue = filterDate.value;
+        
+        let rows = Array.from(tableBody.querySelectorAll('tr.agency-row'));
+        
+        rows.forEach(row => {
+            const targetStatus = row.getAttribute('data-status');
+            const rowText = row.innerText.toLowerCase();
+            
+            const matchesSearch = rowText.includes(searchTerm);
+            const matchesStatus = (statusValue === "" || targetStatus === statusValue);
+            
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        rows.sort((a, b) => {
+            const idA = parseInt(a.getAttribute('data-id'));
+            const idB = parseInt(b.getAttribute('data-id'));
+            return sortValue === 'newest' ? idB - idA : idA - idB;
+        });
+        
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyFilters);
+    if(filterStatus) filterStatus.addEventListener('change', applyFilters);
+    if(filterDate) filterDate.addEventListener('change', applyFilters);
+    
+    window.resetAgenciesFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterStatus) filterStatus.value = '';
+        if(filterDate) filterDate.value = 'newest';
+        applyFilters();
+    };
+});
+</script>
+{% endblock %}

@@ -1,0 +1,754 @@
+{% extends "base.html" %}
+
+{% block title %}Réservation Véhicule VIP - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+body {
+    background: #f4f5f7;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.car-booking-card {
+    background: #ffffff;
+    border: 1px solid #eaecf0;
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Automotive Luxury Cabin Container ── */
+.car-cabin-frame {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid #475569;
+    border-radius: 44px 44px 34px 34px;
+    padding: 2.2rem 1.6rem;
+    max-width: 440px;
+    margin: 0 auto;
+    position: relative;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Car Windshield & Bonnet Contour */
+.car-cabin-hood {
+    text-align: center;
+    padding-bottom: 1.2rem;
+    margin-bottom: 1.2rem;
+    border-bottom: 2px dashed rgba(255, 255, 255, 0.15);
+    position: relative;
+}
+.car-windshield-glass {
+    height: 20px;
+    border-radius: 24px 24px 8px 8px;
+    background: linear-gradient(180deg, rgba(56, 189, 248, 0.4) 0%, rgba(56, 189, 248, 0.08) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    margin-bottom: 8px;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+.car-front-label {
+    color: #94a3b8;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+/* Seating Rows */
+.car-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1.1rem;
+}
+
+/* Chauffeur Station (Left Front) */
+.chauffeur-station {
+    flex: 1;
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1.5px solid #d97706;
+    border-radius: 14px;
+    padding: 0.85rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.2);
+    user-select: none;
+}
+.chauffeur-wheel-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid #f59e0b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+    font-size: 1.2rem;
+    background: rgba(245, 158, 11, 0.15);
+}
+.chauffeur-title {
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: #f59e0b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.chauffeur-sub {
+    font-size: 0.65rem;
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+/* Luxury Passenger Armchair Button */
+.seat-armchair-btn {
+    flex: 1;
+    background: #10b981;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 14px;
+    padding: 0.85rem 0.45rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    user-select: none;
+}
+.seat-armchair-btn i {
+    font-size: 1.4rem;
+    transition: transform 0.2s ease;
+}
+.seat-armchair-btn:hover:not(:disabled) {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(16, 185, 129, 0.4);
+}
+.seat-armchair-btn.occupied {
+    background: #334155 !important;
+    color: #64748b !important;
+    border-color: #1e293b !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+.seat-armchair-btn.selected {
+    background: linear-gradient(135deg, #C92A2A 0%, #A61E1E 100%) !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 8px 22px rgba(201, 42, 42, 0.55) !important;
+    transform: translateY(-2px) scale(1.02);
+}
+.seat-label-code {
+    font-size: 0.88rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+.seat-label-desc {
+    font-size: 0.62rem;
+    opacity: 0.95;
+    text-align: center;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+/* Row Separators */
+.row-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.6rem 0;
+}
+.row-divider span {
+    font-size: 0.65rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+/* Trunk / Coffre */
+.car-trunk {
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 2px dashed rgba(255, 255, 255, 0.15);
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.72rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Legend dots */
+.legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.4rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb / Back Link -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <a href="{{ url_for('main.search') }}" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 text-muted d-inline-flex align-items-center gap-1.5 shadow-2xs">
+            <i class="bi bi-arrow-left"></i>
+            <span>Retour à la recherche</span>
+        </a>
+        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-1.5 rounded-pill fw-semibold">
+            <i class="bi bi-car-front-fill me-1"></i> Formule Location VIP avec Chauffeur
+        </span>
+    </div>
+
+    {% set v_model = (trip.bus.model if trip.bus else '') | lower %}
+    {% set v_brand = (trip.bus.brand if trip.bus else '') | lower %}
+    {% set v_capacity = trip.bus.capacity if trip.bus else 7 %}
+    {% if 'prado' in v_model %}
+        {% set car_img = url_for('static', filename='images/cars/toyota-prado-txl-front.webp') %}
+    {% elif 'lc300' in v_model %}
+        {% set car_img = url_for('static', filename='images/cars/toyota-lc300.webp') %}
+    {% elif 'lc200' in v_model or 'v8' in v_model or 'prestige' in v_model %}
+        {% set car_img = url_for('static', filename='images/cars/toyota-landcruiser-v8-black.webp') %}
+    {% elif 'hilux' in v_model %}
+        {% set car_img = url_for('static', filename='images/cars/toyota-hilux-2024.webp') %}
+    {% elif 'camry' in v_model %}
+        {% set car_img = url_for('static', filename='images/cars/toyota-camry-front.webp') %}
+    {% elif 'classe e' in v_model or 'mercedes' in v_brand %}
+        {% set car_img = url_for('static', filename='images/cars/mercedes-classe-e-front.webp') %}
+    {% elif 'rav4' in v_model %}
+        {% set car_img = url_for('static', filename='images/cars/toyota-rav4-front.webp') %}
+    {% else %}
+        {% set car_img = url_for('static', filename='images/cars/toyota-prado-txl-front.webp') %}
+    {% endif %}
+
+    <!-- Top Vehicle Showcase Banner -->
+    <div class="car-booking-card p-3 p-md-4 mb-4">
+        <div class="row align-items-center g-4">
+            <div class="col-md-5 text-center">
+                <div class="position-relative p-2 rounded-4 bg-light bg-opacity-50 border">
+                    <img src="{{ car_img }}" alt="{{ trip.bus.brand }} {{ trip.bus.model }}" class="img-fluid rounded-3" style="max-height: 200px; object-fit: contain;">
+                    <span class="position-absolute top-0 start-0 m-2.5 badge bg-dark rounded-pill px-2.5 py-1">
+                        <i class="bi bi-shield-check text-warning me-1"></i> Immatriculation : {{ trip.bus.bus_number if trip.bus else 'CE-452-X' }}
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <span class="badge bg-danger rounded-pill px-3 py-1 fw-bold text-uppercase" style="letter-spacing: 0.5px;">Flotte VIP 3M SERVICES</span>
+                    <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 fw-semibold">{{ v_capacity }} Places Assises</span>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1 fw-semibold">
+                        <i class="bi bi-check-circle-fill me-1"></i> Disponible Immédiatement
+                    </span>
+                </div>
+                <h3 class="fw-bold text-dark mb-1">{{ trip.bus.brand if trip.bus else 'Toyota' }} {{ trip.bus.model if trip.bus else 'Land Cruiser Prado TXL VIP' }}</h3>
+                <p class="text-muted small mb-3">Véhicule de prestige avec chauffeur d'élite dédié, climatisation intégrale bi-zone, sellerie cuir de première qualité et pack de sécurité active 3M.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-light text-muted border rounded-3 p-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-person-fill text-warning"></i> Chauffeur 3M Inclus</span>
+                    <span class="badge bg-light text-muted border rounded-3 p-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-snow text-info"></i> Climatisation Bi-Zone</span>
+                    <span class="badge bg-light text-muted border rounded-3 p-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-wifi text-success"></i> Wi-Fi Embarqué VIP</span>
+                    <span class="badge bg-light text-muted border rounded-3 p-2 d-inline-flex align-items-center gap-1.5"><i class="bi bi-cup-hot text-danger"></i> Rafraîchissements Offerts</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Booking Section: Left = Cabin Plan, Right = Form & Summary -->
+    <div class="row g-4">
+        <!-- Visual Car Cabin Column -->
+        <div class="col-lg-6">
+            <div class="car-booking-card p-4 h-100 d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-car-front-fill text-danger me-2"></i>Habitacle & Plan des Sièges VIP
+                    </h5>
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill fw-semibold px-3" id="btnSelectEntireCar" onclick="toggleEntireCar()">
+                        <i class="bi bi-stars me-1"></i> Tout le Véhicule
+                    </button>
+                </div>
+
+                <!-- Legend -->
+                <div class="d-flex justify-content-center gap-3 gap-md-4 mb-4 flex-wrap text-muted small fw-semibold">
+                    <div><span class="legend-dot" style="background-color: #22c55e;"></span>Disponible</div>
+                    <div><span class="legend-dot" style="background-color: #475569;"></span>Occupé</div>
+                    <div><span class="legend-dot" style="background-color: #C92A2A;"></span>Sélectionné</div>
+                    <div><span class="legend-dot" style="background-color: #f59e0b;"></span>Chauffeur 3M</div>
+                </div>
+
+                {% if return_trip %}
+                <!-- Tabs header -->
+                <ul class="nav nav-pills nav-fill mb-3 p-1 bg-light rounded-pill border" id="seatTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-pill fw-bold text-uppercase py-2" id="aller-tab" data-bs-toggle="tab" data-bs-target="#aller-pane" type="button" role="tab">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Aller ({{ trip.departure_time.strftime('%d/%m') }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill fw-bold text-uppercase py-2" id="retour-tab" data-bs-toggle="tab" data-bs-target="#retour-pane" type="button" role="tab">
+                            <i class="bi bi-arrow-left-circle me-1"></i> Retour ({{ return_trip.departure_time.strftime('%d/%m') }})
+                        </button>
+                    </li>
+                </ul>
+                {% endif %}
+
+                <div class="tab-content flex-grow-1" id="seatTabsContent">
+                    <!-- Aller Pane -->
+                    <div class="tab-pane fade show active" id="aller-pane" role="tabpanel">
+                        <!-- Automotive Luxury Cabin Frame (Aller) -->
+                        <div class="car-cabin-frame">
+                            <!-- Bonnet & Windshield -->
+                            <div class="car-cabin-hood">
+                                <div class="car-windshield-glass"></div>
+                                <div class="car-front-label"><i class="bi bi-speedometer2 me-1"></i> Cockpit & Pare-Brise Avant</div>
+                            </div>
+
+                            <!-- ROW 1: Cockpit (Chauffeur Left, Passager Avant P1 Right) -->
+                            <div class="car-row">
+                                <!-- Chauffeur Station (Left Front) -->
+                                <div class="chauffeur-station" title="Poste de pilotage dédié au chauffeur professionnel 3M inclus">
+                                    <div class="chauffeur-wheel-icon">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <div class="chauffeur-title">Chauffeur 3M</div>
+                                    <div class="chauffeur-sub">Dédié Inclus</div>
+                                </div>
+
+                                <!-- Front VIP Passenger Seat (Right Front - P1) -->
+                                {% set p1_booked = ('P1' in booked_seats) or ('1A' in booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-aller {% if p1_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P1" data-label="Passager Avant VIP" {% if p1_booked %}disabled{% endif %}>
+                                    <i class="bi bi-shield-shaded"></i>
+                                    <span class="seat-label-code">P1</span>
+                                    <span class="seat-label-desc">Passager Avant</span>
+                                </button>
+                            </div>
+
+                            <div class="row-divider">
+                                <span>── Salon VIP Arrière ──</span>
+                            </div>
+
+                            <!-- ROW 2: Salon VIP (P2 Left, P3 Center, P4 Right) -->
+                            <div class="car-row">
+                                <!-- P2 Left -->
+                                {% set p2_booked = ('P2' in booked_seats) or ('1B' in booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-aller {% if p2_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P2" data-label="Salon Arrière Gauche" {% if p2_booked %}disabled{% endif %}>
+                                    <i class="bi bi-star-fill text-warning" style="font-size: 1.1rem;"></i>
+                                    <span class="seat-label-code">P2</span>
+                                    <span class="seat-label-desc">Arrière Gauche</span>
+                                </button>
+
+                                <!-- P3 Center -->
+                                {% set p3_booked = ('P3' in booked_seats) or ('1C' in booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-aller {% if p3_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P3" data-label="Salon Arrière Centre" {% if p3_booked %}disabled{% endif %}>
+                                    <i class="bi bi-shield"></i>
+                                    <span class="seat-label-code">P3</span>
+                                    <span class="seat-label-desc">Arrière Centre</span>
+                                </button>
+
+                                <!-- P4 Right -->
+                                {% set p4_booked = ('P4' in booked_seats) or ('1D' in booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-aller {% if p4_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P4" data-label="Salon Arrière Droite" {% if p4_booked %}disabled{% endif %}>
+                                    <i class="bi bi-star-fill text-warning" style="font-size: 1.1rem;"></i>
+                                    <span class="seat-label-code">P4</span>
+                                    <span class="seat-label-desc">Arrière Droite</span>
+                                </button>
+                            </div>
+
+                            <!-- ROW 3: Troisième Rangée (if capacity >= 7, e.g. Prado TXL, LC300, LC200) -->
+                            {% if v_capacity >= 7 %}
+                            <div class="row-divider">
+                                <span>── 3e Rangée VIP ──</span>
+                            </div>
+                            <div class="car-row">
+                                <!-- P5 Left -->
+                                {% set p5_booked = ('P5' in booked_seats) or ('2A' in booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-aller {% if p5_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P5" data-label="3e Rangée Gauche" {% if p5_booked %}disabled{% endif %}>
+                                    <i class="bi bi-shield-check"></i>
+                                    <span class="seat-label-code">P5</span>
+                                    <span class="seat-label-desc">3e Rangée G</span>
+                                </button>
+
+                                <!-- P6 Right -->
+                                {% set p6_booked = ('P6' in booked_seats) or ('2B' in booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-aller {% if p6_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P6" data-label="3e Rangée Droite" {% if p6_booked %}disabled{% endif %}>
+                                    <i class="bi bi-shield-check"></i>
+                                    <span class="seat-label-code">P6</span>
+                                    <span class="seat-label-desc">3e Rangée D</span>
+                                </button>
+                            </div>
+                            {% endif %}
+
+                            <!-- Trunk Area -->
+                            <div class="car-trunk">
+                                <i class="bi bi-briefcase-fill text-muted fs-6"></i>
+                                <span>Coffre Spacieux VIP (Bagages & Valises)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if return_trip %}
+                    <!-- Retour Pane -->
+                    <div class="tab-pane fade" id="retour-pane" role="tabpanel">
+                        <!-- Automotive Luxury Cabin Frame (Retour) -->
+                        <div class="car-cabin-frame">
+                            <div class="car-cabin-hood">
+                                <div class="car-windshield-glass"></div>
+                                <div class="car-front-label"><i class="bi bi-speedometer2 me-1"></i> Cockpit & Pare-Brise Avant</div>
+                            </div>
+
+                            <div class="car-row">
+                                <div class="chauffeur-station">
+                                    <div class="chauffeur-wheel-icon"><i class="bi bi-person-fill"></i></div>
+                                    <div class="chauffeur-title">Chauffeur 3M</div>
+                                    <div class="chauffeur-sub">Dédié Inclus</div>
+                                </div>
+
+                                {% set p1_r_booked = ('P1' in return_booked_seats) or ('1A' in return_booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-retour {% if p1_r_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P1" data-label="Passager Avant VIP" {% if p1_r_booked %}disabled{% endif %}>
+                                    <i class="bi bi-shield-shaded"></i>
+                                    <span class="seat-label-code">P1</span>
+                                    <span class="seat-label-desc">Passager Avant</span>
+                                </button>
+                            </div>
+
+                            <div class="row-divider"><span>── Salon VIP Arrière ──</span></div>
+
+                            <div class="car-row">
+                                {% set p2_r_booked = ('P2' in return_booked_seats) or ('1B' in return_booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-retour {% if p2_r_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P2" data-label="Salon Arrière Gauche" {% if p2_r_booked %}disabled{% endif %}>
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                    <span class="seat-label-code">P2</span>
+                                    <span class="seat-label-desc">Arrière Gauche</span>
+                                </button>
+
+                                {% set p3_r_booked = ('P3' in return_booked_seats) or ('1C' in return_booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-retour {% if p3_r_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P3" data-label="Salon Arrière Centre" {% if p3_r_booked %}disabled{% endif %}>
+                                    <i class="bi bi-shield"></i>
+                                    <span class="seat-label-code">P3</span>
+                                    <span class="seat-label-desc">Arrière Centre</span>
+                                </button>
+
+                                {% set p4_r_booked = ('P4' in return_booked_seats) or ('1D' in return_booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-retour {% if p4_r_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P4" data-label="Salon Arrière Droite" {% if p4_r_booked %}disabled{% endif %}>
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                    <span class="seat-label-code">P4</span>
+                                    <span class="seat-label-desc">Arrière Droite</span>
+                                </button>
+                            </div>
+
+                            {% if v_capacity >= 7 %}
+                            <div class="row-divider"><span>── 3e Rangée VIP ──</span></div>
+                            <div class="car-row">
+                                {% set p5_r_booked = ('P5' in return_booked_seats) or ('2A' in return_booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-retour {% if p5_r_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P5" data-label="3e Rangée Gauche" {% if p5_r_booked %}disabled{% endif %}>
+                                    <i class="bi bi-shield-check"></i>
+                                    <span class="seat-label-code">P5</span>
+                                    <span class="seat-label-desc">3e Rangée G</span>
+                                </button>
+
+                                {% set p6_r_booked = ('P6' in return_booked_seats) or ('2B' in return_booked_seats) %}
+                                <button type="button" class="seat-armchair-btn seat-btn-retour {% if p6_r_booked %}occupied{% else %}available{% endif %}"
+                                        data-seat="P6" data-label="3e Rangée Droite" {% if p6_r_booked %}disabled{% endif %}>
+                                    <i class="bi bi-shield-check"></i>
+                                    <span class="seat-label-code">P6</span>
+                                    <span class="seat-label-desc">3e Rangée D</span>
+                                </button>
+                            </div>
+                            {% endif %}
+
+                            <div class="car-trunk">
+                                <i class="bi bi-briefcase-fill text-muted fs-6"></i>
+                                <span>Coffre Spacieux VIP</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Summary & Form Column -->
+        <div class="col-lg-6">
+            <div class="car-booking-card p-4 h-100 d-flex flex-column">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-receipt-cutoff text-danger me-2"></i>Contrat & Réservation VIP</h5>
+                
+                <!-- Mission summary -->
+                <div class="p-3 rounded-3 bg-light border mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-bold text-dark"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Trajet Aller</span>
+                        <span class="badge bg-danger text-white rounded-pill">{{ trip.price|int }} FCFA / jour</span>
+                    </div>
+                    <div class="fs-6 fw-bold text-dark mb-1">{{ trip.route.origin }} ➔ {{ trip.route.destination }}</div>
+                    <div class="text-muted small"><i class="bi bi-calendar-event me-1"></i> Prise en charge : {{ trip.departure_time.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+
+                {% if return_trip %}
+                <div class="p-3 rounded-3 bg-light border mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-bold text-dark"><i class="bi bi-arrow-return-left text-primary me-1"></i> Trajet Retour</span>
+                        <span class="badge bg-primary text-white rounded-pill">{{ return_trip.price|int }} FCFA / jour</span>
+                    </div>
+                    <div class="fs-6 fw-bold text-dark mb-1">{{ return_trip.route.origin }} ➔ {{ return_trip.route.destination }}</div>
+                    <div class="text-muted small"><i class="bi bi-calendar-event me-1"></i> Restitution : {{ return_trip.departure_time.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+                {% endif %}
+
+                <!-- Form -->
+                <form id="bookingForm" method="POST" action="{{ url_for('main.lock_seats', trip_id=trip.id) }}" class="mt-auto">
+                    {% if return_trip %}
+                    <input type="hidden" name="return_trip_id" value="{{ return_trip.id }}">
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="passenger_name" class="form-label fw-bold text-dark" style="font-size: 0.9rem;">
+                            Nom & Prénom du Client VIP / Titulaire
+                        </label>
+                        <input type="text" class="form-control" id="passenger_name" name="passenger_name"
+                               value="{{ current_user.real_name or current_user.username }}" placeholder="Ex: Jean DUPONT" required>
+                    </div>
+
+                    <!-- Selected Seats Display -->
+                    <div class="p-3 rounded-3 bg-white border mb-3">
+                        <div class="fw-bold text-dark small mb-1"><i class="bi bi-check2-circle text-success me-1"></i> Sièges / Prestation Aller :</div>
+                        <div id="selectedSeatsLabelAller" class="fs-6 fw-bold text-danger mb-2">Aucun siège sélectionné</div>
+
+                        {% if return_trip %}
+                        <div class="fw-bold text-dark small mb-1 border-top pt-2"><i class="bi bi-check2-circle text-primary me-1"></i> Sièges / Prestation Retour :</div>
+                        <div id="selectedSeatsLabelRetour" class="fs-6 fw-bold text-primary">Aucun siège sélectionné</div>
+                        {% endif %}
+
+                        <div class="text-muted" style="font-size: 0.75rem;">Cliquez sur les sièges de la cabine ou sur "Tout le Véhicule" pour une réservation exclusive.</div>
+                    </div>
+
+                    <!-- Price Card (Polished Luxury Breakdown) -->
+                    <div class="p-3.5 rounded-3 mb-4 bg-light border" style="border-color: #eaecf0 !important;">
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <span class="text-muted small">Tarif Journalier Véhicule VIP</span>
+                            <span class="fw-bold text-dark">{{ trip.price|int }} FCFA / jour</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <span class="text-muted small">Chauffeur Privé 3M Dédié</span>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5 small">Inclus d'office</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <span class="text-muted small">Assurance Tous Risques & Climatisation</span>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5 small">Incluse</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-1">
+                            <div>
+                                <span class="fw-bold text-dark fs-6">Montant Total à Régler</span>
+                                <div class="text-muted" style="font-size: 0.72rem;">Aucun frais caché - Toutes taxes comprises</div>
+                            </div>
+                            <span id="totalPrice" class="fs-2 fw-bold text-danger" style="font-family: monospace;">0 FCFA</span>
+                        </div>
+                    </div>
+
+                    <!-- Hidden inputs container -->
+                    <div id="hiddenSeatsContainer"></div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitBtn" class="btn btn-lg w-100 fw-bold py-3 text-white shadow-sm d-flex align-items-center justify-content-center gap-2"
+                            style="background: linear-gradient(135deg, #C92A2A 0%, #A61E1E 100%); border-radius: 12px; border: none;" disabled>
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <span>Confirmer la Réservation & Procéder au Paiement</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ticketPriceAller = {{ trip.price }};
+const ticketPriceRetour = {% if return_trip %}{{ return_trip.price }}{% else %}0{% endif %};
+const tripIdAller = {{ trip.id }};
+const tripIdRetour = {% if return_trip %}{{ return_trip.id }}{% else %}null{% endif %};
+
+const selectedSeatsAller = new Set();
+const selectedSeatsRetour = new Set();
+
+// Aller seat selections listener
+document.querySelectorAll('.seat-btn-aller.available').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const seat = this.dataset.seat;
+        if (selectedSeatsAller.has(seat)) {
+            selectedSeatsAller.delete(seat);
+            this.classList.remove('selected');
+        } else {
+            selectedSeatsAller.add(seat);
+            this.classList.add('selected');
+        }
+        updateBookingSummary();
+    });
+});
+
+// Retour seat selections listener
+if (tripIdRetour) {
+    document.querySelectorAll('.seat-btn-retour.available').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const seat = this.dataset.seat;
+            if (selectedSeatsRetour.has(seat)) {
+                selectedSeatsRetour.delete(seat);
+                this.classList.remove('selected');
+            } else {
+                selectedSeatsRetour.add(seat);
+                this.classList.add('selected');
+            }
+            updateBookingSummary();
+        });
+    });
+}
+
+// 1-Click "Tout le Véhicule"
+function toggleEntireCar() {
+    const allerButtons = Array.from(document.querySelectorAll('.seat-btn-aller.available'));
+    const allSelected = allerButtons.length > 0 && allerButtons.every(b => selectedSeatsAller.has(b.dataset.seat));
+    
+    if (allSelected) {
+        // Deselect all
+        allerButtons.forEach(btn => {
+            selectedSeatsAller.delete(btn.dataset.seat);
+            btn.classList.remove('selected');
+        });
+    } else {
+        // Select all available
+        allerButtons.forEach(btn => {
+            selectedSeatsAller.add(btn.dataset.seat);
+            btn.classList.add('selected');
+        });
+    }
+
+    if (tripIdRetour) {
+        const retourButtons = Array.from(document.querySelectorAll('.seat-btn-retour.available'));
+        if (allSelected) {
+            retourButtons.forEach(btn => {
+                selectedSeatsRetour.delete(btn.dataset.seat);
+                btn.classList.remove('selected');
+            });
+        } else {
+            retourButtons.forEach(btn => {
+                selectedSeatsRetour.add(btn.dataset.seat);
+                btn.classList.add('selected');
+            });
+        }
+    }
+
+    updateBookingSummary();
+}
+
+function updateBookingSummary() {
+    const arrayAller = Array.from(selectedSeatsAller);
+    const arrayRetour = Array.from(selectedSeatsRetour);
+    
+    const labelAller = document.getElementById('selectedSeatsLabelAller');
+    const labelRetour = document.getElementById('selectedSeatsLabelRetour');
+    const totalPrice = document.getElementById('totalPrice');
+    const hiddenSeatsContainer = document.getElementById('hiddenSeatsContainer');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Update label text
+    if (arrayAller.length === 0) {
+        labelAller.textContent = "Aucun siège sélectionné";
+        labelAller.className = "fs-6 fw-bold text-muted mb-2";
+    } else {
+        labelAller.textContent = arrayAller.join(', ') + ` (${arrayAller.length} place${arrayAller.length > 1 ? 's' : ''} VIP)`;
+        labelAller.className = "fs-6 fw-bold text-danger mb-2";
+    }
+
+    if (labelRetour) {
+        if (arrayRetour.length === 0) {
+            labelRetour.textContent = "Aucun siège sélectionné";
+            labelRetour.className = "fs-6 fw-bold text-muted";
+        } else {
+            labelRetour.textContent = arrayRetour.join(', ') + ` (${arrayRetour.length} place${arrayRetour.length > 1 ? 's' : ''} VIP)`;
+            labelRetour.className = "fs-6 fw-bold text-primary";
+        }
+    }
+
+    // Update total price
+    const total = (arrayAller.length * ticketPriceAller) + (arrayRetour.length * ticketPriceRetour);
+    totalPrice.textContent = total.toLocaleString() + " FCFA";
+
+    // Enable button if at least 1 seat selected in Aller, and if return trip exists, at least 1 in retour
+    const canSubmit = arrayAller.length > 0 && (!tripIdRetour || arrayRetour.length > 0);
+    submitBtn.disabled = !canSubmit;
+
+    // Generate hidden inputs
+    let hiddenHtml = '';
+    arrayAller.forEach(seat => {
+        hiddenHtml += `<input type="hidden" name="seat_numbers" value="${seat}">`;
+    });
+    arrayRetour.forEach(seat => {
+        hiddenHtml += `<input type="hidden" name="return_seat_numbers" value="${seat}">`;
+    });
+    hiddenSeatsContainer.innerHTML = hiddenHtml;
+}
+
+// Real-time polling function for seat availability
+function fetchSeatStatus() {
+    fetch(`/api/trip/${tripIdAller}/seats`)
+        .then(response => response.json())
+        .then(data => {
+            const occupiedSeats = new Set(data.booked_seats);
+            document.querySelectorAll('.seat-btn-aller').forEach(btn => {
+                const seat = btn.dataset.seat;
+                if (occupiedSeats.has(seat)) {
+                    btn.classList.remove('available', 'selected');
+                    btn.classList.add('occupied');
+                    btn.disabled = true;
+                    if (selectedSeatsAller.has(seat)) {
+                        selectedSeatsAller.delete(seat);
+                        updateBookingSummary();
+                    }
+                }
+            });
+        }).catch(err => console.error("Sync error outbound seats:", err));
+
+    if (tripIdRetour) {
+        fetch(`/api/trip/${tripIdRetour}/seats`)
+            .then(response => response.json())
+            .then(data => {
+                const occupiedSeats = new Set(data.booked_seats);
+                document.querySelectorAll('.seat-btn-retour').forEach(btn => {
+                    const seat = btn.dataset.seat;
+                    if (occupiedSeats.has(seat)) {
+                        btn.classList.remove('available', 'selected');
+                        btn.classList.add('occupied');
+                        btn.disabled = true;
+                        if (selectedSeatsRetour.has(seat)) {
+                            selectedSeatsRetour.delete(seat);
+                            updateBookingSummary();
+                        }
+                    }
+                });
+            }).catch(err => console.error("Sync error return seats:", err));
+    }
+}
+
+// Check every 4 seconds
+setInterval(fetchSeatStatus, 4000);
+</script>
+{% endblock %}

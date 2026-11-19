@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier la Mission VIP - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+                <div class="mb-4">
+                    <h3 class="fw-bold"><i class="bi bi-car-front-fill text-danger me-2"></i> Modifier la Mission VIP : #{{ trip.id }}</h3>
+                    <p class="text-muted">Ajustez la mission, le véhicule VIP assigné, les dates et heures de location, le tarif ou le statut.</p>
+                </div>
+
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="route_id" class="form-label">Mission / Destination</label>
+                            <select class="form-select" id="route_id" name="route_id" required>
+                                {% for route in routes %}
+                                    <option value="{{ route.id }}" data-price="{{ route.base_price }}" {% if trip.route_id == route.id %}selected{% endif %}>{{ route.origin }} &rarr; {{ route.destination }} ({{ route.agency.name }})</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Veuillez sélectionner une mission.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="bus_id" class="form-label">Véhicule VIP Assigné</label>
+                            <select class="form-select" id="bus_id" name="bus_id" required>
+                                {% for bus in buses %}
+                                    <option value="{{ bus.id }}" {% if trip.bus_id == bus.id %}selected{% endif %}>{{ bus.bus_number }} - {{ bus.brand }} {{ bus.model }} ({{ bus.capacity }} places)</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Veuillez assigner un véhicule VIP.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="departure_time" class="form-label">Début de Location (Prise en charge)</label>
+                            <input type="datetime-local" class="form-control" id="departure_time" name="departure_time" value="{{ trip.departure_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+                            <div class="invalid-feedback">La date et l'heure de début sont obligatoires.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="arrival_time" class="form-label">Fin de Location (Restitution Estimée)</label>
+                            <input type="datetime-local" class="form-control" id="arrival_time" name="arrival_time" value="{{ trip.arrival_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+                            <div class="invalid-feedback">La date et l'heure de fin estimées sont obligatoires.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="price" class="form-label">Tarif Journalier / Forfait (FCFA)</label>
+                            <input type="number" step="100" class="form-control" id="price" name="price" value="{{ trip.price }}" required>
+                            <div class="invalid-feedback">Veuillez renseigner un tarif valide.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Statut de la Mission</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="scheduled" {% if trip.status == 'scheduled' %}selected{% endif %}>Planifié</option>
+                                <option value="cancelled" {% if trip.status == 'cancelled' %}selected{% endif %}>Annulé</option>
+                                <option value="completed" {% if trip.status == 'completed' %}selected{% endif %}>Terminé</option>
+                            </select>
+                            <div class="invalid-feedback">Veuillez sélectionner un statut.</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <a href="{{ url_for('admin.trips') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-arrow-left me-2"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                            <i class="bi bi-check-circle me-2"></i> Enregistrer les Modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const routeSelect = document.getElementById('route_id');
+        const priceInput = document.getElementById('price');
+        
+        routeSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const basePrice = selectedOption.getAttribute('data-price');
+            if (basePrice) {
+                priceInput.value = basePrice;
+                // Optional: add a tiny visual feedback
+                priceInput.classList.add('is-valid');
+                setTimeout(() => priceInput.classList.remove('is-valid'), 1500);
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -299,7 +299,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
         <style>
           * { box-sizing: border-box; margin: 0; padding: 0; }
           body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: #171717;
             background-color: #ffffff;
             padding: 30px;

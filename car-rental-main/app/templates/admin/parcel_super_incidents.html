@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Incidents & Litiges - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+    {% include 'admin/_super_parcel_subnav.html' %}
+
+    <!-- Statistics Dashboard cards for Incidents -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-danger bg-opacity-10 text-danger h-100">
+                <div class="card-body d-flex align-items-center justify-content-between p-4">
+                    <div>
+                        <h6 class="text-uppercase fw-bold text-muted small mb-1">Incidents Ouverts</h6>
+                        <h2 class="fw-extrabold mb-0">{{ open_count }}</h2>
+                    </div>
+                    <div class="fs-1"><i class="bi bi-exclamation-octagon-fill"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-warning bg-opacity-10 text-warning h-100">
+                <div class="card-body d-flex align-items-center justify-content-between p-4">
+                    <div>
+                        <h6 class="text-uppercase fw-bold text-muted small mb-1">En Cours d'Enquête</h6>
+                        <h2 class="fw-extrabold mb-0">{{ in_progress_count }}</h2>
+                    </div>
+                    <div class="fs-1"><i class="bi bi-hourglass-split"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-success bg-opacity-10 text-success h-100">
+                <div class="card-body d-flex align-items-center justify-content-between p-4">
+                    <div>
+                        <h6 class="text-uppercase fw-bold text-muted small mb-1">Incidents Résolus</h6>
+                        <h2 class="fw-extrabold mb-0">{{ resolved_count }}</h2>
+                    </div>
+                    <div class="fs-1"><i class="bi bi-check-circle-fill"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Incidents Panel -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+            <h4 class="fw-bold mb-3 mb-md-0">
+                <i class="bi bi-shield-fill-exclamation text-danger me-2"></i>Console de Gestion des Litiges & Incidents
+            </h4>
+        </div>
+
+        <!-- Filters Section -->
+        <form method="GET" action="{{ url_for('admin.super_parcel_incidents') }}" class="row g-3 mb-4 bg-light p-3 rounded">
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-bold text-muted">Statut</label>
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">Tous les statuts</option>
+                    <option value="Open" {% if status_filter == 'Open' %}selected{% endif %}>Open (Ouvert)</option>
+                    <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress (En cours)</option>
+                    <option value="Resolved" {% if status_filter == 'Resolved' %}selected{% endif %}>Resolved (Résolu)</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-bold text-muted">Type d'Incident</label>
+                <select name="type" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">Tous les types</option>
+                    <option value="Lost Parcel" {% if type_filter == 'Lost Parcel' %}selected{% endif %}>Lost Parcel (Colis perdu)</option>
+                    <option value="Damaged Parcel" {% if type_filter == 'Damaged Parcel' %}selected{% endif %}>Damaged Parcel (Colis endommagé)</option>
+                    <option value="Delayed Parcel" {% if type_filter == 'Delayed Parcel' %}selected{% endif %}>Delayed Parcel (En retard)</option>
+                    <option value="Wrong Receiver" {% if type_filter == 'Wrong Receiver' %}selected{% endif %}>Wrong Receiver (Mauvais destinataire)</option>
+                    <option value="Customer Complaint" {% if type_filter == 'Customer Complaint' %}selected{% endif %}>Customer Complaint (Réclamation)</option>
+                </select>
+            </div>
+            {% if current_user.role == 'super_admin' %}
+            <div class="col-12 col-md-4">
+                <label class="form-label small fw-bold text-muted">Agence</label>
+                <select name="agency_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">Toutes les agences</option>
+                    {% for a in agencies %}
+                    <option value="{{ a.id }}" {% if agency_filter == a.id %}selected{% endif %}>{{ a.name }} ({{ a.city }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-12 col-md-2 d-flex align-items-end">
+                <a href="{{ url_for('admin.super_parcel_incidents') }}" class="btn btn-sm btn-outline-secondary w-100 fw-bold">Réinitialiser</a>
+            </div>
+        </form>
+
+        <!-- Incidents List Table -->
+        {% if incidents %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr class="table-light">
+                            <th>Case ID</th>
+                            <th>Colis / Tracking</th>
+                            <th>Voyage</th>
+                            <th>Agence</th>
+                            <th>Type d'Incident</th>
+                            <th>Statut</th>
+                            <th>Date Signalement</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inc in incidents %}
+                        <tr>
+                            <td class="fw-bold text-danger">#{{ inc.case_number }}</td>
+                            <td>
+                                <div class="fw-bold">#{{ inc.parcel.tracking_number }}</div>
+                                <span class="badge bg-secondary style-font-monospace text-uppercase" style="font-size:0.7rem;">{{ inc.parcel.parcel_type }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">Trip #{{ inc.trip_id }}</div>
+                                <div class="small text-muted" style="font-size:0.75rem;">
+                                    {{ inc.trip.departure_time.strftime('%d/%m/%Y') if inc.trip else 'N/A' }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ inc.agency.name }}</span>
+                            </td>
+                            <td class="fw-semibold">{{ inc.type }}</td>
+                            <td>
+                                {% if inc.status == 'Open' %}
+                                    <span class="badge bg-danger">Open</span>
+                                {% elif inc.status == 'In Progress' %}
+                                    <span class="badge bg-warning text-dark">In Progress</span>
+                                {% else %}
+                                    <span class="badge bg-success">Resolved</span>
+                                {% endif %}
+                            </td>
+                            <td class="small text-muted">{{ inc.created_at.strftime('%d/%m/%Y à %H:%M') }}</td>
+                            <td class="text-end">
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary fw-bold" data-bs-toggle="modal" data-bs-target="#detailModal{{ inc.id }}">
+                                        <i class="bi bi-eye-fill"></i> Détails / Notes
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-shield-check fs-1 text-success d-block mb-3"></i>
+                <h5 class="fw-bold">Aucun incident ne correspond aux filtres.</h5>
+                <p class="text-muted small mb-0">Tous les flux de colis fonctionnent normalement.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Modals for details & notes -->
+    {% for inc in incidents %}
+    <div class="modal fade" id="detailModal{{ inc.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger">Incident {{ inc.case_number }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-start">
+                    <div class="row g-3 mb-4">
+                        <!-- Information panel -->
+                        <div class="col-12 col-md-6 border-end">
+                            <h6 class="fw-bold border-bottom pb-2 text-muted">DÉTAILS DU COLIS & INCIDENT</h6>
+                            <p class="mb-2"><strong>Colis :</strong> #{{ inc.parcel.tracking_number }} ({{ inc.parcel.sender_name }} ➔ {{ inc.parcel.receiver_name }})</p>
+                            <p class="mb-2"><strong>Voyage :</strong> Trip #{{ inc.trip_id }} ({{ inc.trip.route.origin if inc.trip else 'Douala' }} ➔ {{ inc.trip.route.destination if inc.trip else 'Yaoundé' }})</p>
+                            <p class="mb-2"><strong>Type :</strong> <span class="badge bg-danger">{{ inc.type }}</span></p>
+                            <p class="mb-2"><strong>Date de création :</strong> {{ inc.created_at.strftime('%d/%m/%Y à %H:%M') }}</p>
+                            <p class="mb-2"><strong>Assigné à :</strong> <span class="badge bg-dark">{{ inc.assigned_to or 'Non assigné' }}</span></p>
+                            <p class="mb-2"><strong>Description initiale :</strong></p>
+                            <div class="p-2 bg-light rounded text-muted small mb-3">
+                                {{ inc.description }}
+                            </div>
+                            {% if inc.photo %}
+                            <p class="mb-1"><strong>Photo du colis :</strong></p>
+                            <img src="{{ inc.photo }}" class="img-fluid rounded border mb-3" style="max-height: 180px; object-fit: contain;">
+                            {% endif %}
+                            {% if inc.receipt_photo %}
+                            <p class="mb-1"><strong>Photo du reçu / preuve :</strong></p>
+                            <img src="{{ inc.receipt_photo }}" class="img-fluid rounded border mb-3" style="max-height: 180px; object-fit: contain;">
+                            {% endif %}
+                        </div>
+
+                        <!-- Notes & Timeline panel -->
+                        <div class="col-12 col-md-6">
+                            <h6 class="fw-bold border-bottom pb-2 text-muted">TIMELINE D'ENQUÊTE & NOTES</h6>
+                            <div class="p-3 bg-light rounded mb-3" style="max-height: 250px; overflow-y: auto;">
+                                <pre class="mb-0 style-font-monospace small" style="white-space: pre-wrap; font-family: inherit;">{{ inc.notes or 'Aucune note enregistrée.' }}</pre>
+                            </div>
+                            
+                            <!-- Add Note Form -->
+                            <form method="POST" action="{{ url_for('admin.add_investigation_notes', incident_id=inc.id) }}" class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Ajouter une note d'enquête</label>
+                                <div class="input-group">
+                                    <input type="text" name="note" class="form-control form-control-sm" placeholder="Saisir note..." required>
+                                    <button class="btn btn-sm btn-primary" type="submit">Ajouter</button>
+                                </div>
+                            </form>
+
+                            <!-- Actions for Status -->
+                            {% if inc.status != 'Resolved' %}
+                                <hr>
+                                <div class="d-flex gap-2">
+                                    <!-- Assign Action -->
+                                    <form method="POST" action="{{ url_for('admin.assign_incident', incident_id=inc.id) }}" class="flex-grow-1">
+                                        <label class="form-label small fw-bold text-muted">Assigner l'enquête à</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="assignee" class="form-control" placeholder="Nom du responsable" required value="{{ inc.assigned_to or '' }}">
+                                            <button class="btn btn-outline-warning text-dark" type="submit">Assigner</button>
+                                        </div>
+                                    </form>
+                                    
+                                    <!-- Resolve Action Button Trigger -->
+                                    <button class="btn btn-sm btn-success align-self-end px-3 fw-bold" data-bs-toggle="collapse" data-bs-target="#resolveBox{{ inc.id }}">
+                                        Résoudre
+                                    </button>
+                                </div>
+                                
+                                <!-- Resolve Form Box collapse -->
+                                <div class="collapse mt-3" id="resolveBox{{ inc.id }}">
+                                    <form method="POST" action="{{ url_for('admin.resolve_incident', incident_id=inc.id) }}" class="p-3 border border-success rounded bg-success bg-opacity-10">
+                                        <label class="form-label small fw-bold text-success">Solution de résolution</label>
+                                        <textarea name="resolution" class="form-control form-control-sm mb-2" rows="2" placeholder="Remboursement, colis retrouvé, etc..." required></textarea>
+                                        <button class="btn btn-sm btn-success w-100 fw-bold" type="submit">Confirmer Résolution</button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success small mb-0 mt-3">
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    <strong>Résolu :</strong> {{ inc.resolution }}
+                                    <br>
+                                    <small class="text-muted">Le {{ inc.resolved_at.strftime('%d/%m/%Y à %H:%M') if inc.resolved_at else '' }}</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

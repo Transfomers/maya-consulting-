@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Véhicules VIP Disponibles — 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-car-front-fill text-danger me-2"></i> {{ _t('Flotte & Missions VIP Disponibles') }}</h2>
+            <p class="text-muted mb-0">Véhicules premium avec chauffeur d'élite ou formule autonomie selon vos besoins.</p>
+        </div>
+        <a href="{{ url_for('main.search') }}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left me-1"></i> {{ _t('Nouvelle Recherche') }}
+        </a>
+    </div>
+
+    {% set num_passengers = request.args.get('passengers', 1) | int %}
+    {% if routes %}
+        <div class="row g-4">
+        {% for route in routes %}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden p-4 bg-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-danger rounded-pill px-3 py-1">VIP Service</span>
+                                <span class="badge bg-light text-dark border rounded-pill px-3 py-1">{{ route.bus.license_plate if route.bus else 'Flotte 3M' }}</span>
+                            </div>
+                            <h4 class="fw-bold mb-2 text-dark">{{ route.origin }} ➔ {{ route.destination }}</h4>
+                            <p class="text-muted small mb-3">
+                                <strong><i class="bi bi-clock me-1"></i> Mise à disposition :</strong> {{ route.departure_time.strftime('%d/%m/%Y à %H:%M') }}<br>
+                                <strong><i class="bi bi-car-front me-1"></i> Véhicule :</strong> {{ route.bus.name or route.bus.model or 'SUV 4x4 / Berline VIP' }}<br>
+                                <strong><i class="bi bi-person-check me-1"></i> Chauffeur :</strong> Inclus (Bilingue exécutif)
+                            </p>
+                        </div>
+                        <div class="col-md-5 text-md-end border-top border-md-top-0 pt-3 pt-md-0">
+                            <div class="text-muted small text-uppercase fw-semibold mb-1">Tarif Forfait Journalier</div>
+                            <h3 class="fw-bold text-danger mb-2">{{ "{:,.0f}".format(route.price) }} FCFA</h3>
+                            {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('main.book', route_id=route.id) }}" class="btn btn-primary rounded-pill px-4 py-2.5 fw-bold shadow-sm">
+                                    <i class="bi bi-calendar-check me-1"></i> Réserver ce Véhicule
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('auth.login') }}" class="btn btn-primary rounded-pill px-4 py-2.5 fw-bold shadow-sm">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Se connecter pour louer
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info border-0 rounded-4 p-4 text-center shadow-sm">
+            <i class="bi bi-info-circle fs-3 text-primary d-block mb-2"></i>
+            <h5 class="fw-bold">Aucun véhicule actuellement disponible pour ces critères</h5>
+            <p class="text-muted mb-3">Consultez notre catalogue complet sur l'application React ou contactez directement notre conciergerie 24/7 au <strong>+237 691 78 64 47</strong>.</p>
+            <a href="http://localhost:3001/models" class="btn btn-primary rounded-pill px-4 fw-bold me-2" target="_blank">
+                <i class="bi bi-grid me-1"></i> Voir la Flotte VIP React
+            </a>
+            <a href="{{ url_for('main.search') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                Modifier la recherche
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

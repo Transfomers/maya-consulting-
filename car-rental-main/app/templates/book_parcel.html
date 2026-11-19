@@ -1,0 +1,499 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('Expédier un Colis') }} - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-card {
+        background: var(--glass-bg-light);
+        border: 1.5px solid rgba(201, 42, 42, 0.12);
+        border-radius: 2rem;
+        box-shadow: 0 12px 48px rgba(201, 42, 42, 0.05);
+        backdrop-filter: blur(var(--glass-blur));
+        padding: 2.5rem;
+    }
+    body.dark-mode .booking-card {
+        background: var(--glass-bg-dark);
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+    }
+    .form-step-header {
+        border-bottom: 2px solid var(--input-border-light);
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+    }
+    body.dark-mode .form-step-header {
+        border-color: var(--input-border-dark);
+    }
+    .step-title {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 800;
+        color: var(--primary-light);
+    }
+    body.dark-mode .step-title {
+        color: var(--accent-dark);
+    }
+    .camera-box {
+        border: 2px dashed var(--primary-light);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        background: rgba(201, 42, 42, 0.02);
+    }
+    body.dark-mode .camera-box {
+        border-color: var(--accent-dark);
+        background: rgba(255, 255, 255, 0.01);
+    }
+    .camera-box:hover {
+        background: rgba(201, 42, 42, 0.05);
+        transform: scale(1.02);
+    }
+    .preview-thumbnail {
+        width: 100%;
+        max-height: 180px;
+        object-fit: cover;
+        border-radius: 0.75rem;
+        margin-top: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .delete-preview-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        transition: background 0.2s;
+    }
+    .delete-preview-btn:hover {
+        background: rgba(220, 38, 38, 1);
+    }
+    .country-select-btn {
+        min-width: 120px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: 0;
+        background-color: var(--input-bg-light);
+        border-color: var(--input-border-light);
+        color: var(--text-light);
+        font-weight: 600;
+    }
+    body.dark-mode .country-select-btn {
+        background-color: var(--input-bg-dark);
+        border-color: var(--input-border-dark);
+        color: var(--text-dark);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-md-11">
+            <div class="booking-card fade-in">
+                <!-- Header -->
+                <div class="text-center mb-5">
+                    <span class="badge bg-primary px-3 py-2 text-uppercase fw-bold mb-2"><i class="bi bi-box-seam me-1"></i> {{ _t('Envoi de Colis') }}</span>
+                    <h2 class="display-6 fw-bold text-dark mb-2">{{ _t('Expédier un Colis') }}</h2>
+                    <p class="text-muted">{{ _t('Trajet sélectionné') }} : <strong class="text-primary">{{ trip.route.origin }} ➔ {{ trip.route.destination }}</strong> ({{ trip.departure_time.strftime('%d/%m/%Y %H:%M') }})</p>
+                </div>
+
+                <form id="parcelForm" method="POST" action="{{ url_for('main.book_parcel', trip_id=trip.id) }}" class="needs-validation" novalidate>
+                    <!-- CSRF Protection -->
+                    {{ csrf_token() if csrf_token else '' }}
+
+                    <!-- Base64 hidden image store -->
+                    <input type="hidden" name="front_image_base64" id="front_image_base64" required>
+                    <input type="hidden" name="side_image_base64" id="side_image_base64" required>
+                    <input type="hidden" name="label_image_base64" id="label_image_base64">
+                    
+                    <!-- Formulated E.164 phone store -->
+                    <input type="hidden" name="formatted_receiver_phone" id="formatted_receiver_phone">
+
+                    <!-- SECTION 1: EXPÉDITEUR -->
+                    <div class="form-step-header">
+                        <h4 class="step-title"><i class="bi bi-person-fill-up me-2"></i>1. {{ _t('Informations Expéditeur') }}</h4>
+                    </div>
+                    <div class="row g-3 mb-5 text-start">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">{{ _t('Nom Complet') }}</label>
+                            <input type="text" class="form-control bg-light border-0" value="{{ current_user.first_name ~ ' ' ~ current_user.last_name if (current_user.first_name and current_user.last_name) else current_user.username }}" readonly name="sender_name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">{{ _t('Téléphone') }}</label>
+                            <input type="text" class="form-control bg-light border-0" value="{{ current_user.phone or '' }}" readonly name="sender_phone">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">{{ _t('Adresse E-mail (optionnelle)') }}</label>
+                            <input type="email" class="form-control bg-light border-0" value="{{ current_user.email or '' }}" readonly name="sender_email">
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: DESTINATAIRE -->
+                    <div class="form-step-header">
+                        <h4 class="step-title"><i class="bi bi-person-fill-down me-2"></i>2. {{ _t('Informations Destinataire') }}</h4>
+                    </div>
+                    <div class="row g-3 mb-5 text-start">
+                        <div class="col-md-6">
+                            <label for="receiver_name" class="form-label fw-bold">{{ _t('Nom Complet Destinataire') }} *</label>
+                            <input type="text" class="form-control" id="receiver_name" name="receiver_name" required placeholder="{{ _t('Saisir le nom complet') }}">
+                            <div class="invalid-feedback">{{ _t('Le nom du destinataire est requis.') }}</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="receiver_phone_raw" class="form-label fw-bold">{{ _t('Téléphone Destinataire') }} *</label>
+                            <div class="input-group">
+                                <button class="btn dropdown-toggle country-select-btn border" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="countryDropdownBtn">
+                                    🇨🇲 +237
+                                </button>
+                                <ul class="dropdown-menu" id="countryDropdownList">
+                                    <li><a class="dropdown-item" href="#" data-code="+237" data-flag="🇨🇲" data-country="Cameroon" data-len="9">🇨🇲 Cameroon (+237)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-code="+234" data-flag="🇳🇬" data-country="Nigeria" data-len="10">🇳🇬 Nigeria (+234)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-code="+225" data-flag="🇨🇮" data-country="Ivory Coast" data-len="10">🇨🇮 Ivory Coast (+225)</a></li>
+                                    <li><a class="dropdown-item" href="#" data-code="+233" data-flag="🇬🇭" data-country="Ghana" data-len="9">🇬🇭 Ghana (+233)</a></li>
+                                </ul>
+                                <input type="tel" class="form-control" id="receiver_phone_raw" required placeholder="699112233" style="border-top-left-radius:0; border-bottom-left-radius:0;">
+                                <div class="invalid-feedback" id="phone_validation_msg">{{ _t('Le numéro de téléphone est invalide.') }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="receiver_city" class="form-label fw-bold">{{ _t('Ville de Destination') }} *</label>
+                            <input type="text" class="form-control" id="receiver_city" name="receiver_city" required placeholder="{{ _t('Ex: Douala') }}" value="{{ trip.route.destination }}">
+                            <div class="invalid-feedback">{{ _t('La ville de destination est requise.') }}</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="receiver_address" class="form-label fw-bold">{{ _t('Adresse Destinataire (optionnelle)') }}</label>
+                            <input type="text" class="form-control" id="receiver_address" name="receiver_address" placeholder="{{ _t('Ex: Rue Akwa, Face Boulangerie') }}">
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: DÉTAILS COLIS -->
+                    <div class="form-step-header">
+                        <h4 class="step-title"><i class="bi bi-box-seam me-2"></i>3. {{ _t('Détails du Colis') }}</h4>
+                    </div>
+                    <div class="row g-3 mb-5 text-start">
+                        <div class="col-md-6">
+                            <label for="parcel_type" class="form-label fw-bold">{{ _t('Type de Colis') }} *</label>
+                            <select class="form-select" id="parcel_type" name="parcel_type" required>
+                                <option value="" selected disabled>{{ _t('Sélectionnez...') }}</option>
+                                <option value="Document">{{ _t('Document') }}</option>
+                                <option value="Electronics">{{ _t('Électronique') }}</option>
+                                <option value="Clothes">{{ _t('Vêtements') }}</option>
+                                <option value="Food">{{ _t('Nourriture') }}</option>
+                                <option value="Fragile">{{ _t('Fragile') }}</option>
+                                <option value="Other">{{ _t('Autre') }}</option>
+                            </select>
+                            <div class="invalid-feedback">{{ _t('Veuillez sélectionner le type de colis.') }}</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="weight" class="form-label fw-bold">{{ _t('Poids Estimé (kg)') }} *</label>
+                            <input type="number" class="form-control" id="weight" name="weight" required min="0.1" step="0.1" placeholder="Ex: 2.5" oninput="calculatePrice()">
+                            <div class="invalid-feedback">{{ _t('Veuillez saisir un poids valide supérieur à 0.') }}</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="num_items" class="form-label fw-bold">{{ _t('Nombre de pièces (optionnel)') }}</label>
+                            <input type="number" class="form-control" id="num_items" name="num_items" min="1" value="1">
+                        </div>
+
+                        <div class="col-md-6 d-flex align-items-center gap-4 mt-4">
+                            <div class="form-check form-switch fs-5">
+                                <input class="form-check-input" type="checkbox" id="is_fragile" name="is_fragile" value="true">
+                                <label class="form-check-label fw-bold fs-6" for="is_fragile">📦 {{ _t('Fragile ?') }}</label>
+                            </div>
+                            <div class="form-check form-switch fs-5">
+                                <input class="form-check-input" type="checkbox" id="has_insurance" name="has_insurance" value="true" onchange="calculatePrice()">
+                                <label class="form-check-label fw-bold fs-6" for="has_insurance">🛡 {{ _t('Assurance ?') }}</label>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="description" class="form-label fw-bold">{{ _t('Description du Contenu') }} *</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required placeholder="{{ _t('Décrivez brièvement le contenu du colis...') }}"></textarea>
+                            <div class="invalid-feedback">{{ _t('La description du contenu est requise.') }}</div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: IMAGES DU COLIS -->
+                    <div class="form-step-header">
+                        <h4 class="step-title"><i class="bi bi-camera-fill me-2"></i>4. {{ _t('Photos du Colis') }} *</h4>
+                    </div>
+                    <p class="text-muted text-start mb-4">{{ _t('Veuillez capturer ou charger des photos nettes de votre colis. Les formats et caméras mobiles sont entièrement pris en charge.') }}</p>
+                    
+                    <div class="row g-4 mb-5 text-start">
+                        <!-- Front View -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">{{ _t('Vue de Face') }} *</label>
+                            <div class="camera-box" id="front_box" onclick="document.getElementById('front_file').click()">
+                                <i class="bi bi-camera fs-1 text-primary d-block"></i>
+                                <span class="small text-muted">{{ _t('Prendre Photo ou Charger') }}</span>
+                                <input type="file" id="front_file" accept="image/*" capture="environment" style="display:none" onchange="handleImageUpload(this, 'front')">
+                                <div id="front_preview_container" style="display:none; position:relative;">
+                                    <button type="button" class="delete-preview-btn" onclick="clearImage('front', event)"><i class="bi bi-x-lg"></i></button>
+                                    <img src="" class="preview-thumbnail" id="front_preview_img">
+                                </div>
+                            </div>
+                            <div class="text-danger small mt-1 d-none" id="front_error">{{ _t('La vue de face est obligatoire.') }}</div>
+                        </div>
+
+                        <!-- Side View -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">{{ _t('Vue de Profil') }} *</label>
+                            <div class="camera-box" id="side_box" onclick="document.getElementById('side_file').click()">
+                                <i class="bi bi-camera fs-1 text-primary d-block"></i>
+                                <span class="small text-muted">{{ _t('Prendre Photo ou Charger') }}</span>
+                                <input type="file" id="side_file" accept="image/*" capture="environment" style="display:none" onchange="handleImageUpload(this, 'side')">
+                                <div id="side_preview_container" style="display:none; position:relative;">
+                                    <button type="button" class="delete-preview-btn" onclick="clearImage('side', event)"><i class="bi bi-x-lg"></i></button>
+                                    <img src="" class="preview-thumbnail" id="side_preview_img">
+                                </div>
+                            </div>
+                            <div class="text-danger small mt-1 d-none" id="side_error">{{ _t('La vue de profil est obligatoire.') }}</div>
+                        </div>
+
+                        <!-- Package Label (Optional) -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">{{ _t('Étiquette / Label (optionnel)') }}</label>
+                            <div class="camera-box" id="label_box" onclick="document.getElementById('label_file').click()">
+                                <i class="bi bi-camera fs-1 text-primary d-block"></i>
+                                <span class="small text-muted">{{ _t('Prendre Photo ou Charger') }}</span>
+                                <input type="file" id="label_file" accept="image/*" capture="environment" style="display:none" onchange="handleImageUpload(this, 'label')">
+                                <div id="label_preview_container" style="display:none; position:relative;">
+                                    <button type="button" class="delete-preview-btn" onclick="clearImage('label', event)"><i class="bi bi-x-lg"></i></button>
+                                    <img src="" class="preview-thumbnail" id="label_preview_img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price estimation widget -->
+                    <div class="alert alert-info d-flex justify-content-between align-items-center p-4 border-0 mb-5 text-start" style="border-radius: 1.5rem; background: rgba(201, 42, 42, 0.05);">
+                        <div>
+                            <h4 class="fw-bold mb-1 text-dark">{{ _t("Estimation Tarif d'Envoi") }}</h4>
+                            <span class="small text-muted" id="price_breakdown">Tarif de base: 1000 FCFA / kg</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="display-6 fw-bold text-success" id="estimated_price">0 FCFA</span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-flex justify-content-between gap-3">
+                        <a href="{{ url_for('main.search') }}" class="btn btn-light py-3 px-4 fw-semibold border" style="border-radius: 2rem;">
+                            <i class="bi bi-arrow-left me-2"></i> {{ _t('Retour') }}
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-always-white py-3 px-5 fw-bold shadow-sm" style="border-radius: 2rem; background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%); border:0;">
+                            {{ _t('Continuer vers le paiement') }} <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Selected Country code metadata
+    let currentCountryCode = "+237";
+    let requiredPhoneLen = 9;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Country Selector handler
+        const countryItems = document.querySelectorAll("#countryDropdownList .dropdown-item");
+        const dropdownBtn = document.getElementById("countryDropdownBtn");
+        const phoneInput = document.getElementById("receiver_phone_raw");
+
+        countryItems.forEach(item => {
+            item.addEventListener("click", function(e) {
+                e.preventDefault();
+                const code = this.dataset.code;
+                const flag = this.dataset.flag;
+                requiredPhoneLen = parseInt(this.dataset.len);
+                currentCountryCode = code;
+
+                dropdownBtn.innerText = `${flag} ${code}`;
+                phoneInput.placeholder = code === "+237" ? "699112233" : "8012345678";
+                validatePhoneNumber();
+            });
+        });
+
+        phoneInput.addEventListener("input", validatePhoneNumber);
+        
+        // Form submit validator
+        const form = document.getElementById("parcelForm");
+        form.addEventListener("submit", function(e) {
+            let isValid = true;
+            
+            // Check images
+            const frontImgB64 = document.getElementById("front_image_base64").value;
+            const sideImgB64 = document.getElementById("side_image_base64").value;
+            
+            if (!frontImgB64) {
+                document.getElementById("front_error").classList.remove("d-none");
+                isValid = false;
+            } else {
+                document.getElementById("front_error").classList.add("d-none");
+            }
+
+            if (!sideImgB64) {
+                document.getElementById("side_error").classList.remove("d-none");
+                isValid = false;
+            } else {
+                document.getElementById("side_error").classList.add("d-none");
+            }
+
+            if (!validatePhoneNumber()) {
+                isValid = false;
+            }
+
+            if (!form.checkValidity() || !isValid) {
+                e.preventDefault();
+                e.stopPropagation();
+                form.classList.add("was-validated");
+                
+                // Scroll to top of invalid elements
+                const firstInvalid = form.querySelector(":invalid, .text-danger:not(.d-none)");
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            } else {
+                // Disable button and show spinner to prevent double submission
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Traitement en cours...';
+                }
+            }
+        });
+        
+        calculatePrice();
+    });
+
+    // Validate phone number length and format
+    function validatePhoneNumber() {
+        const phoneInput = document.getElementById("receiver_phone_raw");
+        const valMsg = document.getElementById("phone_validation_msg");
+        const formattedInput = document.getElementById("formatted_receiver_phone");
+        
+        // Remove spaces/special characters
+        const cleaned = phoneInput.value.replace(/\D/g, '');
+        
+        if (cleaned.length !== requiredPhoneLen) {
+            phoneInput.setCustomValidity("Invalid length");
+            valMsg.innerText = `Le numéro doit faire exactement ${requiredPhoneLen} chiffres pour ce pays.`;
+            return false;
+        } else {
+            phoneInput.setCustomValidity("");
+            // Formulate E.164
+            formattedInput.value = `${currentCountryCode}${cleaned}`;
+            return true;
+        }
+    }
+
+    // Dynamic price calculation
+    function calculatePrice() {
+        const weightInput = document.getElementById("weight");
+        const hasInsurance = document.getElementById("has_insurance").checked;
+        const priceLabel = document.getElementById("estimated_price");
+        const breakdownLabel = document.getElementById("price_breakdown");
+        
+        const weight = parseFloat(weightInput.value) || 0;
+        if (weight <= 0) {
+            priceLabel.innerText = "0 FCFA";
+            breakdownLabel.innerText = "Tarif de base: 1000 FCFA / kg";
+            return;
+        }
+        
+        // Base rate: 1000 FCFA/kg (min weight 1kg equivalent fee)
+        const baseRate = 1000;
+        let basePrice = Math.max(1000, Math.round(weight * baseRate));
+        let insuranceFee = hasInsurance ? 1500 : 0;
+        let total = basePrice + insuranceFee;
+        
+        priceLabel.innerText = `${total.toLocaleString()} FCFA`;
+        breakdownLabel.innerText = `Base (${weight} kg) : ${basePrice.toLocaleString()} FCFA ${hasInsurance ? '+ Assurance (1 500 FCFA)' : ''}`;
+    }
+
+    // Dynamic camera upload and compression on client side using Canvas
+    function handleImageUpload(input, type) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                // Initialize canvas
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                
+                // Max limits for mobile compression (to reduce data usage)
+                const maxDim = 800;
+                let w = img.width;
+                let h = img.height;
+                
+                if (w > h) {
+                    if (w > maxDim) {
+                        h = Math.round((h * maxDim) / w);
+                        w = maxDim;
+                    }
+                } else {
+                    if (h > maxDim) {
+                        w = Math.round((w * maxDim) / h);
+                        h = maxDim;
+                    }
+                }
+                
+                canvas.width = w;
+                canvas.height = h;
+                ctx.drawImage(img, 0, 0, w, h);
+                
+                // Compress image to JPEG quality 0.7
+                const base64 = canvas.toDataURL("image/jpeg", 0.7);
+                
+                // Store base64 in hidden input
+                document.getElementById(`${type}_image_base64`).value = base64;
+                
+                // Display preview
+                const previewImg = document.getElementById(`${type}_preview_img`);
+                const previewContainer = document.getElementById(`${type}_preview_container`);
+                
+                previewImg.src = base64;
+                previewContainer.style.display = "block";
+                
+                // Remove error messages if visible
+                const errorDiv = document.getElementById(`${type}_error`);
+                if (errorDiv) errorDiv.classList.add("d-none");
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Clear preview image and remove from input
+    function clearImage(type, event) {
+        event.stopPropagation(); // Prevent trigger click on camera box
+        
+        document.getElementById(`${type}_file`).value = "";
+        document.getElementById(`${type}_image_base64`).value = "";
+        document.getElementById(`${type}_preview_container`).style.display = "none";
+        document.getElementById(`${type}_preview_img`).src = "";
+    }
+</script>
+{% endblock %}
+{% endblock %}

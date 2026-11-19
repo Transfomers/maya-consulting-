@@ -1,0 +1,118 @@
+{% extends "admin/parcel_ops_base.html" %}
+
+{% block title %}Colis Actifs{% endblock %}
+{% block page_title %}Registre Général des Colis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 text-start">
+    <!-- Filters & Search Bar -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <form method="GET" action="{{ url_for('admin.teller_parcel_list') }}" class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-muted">Rechercher</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="N° suivi, expéditeur, destinataire..." value="{{ search }}">
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted">Filtrer par Statut</label>
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="">Tous les statuts</option>
+                    <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>En attente</option>
+                    <option value="validated" {% if selected_status == 'validated' %}selected{% endif %}>Validé</option>
+                    <option value="paid" {% if selected_status == 'paid' %}selected{% endif %}>Payé (En attente d'assignation)</option>
+                    <option value="assigned" {% if selected_status == 'assigned' %}selected{% endif %}>Assigné à un voyage</option>
+                    <option value="loaded" {% if selected_status == 'loaded' %}selected{% endif %}>Chargé</option>
+                    <option value="in_transit" {% if selected_status == 'in_transit' %}selected{% endif %}>En Transit</option>
+                    <option value="arrived" {% if selected_status == 'arrived' %}selected{% endif %}>Arrivé à destination</option>
+                    <option value="delivered" {% if selected_status == 'delivered' %}selected{% endif %}>Livré au destinataire</option>
+                    <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Rejeté</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 mt-4 pt-2">
+                <button type="submit" class="btn btn-premium w-100"><i class="bi bi-funnel"></i> Filtrer</button>
+            </div>
+            <div class="col-md-2 mt-4 pt-2">
+                <a href="{{ url_for('admin.teller_parcel_list') }}" class="btn btn-outline-secondary w-100 rounded-pill"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- General Listing Table -->
+    <div class="card border-0 shadow-sm p-4">
+        {% if parcels %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>N° Suivi</th>
+                            <th>Expéditeur</th>
+                            <th>Destinataire / Destination</th>
+                            <th>Type & Poids</th>
+                            <th>Tarif</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in parcels %}
+                        <tr>
+                            <td class="fw-bold">{{ p.tracking_number }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ p.sender_name }}</div>
+                                <div class="small text-muted">{{ p.sender_phone or '' }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ p.receiver_name }}</div>
+                                <div class="small text-muted">{{ p.receiver_phone }} (➔ <strong class="text-primary">{{ p.receiver_city }}</strong>)</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ p.parcel_type }}</span>
+                                <div class="small text-muted mt-1">{{ p.weight }} kg</div>
+                            </td>
+                            <td class="fw-bold text-success">{{ p.price | int }} FCFA</td>
+                            <td>
+                                {% if p.status == 'pending' %}
+                                    <span class="badge bg-warning-soft text-warning px-2.5 py-1.5 rounded-pill"><i class="bi bi-hourglass-split me-1"></i> En attente</span>
+                                {% elif p.status == 'validated' %}
+                                    <span class="badge bg-info-soft text-info px-2.5 py-1.5 rounded-pill"><i class="bi bi-check2 me-1"></i> Validé</span>
+                                {% elif p.status == 'paid' %}
+                                    <span class="badge bg-primary-soft text-primary px-2.5 py-1.5 rounded-pill"><i class="bi bi-currency-exchange me-1"></i> Payé</span>
+                                {% elif p.status == 'assigned' %}
+                                    <span class="badge bg-secondary-soft text-dark px-2.5 py-1.5 rounded-pill"><i class="bi bi-bus-front me-1"></i> Assigné</span>
+                                {% elif p.status == 'loaded' %}
+                                    <span class="badge bg-warning text-white px-2.5 py-1.5 rounded-pill"><i class="bi bi-box-fill me-1"></i> Chargé</span>
+                                {% elif p.status == 'in_transit' %}
+                                    <span class="badge bg-primary text-white px-2.5 py-1.5 rounded-pill"><i class="bi bi-truck me-1"></i> Transit</span>
+                                {% elif p.status == 'arrived' %}
+                                    <span class="badge bg-info text-white px-2.5 py-1.5 rounded-pill"><i class="bi bi-geo-alt-fill me-1"></i> Arrivé</span>
+                                {% elif p.status == 'delivered' %}
+                                    <span class="badge bg-success-soft text-success px-2.5 py-1.5 rounded-pill"><i class="bi bi-check-circle-fill me-1"></i> Livré</span>
+                                {% elif p.status == 'rejected' %}
+                                    <span class="badge bg-danger-soft text-danger px-2.5 py-1.5 rounded-pill"><i class="bi bi-x-circle me-1"></i> Rejeté</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill">{{ p.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-danger" href="{{ url_for('main.parcel_pdf', parcel_id=p.id) }}" target="_blank" title="Bordereau PDF">
+                                    <i class="bi bi-file-earmark-pdf-fill"></i> Bordereau
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted fw-bold">Aucun colis correspondant aux critères.</h6>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

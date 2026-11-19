@@ -1,0 +1,58 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Consentements RGPD - Admin 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h4 mb-0 text-gray-800"><i class="fas fa-shield-alt text-success me-2"></i>Registres de Consentement (RGPD)</h2>
+            <p class="text-muted small mb-0">Traçabilité des acceptations de la Politique de Confidentialité</p>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4 border-bottom-success">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">Derniers Consentements</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>ID Utilisateur</th>
+                            <th>Nom d'utilisateur / Email</th>
+                            <th>Date d'acceptation</th>
+                            <th>Adresse IP</th>
+                            <th>Navigateur / User-Agent</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td>#{{ record.user_id }}</td>
+                            <td><strong>{{ record.user.username if record.user else 'Inconnu' }}</strong><br><small class="text-muted">{{ record.user.email if record.user else '' }}</small></td>
+                            <td>{{ record.accepted_at.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                            <td><code>{{ record.ip_address }}</code></td>
+                            <td><span class="small text-truncate d-inline-block" style="max-width: 250px;" title="{{ record.user_agent }}">{{ record.user_agent }}</span></td>
+                            <td>
+                                {% if record.accepted %}
+                                <span class="badge bg-success"><i class="fas fa-check-circle"></i> Accepté</span>
+                                {% else %}
+                                <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Rétracté</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Aucun registre trouvé.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

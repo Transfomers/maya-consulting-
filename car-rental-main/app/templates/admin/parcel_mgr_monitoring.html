@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Parcel Monitoring - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+    .timeline-step {
+        text-align: center;
+        position: relative;
+        flex: 1;
+        min-width: 100px;
+        margin-bottom: 1.5rem;
+    }
+    .timeline-step::after {
+        content: "";
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        width: 100%;
+        height: 4px;
+        background-color: var(--input-border-light);
+        z-index: 1;
+    }
+    body.dark-mode .timeline-step::after {
+        background-color: var(--input-border-dark);
+    }
+    .timeline-step:last-child::after {
+        display: none;
+    }
+    .step-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background-color: var(--input-bg-light);
+        border: 3px solid var(--input-border-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        position: relative;
+        z-index: 2;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    body.dark-mode .step-icon {
+        background-color: var(--input-bg-dark);
+        border-color: var(--input-border-dark);
+    }
+    .step-icon.active {
+        background-color: var(--primary-light);
+        border-color: var(--primary-light);
+        color: white;
+        box-shadow: 0 4px 15px rgba(201, 42, 42, 0.2);
+    }
+    body.dark-mode .step-icon.active {
+        background-color: var(--accent-dark);
+        border-color: var(--accent-dark);
+        color: #181a1b;
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+
+    <!-- Search Panel -->
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <h4 class="fw-bold mb-3 text-dark"><i class="bi bi-search text-primary me-2"></i>Suivi & Recherche de Colis</h4>
+        <form method="GET" action="{{ url_for('admin.manager_parcel_monitoring') }}" class="row g-2">
+            <div class="col-md-9 col-sm-8">
+                <input type="text" name="search" class="form-control form-control-lg" placeholder="Saisir numéro de suivi, téléphone expéditeur ou téléphone destinataire..." value="{{ search or '' }}" required>
+            </div>
+            <div class="col-md-3 col-sm-4">
+                <button type="submit" class="btn btn-lg btn-premium w-100"><i class="bi bi-search"></i> Rechercher</button>
+            </div>
+        </form>
+    </div>
+
+    {% if search %}
+        {% if parcel %}
+            <!-- Parcel Details Card -->
+            <div class="card border-0 shadow-sm p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom flex-wrap gap-2">
+                    <h5 class="fw-bold text-primary mb-0"><i class="bi bi-box-seam-fill me-2"></i>Colis #{{ parcel.tracking_number }}</h5>
+                    <span class="badge bg-success-soft text-success border px-3 py-1.5 fw-bold text-uppercase">{{ parcel.status }}</span>
+                </div>
+
+                <div class="row g-3 small">
+                    <div class="col-md-4">
+                        <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Expéditeur / Sender</span>
+                        <strong class="fs-6 text-dark d-block">{{ parcel.sender_name }}</strong>
+                        <span class="text-muted">{{ parcel.sender_phone or 'N/A' }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Destinataire / Receiver</span>
+                        <strong class="fs-6 text-dark d-block">{{ parcel.receiver_name }}</strong>
+                        <span class="text-muted">{{ parcel.receiver_phone }} (➔ {{ parcel.receiver_city }})</span>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Détails Envoi</span>
+                        <strong class="fs-6 text-success d-block">{{ parcel.price | int }} FCFA</strong>
+                        <span class="text-muted">{{ parcel.weight }} kg | {{ parcel.parcel_type }}</span>
+                    </div>
+                </div>
+
+                <!-- PROGRESS TIMELINE -->
+                <h5 class="fw-bold mt-5 mb-3 text-dark"><i class="bi bi-bezier2 text-success me-2"></i>Chronologie du Cycle Logistique</h5>
+                <div class="timeline-steps">
+                    <!-- Created -->
+                    <div class="timeline-step">
+                        <div class="step-icon active"><i class="bi bi-plus-lg"></i></div>
+                        <strong class="small text-dark d-block">Créé</strong>
+                        <span class="small text-muted" style="font-size:0.68rem;">{{ parcel.created_at.strftime('%d/%m à %H:%M') }}</span>
+                    </div>
+                    <!-- Paid -->
+                    <div class="timeline-step">
+                        <div class="step-icon {{ 'active' if parcel.payment_status == 'paid' or parcel.status in ['paid', 'assigned', 'loaded', 'in_transit', 'arrived', 'delivered'] }}"><i class="bi bi-wallet2"></i></div>
+                        <strong class="small text-dark d-block">Payé</strong>
+                        <span class="small text-muted" style="font-size:0.68rem;">{% if parcel.payment_status == 'paid' %}Confirmé{% else %}En attente{% endif %}</span>
+                    </div>
+                    <!-- Assigned -->
+                    <div class="timeline-step">
+                        <div class="step-icon {{ 'active' if parcel.trip_id and parcel.status in ['assigned', 'loaded', 'in_transit', 'arrived', 'delivered'] }}"><i class="bi bi-bus-front"></i></div>
+                        <strong class="small text-dark d-block">Assigné</strong>
+                        <span class="small text-muted" style="font-size:0.68rem;">{% if parcel.trip_id %}Voyage #{{ parcel.trip_id }}{% else %}Non assigné{% endif %}</span>
+                    </div>
+                    <!-- Loaded -->
+                    <div class="timeline-step">
+                        <div class="step-icon {{ 'active' if parcel.status in ['loaded', 'in_transit', 'arrived', 'delivered'] }}"><i class="bi bi-box-fill"></i></div>
+                        <strong class="small text-dark d-block">Chargé</strong>
+                        <span class="small text-muted" style="font-size:0.68rem;">{% if parcel.status in ['loaded', 'in_transit', 'arrived', 'delivered'] %}Marqué{% else %}En attente{% endif %}</span>
+                    </div>
+                    <!-- In Transit -->
+                    <div class="timeline-step">
+                        <div class="step-icon {{ 'active' if parcel.status in ['in_transit', 'arrived', 'delivered'] }}"><i class="bi bi-truck"></i></div>
+                        <strong class="small text-dark d-block">Transit</strong>
+                        <span class="small text-muted" style="font-size:0.68rem;">{% if parcel.status in ['in_transit', 'arrived', 'delivered'] %}En Route{% else %}En attente{% endif %}</span>
+                    </div>
+                    <!-- Delivered -->
+                    <div class="timeline-step">
+                        <div class="step-icon {{ 'active' if parcel.status == 'delivered' }}"><i class="bi bi-check-lg"></i></div>
+                        <strong class="small text-dark d-block">Livré</strong>
+                        <span class="small text-muted" style="font-size:0.68rem;">{% if parcel.status == 'delivered' %}Reçu{% else %}En attente{% endif %}</span>
+                    </div>
+                </div>
+
+                <!-- Detailed Audit Events Timeline List -->
+                <h5 class="fw-bold mt-5 mb-3 text-dark"><i class="bi bi-list-stars text-info me-2"></i>Historique des Opérations (Piste d'Audit)</h5>
+                <div class="list-group list-group-flush border rounded overflow-hidden mb-4">
+                    {% for event in timeline %}
+                    <div class="list-group-item p-3 d-flex justify-content-between align-items-center flex-wrap gap-2 text-start">
+                        <div>
+                            <strong class="text-dark d-block">{{ event.action }}</strong>
+                            <span class="small text-muted">{{ event.details }}</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="small text-muted d-block" style="font-size: 0.72rem;">Le {{ event.time.strftime('%d/%m/%Y à %H:%M') }}</span>
+                            <span class="badge bg-light text-dark border small" style="font-size: 0.65rem;">Par : {{ event.user }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Back button -->
+                <div>
+                    <a href="{{ url_for('admin.manager_parcel_monitoring') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
+                        <i class="bi bi-arrow-left me-2"></i> Retour au Registre des Colis
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="card border-0 shadow-sm p-5 text-center">
+                <i class="bi bi-exclamation-triangle fs-1 text-warning d-block mb-3"></i>
+                <h5 class="fw-bold text-muted">Colis introuvable.</h5>
+                <p class="text-muted small mb-4">Veuillez vérifier le numéro de suivi ou le numéro de téléphone saisi.</p>
+                <div>
+                    <a href="{{ url_for('admin.manager_parcel_monitoring') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
+                        <i class="bi bi-arrow-left me-2"></i> Retour au Registre des Colis
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Registry of all parcels -->
+        <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-journal-text text-primary me-2"></i>Registre Général des Colis ({{ all_parcels | length }} colis)</h5>
+            {% if all_parcels %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle table-striped-columns small">
+                        <thead>
+                            <tr>
+                                <th>N° Suivi</th>
+                                <th>Date d'Envoi</th>
+                                <th>Expéditeur</th>
+                                <th>Destinataire</th>
+                                <th>Tarif</th>
+                                <th>Statut Logistique</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in all_parcels %}
+                            <tr>
+                                <td class="fw-bold text-nowrap"><span class="badge bg-light text-dark border">{{ p.tracking_number }}</span></td>
+                                <td class="text-nowrap">{{ p.created_at.strftime('%d/%m/%Y à %H:%M') }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ p.sender_name }}</div>
+                                    <div class="small text-muted">{{ p.sender_phone or '' }}</div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ p.receiver_name }}</div>
+                                    <div class="small text-muted">{{ p.receiver_phone }} ({{ p.receiver_city }})</div>
+                                </td>
+                                <td class="fw-bold text-success">{{ p.price | int }} FCFA</td>
+                                <td>
+                                    {% if p.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill">Attente Validation</span>
+                                    {% elif p.status == 'validated' %}
+                                        <span class="badge bg-info text-white px-2.5 py-1 rounded-pill">Validé</span>
+                                    {% elif p.status == 'paid' %}
+                                        <span class="badge bg-primary text-white px-2.5 py-1 rounded-pill">Réglé (Attente Assignation)</span>
+                                    {% elif p.status == 'assigned' %}
+                                        <span class="badge bg-info text-white px-2.5 py-1 rounded-pill">Assigné au Voyage</span>
+                                    {% elif p.status == 'loaded' %}
+                                        <span class="badge bg-secondary text-white px-2.5 py-1 rounded-pill">Chargé (Transit)</span>
+                                    {% elif p.status == 'in_transit' %}
+                                        <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill">En Cours de Voyage</span>
+                                    {% elif p.status == 'arrived' %}
+                                        <span class="badge bg-info text-white px-2.5 py-1 rounded-pill">Arrivé à Destination</span>
+                                    {% elif p.status == 'delivered' %}
+                                        <span class="badge bg-success text-white px-2.5 py-1 rounded-pill">Livré au Destinataire</span>
+                                    {% elif p.status == 'rejected' %}
+                                        <span class="badge bg-danger text-white px-2.5 py-1 rounded-pill">Rejeté</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark px-2.5 py-1 rounded-pill">{{ p.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('admin.manager_parcel_monitoring', search=p.tracking_number) }}" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3">
+                                        <i class="bi bi-eye"></i> Suivre & Détails
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-box-seam fs-1 text-muted d-block mb-3"></i>
+                    <h6 class="text-muted fw-bold">Aucun colis enregistré dans cette agence.</h6>
+                    <p class="text-muted small mb-0">Les envois de colis apparaîtront dans ce registre général dès leur création.</p>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

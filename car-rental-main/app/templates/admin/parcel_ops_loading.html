@@ -1,0 +1,116 @@
+{% extends "admin/parcel_ops_base.html" %}
+
+{% block title %}Loading Control{% endblock %}
+{% block page_title %}Contrôle de Chargement (Scanner QR / Manuel) {% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 text-start">
+    <div class="row g-4">
+        <!-- Scanner and manual input -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm p-4 text-center">
+                <h5 class="fw-bold mb-1 text-dark"><i class="bi bi-qr-code-scan text-primary me-2"></i>Scanner le Code QR du Colis</h5>
+                <p class="small text-muted mb-4">Pointez l'étiquette QR du colis ou entrez le code de suivi manuellement.</p>
+
+                <!-- Scanner simulation box -->
+                <div class="mx-auto rounded-3 p-4 mb-4" style="max-width: 320px; background: #fafafa; border: 2px dashed var(--brand-primary);">
+                    <i class="bi bi-qr-code text-muted" style="font-size: 5rem;"></i>
+                    <div class="small text-muted mt-2">Lecteur QR Actif (Simulé)</div>
+                </div>
+
+                <!-- Fallback manual input -->
+                <div class="mb-2 text-start">
+                    <label for="manualTracking" class="form-label small fw-bold text-muted">Saisie manuelle du N° de Suivi</label>
+                    <div class="input-group shadow-sm rounded">
+                        <input type="text" id="manualTracking" class="form-control" placeholder="Ex: LV-PARCEL-2026-...">
+                        <button class="btn btn-premium" onclick="verifyAndLoad(document.getElementById('manualTracking').value)"><i class="bi bi-box-arrow-in-down"></i> Charger</button>
+                    </div>
+                </div>
+                <div class="alert alert-danger d-none mt-3 small fw-bold border-0 text-start" id="loadErrorAlert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorText">Colis introuvable ou déjà chargé.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cargo list needing to be loaded -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-truck text-success me-2"></i>Colis assignés à charger</h5>
+                    <span class="badge bg-warning text-dark rounded-pill px-3 py-1.5 fw-bold">{{ parcels | length }} colis en attente</span>
+                </div>
+
+                {% if parcels %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Code Suivi</th>
+                                    <th>Voyage Assigné</th>
+                                    <th>Poids / Type</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in parcels %}
+                                <tr id="row-{{ p.tracking_number }}">
+                                    <td class="fw-bold text-primary">{{ p.tracking_number }}</td>
+                                    <td>
+                                        {% if p.trip %}
+                                            <strong class="text-dark">{{ p.trip.departure_time.strftime('%H:%M') }}</strong> (Bus {{ p.trip.bus.bus_number }})
+                                            <span class="small text-muted d-block" style="font-size: 0.72rem;">Ligne: {{ p.trip.route.origin }}➔{{ p.trip.route.destination }}</span>
+                                        {% else %}
+                                            <span class="text-danger small">Non spécifié</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold">{{ p.weight }} kg</div>
+                                        <div class="small text-muted">{{ p.parcel_type }}</div>
+                                    </td>
+                                    <td class="text-end">
+                                        <form method="POST" action="{{ url_for('admin.load_parcel', parcel_id=p.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 fw-bold">
+                                                <i class="bi bi-box-arrow-in-down"></i> Charger
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-check2-circle fs-1 text-success d-block mb-3"></i>
+                        <h6 class="text-muted fw-bold">Aucun colis en attente de chargement !</h6>
+                        <p class="text-muted small mb-0">Tous les colis affectés à vos départs ont été correctement chargés physiques.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function verifyAndLoad(code) {
+        if (!code) return;
+        const cleanedCode = code.trim();
+        const row = document.getElementById(`row-${cleanedCode}`);
+        const errAlert = document.getElementById('loadErrorAlert');
+        errAlert.classList.add('d-none');
+
+        if (row) {
+            // Find and submit the form inside that row
+            const form = row.querySelector('form');
+            if (form) {
+                form.submit();
+            }
+        } else {
+            document.getElementById('errorText').innerText = `Le colis "${cleanedCode}" n'est pas dans la liste de chargement de cette agence.`;
+            errAlert.classList.remove('d-none');
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "admin/parcel_ops_base.html" %}
+
+{% block title %}Paiement des Colis{% endblock %}
+{% block page_title %}Paiement des Colis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 text-start">
+    <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-wallet2 text-success me-2"></i>Colis en attente de paiement</h5>
+            <span class="badge bg-success text-white px-3 py-1.5 fw-bold">{{ parcels | length }} colis</span>
+        </div>
+
+        {% if not caisse %}
+            <div class="alert alert-warning border-0 shadow-sm p-3 mb-4 rounded-3 d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>
+                <div>
+                    <h6 class="alert-heading fw-bold mb-1">Attention: Caisse Fermée</h6>
+                    <p class="small mb-0">La caisse de votre agence est actuellement fermée. Vous devez ouvrir une session de caisse depuis le POS avant d'enregistrer des règlements.</p>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if parcels %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle table-striped-columns">
+                    <thead>
+                        <tr>
+                            <th>N° Suivi</th>
+                            <th>Expéditeur</th>
+                            <th>Destinataire</th>
+                            <th>Détails Colis</th>
+                            <th class="text-end">Montant</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in parcels %}
+                        <tr>
+                            <td class="fw-bold text-nowrap">
+                                <span class="badge bg-light text-dark border">{{ p.tracking_number }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ p.sender_name }}</div>
+                                <div class="small text-muted">{{ p.sender_phone or '' }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ p.receiver_name }}</div>
+                                <div class="small text-muted">{{ p.receiver_phone }} ({{ p.receiver_city }})</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ p.parcel_type }}</span>
+                                <div class="small text-primary fw-bold mt-1">{{ p.weight }} kg</div>
+                            </td>
+                            <td class="text-end fw-bold text-success fs-5">
+                                {{ p.price | int }} FCFA
+                            </td>
+                            <td class="text-end">
+                                {% if caisse %}
+                                    <button class="btn btn-sm btn-success fw-bold rounded-pill px-3" onclick="openPaymentModal({{ p.id }}, '{{ p.tracking_number }}', {{ p.price | int }}, '{{ p.sender_name }}')">
+                                        <i class="bi bi-cash-coin me-1"></i> Encaisser
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-sm btn-secondary fw-bold rounded-pill px-3" disabled title="Ouvrez la caisse pour encaisser">
+                                        <i class="bi bi-lock-fill"></i> Bloqué
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-wallet2 fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted fw-bold">Aucun colis en attente de paiement.</h6>
+                <p class="text-muted small mb-0">Tous les colis enregistrés ont été réglés ou sont rejetés.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-cash-coin me-2"></i>Enregistrer le Paiement</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="paymentForm" method="POST" action="">
+                <div class="modal-body p-4 text-start">
+                    <div class="mb-4 text-center">
+                        <span class="text-muted small d-block">Colis à régler</span>
+                        <h4 class="fw-bold text-dark mb-1" id="payTracking">--</h4>
+                        <span class="badge bg-light text-muted border" id="paySender">--</span>
+                    </div>
+
+                    <div class="alert alert-success border-0 text-center p-3 mb-4" style="background: rgba(40, 167, 69, 0.08);">
+                        <span class="small text-muted d-block fw-semibold mb-1">Montant à Percevoir</span>
+                        <strong class="fs-2 text-success" id="payAmount">0 FCFA</strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="payMethod" class="form-label fw-bold">Mode de Règlement</label>
+                        <select class="form-select" id="payMethod" name="payment_method" required>
+                            <option value="Cash" selected>Cash / Espèces</option>
+                            <option value="MTN Mobile Money">MTN Mobile Money</option>
+                            <option value="Orange Money">Orange Money</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Confirmer l'Encaissement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let paymentModal;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    });
+
+    function openPaymentModal(id, tracking, amount, sender) {
+        document.getElementById('payTracking').innerText = `Colis #${tracking}`;
+        document.getElementById('paySender').innerText = `Expéditeur: ${sender}`;
+        document.getElementById('payAmount').innerText = `${amount.toLocaleString()} FCFA`;
+        document.getElementById('paymentForm').action = `/admin/parcel/ops/parcel/${id}/pay`;
+        paymentModal.show();
+    }
+</script>
+{% endblock %}

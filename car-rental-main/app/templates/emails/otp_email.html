@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Votre code de vérification - 3M SERVICES</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f4f6f9;
+      color: #333333;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrapper {
+      width: 100%;
+      background-color: #f4f6f9;
+      padding: 40px 0;
+    }
+    .container {
+      max-width: 580px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #C92A2A, #a02a4f);
+      padding: 30px;
+      text-align: center;
+    }
+    .logo-container {
+      margin-bottom: 10px;
+    }
+    .logo-img {
+      width: 60px;
+      height: auto;
+    }
+    .header h1 {
+      color: #ffffff;
+      font-size: 24px;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .content {
+      padding: 40px 35px;
+    }
+    .greeting {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+    .message {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #4a4a4a;
+      margin-bottom: 30px;
+    }
+    .otp-box {
+      background-color: #fcf4f6;
+      border: 1px dashed #a02a4f;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin: 25px 0;
+    }
+    .otp-code {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      color: #C92A2A;
+      margin: 0;
+    }
+    .expiry {
+      text-align: center;
+      font-size: 13px;
+      color: #e11d48;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+    .warning-box {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 30px;
+    }
+    .warning-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: #b45309;
+      margin: 0 0 5px 0;
+    }
+    .warning-text {
+      font-size: 13px;
+      color: #78350f;
+      margin: 0;
+      line-height: 1.5;
+    }
+    .footer {
+      background-color: #fafafa;
+      padding: 25px 35px;
+      text-align: center;
+      border-top: 1px solid #f0f0f0;
+      font-size: 12px;
+      color: #888888;
+      line-height: 1.5;
+    }
+    .footer a {
+      color: #C92A2A;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <div class="header">
+        <div class="logo-container">
+          <svg width="50" height="50" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;">
+            <circle cx="50" cy="50" r="48" fill="#ffffff" fill-opacity="0.15"/>
+            <path d="M30 70 L50 30 L70 70 Z" stroke="#ffffff" stroke-width="6" stroke-linejoin="round"/>
+            <path d="M40 55 L60 55" stroke="#ffffff" stroke-width="4"/>
+          </svg>
+        </div>
+        <h1>3M SERVICES</h1>
+      </div>
+      <div class="content">
+        <div class="greeting">Bonjour {{ username }},</div>
+        <div class="message">
+          Vous recevez cet e-mail dans le cadre de votre demande de <strong>{{ purpose_label }}</strong> sur 3M SERVICES.
+          Veuillez utiliser le code de vérification ci-dessous pour continuer :
+        </div>
+        <div class="otp-box">
+          <div class="otp-code">{{ otp_code }}</div>
+        </div>
+        <div class="expiry">⌛ Ce code expirera dans 10 minutes.</div>
+        <div class="warning-box">
+          <div class="warning-title">⚠️ ALERTE DE SÉCURITÉ</div>
+          <div class="warning-text">Ne partagez jamais ce code avec quiconque. Les agents de 3M SERVICES ne vous demanderont jamais votre code OTP. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité.</div>
+        </div>
+      </div>
+      <div class="footer">
+        Ceci est un e-mail automatique. Merci de ne pas y répondre.<br>
+        © 2026 <a href="https://3mservice.shop">3M SERVICES</a>. Tous droits réservés.
+      </div>
+    </div>
+  </div>
+</body>
+</html>

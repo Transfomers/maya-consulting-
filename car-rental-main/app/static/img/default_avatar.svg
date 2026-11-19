@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Premium gradient background -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </linearGradient>
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#701d36" />
+      <stop offset="100%" stop-color="#a02a4f" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="200" height="200" fill="url(#bgGrad)" rx="100" />
+  
+  <!-- Sleek user silhouette -->
+  <path d="M100 105c19.33 0 35-15.67 35-35S119.33 35 100 35 65 50.67 65 70s15.67 35 35 35zm0 15c-26.67 0-80 13.33-80 40v10h160v-10c0-26.67-53.33-40-80-40z" fill="url(#iconGrad)" opacity="0.85"/>
+</svg>

@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block title %}Contact - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
+<style>
+    .iti { width: 100%; }
+    .contact-hero {
+        background: linear-gradient(135deg, var(--primary-light) 0%, #a02a4f 60%, var(--accent-dark) 100%);
+        color: #fff;
+        padding: 4.5rem 0 3.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .contact-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url('{{ url_for("static", filename="uploads/contact_hero_realistic.png") }}') center/cover no-repeat;
+        opacity: 0.15;
+    }
+    .contact-info-card {
+        background: var(--glass-bg-light);
+        border: 1.5px solid var(--input-border-light);
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .contact-info-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(112,29,54,0.1);
+    }
+    .contact-info-icon {
+        width: 52px; height: 52px;
+        border-radius: 1rem;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, var(--primary-light), #a02a4f);
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px rgba(112,29,54,0.2);
+    }
+    .contact-info-icon i {
+        color: #ffffff !important;
+    }
+    .contact-form-card {
+        background: var(--glass-bg-light);
+        border: 1.5px solid var(--input-border-light);
+        border-radius: 2rem;
+        padding: 2.5rem;
+        box-shadow: 0 8px 40px rgba(112,29,54,0.07);
+    }
+    .contact-form-card .form-control,
+    .contact-form-card .form-select {
+        background: var(--input-bg-light);
+        border: 1.5px solid var(--input-border-light);
+        border-radius: 0.875rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        color: var(--text-light);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .contact-form-card .form-control:focus,
+    .contact-form-card .form-select:focus {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 3px rgba(112,29,54,0.1);
+        background: var(--input-focus-light);
+    }
+    .contact-form-card label.form-label {
+        font-weight: 600;
+        color: var(--text-light);
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+    }
+    .section-badge {
+        display: inline-block;
+        background: var(--bg-light);
+        color: var(--primary-light);
+        border: 1.5px solid rgba(112,29,54,0.15);
+        border-radius: 2rem;
+        padding: 0.35rem 1.1rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+    }
+    body.dark-mode .contact-info-card,
+    body.dark-mode .contact-form-card {
+        background: var(--glass-bg-dark);
+        border-color: var(--input-border-dark);
+    }
+    body.dark-mode .contact-form-card .form-control,
+    body.dark-mode .contact-form-card .form-select {
+        background: var(--input-bg-dark);
+        border-color: var(--input-border-dark);
+        color: var(--text-dark);
+    }
+    body.dark-mode .contact-form-card .form-control:focus {
+        background: var(--input-focus-dark);
+        border-color: var(--accent-dark);
+        box-shadow: 0 0 0 3px rgba(224,171,65,0.15);
+    }
+    body.dark-mode .contact-form-card label.form-label { color: var(--text-dark); }
+    body.dark-mode .section-badge {
+        background: rgba(224,171,65,0.1);
+        color: var(--accent-dark);
+        border-color: rgba(224,171,65,0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="contact-hero">
+    <div class="container position-relative text-center">
+        <span class="section-badge" style="background: rgba(255,255,255,0.15); color:#fff; border-color:rgba(255,255,255,0.3);">
+            {{ _t('Support & Aide') }}
+        </span>
+        <h1 class="display-5 fw-bold mb-3">{{ _t('Contactez-Nous') }}</h1>
+        <p class="lead mb-0" style="color: rgba(255,255,255,0.85); max-width: 520px; margin: 0 auto;">
+            {{ _t('Des questions ? Notre équipe est disponible 7j/7 pour vous aider et répondre à toutes vos demandes.') }}
+        </p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5 align-items-stretch">
+
+            <!-- Contact Information -->
+            <div class="col-lg-5">
+                <span class="section-badge">{{ _t('Nos Coordonnées') }}</span>
+                <h2 class="fw-bold mb-4" style="color: var(--primary-light); font-size: 1.8rem;">
+                    {{ _t('Parlons-nous !') }}
+                </h2>
+                <p class="text-muted mb-4">
+                    {{ _t('Que ce soit pour une réservation de véhicule VIP, un devis de location longue durée ou une résidence meublée, notre conciergerie est à votre écoute 24/7.') }}
+                </p>
+
+                <div class="d-flex flex-column gap-3">
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ _t('Agence Officielle') }}</h6>
+                            <p class="text-muted small mb-0">Omnisports, Face Pharmacie Le Bon Berger<br>Yaoundé, Cameroun</p>
+                        </div>
+                    </div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon"><i class="bi bi-telephone-fill"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ _t('Téléphone & WhatsApp') }}</h6>
+                            <p class="text-muted small mb-0">
+                                <a href="tel:+237691786447" class="text-muted text-decoration-none fw-semibold">+237 691 78 64 47</a><br>
+                                <a href="https://wa.me/237698668761" target="_blank" class="text-success text-decoration-none fw-semibold"><i class="bi bi-whatsapp me-1"></i>+237 698 66 87 61</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon"><i class="bi bi-envelope-fill"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Email Officiel</h6>
+                            <p class="text-muted small mb-0">
+                                <a href="mailto:contact@3mservice.shop" class="text-muted text-decoration-none">contact@3mservice.shop</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="contact-info-card">
+                        <div class="contact-info-icon"><i class="bi bi-clock-fill"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ _t('Permanence Conciergerie') }}</h6>
+                            <p class="text-muted small mb-0">
+                                {{ _t('Agence physique') }}: 07h30 – 19h00 (Lun - Sam)<br>
+                                <span class="text-success fw-bold">{{ _t('Assistance VIP & Chauffeurs') }}: 24h/24 & 7j/7</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="col-lg-7">
+                <div class="contact-form-card h-100">
+                    <h3 class="fw-bold mb-1" style="color: var(--primary-light);">{{ _t('Envoyez-nous une Demande') }}</h3>
+                    <p class="text-muted small mb-4">{{ _t('Un responsable conciergerie vous répondra dans les plus brefs délais.') }}</p>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show rounded-3" role="alert">
+                        <i class="bi bi-{{ 'check-circle-fill' if category == 'success' else 'exclamation-triangle-fill' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('main.contact_submit') }}">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">{{ _t('Nom Complet') }} <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name"
+                                       placeholder="{{ _t('Entrez votre nom') }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">{{ _t('Adresse E-mail') }} <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       placeholder="{{ _t('Entrez votre adresse email') }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">{{ _t('Téléphone / WhatsApp') }}</label>
+                                <input type="tel" class="form-control" id="phone" name="phone"
+                                       placeholder="{{ _t('Ex: +237 691 78 64 47') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="subject" class="form-label">{{ _t('Objet de la Demande') }} <span class="text-danger">*</span></label>
+                                <select class="form-select" id="subject" name="subject" required>
+                                    <option value="" disabled selected>{{ _t('Sélectionner un service...') }}</option>
+                                    <option value="reservation_vip">{{ _t('Location Véhicule VIP avec Chauffeur') }}</option>
+                                    <option value="autonomie">{{ _t('Location Sans Chauffeur (Autonomie)') }}</option>
+                                    <option value="transfert_aeroport">{{ _t('Navette Aéroport Nsimalen / Douala') }}</option>
+                                    <option value="devis_entreprise">{{ _t('Devis Flotte Entreprise / Longue Durée (LLD)') }}</option>
+                                    <option value="residence">{{ _t('Résidence Meublée Haut Standing') }}</option>
+                                    <option value="autre">{{ _t('Autre demande particulière') }}</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="message" class="form-label">{{ _t('Votre Message') }} <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="message" name="message" rows="5"
+                                          placeholder="{{ _t('Comment pouvons-nous vous aider ?') }}" required></textarea>
+                            </div>
+                            <div class="col-12 pt-2">
+                                <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold py-3"
+                                        style="background: linear-gradient(135deg, var(--primary-light), #a02a4f); border: none; box-shadow: 0 4px 20px rgba(112,29,54,0.3); color: #ffffff !important;">
+                                    <i class="bi bi-send-fill me-2" style="color: #ffffff !important;"></i>{{ _t('Envoyer le Message') }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const phoneInputField = document.querySelector("#phone");
+        if(phoneInputField) {
+            window.intlTelInput(phoneInputField, {
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+                preferredCountries: ["cm", "fr", "ga", "cg"],
+                separateDialCode: true,
+            });
+            // Update hidden input before submit if we want full number, but simple prepending is fine for UI
+        }
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

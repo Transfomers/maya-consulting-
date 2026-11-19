@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Créer un Utilisateur Staff - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+                <div class="mb-4">
+                    <h3 class="fw-bold"><i class="bi bi-person-plus-fill text-primary me-2"></i> Créer un Utilisateur Staff</h3>
+                    <p class="text-muted">Créez un compte utilisateur doté de privilèges spécifiques (Admin, Guichetier, etc.) pour gérer une agence.</p>
+                </div>
+
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="username" class="form-label">Identifiant de Connexion</label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Ex: p_dupont" required
+                                   pattern="[a-zA-Z0-9_]{3,20}">
+                            <div class="invalid-feedback">Veuillez entrer un identifiant valide (3-20 caractères, alphanumérique).</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="role" class="form-label">Rôle / Fonction</label>
+                            <select class="form-select" id="role" name="role" required>
+                                <option value="admin_agence" selected>Administrateur d'Agence</option>
+                                <option value="finance_officer">Agent Financier</option>
+                            </select>
+                            <div class="invalid-feedback">Veuillez choisir un rôle.</div>
+                        </div>
+
+                        {% if current_user.role == 'super_admin' %}
+                        <div class="col-md-6">
+                            <label for="agency_id" class="form-label">Agence à Gérer</label>
+                            <select class="form-select" id="agency_id" name="agency_id" required>
+                                <option value="" disabled selected>Choisir une agence à lier...</option>
+                                {% for agency in agencies %}
+                                    <option value="{{ agency.id }}">{{ agency.name }} ({{ agency.city }})</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Veuillez associer l'administrateur à une agence.</div>
+                        </div>
+                        {% endif %}
+
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Adresse Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Ex: admin@finevoyage.cm" required>
+                            <div class="invalid-feedback">Veuillez entrer une adresse email valide.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Numéro de Téléphone (Mobile Money)</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="Ex: +237 670 123 456">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label for="password" class="form-label">Mot de passe de Connexion</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password" autocomplete="new-password" placeholder="Min. 8 caractères, 1 min, 1 chiffre, 1 spécial" required minlength="8">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <div class="invalid-feedback">Le mot de passe doit contenir au moins 8 caractères.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-arrow-left me-2"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                            <i class="bi bi-check-circle me-2"></i> Créer l'Utilisateur
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const togglePassword = document.querySelector('.toggle-password');
+        const passwordInput = document.querySelector('#password');
+        
+        if(togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function () {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('bi-eye');
+                this.querySelector('i').classList.toggle('bi-eye-slash');
+            });
+        }
+    });
+</script>
+{% endblock %}

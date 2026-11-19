@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" fill="none">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="400" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fdf2f4"/>
+      <stop offset="100%" stop-color="#fce7eb"/>
+    </linearGradient>
+    <linearGradient id="bus1" x1="120" y1="80" x2="280" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#701D36"/>
+      <stop offset="100%" stop-color="#8B2848"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bg1)"/>
+  <!-- Road -->
+  <rect x="0" y="185" width="400" height="55" rx="0" fill="#e8e0e2" opacity="0.5"/>
+  <rect x="40" y="207" width="50" height="3" rx="1.5" fill="#ccc"/>
+  <rect x="120" y="207" width="50" height="3" rx="1.5" fill="#ccc"/>
+  <rect x="200" y="207" width="50" height="3" rx="1.5" fill="#ccc"/>
+  <rect x="280" y="207" width="50" height="3" rx="1.5" fill="#ccc"/>
+  <!-- Bus body -->
+  <rect x="110" y="100" width="180" height="90" rx="14" fill="url(#bus1)"/>
+  <rect x="110" y="100" width="180" height="25" rx="14" fill="#5C1629"/>
+  <rect x="110" y="112" width="180" height="13" rx="0" fill="#5C1629"/>
+  <!-- Bus windows -->
+  <rect x="130" y="118" width="30" height="28" rx="5" fill="#a8d8ea" opacity="0.85"/>
+  <rect x="170" y="118" width="30" height="28" rx="5" fill="#a8d8ea" opacity="0.85"/>
+  <rect x="210" y="118" width="30" height="28" rx="5" fill="#a8d8ea" opacity="0.85"/>
+  <rect x="250" y="118" width="30" height="28" rx="5" fill="#a8d8ea" opacity="0.85"/>
+  <!-- Headlights -->
+  <rect x="282" y="158" width="8" height="14" rx="3" fill="#fbbf24"/>
+  <!-- Bus wheels -->
+  <circle cx="155" cy="192" r="14" fill="#3d3d3d"/>
+  <circle cx="155" cy="192" r="7" fill="#6b6b6b"/>
+  <circle cx="255" cy="192" r="14" fill="#3d3d3d"/>
+  <circle cx="255" cy="192" r="7" fill="#6b6b6b"/>
+  <!-- Magnifying glass -->
+  <circle cx="310" cy="70" r="30" stroke="#701D36" stroke-width="5" fill="none" opacity="0.9"/>
+  <line x1="332" y1="92" x2="352" y2="112" stroke="#701D36" stroke-width="5" stroke-linecap="round" opacity="0.9"/>
+  <!-- Sparkle dots -->
+  <circle cx="300" cy="55" r="3" fill="#f59e0b" opacity="0.7"/>
+  <circle cx="325" cy="50" r="2" fill="#f59e0b" opacity="0.5"/>
+  <circle cx="60" cy="60" r="4" fill="#701D36" opacity="0.15"/>
+  <circle cx="340" cy="140" r="3" fill="#701D36" opacity="0.12"/>
+</svg>

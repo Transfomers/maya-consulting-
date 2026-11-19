@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Paiement de la Réservation{% endblock %}
+
+{% block extra_css %}
+<style>
+body {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 1.5rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+body.dark-mode .glass-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.timer-box {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    color: #fff;
+    border-radius: 1rem;
+    padding: 1rem;
+    font-size: 1.3rem;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+}
+.payment-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.payment-option-card {
+    flex: 1;
+    border: 2px solid rgba(13,110,253,0.1);
+    border-radius: 1.2rem;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    background: var(--glass-bg-light);
+    transition: all 0.25s ease;
+}
+.payment-option-card:hover {
+    border-color: #0d6efd;
+    transform: translateY(-3px);
+}
+.payment-option-card.active {
+    border-color: #0d6efd;
+    background: rgba(13,110,253,0.06);
+    box-shadow: 0 4px 16px rgba(13,110,253,0.15);
+}
+.payment-form-box {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+}
+.payment-form-box.active {
+    display: block;
+}
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #fff;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="d-none">
+    <div class="spinner-border text-warning" style="width: 4.5rem; height: 4.5rem;" role="status">
+        <span class="visually-hidden">Chargement...</span>
+    </div>
+    <h3 class="mt-4 fw-bold">Traitement de la transaction...</h3>
+    <p class="text-light opacity-75">Veuillez ne pas fermer ou actualiser cette page.</p>
+</div>
+
+<div class="container py-4">
+    <div class="row align-items-stretch">
+        <!-- Main Form Column -->
+        <div class="col-lg-6 mb-4">
+            <div class="glass-card p-4 h-100 d-flex flex-column">
+                <h3 class="fw-bold mb-4" style="color: #C92A2A;"><i class="fas fa-shield-alt me-2"></i>{{ _t('Paiement Sécurisé') }}</h3>
+                
+                <!-- Payment Mode Selector -->
+                <h5 class="fw-bold mb-3">{{ _t('Sélectionnez votre moyen de paiement') }}</h5>
+                <div class="payment-selector">
+                    <div class="payment-option-card active" onclick="selectPaymentMode('MTN MoMo')">
+                        <i class="bi bg-warning rounded-circle px-2 py-1 text-white fs-4 d-inline-flex align-items-center justify-content-center" style="width:40px; height:40px; font-style:normal; font-weight:bold;">M</i>
+                        <h6 class="fw-bold mt-2 mb-0">MTN MoMo</h6>
+                        <span class="text-muted small">Mobile Money</span>
+                    </div>
+                    <div class="payment-option-card" onclick="selectPaymentMode('Orange Money')">
+                        <i class="bi bg-danger rounded-circle px-2 py-1 text-white fs-4 d-inline-flex align-items-center justify-content-center" style="width:40px; height:40px; font-style:normal; font-weight:bold;">O</i>
+                        <h6 class="fw-bold mt-2 mb-0">Orange Money</h6>
+                        <span class="text-muted small">Mobile Money</span>
+                    </div>
+                </div>
+
+                <!-- Checkout Form -->
+                <form id="paymentForm" method="POST" class="mt-auto">
+                    <input type="hidden" name="payment_method" id="paymentMethodInput" value="MTN MoMo">
+
+                    <!-- Mobile Money Fields -->
+                    <div id="momoForm" class="payment-form-box active">
+                        <h5 class="fw-bold mb-3 text-secondary" id="momoFormTitle">Détails MTN MoMo</h5>
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">{{ _t('Numéro de téléphone Mobile Money') }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">+237</span>
+                                <input type="tel" class="form-control" id="phone_number" name="phone_number" 
+                                       placeholder="6xx xxx xxx" minlength="9" maxlength="9" required>
+                            </div>
+                            <div class="form-text mt-2"><i class="fas fa-info-circle text-primary"></i> Une demande d'autorisation de débit (push USSD) sera envoyée sur votre téléphone.</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-lg w-100 fw-bold py-3 mt-4 text-white" style="background: linear-gradient(135deg, #C92A2A 0%, #A61E1E 100%); border-radius:1.5rem; border: none; box-shadow: 0 8px 20px rgba(201, 42, 42, 0.3); transition: all 0.3s ease;">
+                        <i class="fas fa-check-circle me-2"></i> {{ _t('Confirmer et Payer') }} {{ total_amount|int }} FCFA
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sidebar Summary Column -->
+        <div class="col-lg-6 mb-4 d-flex flex-column">
+            <!-- Timer Lock Box -->
+            <div class="timer-box mb-4">
+                <i class="bi bi-hourglass-split me-2"></i> {{ _t('Temps restant pour payer :') }} <strong id="countdownTimer">15:00</strong>
+            </div>
+
+            <!-- Booking Summary -->
+            <div class="glass-card p-4 flex-grow-1">
+                <h4 class="fw-bold mb-3" style="color: #C92A2A;"><i class="fas fa-shopping-cart me-2"></i>{{ _t('Récapitulatif') }}</h4>
+                
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-3 text-secondary">{{ _t('Détails de la Location VIP') }}</h5>
+                    
+                    {% set outbound_bookings = bookings|selectattr('trip_id', 'equalto', trip.id)|list %}
+                    {% set return_bookings = bookings|rejectattr('trip_id', 'equalto', trip.id)|list %}
+                    
+                    <!-- Outbound -->
+                    <div class="p-3 bg-light rounded-3 mb-3 border-start border-4 border-success">
+                        <h6 class="fw-bold text-success"><i class="bi bi-car-front-fill me-1"></i> {{ _t('Mise à disposition / Mission') }}</h6>
+                        <div class="fw-semibold">{{ trip.route.origin }} ➔ {{ trip.route.destination }}</div>
+                        <div class="text-muted small"><i class="far fa-calendar-alt me-1"></i> {{ trip.departure_time.strftime('%d/%m/%Y à %H:%M') }}</div>
+                        <div class="text-muted small"><i class="bi bi-shield-check me-1"></i> {{ _t('Poste / Réf :') }} 
+                            <strong>{{ outbound_bookings|map(attribute='seat_number')|join(', ') }}</strong>
+                        </div>
+                    </div>
+                    
+                    {% if return_bookings %}
+                    <!-- Return -->
+                    {% set return_trip = return_bookings[0].trip %}
+                    <div class="p-3 bg-light rounded-3 border-start border-4 border-primary">
+                        <h6 class="fw-bold text-primary"><i class="bi bi-arrow-left-circle-fill me-1"></i> {{ _t('Restitution / Fin de mission') }}</h6>
+                        <div class="fw-semibold">{{ return_trip.route.origin }} ➔ {{ return_trip.route.destination }}</div>
+                        <div class="text-muted small"><i class="far fa-calendar-alt me-1"></i> {{ return_trip.departure_time.strftime('%d/%m/%Y à %H:%M') }}</div>
+                        <div class="text-muted small"><i class="bi bi-shield-check me-1"></i> {{ _t('Poste / Réf :') }} 
+                            <strong>{{ return_bookings|map(attribute='seat_number')|join(', ') }}</strong>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="text-muted mt-3 small"><i class="fas fa-user-tie me-1"></i> {{ _t('Client VIP :') }} {{ bookings[0].passenger_name }}</div>
+                </div>
+
+                <hr>
+
+                <div class="mb-4 d-flex justify-content-between align-items-center p-3 rounded-4 mt-4" style="background: linear-gradient(135deg, rgba(201, 42, 42, 0.05), rgba(224, 83, 112, 0.05)); border: 1px solid rgba(201, 42, 42, 0.1);">
+                    <span class="fs-5 fw-bold" style="color: #C92A2A;">{{ _t('Montant Total :') }}</span>
+                    <span class="fs-2 fw-extrabold" style="color: #C92A2A;">{{ total_amount|int }} FCFA</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Payment selection logic
+function selectPaymentMode(mode) {
+    document.querySelectorAll('.payment-option-card').forEach(card => card.classList.remove('active'));
+    document.getElementById('paymentMethodInput').value = mode;
+
+    event.currentTarget.classList.add('active');
+    document.getElementById('momoFormTitle').innerText = "Détails " + mode;
+}
+
+// 15-minute countdown logic
+let timeLeft = {{ time_left }};
+const timerSpan = document.getElementById('countdownTimer');
+
+const countdown = setInterval(function() {
+    if (timeLeft <= 0) {
+        clearInterval(countdown);
+        alert("Votre temps de réservation de 15 minutes a expiré. Vous allez être redirigé pour recommencer.");
+        window.location.reload();
+    } else {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        timerSpan.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        timeLeft--;
+    }
+}, 1000);
+
+// Simulated Checkout Spinner animation
+document.getElementById('paymentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('loadingOverlay').classList.remove('d-none');
+    setTimeout(() => {
+        this.submit();
+    }, 2500); // 2.5 seconds premium processing delay
+});
+</script>
+{% endblock %} 

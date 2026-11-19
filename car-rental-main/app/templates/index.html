@@ -1,0 +1,1238 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('Accueil') }} - 3M SERVICES{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="container-fluid p-0 mb-5">
+    <div class="hero-container text-white d-flex align-items-center justify-content-center py-5" style="min-height: 52vh; position: relative; overflow: hidden; background-color: #0B0F19;">
+        <!-- Background Gradient with Luxury Accent -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 30%, rgba(201, 42, 42, 0.35) 0%, rgba(11, 15, 25, 0.95) 75%), url('{{ url_for('static', filename='uploads/home_hero_realistic.png') }}'); background-size: cover; background-position: center; z-index: 1;"></div>
+        
+        <div class="w-100 d-flex flex-column align-items-center justify-content-center px-3" style="z-index: 2; position: relative;">
+            <!-- Welcome text -->
+            <div class="text-center mb-4 text-white" style="max-width: 900px; width: 100%;">
+                <span class="badge px-3 py-2 rounded-pill mb-3" style="background: rgba(201, 42, 42, 0.25); border: 1px solid rgba(201, 42, 42, 0.6); color: #fff; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.05em;">
+                    <i class="bi bi-shield-check me-1 text-warning"></i> 3M SERVICES SARL &bull; YAOUNDÉ, CAMEROUN
+                </span>
+                <h1 class="display-4 fw-extrabold mb-3 text-white" style="font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; letter-spacing: -0.02em;">
+                    Location de Véhicules VIP & Résidences Meublées
+                </h1>
+                <p class="lead mb-0 text-white fw-normal opacity-90" style="font-size: 1.25rem;">
+                    Flotte officielle de prestige, chauffeurs bilingues formés au protocole et conciergerie 24/7 pour vos missions diplomatiques, affaires et séjours haut standing.
+                </p>
+            </div>
+            
+            <!-- Reservation Form Glassmorphic -->
+            <div class="text-start text-white p-4 p-md-4 mt-2" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(25px); border-radius: 1.75rem; box-shadow: 0 16px 48px rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.15); max-width: 960px; width: 100%;">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-light border-opacity-10 flex-wrap gap-2">
+                    <div>
+                        <h4 class="fw-bold mb-0 text-white"><i class="bi bi-car-front-fill me-2" style="color: #C92A2A;"></i> Réservation Rapide de Véhicule VIP</h4>
+                        <small class="text-white-50">Sélectionnez vos critères et obtenez confirmation instantanée par nos gestionnaires.</small>
+                    </div>
+                    <span class="badge bg-success-soft text-success px-3 py-1 rounded-pill fw-bold">
+                        <i class="bi bi-lightning-charge-fill me-1"></i> Réponse &lt; 15 min
+                    </span>
+                </div>
+
+                <form id="heroRentalForm" onsubmit="event.preventDefault(); handleQuickRentalSubmit();">
+                    <div class="row g-3">
+                        <!-- Type de prestation -->
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-white-50 text-uppercase">Formule</label>
+                            <select class="form-select bg-dark text-white border-secondary fw-semibold py-2" id="rentalFormula" required>
+                                <option value="Avec Chauffeur VIP inclus" selected>Avec Chauffeur VIP inclus</option>
+                                <option value="Transfert Aéroport Yaoundé-Nsimalen">Transfert Aéroport Nsimalen VIP</option>
+                                <option value="Mise à Disposition Journée (Yaoundé)">Mise à Disposition Journée (8h-18h)</option>
+                                <option value="Interurbain (Yaoundé - Douala - Kribi)">Interurbain (Yaoundé &rarr; Douala / Kribi)</option>
+                                <option value="Sans Chauffeur (Conditions VIP)">Sans Chauffeur (Sous conditions)</option>
+                            </select>
+                        </div>
+
+                        <!-- Véhicule Souhaité -->
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-white-50 text-uppercase">Véhicule VIP Souhaité</label>
+                            <select class="form-select bg-dark text-white border-secondary fw-semibold py-2" id="rentalCar" required>
+                                <option value="Toyota Land Cruiser V8 LC300 VIP Executive (250 000 FCFA/j)" selected>Toyota LC300 V8 VIP (250 000 FCFA/j)</option>
+                                <option value="Toyota Land Cruiser V8 LC200 Prestige (150 000 FCFA/j)">Toyota LC200 V8 Prestige (150 000 FCFA/j)</option>
+                                <option value="Mercedes-Benz Classe E Berline VIP (120 000 FCFA/j)">Mercedes-Benz Classe E VIP (120 000 FCFA/j)</option>
+                                <option value="Toyota Land Cruiser Prado TXL VIP (100 000 FCFA/j)">Toyota Prado TXL VIP (100 000 FCFA/j)</option>
+                                <option value="Toyota Hilux Double Cabine 4x4 (80 000 FCFA/j)">Toyota Hilux 4x4 (80 000 FCFA/j)</option>
+                                <option value="Toyota Camry Berline Prestige (70 000 FCFA/j)">Toyota Camry Berline (70 000 FCFA/j)</option>
+                                <option value="Toyota RAV4 4x4 Urbain (60 000 FCFA/j)">Toyota RAV4 4x4 (60 000 FCFA/j)</option>
+                            </select>
+                        </div>
+
+                        <!-- Prise en charge -->
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-white-50 text-uppercase">Lieu de Prise en Charge</label>
+                            <select class="form-select bg-dark text-white border-secondary fw-semibold py-2" id="rentalLocation" required>
+                                <option value="Yaoundé Centre (Omnisports)" selected>Yaoundé Centre (Omnisports)</option>
+                                <option value="Yaoundé Bastos (Zone Diplomatique)">Yaoundé Bastos (Zone Diplomatique)</option>
+                                <option value="Aéroport International Yaoundé-Nsimalen">Aéroport International Nsimalen</option>
+                                <option value="Douala Bonanjo / Akwa">Douala (Bonanjo / Akwa)</option>
+                                <option value="Livraison personnalisée à domicile/hôtel">Livraison à l'hôtel ou domicile</option>
+                            </select>
+                        </div>
+
+                        <!-- Date début -->
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-white-50 text-uppercase">Date de Début</label>
+                            <input type="date" class="form-control bg-dark text-white border-secondary py-2" id="rentalStartDate" required>
+                        </div>
+
+                        <!-- Date fin -->
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-white-50 text-uppercase">Date de Fin</label>
+                            <input type="date" class="form-control bg-dark text-white border-secondary py-2" id="rentalEndDate" required>
+                        </div>
+
+                        <!-- Bouton Submit -->
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn w-100 fw-bold py-2 shadow" style="background: #C92A2A; color: #fff; height: 42px; border-radius: 8px; border: none; font-size: 0.95rem;">
+                                <i class="bi bi-whatsapp me-2"></i> Réserver sur WhatsApp 24/7
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- CLIENT SIDE REACT WEBAPP CONNECTION BANNER (PORT 3001)        -->
+<!-- ============================================================== -->
+<div class="container mb-5">
+    <div class="p-4 p-md-5 rounded-4 text-white shadow-lg d-flex flex-column flex-lg-row align-items-center justify-content-between gap-4" style="background: linear-gradient(135deg, #0B0F19 0%, #1e293b 100%); border: 1.5px solid rgba(201, 42, 42, 0.4);">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge px-3 py-1 rounded-pill" style="background: #C92A2A; color: #fff; font-weight: 700; font-size: 0.8rem;">
+                    <i class="bi bi-stars me-1"></i> SITE CLIENT OFFICIEL REACT (PORT 3001)
+                </span>
+                <span class="badge bg-secondary text-white px-3 py-1 rounded-pill" style="font-size: 0.8rem;">
+                    Interactive 360° E-Commerce
+                </span>
+            </div>
+            <h3 class="fw-bold mb-2 text-white">Consultez notre Catalogue Multi-Angles & Vos Réservations</h3>
+            <p class="text-white-50 mb-0" style="max-width: 650px; font-size: 0.95rem;">
+                Accédez au site client complet pour inspecter les véhicules sous chaque profil (face, profil, 3/4), explorer nos résidences meublées haut standing à Yaoundé, et suivre vos commandes dans votre Espace Client dédié.
+            </p>
+        </div>
+        <div class="d-flex gap-3 flex-wrap">
+            <a href="http://localhost:3001/models" target="_blank" class="btn btn-lg rounded-pill px-4 fw-bold shadow d-flex align-items-center gap-2" style="background: #C92A2A; color: white; border: none;">
+                <i class="bi bi-car-front-fill"></i> Catalogue Véhicules 360°
+            </a>
+            <a href="http://localhost:3001/apartments" target="_blank" class="btn btn-lg btn-outline-light rounded-pill px-4 fw-bold d-flex align-items-center gap-2">
+                <i class="bi bi-building"></i> Résidences Meublées
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- FLOTTE OFFICIELLE DES 7 VÉHICULES VIP 3M SERVICES              -->
+<!-- ============================================================== -->
+<div class="container mb-5 py-4 fade-in" id="fleet-showcase-section">
+    <div class="text-center mb-5">
+        <span class="badge px-3 py-2 text-uppercase fw-bold mb-2" style="background: rgba(201, 42, 42, 0.1); color: #C92A2A; border: 1px solid rgba(201, 42, 42, 0.2); border-radius: 2rem;">
+            Prestige Automobile Yaoundé
+        </span>
+        <h2 class="display-6 fw-bold mb-2" style="color: #0f172a;">Notre Flotte Officielle de Véhicules VIP</h2>
+        <p class="text-muted lead fs-6">Véhicules climatisés, révisés en continu et assurés tout-risque pour votre sécurité maximale.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- 1. LC300 VIP -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="border: 1px solid rgba(0,0,0,0.06);">
+                <div class="p-3 text-white" style="background: linear-gradient(135deg, #0B0F19, #26050f);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-warning text-dark fw-bold">VIP Executive</span>
+                        <span class="fw-bold fs-5 text-white">250 000 FCFA <small class="fw-normal" style="font-size:0.75rem;">/ jour</small></span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-1">Toyota Land Cruiser V8 (LC300 VIP)</h5>
+                    <div class="text-muted small mb-3">Immatriculation: LT-104-AB &bull; 4x4 Prestige</div>
+                    <ul class="list-unstyled small mb-4 d-flex flex-column gap-2 text-muted">
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> 7 places cuir haut standing, toit ouvrant</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Moteur V8 Twin Turbo, boîte automatique 4x4</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Climatisation intégrale quadri-zone, vitres teintées VIP</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Chauffeur VIP bilingue en costume inclus</li>
+                    </ul>
+                    <a href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20le%20Toyota%20Land%20Cruiser%20LC300%20VIP" target="_blank" class="btn btn-outline-danger w-100 fw-bold rounded-pill">
+                        <i class="bi bi-whatsapp me-2"></i> Réserver le LC300
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. LC200 Prestige -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="border: 1px solid rgba(0,0,0,0.06);">
+                <div class="p-3 text-white" style="background: linear-gradient(135deg, #C92A2A, #8B2848);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-white text-dark fw-bold">Prestige VIP</span>
+                        <span class="fw-bold fs-5 text-white">150 000 FCFA <small class="fw-normal" style="font-size:0.75rem;">/ jour</small></span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-1">Toyota Land Cruiser V8 (LC200)</h5>
+                    <div class="text-muted small mb-3">Immatriculation: CE-982-LT &bull; 4x4 Prestige</div>
+                    <ul class="list-unstyled small mb-4 d-flex flex-column gap-2 text-muted">
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> 7 places confort royal, sellerie cuir noir</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Puissant V8 Diesel, tout-terrain absolu</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Suspension active, insonorisation de luxe</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Idéal cortèges d'honneur et missions longues distances</li>
+                    </ul>
+                    <a href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20le%20Toyota%20Land%20Cruiser%20LC200" target="_blank" class="btn btn-outline-danger w-100 fw-bold rounded-pill">
+                        <i class="bi bi-whatsapp me-2"></i> Réserver le LC200
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Mercedes-Benz Classe E -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="border: 1px solid rgba(0,0,0,0.06);">
+                <div class="p-3 text-white" style="background: linear-gradient(135deg, #1e293b, #0B0F19);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-light text-dark fw-bold">Berline VIP</span>
+                        <span class="fw-bold fs-5 text-white">120 000 FCFA <small class="fw-normal" style="font-size:0.75rem;">/ jour</small></span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-1">Mercedes-Benz Classe E Berline</h5>
+                    <div class="text-muted small mb-3">Immatriculation: LT-554-ME &bull; Berline Luxe</div>
+                    <ul class="list-unstyled small mb-4 d-flex flex-column gap-2 text-muted">
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> 5 places, élégance et raffinement allemand</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Confort feutré pour réceptions, mariages & VIP</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Chauffeur d'élite en tenue protocolaire</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Système audio Burmester & climatisation bizone</li>
+                    </ul>
+                    <a href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20la%20Mercedes-Benz%20Classe%20E" target="_blank" class="btn btn-outline-danger w-100 fw-bold rounded-pill">
+                        <i class="bi bi-whatsapp me-2"></i> Réserver la Classe E
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Prado TXL VIP -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="border: 1px solid rgba(0,0,0,0.06);">
+                <div class="p-3 text-white" style="background: linear-gradient(135deg, #334155, #1e293b);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-info text-dark fw-bold">SUV Tout-Terrain</span>
+                        <span class="fw-bold fs-5 text-white">100 000 FCFA <small class="fw-normal" style="font-size:0.75rem;">/ jour</small></span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-1">Toyota Land Cruiser Prado TXL</h5>
+                    <div class="text-muted small mb-3">Immatriculation: CE-452-X &bull; SUV VIP</div>
+                    <ul class="list-unstyled small mb-4 d-flex flex-column gap-2 text-muted">
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> 7 places, robuste, polyvalent et confortable</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Idéal pour axes Yaoundé, Douala, Bafoussam, Kribi</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Climatisation puissante, grand coffre bagages</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Chauffeur habitué aux trajets interurbains</li>
+                    </ul>
+                    <a href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20le%20Toyota%20Prado%20TXL" target="_blank" class="btn btn-outline-danger w-100 fw-bold rounded-pill">
+                        <i class="bi bi-whatsapp me-2"></i> Réserver le Prado
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Toyota Hilux 4x4 -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="border: 1px solid rgba(0,0,0,0.06);">
+                <div class="p-3 text-white" style="background: linear-gradient(135deg, #475569, #334155);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-light text-dark fw-bold">4x4 Tout-Terrain</span>
+                        <span class="fw-bold fs-5 text-white">80 000 FCFA <small class="fw-normal" style="font-size:0.75rem;">/ jour</small></span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-1">Toyota Hilux Double Cabine 4x4</h5>
+                    <div class="text-muted small mb-3">Immatriculation: CE-789-HT &bull; Pickup Prestige</div>
+                    <ul class="list-unstyled small mb-4 d-flex flex-column gap-2 text-muted">
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> 5 places, grande benne de chargement sécurisée</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Parfait pour missions chantiers, tournages & prospections</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Moteur Diesel D-4D indestructible</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Climatisation et confort de conduite sur pistes</li>
+                    </ul>
+                    <a href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20le%20Toyota%20Hilux" target="_blank" class="btn btn-outline-danger w-100 fw-bold rounded-pill">
+                        <i class="bi bi-whatsapp me-2"></i> Réserver le Hilux
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Camry & RAV4 Combo -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="border: 1px solid rgba(0,0,0,0.06);">
+                <div class="p-3 text-white" style="background: linear-gradient(135deg, #C92A2A, #0B0F19);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-white text-dark fw-bold">Urbain & Éco VIP</span>
+                        <span class="fw-bold fs-5 text-white">60 000 - 70 000 FCFA</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-1">Toyota Camry & Toyota RAV4 4x4</h5>
+                    <div class="text-muted small mb-3">Camry (CE-331-BC) &bull; RAV4 (CE-112-RV)</div>
+                    <ul class="list-unstyled small mb-4 d-flex flex-column gap-2 text-muted">
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> 5 places, compactes et très économiques</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Parfaites pour la circulation en ville à Yaoundé</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Climatisation glaciale, boîte automatique douce</li>
+                        <li><i class="bi bi-check2-circle text-danger me-2"></i> Disponible avec ou sans chauffeur</li>
+                    </ul>
+                    <a href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES,%20je%20souhaite%20r%C3%A9server%20la%20Camry%20ou%20le%20RAV4" target="_blank" class="btn btn-outline-danger w-100 fw-bold rounded-pill">
+                        <i class="bi bi-whatsapp me-2"></i> Réserver Camry / RAV4
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function handleQuickRentalSubmit() {
+    const formula = document.getElementById('rentalFormula').value;
+    const car = document.getElementById('rentalCar').value;
+    const location = document.getElementById('rentalLocation').value;
+    const start = document.getElementById('rentalStartDate').value || 'Dès que possible';
+    const end = document.getElementById('rentalEndDate').value || 'À convenir';
+
+    const msg = `Bonjour 3M SERVICES,\nJe souhaite réserver un véhicule VIP :\n- Véhicule : ${car}\n- Formule : ${formula}\n- Prise en charge : ${location}\n- Date début : ${start}\n- Date fin : ${end}\nMerci de me confirmer la disponibilité et le tarif.`;
+    window.open(`https://wa.me/237691786447?text=${encodeURIComponent(msg)}`, '_blank');
+}
+</script>
+
+<!-- Today's & Upcoming Trips Section -->
+<div class="container mb-5 py-4 fade-in" id="upcoming-trips-section">
+        <!-- Title Section -->
+        <div class="row mb-5 justify-content-center">
+            <div class="col-md-8 text-center fade-in">
+                <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill mb-3 fw-bold shadow-sm" style="font-size: 0.9rem;">
+                    <i class="bi bi-clock-history me-1"></i> Mises à jour en temps réel
+                </span>
+                <h2 class="display-6 fw-bold mb-3" style="color: var(--primary-light);">
+                    Missions & Liaisons VIP Programmées
+                </h2>
+                <p class="text-muted fs-5">
+                    Transferts aéroport Nsimalen, liaisons Yaoundé - Douala - Kribi et forfaits journée avec chauffeurs VIP.
+                </p>
+            </div>
+        </div>
+    
+    <div class="row g-4 justify-content-center" id="trip-cards-container">
+        {% if upcoming_trips and upcoming_trips|length > 0 %}
+            {% for trip in upcoming_trips %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden service-card" style="border-radius: 1.5rem; background: var(--glass-bg-light); border: 1.5px solid rgba(201, 42, 42, 0.08); transition: transform 0.3s, box-shadow 0.3s;">
+                    <!-- Card Header: Route -->
+                    <div class="p-3 text-white" style="background: linear-gradient(135deg, var(--primary-light), #8B2848); border-radius: 1.5rem 1.5rem 0 0;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h5 class="fw-bold mb-0 text-white" style="font-size: 1.15rem;">
+                                    {{ trip.route.origin }} <i class="fas fa-arrow-right mx-1" style="font-size: 0.8rem;"></i> {{ trip.route.destination }}
+                                </h5>
+                            </div>
+                            <span class="badge bg-white text-dark px-2 py-1 fw-bold" style="font-size: 0.7rem; border-radius: 1rem;">
+                                {% set trip_date = trip.departure_time.date() %}
+                                {% set today_date = now_wat %}
+                                {% if trip_date == today_date %}
+                                    {{ _t("Aujourd'hui") }}
+                                {% elif trip_date == today_date + timedelta(days=1) %}
+                                    {{ _t('Demain') }}
+                                {% else %}
+                                    {{ trip.departure_time.strftime('%d/%m/%Y') }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Body: Details -->
+                    <div class="card-body p-3">
+                        <!-- Time & Duration Row -->
+                        <div class="d-flex align-items-center mb-3 gap-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; background: rgba(112,29,54,0.1);">
+                                    <i class="fas fa-clock" style="color: var(--primary-light); font-size: 0.9rem;"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold" style="font-size: 1.3rem; color: var(--primary-light);">{{ trip.departure_time.strftime('%H:%M') }}</div>
+                                    <small class="text-muted">{{ _t('Départ') }}</small>
+                                </div>
+                            </div>
+                            <div class="text-center flex-grow-1">
+                                <div style="border-top: 2px dashed rgba(112,29,54,0.2); position: relative; top: -4px;"></div>
+                                <small class="text-muted fw-semibold">{{ trip.duration_display }}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold" style="font-size: 1.3rem; color: #555;">{{ trip.arrival_time.strftime('%H:%M') }}</div>
+                                <small class="text-muted">{{ _t('Arrivée') }}</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Info Grid -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-tag me-2" style="color: var(--primary-light); font-size: 0.8rem;"></i>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 1.1rem; color: var(--primary-light);">{{ '{:,.0f}'.format(trip.price) }} FCFA</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div class="d-flex align-items-center justify-content-end">
+                                    <i class="fas fa-chair me-2" style="color: {% if trip.available_seats <= 5 %}#dc3545{% else %}#0d9488{% endif %}; font-size: 0.8rem;"></i>
+                                    <span class="fw-semibold {% if trip.available_seats <= 5 %}text-danger{% else %}text-success{% endif %}">
+                                        {{ trip.available_seats }} {{ _t('places') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Agency & Bus info -->
+                        <div class="d-flex align-items-center justify-content-between mb-3 px-2 py-2" style="background: rgba(112,29,54,0.04); border-radius: 0.75rem;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-building me-2" style="color: var(--primary-light); font-size: 0.75rem;"></i>
+                                <small class="fw-semibold text-dark">{{ trip.route.agency.name if trip.route.agency else '' }}</small>
+                            </div>
+                            {% if trip.bus %}
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-bus me-1" style="color: #6b7280; font-size: 0.7rem;"></i>
+                                <small class="text-muted">{{ trip.bus.brand or '' }} {{ trip.bus.model }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Booking Status Badge -->
+                        <div class="d-flex align-items-center justify-content-between">
+                            {% if trip.booking_status == 'BOOKING_OPEN' %}
+                                <span class="badge bg-success px-2 py-1" style="font-size: 0.7rem;"><i class="fas fa-check-circle me-1"></i>{{ _t('Réservation ouverte') }}</span>
+                            {% elif trip.booking_status == 'FULL' %}
+                                <span class="badge bg-danger px-2 py-1" style="font-size: 0.7rem;"><i class="fas fa-ban me-1"></i>{{ _t('Complet') }}</span>
+                            {% endif %}
+                            
+                            {% if trip.available_seats > 0 and trip.available_seats <= 5 %}
+                                <small class="text-danger fw-bold" style="font-size: 0.7rem;"><i class="fas fa-fire me-1"></i>{{ _t('Plus que quelques places !') }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Card Footer: Book Now -->
+                    <div class="card-footer bg-transparent border-0 p-3 pt-0">
+                        <a href="{{ url_for('main.book', trip_id=trip.id) }}" class="btn w-100 fw-bold py-2" style="background: linear-gradient(135deg, var(--primary-light), #8B2848); color: #fff; border-radius: 0.75rem; transition: all 0.3s;">
+                            <i class="fas fa-ticket-alt me-2"></i>{{ _t('Réserver Maintenant') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <div class="mb-3" style="font-size: 3rem; opacity: 0.3;">🚌</div>
+                <h5 class="text-muted fw-semibold">{{ _t('Aucun voyage disponible pour le moment') }}</h5>
+                <p class="text-muted small">{{ _t('Les prochains voyages programmés apparaîtront ici automatiquement.') }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 3-Step Process VIP -->
+<div class="container mb-5 py-4 fade-in">
+    <div class="text-center mb-5">
+        <span class="badge px-3 py-2 text-uppercase fw-bold mb-2" style="background-color: var(--bg-light); color: var(--primary-light); border: 1.5px solid rgba(112,29,54,0.15); border-radius: 2rem;">Processus Simple</span>
+        <h2 class="display-6 fw-bold mb-2" style="color: var(--primary-light);">Votre Véhicule VIP en 3 Étapes Faciles</h2>
+        <p class="text-dark lead fw-bold">Profitez d'un service automobile de grand standing sans aucune contrainte administrative.</p>
+    </div>
+    
+    <div class="row g-4 justify-content-center">
+        <!-- Step 1 -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm overflow-hidden service-card" style="border-radius: 1.5rem; background: var(--glass-bg-light); border: 1.5px solid rgba(201, 42, 42, 0.08);">
+                <div style="height: 180px; overflow: hidden; position: relative;">
+                    <img src="{{ url_for('static', filename='uploads/step_search.svg') }}" alt="Choisissez votre véhicule" class="w-100 h-100" style="object-fit: cover; transition: transform 0.5s ease;" loading="lazy">
+                    <div class="position-absolute top-3 start-3 text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 1.1rem; background-color: var(--primary-light) !important; border: 2px solid #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.35); z-index: 2;">
+                        1
+                    </div>
+                </div>
+                <div class="card-body p-4 text-start">
+                    <h5 class="fw-bold mb-2 text-gray-900">Choisissez votre Véhicule VIP</h5>
+                    <p class="text-gray-900 mb-0 small" style="line-height: 1.6;">Sélectionnez parmi nos SUV V8 (LC200, LC300, Prado TXL), berlines d'affaires ou 4x4 celui qui correspond exactement à vos exigences de protocole et de confort.</p>
+                </div>
+            </div>
+        </div>
+        <!-- Step 2 -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm overflow-hidden service-card" style="border-radius: 1.5rem; background: var(--glass-bg-light); border: 1.5px solid rgba(201, 42, 42, 0.08);">
+                <div style="height: 180px; overflow: hidden; position: relative;">
+                    <img src="{{ url_for('static', filename='uploads/step_ticket.svg') }}" alt="Définissez vos options" class="w-100 h-100" style="object-fit: cover; transition: transform 0.5s ease;" loading="lazy">
+                    <div class="position-absolute top-3 start-3 text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 1.1rem; background-color: var(--primary-light) !important; border: 2px solid #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.35); z-index: 2;">
+                        2
+                    </div>
+                </div>
+                <div class="card-body p-4 text-start">
+                    <h5 class="fw-bold mb-2 text-gray-900">Définissez vos Dates & Formule</h5>
+                    <p class="text-gray-900 mb-0 small" style="line-height: 1.6;">Indiquez vos dates de mission, lieu de livraison à Yaoundé et optez pour un chauffeur VIP bilingue en costume dédié 24h/24.</p>
+                </div>
+            </div>
+        </div>
+        <!-- Step 3 -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm overflow-hidden service-card" style="border-radius: 1.5rem; background: var(--glass-bg-light); border: 1.5px solid rgba(201, 42, 42, 0.08);">
+                <div style="height: 180px; overflow: hidden; position: relative;">
+                    <img src="{{ url_for('static', filename='uploads/step_payment.svg') }}" alt="Prise en charge immédiate" class="w-100 h-100" style="object-fit: cover; transition: transform 0.5s ease;" loading="lazy">
+                    <div class="position-absolute top-3 start-3 text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 1.1rem; background-color: var(--primary-light) !important; border: 2px solid #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.35); z-index: 2;">
+                        3
+                    </div>
+                </div>
+                <div class="card-body p-4 text-start">
+                    <h5 class="fw-bold mb-2 text-gray-900">Prise en Charge & Confort Royal</h5>
+                    <p class="text-gray-900 mb-0 small" style="line-height: 1.6;">Règlement flexible (Orange Money, MTN MoMo, Virement, Espèces). Votre véhicule arrive lavé, lustré, climatisé et réservoir plein.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- {{ _t('Nos Services Premium') }} Section -->
+<div class="container mb-5 py-4 fade-in">
+    <div class="text-center mb-5">
+        <span class="badge px-3 py-2 text-uppercase fw-bold mb-2" style="background-color: var(--bg-light); color: var(--primary-light); border: 1.5px solid rgba(112,29,54,0.15); border-radius: 2rem;">{{ _t('Prestations VIP') }}</span>
+        <h2 class="display-6 fw-bold mb-2" style="color: var(--primary-light);">{{ _t('Nos Services Premium') }}</h2>
+        <p class="text-gray-900 lead fw-bold">{{ _t('Le plaisir de voyager en toute sécurité avec le meilleur confort à bord') }}</p>
+    </div>
+    
+    <div class="row g-4 text-center">
+        <!-- Card 1: {{ _t('Confort Premium') }} -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card h-100 border-0 p-4 service-card shadow-sm" style="border-radius: 1.5rem; transition: transform 0.3s, box-shadow 0.3s; background: var(--glass-bg-light); border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="d-flex align-items-center justify-content-center mx-auto mb-3 rounded-circle text-white" style="width: 60px; height: 60px; font-size: 1.8rem; background-color: #0d9488 !important; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);">
+                    <i class="bi bi-chair-fill" style="color: #ffffff !important;"></i>
+                </div>
+                <h5 class="fw-bold mb-2 text-gray-900">{{ _t('Confort Premium') }}</h5>
+                <p class="text-gray-900 mb-0">{{ _t('Sièges ergonomiques inclinables avec espace généreux pour les jambes et repose-pieds.') }}</p>
+            </div>
+        </div>
+        <!-- Card 2: {{ _t('WiFi Gratuit') }} -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card h-100 border-0 p-4 service-card shadow-sm" style="border-radius: 1.5rem; transition: transform 0.3s, box-shadow 0.3s; background: var(--glass-bg-light); border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="d-flex align-items-center justify-content-center mx-auto mb-3 rounded-circle text-white" style="width: 60px; height: 60px; font-size: 1.8rem; background-color: #0284c7 !important; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);">
+                    <i class="bi bi-wifi" style="color: #ffffff !important;"></i>
+                </div>
+                <h5 class="fw-bold mb-2 text-gray-900">{{ _t('WiFi Gratuit') }}</h5>
+                <p class="text-gray-900 mb-0">{{ _t('Connexion internet haut débit gratuite et illimitée à bord durant tout le trajet pour rester connecté.') }}</p>
+            </div>
+        </div>
+        <!-- Card 3: {{ _t('Climatisation') }} -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card h-100 border-0 p-4 service-card shadow-sm" style="border-radius: 1.5rem; transition: transform 0.3s, box-shadow 0.3s; background: var(--glass-bg-light); border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="d-flex align-items-center justify-content-center mx-auto mb-3 rounded-circle text-white" style="width: 60px; height: 60px; font-size: 1.8rem; background-color: #059669 !important; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.25);">
+                    <i class="bi bi-wind" style="color: #ffffff !important;"></i>
+                </div>
+                <h5 class="fw-bold mb-2 text-gray-900">{{ _t('Climatisation') }}</h5>
+                <p class="text-gray-900 mb-0">{{ _t('Régulation automatique du confort thermique à bord avec filtres à air actifs de pointe.') }}</p>
+            </div>
+        </div>
+        <!-- Card 4: Ports USB -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card h-100 border-0 p-4 service-card shadow-sm" style="border-radius: 1.5rem; transition: transform 0.3s, box-shadow 0.3s; background: var(--glass-bg-light); border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="d-flex align-items-center justify-content-center mx-auto mb-3 rounded-circle text-white" style="width: 60px; height: 60px; font-size: 1.8rem; background-color: #d97706 !important; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);">
+                    <i class="bi bi-usb-plug-fill" style="color: #ffffff !important;"></i>
+                </div>
+                <h5 class="fw-bold mb-2 text-gray-900">{{ _t('Ports USB') }}</h5>
+                <p class="text-gray-900 mb-0">{{ _t('Recharge d\'appareils mobiles et tablettes disponible à chaque siège individuellement.') }}</p>
+            </div>
+        </div>
+        <!-- Card 5: {{ _t('Divertissement') }} -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card h-100 border-0 p-4 service-card shadow-sm" style="border-radius: 1.5rem; transition: transform 0.3s, box-shadow 0.3s; background: var(--glass-bg-light); border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="d-flex align-items-center justify-content-center mx-auto mb-3 rounded-circle text-white" style="width: 60px; height: 60px; font-size: 1.8rem; background-color: #4f46e5 !important; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);">
+                    <i class="bi bi-tv-fill" style="color: #ffffff !important;"></i>
+                </div>
+                <h5 class="fw-bold mb-2 text-gray-900">{{ _t('Divertissement') }}</h5>
+                <p class="text-gray-900 mb-0">{{ _t('Écrans multimédia à bord, TV HD partagée et playlists musicales sélectionnées.') }}</p>
+            </div>
+        </div>
+        <!-- Card 6: {{ _t('Service VIP') }} -->
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="card h-100 border-0 p-4 service-card shadow-sm" style="border-radius: 1.5rem; transition: transform 0.3s, box-shadow 0.3s; background: var(--glass-bg-light); border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="d-flex align-items-center justify-content-center mx-auto mb-3 rounded-circle text-white" style="width: 60px; height: 60px; font-size: 1.8rem; background-color: #e11d48 !important; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.25);">
+                    <i class="bi bi-cup-straw" style="color: #ffffff !important;"></i>
+                </div>
+                <h5 class="fw-bold mb-2 text-gray-900">{{ _t('Service VIP') }}</h5>
+                <p class="text-gray-900 mb-0">{{ _t('Rafraîchissements, boissons, collations offertes et assistance voyageur VIP.') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.service-card {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(201, 42, 42, 0.15) !important;
+}
+.service-card:hover img {
+    background-color: var(--primary-light) !important;
+}
+body.dark-mode .service-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+body.dark-mode .service-card .text-dark {
+    color: #f8fafc !important;
+}
+body.dark-mode .service-card .badge.bg-white {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+}
+body.dark-mode .service-card .text-muted {
+    color: #94a3b8 !important;
+}
+/* Autocomplete Dropdown Styling */
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1050;
+    display: none;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: var(--input-bg-light);
+    border: 1.5px solid var(--input-border-light);
+    border-radius: 0.8rem;
+    box-shadow: 0 8px 24px rgba(201, 42, 42, 0.08);
+}
+body.dark-mode .autocomplete-dropdown {
+    background-color: var(--input-bg-dark);
+    border-color: var(--input-border-dark);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.autocomplete-item {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    color: var(--text-light);
+    text-align: left;
+    text-decoration: none;
+    white-space: nowrap;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+body.dark-mode .autocomplete-item {
+    color: var(--text-dark);
+}
+.autocomplete-item:hover, .autocomplete-item.active {
+    background-color: var(--primary-light) !important;
+    color: #ffffff !important;
+}
+body.dark-mode .autocomplete-item:hover, body.dark-mode .autocomplete-item.active {
+    background-color: var(--accent-dark) !important;
+    color: #1a2330 !important;
+}
+
+/* Make input groups match active theme */
+.input-group.bg-white {
+    background-color: var(--input-bg-light) !important;
+}
+body.dark-mode .input-group.bg-white {
+    background-color: var(--input-bg-dark) !important;
+    border-color: var(--input-border-dark) !important;
+}
+
+/* Force hero labels to be always white */
+.hero-container .form-label {
+    color: #ffffff !important;
+}
+
+/* Make hamburger toggler icon white on homepage transparent navbar */
+#mainNavbar #navbarTogglerIcon {
+    color: #ffffff !important;
+}
+
+/* Make Navbar transparent and overlay on top of the hero picture on homepage */
+#mainNavbar {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    background: transparent !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    transition: background-color 0.3s ease;
+}
+#mainNavbar .nav-link, #mainNavbar .user-dropdown-pro {
+    color: #ffffff !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+#mainNavbar .nav-link.active {
+    border-bottom-color: var(--accent-dark) !important;
+    color: var(--accent-dark) !important;
+}
+#mainNavbar .user-dropdown-pro {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    backdrop-filter: blur(8px);
+}
+#mainNavbar .user-dropdown-pro:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+#mainNavbar .user-dropdown-pro .bi-person-circle {
+    color: #ffffff !important;
+}
+
+@media (max-width: 991.98px) {
+    #mainNavbar .nav-link {
+        color: var(--text-light) !important;
+        text-shadow: none !important;
+    }
+    body.dark-mode #mainNavbar .nav-link {
+        color: var(--accent-dark) !important;
+    }
+    #mainNavbar .user-dropdown-pro {
+        color: var(--text-light) !important;
+        text-shadow: none !important;
+        background: transparent !important;
+        border: 1px solid var(--input-border-light) !important;
+    }
+    body.dark-mode #mainNavbar .user-dropdown-pro {
+        color: var(--accent-dark) !important;
+        border-color: var(--accent-dark) !important;
+    }
+    #mainNavbar .user-dropdown-pro .bi-person-circle {
+        color: var(--primary-light) !important;
+    }
+}
+main.py-4 {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+.hero-container {
+    padding-top: 100px !important; /* give space for the floating navbar */
+}
+.animate-col {
+    transition: all 0.3s ease;
+}
+
+/* Funny driving bus animation */
+.funny-driving-bus {
+    position: absolute;
+    bottom: 12px;
+    left: -100px;
+    font-size: 5.5rem;
+    z-index: 5;
+    pointer-events: none;
+    animation: drive-bus-keyframes 30s linear infinite;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.4));
+    will-change: left, transform;
+}
+
+@keyframes drive-bus-keyframes {
+    0% {
+        left: -100px;
+        transform: scaleX(1) translateY(0);
+    }
+    5% {
+        transform: scaleX(1) translateY(-6px);
+    }
+    10% {
+        transform: scaleX(1) translateY(0);
+    }
+    15% {
+        transform: scaleX(1) translateY(-8px);
+    }
+    20% {
+        transform: scaleX(1) translateY(0);
+    }
+    25% {
+        transform: scaleX(1) translateY(-6px);
+    }
+    30% {
+        transform: scaleX(1) translateY(0);
+    }
+    35% {
+        transform: scaleX(1) translateY(-8px);
+    }
+    40% {
+        transform: scaleX(1) translateY(0);
+    }
+    45% {
+        left: calc(100% + 100px);
+        transform: scaleX(1) translateY(0);
+    }
+    /* Turn around and pause briefly off-screen */
+    46% {
+        left: calc(100% + 100px);
+        transform: scaleX(-1) translateY(0);
+    }
+    50% {
+        left: calc(100% + 100px);
+        transform: scaleX(-1) translateY(0);
+    }
+    /* Drive back */
+    55% {
+        transform: scaleX(-1) translateY(-6px);
+    }
+    60% {
+        transform: scaleX(-1) translateY(0);
+    }
+    65% {
+        transform: scaleX(-1) translateY(-8px);
+    }
+    70% {
+        transform: scaleX(-1) translateY(0);
+    }
+    75% {
+        transform: scaleX(-1) translateY(-6px);
+    }
+    80% {
+        transform: scaleX(-1) translateY(0);
+    }
+    85% {
+        transform: scaleX(-1) translateY(-8px);
+    }
+    90% {
+        transform: scaleX(-1) translateY(0);
+    }
+    95% {
+        left: -100px;
+        transform: scaleX(-1) translateY(0);
+    }
+    96% {
+        left: -100px;
+        transform: scaleX(1) translateY(0);
+    }
+    100% {
+        left: -100px;
+        transform: scaleX(1) translateY(0);
+    }
+}
+
+/* Polished white navbar styling over the homepage hero */
+#mainNavbar .theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+#mainNavbar .theme-toggle-btn i {
+    color: #ffffff !important;
+}
+#mainNavbar .navbar-divider {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+#mainNavbar .navbar-brand img {
+    /* filter: brightness(0) invert(1) !important; removed to keep original red color */
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const heroSearchForm = document.getElementById('heroSearchForm');
+    const originSelect = document.getElementById('hero_origin');
+    const destinationSelect = document.getElementById('hero_destination');
+
+    if (originSelect && destinationSelect) {
+        originSelect.addEventListener('change', function() {
+            const selectedOrigin = this.value;
+            // Enable all options first
+            Array.from(destinationSelect.options).forEach(opt => {
+                opt.disabled = false;
+            });
+            // Disable the matching option in destination
+            if (selectedOrigin) {
+                const matchOpt = Array.from(destinationSelect.options).find(opt => opt.value === selectedOrigin);
+                if (matchOpt) {
+                    matchOpt.disabled = true;
+                    // If the user had already selected this option, clear it
+                    if (destinationSelect.value === selectedOrigin) {
+                        destinationSelect.value = '';
+                    }
+                }
+            }
+        });
+    }
+
+    if(heroSearchForm) {
+        heroSearchForm.addEventListener('submit', function(e) {
+            const origin = originSelect ? originSelect.value : '';
+            const destination = destinationSelect ? destinationSelect.value : '';
+            
+            if (origin && destination && origin === destination) {
+                e.preventDefault();
+                alert(`{{ _t("La ville de départ ne peut pas être la même que la ville d'arrivée.") }}`);
+            }
+        });
+    }
+});
+</script>
+
+<!-- Why Choose Us -->
+<div class="container mb-5 py-4 fade-in">
+    <div class="text-center mb-5">
+        <span class="badge px-3 py-2 text-uppercase fw-bold mb-2" style="background-color: var(--bg-light); color: var(--primary-light); border: 1.5px solid rgba(112,29,54,0.15); border-radius: 2rem;">{{ _t('Nos Points Forts') }}</span>
+        <h2 class="display-6 fw-bold mb-2" style="color: var(--primary-light);">{{ _t('Pourquoi choisir 3M SERVICES ?') }}</h2>
+        <p class="text-gray-900 lead fw-bold">{{ _t('Votre partenaire de confiance pour voyager à travers le Cameroun') }}</p>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Item 1 -->
+        <div class="col-md-4">
+            <div class="card d-flex p-4 h-100 shadow-sm border-0 align-items-start" style="border-radius: 1.5rem; gap: 1.2rem; transition: transform 0.2s; border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 54px; height: 54px; background-color: #ea580c !important; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(234, 88, 12, 0.25);">
+                    <i class="bi bi-tags-fill" style="color: #ffffff !important;"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-2 text-gray-900">{{ _t('Prix imbattables') }}</h5>
+                    <p class="text-gray-900 mb-0 small" style="line-height: 1.5;">{{ _t('Trouvez les meilleurs tarifs pour vos trajets en bus à travers le Cameroun.') }}</p>
+                </div>
+            </div>
+        </div>
+        <!-- Item 2 -->
+        <div class="col-md-4">
+            <div class="card d-flex p-4 h-100 shadow-sm border-0 align-items-start" style="border-radius: 1.5rem; gap: 1.2rem; transition: transform 0.2s; border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 54px; height: 54px; background-color: #10b981 !important; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);">
+                    <i class="bi bi-shield-check" style="color: #ffffff !important;"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-2 text-gray-900">{{ _t('Confort optimal') }}</h5>
+                    <p class="text-gray-900 mb-0 small" style="line-height: 1.5;">{{ _t('Voyagez confortablement dans nos bus modernes équipés de toutes les commodités.') }}</p>
+                </div>
+            </div>
+        </div>
+        <!-- Item 3 -->
+        <div class="col-md-4">
+            <div class="card d-flex p-4 h-100 shadow-sm border-0 align-items-start" style="border-radius: 1.5rem; gap: 1.2rem; transition: transform 0.2s; border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 54px; height: 54px; background-color: #2563eb !important; font-size: 1.5rem; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);">
+                    <i class="bi bi-patch-check-fill" style="color: #ffffff !important;"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-2 text-gray-900">{{ _t('Fiabilité et sécurité') }}</h5>
+                    <p class="text-gray-900 mb-0 small" style="line-height: 1.5;">{{ _t('Des trajets ponctuels et sécurisés avec des chauffeurs professionnels.') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonials -->
+<div class="container mb-5 py-4 fade-in">
+    <div class="text-center mb-5">
+        <span class="badge px-3 py-2 text-uppercase fw-bold mb-2" style="background-color: var(--bg-light); color: var(--primary-light); border: 1.5px solid rgba(112,29,54,0.15); border-radius: 2rem;">{{ _t('Avis Voyageurs') }}</span>
+        <h2 class="display-6 fw-bold mb-2" style="color: var(--primary-light);">{{ _t('Ce que disent nos passagers') }}</h2>
+        <p class="text-gray-900 lead fw-bold">{{ _t('Des milliers de voyageurs satisfaits de nos services') }}</p>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Testimonial 1 -->
+        <div class="col-md-4">
+            <div class="card h-100 border-0 p-4 shadow-sm" style="border-radius: 1.5rem; background: var(--glass-bg-light); border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="d-flex gap-1 text-warning mb-3">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="text-gray-900 mb-4 fst-italic" style="line-height: 1.6; font-size: 0.95rem;">"{{ _t('Le meilleur service de réservation au Cameroun. J\'ai acheté mon ticket Douala-Yaoundé en 2 minutes avec MTN MoMo. Le bus était ultra confortable et à l\'heure !') }}"</p>
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{ url_for('static', filename='uploads/testimonial_1_realistic.png') }}" alt="Marc Kamdem" class="rounded-circle shadow-sm" style="width: 45px; height: 45px; object-fit: cover; border: 2px solid var(--primary-light);" loading="lazy">
+                    <div>
+                        <h6 class="fw-bold mb-0 text-gray-900">Marc Kamdem</h6>
+                        <span class="text-gray-900 small">{{ _t('Voyageur fréquent, Douala') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Testimonial 2 -->
+        <div class="col-md-4">
+            <div class="card h-100 border-0 p-4 shadow-sm" style="border-radius: 1.5rem; background: var(--glass-bg-light); border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="d-flex gap-1 text-warning mb-3">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="text-gray-900 mb-4 fst-italic" style="line-height: 1.6; font-size: 0.95rem;">"{{ _t('La climatisation et le WiFi gratuit à bord changent absolument tout. On ne voit pas le temps passer pendant le voyage. Je recommande vivement 3M SERVICES.') }}"</p>
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{ url_for('static', filename='uploads/testimonial_2_realistic.png') }}" alt="Alice Ngo" class="rounded-circle shadow-sm" style="width: 45px; height: 45px; object-fit: cover; border: 2px solid var(--primary-light);" loading="lazy">
+                    <div>
+                        <h6 class="fw-bold mb-0 text-gray-900">Alice Ngo</h6>
+                        <span class="text-gray-900 small">{{ _t('Entrepreneure, Yaoundé') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Testimonial 3 -->
+        <div class="col-md-4">
+            <div class="card h-100 border-0 p-4 shadow-sm" style="border-radius: 1.5rem; background: var(--glass-bg-light); border: 1px solid rgba(201, 42, 42, 0.08);">
+                <div class="d-flex gap-1 text-warning mb-3">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                </div>
+                <p class="text-gray-900 mb-4 fst-italic" style="line-height: 1.6; font-size: 0.95rem;">"{{ _t('Sécurité, ponctualité et service client très professionnel. Les chauffeurs conduisent de manière responsable. Enfin une agence digne de confiance.') }}"</p>
+                <div class="d-flex align-items-center gap-3">
+                    <img src="{{ url_for('static', filename='uploads/testimonial_3_realistic.png') }}" alt="Paul Tchinda" class="rounded-circle shadow-sm" style="width: 45px; height: 45px; object-fit: cover; border: 2px solid var(--primary-light);" loading="lazy">
+                    <div>
+                        <h6 class="fw-bold mb-0 text-gray-900">Paul Tchinda</h6>
+                        <span class="text-gray-900 small">{{ _t('Enseignant, Bafoussam') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="container text-center mb-5">
+    <div class="p-5 text-white rounded-3 shadow" style="background: linear-gradient(135deg, #C92A2A, #A61E1E); border-radius:1.5rem !important;">
+        <h2 class="fw-bold">{{ _t('Prêt à partir ?') }}</h2>
+        <p class="mb-4">{{ _t('Trouvez les meilleures lignes de transport au Cameroun et réservez votre siège dès maintenant !') }}</p>
+        <a href="{{ url_for('main.search') }}" class="btn btn-primary mt-2 px-4 py-2 fw-semibold shadow-sm"><i class="fas fa-search me-2"></i>{{ _t('Acheter un Billet') }}</a>
+    </div>
+</div>
+
+<!-- Booking Success Modal -->
+<div class="modal fade" id="bookingSuccessModal" tabindex="-1" aria-labelledby="bookingSuccessLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 overflow-hidden" style="border-radius: 1.8rem; background: var(--glass-bg-light); box-shadow: 0 20px 50px rgba(0,0,0,0.15);">
+      <div class="modal-body text-center p-0">
+        <!-- Premium Header Pattern -->
+        <div class="position-relative py-5" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-bottom: 4px solid #047857;">
+            <!-- Subtle dot pattern background -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.15; background-image: radial-gradient(#ffffff 2px, transparent 2px); background-size: 15px 15px;"></div>
+            
+            <!-- Animated Success Icon -->
+            <div class="position-relative z-1 d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-lg mx-auto" style="width: 80px; height: 80px; transform: translateY(5px);">
+                <i class="bi bi-check-lg" style="font-size: 3.5rem; color: #10b981; -webkit-text-stroke: 2px #10b981;"></i>
+            </div>
+            
+            <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 z-1" data-bs-dismiss="modal" aria-label="Close" style="opacity: 0.8;"></button>
+        </div>
+        
+        <!-- Content Section -->
+        <div class="p-4 pt-4 bg-white text-center" style="border-top-left-radius: 1.8rem; border-top-right-radius: 1.8rem; margin-top: -1.5rem; position: relative; z-index: 2;">
+            <h4 class="fw-bold text-dark mb-1 mt-2" id="bookingSuccessLabel">{{ _t('Réservation Réussie !') }}</h4>
+            <h6 class="fw-bold text-success mb-3" style="font-size: 0.95rem;">{{ _t('🎉 Merci d\'avoir choisi 3M SERVICES !') }}</h6>
+            <div class="text-muted small mb-2 px-2" style="line-height: 1.6; font-size: 0.9rem;">
+                {{ _t('Votre réservation a été confirmée. Nous vous souhaitons un excellent voyage.') }}
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Supported Autocomplete Cities List in Cameroon (23 cities)
+const cities = [
+    "Yaoundé",
+    "Douala",
+    "Bafoussam",
+    "Bamenda",
+    "Garoua",
+    "Maroua",
+    "Ngaoundéré",
+    "Bertoua",
+    "Ebolowa",
+    "Kribi",
+    "Limbé",
+    "Kumba",
+    "Buea",
+    "Dschang",
+    "Mbouda",
+    "Foumban",
+    "Sangmélima",
+    "Edéa",
+    "Abong-Mbang",
+    "Yagoua",
+    "Meiganga",
+    "Tibati",
+    "Mbalmayo"
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Autocomplete setup on hero inputs
+    setupAutocomplete(document.getElementById('hero_origin'), document.getElementById('hero-origin-dropdown'));
+    setupAutocomplete(document.getElementById('hero_destination'), document.getElementById('hero-destination-dropdown'));
+
+    // Flatpickr Modern Calendar Initialization
+    const dateInput = document.getElementById('hero_date');
+    const returnDateInput = document.getElementById('hero_return_date');
+    let depInstance, retInstance;
+
+    if (dateInput && returnDateInput) {
+        depInstance = flatpickr(dateInput, {
+            locale: "fr",
+            minDate: "today",
+            altInput: true,
+            altFormat: "d/m/Y",
+            dateFormat: "Y-m-d",
+            defaultDate: "today",
+            onChange: function(selectedDates, dateStr, instance) {
+                if (retInstance) {
+                    retInstance.set("minDate", dateStr);
+                }
+            }
+        });
+
+        retInstance = flatpickr(returnDateInput, {
+            locale: "fr",
+            minDate: "today",
+            altInput: true,
+            altFormat: "d/m/Y",
+            dateFormat: "Y-m-d"
+        });
+    }
+
+    // Toggle Return Date Visibility for Hero Form
+    const oneWayRadio = document.getElementById('hero_one_way');
+    const roundTripRadio = document.getElementById('hero_round_trip');
+    const sendParcelRadio = document.getElementById('hero_send_parcel');
+    const returnContainer = document.getElementById('hero-return-container');
+    const departureContainer = document.getElementById('hero-departure-container');
+    const passContainer = document.getElementById('hero-passengers-container');
+
+    function toggleHeroReturnField() {
+        const submitContainer = document.getElementById('hero-submit-container');
+        if (roundTripRadio && roundTripRadio.checked) {
+            returnContainer.classList.remove('d-none');
+            returnDateInput.required = true;
+            passContainer.classList.remove('d-none');
+            
+            // Adjust bootstrap grids nicely for symmetric 4-column layout on same line
+            departureContainer.className = "col-md-3 animate-col";
+            returnContainer.className = "col-md-3 animate-col";
+            passContainer.className = "col-md-3 animate-col";
+            submitContainer.className = "col-md-3 d-flex align-items-end animate-col";
+        } else if (sendParcelRadio && sendParcelRadio.checked) {
+            returnContainer.classList.add('d-none');
+            returnDateInput.required = false;
+            returnDateInput.value = '';
+            passContainer.classList.add('d-none');
+            
+            const passSelect = document.getElementById('hero_passengers');
+            if (passSelect) passSelect.value = "1";
+            
+            // Adjust bootstrap grids for 2-column layout on same line
+            departureContainer.className = "col-md-6 animate-col";
+            submitContainer.className = "col-md-6 d-flex align-items-end animate-col";
+        } else {
+            returnContainer.classList.add('d-none');
+            returnDateInput.required = false;
+            returnDateInput.value = '';
+            passContainer.classList.remove('d-none');
+            
+            // Revert bootstrap grids for symmetric 3-column layout on same line
+            departureContainer.className = "col-md-4 animate-col";
+            passContainer.className = "col-md-4 animate-col";
+            submitContainer.className = "col-md-4 d-flex align-items-end animate-col";
+        }
+    }
+
+    if (oneWayRadio && roundTripRadio) {
+        oneWayRadio.addEventListener('change', toggleHeroReturnField);
+        roundTripRadio.addEventListener('change', toggleHeroReturnField);
+        if (sendParcelRadio) {
+            sendParcelRadio.addEventListener('change', toggleHeroReturnField);
+        }
+        toggleHeroReturnField();
+    }
+
+    // Success Modal logic
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('booking_success') === '1' || {{ 'true' if get_flashed_messages() else 'false' }}) {
+        var modal = new bootstrap.Modal(document.getElementById('bookingSuccessModal'));
+        modal.show();
+        setTimeout(function() {
+            modal.hide();
+            urlParams.delete('booking_success');
+            window.location.search = urlParams.toString();
+        }, 4000);
+    }
+});
+
+// Autocomplete Engine
+function setupAutocomplete(input, dropdown) {
+    if (!input || !dropdown) return;
+    let currentFocus = -1;
+
+    input.addEventListener('input', function() {
+        const val = this.value;
+        closeAllLists();
+        if (!val) return false;
+        currentFocus = -1;
+
+        const matches = cities.filter(city => city.toLowerCase().includes(val.toLowerCase()));
+        if (matches.length === 0) {
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        dropdown.innerHTML = '';
+        matches.forEach((match, index) => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'autocomplete-item';
+            item.innerHTML = match.replace(new RegExp(val, 'gi'), str => `<strong>${str}</strong>`);
+            
+            item.addEventListener('click', function() {
+                input.value = match;
+                closeAllLists();
+            });
+            dropdown.appendChild(item);
+        });
+
+        dropdown.style.display = 'block';
+    });
+
+    input.addEventListener('keydown', function(e) {
+        let items = dropdown.querySelectorAll('.autocomplete-item');
+        if (items.length === 0) return;
+
+        if (e.keyCode === 40) { // Arrow Down
+            e.preventDefault();
+            currentFocus++;
+            setActive(items);
+        } else if (e.keyCode === 38) { // Arrow Up
+            e.preventDefault();
+            currentFocus--;
+            setActive(items);
+        } else if (e.keyCode === 13) { // Enter Key
+            if (currentFocus > -1) {
+                e.preventDefault();
+                items[currentFocus].click();
+            }
+        } else if (e.keyCode === 27) { // Escape
+            closeAllLists();
+        }
+    });
+
+    function setActive(items) {
+        if (!items) return false;
+        items.forEach(item => item.classList.remove('active'));
+        
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = items.length - 1;
+
+        items[currentFocus].classList.add('active');
+        items[currentFocus].scrollIntoView({ block: 'nearest' });
+    }
+
+    function closeAllLists() {
+        dropdown.style.display = 'none';
+    }
+
+    document.addEventListener('click', function(e) {
+        if (e.target !== input && e.target !== dropdown) {
+            closeAllLists();
+        }
+    });
+}
+</script>
+{% endblock %}
+{% endblock %}

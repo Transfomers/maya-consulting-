@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Planifier une Mission VIP - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+                <div class="mb-4">
+                    <h3 class="fw-bold"><i class="bi bi-car-front-fill text-danger me-2"></i> Planifier une Mission / Sortie VIP</h3>
+                    <p class="text-muted">Associez un forfait/mission, un véhicule VIP et un chauffeur d'élite.</p>
+                </div>
+
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <label for="route_id" class="form-label">Sélectionner la Mission / Destination</label>
+                            <select class="form-select" id="route_id" name="route_id" required>
+                                <option value="" disabled selected>Choisir une mission...</option>
+                                {% for route in routes %}
+                                    <option value="{{ route.id }}" data-price="{{ route.base_price }}">{{ route.origin }} &rarr; {{ route.destination }} ({{ route.duration }}) - {{ route.agency.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Veuillez sélectionner une mission.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="bus_id" class="form-label">Sélectionner le Véhicule VIP</label>
+                            <select class="form-select" id="bus_id" name="bus_id" required>
+                                <option value="" disabled selected>Choisir un véhicule VIP...</option>
+                                {% for bus in buses %}
+                                    <option value="{{ bus.id }}" data-capacity="{{ bus.capacity }}">{{ bus.bus_number }} - {{ bus.brand }} {{ bus.model }} ({{ bus.capacity }} places) - {{ bus.agency.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Veuillez attribuer un véhicule VIP.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="driver_id" class="form-label">Chauffeur VIP <small class="text-muted">(optionnel)</small></label>
+                            <select class="form-select" id="driver_id" name="driver_id">
+                                <option value="">Aucun chauffeur assigné (Sans chauffeur)</option>
+                                {% for driver in drivers if drivers is defined %}
+                                    <option value="{{ driver.id }}">{{ driver.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="departure_time" class="form-label">Date & Heure de Départ</label>
+                            <input type="datetime-local" class="form-control" id="departure_time" name="departure_time" required>
+                            <div class="invalid-feedback">Veuillez spécifier la date et l'heure de départ.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="arrival_time" class="form-label">Date & Heure d'Arrivée (Estimée)</label>
+                            <input type="datetime-local" class="form-control" id="arrival_time" name="arrival_time" required>
+                            <div class="invalid-feedback">Veuillez spécifier la date et l'heure d'arrivée.</div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="price" class="form-label">Tarif de la Mission / Forfait (FCFA)</label>
+                            <input type="number" class="form-control" id="price" name="price" min="10000" placeholder="Ex: 65000" required>
+                            <small class="text-muted">Tarif journalier ou forfaitaire.</small>
+                            <div class="invalid-feedback">Veuillez renseigner un tarif valide.</div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="capacity" class="form-label">Capacité VIP (places)</label>
+                            <input type="number" class="form-control" id="capacity" name="capacity" min="1" max="12" value="0" placeholder="0 = capacité du véhicule">
+                            <small class="text-muted">0 = utiliser la capacité du véhicule</small>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="booking_cutoff_minutes" class="form-label">Fermeture réservation</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="booking_cutoff_minutes" name="booking_cutoff_minutes" min="0" value="30">
+                                <span class="input-group-text">min avant départ</span>
+                            </div>
+                            <small class="text-muted">30 = réservations fermées 30min avant le départ</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <a href="{{ url_for('admin.trips') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-arrow-left me-2"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                            <i class="bi bi-calendar-check me-2"></i> Planifier le Voyage
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const routeSelect = document.getElementById('route_id');
+        const priceInput = document.getElementById('price');
+        const busSelect = document.getElementById('bus_id');
+        const capacityInput = document.getElementById('capacity');
+        
+        routeSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const basePrice = selectedOption.getAttribute('data-price');
+            if (basePrice) {
+                priceInput.value = basePrice;
+                priceInput.classList.add('is-valid');
+                setTimeout(() => priceInput.classList.remove('is-valid'), 1500);
+            }
+        });
+
+        busSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const busCap = selectedOption.getAttribute('data-capacity');
+            if (busCap && capacityInput.value == '0') {
+                capacityInput.value = busCap;
+            }
+        });
+    });
+</script>
+{% endblock %}

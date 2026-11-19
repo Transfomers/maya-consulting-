@@ -201,7 +201,31 @@ function logActivity(action, details, user = "Administrateur") {
 function checkCarConflict(carNameOrId, startDate, endDate, excludeBookingId = null) {
   const db = readDb();
   const bookings = db.bookings || [];
+  const cars = db.cars || [];
   if (!carNameOrId || !startDate || !endDate) return null;
+
+  // Immediate vehicle status check (Maintenance blocks immediately per Page 13)
+  const targetCar = cars.find(
+    (c) =>
+      (c.id && carNameOrId && String(c.id) === String(carNameOrId)) ||
+      (c.name && carNameOrId && c.name.toLowerCase().trim() === String(carNameOrId).toLowerCase().trim())
+  );
+  if (targetCar) {
+    const maintStatuses = [
+      "En maintenance",
+      "Under maintenance",
+      "Indisponible",
+      "Unavailable",
+      "Hors service"
+    ];
+    if (maintStatuses.includes(targetCar.status)) {
+      return {
+        conflict: true,
+        reason: "maintenance",
+        message: `Véhicule indisponible : ${targetCar.name} est actuellement "${targetCar.status}". Aucune réservation ne peut être engagée sur ce véhicule.`
+      };
+    }
+  }
 
   const newStart = new Date(startDate).getTime();
   const newEnd = new Date(endDate).getTime();
@@ -209,11 +233,11 @@ function checkCarConflict(carNameOrId, startDate, endDate, excludeBookingId = nu
   for (const b of bookings) {
     if (excludeBookingId && b.id === excludeBookingId) continue;
     // Only check active or confirmed bookings that block vehicle
-    if (["Annulée", "Rejetée", "Terminée"].includes(b.status)) continue;
+    if (["Annulée", "Rejetée", "Terminée", "Cancelled", "Rejected", "Completed"].includes(b.status)) continue;
 
     const sameCar =
-      (b.carId && carNameOrId && b.carId === carNameOrId) ||
-      (b.carName && carNameOrId && b.carName.toLowerCase().trim() === carNameOrId.toLowerCase().trim());
+      (b.carId && carNameOrId && String(b.carId) === String(carNameOrId)) ||
+      (b.carName && carNameOrId && b.carName.toLowerCase().trim() === String(carNameOrId).toLowerCase().trim());
 
     if (!sameCar) continue;
 
@@ -224,6 +248,7 @@ function checkCarConflict(carNameOrId, startDate, endDate, excludeBookingId = nu
       return {
         conflict: true,
         conflictingBooking: b,
+        reason: "booking_overlap",
         message: `Conflit détecté : ${b.carName} est déjà bloqué par ${b.clientName} du ${b.pickTime} au ${b.dropTime || b.pickTime} (Réf : ${b.id}, Statut : ${b.status}).`
       };
     }
@@ -602,10 +627,10 @@ app.delete("/api/cars/:id", authenticateToken, (req, res) => {
 });
 
 /* ==========================================================================
-   FLEET AVAILABILITY & CONFLICT PREVENTION
+   FLEET AVAILABILITY & CONFLICT PREVENTION (PHASE C)
    ========================================================================== */
 
-app.get("/api/fleet/availability", authenticateToken, (req, res) => {
+app.get("/api/fleet/availability", (req, res) => {
   const { carName, carId, pickTime, dropTime, bookingId } = req.query;
   const conflict = checkCarConflict(carId || carName, pickTime, dropTime, bookingId);
   if (conflict) {
@@ -740,20 +765,35 @@ app.post("/api/bookings", (req, res) => {
   res.status(201).json(newBooking);
 });
 
-// Update booking status with audit history and conflict detection
+// Update booking status with audit history and conflict detection (Phase C & E)
 app.put("/api/bookings/:id/status", authenticateToken, (req, res) => {
   const { status, note, forceOverride } = req.body;
   const validStatuses = [
+    // 9 Official Lifecycle Statuses (FR & EN per Page 7 & 13)
+    "Demande reçue",
+    "Request received",
     "En attente",
+    "En discussion",
+    "Under discussion",
     "En cours d'examen",
-    "Confirmée",
-    "Contrat préparé",
     "En attente de paiement",
+    "Awaiting payment",
+    "Paiement en vérification",
+    "Payment under verification",
+    "Confirmée",
+    "Confirmed",
+    "Prêt pour départ",
+    "Ready for pickup",
+    "Contrat préparé",
     "Payée",
     "En cours",
+    "Ongoing",
     "Terminée",
+    "Completed",
     "Annulée",
-    "Rejetée"
+    "Rejetée",
+    "Cancelled",
+    "Rejected"
   ];
 
   if (!status || !validStatuses.includes(status)) {
@@ -769,13 +809,15 @@ app.put("/api/bookings/:id/status", authenticateToken, (req, res) => {
   const booking = db.bookings[index];
 
   // Conflict detection before confirming or activating
-  if (["Confirmée", "En cours"].includes(status) && !forceOverride) {
+  const blockingStatuses = ["Confirmée", "Confirmed", "En cours", "Ongoing", "Prêt pour départ", "Ready for pickup"];
+  if (blockingStatuses.includes(status) && !forceOverride) {
     const conflict = checkCarConflict(booking.carId || booking.carName, booking.pickTime, booking.dropTime, booking.id);
     if (conflict) {
       return res.status(409).json({
         error: conflict.message,
         conflict: true,
-        conflictingBooking: conflict.conflictingBooking
+        conflictingBooking: conflict.conflictingBooking,
+        reason: conflict.reason || "booking_overlap"
       });
     }
   }
@@ -791,20 +833,28 @@ app.put("/api/bookings/:id/status", authenticateToken, (req, res) => {
     note: note || `Statut mis à jour : ${previousStatus} → ${status}`
   });
 
-  // Update vehicle fleet status if booking becomes Active
-  if (status === "En cours" && booking.carName) {
+  // Update vehicle fleet status (5 Fleet Statuses per Page 7)
+  const isOngoing = ["En cours", "Ongoing"].includes(status);
+  const isCompleted = ["Terminée", "Completed"].includes(status);
+  const isConfirmed = ["Confirmée", "Confirmed"].includes(status);
+  const isCancelled = ["Annulée", "Rejetée", "Cancelled", "Rejected"].includes(status);
+
+  if (booking.carName || booking.carId) {
     const carIdx = (db.cars || []).findIndex(
-      (c) => (booking.carId && c.id === booking.carId) || (c.name && c.name.toLowerCase() === booking.carName.toLowerCase())
+      (c) => (booking.carId && String(c.id) === String(booking.carId)) || (c.name && c.name.toLowerCase() === (booking.carName || "").toLowerCase())
     );
     if (carIdx !== -1) {
-      db.cars[carIdx].status = "Loué";
-    }
-  } else if (status === "Terminée" && booking.carName) {
-    const carIdx = (db.cars || []).findIndex(
-      (c) => (booking.carId && c.id === booking.carId) || (c.name && c.name.toLowerCase() === booking.carName.toLowerCase())
-    );
-    if (carIdx !== -1 && db.cars[carIdx].status === "Loué") {
-      db.cars[carIdx].status = "Disponible";
+      if (isOngoing) {
+        db.cars[carIdx].status = "Loué";
+      } else if (isCompleted) {
+        if (db.cars[carIdx].status === "Loué" || db.cars[carIdx].status === "Réservé") {
+          db.cars[carIdx].status = "Disponible";
+        }
+      } else if (isConfirmed && db.cars[carIdx].status === "Disponible") {
+        db.cars[carIdx].status = "Réservé";
+      } else if (isCancelled && db.cars[carIdx].status === "Réservé") {
+        db.cars[carIdx].status = "Disponible";
+      }
     }
   }
 
@@ -880,6 +930,230 @@ app.delete("/api/bookings/:id", authenticateToken, (req, res) => {
   }
 
   res.json({ success: true, message: "Réservation supprimée." });
+});
+
+/* ==========================================================================
+   IN-PLATFORM LIVE CHAT TIED TO BOOKINGS (PHASE D)
+   ========================================================================== */
+
+app.get("/api/bookings/:id/messages", (req, res) => {
+  const db = readDb();
+  const booking = (db.bookings || []).find((b) => b.id === req.params.id);
+  if (!booking) {
+    return res.status(404).json({ error: "Réservation introuvable." });
+  }
+  res.json({
+    bookingId: booking.id,
+    clientName: booking.clientName,
+    status: booking.status,
+    messages: booking.messages || []
+  });
+});
+
+app.post("/api/bookings/:id/messages", (req, res) => {
+  const { text, sender, role } = req.body;
+  if (!text || !text.trim()) {
+    return res.status(400).json({ error: "Le message ne peut pas être vide." });
+  }
+
+  const db = readDb();
+  const index = (db.bookings || []).findIndex((b) => b.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ error: "Réservation introuvable." });
+  }
+
+  const booking = db.bookings[index];
+  const newMsg = {
+    id: `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    text: text.trim(),
+    sender: sender || (role === "staff" ? "Conciergerie 3M Services" : booking.clientName || "Client"),
+    role: role || (req.user ? "staff" : "client"),
+    timestamp: new Date().toISOString()
+  };
+
+  booking.messages = booking.messages || [];
+  booking.messages.push(newMsg);
+
+  // Transition status to "En discussion" if it's currently a new request
+  if (["Demande reçue", "En attente", "Request received"].includes(booking.status)) {
+    booking.status = "En discussion";
+    booking.statusHistory = booking.statusHistory || [];
+    booking.statusHistory.push({
+      status: "En discussion",
+      changedAt: new Date().toISOString(),
+      changedBy: newMsg.sender,
+      note: "Discussion engagée via la messagerie intégrée 3M Services"
+    });
+  }
+
+  db.bookings[index] = booking;
+  writeDb(db);
+
+  logActivity(
+    "CHAT_MESSAGE",
+    `Message sur la réservation ${booking.id} (${newMsg.role})`,
+    newMsg.sender
+  );
+
+  res.status(201).json(newMsg);
+});
+
+/* ==========================================================================
+   OFFICIAL 3M SERVICES VOUCHER & QR VERIFICATION (PHASE E)
+   ========================================================================== */
+
+app.get("/api/bookings/:id/voucher", (req, res) => {
+  const db = readDb();
+  const booking = (db.bookings || []).find((b) => b.id === req.params.id);
+  if (!booking) {
+    return res.status(404).json({ error: "Réservation introuvable." });
+  }
+
+  const voucherNum = `3M-VCH-${booking.id.replace(/^3M-RES-/, "")}`;
+  const confirmedEntry = (booking.statusHistory || []).find((s) => ["Confirmée", "Confirmed"].includes(s.status));
+  const confirmedAt = confirmedEntry ? confirmedEntry.changedAt : booking.updatedAt || booking.createdAt;
+  const isConfirmed = ["Confirmée", "Confirmed", "Prêt pour départ", "En cours", "Terminée"].includes(booking.status);
+
+  const qrPayload = JSON.stringify({
+    voucher: voucherNum,
+    bookingId: booking.id,
+    client: booking.clientName,
+    phone: booking.phone,
+    vehicle: booking.carName,
+    dates: `${booking.pickTime} -> ${booking.dropTime || booking.pickTime}`,
+    status: booking.status,
+    verified: isConfirmed
+  });
+
+  res.json({
+    voucherNumber: voucherNum,
+    bookingId: booking.id,
+    clientName: booking.clientName,
+    phone: booking.phone,
+    email: booking.email || "",
+    carName: booking.carName,
+    carCategory: booking.rentalType || "Véhicule VIP Prestige",
+    pickupLocation: booking.pickUp || "Agence Omnisports, Yaoundé",
+    dropoffLocation: booking.dropOff || booking.pickUp || "Agence Omnisports, Yaoundé",
+    pickTime: booking.pickTime,
+    dropTime: booking.dropTime || booking.pickTime,
+    days: booking.days || 1,
+    totalPrice: booking.totalPrice,
+    paidAmount: booking.paidAmount || 0,
+    balance: booking.balance !== undefined ? booking.balance : (Number(booking.totalPrice) || 0) - (Number(booking.paidAmount) || 0),
+    paymentStatus: booking.paymentStatus || (booking.paidAmount >= booking.totalPrice ? "Payée" : "En attente"),
+    status: booking.status,
+    isConfirmed,
+    confirmedAt,
+    qrPayload,
+    emergencyConcierge: "+237 690 00 00 00",
+    terms: "Présenter une pièce d'identité valide (CNI ou Passeport) et l'original de ce voucher lors de la mise à disposition du véhicule."
+  });
+});
+
+/* ==========================================================================
+   HANDOVER & VEHICLE RETURN INSPECTIONS (PHASE F / G)
+   ========================================================================== */
+
+app.post("/api/bookings/:id/handover", authenticateToken, (req, res) => {
+  const { departureMileage, fuelLevel, chauffeurAssigned, notes } = req.body;
+  const db = readDb();
+  const index = (db.bookings || []).findIndex((b) => b.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ error: "Réservation introuvable." });
+  }
+
+  const booking = db.bookings[index];
+  booking.handover = {
+    departureMileage: departureMileage || "N/A",
+    fuelLevel: fuelLevel || "100%",
+    chauffeurAssigned: chauffeurAssigned || "Chauffeur VIP 3M",
+    notes: notes || "Véhicule inspecté et remis propre",
+    handedOverAt: new Date().toISOString(),
+    inspector: req.user ? req.user.name || req.user.email : "Staff 3M"
+  };
+
+  const prev = booking.status;
+  booking.status = "En cours";
+  booking.statusHistory = booking.statusHistory || [];
+  booking.statusHistory.push({
+    status: "En cours",
+    previousStatus: prev,
+    changedAt: new Date().toISOString(),
+    changedBy: req.user ? req.user.name : "Staff 3M",
+    note: `Véhicule remis au client. Départ enregistré (Km départ: ${departureMileage || "N/A"}).`
+  });
+
+  if (booking.carName || booking.carId) {
+    const carIdx = (db.cars || []).findIndex(
+      (c) => (booking.carId && String(c.id) === String(booking.carId)) || (c.name && c.name.toLowerCase() === (booking.carName || "").toLowerCase())
+    );
+    if (carIdx !== -1) {
+      db.cars[carIdx].status = "Loué";
+    }
+  }
+
+  db.bookings[index] = booking;
+  writeDb(db);
+
+  logActivity(
+    "DÉPART_VÉHICULE",
+    `Mise à disposition du véhicule pour la réservation ${booking.id}`,
+    req.user ? req.user.name : "Staff"
+  );
+
+  res.json({ success: true, booking });
+});
+
+app.post("/api/bookings/:id/return", authenticateToken, (req, res) => {
+  const { returnMileage, fuelLevel, damageReport, depositReturned, notes } = req.body;
+  const db = readDb();
+  const index = (db.bookings || []).findIndex((b) => b.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ error: "Réservation introuvable." });
+  }
+
+  const booking = db.bookings[index];
+  booking.returnInspection = {
+    returnMileage: returnMileage || "N/A",
+    fuelLevel: fuelLevel || "100%",
+    damageReport: damageReport || "Aucun dommage",
+    depositReturned: depositReturned !== undefined ? depositReturned : true,
+    notes: notes || "Restitution conforme",
+    returnedAt: new Date().toISOString(),
+    inspector: req.user ? req.user.name || req.user.email : "Staff 3M"
+  };
+
+  const prev = booking.status;
+  booking.status = "Terminée";
+  booking.statusHistory = booking.statusHistory || [];
+  booking.statusHistory.push({
+    status: "Terminée",
+    previousStatus: prev,
+    changedAt: new Date().toISOString(),
+    changedBy: req.user ? req.user.name : "Staff 3M",
+    note: `Véhicule retourné et inspecté. Dossier clôturé (Km retour: ${returnMileage || "N/A"}).`
+  });
+
+  if (booking.carName || booking.carId) {
+    const carIdx = (db.cars || []).findIndex(
+      (c) => (booking.carId && String(c.id) === String(booking.carId)) || (c.name && c.name.toLowerCase() === (booking.carName || "").toLowerCase())
+    );
+    if (carIdx !== -1 && (db.cars[carIdx].status === "Loué" || db.cars[carIdx].status === "Réservé")) {
+      db.cars[carIdx].status = "Disponible";
+    }
+  }
+
+  db.bookings[index] = booking;
+  writeDb(db);
+
+  logActivity(
+    "RETOUR_VÉHICULE",
+    `Restitution du véhicule pour la réservation ${booking.id} - Clôture du dossier`,
+    req.user ? req.user.name : "Staff"
+  );
+
+  res.json({ success: true, booking });
 });
 
 /* ==========================================================================
@@ -1433,6 +1707,21 @@ app.delete("/api/locations/dropoff/:id", authenticateToken, (req, res) => {
 });
 
 /* ==========================================================================
+   PRODUCTION STATIC ASSETS & WEB APP SERVING
+   ========================================================================== */
+
+const buildPath = path.join(__dirname, "../build");
+if (fs.existsSync(buildPath)) {
+  app.use(express.static(buildPath));
+  app.get("*", (req, res, next) => {
+    if (req.url.startsWith("/api") || req.url.startsWith("/uploads")) {
+      return next();
+    }
+    res.sendFile(path.join(buildPath, "index.html"));
+  });
+}
+
+/* ==========================================================================
    START SERVER
    ========================================================================== */
 
@@ -1443,4 +1732,6 @@ app.listen(PORT, () => {
   console.log(` 🔑 Default Admin: admin@3mservices.cm / admin3m2026`);
   console.log(`=======================================================`);
 });
+
+module.exports = app;
 

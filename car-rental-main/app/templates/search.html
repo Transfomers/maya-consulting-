@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block title %}Flotte VIP & Réservation - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'danger' if category in ['error','danger'] else 'success' if category == 'success' else 'info' }} alert-dismissible fade show mb-4" role="alert" style="border-radius:1rem;">
+        <i class="bi bi-{{ 'exclamation-triangle-fill' if category in ['error','danger'] else 'check-circle-fill' if category == 'success' else 'info-circle-fill' }} me-2"></i>
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- Hero Section -->
+    <div class="row mb-4">
+        <div class="col-md-12 text-center">
+            <span class="badge px-3 py-2 rounded-pill mb-2" style="background: rgba(201,42,42,0.1); color: var(--primary-light); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.05em;">
+                <i class="bi bi-shield-check me-1"></i> FLOTTE VIP OFFICIELLE 3M SERVICES
+            </span>
+            <h1 class="display-5 fw-bold mb-2" style="color: var(--primary-light);">{{ _t('Trouvez Votre Véhicule VIP') }}</h1>
+            <p class="lead text-muted">{{ _t('Location de SUV 4x4 de prestige, berlines de luxe et conciergerie avec ou sans chauffeur au Cameroun') }}</p>
+        </div>
+    </div>
+
+    <!-- VIP React Client Connection Banner -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-10">
+            <div class="p-4 rounded-4 shadow-sm text-white d-flex flex-wrap align-items-center justify-content-between gap-3"
+                 style="background: linear-gradient(135deg, #0B0F19 0%, #1a0a0f 60%, var(--primary-light) 100%); border: 1.5px solid rgba(255,255,255,0.15);">
+                <div>
+                    <span class="badge bg-danger text-white rounded-pill px-3 py-1 mb-2 fw-bold" style="font-size: 0.75rem;">
+                        <i class="bi bi-eye-fill me-1"></i> VUE MULTI-ANGLES 360° INTERACTIVE
+                    </span>
+                    <h4 class="fw-bold mb-1">Accédez au Catalogue E-commerce Client</h4>
+                    <p class="mb-0 text-white-50 small">Consultez les angles photos interactifs, le compte à rebours d'offres et les résidences meublées sur le site client React.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="http://localhost:3001/models" target="_blank" class="btn btn-light rounded-pill px-4 py-2 fw-bold text-danger shadow-sm">
+                        <i class="bi bi-car-front-fill me-1"></i> Ouvrir Catalogue Client (Port 3001)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search / Filter Form -->
+    <div class="row justify-content-center">
+        <div class="col-md-10 mx-auto">
+            <div class="search-form fade-in" style="border-radius: 1.5rem; background: var(--glass-bg-light); border: 1.5px solid rgba(201, 42, 42, 0.12); padding: 2.5rem; box-shadow: 0 8px 32px rgba(201, 42, 42, 0.05);">
+                <form id="searchForm" autocomplete="off">
+                    <!-- Formule Selection -->
+                    <div class="d-flex flex-wrap justify-content-center gap-3 gap-md-4 mb-4">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input trip-type-radio" type="radio" name="rental_type" id="with_driver" value="with_driver" checked>
+                            <label class="form-check-label fw-bold" for="with_driver" style="cursor:pointer; color: var(--text-light);">
+                                <i class="bi bi-person-badge-fill me-1 text-primary"></i> Avec Chauffeur VIP
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input trip-type-radio" type="radio" name="rental_type" id="without_driver" value="without_driver">
+                            <label class="form-check-label fw-bold" for="without_driver" style="cursor:pointer; color: var(--text-light);">
+                                <i class="bi bi-key-fill me-1 text-primary"></i> Sans Chauffeur (Autonomie)
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input trip-type-radio" type="radio" name="rental_type" id="airport_shuttle" value="airport_shuttle">
+                            <label class="form-check-label fw-bold" for="airport_shuttle" style="cursor:pointer; color: var(--text-light);">
+                                <i class="bi bi-airplane-fill me-1 text-primary"></i> Transfert Aéroport Nsimalen
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Prise en charge Input -->
+                        <div class="col-md-6 position-relative">
+                            <label for="pickup_loc" class="form-label fw-semibold">Lieu de Prise en Charge</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="fas fa-map-marker-alt"></i></span>
+                                <select class="form-select bg-white border-start-0" id="pickup_loc" name="pickup_loc">
+                                    <option value="Yaoundé Omnisports (Showroom 3M)" selected>Yaoundé — Omnisports (Showroom 3M SERVICES)</option>
+                                    <option value="Yaoundé Bastos">Yaoundé — Quartier Bastos (Ambassades)</option>
+                                    <option value="Aéroport Yaoundé-Nsimalen">Aéroport International de Yaoundé-Nsimalen (NSI)</option>
+                                    <option value="Douala Bonanjo">Douala — Bonanjo / Akwa</option>
+                                    <option value="Aéroport Douala">Aéroport International de Douala (DLA)</option>
+                                    <option value="Kribi">Kribi — Ville & Complexe Portuaire</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Catégorie de Véhicule Input -->
+                        <div class="col-md-6 position-relative">
+                            <label for="vehicle_category" class="form-label fw-semibold">Catégorie de Véhicule VIP</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="fas fa-car-side"></i></span>
+                                <select class="form-select bg-white border-start-0" id="vehicle_category" name="vehicle_category">
+                                    <option value="all" selected>Tous les Véhicules VIP (7)</option>
+                                    <option value="suv_v8">SUV 4x4 V8 Prestige (LC300, LC200)</option>
+                                    <option value="suv_txl">SUV 4x4 Polyvalent (Prado TXL, RAV4)</option>
+                                    <option value="berline">Berlines de Luxe (Mercedes Classe E, Camry)</option>
+                                    <option value="pickup">Pick-up Tout-Terrain (Toyota Hilux)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Date Début Input -->
+                        <div class="col-md-4">
+                            <label for="date_start" class="form-label fw-semibold">Date de Début</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="fas fa-calendar"></i></span>
+                                <input type="date" class="form-control bg-white border-start-0" id="date_start" name="date_start">
+                            </div>
+                        </div>
+
+                        <!-- Date Fin Input -->
+                        <div class="col-md-4">
+                            <label for="date_end" class="form-label fw-semibold">Date de Restitution</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="fas fa-calendar-alt"></i></span>
+                                <input type="date" class="form-control bg-white border-start-0" id="date_end" name="date_end">
+                            </div>
+                        </div>
+
+                        <!-- Nombre de Places -->
+                        <div class="col-md-4">
+                            <label for="passengers" class="form-label fw-semibold">Capacité / Places</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="fas fa-users"></i></span>
+                                <select class="form-select bg-white border-start-0" id="passengers" name="passengers">
+                                    <option value="any" selected>Indifférent</option>
+                                    <option value="5">5 Places VIP (Berline / Pick-up)</option>
+                                    <option value="7">7 Places VIP (SUV Grand Standing)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12 text-center mt-4">
+                            <button type="button" onclick="filterFleet()" class="btn btn-primary btn-lg px-5 py-2 rounded-pill fw-semibold shadow-sm" style="background-color: #C92A2A !important; border-color: #C92A2A !important; color: #fff !important;">
+                                <i class="fas fa-search me-2" style="color: #fff !important;"></i> Filtrer la Disponibilité
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Official 7 VIP Vehicles Showcase -->
+    <div class="mt-5 mx-auto col-md-11">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold m-0" style="color: var(--primary-light);">
+                    <i class="bi bi-car-front-fill me-2"></i>La Flotte Officielle 3M SERVICES (7 Véhicules)
+                </h3>
+                <p class="text-muted small mb-0">Véhicules vérifiés, climatisés, assurés tous risques avec options de conciergerie</p>
+            </div>
+            <a href="http://localhost:3001/models" target="_blank" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">
+                <i class="bi bi-arrow-up-right-circle me-1"></i> Galerie 360° Port 3001
+            </a>
+        </div>
+
+        <div class="row g-4" id="fleetGrid">
+            <!-- 1. LC300 -->
+            <div class="col-md-6 col-lg-4 fleet-item" data-cat="suv_v8">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="background: var(--glass-bg-light); border: 1.5px solid var(--input-border-light) !important;">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename='img/1bus_hero.png') }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Toyota Land Cruiser LC300">
+                        <span class="badge position-absolute top-0 end-0 m-3 px-3 py-1.5 rounded-pill shadow-sm" style="background: #C92A2A; color: #fff; font-size: 0.8rem;">
+                            100 000 FCFA / jour
+                        </span>
+                        <span class="badge bg-dark position-absolute bottom-0 start-0 m-3 px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                            Plaque : LT-104-AB
+                        </span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="fw-bold text-dark mb-1">Toyota Land Cruiser V8 LC300</h5>
+                        <p class="text-muted small mb-3">Le summum du luxe et de la puissance. Climatisation quadri-zone, cuir nappa, 7 places VIP.</p>
+                        <ul class="list-unstyled small text-muted mb-4 d-flex flex-column gap-1">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Moteur V8 Bi-Turbo — 7 Places VIP</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Chauffeur VIP inclus ou option autonome</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Écrans multimédia & WiFi embarqué</li>
+                        </ul>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="https://wa.me/237691786447?text=Bonjour,%20je%20souhaite%20r%C3%A9server%20le%20Toyota%20LC300%20(LT-104-AB)" target="_blank" class="btn btn-success rounded-pill w-100 fw-bold py-2 shadow-sm">
+                                <i class="bi bi-whatsapp me-1"></i> Réserver
+                            </a>
+                            <a href="http://localhost:3001/models" target="_blank" class="btn btn-outline-danger rounded-pill px-3" title="Voir 360°">
+                                <i class="bi bi-camera"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. LC200 -->
+            <div class="col-md-6 col-lg-4 fleet-item" data-cat="suv_v8">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="background: var(--glass-bg-light); border: 1.5px solid var(--input-border-light) !important;">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename='img/1bus_hero.png') }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Toyota Land Cruiser LC200">
+                        <span class="badge position-absolute top-0 end-0 m-3 px-3 py-1.5 rounded-pill shadow-sm" style="background: #C92A2A; color: #fff; font-size: 0.8rem;">
+                            70 000 FCFA / jour
+                        </span>
+                        <span class="badge bg-dark position-absolute bottom-0 start-0 m-3 px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                            Plaque : CE-982-LT
+                        </span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="fw-bold text-dark mb-1">Toyota Land Cruiser V8 LC200</h5>
+                        <p class="text-muted small mb-3">La référence indétrônable du confort et de la sécurité protocolaire sur tout type de terrain.</p>
+                        <ul class="list-unstyled small text-muted mb-4 d-flex flex-column gap-1">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Moteur V8 Tropicalisé — 7 Places VIP</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Idéal délégations & voyages régionaux</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Suspension active & confort thermique</li>
+                        </ul>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="https://wa.me/237691786447?text=Bonjour,%20je%20souhaite%20r%C3%A9server%20le%20Toyota%20LC200%20(CE-982-LT)" target="_blank" class="btn btn-success rounded-pill w-100 fw-bold py-2 shadow-sm">
+                                <i class="bi bi-whatsapp me-1"></i> Réserver
+                            </a>
+                            <a href="http://localhost:3001/models" target="_blank" class="btn btn-outline-danger rounded-pill px-3" title="Voir 360°">
+                                <i class="bi bi-camera"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Prado TXL -->
+            <div class="col-md-6 col-lg-4 fleet-item" data-cat="suv_txl">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="background: var(--glass-bg-light); border: 1.5px solid var(--input-border-light) !important;">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename='img/1bus_hero.png') }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Toyota Prado TXL">
+                        <span class="badge position-absolute top-0 end-0 m-3 px-3 py-1.5 rounded-pill shadow-sm" style="background: #C92A2A; color: #fff; font-size: 0.8rem;">
+                            65 000 FCFA / jour
+                        </span>
+                        <span class="badge bg-dark position-absolute bottom-0 start-0 m-3 px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                            Plaque : CE-452-X
+                        </span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="fw-bold text-dark mb-1">Toyota Land Cruiser Prado TXL</h5>
+                        <p class="text-muted small mb-3">L'équilibre parfait entre agilité urbaine et robustesse tout-terrain. 7 places spacieuses.</p>
+                        <ul class="list-unstyled small text-muted mb-4 d-flex flex-column gap-1">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> 4x4 Polyvalent — 7 Places</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Idéal déplacements d'affaires & vacances</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Intérieur cuir & climatisation bi-zone</li>
+                        </ul>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="https://wa.me/237691786447?text=Bonjour,%20je%20souhaite%20r%C3%A9server%20le%20Toyota%20Prado%20TXL%20(CE-452-X)" target="_blank" class="btn btn-success rounded-pill w-100 fw-bold py-2 shadow-sm">
+                                <i class="bi bi-whatsapp me-1"></i> Réserver
+                            </a>
+                            <a href="http://localhost:3001/models" target="_blank" class="btn btn-outline-danger rounded-pill px-3" title="Voir 360°">
+                                <i class="bi bi-camera"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Mercedes Classe E -->
+            <div class="col-md-6 col-lg-4 fleet-item" data-cat="berline">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="background: var(--glass-bg-light); border: 1.5px solid var(--input-border-light) !important;">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename='img/1bus_hero.png') }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Mercedes-Benz Classe E">
+                        <span class="badge position-absolute top-0 end-0 m-3 px-3 py-1.5 rounded-pill shadow-sm" style="background: #C92A2A; color: #fff; font-size: 0.8rem;">
+                            60 000 FCFA / jour
+                        </span>
+                        <span class="badge bg-dark position-absolute bottom-0 start-0 m-3 px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                            Plaque : LT-554-ME
+                        </span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="fw-bold text-dark mb-1">Mercedes-Benz Classe E Berline VIP</h5>
+                        <p class="text-muted small mb-3">Élégance raffinée et prestige allemand. Idéale pour dirigeants, cérémonies et réceptions.</p>
+                        <ul class="list-unstyled small text-muted mb-4 d-flex flex-column gap-1">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Berline de Luxe Allemande — 5 Places</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Chauffeur en costume protocolaire</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Sonorisation Burmester & confort absolu</li>
+                        </ul>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="https://wa.me/237691786447?text=Bonjour,%20je%20souhaite%20r%C3%A9server%20la%20Mercedes%20Classe%20E%20(LT-554-ME)" target="_blank" class="btn btn-success rounded-pill w-100 fw-bold py-2 shadow-sm">
+                                <i class="bi bi-whatsapp me-1"></i> Réserver
+                            </a>
+                            <a href="http://localhost:3001/models" target="_blank" class="btn btn-outline-danger rounded-pill px-3" title="Voir 360°">
+                                <i class="bi bi-camera"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Hilux Double Cabine -->
+            <div class="col-md-6 col-lg-4 fleet-item" data-cat="pickup">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="background: var(--glass-bg-light); border: 1.5px solid var(--input-border-light) !important;">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename='img/1bus_hero.png') }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Toyota Hilux 4x4">
+                        <span class="badge position-absolute top-0 end-0 m-3 px-3 py-1.5 rounded-pill shadow-sm" style="background: #C92A2A; color: #fff; font-size: 0.8rem;">
+                            55 000 FCFA / jour
+                        </span>
+                        <span class="badge bg-dark position-absolute bottom-0 start-0 m-3 px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                            Plaque : CE-789-HT
+                        </span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="fw-bold text-dark mb-1">Toyota Hilux Double Cabine 4x4</h5>
+                        <p class="text-muted small mb-3">La référence robuste tout-terrain pour chantiers, missions techniques et expéditions.</p>
+                        <ul class="list-unstyled small text-muted mb-4 d-flex flex-column gap-1">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Double Cabine 4x4 — 5 Places</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Grande capacité de charge benne</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Climatisation renforcée & pneumatiques piste</li>
+                        </ul>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="https://wa.me/237691786447?text=Bonjour,%20je%20souhaite%20r%C3%A9server%20le%20Toyota%20Hilux%20(CE-789-HT)" target="_blank" class="btn btn-success rounded-pill w-100 fw-bold py-2 shadow-sm">
+                                <i class="bi bi-whatsapp me-1"></i> Réserver
+                            </a>
+                            <a href="http://localhost:3001/models" target="_blank" class="btn btn-outline-danger rounded-pill px-3" title="Voir 360°">
+                                <i class="bi bi-camera"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Camry -->
+            <div class="col-md-6 col-lg-4 fleet-item" data-cat="berline">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="background: var(--glass-bg-light); border: 1.5px solid var(--input-border-light) !important;">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename='img/1bus_hero.png') }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Toyota Camry">
+                        <span class="badge position-absolute top-0 end-0 m-3 px-3 py-1.5 rounded-pill shadow-sm" style="background: #C92A2A; color: #fff; font-size: 0.8rem;">
+                            50 000 FCFA / jour
+                        </span>
+                        <span class="badge bg-dark position-absolute bottom-0 start-0 m-3 px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                            Plaque : CE-331-BC
+                        </span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="fw-bold text-dark mb-1">Toyota Camry Berline Prestige</h5>
+                        <p class="text-muted small mb-3">Confort feutré, insonorisation de premier ordre et consommation optimisée pour vos rendez-vous.</p>
+                        <ul class="list-unstyled small text-muted mb-4 d-flex flex-column gap-1">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Berline Spacieuse — 5 Places</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Confort business & sièges réglables</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Climatisation bizone & coffre spacieux</li>
+                        </ul>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="https://wa.me/237691786447?text=Bonjour,%20je%20souhaite%20r%C3%A9server%20la%20Toyota%20Camry%20(CE-331-BC)" target="_blank" class="btn btn-success rounded-pill w-100 fw-bold py-2 shadow-sm">
+                                <i class="bi bi-whatsapp me-1"></i> Réserver
+                            </a>
+                            <a href="http://localhost:3001/models" target="_blank" class="btn btn-outline-danger rounded-pill px-3" title="Voir 360°">
+                                <i class="bi bi-camera"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. RAV4 -->
+            <div class="col-md-6 col-lg-4 fleet-item" data-cat="suv_txl">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden" style="background: var(--glass-bg-light); border: 1.5px solid var(--input-border-light) !important;">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename='img/1bus_hero.png') }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Toyota RAV4">
+                        <span class="badge position-absolute top-0 end-0 m-3 px-3 py-1.5 rounded-pill shadow-sm" style="background: #C92A2A; color: #fff; font-size: 0.8rem;">
+                            45 000 FCFA / jour
+                        </span>
+                        <span class="badge bg-dark position-absolute bottom-0 start-0 m-3 px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                            Plaque : CE-112-RV
+                        </span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="fw-bold text-dark mb-1">Toyota RAV4 4x4 Urbain</h5>
+                        <p class="text-muted small mb-3">SUV compact moderne, économique et élégant pour vos déplacements rapides et séjours urbains.</p>
+                        <ul class="list-unstyled small text-muted mb-4 d-flex flex-column gap-1">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> SUV Compact 4x4 — 5 Places</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Caméra de recul & connectivité Bluetooth</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i> Polyvalence ville & week-ends</li>
+                        </ul>
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="https://wa.me/237691786447?text=Bonjour,%20je%20souhaite%20r%C3%A9server%20le%20Toyota%20RAV4%20(CE-112-RV)" target="_blank" class="btn btn-success rounded-pill w-100 fw-bold py-2 shadow-sm">
+                                <i class="bi bi-whatsapp me-1"></i> Réserver
+                            </a>
+                            <a href="http://localhost:3001/models" target="_blank" class="btn btn-outline-danger rounded-pill px-3" title="Voir 360°">
+                                <i class="bi bi-camera"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Missions & Forfaits VIP Populaires -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h3 class="text-center fw-bold mb-4" style="color: var(--primary-light);">
+                <i class="bi bi-stars me-2"></i>Missions & Forfaits VIP les Plus Demandés
+            </h3>
+            <div class="row text-center g-4">
+                <div class="col-md-4">
+                    <div class="p-4 rounded-4 shadow-sm border bg-white h-100">
+                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(201,42,42,0.1); color: #C92A2A; font-size: 1.3rem;">
+                            <i class="bi bi-airplane-fill"></i>
+                        </div>
+                        <h5 class="fw-bold">Navette VIP Aéroport</h5>
+                        <p class="text-muted small">Prise en charge à Nsimalen ou Douala avec chauffeur et pancarte nominative.</p>
+                        <div class="fw-bold text-danger mb-3">Dès 35 000 FCFA</div>
+                        <a href="https://wa.me/237691786447?text=Bonjour,%20je%20souhaite%20r%C3%A9server%20une%20navette%20a%C3%A9roport" target="_blank" class="btn btn-sm btn-outline-danger rounded-pill px-3">Réserver</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4 rounded-4 shadow-sm border bg-white h-100">
+                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(201,42,42,0.1); color: #C92A2A; font-size: 1.3rem;">
+                            <i class="bi bi-briefcase-fill"></i>
+                        </div>
+                        <h5 class="fw-bold">Journée Affaires Yaoundé</h5>
+                        <p class="text-muted small">Véhicule VIP + chauffeur bilingue à disposition 10h pour vos rendez-vous et ministères.</p>
+                        <div class="fw-bold text-danger mb-3">Dès 65 000 FCFA</div>
+                        <a href="https://wa.me/237691786447?text=Bonjour,%20je%20souhaite%20r%C3%A9server%20un%20forfait%20journ%C3%A9e%20affaires" target="_blank" class="btn btn-sm btn-outline-danger rounded-pill px-3">Réserver</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4 rounded-4 shadow-sm border bg-white h-100">
+                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(201,42,42,0.1); color: #C92A2A; font-size: 1.3rem;">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h5 class="fw-bold">Mission Régionale & Escorte</h5>
+                        <p class="text-muted small">SUV Land Cruiser V8 tout-terrain équipé pour l'Ouest, le Littoral ou le Grand Nord.</p>
+                        <div class="fw-bold text-danger mb-3">Dès 100 000 FCFA / jour</div>
+                        <a href="https://wa.me/237691786447?text=Bonjour,%20je%20souhaite%20un%20devis%20mission%20r%C3%A9gionale" target="_blank" class="btn btn-sm btn-outline-danger rounded-pill px-3">Demander Devis</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterFleet() {
+    const cat = document.getElementById('vehicle_category').value;
+    const items = document.querySelectorAll('.fleet-item');
+    items.forEach(el => {
+        if (cat === 'all' || el.getAttribute('data-cat') === cat) {
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Supervision des Agences - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-start">
+    {% include 'admin/_subnav.html' %}
+    {% include 'admin/_super_parcel_subnav.html' %}
+
+    <div class="card border-0 shadow-sm p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-building-fill text-primary me-2"></i>Performance Globale des Agences</h4>
+                <p class="text-muted small mb-0">Indicateurs clés, volumes logistiques et recettes générées par agence.</p>
+            </div>
+        </div>
+
+        {% if agency_stats %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Agence</th>
+                            <th>Ville</th>
+                            <th class="text-center">Colis Expédiés</th>
+                            <th class="text-center">En Transit</th>
+                            <th class="text-center">Taux de Livraison</th>
+                            <th class="fw-bold">Chiffre d'Affaires</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stats in agency_stats %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-primary">{{ stats.agency.name }}</div>
+                                <div class="small text-muted" style="font-size: 0.75rem;"><i class="bi bi-phone me-1"></i>{{ stats.agency.phone or 'Aucun contact' }}</div>
+                            </td>
+                            <td>{{ stats.agency.city }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border">{{ stats.total_packages }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-warning-soft text-warning border">{{ stats.in_transit }}</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="fw-bold">{{ stats.success_rate }}%</div>
+                                <div class="progress mt-1" style="height: 5px; min-width: 100px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ stats.success_rate }}%;" aria-valuenow="{{ stats.success_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </td>
+                            <td class="fw-bold text-success">{{ stats.revenue | int }} FCFA</td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <form action="{{ url_for('admin.select_agency') }}" method="POST" class="d-inline-block m-0">
+                                        <input type="hidden" name="agency_id" value="{{ stats.agency.id }}">
+                                        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
+                                            <i class="bi bi-arrow-repeat me-1"></i> Sélectionner
+                                        </button>
+                                    </form>
+                                    <a href="{{ url_for('admin.super_parcel_registry', agency_id=stats.agency.id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                        <i class="bi bi-search me-1"></i> Voir Colis
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-building fs-1 text-muted d-block mb-3"></i>
+                <h6 class="text-muted fw-bold">Aucune agence active trouvée.</h6>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

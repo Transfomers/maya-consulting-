@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Forfaits & Missions Récurrentes - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-calendar2-week text-primary me-2"></i>Forfaits & Missions Récurrentes</h3>
+            <p class="text-muted mb-0">Gérez les forfaits de location et navettes récurrentes (quotidiennes, hebdomadaires, jours de missions)</p>
+        </div>
+        <a href="{{ url_for('admin.add_trip_schedule') }}" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+            <i class="bi bi-plus-circle me-2"></i>Nouveau Forfait Récurrent
+        </a>
+    </div>
+
+    {% if schedules|length == 0 %}
+        <div class="card border-0 shadow-sm p-5 text-center" style="border-radius: 1.5rem;">
+            <div class="mb-3" style="font-size: 3rem; opacity: 0.3;">📅</div>
+            <h5 class="text-muted fw-semibold">Aucun forfait récurrent configuré</h5>
+            <p class="text-muted small mb-3">Créez un forfait récurrent pour planifier automatiquement les sorties de véhicules.</p>
+            <a href="{{ url_for('admin.add_trip_schedule') }}" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-plus-circle me-2"></i>Créer un forfait
+            </a>
+        </div>
+    {% else %}
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 1.5rem;">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead style="background: rgba(112,29,54,0.05);">
+                        <tr>
+                            <th class="ps-4">Mission / Destination</th>
+                            <th>Heure Départ</th>
+                            <th>Durée Estimée</th>
+                            <th>Tarif (FCFA)</th>
+                            <th>Capacité VIP</th>
+                            <th>Récurrence</th>
+                            <th>Période</th>
+                            <th>Statut</th>
+                            <th>Voyages générés</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for schedule in schedules %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-semibold">{{ schedule.route.origin }} → {{ schedule.route.destination }}</div>
+                                <small class="text-muted">{{ schedule.agency.name }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-dark px-2 py-1 fw-bold" style="font-size: 0.85rem;">{{ schedule.departure_time_of_day }}</span>
+                            </td>
+                            <td>
+                                {% set h = schedule.duration_minutes // 60 %}
+                                {% set m = schedule.duration_minutes % 60 %}
+                                {{ h }}h{{ '%02d' % m }}
+                            </td>
+                            <td class="fw-bold" style="color: var(--primary-light);">{{ '{:,.0f}'.format(schedule.price) }} FCFA</td>
+                            <td>{{ schedule.capacity }} places</td>
+                            <td>
+                                <span class="badge bg-info text-dark px-2 py-1" style="font-size: 0.75rem;">{{ schedule.recurrence_display }}</span>
+                            </td>
+                            <td>
+                                <small>
+                                    {{ schedule.effective_from.strftime('%d/%m/%Y') }}
+                                    {% if schedule.effective_until %}
+                                        → {{ schedule.effective_until.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        → <span class="text-muted">Indéfini</span>
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td>
+                                {% if schedule.is_active %}
+                                    <span class="badge bg-success px-2 py-1"><i class="bi bi-check-circle me-1"></i>Actif</span>
+                                {% else %}
+                                    <span class="badge bg-secondary px-2 py-1"><i class="bi bi-pause-circle me-1"></i>En pause</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border px-2 py-1">{{ schedule.trips.count() }}</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('admin.toggle_schedule', id=schedule.id) }}" 
+                                       class="btn btn-outline-{{ 'warning' if schedule.is_active else 'success' }} rounded-start-pill"
+                                       title="{{ 'Mettre en pause' if schedule.is_active else 'Activer' }}">
+                                        <i class="bi bi-{{ 'pause' if schedule.is_active else 'play' }}-fill"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin.generate_from_schedule', id=schedule.id) }}" 
+                                       class="btn btn-outline-primary"
+                                       title="Générer les voyages maintenant">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin.delete_schedule', id=schedule.id) }}" 
+                                       class="btn btn-outline-danger rounded-end-pill"
+                                       title="Supprimer"
+                                       onclick="return confirm('Supprimer ce programme ?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

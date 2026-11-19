@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --brand-primary: #C92A2A;
+        --brand-dark: #3a0d1b;
+        --brand-accent: #e0ab41;
+        --bg-light: #f8fafc;
+        --card-light: #ffffff;
+        --text-light: #1e293b;
+        --text-muted: #64748b;
+        --border-light: #e2e8f0;
+        --shadow-premium: 0 12px 30px rgba(201, 42, 42, 0.05);
+        --radius-custom: 1rem;
+    }
+    .header-title-log {
+        font-size: 1.65rem;
+        font-weight: 800;
+        color: #101828;
+        letter-spacing: -0.5px;
+    }
+</style>
+{% block head_extra %}{% endblock %}
+{% endblock %}
+
+{% block extra_js %}
+{% block scripts %}{% endblock %}
+{% endblock %}

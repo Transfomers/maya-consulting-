@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('Conditions Générales de Location — 3M SERVICES SARL') }}{% endblock %}
+
+{% block content %}
+<style>
+    .terms-hero {
+        background: linear-gradient(135deg, #0B0F19 0%, #1e293b 50%, #C92A2A 100%);
+        color: white;
+        padding: 5rem 2rem 4rem;
+        border-radius: 1.5rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .terms-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(201, 42, 42, 0.25) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .terms-content {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.06);
+    }
+    .terms-content h2 {
+        color: #0B0F19;
+        font-weight: 700;
+        margin-top: 2.2rem;
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .terms-content p, .terms-content li {
+        color: #4b5563;
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+    .terms-content ul {
+        padding-left: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .terms-content li {
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div class="container py-4">
+    <!-- Hero -->
+    <div class="terms-hero text-center">
+        <h1 class="display-5 fw-bold mb-3 position-relative" style="z-index:2;">{{ _t('Conditions Générales de Location VIP') }}</h1>
+        <p class="lead mb-0 position-relative" style="z-index:2; color: rgba(255,255,255,0.9);">
+            {{ _t('3M SERVICES SARL — Location de Véhicules, Flotte & Conciergerie') }} • Mise à jour 2026
+        </p>
+    </div>
+
+    <!-- Content -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="terms-content">
+                <h2>1. {{ _t('Acceptation des conditions') }}</h2>
+                <p>{{ _t('En accédant et en contractant une réservation sur la plateforme 3M SERVICES SARL ("la Société"), le client accepte sans réserve de se conformer aux présentes Conditions Générales de Location de Véhicules et de Services VIP.') }}</p>
+
+                <h2>2. {{ _t('Description des Services') }}</h2>
+                <p>{{ _t('3M SERVICES SARL propose des services premium de mobilité : location de véhicules VIP et SUV 4x4 (Toyota Land Cruiser 300, Prado TXL, Mercedes-Benz, Hilux), mise à disposition de chauffeurs exécutifs bilingues, transferts aéroport (Nsimalen / Douala), gestion de flottes pour entreprises et conciergerie privée.') }}</p>
+
+                <h2>3. {{ _t('Réservation et Contrat de Mise à Disposition') }}</h2>
+                <ul>
+                    <li>{{ _t('Toute réservation effectuée en ligne ou au comptoir est soumise à la confirmation de disponibilité du véhicule sélectionné.') }}</li>
+                    <li>{{ _t('Un contrat de location et une facture proforma certifiée avec QR Code sont émis dès confirmation. Le client doit présenter une pièce d\'identité valide ou passeport lors de la prise en charge.') }}</li>
+                    <li>{{ _t('Pour les formules sans chauffeur, la présentation d\'un permis de conduire en cours de validité (minimum 3 ans d\'ancienneté) et le dépôt d\'une caution de garantie sont obligatoires.') }}</li>
+                </ul>
+
+                <h2>4. {{ _t('Tarifs, Forfaits et Modalités de Paiement') }}</h2>
+                <p>{{ _t('Les tarifs sont exprimés en Francs CFA (XAF) par tranche journalière de 24 heures ou selon le forfait mission convenu. Les règlements s\'effectuent par Carte Bancaire, Virement, Mobile Money (Orange Money / MTN MoMo) ou au comptoir VIP.') }}</p>
+
+                <h2>5. {{ _t('Annulation et Modification') }}</h2>
+                <ul>
+                    <li>{{ _t('Annulation plus de 48h avant la mise à disposition : Remboursement à 100% ou avoir sans frais.') }}</li>
+                    <li>{{ _t('Annulation entre 24h et 48h : Retenue forfaitaire de 25% du montant de la première journée.') }}</li>
+                    <li>{{ _t('Annulation moins de 24h ou non-présentation : La première journée reste due.') }}</li>
+                </ul>
+
+                <h2>6. {{ _t('Assurances et Sécurité') }}</h2>
+                <p>{{ _t('Tous les véhicules de la flotte 3M SERVICES bénéficient d\'une couverture d\'assurance tous risques professionnelle, d\'un suivi GPS par balise satellite en temps réel, et d\'un contrôle technique rigoureux avant chaque départ.') }}</p>
+
+                <h2>7. {{ _t('Contact & Service Clientèle') }}</h2>
+                <p>{{ _t('Pour toute demande de réservation spécifique ou assistance 24/7 :') }} <br>
+                <strong>3M SERVICES SARL</strong> — Omnisports, Face Pharmacie Le Bon Berger, Yaoundé.<br>
+                Téléphone : +237 691 78 64 47 / +237 698 66 87 61 | Email : <a href="mailto:contact@3mservice.shop" style="color: #C92A2A; font-weight: 600;">contact@3mservice.shop</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,887 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord Admin - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+<style>
+  .fc-mini .fc-toolbar { padding: .4rem .5rem !important; }
+  .fc-mini .fc-toolbar-title { font-size: .95rem !important; font-weight: 700 !important; }
+  .fc-mini .fc-button { font-size: .7rem !important; padding: .2rem .5rem !important; border-radius: .4rem !important; background: #C92A2A !important; border-color: #C92A2A !important; }
+  .fc-mini .fc-daygrid-day-number { font-size: .72rem; }
+  .fc-mini .fc-col-header-cell-cushion { font-size: .72rem; font-weight: 700; color: #64748b; }
+  .fc-mini .fc-event { font-size: .65rem !important; padding: 1px 3px !important; border-radius: 3px !important; border: none !important; }
+  .fc-mini .fc-daygrid-event-harness { margin-bottom: 1px !important; }
+  body.dark-mode .fc-mini .fc-daygrid-day { background: #1e293b !important; }
+  body.dark-mode .fc-mini .fc-daygrid-day.fc-day-today { background: #1a2744 !important; }
+  body.dark-mode .fc-mini td, body.dark-mode .fc-mini th { border-color: #334155 !important; }
+  body.dark-mode .fc-mini .fc-toolbar-title { color: #e2e8f0 !important; }
+  body.dark-mode .fc-mini .fc-daygrid-day-number { color: #94a3b8 !important; }
+  body.dark-mode .fc-mini .fc-col-header-cell-cushion { color: #94a3b8 !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<style>
+    .admin-container {
+        padding: 0.5rem 0 2rem;
+    }
+    .metric-card-wrapper {
+        margin-bottom: 1rem;
+    }
+    .metric-card {
+        background: #ffffff !important;
+        border: 1px solid #eaecf0 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04) !important;
+        transition: all 0.2s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    body.dark-mode .metric-card {
+        background: #111827 !important;
+        border-color: #1f2937 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    }
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08) !important;
+        border-color: #d0d5dd !important;
+    }
+    
+    .metric-icon-box {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease;
+    }
+    .metric-card:hover .metric-icon-box {
+        transform: scale(1.05);
+    }
+    
+    .bg-revenue-soft { background: #fef2f2; color: #C92A2A; }
+    body.dark-mode .bg-revenue-soft { background: rgba(201, 42, 42, 0.15); color: #f87171; }
+    
+    .bg-operations-soft { background: #f0fdf4; color: #16a34a; }
+    body.dark-mode .bg-operations-soft { background: rgba(22, 163, 74, 0.15); color: #4ade80; }
+    
+    .bg-passengers-soft { background: #eff6ff; color: #2563eb; }
+    body.dark-mode .bg-passengers-soft { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
+    
+    .bg-bookings-soft { background: #fffbeb; color: #d97706; }
+    body.dark-mode .bg-bookings-soft { background: rgba(217, 119, 6, 0.15); color: #fbbf24; }
+    
+    .bg-fleet-soft { background: #fdf2f8; color: #db2777; }
+    body.dark-mode .bg-fleet-soft { background: rgba(219, 39, 119, 0.15); color: #f472b6; }
+    
+    .sub-metric-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 0.85rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid #f1f3f5;
+    }
+    body.dark-mode .sub-metric-grid {
+        border-top: 1px solid #1f2937;
+    }
+    
+    .sub-metric-item {
+        text-align: center;
+        padding: 0.4rem 0.25rem;
+        border-radius: 8px;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+    }
+    body.dark-mode .sub-metric-item {
+        background: #1e293b;
+    }
+    .text-value-sub {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #1e293b;
+    }
+    body.dark-mode .text-value-sub {
+        color: #f1f5f9;
+    }
+    .quick-action-btn {
+        transition: all 0.2s ease;
+        border-radius: 10px;
+        padding: 0.65rem 1rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .dashboard-header-card {
+        background: #ffffff !important;
+        border: 1px solid #eaecf0 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04) !important;
+        color: #1e293b !important;
+    }
+    .dashboard-header-card h2 {
+        color: #111827 !important;
+        font-size: 1.75rem;
+        letter-spacing: -0.5px;
+    }
+    .dashboard-header-card p {
+        color: #64748b !important;
+        font-size: 0.92rem;
+    }
+    body.dark-mode .dashboard-header-card {
+        background: #111827 !important;
+        border-color: #1f2937 !important;
+        color: #ffffff !important;
+    }
+    body.dark-mode .dashboard-header-card h2 {
+        color: #ffffff !important;
+    }
+    body.dark-mode .dashboard-header-card p {
+        color: #94a3b8 !important;
+    }
+
+    @media (max-width: 575.98px) {
+        .admin-container {
+            padding: 0 0 1.5rem;
+        }
+        .metric-card-wrapper {
+            margin-bottom: 0.75rem;
+        }
+        .sub-metric-grid {
+            gap: 4px;
+        }
+        .text-value-sub {
+            font-size: 0.82rem;
+        }
+        .sub-metric-item {
+            padding: 0.25rem 0.15rem;
+        }
+        .dashboard-header-card {
+            padding: 1rem !important;
+        }
+    }
+</style>
+
+<div class="container-fluid px-0 admin-container">
+    {% include 'admin/_subnav.html' %}
+
+    <!-- Dashboard Header (RentQ Exact Style) -->
+    <div class="mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.85rem; letter-spacing: -0.5px;">Dashboard Overview</h2>
+            <p class="text-muted mb-0" style="font-size: 0.95rem;">Fleet operations, active rentals and real-time revenue tracking.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <!-- Period Selector (RentQ Pill Style) -->
+            <div class="btn-group p-1 bg-white rounded-pill border" role="group" aria-label="Period selector" style="border-color: #eaecf0 !important; box-shadow: 0 1px 2px rgba(16,24,40,0.04);">
+                <input type="radio" class="btn-check" name="dashboardRange" id="rangeDay" value="day" checked autocomplete="off">
+                <label class="btn btn-sm btn-outline-danger px-2 px-sm-3 rounded-pill fw-semibold" style="font-size: 0.78rem; transition: all 0.2s;" for="rangeDay">Today</label>
+                
+                <input type="radio" class="btn-check" name="dashboardRange" id="rangeWeek" value="week" autocomplete="off">
+                <label class="btn btn-sm btn-outline-danger px-2 px-sm-3 rounded-pill fw-semibold" style="font-size: 0.78rem; transition: all 0.2s;" for="rangeWeek">This Week</label>
+                
+                <input type="radio" class="btn-check" name="dashboardRange" id="rangeMonth" value="month" autocomplete="off">
+                <label class="btn btn-sm btn-outline-danger px-2 px-sm-3 rounded-pill fw-semibold" style="font-size: 0.78rem; transition: all 0.2s;" for="rangeMonth">This Month</label>
+                
+                <input type="radio" class="btn-check" name="dashboardRange" id="rangeAll" value="all" autocomplete="off">
+                <label class="btn btn-sm btn-outline-danger px-2 px-sm-3 rounded-pill fw-semibold" style="font-size: 0.78rem; transition: all 0.2s;" for="rangeAll">All</label>
+            </div>
+
+            <!-- Export Buttons -->
+            <div class="d-flex gap-2">
+                <a id="btnExportPdf" href="{{ url_for('admin.export_dashboard_pdf', range='day') }}" class="btn btn-sm btn-outline-secondary bg-white rounded-pill px-2.5 px-sm-3 shadow-2xs fw-semibold" style="font-size: 0.8rem; border-color: #eaecf0;">
+                    <i class="bi bi-file-pdf text-danger me-1"></i> PDF
+                </a>
+                <a id="btnExportCsv" href="{{ url_for('admin.export_dashboard_csv', range='day') }}" class="btn btn-sm btn-outline-secondary bg-white rounded-pill px-2.5 px-sm-3 shadow-2xs fw-semibold" style="font-size: 0.8rem; border-color: #eaecf0;">
+                    <i class="bi bi-file-csv text-success me-1"></i> CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="row g-4 mb-5 fade-in">
+        <!-- Revenue Card -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl metric-card-wrapper">
+            <div class="card metric-card card-revenue border-0 shadow-sm">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted fw-bold small text-uppercase tracking-wider">Revenu Locations VIP</span>
+                            <div class="metric-icon-box bg-revenue-soft">
+                                <i class="bi bi-cash-stack fs-4"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-extrabold mb-3 text-primary" id="metricRevenue" 
+                            data-day="{{ (stats_day.revenue + stats_day.parcel_revenue) | int }} FCFA" 
+                            data-week="{{ (stats_week.revenue + stats_week.parcel_revenue) | int }} FCFA" 
+                            data-month="{{ (stats_month.revenue + stats_month.parcel_revenue) | int }} FCFA"
+                            data-all="{{ (stats_all.revenue + stats_all.parcel_revenue) | int }} FCFA"
+                            style="font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.75rem;">
+                            {{ (stats_day.revenue + stats_day.parcel_revenue) | int }} FCFA
+                        </h2>
+                    </div>
+                    <p class="text-muted small mb-0 mt-3 pt-3 border-top border-secondary border-opacity-10">
+                        <i class="bi bi-info-circle-fill me-1 text-primary text-opacity-70"></i> Total des paiements confirmés pour les locations de véhicules VIP.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- Parcel Revenue Card -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl metric-card-wrapper">
+            <div class="card metric-card card-revenue border-0 shadow-sm" style="--primary-light: #f59e0b; --accent-dark: #fbbf24;">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted fw-bold small text-uppercase tracking-wider">Services VIP & Conciergerie</span>
+                            <div class="metric-icon-box bg-bookings-soft">
+                                <i class="bi bi-gem fs-4"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-extrabold mb-3 text-warning" id="metricParcelRevenue" 
+                            data-day="{{ stats_day.parcel_revenue | int }} FCFA" 
+                            data-week="{{ stats_week.parcel_revenue | int }} FCFA" 
+                            data-month="{{ stats_month.parcel_revenue | int }} FCFA"
+                            data-all="{{ stats_all.parcel_revenue | int }} FCFA"
+                            style="font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.75rem;">
+                            {{ stats_day.parcel_revenue | int }} FCFA
+                        </h2>
+                    </div>
+                    <p class="text-muted small mb-0 mt-3 pt-3 border-top border-secondary border-opacity-10">
+                        <i class="bi bi-info-circle-fill me-1 text-warning text-opacity-70"></i> Mises à disposition, transferts aéroport & conciergerie.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operations Card -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl metric-card-wrapper">
+            <div class="card metric-card card-operations border-0 shadow-sm">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted fw-bold small text-uppercase tracking-wider">Missions de Flotte</span>
+                            <div class="metric-icon-box bg-operations-soft">
+                                <i class="bi bi-calendar-check fs-4"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-extrabold mb-3 text-success" id="metricTripsCount" 
+                            data-day="{{ stats_day.trips_count }}" 
+                            data-week="{{ stats_week.trips_count }}" 
+                            data-month="{{ stats_month.trips_count }}"
+                            data-all="{{ stats_all.trips_count }}"
+                            style="font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.75rem;">
+                            {{ stats_day.trips_count }}
+                        </h2>
+                    </div>
+                    <div class="sub-metric-grid">
+                        <div class="sub-metric-item">
+                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">En Course</div>
+                            <span class="fw-bold text-success" id="metricActiveTrips" 
+                                data-day="{{ stats_day.active_trips }}" 
+                                data-week="{{ stats_week.active_trips }}" 
+                                data-month="{{ stats_month.active_trips }}"
+                            data-all="{{ stats_all.active_trips }}">
+                                {{ stats_day.active_trips }}
+                            </span>
+                        </div>
+                        <div class="sub-metric-item">
+                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">À Venir</div>
+                            <span class="fw-bold text-value-sub" id="metricUpcomingTrips" 
+                                data-day="{{ stats_day.upcoming_trips }}" 
+                                data-week="{{ stats_week.upcoming_trips }}" 
+                                data-month="{{ stats_month.upcoming_trips }}"
+                            data-all="{{ stats_all.upcoming_trips }}">
+                                {{ stats_day.upcoming_trips }}
+                            </span>
+                        </div>
+                        <div class="sub-metric-item">
+                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">Terminées</div>
+                            <span class="fw-bold text-danger" id="metricCancelledTrips" 
+                                data-day="{{ stats_day.cancelled_trips }}" 
+                                data-week="{{ stats_week.cancelled_trips }}" 
+                                data-month="{{ stats_month.cancelled_trips }}"
+                            data-all="{{ stats_all.cancelled_trips }}">
+                                {{ stats_day.cancelled_trips }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customers Card -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl metric-card-wrapper">
+            <div class="card metric-card card-passengers border-0 shadow-sm">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted fw-bold small text-uppercase tracking-wider">Clients VIP</span>
+                            <div class="metric-icon-box bg-passengers-soft">
+                                <i class="bi bi-people fs-4"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-extrabold mb-3 text-info" id="metricActiveCustomers" 
+                            data-day="{{ stats_day.active_customers }}" 
+                            data-week="{{ stats_week.active_customers }}" 
+                            data-month="{{ stats_month.active_customers }}"
+                            data-all="{{ stats_all.active_customers }}"
+                            style="font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.75rem;">
+                            {{ stats_day.active_customers }}
+                        </h2>
+                    </div>
+                    <div>
+                        <div class="sub-metric-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="sub-metric-item">
+                                <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">Nouveaux</div>
+                                <span class="fw-bold text-value-sub" id="metricNewCustomers" 
+                                    data-day="{{ stats_day.new_customers }}" 
+                                    data-week="{{ stats_week.new_customers }}" 
+                                    data-month="{{ stats_month.new_customers }}"
+                            data-all="{{ stats_all.new_customers }}">
+                                    {{ stats_day.new_customers }}
+                                </span>
+                            </div>
+                            <div class="sub-metric-item">
+                                <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">Fidèles (>1)</div>
+                                <span class="fw-bold text-value-sub" id="metricRepeatCustomers" 
+                                    data-day="{{ stats_day.repeat_customers }}" 
+                                    data-week="{{ stats_week.repeat_customers }}" 
+                                    data-month="{{ stats_month.repeat_customers }}"
+                            data-all="{{ stats_all.repeat_customers }}">
+                                    {{ stats_day.repeat_customers }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-muted text-center mt-2" style="font-size: 0.68rem;">Clients enregistrés dans la période.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings Card -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl metric-card-wrapper">
+            <div class="card metric-card card-bookings border-0 shadow-sm">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted fw-bold small text-uppercase tracking-wider">Réservations Location</span>
+                            <div class="metric-icon-box bg-bookings-soft">
+                                <i class="bi bi-journal-check fs-4"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-extrabold mb-3 text-warning" id="metricBookingsCount" 
+                            data-day="{{ stats_day.bookings_count }}" 
+                            data-week="{{ stats_week.bookings_count }}" 
+                            data-month="{{ stats_month.bookings_count }}"
+                            data-all="{{ stats_all.bookings_count }}"
+                            style="font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.75rem;">
+                            {{ stats_day.bookings_count }}
+                        </h2>
+                    </div>
+                    <div class="sub-metric-grid">
+                        <div class="sub-metric-item">
+                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">Confirmées</div>
+                            <span class="fw-bold text-success" id="metricConfirmedBookings" 
+                                data-day="{{ stats_day.confirmed_bookings }}" 
+                                data-week="{{ stats_week.confirmed_bookings }}" 
+                                data-month="{{ stats_month.confirmed_bookings }}"
+                            data-all="{{ stats_all.confirmed_bookings }}">
+                                {{ stats_day.confirmed_bookings }}
+                            </span>
+                        </div>
+                        <div class="sub-metric-item">
+                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">En Attente</div>
+                            <span class="fw-bold text-warning" id="metricPendingBookings" 
+                                data-day="{{ stats_day.pending_bookings }}" 
+                                data-week="{{ stats_week.pending_bookings }}" 
+                                data-month="{{ stats_month.pending_bookings }}"
+                            data-all="{{ stats_all.pending_bookings }}">
+                                {{ stats_day.pending_bookings }}
+                            </span>
+                        </div>
+                        <div class="sub-metric-item">
+                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">Annulées</div>
+                            <span class="fw-bold text-danger" id="metricCancelledBookings" 
+                                data-day="{{ stats_day.cancelled_bookings }}" 
+                                data-week="{{ stats_week.cancelled_bookings }}" 
+                                data-month="{{ stats_month.cancelled_bookings }}"
+                            data-all="{{ stats_all.cancelled_bookings }}">
+                                {{ stats_day.cancelled_bookings }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fleet Card -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl metric-card-wrapper">
+            <div class="card metric-card card-fleet border-0 shadow-sm">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted fw-bold small text-uppercase tracking-wider">Flotte VIP (7) & Chauffeurs</span>
+                            <div class="metric-icon-box bg-fleet-soft">
+                                <i class="bi bi-car-front-fill fs-4"></i>
+                            </div>
+                        </div>
+                        <h2 class="fw-extrabold mb-3 text-danger" id="metricBusesActive" 
+                            data-day="{{ stats_day.buses_active }}" 
+                            data-week="{{ stats_week.buses_active }}" 
+                            data-month="{{ stats_month.buses_active }}"
+                            data-all="{{ stats_all.buses_active }}"
+                            style="font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.75rem;">
+                            {{ stats_day.buses_active }}
+                        </h2>
+                    </div>
+                    <div class="sub-metric-grid">
+                        <div class="sub-metric-item">
+                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">Véhicules Dispo</div>
+                            <span class="fw-bold text-success">
+                                {{ stats_day.buses_active }}
+                            </span>
+                        </div>
+                        <div class="sub-metric-item">
+                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">En Révision</div>
+                            <span class="fw-bold text-danger" id="metricBusesMaint" 
+                                data-day="{{ stats_day.buses_maint }}" 
+                                data-week="{{ stats_week.buses_maint }}" 
+                                data-month="{{ stats_month.buses_maint }}"
+                            data-all="{{ stats_all.buses_maint }}">
+                                {{ stats_day.buses_maint }}
+                            </span>
+                        </div>
+                        <div class="sub-metric-item">
+                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.62rem;">Chauffeurs VIP</div>
+                            <span class="fw-bold text-primary" id="metricDriversActive" 
+                                data-day="{{ stats_day.drivers_active }}" 
+                                data-week="{{ stats_week.drivers_active }}" 
+                                data-month="{{ stats_month.drivers_active }}"
+                            data-all="{{ stats_all.drivers_active }}">
+                                {{ stats_day.drivers_active }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary & Actions Section (RentQ Clean Style) -->
+    <div class="row g-4 mb-4 fade-in">
+        <div class="col-lg-7">
+            <div class="card bg-white border p-4 h-100 shadow-xs" style="border-radius: 12px; border-color: #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-bar-chart-line text-danger me-2"></i> Activité des 7 derniers jours</h5>
+                    <span class="badge bg-light text-muted border rounded-pill small">Missions & Réservations</span>
+                </div>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="bookingsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-5">
+            <div class="card bg-white border p-4 h-100 shadow-xs" style="border-radius: 12px; border-color: #eaecf0 !important;">
+                <h5 class="mb-3 fw-bold text-dark"><i class="bi bi-lightning-charge text-warning me-2"></i> Actions Rapides</h5>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <a href="{{ url_for('admin.buses') }}" class="btn btn-outline-danger w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #fee2e2;">
+                            <i class="bi bi-car-front-fill"></i> Flotte VIP (7)
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('admin.add_bus') }}" class="btn btn-outline-secondary w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #eaecf0;">
+                            <i class="bi bi-plus-circle"></i> Ajouter Véhicule
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('admin.bookings') }}" class="btn btn-outline-warning w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #fef3c7;">
+                            <i class="bi bi-journal-check"></i> Réservations
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('admin.drivers') }}" class="btn btn-outline-primary w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #dbeafe;">
+                            <i class="bi bi-person-badge"></i> Chauffeurs VIP
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('admin.routes') }}" class="btn btn-outline-success w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #dcfce7;">
+                            <i class="bi bi-signpost-split"></i> Forfaits & Tarifs
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('admin.finance') }}" class="btn btn-outline-info w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #e0f2fe;">
+                            <i class="bi bi-wallet2"></i> Caisse & Finances
+                        </a>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <a href="http://localhost:3001" target="_blank" class="btn btn-dark w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="background: #0f172a; color: #fff; font-size: 0.85rem;">
+                            <i class="bi bi-box-arrow-up-right text-warning"></i> Ouvrir le Catalogue Client React (Port 3001)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if is_super %}
+    <!-- LIVE OPERATIONS FEED (Super Admin Logistics View) -->
+    <div class="row mb-4 fade-in">
+        <div class="col-12">
+            <div class="card bg-white border p-4 shadow-xs" style="border-radius: 12px; border-color: #eaecf0 !important;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-activity text-danger me-2"></i> Flux d'Opérations en Direct
+                    </h5>
+                    <a href="{{ url_for('admin.logs') }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold" style="font-size: 0.78rem;">Voir tout le journal d'audit</a>
+                </div>
+                
+                <div class="live-ops-feed" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                    {% if recent_audit_logs %}
+                        <div class="timeline position-relative ps-4" style="border-left: 2px solid #e9ecef;">
+                            {% for log in recent_audit_logs %}
+                            <div class="timeline-item position-relative mb-4">
+                                <div class="timeline-marker position-absolute bg-primary rounded-circle border border-white" style="width: 14px; height: 14px; left: -24.5px; top: 4px; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);"></div>
+                                <div class="timeline-content bg-white p-3 rounded-3 shadow-xs border border-light">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <div class="fw-bold" style="font-size: 0.9rem;">
+                                            <i class="bi bi-person-badge text-muted me-1"></i> 
+                                            {% if log.user %}
+                                                {{ log.user.username }} <span class="badge bg-secondary ms-1" style="font-size: 0.6rem;">{{ log.user.role }}</span>
+                                            {% else %}
+                                                Système
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-clock me-1"></i> {{ log.created_at.strftime('%d/%m/%Y %H:%M:%S') }}
+                                        </div>
+                                    </div>
+                                    <div class="mb-1" style="font-size: 0.95rem;">
+                                        <span class="badge bg-dark me-2">{{ log.action }}</span> 
+                                        {% if log.target_type %}
+                                        <span class="fw-semibold text-primary">{{ log.target_type }} #{{ log.target_id }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-muted" style="font-size: 0.85rem;">
+                                        {{ log.details }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            Aucune opération récente
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- LIVE MINI CALENDAR on Dashboard -->
+    <div class="card bg-white border p-4 fade-in mb-4 shadow-xs" style="border-radius: 12px; border-color: #eaecf0 !important;">
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-calendar3 me-2" style="color:#C92A2A;"></i>
+                Planning de Disponibilité des Véhicules VIP
+            </h5>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Legend -->
+                <span style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;">
+                    <span style="width:9px;height:9px;border-radius:50%;background:#198754;display:inline-block;"></span> Disponible
+                </span>
+                <span style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;">
+                    <span style="width:9px;height:9px;border-radius:50%;background:#0d6efd;display:inline-block;"></span> En Location
+                </span>
+                <span style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;">
+                    <span style="width:9px;height:9px;border-radius:50%;background:#fd7e14;display:inline-block;"></span> Réservé
+                </span>
+                <span style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;">
+                    <span style="width:9px;height:9px;border-radius:50%;background:#dc3545;display:inline-block;"></span> Maintenance
+                </span>
+                <a href="{{ url_for('admin.calendar_view') }}" class="btn btn-sm btn-primary ms-1" style="border-radius:.6rem;font-size:.78rem;font-weight:700;">
+                    <i class="bi bi-arrows-fullscreen me-1"></i> Plein écran
+                </a>
+            </div>
+        </div>
+        <div class="fc-mini" id="dashMiniCal" style="min-height:360px;"></div>
+    </div>
+
+    <!-- Recent Bookings Table (RentQ Clean Style) -->
+    <div class="card bg-white border p-4 fade-in shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important;">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-journal-check text-danger me-2"></i> Dernières Réservations de Location</h5>
+            <a href="{{ url_for('admin.bookings') }}" class="btn btn-sm btn-outline-danger rounded-pill fw-semibold" style="font-size: 0.8rem;">Voir toutes les réservations</a>
+        </div>
+        
+        <!-- Filter Bar -->
+        <div class="d-flex flex-wrap gap-2 mb-3 bg-light p-2.5 rounded-3 border align-items-center" style="border-color: #f1f3f5 !important;">
+            <div class="input-group input-group-sm" style="max-width: 200px;">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" id="dashSearch" class="form-control border-start-0 ps-0" placeholder="Rechercher...">
+            </div>
+            
+            <select id="dashFilterStatus" class="form-select form-select-sm" style="width: auto;">
+                <option value="">Statut (Tous)</option>
+                <option value="confirmée">Confirmée</option>
+                <option value="en_attente">En attente</option>
+                <option value="annulée">Annulée</option>
+                <option value="locked">Locked</option>
+            </select>
+            
+            <div class="input-group input-group-sm" style="max-width: 160px;">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-calendar-date"></i></span>
+                <input type="date" id="dashFilterExactDate" class="form-control border-start-0" title="Date de réservation">
+            </div>
+            
+            <select id="dashFilterDate" class="form-select form-select-sm" style="width: auto;">
+                <option value="newest">Du plus récent</option>
+                <option value="oldest">Du plus ancien</option>
+            </select>
+            
+            <button class="btn btn-sm btn-outline-secondary" onclick="resetDashFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+        </div>
+        
+        {% if recent_bookings %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                    <thead style="background: #fafbfc; border-bottom: 1.5px solid #eaecf0;">
+                        <tr class="text-dark fw-bold" style="font-size: 0.85rem;">
+                            <th class="py-3">Réf Contrat</th>
+                            <th class="py-3">Client VIP</th>
+                            <th class="py-3">Véhicule & Mission</th>
+                            <th class="py-3">Formule</th>
+                            <th class="py-3">Date Réservation</th>
+                            <th class="py-3">Tarif Total</th>
+                            <th class="py-3">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashTableBody">
+                        {% for b in recent_bookings %}
+                            <tr class="dash-row" data-status="{{ b.status|lower }}" data-date="{{ b.booking_date.timestamp() if b.booking_date else 0 }}" data-exact-date="{{ b.booking_date.strftime('%Y-%m-%d') if b.booking_date else '' }}">
+                                <td class="fw-bold">{{ b.booking_code or '#' ~ b.id }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ b.passenger_name or b.user.username }}</div>
+                                    <div class="small text-muted">{{ b.user.phone or '' }}</div>
+                                    <div class="small text-muted" style="font-size: .68rem;">Date réservé : {{ b.booking_date.strftime('%d/%m/%Y %H:%M') if b.booking_date else 'N/A' }}</div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ b.trip.route.origin }} &rarr; {{ b.trip.route.destination }}</div>
+                                    <div class="small text-muted">{{ b.trip.departure_time.strftime('%d/%m/%Y %H:%M') }}</div>
+                                </td>
+                                <td><span class="badge bg-light text-dark fw-bold border">{{ b.seat_number }}</span></td>
+                                <td>{{ b.booking_date.strftime('%d/%m/%Y %H:%M') if b.booking_date else '' }}</td>
+                                <td class="fw-bold">{{ b.price_paid | int }} FCFA</td>
+                                <td>
+                                    {% if b.status == 'confirmed' %}
+                                        <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill"><i class="bi bi-check-circle me-1"></i> Confirmé</span>
+                                    {% elif b.status == 'cancelled' %}
+                                        <span class="badge bg-danger-soft text-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle me-1"></i> Annulé</span>
+                                    {% else %}
+                                        <span class="badge bg-warning-soft text-warning px-3 py-2 rounded-pill"><i class="bi bi-hourglass me-1"></i> Temporaire</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted text-center py-4 mb-0">Aucune réservation récente trouvée.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales-all.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ── Bookings line chart ──────────────────────────────────
+    var ctx = document.getElementById('bookingsChart').getContext('2d');
+    var bookingsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels|tojson }},
+            datasets: [{
+                label: 'Réservations',
+                data: {{ chart_data|tojson }},
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.05)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // ── Mini Calendar on Dashboard ───────────────────────────
+    var miniCalEl = document.getElementById('dashMiniCal');
+    if (miniCalEl) {
+        var miniCal = new FullCalendar.Calendar(miniCalEl, {
+            initialView: 'dayGridMonth',
+            locale: 'fr',
+            headerToolbar: {
+                left: 'prev,next',
+                center: 'title',
+                right: 'today'
+            },
+            buttonText: { today: "Auj." },
+            height: 'auto',
+            editable: false,
+            selectable: false,
+            nowIndicator: true,
+            eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+            events: function(fetchInfo, successCallback, failureCallback) {
+                fetch('/api/admin/calendar/events?start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr)
+                    .then(r => r.json())
+                    .then(data => successCallback(data))
+                    .catch(err => failureCallback(err));
+            },
+            eventClick: function(info) {
+                window.location.href = '{{ url_for("admin.calendar_view") }}';
+            },
+            eventContent: function(arg) {
+                var p = arg.event.extendedProps;
+                var seats = (p.booked || 0) + '/' + (p.capacity || '?');
+                return {
+                    html: '<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.65rem;font-weight:700;padding:0 2px;">'
+                        + arg.event.title + ' <span style="opacity:.8;">(' + seats + ')</span></div>'
+                };
+            }
+        });
+        miniCal.render();
+    }
+
+    // ── Timeframe grouping selection and export url updates ─────────────────
+    const rangeRadios = document.querySelectorAll('input[name="dashboardRange"]');
+    const btnExportPdf = document.getElementById('btnExportPdf');
+    const btnExportCsv = document.getElementById('btnExportCsv');
+    
+    // Elements to toggle
+    const toggleElements = [
+        'metricRevenue', 'metricParcelRevenue', 'metricTripsCount', 'metricActiveTrips', 'metricUpcomingTrips', 
+        'metricCancelledTrips', 'metricActiveCustomers', 'metricNewCustomers', 'metricRepeatCustomers', 
+        'metricBookingsCount', 'metricConfirmedBookings', 'metricPendingBookings', 'metricCancelledBookings',
+        'metricBusesActive', 'metricBusesMaint', 'metricDriversActive'
+    ];
+    
+    function switchRange(range) {
+        toggleElements.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                const val = el.getAttribute('data-' + range);
+                if (val !== null) {
+                    el.textContent = val;
+                }
+            }
+        });
+        
+        // Update export button href parameters dynamically
+        if (btnExportPdf) {
+            const baseUrl = "{{ url_for('admin.export_dashboard_pdf') }}";
+            btnExportPdf.href = baseUrl + '?range=' + range;
+        }
+        if (btnExportCsv) {
+            const baseUrl = "{{ url_for('admin.export_dashboard_csv') }}";
+            btnExportCsv.href = baseUrl + '?range=' + range;
+        }
+    }
+    
+    rangeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                switchRange(this.value);
+            }
+        });
+    });
+});
+
+// Dashboard Filter Logic
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('dashSearch');
+    const filterStatus = document.getElementById('dashFilterStatus');
+    const filterDate = document.getElementById('dashFilterDate');
+    const filterExactDate = document.getElementById('dashFilterExactDate');
+    const tableBody = document.getElementById('dashTableBody');
+    
+    if(!tableBody) return;
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = filterStatus.value.toLowerCase();
+        const sortValue = filterDate.value;
+        const exactDateValue = filterExactDate ? filterExactDate.value : "";
+        
+        let rows = Array.from(tableBody.querySelectorAll('tr.dash-row'));
+        
+        rows.forEach(row => {
+            const targetStatus = row.getAttribute('data-status');
+            const rowText = row.innerText.toLowerCase();
+            const rowExactDate = row.getAttribute('data-exact-date');
+            
+            const matchesSearch = rowText.includes(searchTerm);
+            const matchesStatus = (statusValue === "" || targetStatus === statusValue);
+            const matchesDate = (exactDateValue === "" || rowExactDate === exactDateValue);
+            
+            if (matchesSearch && matchesStatus && matchesDate) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        rows.sort((a, b) => {
+            const dateA = parseFloat(a.getAttribute('data-date'));
+            const dateB = parseFloat(b.getAttribute('data-date'));
+            return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyFilters);
+    if(filterStatus) filterStatus.addEventListener('change', applyFilters);
+    if(filterDate) filterDate.addEventListener('change', applyFilters);
+    if(filterExactDate) filterExactDate.addEventListener('change', applyFilters);
+    
+    window.resetDashFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterStatus) filterStatus.value = '';
+        if(filterDate) filterDate.value = 'newest';
+        if(filterExactDate) filterExactDate.value = '';
+        applyFilters();
+    };
+});
+</script>
+{% endblock %}

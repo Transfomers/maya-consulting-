@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Nouveau Forfait Récurrent - 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+                <div class="mb-4">
+                    <h3 class="fw-bold"><i class="bi bi-car-front-fill text-danger me-2"></i>Nouveau Forfait / Navette Récurrente</h3>
+                    <p class="text-muted">Créez un forfait qui planifie automatiquement les sorties de véhicules chaque jour ou certains jours de la semaine.</p>
+                </div>
+
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="row g-3 mb-4">
+                        <!-- Route Selection -->
+                        <div class="col-md-12">
+                            <label for="route_id" class="form-label fw-semibold">Mission / Destination *</label>
+                            <select class="form-select" id="route_id" name="route_id" required>
+                                <option value="" disabled selected>Choisir une mission...</option>
+                                {% for route in routes %}
+                                    <option value="{{ route.id }}" data-price="{{ route.base_price }}" data-duration="{{ route.duration }}">
+                                        {{ route.origin }} → {{ route.destination }} ({{ route.duration }}) - {{ route.agency.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Veuillez sélectionner un itinéraire.</div>
+                        </div>
+
+                        <!-- Bus Selection -->
+                        <div class="col-md-6">
+                            <label for="bus_id" class="form-label fw-semibold">Véhicule VIP *</label>
+                            <select class="form-select" id="bus_id" name="bus_id" required>
+                                <option value="" disabled selected>Choisir un véhicule VIP...</option>
+                                {% for bus in buses %}
+                                    <option value="{{ bus.id }}" data-capacity="{{ bus.capacity }}">
+                                        {{ bus.bus_number }} - {{ bus.brand }} {{ bus.model }} ({{ bus.capacity }} places) - {{ bus.agency.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Veuillez sélectionner un véhicule VIP.</div>
+                        </div>
+
+                        <!-- Driver Selection -->
+                        <div class="col-md-6">
+                            <label for="driver_id" class="form-label fw-semibold">Chauffeur VIP <small class="text-muted">(optionnel)</small></label>
+                            <select class="form-select" id="driver_id" name="driver_id">
+                                <option value="">Aucun chauffeur assigné</option>
+                                {% for driver in drivers %}
+                                    <option value="{{ driver.id }}">{{ driver.name }} ({{ driver.phone or 'N/A' }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <hr class="my-2">
+
+                        <!-- Departure Time of Day -->
+                        <div class="col-md-4">
+                            <label for="departure_time_of_day" class="form-label fw-semibold">Heure de Départ *</label>
+                            <input type="time" class="form-control" id="departure_time_of_day" name="departure_time_of_day" required>
+                            <small class="text-muted">Ex: 14:00</small>
+                            <div class="invalid-feedback">Requis.</div>
+                        </div>
+
+                        <!-- Duration -->
+                        <div class="col-md-4">
+                            <label for="duration_minutes" class="form-label fw-semibold">Durée (minutes) *</label>
+                            <input type="number" class="form-control" id="duration_minutes" name="duration_minutes" min="15" placeholder="Ex: 270" required>
+                            <small class="text-muted" id="duration-display">4h 30min = 270</small>
+                            <div class="invalid-feedback">Requis.</div>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="col-md-4">
+                            <label for="price" class="form-label fw-semibold">Tarif (FCFA) *</label>
+                            <input type="number" class="form-control" id="price" name="price" min="500" placeholder="Ex: 5000" required>
+                            <div class="invalid-feedback">Requis.</div>
+                        </div>
+
+                        <!-- Capacity -->
+                        <div class="col-md-4">
+                            <label for="capacity" class="form-label fw-semibold">Capacité (places)</label>
+                            <input type="number" class="form-control" id="capacity" name="capacity" min="1" value="50">
+                            <small class="text-muted">Nombre de sièges disponibles</small>
+                        </div>
+
+                        <!-- Booking Cutoff -->
+                        <div class="col-md-4">
+                            <label for="booking_cutoff_minutes" class="form-label fw-semibold">Fin réservation (min avant départ)</label>
+                            <input type="number" class="form-control" id="booking_cutoff_minutes" name="booking_cutoff_minutes" min="0" value="30">
+                            <small class="text-muted">30 = ferme 30min avant le départ</small>
+                        </div>
+
+                        <hr class="my-2">
+
+                        <!-- Recurrence Type -->
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Type de Récurrence *</label>
+                            <div class="d-flex flex-wrap gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recurrence_type" id="rec_daily" value="daily" checked onchange="toggleDays()">
+                                    <label class="form-check-label fw-semibold" for="rec_daily">
+                                        <i class="bi bi-calendar-day me-1"></i> Tous les jours
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recurrence_type" id="rec_weekly" value="weekly" onchange="toggleDays()">
+                                    <label class="form-check-label fw-semibold" for="rec_weekly">
+                                        <i class="bi bi-calendar-week me-1"></i> Hebdomadaire
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recurrence_type" id="rec_specific" value="specific_days" onchange="toggleDays()">
+                                    <label class="form-check-label fw-semibold" for="rec_specific">
+                                        <i class="bi bi-calendar3 me-1"></i> Jours spécifiques
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Days Selection (shown for weekly/specific_days) -->
+                        <div class="col-md-12 d-none" id="days-selection">
+                            <label class="form-label fw-semibold">Jours de circulation</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% set days = [('MON', 'Lun'), ('TUE', 'Mar'), ('WED', 'Mer'), ('THU', 'Jeu'), ('FRI', 'Ven'), ('SAT', 'Sam'), ('SUN', 'Dim')] %}
+                                {% for code, label in days %}
+                                <label class="btn btn-outline-primary rounded-pill px-3 py-1" style="font-size: 0.85rem;">
+                                    <input type="checkbox" name="recurrence_days" value="{{ code }}" class="btn-check" autocomplete="off">
+                                    {{ label }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <hr class="my-2">
+
+                        <!-- Effective Period -->
+                        <div class="col-md-6">
+                            <label for="effective_from" class="form-label fw-semibold">Date de début *</label>
+                            <input type="date" class="form-control" id="effective_from" name="effective_from" required>
+                            <div class="invalid-feedback">Requis.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="effective_until" class="form-label fw-semibold">Date de fin <small class="text-muted">(optionnel)</small></label>
+                            <input type="date" class="form-control" id="effective_until" name="effective_until">
+                            <small class="text-muted">Laissez vide pour un programme indéfini</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <a href="{{ url_for('admin.trip_schedules') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-arrow-left me-2"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                            <i class="bi bi-calendar-check me-2"></i>Créer le Programme
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleDays() {
+        const recType = document.querySelector('input[name="recurrence_type"]:checked').value;
+        const daysEl = document.getElementById('days-selection');
+        if (recType === 'weekly' || recType === 'specific_days') {
+            daysEl.classList.remove('d-none');
+        } else {
+            daysEl.classList.add('d-none');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-fill price from route
+        const routeSelect = document.getElementById('route_id');
+        const priceInput = document.getElementById('price');
+        routeSelect.addEventListener('change', function() {
+            const opt = this.options[this.selectedIndex];
+            const basePrice = opt.getAttribute('data-price');
+            if (basePrice) priceInput.value = basePrice;
+        });
+
+        // Auto-fill capacity from bus
+        const busSelect = document.getElementById('bus_id');
+        const capacityInput = document.getElementById('capacity');
+        busSelect.addEventListener('change', function() {
+            const opt = this.options[this.selectedIndex];
+            const cap = opt.getAttribute('data-capacity');
+            if (cap) capacityInput.value = cap;
+        });
+
+        // Duration display helper
+        const durationInput = document.getElementById('duration_minutes');
+        const durationDisplay = document.getElementById('duration-display');
+        durationInput.addEventListener('input', function() {
+            const val = parseInt(this.value) || 0;
+            const h = Math.floor(val / 60);
+            const m = val % 60;
+            durationDisplay.textContent = h + 'h ' + (m < 10 ? '0' : '') + m + 'min';
+        });
+
+        // Set today as default for effective_from
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('effective_from').value = today;
+
+        // Day button toggle styling
+        document.querySelectorAll('#days-selection label').forEach(label => {
+            const cb = label.querySelector('input[type="checkbox"]');
+            cb.addEventListener('change', function() {
+                if (this.checked) {
+                    label.classList.remove('btn-outline-primary');
+                    label.classList.add('btn-primary');
+                } else {
+                    label.classList.remove('btn-primary');
+                    label.classList.add('btn-outline-primary');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

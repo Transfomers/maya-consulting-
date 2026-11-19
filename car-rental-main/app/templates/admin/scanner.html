@@ -1,0 +1,226 @@
+{% extends "admin/teller_base.html" %}
+
+{% block title %}Vérification Contrats & QR - 3M SERVICES{% endblock %}
+{% block page_title %}Validation des Contrats de Location VIP{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 pt-4 pb-0 text-center">
+                    <h5 class="fw-bold mb-1" style="color: var(--primary-light);"><i class="bi bi-qr-code-scan me-2"></i> Numérisation de Contrat VIP</h5>
+                    <p class="small text-muted">Scannez le code QR sur le contrat client pour vérifier la réservation et autoriser la mise à disposition du véhicule VIP.</p>
+                </div>
+                
+                <div class="card-body p-4 text-center">
+                    <!-- Scanner Container -->
+                    <div id="reader" class="mx-auto rounded-3 overflow-hidden shadow-sm" style="max-width: 450px; background: #fafafa; border: 2px dashed #ccc;"></div>
+                    
+                    <!-- Manual input as fallback -->
+                    <div class="mt-4 pt-3 border-top" style="max-width: 450px; margin: 0 auto;">
+                        <label class="form-label small fw-bold text-muted text-start d-block">Saisie manuelle du code contrat</label>
+                        <div class="input-group">
+                            <input type="text" id="manualCode" class="form-control" placeholder="Ex: 3M-RES-2026-001...">
+                            <button class="btn btn-pos-primary fw-bold" onclick="verifyCode(document.getElementById('manualCode').value)"><i class="bi bi-search me-1"></i> Vérifier</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Result Panel -->
+            <div class="card border-0 shadow-lg rounded-4 d-none" id="resultCard" style="border-top: 5px solid var(--primary-light) !important;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-info-circle-fill me-2 text-primary"></i> Détails du Contrat VIP</h6>
+                        <span id="badgePayment" class="badge rounded-pill px-3 py-2 fw-bold">--</span>
+                    </div>
+                    
+                    <div class="row g-3 small text-start">
+                        <div class="col-6">
+                            <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Numéro Billet</span>
+                            <strong class="fs-6 text-dark" id="resCode">--</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Statut d'Embarquement</span>
+                            <span class="badge bg-secondary-subtle text-dark border px-2.5 py-1" id="badgeBoarding">--</span>
+                        </div>
+                        
+                        <div class="col-12"><hr class="my-1"></div>
+                        
+                        <div class="col-6">
+                            <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Passager / Passenger</span>
+                            <strong class="fs-6 text-dark text-capitalize" id="resPassenger">--</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Téléphone</span>
+                            <strong class="text-dark" id="resPhone">--</strong>
+                        </div>
+                        
+                        <div class="col-6">
+                            <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Trajet / Route</span>
+                            <strong class="fs-6 text-primary" id="resRoute">--</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Départ / Time</span>
+                            <strong class="text-dark" id="resDeparture">--</strong>
+                        </div>
+                        
+                        <div class="col-6">
+                            <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Siège / Seat</span>
+                            <strong class="fs-5 text-dark" id="resSeat">--</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            <span class="text-muted d-block text-uppercase" style="font-size:0.7rem;">Tarif</span>
+                            <strong class="fs-5 text-success" id="resPrice">-- FCFA</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-3 border-top d-flex gap-2">
+                        <button class="btn btn-pos-success flex-fill py-2.5 fw-bold rounded-pill" id="btnCheckIn" onclick="updateBoardingStatus('check-in')">
+                            <i class="bi bi-person-check-fill me-2"></i> Valider Prise en Charge (Check-in)
+                        </button>
+                        <button class="btn btn-pos-primary flex-fill py-2.5 fw-bold rounded-pill" id="btnBoard" onclick="updateBoardingStatus('board')">
+                            <i class="bi bi-car-front-fill me-2"></i> Départ en Mission VIP
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-danger d-none mt-3 rounded-4 shadow-sm border-0 fw-bold" id="errorAlert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <span id="errorMsg">--</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentScannedCode = null;
+    let html5QrcodeScanner = null;
+
+    function onScanSuccess(decodedText, decodedResult) {
+        // Prevent continuous duplicate scans
+        if (decodedText === currentScannedCode) return;
+        currentScannedCode = decodedText;
+        verifyCode(decodedText);
+        
+        // Stop scanning after success
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear().catch(err => console.error(err));
+        }
+    }
+
+    function onScanFailure(error) {
+        // Log silently
+    }
+
+    async function verifyCode(code) {
+        if(!code) return;
+        
+        const resCard = document.getElementById('resultCard');
+        const errAlert = document.getElementById('errorAlert');
+        
+        resCard.classList.add('d-none');
+        errAlert.classList.add('d-none');
+        
+        try {
+            const response = await fetch('/api/ticket/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_code: code })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('resCode').innerText = data.booking_code || data.booking_id;
+                document.getElementById('resPassenger').innerText = data.passenger_name;
+                document.getElementById('resPhone').innerText = data.phone || 'Non spécifié';
+                document.getElementById('resRoute').innerText = `${data.origin} ➔ ${data.destination}`;
+                document.getElementById('resDeparture').innerText = data.departure_time;
+                document.getElementById('resSeat').innerText = data.seat_number;
+                document.getElementById('resPrice').innerText = `${data.price} FCFA`;
+                
+                // Boarding Status Badge
+                const boardingBadge = document.getElementById('badgeBoarding');
+                boardingBadge.innerText = data.boarding_status.toUpperCase();
+                if(data.boarding_status === 'boarded') {
+                    boardingBadge.className = 'badge bg-success-subtle text-success border px-2.5 py-1';
+                } else if(data.boarding_status === 'checked-in') {
+                    boardingBadge.className = 'badge bg-info-subtle text-info border px-2.5 py-1';
+                } else {
+                    boardingBadge.className = 'badge bg-secondary-subtle text-dark border px-2.5 py-1';
+                }
+                
+                // Payment Status Badge
+                const paymentBadge = document.getElementById('badgePayment');
+                paymentBadge.innerText = data.payment_status.toUpperCase();
+                if(data.payment_status === 'paid') {
+                    paymentBadge.className = 'badge bg-success text-white px-3 py-2 fw-bold';
+                } else {
+                    paymentBadge.className = 'badge bg-warning text-dark px-3 py-2 fw-bold';
+                }
+                
+                resCard.classList.remove('d-none');
+            } else {
+                document.getElementById('errorMsg').innerText = data.message || 'Billet invalide ou introuvable.';
+                errAlert.classList.remove('d-none');
+            }
+        } catch (e) {
+            console.error("Verification failed", e);
+            document.getElementById('errorMsg').innerText = 'Erreur réseau de communication lors de la validation.';
+            errAlert.classList.remove('d-none');
+        }
+    }
+
+    async function updateBoardingStatus(action) {
+        if(!currentScannedCode) {
+            currentScannedCode = document.getElementById('resCode').innerText;
+        }
+        
+        try {
+            const response = await fetch('/api/ticket/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_code: currentScannedCode, action: action })
+            });
+            const data = await response.json();
+            if (data.success) {
+                // Refresh scan details display
+                verifyCode(currentScannedCode);
+                
+                // Show Success Toast
+                const toast = document.createElement('div');
+                toast.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg fw-bold';
+                toast.style.zIndex = '9999';
+                toast.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i> Mise à disposition du véhicule validée avec succès!`;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.remove();
+                    // Restart Scanner
+                    startScanner();
+                }, 2000);
+            }
+        } catch(e) {
+            alert('Erreur lors de la mise à jour.');
+        }
+    }
+
+    function startScanner() {
+        currentScannedCode = null;
+        document.getElementById('resultCard').classList.add('d-none');
+        
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", 
+            { fps: 10, qrbox: {width: 250, height: 250} },
+            /* verbose= */ false
+        );
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        startScanner();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    :root {
+        --pos-brand: #C92A2A;
+        --pos-brand-light: #faeaed;
+        --pos-brand-dark: #501223;
+        --pos-gold: #e0ab41;
+        --pos-bg: #f8fafc;
+        --pos-card-bg: #ffffff;
+        --pos-text: #1e293b;
+        --pos-text-muted: #64748b;
+        --pos-border: #e2e8f0;
+        --pos-shadow: 0 10px 30px rgba(201, 42, 42, 0.04);
+        --pos-radius: 1rem;
+    }
+    .header-title-pos {
+        font-size: 1.65rem;
+        font-weight: 800;
+        color: #101828;
+        letter-spacing: -0.5px;
+    }
+    .btn-pos-primary {
+        background: #C92A2A;
+        color: #ffffff;
+        border: none;
+        font-weight: 600;
+    }
+    .btn-pos-primary:hover {
+        background: #A61E1E;
+        color: #ffffff;
+    }
+</style>
+{% block head_extra %}{% endblock %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
+{% block scripts %}{% endblock %}
+{% endblock %}

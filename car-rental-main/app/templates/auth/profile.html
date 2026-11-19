@@ -1,0 +1,807 @@
+{% extends "base.html" %}
+
+{% block title %}Profil & Configuration - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Theme Variables & Layout ─────────────────────────── */
+:root {
+    --primary-color: #C92A2A;
+    --primary-gradient: linear-gradient(135deg, #C92A2A 0%, #A61E1E 100%);
+    --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    --border-radius-lg: 1.25rem;
+    --border-radius-md: 0.75rem;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark-mode {
+    --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.ops-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.ops-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 992px) {
+    .ops-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Glassmorphic & Modern Cards ───────────────────────── */
+.profile-card, .ops-nav, .quick-actions, .ops-content {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+    transition: var(--transition-smooth);
+}
+
+body.dark-mode .profile-card, 
+body.dark-mode .ops-nav, 
+body.dark-mode .quick-actions, 
+body.dark-mode .ops-content {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Left Sidebar Widgets ──────────────────────────────── */
+.ops-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.profile-card {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.25rem;
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.75rem;
+    font-weight: 700;
+    box-shadow: 0 8px 25px rgba(201, 42, 42, 0.25);
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+}
+
+body.dark-mode .profile-avatar {
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
+    background: #10b981;
+    border: 3.5px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+}
+
+body.dark-mode .status-dot { border-color: #1e293b; }
+
+.profile-name {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.02em;
+}
+body.dark-mode .profile-name { color: #f8fafc; }
+
+.profile-role {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fff;
+    background: #e0ab41;
+    padding: 0.3rem 0.85rem;
+    border-radius: 999px;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+.profile-role.super-admin { background: #C92A2A; }
+.profile-role.teller { background: #2563eb; }
+
+/* ── Sidebar Navigation ───────────────────────────────── */
+.ops-nav {
+    padding: 0.75rem;
+}
+
+.ops-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.15rem;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    transition: var(--transition-smooth);
+    cursor: pointer;
+    margin-bottom: 0.25rem;
+}
+body.dark-mode .ops-nav-link { color: #94a3b8; }
+
+.ops-nav-link:hover {
+    background: rgba(201, 42, 42, 0.04);
+    color: #C92A2A;
+}
+body.dark-mode .ops-nav-link:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: #f8fafc;
+}
+
+.ops-nav-link.active {
+    background: rgba(201, 42, 42, 0.08);
+    color: #C92A2A;
+}
+body.dark-mode .ops-nav-link.active {
+    background: rgba(224, 171, 65, 0.15);
+    color: #e0ab41;
+}
+
+/* ── Sidebar Quick Actions ────────────────────────────── */
+.quick-actions {
+    padding: 1.5rem;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.8rem 1.15rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+}
+body.dark-mode .quick-action-btn { background: #0f172a; border-color: #334155; color: #cbd5e1; }
+
+.quick-action-btn:hover {
+    border-color: #C92A2A;
+    color: #C92A2A;
+    background: #fff;
+    transform: translateY(-2px);
+}
+body.dark-mode .quick-action-btn:hover { border-color: #e0ab41; color: #e0ab41; background: #1e293b; }
+
+/* ── Main content Pane ────────────────────────────────── */
+.ops-content {
+    padding: 3rem 2.5rem;
+    min-height: 650px;
+}
+
+.ops-tab-pane {
+    display: none;
+    animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ops-tab-pane.active { display: block; }
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ops-section-title {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 2px solid #f1f5f9;
+    letter-spacing: -0.02em;
+}
+body.dark-mode .ops-section-title { color: #f8fafc; border-color: #334155; }
+
+/* ── Modern Form Control Styling ──────────────────────── */
+.ops-input-group { margin-bottom: 1.5rem; }
+.ops-label { display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; }
+body.dark-mode .ops-label { color: #94a3b8; }
+
+.ops-input {
+    width: 100%;
+    padding: 0.85rem 1.15rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--border-radius-md);
+    font-size: 0.95rem;
+    background: #f8fafc;
+    color: #0f172a;
+    transition: var(--transition-smooth);
+}
+body.dark-mode .ops-input { background: #0f172a; border-color: #334155; color: #f8fafc; }
+.ops-input:focus { outline: none; border-color: #C92A2A; box-shadow: 0 0 0 4px rgba(201, 42, 42, 0.08); background: #fff; }
+body.dark-mode .ops-input:focus { border-color: #e0ab41; box-shadow: 0 0 0 4px rgba(224, 171, 65, 0.12); background: #0f172a; }
+
+.ops-btn-primary {
+    background: var(--primary-gradient);
+    color: #fff;
+    border: none;
+    padding: 0.85rem 2.25rem;
+    font-weight: 700;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 15px rgba(201, 42, 42, 0.2);
+}
+.ops-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201, 42, 42, 0.3);
+}
+
+/* ── KPI Metrics Cards ────────────────────────────────── */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.kpi-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+}
+body.dark-mode .kpi-card { background: #0f172a; border-color: #334155; }
+.kpi-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); }
+
+.kpi-icon {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: #C92A2A;
+}
+body.dark-mode .kpi-icon { color: #e0ab41; }
+.kpi-value { font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem; letter-spacing: -0.03em; }
+body.dark-mode .kpi-value { color: #f8fafc; }
+.kpi-label { font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; }
+
+/* ── Connected Devices & Security Items ───────────────── */
+.security-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    transition: var(--transition-smooth);
+}
+body.dark-mode .security-item { background: #0f172a; border-color: #334155; }
+.security-item-icon { font-size: 1.75rem; color: #64748b; margin-right: 1.15rem; }
+.security-item-info h5 { margin: 0 0 0.25rem 0; font-weight: 700; font-size: 1.05rem; }
+.security-item-info p { margin: 0; font-size: 0.85rem; color: #64748b; }
+
+/* ── Modern Table Designs ─────────────────────────────── */
+.ops-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+}
+body.dark-mode .ops-table-wrap { border-color: #334155; }
+
+.ops-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ops-table th {
+    text-align: left;
+    padding: 1rem 1.25rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #64748b;
+    border-bottom: 2px solid #e2e8f0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(248, 250, 252, 0.8);
+}
+body.dark-mode .ops-table th { color: #94a3b8; border-color: #334155; background: rgba(15, 23, 42, 0.8); }
+
+.ops-table td {
+    padding: 1.15rem 1.25rem;
+    font-size: 0.9rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+body.dark-mode .ops-table td { color: #cbd5e1; border-color: #1e293b; }
+.ops-table tr:hover td { background: #f8fafc; }
+body.dark-mode .ops-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+/* ── Badge Styling ────────────────────────────────────── */
+.badge-role {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    display: inline-block;
+}
+.badge-super { background: rgba(201, 42, 42, 0.1); color: #C92A2A; }
+.badge-admin { background: rgba(224, 171, 65, 0.1); color: #b4841f; }
+body.dark-mode .badge-admin { color: #e0ab41; }
+
+/* ── {{ _t('Notifications') }} Center ─────────────────────────────── */
+.notif-item {
+    transition: var(--transition-smooth);
+    cursor: pointer;
+}
+.notif-item:hover { transform: translateY(-2px); }
+.notif-item.unread-notif {
+    background: #fff !important;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05) !important;
+}
+body.dark-mode .notif-item.unread-notif {
+    background: rgba(30, 41, 59, 0.9) !important;
+}
+
+/* Custom Alert Styling */
+.alert-dismissible {
+    position: relative;
+    padding-right: 3rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ops-container">
+    
+    <!-- Flash {{ _t('Notifications') }} -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-4">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show border-0 shadow-sm text-dark align-items-center" role="alert" style="border-radius: 0.75rem; background-color: {{ '#d1e7dd' if category == 'success' else '#f8d7da' }};">
+            <i class="bi bi-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }}-fill me-2 text-{{ 'success' if category == 'success' else 'danger' }}"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="ops-grid">
+        
+        <!-- ══ SIDEBAR NAVIGATION & USER INFO ═══════════════ -->
+        <div class="ops-sidebar">
+            
+            <!-- Profile Info Widget -->
+            <div class="profile-card">
+                <div class="profile-avatar-wrapper">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ current_user.avatar_url }}" alt="Avatar" class="profile-avatar">
+                    {% else %}
+                        <div class="profile-avatar">{{ current_user.username[0]|upper }}</div>
+                    {% endif %}
+                    <div class="status-dot"></div>
+                </div>
+                <div class="profile-name">{{ current_user.username }}</div>
+                <div class="profile-role {{ 'super-admin' if current_user.role == 'super_admin' else ('admin-agence' if current_user.role == 'admin_agence' else 'teller') }}">
+                    <i class="bi {% if current_user.role == 'super_admin' %}bi-shield-lock-fill{% elif current_user.role == 'admin_agence' %}bi-building{% else %}bi-person-badge-fill{% endif %} me-1"></i>
+                    {% if current_user.role == 'super_admin' %}
+                        {{ _t('Super Admin') }}
+                    {% elif current_user.role == 'admin_agence' %}
+                        {{ _t('Admin Agence') }}
+                    {% elif current_user.role == 'teller' %}
+                        {{ _t('Agent Guichet') }}
+                    {% elif current_user.role == 'finance_officer' %}
+                        {{ _t('Agent Financier') }}
+                    {% else %}
+                        {{ current_user.role|capitalize }}
+                    {% endif %}
+                </div>
+                
+                {% if current_user.role == 'admin_agence' and current_user.agency %}
+                    <div class="text-muted small fw-bold mt-2 text-uppercase" style="letter-spacing: 0.05em;"><i class="bi bi-building me-1 text-primary"></i> {{ current_user.agency.name }}</div>
+                {% endif %}
+                <div class="text-muted small mt-1 opacity-75"><i class="bi bi-circle-fill text-success me-1" style="font-size:0.5rem;"></i> {{ _t('Dernière connexion: En ligne') }}</div>
+            </div>
+
+            <!-- Tab Navigation Menu -->
+            <nav class="ops-nav">
+                <a class="ops-nav-link active" onclick="switchTab('tab-personal', this)"><i class="bi bi-person-lines-fill fs-5"></i> {{ _t('Mon Profil') }}</a>
+                <a class="ops-nav-link" onclick="switchTab('tab-security', this)"><i class="bi bi-shield-check fs-5"></i> {{ _t('Sécurité & Accès') }}</a>
+                
+                
+                {% if current_user.role == 'admin_agence' %}
+                    <a class="ops-nav-link" onclick="switchTab('tab-agency-profile', this)"><i class="bi bi-briefcase fs-5"></i> {{ _t('Profil Agence') }}</a>
+                {% elif current_user.role == 'super_admin' %}
+                    <a class="ops-nav-link" onclick="switchTab('tab-global-settings', this)"><i class="bi bi-globe fs-5"></i> {{ _t('Plateforme Globale') }}</a>
+                    <a class="ops-nav-link" onclick="switchTab('tab-payment-settings', this)"><i class="bi bi-credit-card fs-5"></i> {{ _t('Paiements Mobile Money') }}</a>
+                {% endif %}
+                
+                <a class="ops-nav-link" onclick="switchTab('tab-notifications', this)">
+                    <i class="bi bi-bell-fill fs-5"></i> {{ _t('Centre de Notifications') }}
+                    <span class="badge bg-danger ms-auto rounded-pill" id="globalNotifBadge" style="display: {{ 'inline-block' if alerts.dashboard > 0 else 'none' }}">{{ alerts.dashboard }}</span>
+                </a>
+            </nav>
+
+            <!-- Quick Actions Panel -->
+            <div class="quick-actions">
+                <h6 class="fw-bold mb-3 text-muted text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">{{ _t('Actions Rapides') }}</h6>
+                
+                <a href="{{ url_for('admin.dashboard') }}" class="quick-action-btn justify-content-between">
+                    <span><i class="bi bi-speedometer2"></i> {{ _t('Dashboard Admin') }}</span>
+                </a>
+                
+                <a href="{{ url_for('admin.calendar_view') }}" class="quick-action-btn justify-content-between">
+                    <span><i class="bi bi-calendar3"></i> {{ _t('Calendrier Opérationnel') }}</span>
+                </a>
+                
+                <a href="{{ url_for('admin.bookings') }}" class="quick-action-btn justify-content-between">
+                    <span><i class="bi bi-ticket-detailed"></i> {{ _t('Réservations') }}</span>
+                </a>
+            </div>
+            
+        </div>
+
+        <!-- ══ MAIN DASHBOARD PANEL ═════════════════════════ -->
+        <div class="ops-content">
+            
+            <!-- 1. PERSONAL PROFILE TAB -->
+            <div id="tab-personal" class="ops-tab-pane active">
+                <h2 class="ops-section-title"><i class="bi bi-person-lines-fill me-2 text-primary"></i> {{ _t('Informations Personnelles') }}</h2>
+                
+                <form method="POST" action="{{ url_for('auth.profile') }}" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="update_profile">
+                    <div class="row g-3">
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Nom d\'utilisateur') }}</label>
+                            <input type="text" class="ops-input" value="{{ current_user.username }}" disabled style="opacity: 0.7; cursor: not-allowed;">
+                            <small class="text-muted mt-1 d-block"><i class="bi bi-info-circle"></i> {{ _t('Le nom d\'utilisateur est unique et non modifiable.') }}</small>
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Adresse Email') }}</label>
+                            <input type="email" name="email" class="ops-input" value="{{ current_user.email }}" required>
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Numéro de Téléphone') }}</label>
+                            <input type="tel" name="phone" class="ops-input" value="{{ current_user.phone or '' }}" placeholder="Ex: +237 699 333 444">
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Nom Réel / Complet') }}</label>
+                            <input type="text" name="real_name" class="ops-input" value="{{ current_user.real_name or '' }}" placeholder="Ex: Paul Biya">
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Langue de l\'Interface') }}</label>
+                            <select name="language" class="ops-input">
+                                <option value="fr" {% if current_user.language == 'fr' %}selected{% endif %}>{{ _t('Français') }}</option>
+                                <option value="en" {% if current_user.language == 'en' %}selected{% endif %}>{{ _t('English') }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Photo de profil') }}</label>
+                            <div class="d-flex align-items-center gap-3">
+                                {% if current_user.profile_picture %}
+                                    <div class="overflow-hidden rounded-circle flex-shrink-0" style="width: 50px; height: 50px; border: 2.5px solid #C92A2A;">
+                                        <img src="{{ current_user.avatar_url }}" alt="Avatar" class="w-100 h-100" style="object-fit: cover;">
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="removeProfilePic()"><i class="bi bi-trash me-1"></i> {{ _t('Supprimer') }}</button>
+                                {% endif %}
+                                <input type="file" name="profile_picture" class="ops-input flex-grow-1">
+                                <input type="hidden" name="remove_profile_picture" id="removeProfilePicture" value="false">
+                            </div>
+                        </div>
+                        
+                        {% if current_user.role == 'client' %}
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Numéro MTN MoM0') }}</label>
+                            <input type="text" name="momo_number" class="ops-input" value="{{ current_user.momo_number or '' }}" placeholder="e.g. 677123456">
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Numéro Orange Money') }}</label>
+                            <input type="text" name="orange_number" class="ops-input" value="{{ current_user.orange_number or '' }}" placeholder="e.g. 699123456">
+                        </div>
+                        <div class="col-md-6 ops-input-group">
+                            <label class="ops-label">{{ _t('Méthode de Paiement Favorite') }}</label>
+                            <select name="preferred_payment_method" class="ops-input">
+                                <option value="" {% if not current_user.preferred_payment_method %}selected{% endif %}>Sélectionner...</option>
+                                <option value="momo" {% if current_user.preferred_payment_method == 'momo' %}selected{% endif %}>MTN MoMo</option>
+                                <option value="orange" {% if current_user.preferred_payment_method == 'orange' %}selected{% endif %}>Orange Money</option>
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-top">
+                        <button type="submit" class="ops-btn-primary"><i class="bi bi-save2-fill me-2"></i> {{ _t('Mettre à jour les informations') }}</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 2. SECURITY & ACCESS TAB -->
+            <div id="tab-security" class="ops-tab-pane">
+                <h2 class="ops-section-title"><i class="bi bi-shield-check me-2 text-primary"></i> {{ _t('Sécurité & Accès') }}</h2>
+                
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="p-4 rounded-3 border bg-light">
+                            <h5 class="fw-bold mb-4 text-dark"><i class="bi bi-key me-2 text-primary"></i>{{ _t('Modifier le mot de passe') }}</h5>
+                            <form method="POST" action="{{ url_for('auth.profile') }}">
+                                <div class="ops-input-group">
+                                    <label class="ops-label">{{ _t('Mot de passe actuel') }}</label>
+                                    <input type="password" name="current_password" class="ops-input" placeholder="••••••••" required>
+                                </div>
+                                <div class="ops-input-group">
+                                    <label class="ops-label">{{ _t('Nouveau mot de passe') }}</label>
+                                    <input type="password" name="new_password" class="ops-input" placeholder="••••••••" required>
+                                </div>
+                                <div class="ops-input-group">
+                                    <label class="ops-label">{{ _t('Confirmer le nouveau mot de passe') }}</label>
+                                    <input type="password" name="confirm_password" class="ops-input" placeholder="••••••••" required>
+                                </div>
+                                <button type="submit" class="ops-btn-primary w-100 mt-2">{{ _t('Mettre à jour le mot de passe') }}</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="security-item">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-phone-vibrate security-item-icon text-primary"></i>
+                                <div class="security-item-info">
+                                    <h5 class="text-dark">{{ _t('Authentification à deux facteurs (2FA)') }}</h5>
+                                    <p class="text-muted">{{ _t('Sécurisez vos transactions cashless via validations OTP.') }}</p>
+                                </div>
+                            </div>
+                            <span class="badge bg-secondary p-2">{{ _t('Désactivé') }}</span>
+                        </div>
+                        
+                        <div class="security-item">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-laptop security-item-icon text-success"></i>
+                                <div class="security-item-info">
+                                    <h5 class="text-dark">{{ _t('Sessions Actives') }}</h5>
+                                    <p class="text-muted">{{ _t('Session courante connectée sur macOS (Chrome / Safari).') }}</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">{{ _t('Déconnecter') }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTab(tabId, navElement) {
+    // Hide all tabs
+    document.querySelectorAll('.ops-tab-pane').forEach(el => el.classList.remove('active'));
+    // Show selected tab
+    document.getElementById(tabId).classList.add('active');
+    
+    // Update nav styling
+    document.querySelectorAll('.ops-nav-link').forEach(el => el.classList.remove('active'));
+    navElement.classList.add('active');
+}
+
+// Filters logic for Staff
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('staffSearch');
+    const filterRole = document.getElementById('staffFilterRole');
+    const filterDate = document.getElementById('staffFilterDate');
+    const tableBody = document.getElementById('staffTableBody');
+    
+    if(!tableBody) return;
+
+    function applyStaffFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const roleValue = filterRole.value;
+        const sortValue = filterDate.value;
+        
+        let rows = Array.from(tableBody.querySelectorAll('tr.staff-row'));
+        
+        rows.forEach(row => {
+            const targetRole = row.getAttribute('data-role');
+            const rowText = row.innerText.toLowerCase();
+            
+            const matchesSearch = rowText.includes(searchTerm);
+            const matchesRole = (roleValue === "" || targetRole === roleValue);
+            
+            if (matchesSearch && matchesRole) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        rows.sort((a, b) => {
+            const dateA = parseFloat(a.getAttribute('data-date'));
+            const dateB = parseFloat(b.getAttribute('data-date'));
+            return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyStaffFilters);
+    if(filterRole) filterRole.addEventListener('change', applyStaffFilters);
+    if(filterDate) filterDate.addEventListener('change', applyStaffFilters);
+    
+    window.resetStaffFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterRole) filterRole.value = '';
+        if(filterDate) filterDate.value = 'newest';
+        applyStaffFilters();
+    };
+});
+
+// Filters logic for Audit Logs
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('logSearch');
+    const filterType = document.getElementById('filterType');
+    const filterDate = document.getElementById('filterDate');
+    const tableBody = document.getElementById('auditTableBody');
+    
+    if(!tableBody) return;
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const typeValue = filterType.value.toLowerCase();
+        const sortValue = filterDate.value;
+        
+        let rows = Array.from(tableBody.querySelectorAll('tr.audit-row'));
+        
+        rows.forEach(row => {
+            const targetType = row.getAttribute('data-type').toLowerCase();
+            const rowText = row.innerText.toLowerCase();
+            
+            const matchesSearch = rowText.includes(searchTerm);
+            const matchesType = (typeValue === "" || targetType.includes(typeValue));
+            
+            if (matchesSearch && matchesType) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        rows.sort((a, b) => {
+            const dateA = parseFloat(a.getAttribute('data-date'));
+            const dateB = parseFloat(b.getAttribute('data-date'));
+            return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+        
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyFilters);
+    if(filterType) filterType.addEventListener('change', applyFilters);
+    if(filterDate) filterDate.addEventListener('change', applyFilters);
+    
+    window.resetFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterType) filterType.value = '';
+        if(filterDate) filterDate.value = 'newest';
+        applyFilters();
+    };
+});
+
+// Filters logic for {{ _t('Notifications') }}
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('notifSearch');
+    const filterType = document.getElementById('notifFilterType');
+    const listContainer = document.getElementById('notifList');
+    
+    if(!listContainer) return;
+
+    function applyNotifFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const typeValue = filterType.value;
+        
+        let items = Array.from(listContainer.querySelectorAll('.notif-item'));
+        
+        items.forEach(item => {
+            const targetType = item.getAttribute('data-type');
+            const itemText = item.innerText.toLowerCase();
+            
+            const matchesSearch = itemText.includes(searchTerm);
+            const matchesType = (typeValue === "" || targetType === typeValue);
+            
+            if (matchesSearch && matchesType) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', applyNotifFilters);
+    if(filterType) filterType.addEventListener('change', applyNotifFilters);
+    
+    window.resetNotifFilters = function() {
+        if(searchInput) searchInput.value = '';
+        if(filterType) filterType.value = '';
+        applyNotifFilters();
+    };
+});
+
+// AJAX Mark Notification as Read
+function markAsRead(element, notifId) {
+    if(!element.classList.contains('unread-notif')) return;
+
+    fetch(`/admin/notifications/${notifId}/read`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            element.classList.remove('unread-notif');
+            element.classList.add('read-notif');
+            
+            // Remove the unread badge from the item
+            const newBadge = element.querySelector('.badge.bg-danger');
+            if (newBadge) newBadge.remove();
+            
+            // Decrement global sidebar badge
+            const globalBadge = document.getElementById('globalNotifBadge');
+            if (globalBadge) {
+                let count = parseInt(globalBadge.innerText);
+                if (!isNaN(count) && count > 0) {
+                    count--;
+                    if(count === 0) globalBadge.style.display = 'none';
+                    else globalBadge.innerText = count;
+                }
+            }
+        }
+    });
+}
+
+function removeProfilePic() {
+    if (confirm("{{ _t('Voulez-vous vraiment supprimer votre photo de profil ?') }}")) {
+        document.getElementById('removeProfilePicture').value = 'true';
+        document.querySelector('#tab-personal form').submit();
+    }
+}
+</script>
+{% endblock %}

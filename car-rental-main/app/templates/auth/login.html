@@ -1,0 +1,731 @@
+{% extends "base.html" %}
+{% block title %}Connexion - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Full-page split layout ───────────────────────────── */
+  /* Hide global nav and footer */
+  .navbar,
+  .footer {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  /* In case there is global padding */
+
+  .login-page {
+    min-height: 100vh;
+    display: flex;
+    background: #f8fafc;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* ── LEFT: form panel ─────────────────────────────────── */
+  .login-left {
+    flex: 0 0 560px;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 4.5rem;
+    background: #fff;
+    position: relative;
+    z-index: 2;
+    box-shadow: 4px 0 40px rgba(0, 0, 0, .07);
+  }
+
+  body.dark-mode .login-left {
+    background: #1f2937;
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .login-logo img {
+    height: 36px;
+  }
+
+  body.dark-mode .login-logo img {
+    filter: brightness(0) invert(1);
+  }
+
+  .login-logo span {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #C92A2A;
+    letter-spacing: -.02em;
+  }
+
+  .login-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.2;
+    margin-bottom: .75rem;
+  }
+
+  body.dark-mode .login-title {
+    color: #f1f5f9;
+  }
+
+  .login-subtitle {
+    color: #64748b;
+    font-size: .95rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Fields */
+  .lv-input-wrap {
+    position: relative;
+    margin-bottom: 1.25rem;
+  }
+
+  .lv-input-wrap label {
+    display: block;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: .35rem;
+    letter-spacing: .01em;
+  }
+
+  body.dark-mode .lv-input-wrap label {
+    color: #94a3b8;
+  }
+
+  .lv-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3.2rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: .9rem;
+    font-size: 1.05rem;
+    background: #f8fafc;
+    color: #1e293b;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  body.dark-mode .lv-input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f1f5f9;
+  }
+
+  .lv-input:focus {
+    border-color: #C92A2A;
+    box-shadow: 0 0 0 3px rgba(201, 42, 42, .12);
+    background: #fff;
+  }
+
+  body.dark-mode .lv-input:focus {
+    background: #1f2937;
+  }
+
+  .lv-input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 1rem;
+    pointer-events: none;
+  }
+
+  .lv-eye-btn {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 0;
+    font-size: .95rem;
+    z-index: 10;
+  }
+
+  .lv-eye-btn:hover {
+    color: #C92A2A;
+  }
+
+  /* Remember + forgot row */
+  .lv-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+  }
+
+  .lv-remember {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: .83rem;
+    color: #64748b;
+    cursor: pointer;
+  }
+
+  .lv-remember input[type=checkbox] {
+    accent-color: #C92A2A;
+    width: 16px;
+    height: 16px;
+  }
+
+  .lv-forgot {
+    font-size: .83rem;
+    color: #C92A2A;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .lv-forgot:hover {
+    text-decoration: underline;
+  }
+
+  /* Primary button */
+  .btn-lv-primary {
+    width: 100%;
+    padding: 1.1rem;
+    background: linear-gradient(135deg, #C92A2A 0%, #A61E1E 100%);
+    color: #fff;
+    border: none;
+    border-radius: .9rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .25s;
+    box-shadow: 0 4px 20px rgba(201, 42, 42, .25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    letter-spacing: .01em;
+  }
+
+  .btn-lv-primary:hover {
+    background: linear-gradient(135deg, #5c1628 0%, #C92A2A 100%);
+    box-shadow: 0 6px 28px rgba(201, 42, 42, .35);
+    transform: translateY(-1px);
+  }
+
+  .btn-lv-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-lv-primary .spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 255, 255, .4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .btn-lv-primary.loading .btn-text {
+    display: none;
+  }
+
+  .btn-lv-primary.loading .spinner {
+    display: block;
+  }
+
+  /* Divider */
+  .lv-divider {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: 1.5rem 0;
+    color: #94a3b8;
+    font-size: .8rem;
+  }
+
+  .lv-divider::before,
+  .lv-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  body.dark-mode .lv-divider::before,
+  body.dark-mode .lv-divider::after {
+    background: #374151;
+  }
+
+  .lv-register-link {
+    text-align: center;
+    font-size: .88rem;
+    color: #64748b;
+  }
+
+  .lv-register-link a {
+    color: #C92A2A;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .lv-register-link a:hover {
+    text-decoration: underline;
+  }
+
+  /* Trust badges */
+  .trust-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .trust-badge {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .72rem;
+    color: #64748b;
+    background: #f1f5f9;
+    border-radius: 999px;
+    padding: .3rem .75rem;
+  }
+
+  body.dark-mode .trust-badge {
+    background: #374151;
+  }
+
+  /* Flash alerts */
+  .lv-alert {
+    border-radius: 1rem;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1.25rem;
+    font-size: .88rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    animation: slideInAlert 0.4s cubic-bezier(.4,0,.2,1) both;
+  }
+
+  @keyframes slideInAlert {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .lv-alert-danger {
+    background: linear-gradient(135deg, #fef2f2, #fff5f5);
+    color: #991b1b;
+    border: 1.5px solid #fecaca;
+    box-shadow: 0 4px 16px rgba(220,38,38,0.1);
+  }
+
+  .lv-alert-success {
+    background: linear-gradient(135deg, #f0fdf4, #f7fff9);
+    color: #14532d;
+    border: 1.5px solid #bbf7d0;
+    box-shadow: 0 4px 16px rgba(21,128,61,0.1);
+  }
+
+  .lv-alert .lv-alert-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .lv-alert-danger .lv-alert-icon { background: rgba(220,38,38,0.12); color: #dc2626; }
+  .lv-alert-success .lv-alert-icon { background: rgba(21,128,61,0.12); color: #16a34a; }
+
+  body.dark-mode .lv-alert-danger {
+    background: linear-gradient(135deg, #450a0a, #3b0606);
+    border-color: #7f1d1d;
+    color: #fca5a5;
+  }
+  body.dark-mode .lv-alert-success {
+    background: linear-gradient(135deg, #052e16, #04200f);
+    border-color: #166534;
+    color: #86efac;
+  }
+
+  /* ── RIGHT: visual panel ──────────────────────────────── */
+  .login-right {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .login-right-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .login-right-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top,
+        rgba(15, 5, 10, .92) 0%,
+        rgba(60, 10, 25, .55) 45%,
+        rgba(0, 0, 0, .15) 100%);
+  }
+
+  .login-right-content {
+    position: relative;
+    z-index: 2;
+    padding: 3rem;
+    color: #fff;
+  }
+
+  .brand-tagline {
+    font-size: 2.4rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    letter-spacing: -.02em;
+  }
+
+  .brand-tagline span {
+    color: #fff;
+  }
+
+  .brand-pillars {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .pillar-chip {
+    background: rgba(255, 255, 255, .12);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, .2);
+    color: #fff;
+    border-radius: 999px;
+    padding: .45rem 1.1rem;
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+
+  /* Testimonials rotator */
+  .testimonial-card {
+    background: rgba(255, 255, 255, .1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, .15);
+    border-radius: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    max-width: 440px;
+  }
+
+  .testimonial-text {
+    font-size: .92rem;
+    font-style: italic;
+    color: rgba(255, 255, 255, .9);
+    margin-bottom: .75rem;
+    line-height: 1.5;
+  }
+
+  .testimonial-author {
+    font-size: .78rem;
+    font-weight: 700;
+    color: #e0ab41;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .testimonial-dots {
+    display: flex;
+    gap: .4rem;
+    margin-top: 1rem;
+  }
+
+  .t-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .3);
+    transition: background .3s;
+    cursor: pointer;
+  }
+
+  .t-dot.active {
+    background: #e0ab41;
+  }
+
+  /* ── Animations ───────────────────────────────────────── */
+  .fade-slide-in {
+    animation: fadeSlideIn .55s cubic-bezier(.4, 0, .2, 1) both;
+  }
+
+  @keyframes fadeSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-24px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* ── Responsive ───────────────────────────────────────── */
+  @media (max-width: 860px) {
+    .login-page {
+      flex-direction: column-reverse;
+      min-height: 100vh;
+    }
+
+    .login-left {
+      flex: none;
+      max-width: 100%;
+      padding: 2rem 1.5rem 2.5rem;
+      box-shadow: none;
+    }
+
+    .login-right {
+      min-height: 260px;
+      flex: none;
+    }
+
+    .login-right-content {
+      padding: 1.5rem;
+    }
+
+    .brand-tagline {
+      font-size: 1.6rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-page">
+
+  <!-- ══ LEFT: Form ══════════════════════════════════════ -->
+  <div class="login-left fade-slide-in">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES">
+      <span>3M SERVICES</span>
+    </div>
+
+    <!-- Title -->
+    <h1 class="login-title">{{ _t('Connexion à votre compte') | safe }}</h1>
+    <p class="login-subtitle">Connectez-vous à la plateforme de gestion & administration 3M SERVICES.</p>
+
+    <!-- 3M Super Admin Quick-Fill Helper -->
+    <div style="background: rgba(201, 42, 42, 0.08); border: 1px solid rgba(201, 42, 42, 0.25); border-radius: 12px; padding: 14px 16px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+      <div>
+        <div style="font-weight: 700; color: #C92A2A; font-size: 0.95rem;">
+          <i class="bi bi-shield-check me-1"></i> Accès Super Administrateur 3M
+        </div>
+        <div style="font-size: 0.8rem; color: #64748b; margin-top: 3px;">
+          <strong>Email :</strong> admin@3mservice.shop &bull; <strong>Psw :</strong> admin3m2026
+        </div>
+      </div>
+      <button type="button" onclick="fillAdminCredentials()" class="btn btn-sm" style="background: #C92A2A; color: white; font-weight: 700; border-radius: 8px; font-size: 0.8rem; padding: 6px 14px; border: none; white-space: nowrap; cursor: pointer;">
+        Remplir auto
+      </button>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="lv-alert lv-alert-{{ 'danger' if category in ['error','danger'] else 'success' }}">
+      <span class="lv-alert-icon">
+        <i class="bi bi-{{ 'exclamation-triangle-fill' if category in ['error','danger'] else 'check-circle-fill' }}"></i>
+      </span>
+      <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <!-- Form -->
+    <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
+      {{ csrf_token() if csrf_token else '' }}
+
+      <!-- Username / Email -->
+      <div class="lv-input-wrap">
+        <label for="username">{{ _t('Email ou Nom d\'utilisateur') }}</label>
+        <div class="position-relative">
+          <i class="bi bi-person-fill lv-input-icon"></i>
+          <input type="text" class="lv-input" id="username" name="username" placeholder="{{ _t('Entrez votre email ou nom d\'utilisateur') }}"
+            autocomplete="username" required>
+        </div>
+      </div>
+ 
+      <!-- Password -->
+      <div class="lv-input-wrap">
+        <label for="password">{{ _t('Mot de passe') }}</label>
+        <div class="position-relative">
+          <i class="bi bi-lock-fill lv-input-icon"></i>
+          <input type="password" class="lv-input" id="password" name="password" autocomplete="current-password" placeholder="{{ _t('Entrez votre mot de passe') }}"
+            autocomplete="current-password" required>
+          <button type="button" class="lv-eye-btn" id="eyeBtn" onclick="togglePass()">
+            <i class="bi bi-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Remember + forgot -->
+      <div class="lv-row">
+        <label class="lv-remember">
+          <input type="checkbox" name="remember" id="remember">
+          {{ _t('Se souvenir de moi') }}
+        </label>
+        <a href="{{ url_for('auth.forgot_password') }}" class="lv-forgot">{{ _t('Mot de passe oublié ?') }}</a>
+      </div>
+
+      <!-- Hidden Input for Firebase Token -->
+      <input type="hidden" name="id_token" id="id_token">
+
+      <!-- Submit -->
+      <button type="submit" class="btn-lv-primary" id="loginBtn">
+        <span class="spinner"></span>
+        <span class="btn-text"><i class="bi bi-box-arrow-in-right"></i> {{ _t('Se Connecter') }}</span>
+      </button>
+    </form>
+
+    <div class="lv-divider">{{ _t('ou') }}</div>
+    
+    <button type="button" class="btn-lv-secondary" id="googleBtn" style="width: 100%; padding: 1.1rem; border-radius: .9rem; border: 1.5px solid #e2e8f0; background: #fff; color: #1e293b; font-size: 1.05rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.75rem; transition: all 0.2s; margin-bottom: 1.5rem;">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 24px;">
+      Continuer avec Google
+    </button>
+
+    <div class="lv-register-link">
+      {{ _t('Pas encore de compte ?') }}
+      <a href="{{ url_for('auth.register') }}">{{ _t('Créer un compte gratuit') }}</a>
+    </div>
+
+    <!-- Trust badges -->
+    <div class="trust-row">
+      <span class="trust-badge"><i class="bi bi-shield-lock-fill" style="color:#198754;"></i> Paiement sécurisé</span>
+      <span class="trust-badge"><i class="bi bi-award-fill" style="color:#e0ab41;"></i> Service certifié</span>
+      <span class="trust-badge"><i class="bi bi-headset" style="color:#0d6efd;"></i> Support 24/7</span>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT: Visual ════════════════════════════════════ -->
+  <div class="login-right">
+    <img src="{{ url_for('static', filename='img_login_bg.png') }}" alt="Route au Cameroun" class="login-right-img">
+    <div class="login-right-overlay"></div>
+    <div class="login-right-content">
+      <h2 class="brand-tagline" style="color: #ffffff;">
+        Voyagez <span style="color: #ffffff;">confortablement</span><br>à travers le Cameroun
+      </h2>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB_7q5GxMPuYu31KqHpuKYHUla6D19yhAo",
+    authDomain: "3mservices-prod.firebaseapp.com",
+    projectId: "3mservices-prod",
+    storageBucket: "3mservices-prod.firebasestorage.app",
+    messagingSenderId: "1079451092562",
+    appId: "1:1079451092562:web:e1ba8824bba49426cd018b",
+    measurementId: "G-N9SHP4Q87Z"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  
+  // ── Toggle password visibility ──────────────────────────
+  window.togglePass = function() {
+    const inp = document.getElementById('password');
+    const icon = document.getElementById('eyeIcon');
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      icon.className = 'bi bi-eye-slash';
+    } else {
+      inp.type = 'password';
+      icon.className = 'bi bi-eye';
+    }
+  };
+
+  // ── Login Submit (Email/Password) ──────────────────────────
+  document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const u = document.getElementById('username').value.trim();
+    const p = document.getElementById('password').value.trim();
+    if (!u || !p) return;
+    
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    // Check if username looks like an email. If not, bypass Firebase (for admins)
+    if (!u.includes('@')) {
+      this.submit();
+      return;
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, u, p);
+      const token = await userCredential.user.getIdToken();
+      document.getElementById('id_token').value = token;
+      this.submit(); // Submit form natively
+    } catch (error) {
+      // If Firebase fails (e.g. user exists only in local DB), submit normally anyway
+      this.submit();
+    }
+  });
+
+  // ── Google Sign-In ───────────────────────────────────────
+  document.getElementById('googleBtn').addEventListener('click', async function () {
+    const provider = new GoogleAuthProvider();
+    const btn = this;
+    btn.style.opacity = '0.7';
+    btn.disabled = true;
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const token = await result.user.getIdToken();
+      document.getElementById('id_token').value = token;
+      document.getElementById('loginForm').submit();
+    } catch (error) {
+      alert("Erreur de connexion Google : " + error.message);
+      btn.style.opacity = '1';
+      btn.disabled = false;
+    }
+  });
+  window.fillAdminCredentials = function() {
+    const userField = document.getElementById('username');
+    const passField = document.getElementById('password');
+    if (userField && passField) {
+      userField.value = 'admin@3mservice.shop';
+      passField.value = 'admin3m2026';
+      userField.focus();
+    }
+  };
+</script>
+{% endblock %}

@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('Confirmation Envoi Colis') }} - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-btn {
+        color: #ffffff !important;
+        transition: all 0.3s ease;
+    }
+    .dashboard-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(201, 42, 42, 0.4) !important;
+        filter: brightness(1.1);
+    }
+    body.dark-mode .dashboard-btn {
+        color: #ffffff !important;
+    }
+    body.dark-mode .dashboard-btn:hover {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+    }
+    .success-card {
+        background: var(--glass-bg-light);
+        border: 1.5px solid rgba(16, 185, 129, 0.25);
+        border-radius: 2rem;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(var(--glass-blur));
+        padding: 3rem 2.5rem;
+    }
+    body.dark-mode .success-card {
+        background: var(--glass-bg-dark);
+        border-color: rgba(16, 185, 129, 0.2);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+    .check-badge {
+        width: 90px;
+        height: 90px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border: 4px solid #ffffff;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+    }
+    body.dark-mode .check-badge {
+        border-color: #26050f;
+    }
+    .receipt-line {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.85rem 0;
+        border-bottom: 1px dashed var(--input-border-light);
+    }
+    body.dark-mode .receipt-line {
+        border-bottom-color: var(--input-border-dark);
+    }
+    .receipt-line:last-child {
+        border-bottom: none;
+    }
+    .feature-item {
+        background: rgba(201, 42, 42, 0.03);
+        border: 1px solid var(--input-border-light);
+        border-radius: 1rem;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    body.dark-mode .feature-item {
+        background: rgba(255, 255, 255, 0.02);
+        border-color: var(--input-border-dark);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9 col-sm-12">
+            <div class="success-card text-center fade-in position-relative">
+                <!-- Dot Pattern Decorator -->
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.03; background-image: radial-gradient(var(--primary-light) 2px, transparent 2px); background-size: 15px 15px; border-radius: 2rem; pointer-events: none;"></div>
+
+                <!-- Animated Green Check Badge -->
+                <div class="check-badge rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4">
+                    <i class="bi bi-check-lg text-white" style="font-size: 3.5rem; -webkit-text-stroke: 2px;"></i>
+                </div>
+
+                <h3 class="fw-bold text-success mb-2">{{ _t('Enregistrement du Colis Réussi !') }}</h3>
+                <h6 class="fw-bold text-muted mb-4">🎉 {{ _t("Votre colis a été assigné au voyage avec succès.") }}</h6>
+                
+                <div class="badge bg-success py-2.5 px-4 fs-6 fw-bold rounded-pill mb-5" style="box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
+                    <i class="bi bi-patch-check-fill me-1"></i> Status: ASSIGNED TO TRIP
+                </div>
+
+                <!-- Receipt Detail box -->
+                <div class="bg-white bg-opacity-10 border rounded-4 p-4 mb-4 text-start" style="border-radius: 1.5rem; background-color: rgba(0,0,0,0.02) !important;">
+                    <h5 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-file-earmark-text-fill text-primary me-2"></i>{{ _t('Détails de l\'Expédition') }}</h5>
+                    
+                    <div class="receipt-line">
+                        <span class="text-muted">{{ _t('Code de Suivi') }} (Tracking)</span>
+                        <code class="fw-bold text-primary fs-5">{{ parcel.tracking_number }}</code>
+                    </div>
+                    <div class="receipt-line">
+                        <span class="text-muted">{{ _t('Expéditeur') }}</span>
+                        <span class="fw-semibold text-dark">{{ parcel.sender_name }} ({{ parcel.sender_phone }})</span>
+                    </div>
+                    <div class="receipt-line">
+                        <span class="text-muted">{{ _t('Destinataire') }}</span>
+                        <span class="fw-semibold text-dark">{{ parcel.receiver_name }} ({{ parcel.receiver_phone }})</span>
+                    </div>
+                    <div class="receipt-line">
+                        <span class="text-muted">{{ _t('Itinéraire') }}</span>
+                        <span class="fw-bold text-dark">{{ parcel.trip.route.origin }} ➔ {{ parcel.trip.route.destination }}</span>
+                    </div>
+                    <div class="receipt-line">
+                        <span class="text-muted">{{ _t('Bus assigné') }}</span>
+                        <span class="fw-semibold text-dark">{{ parcel.trip.bus.bus_name }} (Dép: {{ parcel.trip.departure_time.strftime('%H:%M') }})</span>
+                    </div>
+                    <div class="receipt-line">
+                        <span class="text-muted">{{ _t('Détails Colis') }}</span>
+                        <span class="fw-semibold text-dark">{{ parcel.parcel_type }} - {{ parcel.description }}</span>
+                    </div>
+                    <div class="receipt-line">
+                        <span class="text-muted">{{ _t('Poids Estimé') }}</span>
+                        <span class="fw-bold text-dark">{{ parcel.weight }} kg</span>
+                    </div>
+                    <div class="receipt-line">
+                        <span class="text-muted">{{ _t('Montant Payé') }}</span>
+                        <span class="fw-bold text-success fs-5">{{ parcel.price|int }} FCFA</span>
+                    </div>
+                </div>
+
+                <!-- Included features checklist -->
+                <h5 class="fw-bold text-dark text-start mb-3"><i class="bi bi-shield-check text-success me-2"></i>{{ _t('Services inclus à l\'expédition') }}</h5>
+                <div class="row g-3 mb-5 text-start">
+                    <div class="col-md-6">
+                        <div class="feature-item">
+                            <i class="bi bi-geo-fill text-success fs-4"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">✔ {{ _t('Suivi GPS Actif') }}</h6>
+                                <span class="small text-muted" style="font-size: 0.75rem;">{{ _t('Position du bus en temps réel') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="feature-item">
+                            <i class="bi bi-bell-fill text-success fs-4"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">✔ {{ _t('Notifications Actives') }}</h6>
+                                <span class="small text-muted" style="font-size: 0.75rem;">{{ _t('Email & alertes transit / arrivée dans l\'app') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% if parcel.has_insurance %}
+                    <div class="col-md-12">
+                        <div class="feature-item border border-warning" style="background: rgba(245, 158, 11, 0.05);">
+                            <i class="bi bi-shield-fill-check text-warning fs-4"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">✔ {{ _t('Couverture d\'assurance Activée') }}</h6>
+                                <span class="small text-muted" style="font-size: 0.75rem;">{{ _t('Remboursement garanti à 100% de la valeur estimée') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Action Button -->
+                <div class="d-flex flex-column gap-2 max-w-sm mx-auto">
+                    <a href="{{ url_for('main.parcel_pdf', parcel_id=parcel.id) }}" class="btn btn-outline-success btn-lg w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" style="border-radius: 2rem;" target="_blank">
+                        <i class="bi bi-file-earmark-pdf-fill"></i> {{ _t('Télécharger le Bordereau PDF') }}
+                    </a>
+                    <a href="{{ url_for('main.my_bookings') }}" class="btn btn-primary btn-lg w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 dashboard-btn text-white" style="border-radius: 2rem; background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%); border:0;">
+                        <i class="bi bi-grid-fill"></i> {{ _t('Aller au Tableau de Bord') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

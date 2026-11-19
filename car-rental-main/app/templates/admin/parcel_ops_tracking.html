@@ -1,0 +1,142 @@
+{% extends "admin/parcel_ops_base.html" %}
+
+{% block title %}Tracking Colis{% endblock %}
+{% block page_title %}Suivi Temps Réel des Colis en Transit{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 text-start">
+    <div class="row g-4">
+        <!-- List of tracked parcels -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-geo-alt-fill text-primary me-2"></i>Colis Actifs en Route</h5>
+                <p class="text-muted small">Sélectionnez un colis pour interroger la position GPS en temps réel du bus transporteur.</p>
+
+                {% if parcels %}
+                    <div class="list-group list-group-flush">
+                        {% for p in parcels %}
+                        <button type="button" class="list-group-item list-group-item-action p-3 border rounded-3 mb-2 d-flex justify-content-between align-items-center tracking-item" 
+                                onclick="selectParcelForTracking({{ p.id }}, '{{ p.tracking_number }}', {{ p.trip_id or 0 }}, '{{ p.trip.bus.bus_number if p.trip else 'N/A' }}', '{{ p.trip.route.origin if p.trip else 'N/A' }}', '{{ p.trip.route.destination if p.trip else 'N/A' }}')">
+                            <div>
+                                <strong class="text-dark d-block">Colis #{{ p.tracking_number }}</strong>
+                                <span class="small text-muted d-block">Destinataire: {{ p.receiver_name }} (➔ {{ p.receiver_city }})</span>
+                                <span class="small text-muted d-block mt-1" style="font-size:0.75rem;"><i class="bi bi-bus-front me-1"></i>Bus: {{ p.trip.bus.bus_number if p.trip else 'Aucun' }}</span>
+                            </div>
+                            <span class="badge {{ 'bg-warning' if p.status == 'loaded' else 'bg-primary' }} text-white px-2.5 py-1.5 fw-bold rounded-pill">
+                                {{ p.status | upper }}
+                            </span>
+                        </button>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-truck fs-1 text-muted d-block mb-3"></i>
+                        <h6 class="text-muted fw-bold">Aucun colis en cours de transit.</h6>
+                        <p class="text-muted small mb-0">Les colis apparaîtront ici lorsqu'ils seront marqués comme "Chargés" ou "En Transit".</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Live tracking map simulator -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm p-4 h-100" id="mapPanel" style="opacity: 0.6; pointer-events: none;">
+                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-compass text-success me-2"></i>Position GPS Live (Simulateur)</h5>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted">Colis Inspecté</label>
+                    <div class="p-3 bg-light border rounded">
+                        <strong class="text-dark d-block" id="trackTracking">--</strong>
+                        <span class="small text-muted d-block" id="trackRoute">Ligne: -- ➔ --</span>
+                        <span class="small text-muted d-block" id="trackBus">Bus: --</span>
+                    </div>
+                </div>
+
+                <!-- Simulated Map Frame -->
+                <div class="rounded-3 border overflow-hidden position-relative mb-4" style="height: 250px; background: #e5e9f0; min-height: 250px;">
+                    <!-- Grid Background to simulate a map -->
+                    <div style="background-image: radial-gradient(#ccd3e0 2px, transparent 2px); background-size: 20px 20px; width: 100%; height: 100%; position: absolute; top:0; left:0;"></div>
+                    
+                    <!-- Center Point (Bus icon) -->
+                    <div class="position-absolute translate-middle text-center animate-bounce" id="gpsMarker" style="top: 50%; left: 50%; display: none;">
+                        <div class="p-2 bg-success text-white rounded-circle shadow-lg d-inline-block">
+                            <i class="bi bi-bus-front fs-4"></i>
+                        </div>
+                        <div class="badge bg-dark text-white shadow-sm mt-1 d-block" id="gpsBadge">Bus</div>
+                    </div>
+                    
+                    <div class="position-absolute bottom-0 start-0 m-3 badge bg-dark text-white p-2" id="coordPanel">
+                        Lat: --, Lon: --
+                    </div>
+                </div>
+
+                <button class="btn btn-outline-primary w-100 rounded-pill fw-bold" onclick="pollGps()">
+                    <i class="bi bi-arrow-clockwise"></i> Rafraîchir les Coordonnées GPS
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let activeTripId = 0;
+
+    function selectParcelForTracking(id, tracking, tripId, busNum, origin, destination) {
+        // Activate panel
+        const panel = document.getElementById('mapPanel');
+        panel.style.opacity = '1';
+        panel.style.pointerEvents = 'auto';
+
+        document.getElementById('trackTracking').innerText = `Colis #${tracking}`;
+        document.getElementById('trackRoute').innerText = `Ligne: ${origin} ➔ ${destination}`;
+        document.getElementById('trackBus').innerText = `Bus Transporteur: ${busNum}`;
+        
+        activeTripId = tripId;
+
+        // Start polling GPS
+        pollGps();
+    }
+
+    async function pollGps() {
+        if (!activeTripId) return;
+
+        const marker = document.getElementById('gpsMarker');
+        const coordPanel = document.getElementById('coordPanel');
+        const badge = document.getElementById('gpsBadge');
+        
+        marker.style.display = 'none';
+
+        try {
+            const response = await fetch(`/api/trip/${activeTripId}/location`);
+            const data = await response.json();
+
+            if (data.latitude) {
+                coordPanel.innerText = `Lat: ${data.latitude.toFixed(4)} | Lon: ${data.longitude.toFixed(4)}`;
+                
+                // Position Marker randomly/midway inside visual container for premium aesthetics
+                marker.style.top = '45%';
+                marker.style.left = '52%';
+                marker.style.display = 'block';
+                badge.innerText = `Lattitude: ${data.latitude.toFixed(2)}`;
+            }
+        } catch(e) {
+            console.error("GPS Fetch error", e);
+        }
+    }
+</script>
+<style>
+    .animate-bounce {
+        animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+        0%, 100% {
+            transform: translate(-50%, -50%) translateY(0);
+        }
+        50% {
+            transform: translate(-50%, -50%) translateY(-10px);
+        }
+    }
+</style>
+{% endblock %}
