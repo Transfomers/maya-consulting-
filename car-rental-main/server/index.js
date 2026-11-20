@@ -528,6 +528,16 @@ app.get("/api/cars", (req, res) => {
   res.json(cars);
 });
 
+app.get("/api/promo-cars", (req, res) => {
+  const db = readDb();
+  const allCars = db.cars || [];
+  let promoCars = allCars.filter((c) => c.isPromo === true);
+  if (promoCars.length === 0) {
+    promoCars = allCars.slice(0, 3);
+  }
+  res.json(promoCars.slice(0, 3));
+});
+
 app.get("/api/cars/:id", (req, res) => {
   const db = readDb();
   const car = (db.cars || []).find((c) => c.id === req.params.id);
@@ -613,6 +623,25 @@ app.patch("/api/cars/:id/status", authenticateToken, (req, res) => {
   car.status = status;
   writeDb(db);
   res.json(car);
+});
+
+app.patch("/api/cars/:id/promo", authenticateToken, (req, res) => {
+  const { isPromo, promoPrice, regularPrice, promoBadge, promoDescription } = req.body;
+  const db = readDb();
+  const index = (db.cars || []).findIndex((c) => c.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ error: "Véhicule introuvable." });
+  }
+  db.cars[index] = {
+    ...db.cars[index],
+    isPromo: isPromo !== undefined ? Boolean(isPromo) : db.cars[index].isPromo,
+    promoPrice: promoPrice !== undefined ? Number(promoPrice) : db.cars[index].promoPrice,
+    regularPrice: regularPrice !== undefined ? Number(regularPrice) : db.cars[index].regularPrice,
+    promoBadge: promoBadge !== undefined ? promoBadge : db.cars[index].promoBadge,
+    promoDescription: promoDescription !== undefined ? promoDescription : db.cars[index].promoDescription
+  };
+  writeDb(db);
+  res.json(db.cars[index]);
 });
 
 app.delete("/api/cars/:id", authenticateToken, (req, res) => {

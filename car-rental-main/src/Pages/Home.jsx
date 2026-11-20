@@ -1,5 +1,6 @@
 import Hero from "../components/Hero";
 import BookCar from "../components/BookCar";
+import PromoCars from "../components/PromoCars";
 import PlanTrip from "../components/PlanTrip";
 import PickCar from "../components/PickCar";
 import Banner from "../components/Banner";
@@ -14,6 +15,7 @@ function Home() {
     <>
       <Hero />
       <BookCar />
+      <PromoCars />
       <PlanTrip />
       <PickCar />
       <Banner />

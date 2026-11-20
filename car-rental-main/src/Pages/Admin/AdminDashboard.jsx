@@ -269,7 +269,12 @@ function AdminDashboard() {
     status: "Disponible",
     plate: "CE-000-XX",
     description: "",
-    img: "/images/cars/toyota-prado-txl-front.webp"
+    img: "/images/cars/toyota-prado-txl-front.webp",
+    isPromo: false,
+    regularPrice: 0,
+    promoPrice: 0,
+    promoBadge: "OFFRE FLASH -15%",
+    promoDescription: ""
   });
 
   const STOCK_CAR_PHOTOS = [
@@ -1336,7 +1341,10 @@ function AdminDashboard() {
     const updatedCar = {
       ...carForm,
       id: carId,
-      pricePerDay: Number(carForm.pricePerDay) || 60000
+      pricePerDay: Number(carForm.pricePerDay) || 60000,
+      regularPrice: Number(carForm.regularPrice) || 0,
+      promoPrice: Number(carForm.promoPrice) || 0,
+      isPromo: Boolean(carForm.isPromo)
     };
 
     if (isEdit) {
@@ -1393,7 +1401,12 @@ function AdminDashboard() {
       status: car.status || "Disponible",
       plate: car.plate || "",
       description: car.description || "",
-      img: car.img || car.image || "/images/cars/toyota-prado-txl-front.webp"
+      img: car.img || car.image || "/images/cars/toyota-prado-txl-front.webp",
+      isPromo: Boolean(car.isPromo),
+      regularPrice: car.regularPrice || (car.pricePerDay ? Math.round(car.pricePerDay * 1.18) : 0),
+      promoPrice: car.promoPrice || car.pricePerDay || 0,
+      promoBadge: car.promoBadge || "OFFRE FLASH -15%",
+      promoDescription: car.promoDescription || ""
     });
     setShowCarModal(true);
   };
@@ -1415,7 +1428,12 @@ function AdminDashboard() {
       status: "Disponible",
       plate: "CE-000-XX",
       description: "",
-      img: "/images/cars/toyota-prado-txl-front.webp"
+      img: "/images/cars/toyota-prado-txl-front.webp",
+      isPromo: false,
+      regularPrice: 0,
+      promoPrice: 0,
+      promoBadge: "OFFRE FLASH -15%",
+      promoDescription: ""
     });
     setShowCarModal(true);
   };
@@ -3460,6 +3478,26 @@ function AdminDashboard() {
                       <span className={`admin-card-badge-status ${car.status === "Loué" ? "amber" : car.status === "En maintenance" ? "red" : ""}`}>
                         ● {car.status || "Disponible"}
                       </span>
+                      {car.isPromo && (
+                        <span style={{
+                          position: "absolute",
+                          bottom: "10px",
+                          left: "10px",
+                          background: "linear-gradient(135deg, #ff5b35, #e20713)",
+                          color: "#fff",
+                          fontSize: "0.68rem",
+                          fontWeight: 800,
+                          padding: "0.25rem 0.6rem",
+                          borderRadius: "6px",
+                          zIndex: 2,
+                          boxShadow: "0 2px 6px rgba(226, 7, 19, 0.4)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.3rem"
+                        }}>
+                          <i className="fa-solid fa-fire"></i> {car.promoBadge || "PROMO VIP"} : {Number(car.promoPrice || car.pricePerDay || 0).toLocaleString()} F
+                        </span>
+                      )}
                       {car.photos?.length > 1 && (
                         <span className="admin-card-badge-photos">
                           📷 {car.photos.length} Angles
@@ -6340,6 +6378,62 @@ function AdminDashboard() {
                       }
                     />
                   </div>
+                </div>
+
+                {/* Section Offre Promotionnelle VIP */}
+                <div style={{ marginTop: "1.5rem", padding: "1.4rem", background: "#fff8f5", borderRadius: "10px", border: "1.5px solid #ffe4d6" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: carForm.isPromo ? "1rem" : 0 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.8rem", cursor: "pointer", fontWeight: 700, color: "#101828", fontSize: "1.05rem" }}>
+                      <input
+                        type="checkbox"
+                        checked={Boolean(carForm.isPromo)}
+                        onChange={(e) => setCarForm({ ...carForm, isPromo: e.target.checked })}
+                        style={{ width: "20px", height: "20px", accentColor: "#ff5b35" }}
+                      />
+                      <span><i className="fa-solid fa-fire text-danger" style={{ marginRight: "0.4rem" }}></i> Mettre ce véhicule en PROMOTION VIP sur l'accueil</span>
+                    </label>
+                  </div>
+
+                  {carForm.isPromo && (
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                      <div className="admin-form-group">
+                        <label>Tarif Standard Barré (FCFA/jour)</label>
+                        <input
+                          type="number"
+                          placeholder="Ex: 150000"
+                          value={carForm.regularPrice || ""}
+                          onChange={(e) => setCarForm({ ...carForm, regularPrice: Number(e.target.value) })}
+                        />
+                      </div>
+                      <div className="admin-form-group">
+                        <label>Tarif Promo Mis en Avant (FCFA/jour) *</label>
+                        <input
+                          type="number"
+                          placeholder="Ex: 130000"
+                          value={carForm.promoPrice || ""}
+                          onChange={(e) => setCarForm({ ...carForm, promoPrice: Number(e.target.value) })}
+                        />
+                      </div>
+                      <div className="admin-form-group">
+                        <label>Texte du Badge Promo</label>
+                        <input
+                          type="text"
+                          placeholder="Ex: OFFRE FLASH -15%"
+                          value={carForm.promoBadge || ""}
+                          onChange={(e) => setCarForm({ ...carForm, promoBadge: e.target.value })}
+                        />
+                      </div>
+                      <div className="admin-form-group">
+                        <label>Points Forts Promo (Chauffeur, Clim, etc.)</label>
+                        <input
+                          type="text"
+                          placeholder="Ex: Forfait Chauffeur VIP inclus • Climatisation bi-zone"
+                          value={carForm.promoDescription || ""}
+                          onChange={(e) => setCarForm({ ...carForm, promoDescription: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Section Image & Téléversement */}

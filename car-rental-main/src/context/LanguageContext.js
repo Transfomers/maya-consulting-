@@ -69,6 +69,18 @@ const translations = {
     modal_download_pdf_btn: "Télécharger le Bon de Réservation (PDF)",
     required: "Ce champ est requis.",
 
+    // Promo cars
+    promo_badge: "OFFRES PROMOTIONNELLES DU MOMENT",
+    promo_title: "Nos Véhicules en Promotion — Forfaits VIP 3M SERVICES",
+    promo_desc: "Bénéficiez de tarifs préférentiels exclusifs sur notre flotte VIP avec chauffeur professionnel inclus. Réservez et échangez directement avec nos conseillers.",
+    promo_start_convo: "Démarrer une conversation",
+    promo_convo_whatsapp: "WhatsApp Direct",
+    promo_driver_included: "Chauffeur VIP inclus",
+    promo_save_badge: "Économisez",
+    promo_per_day: "/ jour",
+    promo_standard_price: "Tarif standard",
+    promo_direct_assistance: "Assistance & Réservation 24/7 au +237 691 78 64 47",
+
     // Plan trip
     plan_sub: "Planifiez votre trajet dès maintenant",
     plan_title: "Réservation de véhicule simple & rapide",
@@ -222,6 +234,18 @@ const translations = {
     modal_confirm_email_sub: "Direct delivery to 3M sales desk",
     modal_download_pdf_btn: "Download Reservation Form (PDF)",
     required: "This field is required.",
+
+    // Promo cars
+    promo_badge: "FEATURED PROMOTIONAL DEALS",
+    promo_title: "Special Promo Vehicles — All-Inclusive 3M SERVICES Packages",
+    promo_desc: "Take advantage of our exclusive promotional rates on our VIP fleet with professional driver included. Inquire and chat directly with our team.",
+    promo_start_convo: "Start a conversation",
+    promo_convo_whatsapp: "Direct WhatsApp",
+    promo_driver_included: "VIP Chauffeur included",
+    promo_save_badge: "Save",
+    promo_per_day: "/ day",
+    promo_standard_price: "Standard rate",
+    promo_direct_assistance: "24/7 Assistance & Booking at +237 691 78 64 47",
 
     // Plan trip
     plan_sub: "Plan your trip now",
