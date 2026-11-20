@@ -8,7 +8,7 @@ import CarRav4 from "../images/cars/toyota-rav4-front.webp";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { useTranslation } from "../context/LanguageContext";
 import { API_BASE } from "../config/api";
-import { saveOrderAndCustomerAccount } from "../utils/customerAccounts";
+import { saveOrderAndCustomerAccount, getCurrentClient, setCurrentClient } from "../utils/customerAccounts";
 
 function BookCar() {
   const { lang, t } = useTranslation();
@@ -39,6 +39,9 @@ function BookCar() {
   const [isEditingSummary, setIsEditingSummary] = useState(false);
 
   // Form submission and validation states
+  const [bookingStep, setBookingStep] = useState("form"); // "form" | "confirmed"
+  const [createdProfile, setCreatedProfile] = useState(null);
+  const [createdBooking, setCreatedBooking] = useState(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [successStatus, setSuccessStatus] = useState("");
   const [pdfSuccess, setPdfSuccess] = useState(false);
@@ -131,6 +134,21 @@ function BookCar() {
     ) {
       if (errorMsg) errorMsg.style.display = "flex";
     } else {
+      // Auto-prefill personal details if user already has a 3M client profile
+      const existingClient = getCurrentClient();
+      if (existingClient) {
+        if (existingClient.name && !name) {
+          const parts = existingClient.name.split(" ");
+          setName(parts[0] || "");
+          if (parts.length > 1) setLastName(parts.slice(1).join(" "));
+        }
+        if (existingClient.phone && !phone) setPhone(existingClient.phone);
+        if (existingClient.email && !email) setEmail(existingClient.email);
+        if (existingClient.address && !address) setAddress(existingClient.address);
+        if (existingClient.city && !city) setCity(existingClient.city);
+      }
+
+      setBookingStep("form");
       setHasSubmitted(false);
       setSuccessStatus("");
       setPdfSuccess(false);
@@ -145,6 +163,8 @@ function BookCar() {
   const closeModal = () => {
     setModal(false);
     setIsEditingSummary(false);
+    setBookingStep("form");
+    setHasSubmitted(false);
   };
 
   // Disable page scroll when modal is displayed
@@ -846,6 +866,10 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
       source: "Site Web (WhatsApp)"
     });
 
+    setCreatedProfile(customer);
+    setCreatedBooking(booking);
+    setCurrentClient(customer);
+
     const refId = booking.id;
 
     // 2. Build formatted WhatsApp message
@@ -910,6 +934,10 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
       source: "Site Web (Email)"
     });
 
+    setCreatedProfile(customer);
+    setCreatedBooking(booking);
+    setCurrentClient(customer);
+
     const refId = booking.id;
 
     // Also register message in contacts endpoint
@@ -970,6 +998,77 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
         ? `Votre demande de réservation (${refId}) a été validée et transmise par email à contact@3Mservice.shop ! Compte Client N° ${customer.accountNumber} actif.`
         : `Your reservation request (${refId}) has been validated and sent via email to contact@3Mservice.shop! Client Account N° ${customer.accountNumber} active.`
     );
+  };
+
+  // Handle Continue Booking (creates/syncs customer profile & attaches this vehicle)
+  const handleContinueBooking = (e) => {
+    if (e) e.preventDefault();
+    setHasSubmitted(true);
+    if (!isFormValid()) {
+      return;
+    }
+
+    const fullName = `${name} ${lastName}`.trim();
+    const days = calculateDays();
+
+    // 1. Create or update Customer Profile in CRM with personal info + this car
+    const { customer, booking } = saveOrderAndCustomerAccount({
+      clientName: fullName,
+      phone,
+      email: email || "",
+      address: address || "Yaoundé",
+      city: city || "Yaoundé",
+      itemName: carType,
+      itemCategory: "Véhicule VIP",
+      itemPrice: 120000,
+      days,
+      totalPrice: 120000 * (days || 1),
+      pickTime,
+      dropTime,
+      pickUp,
+      dropOff,
+      notes: `Âge: ${age || "25"} • Newsletter: ${newsletter ? "Oui" : "Non"} • Profil Client 3M synchronisé`,
+      source: "Site Web (Profil & Réservation)"
+    });
+
+    setCreatedProfile(customer);
+    setCreatedBooking(booking);
+    setCurrentClient(customer);
+    setBookingStep("confirmed");
+
+    const modalDiv = document.querySelector(".booking-modal");
+    if (modalDiv) modalDiv.scroll(0, 0);
+  };
+
+  const handleOpenProfilePortal = () => {
+    closeModal();
+    window.dispatchEvent(new CustomEvent("3m-open-client-portal"));
+  };
+
+  const handleSendConfirmedWhatsApp = () => {
+    if (!createdProfile || !createdBooking) return;
+    const formattedPick = formatDateReadable(pickTime);
+    const formattedDrop = formatDateReadable(dropTime);
+    const days = calculateDays();
+    const msg = encodeURIComponent(
+      `*3M SERVICES — CONFIRMATION RÉSERVATION & PROFIL CLIENT*\n\n` +
+      `Bonjour 3M SERVICES,\n\n` +
+      `Je viens d'enregistrer ma réservation avec mon Profil Client 3M :\n\n` +
+      `👤 *Client :* ${createdProfile.name}\n` +
+      `💳 *N° Compte Client 3M :* ${createdProfile.accountNumber}\n` +
+      `📄 *Réf Réservation :* ${createdBooking.id}\n` +
+      `🚗 *Véhicule :* ${createdBooking.carName}\n` +
+      `📅 *Prise en charge :* ${createdBooking.pickUp} le ${formattedPick}\n` +
+      `🏁 *Restitution :* ${createdBooking.dropOff} le ${formattedDrop}\n` +
+      `⏱️ *Durée estimée :* ${days} jour(s)\n` +
+      `💰 *Montant Total :* ${(Number(createdBooking.totalPrice) || 0).toLocaleString("fr-FR")} FCFA\n` +
+      `📞 *Téléphone / WhatsApp :* ${createdProfile.phone}\n` +
+      (createdProfile.email ? `✉️ *Email :* ${createdProfile.email}\n` : "") +
+      (createdProfile.address ? `📍 *Adresse :* ${createdProfile.address}, ${createdProfile.city}\n\n` : `\n`) +
+      `Statut : Profil client créé, en attente de validation conciergerie.\n` +
+      `Merci de me confirmer la disponibilité du véhicule et la remise des clés !`
+    );
+    window.open(`https://wa.me/237691786447?text=${msg}`, "_blank");
   };
 
   return (
@@ -1182,6 +1281,143 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
           </div>
         )}
 
+        {bookingStep === "confirmed" && createdProfile && createdBooking ? (
+          <div className="booking-modal__confirmed-step">
+            {/* Success Banner */}
+            <div className="confirmed-success-banner">
+              <div className="confirmed-success-icon">
+                <i className="fa-solid fa-circle-check"></i>
+              </div>
+              <div>
+                <h3>{t("modal_profile_activated_title") || (isFr ? "Profil Client Activé & Véhicule Enregistré !" : "Client Profile Activated & Vehicle Attached!")}</h3>
+                <p>{t("modal_profile_activated_desc") || (isFr ? "Votre compte client est désormais actif. Votre réservation y est automatiquement rattachée." : "Your client account is now active. Your booking is automatically linked to your profile.")}</p>
+              </div>
+            </div>
+
+            {/* Profile Card Summary */}
+            <div className="confirmed-profile-card">
+              <div className="confirmed-profile-header">
+                <div className="confirmed-profile-avatar">
+                  <i className="fa-solid fa-user-tie"></i>
+                </div>
+                <div className="confirmed-profile-meta">
+                  <span className="profile-badge-tier">{createdProfile.tier || "Client VIP 3M"}</span>
+                  <h4>{createdProfile.name}</h4>
+                  <span className="profile-account-num">
+                    <i className="fa-solid fa-id-badge"></i> {isFr ? "N° Compte :" : "Account N°:"} <strong>{createdProfile.accountNumber}</strong>
+                  </span>
+                </div>
+              </div>
+              <div className="confirmed-profile-details">
+                <div className="detail-row">
+                  <span className="detail-label"><i className="fa-solid fa-phone"></i> {isFr ? "Téléphone :" : "Phone:"}</span>
+                  <span className="detail-val">{createdProfile.phone}</span>
+                </div>
+                {createdProfile.email && (
+                  <div className="detail-row">
+                    <span className="detail-label"><i className="fa-solid fa-envelope"></i> Email :</span>
+                    <span className="detail-val">{createdProfile.email}</span>
+                  </div>
+                )}
+                <div className="detail-row">
+                  <span className="detail-label"><i className="fa-solid fa-location-dot"></i> {isFr ? "Ville / Quartier :" : "City / Area:"}</span>
+                  <span className="detail-val">{createdProfile.address ? `${createdProfile.address}, ` : ""}{createdProfile.city || "Yaoundé"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Vehicle Attached to Profile */}
+            <div className="confirmed-vehicle-card">
+              <div className="confirmed-vehicle-badge">
+                <i className="fa-solid fa-car-side"></i> {isFr ? "Véhicule Rattaché à votre Profil" : "Vehicle Attached to Profile"}
+              </div>
+              <div className="confirmed-vehicle-content">
+                {imgUrl && (
+                  <div className="confirmed-vehicle-img">
+                    <img src={imgUrl} alt={createdBooking.carName} />
+                  </div>
+                )}
+                <div className="confirmed-vehicle-info">
+                  <h5>{createdBooking.carName}</h5>
+                  <div className="confirmed-booking-ref">
+                    <span className="ref-label">{isFr ? "Réf. Réservation :" : "Booking Ref:"}</span>
+                    <span className="ref-code">{createdBooking.id}</span>
+                  </div>
+                  <div className="confirmed-booking-grid">
+                    <div>
+                      <span className="b-label">{isFr ? "Prise en charge :" : "Pick-up:"}</span>
+                      <strong>{createdBooking.pickUp}</strong>
+                      <small>{formatDateReadable(createdBooking.pickTime)}</small>
+                    </div>
+                    <div>
+                      <span className="b-label">{isFr ? "Restitution :" : "Drop-off:"}</span>
+                      <strong>{createdBooking.dropOff}</strong>
+                      <small>{formatDateReadable(createdBooking.dropTime)}</small>
+                    </div>
+                  </div>
+                  <div className="confirmed-pricing-row">
+                    <span>{isFr ? "Durée estimée :" : "Duration:"} <strong>{calculateDays()} {isFr ? "Jour(s)" : "Day(s)"}</strong></span>
+                    <span className="confirmed-total-tag">
+                      {isFr ? "Total estimé :" : "Estimated total:"} <strong>{(Number(createdBooking.totalPrice) || 0).toLocaleString("fr-FR")} FCFA</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions Cluster in Confirmed State */}
+            <div className="confirmed-actions-cluster">
+              {/* 1. Transmit to WhatsApp Concierge */}
+              <button
+                type="button"
+                onClick={handleSendConfirmedWhatsApp}
+                className="btn-confirm-whatsapp btn-large"
+              >
+                <i className="fa-brands fa-whatsapp"></i>
+                <div className="btn-confirm-whatsapp__content">
+                  <strong>{isFr ? "Transmettre à la Conciergerie sur WhatsApp (+237 691 78 64 47)" : "Send to Concierge on WhatsApp (+237 691 78 64 47)"}</strong>
+                  <small>{isFr ? "Activez la préparation immédiate du véhicule et remise des clés" : "Activate vehicle dispatch and key handover"}</small>
+                </div>
+              </button>
+
+              {/* 2. View in Client Portal */}
+              <button
+                type="button"
+                onClick={handleOpenProfilePortal}
+                className="btn-open-client-portal"
+              >
+                <i className="fa-solid fa-user-gear"></i>
+                <div className="btn-open-client-portal__content">
+                  <strong>{t("modal_view_profile_btn") || (isFr ? "Consulter mon Profil & Mes Commandes dans l'Espace Client" : "View my Profile & Orders in Client Portal")}</strong>
+                  <small>{isFr ? "Accédez à votre historique, factures et suivi en direct" : "Access your booking history, vouchers & direct tracking"}</small>
+                </div>
+                <i className="fa-solid fa-arrow-up-right-from-square"></i>
+              </button>
+
+              {/* 3. Secondary Row: Download PDF voucher + Edit */}
+              <div className="confirmed-secondary-actions">
+                <button
+                  type="button"
+                  onClick={() => generateReservationPDF(createdBooking.id)}
+                  className="btn-download-pdf"
+                >
+                  <i className="fa-solid fa-file-pdf"></i>
+                  <span>{isFr ? "Télécharger le Bon de Réservation (PDF)" : "Download Reservation Form (PDF)"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setBookingStep("form")}
+                  className="btn-back-to-edit"
+                >
+                  <i className="fa-solid fa-pen-to-square"></i>
+                  <span>{t("modal_back_to_edit") || (isFr ? "Modifier les informations de la réservation" : "Edit booking details")}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
         {/* ==================================================================
             A. BOOKING SUMMARY (WITH INLINE EDIT TOGGLE)
             ================================================================== */}
@@ -1495,11 +1731,47 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
               </label>
             </div>
 
+            {/* Profile Auto-Sync Notice Box */}
+            <div className="booking-modal__profile-sync-box">
+              <div className="profile-sync-icon">
+                <i className="fa-solid fa-address-card"></i>
+              </div>
+              <div className="profile-sync-info">
+                <h4>
+                  {t("modal_profile_sync_title") ||
+                    (isFr
+                      ? "Création automatique de votre Compte & Profil Client 3M"
+                      : "Automatic 3M Customer Profile Creation")}
+                </h4>
+                <p>
+                  {t("modal_profile_sync_desc") ||
+                    (isFr
+                      ? "Vos coordonnées et les détails de ce véhicule seront enregistrés dans votre profil pour suivre votre réservation."
+                      : "Your details and this vehicle will be saved into your personal profile to track your booking.")}
+                </p>
+              </div>
+            </div>
+
             {/* ==================================================================
-                D. CONFIRMATION & E. PDF ACTIONS
+                D. CONFIRMATION & ACTIONS
                 ================================================================== */}
             <div className="booking-modal__action-cluster">
-              {/* Primary Action: Confirm via WhatsApp */}
+              {/* PRIMARY ACTION: Continuer votre réservation (Creates Profile & Attaches Vehicle) */}
+              <button
+                type="button"
+                onClick={handleContinueBooking}
+                className="btn-continue-booking"
+                title={isFr ? "Enregistrer votre profil et continuer votre réservation" : "Save your profile and continue booking"}
+              >
+                <i className="fa-solid fa-id-card-clip"></i>
+                <div className="btn-continue-booking__content">
+                  <strong>{t("modal_continue_btn") || (isFr ? "Continuer votre réservation" : "Continue your booking")}</strong>
+                  <small>{t("modal_continue_sub") || (isFr ? "Crée votre Profil Client 3M et enregistre ce véhicule" : "Creates your 3M Client Profile and attaches this vehicle")}</small>
+                </div>
+                <i className="fa-solid fa-arrow-right continue-arrow"></i>
+              </button>
+
+              {/* Direct WhatsApp Confirmation */}
               <button
                 type="button"
                 onClick={handleConfirmWhatsApp}
@@ -1540,6 +1812,8 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
             </div>
           </form>
         </div>
+          </>
+        )}
       </div>
     </>
   );

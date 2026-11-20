@@ -67,6 +67,14 @@ const translations = {
     modal_confirm_email_btn: "Envoyer par Email (contact@3mservice.shop)",
     modal_confirm_email_sub: "Transmission directe au service commercial",
     modal_download_pdf_btn: "Télécharger le Bon de Réservation (PDF)",
+    modal_continue_btn: "Continuer votre réservation",
+    modal_continue_sub: "Crée votre Profil Client 3M et enregistre ce véhicule",
+    modal_profile_sync_title: "Création automatique de votre Compte & Profil Client 3M",
+    modal_profile_sync_desc: "Vos coordonnées et les détails de ce véhicule seront enregistrés dans votre profil pour suivre votre réservation.",
+    modal_profile_activated_title: "Profil Client Activé & Véhicule Enregistré !",
+    modal_profile_activated_desc: "Votre compte client est désormais actif. Votre réservation y est automatiquement rattachée.",
+    modal_view_profile_btn: "Consulter mon Profil & Mes Commandes dans l'Espace Client",
+    modal_back_to_edit: "Modifier les informations de la réservation",
     required: "Ce champ est requis.",
 
     // Promo cars
@@ -233,6 +241,14 @@ const translations = {
     modal_confirm_email_btn: "Send via Email (contact@3mservice.shop)",
     modal_confirm_email_sub: "Direct delivery to 3M sales desk",
     modal_download_pdf_btn: "Download Reservation Form (PDF)",
+    modal_continue_btn: "Continue your booking",
+    modal_continue_sub: "Creates your 3M Client Profile and attaches this vehicle",
+    modal_profile_sync_title: "Automatic 3M Customer Profile Creation",
+    modal_profile_sync_desc: "Your details and this vehicle will be saved into your personal profile to track your booking.",
+    modal_profile_activated_title: "Client Profile Activated & Vehicle Attached!",
+    modal_profile_activated_desc: "Your client account is now active. Your booking is automatically linked to your profile.",
+    modal_view_profile_btn: "View my Profile & Orders in Client Portal",
+    modal_back_to_edit: "Edit booking details",
     required: "This field is required.",
 
     // Promo cars

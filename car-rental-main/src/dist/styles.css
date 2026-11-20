@@ -1767,6 +1767,443 @@ body {
   font-size: 1.6rem;
 }
 
+/* Profile Auto-Sync Box */
+.booking-modal__profile-sync-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.4rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 1.4rem 1.6rem;
+  margin: 1rem 0 1.8rem;
+}
+
+.booking-modal__profile-sync-box .profile-sync-icon {
+  width: 40px;
+  height: 40px;
+  background-color: #10b981;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+}
+
+.booking-modal__profile-sync-box .profile-sync-info h4 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #065f46;
+  margin-bottom: 0.3rem;
+  line-height: 1.3;
+}
+
+.booking-modal__profile-sync-box .profile-sync-info p {
+  font-size: 1.25rem;
+  color: #047857;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Primary Button: Continuer votre réservation */
+.btn-continue-booking {
+  background: linear-gradient(135deg, #D62828 0%, #B91C1C 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 1.4rem 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(214, 40, 40, 0.35);
+  width: 100%;
+}
+
+.btn-continue-booking:hover {
+  background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(214, 40, 40, 0.45);
+}
+
+.btn-continue-booking i {
+  font-size: 2.2rem;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.btn-continue-booking .continue-arrow {
+  margin-left: auto;
+  font-size: 1.6rem;
+  opacity: 0.85;
+  transition: transform 0.2s ease;
+}
+
+.btn-continue-booking:hover .continue-arrow {
+  transform: translateX(4px);
+  opacity: 1;
+}
+
+.btn-continue-booking__content {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.btn-continue-booking__content strong {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.btn-continue-booking__content small {
+  font-size: 1.2rem;
+  opacity: 0.95;
+  font-weight: 500;
+  color: #fee2e2;
+}
+
+/* Confirmed Step Styles */
+.booking-modal__confirmed-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+  animation: fadeInModalStep 0.3s ease-out;
+}
+
+@keyframes fadeInModalStep {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.confirmed-success-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 1.5px solid #6ee7b7;
+  border-radius: 10px;
+  padding: 1.4rem 1.8rem;
+}
+
+.confirmed-success-icon i {
+  font-size: 3rem;
+  color: #059669;
+}
+
+.confirmed-success-banner h3 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #065f46;
+  margin-bottom: 0.3rem;
+}
+
+.confirmed-success-banner p {
+  font-size: 1.25rem;
+  color: #047857;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Profile Card */
+.confirmed-profile-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.6rem;
+}
+
+.confirmed-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.confirmed-profile-avatar {
+  width: 48px;
+  height: 48px;
+  background-color: #0f172a;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+}
+
+.confirmed-profile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.profile-badge-tier {
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #D62828;
+  letter-spacing: 0.05em;
+}
+
+.confirmed-profile-meta h4 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.profile-account-num {
+  font-size: 1.25rem;
+  color: #475569;
+}
+
+.profile-account-num strong {
+  color: #D62828;
+  font-weight: 800;
+}
+
+.confirmed-profile-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.detail-label {
+  font-size: 1.15rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.detail-label i {
+  color: #D62828;
+  margin-right: 4px;
+}
+
+.detail-val {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Vehicle Attached Card */
+.confirmed-vehicle-card {
+  background: #ffffff;
+  border: 1.5px solid #fed7aa;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.confirmed-vehicle-badge {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  padding: 0.8rem 1.6rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #c2410c;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid #fed7aa;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.confirmed-vehicle-content {
+  display: flex;
+  gap: 1.8rem;
+  padding: 1.6rem;
+  align-items: center;
+}
+
+.confirmed-vehicle-img {
+  width: 140px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirmed-vehicle-img img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.confirmed-vehicle-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.confirmed-vehicle-info h5 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.confirmed-booking-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.confirmed-booking-ref .ref-label {
+  font-size: 1.2rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.confirmed-booking-ref .ref-code {
+  background: #fee2e2;
+  color: #D62828;
+  font-weight: 800;
+  font-size: 1.25rem;
+  padding: 0.2rem 0.8rem;
+  border-radius: 4px;
+}
+
+.confirmed-booking-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.confirmed-booking-grid .b-label {
+  font-size: 1.15rem;
+  color: #64748b;
+  display: block;
+}
+
+.confirmed-booking-grid strong {
+  font-size: 1.3rem;
+  color: #0f172a;
+  display: block;
+}
+
+.confirmed-booking-grid small {
+  font-size: 1.15rem;
+  color: #475569;
+}
+
+.confirmed-pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.6rem;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 1.3rem;
+  color: #475569;
+}
+
+.confirmed-total-tag strong {
+  color: #D62828;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* Actions in Confirmed State */
+.confirmed-actions-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.btn-confirm-whatsapp.btn-large {
+  padding: 1.4rem 2rem;
+}
+
+.btn-open-client-portal {
+  background: #0f172a;
+  color: #ffffff;
+  border: 1.5px solid #1e293b;
+  border-radius: 8px;
+  padding: 1.3rem 2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-open-client-portal:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+}
+
+.btn-open-client-portal i {
+  font-size: 2.2rem;
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+.btn-open-client-portal__content {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.btn-open-client-portal__content strong {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.btn-open-client-portal__content small {
+  font-size: 1.2rem;
+  color: #94a3b8;
+}
+
+.confirmed-secondary-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.confirmed-secondary-actions .btn-download-pdf {
+  flex: 1;
+}
+
+.btn-back-to-edit {
+  flex: 1;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  color: #475569;
+  border-radius: 8px;
+  padding: 0.9rem 1.6rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.btn-back-to-edit:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
 /* CarBox Book Now Button */
 .pick-description__cta {
   margin-top: 1.8rem;
