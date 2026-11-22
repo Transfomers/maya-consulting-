@@ -1325,6 +1325,92 @@
   ],
   "chats": [
     {
+      "id": "GUEST-626878",
+      "clientId": "GUEST-626878",
+      "clientName": "Client VIP 3M",
+      "clientPhone": "",
+      "clientEmail": "",
+      "unreadAdmin": 0,
+      "unreadClient": 0,
+      "createdAt": "2026-11-22T12:08:32.765Z",
+      "lastMessageAt": "2026-11-22T12:08:32.765Z",
+      "lastMessage": "Bienvenue sur le Chat Privé 3M SERVICES !",
+      "messages": [
+        {
+          "id": "msg-welcome-1795349312765",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M",
+          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
+          "timestamp": "2026-11-22T12:08:32.765Z"
+        }
+      ]
+    },
+    {
+      "id": "GUEST-431524",
+      "clientId": "GUEST-431524",
+      "clientName": "Client Invité VIP",
+      "clientPhone": "",
+      "clientEmail": "",
+      "unreadAdmin": 0,
+      "unreadClient": 0,
+      "createdAt": "2026-11-22T12:08:32.668Z",
+      "lastMessageAt": "2026-11-22T15:42:53.243240Z",
+      "lastMessage": "Souhaitez-vous une prise en charge à l'Aéroport de Nsimalen ou en agence Omnisports ?",
+      "messages": [
+        {
+          "id": "msg-welcome-1795349312668",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M",
+          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
+          "timestamp": "2026-11-22T12:08:32.668Z"
+        },
+        {
+          "id": "msg-1795349472329-855",
+          "sender": "client",
+          "senderName": "Client Invité VIP",
+          "text": "Bonjour 3M SERVICES, je souhaite réserver ou me renseigner sur le véhicule VIP en promotion : Toyota Land Cruiser Prado TXL Blanc. Est-il disponible ?",
+          "carInfo": {
+            "id": "prado",
+            "name": "Toyota Land Cruiser Prado TXL Blanc",
+            "price": 100000,
+            "image": "/images/cars/flyer-prado.webp"
+          },
+          "timestamp": "2026-11-22T12:11:12.329Z"
+        },
+        {
+          "id": "msg-1795349476019-60",
+          "sender": "client",
+          "senderName": "Client Invité VIP",
+          "text": "Bonjour, quel est le tarif et la disponibilité pour une mission de 3 jours à Yaoundé ?",
+          "carInfo": null,
+          "timestamp": "2026-11-22T12:11:16.019Z"
+        },
+        {
+          "id": "msg-1795349498846-637",
+          "sender": "client",
+          "senderName": "Client Invité VIP",
+          "text": "Je souhaite réserver un Toyota Land Cruiser Prado pour un cortège VIP.",
+          "carInfo": null,
+          "timestamp": "2026-11-22T12:11:38.846Z"
+        },
+        {
+          "id": "msg-1795352814770-829",
+          "sender": "client",
+          "senderName": "Client Invité VIP",
+          "text": "test",
+          "carInfo": null,
+          "timestamp": "2026-11-22T13:06:54.770Z"
+        },
+        {
+          "id": "msg-admin-1795358573243",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "Souhaitez-vous une prise en charge à l'Aéroport de Nsimalen ou en agence Omnisports ?",
+          "timestamp": "2026-11-22T15:42:53.243240Z"
+        }
+      ]
+    },
+    {
       "id": "3M-CLI-1001",
       "clientId": "3M-CLI-1001",
       "clientName": "Arnaud Mbarga",

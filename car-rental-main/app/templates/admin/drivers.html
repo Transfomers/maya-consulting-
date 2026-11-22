@@ -1,73 +1,208 @@
 {% extends "base.html" %}
 
-{% block title %}Gestion des Chauffeurs - 3M SERVICES{% endblock %}
+{% block title %}Chauffeurs d'Élite VIP — 3M SERVICES{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    {% include 'admin/_subnav.html' %}
+<div class="container-fluid px-0">
+    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">
+                Chauffeurs d'Élite VIP 3M SERVICES
+            </h2>
+            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">
+                Supervision en temps réel des chauffeurs professionnels, permis, notes de satisfaction clients et assignations véhicules.
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.export_drivers_pdf') }}" class="btn btn-sm btn-export-pdf">
+                <i class="bi bi-file-pdf me-1"></i> PDF
+            </a>
+            <a href="{{ url_for('admin.export_drivers_csv') }}" class="btn btn-sm btn-export-csv">
+                <i class="bi bi-file-csv me-1"></i> CSV
+            </a>
+            <a href="{{ url_for('admin.add_driver') }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> Ajouter un Chauffeur
+            </a>
+        </div>
+    </div>
 
-    <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <div>
-                <h3 class="mb-1 fw-bold"><i class="bi bi-person-vcard text-primary me-2"></i> Chauffeurs</h3>
-                <p class="text-muted mb-0">Visualisez et gérez les chauffeurs de la flotte.</p>
+    <!-- 3M Services Drivers KPI Summary Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Total Chauffeurs</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #eff8ff; color: #175cd3;">
+                        <i class="bi bi-person-badge-fill fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem;">{{ drivers|length }}</h3>
+                    <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">Chauffeurs VIP</span>
+                </div>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{{ url_for('admin.export_drivers_pdf') }}" class="btn btn-outline-danger px-3 py-2 rounded-pill"><i class="bi bi-file-pdf me-1"></i> PDF</a>
-                <a href="{{ url_for('admin.export_drivers_csv') }}" class="btn btn-outline-success px-3 py-2 rounded-pill"><i class="bi bi-file-csv me-1"></i> CSV</a>
-                <a href="{{ url_for('admin.add_driver') }}" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
-                    <i class="bi bi-plus-circle me-2"></i> Ajouter un Chauffeur
-                </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Disponibles</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #ecfdf3; color: #039855;">
+                        <i class="bi bi-check-circle-fill fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-success" style="font-size: 1.45rem;">
+                        {{ drivers|selectattr('status', 'equalto', 'available')|list|length }}
+                    </h3>
+                    <span class="badge bg-success-soft text-success" style="font-size: 0.7rem;">En attente mission</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En Mission / Trajet</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fff8f5; color: #ff5b35;">
+                        <i class="bi bi-car-front-fill fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem;">
+                        {{ drivers|selectattr('status', 'equalto', 'on_trip')|list|length }}
+                    </h3>
+                    <span class="badge bg-warning-soft text-warning" style="font-size: 0.7rem;">Actuellement en vol</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Note Moyenne VIP</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fef0c7; color: #dc6803;">
+                        <i class="bi bi-star-fill fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem;">
+                        {% set total_r = namespace(val=0, count=0) %}
+                        {% for d in drivers %}
+                            {% set total_r.val = total_r.val + (d.rating or 4.9) %}
+                            {% set total_r.count = total_r.count + 1 %}
+                        {% endfor %}
+                        {{ (total_r.val / total_r.count)|round(1) if total_r.count > 0 else '4.9' }}
+                    </h3>
+                    <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">⭐ Élite 3M</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main SaaS Drivers Table Card -->
+    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; background: #ffffff; border: 1px solid #eaecf0 !important;">
+        <!-- Filters Toolbar -->
+        <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: #ffffff; border-color: #eaecf0 !important;">
+            <div class="d-flex align-items-center gap-2 flex-grow-1 flex-wrap" style="max-width: 600px;">
+                <div class="input-group input-group-sm" style="width: 260px;">
+                    <span class="input-group-text bg-white border-end-0 text-muted" style="border-color: #d0d5dd;">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" id="driversSearchInput" class="form-control border-start-0 ps-0" placeholder="Rechercher chauffeur, permis..." style="border-color: #d0d5dd;">
+                </div>
+
+                <select id="driversFilterStatus" class="form-select form-select-sm" style="width: auto;">
+                    <option value="">Statut (Tous)</option>
+                    <option value="available">Disponible</option>
+                    <option value="on_trip">En Mission / Trajet</option>
+                    <option value="off_duty">Repos</option>
+                </select>
+
+                <button class="btn btn-sm btn-outline-secondary" onclick="resetDriversFilters()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+                </button>
             </div>
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <table class="table table-hover align-middle mb-0" style="min-width: 850px;">
                 <thead>
                     <tr>
-                        <th>Nom</th>
-                        <th>Téléphone</th>
-                        <th>N° Permis</th>
-                        <th>Expiration Permis</th>
-                        <th>Statut</th>
-                        <th class="text-end">Actions</th>
+                        <th style="width: 50px;">ID</th>
+                        <th style="min-width: 170px;">Chauffeur VIP</th>
+                        <th style="min-width: 130px;">Téléphone</th>
+                        <th style="min-width: 130px;">N° Permis</th>
+                        <th style="min-width: 120px;">Validité Permis</th>
+                        <th style="min-width: 130px;">Note Client VIP</th>
+                        <th style="min-width: 110px;">Statut</th>
+                        <th style="min-width: 100px;" class="text-end">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="driversTableBody">
                     {% for driver in drivers %}
-                    <tr>
-                        <td class="fw-bold">{{ driver.name }}</td>
-                        <td>{{ driver.phone or 'N/A' }}</td>
-                        <td><span class="badge bg-light text-dark border">{{ driver.license_number }}</span></td>
+                    <tr class="driver-row" data-status="{{ driver.status }}" data-id="{{ driver.id }}">
+                        <td class="fw-bold text-dark">#{{ driver.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" 
+                                     style="width: 32px; height: 32px; background: linear-gradient(135deg, #101828 0%, #344054 100%); font-size: 0.8rem; flex-shrink: 0;">
+                                    {{ driver.name[:1] }}
+                                </div>
+                                <div>
+                                    <span class="fw-semibold text-dark d-block" style="font-size: 0.85rem;">{{ driver.name }}</span>
+                                    <span class="small text-muted">Chauffeur Professionnel</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-dark fw-medium">{{ driver.phone or 'N/A' }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border fw-bold" style="letter-spacing: 0.5px; font-size: 0.72rem;">{{ driver.license_number }}</span>
+                        </td>
                         <td>
                             {% if driver.license_expiration %}
-                                {{ driver.license_expiration.strftime('%d/%m/%Y') }}
+                            <span class="small text-muted">{{ driver.license_expiration.strftime('%d/%m/%Y') }}</span>
                             {% else %}
-                                <span class="text-muted">Inconnu</span>
+                            <span class="text-muted small">À jour</span>
                             {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <div class="stars text-warning" style="font-size: 0.78rem;">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                </div>
+                                <span class="fw-bold text-dark small ms-1">{{ driver.rating or 4.9 }}</span>
+                                <span class="text-muted small">/5</span>
+                            </div>
                         </td>
                         <td>
                             {% if driver.status == 'available' %}
-                                <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill">Disponible</span>
+                            <span class="badge bg-success-soft text-success"><i class="bi bi-check-circle-fill me-1"></i> Disponible</span>
                             {% elif driver.status == 'on_trip' %}
-                                <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill">En Trajet</span>
+                            <span class="badge bg-primary-soft text-primary"><i class="bi bi-car-front-fill me-1"></i> En Trajet</span>
                             {% else %}
-                                <span class="badge bg-secondary-soft text-secondary px-3 py-2 rounded-pill">Repos</span>
+                            <span class="badge bg-secondary-soft text-secondary"><i class="bi bi-moon-fill me-1"></i> Repos</span>
                             {% endif %}
                         </td>
-                        <td class="text-end">
-                            <a href="{{ url_for('admin.edit_driver', id=driver.id) }}" class="btn btn-sm btn-outline-primary rounded-circle" title="Modifier">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <a href="{{ url_for('admin.delete_driver', id=driver.id) }}" class="btn btn-sm btn-outline-danger rounded-circle ms-1" onclick="return confirm('Supprimer ce chauffeur ?');" title="Supprimer">
-                                <i class="bi bi-trash"></i>
-                            </a>
+                        <td class="text-end text-nowrap">
+                            <div class="d-inline-flex align-items-center gap-1.5">
+                                <a href="{{ url_for('admin.edit_driver', id=driver.id) }}" class="action-icon-link action-edit" title="Modifier le chauffeur">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ url_for('admin.delete_driver', id=driver.id) }}" class="action-icon-link action-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce chauffeur ?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="6" class="text-center py-4 text-muted">
-                            Aucun chauffeur enregistré pour cette agence.
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-badge-fill fs-1 d-block mb-3 text-secondary"></i>
+                            Aucun chauffeur VIP enregistré pour le moment.
                         </td>
                     </tr>
                     {% endfor %}
@@ -76,4 +211,39 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('driversSearchInput');
+    const filterStatus = document.getElementById('driversFilterStatus');
+    const tableBody = document.getElementById('driversTableBody');
+
+    if (!tableBody) return;
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = filterStatus.value.toLowerCase();
+        const rows = tableBody.querySelectorAll('tr.driver-row');
+
+        rows.forEach(row => {
+            const targetStatus = row.getAttribute('data-status');
+            const rowText = row.innerText.toLowerCase();
+
+            const matchesSearch = rowText.includes(searchTerm);
+            const matchesStatus = (statusValue === "" || targetStatus === statusValue);
+
+            row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+        });
+    }
+
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    if (filterStatus) filterStatus.addEventListener('change', applyFilters);
+
+    window.resetDriversFilters = function () {
+        if (searchInput) searchInput.value = '';
+        if (filterStatus) filterStatus.value = '';
+        applyFilters();
+    };
+});
+</script>
 {% endblock %}

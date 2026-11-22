@@ -184,6 +184,7 @@ class Driver(db.Model):
     license_number = db.Column(db.String(100), unique=True, nullable=False)
     license_expiration = db.Column(db.Date, nullable=True)
     status = db.Column(db.String(20), default='available') # available, on_trip, off_duty
+    rating = db.Column(db.Float, default=4.9)
     
     agency_id = db.Column(db.Integer, db.ForeignKey('agency.id'), nullable=False)
     current_bus_id = db.Column(db.Integer, db.ForeignKey('bus.id'), nullable=True)
@@ -217,6 +218,7 @@ class Bus(db.Model):
     promo_price = db.Column(db.Integer, nullable=True)
     promo_badge = db.Column(db.String(50), nullable=True)
     regular_price = db.Column(db.Integer, nullable=True)
+    promo_description = db.Column(db.String(255), nullable=True)
     
     # Belongs to an agency
     agency_id = db.Column(db.Integer, db.ForeignKey('agency.id'), nullable=False)

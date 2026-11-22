@@ -36,6 +36,16 @@
                             <div class="invalid-feedback">Veuillez assigner un véhicule VIP.</div>
                         </div>
 
+                        <div class="col-md-12">
+                            <label for="driver_id" class="form-label">Chauffeur VIP <small class="text-muted">(optionnel)</small></label>
+                            <select class="form-select" id="driver_id" name="driver_id">
+                                <option value="">Aucun chauffeur assigné (Sans chauffeur)</option>
+                                {% for driver in drivers if drivers is defined %}
+                                    <option value="{{ driver.id }}" {% if trip.driver_id == driver.id %}selected{% endif %}>{{ driver.name }} ({{ driver.phone or 'VIP' }}) - Permis: {{ driver.license_number }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
                         <div class="col-md-6">
                             <label for="departure_time" class="form-label">Début de Location (Prise en charge)</label>
                             <input type="datetime-local" class="form-control" id="departure_time" name="departure_time" value="{{ trip.departure_time.strftime('%Y-%m-%dT%H:%M') }}" required>

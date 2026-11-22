@@ -16,25 +16,29 @@ function PromoCars() {
   const [inquiryDates, setInquiryDates] = useState("");
   const [inquirySent, setInquirySent] = useState(false);
 
-  // Fetch live promo cars from backend if available
-  useEffect(() => {
-    let isMounted = true;
+  const fetchPromoCars = () => {
     fetch(`${API_BASE}/promo-cars`)
       .then((res) => {
         if (!res.ok) throw new Error("Network response was not ok");
         return res.json();
       })
       .then((data) => {
-        if (isMounted && Array.isArray(data) && data.length > 0) {
-          setPromoCars(data.slice(0, 3));
+        if (Array.isArray(data)) {
+          setPromoCars(data);
         }
       })
       .catch((err) => {
         console.warn("Using fallback promo cars catalogue:", err);
       });
+  };
 
+  useEffect(() => {
+    fetchPromoCars();
+    const interval = setInterval(fetchPromoCars, 5000);
+    window.addEventListener("focus", fetchPromoCars);
     return () => {
-      isMounted = false;
+      clearInterval(interval);
+      window.removeEventListener("focus", fetchPromoCars);
     };
   }, []);
 

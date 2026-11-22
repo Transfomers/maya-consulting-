@@ -1938,12 +1938,16 @@ def add_driver():
             flash('Format de numéro de téléphone invalide.', 'danger')
             return redirect(url_for('admin.add_driver'))
                 
+        driver_id = request.form.get('driver_id')
+        driver_id = int(driver_id) if driver_id else None
+        
         driver = Driver(
             name=name,
             phone=phone,
             license_number=license_number,
             license_expiration=license_expiration,
-            agency_id=agency_id
+            agency_id=agency_id,
+            rating=request.form.get('rating', type=float) or 4.9
         )
         db.session.add(driver)
         db.session.commit()
@@ -1968,6 +1972,9 @@ def edit_driver(id):
         driver.phone = request.form.get('phone')
         driver.license_number = request.form.get('license_number')
         driver.status = request.form.get('status', 'available')
+        rating_input = request.form.get('rating', type=float)
+        if rating_input is not None:
+            driver.rating = rating_input
         license_expiration_str = request.form.get('license_expiration')
         
         if current_user.role == 'super_admin':
@@ -2043,7 +2050,11 @@ def add_bus():
                 driver_name=driver_name,
                 last_maintenance_date=last_maintenance_date,
                 maintenance_notes=maintenance_notes,
-                agency_id=int(agency_id)
+                agency_id=int(agency_id),
+                is_promo=('is_promo' in request.form),
+                promo_price=request.form.get('promo_price', type=int),
+                regular_price=request.form.get('regular_price', type=int),
+                promo_badge=request.form.get('promo_badge', '').strip()
             )
             db.session.add(bus)
             db.session.flush() # Populate bus ID to link the driver
@@ -2098,6 +2109,18 @@ def edit_bus(id):
         if current_user.role == 'super_admin':
             bus.agency_id = int(request.form.get('agency_id'))
             
+        # Promo fields
+        bus.is_promo = ('is_promo' in request.form) or (request.form.get('is_promo') in ['1', 'true', 'on'])
+        promo_price_val = request.form.get('promo_price', type=int)
+        if promo_price_val:
+            bus.promo_price = promo_price_val
+        regular_price_val = request.form.get('regular_price', type=int)
+        if regular_price_val:
+            bus.regular_price = regular_price_val
+        promo_badge_val = request.form.get('promo_badge', '').strip()
+        if promo_badge_val:
+            bus.promo_badge = promo_badge_val
+
         # Sync Driver's current_bus_id
         if old_driver_name != bus.driver_name:
             if old_driver_name:
@@ -2110,6 +2133,32 @@ def edit_bus(id):
                     new_driver.current_bus_id = bus.id
 
         db.session.commit()
+
+        # Synchronize with Express backend server/data/db.json
+        try:
+            import json as _json
+            db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+            if os.path.exists(db_path):
+                with open(db_path, 'r', encoding='utf-8') as f:
+                    exp_db = _json.load(f)
+                cars = exp_db.get('cars', [])
+                target_model = (bus.model or '').lower().strip()
+                for car in cars:
+                    c_name = (car.get('name') or '').lower()
+                    c_model = (car.get('model') or '').lower()
+                    if (target_model and (target_model in c_name or c_name in target_model or target_model in c_model)) or (car.get('plate') and car.get('plate') == bus.bus_number):
+                        car['isPromo'] = bus.is_promo
+                        if bus.promo_price:
+                            car['promoPrice'] = bus.promo_price
+                            car['pricePerDay'] = bus.promo_price
+                        if bus.regular_price:
+                            car['regularPrice'] = bus.regular_price
+                        if bus.promo_badge:
+                            car['promoBadge'] = bus.promo_badge
+                with open(db_path, 'w', encoding='utf-8') as f:
+                    _json.dump(exp_db, f, indent=2, ensure_ascii=False)
+        except Exception as _e:
+            current_app.logger.warning(f"Error syncing promo car to db.json: {_e}")
         log_audit("BUS_EDITED", "Bus", bus.id, f"Modified bus specs: {bus.bus_number}")
         flash('Bus modifié avec succès !', 'success')
         return redirect(url_for('admin.buses'))
@@ -2414,6 +2463,8 @@ def edit_trip(id):
         trip.arrival_time = datetime.strptime(request.form.get('arrival_time'), '%Y-%m-%dT%H:%M')
         trip.price = float(request.form.get('price'))
         trip.status = request.form.get('status')
+        driver_id_val = request.form.get('driver_id', type=int)
+        trip.driver_id = driver_id_val if driver_id_val else None
         
         db.session.commit()
         log_audit("TRIP_EDITED", "Trip", trip.id, f"Modified trip schedule: #{trip.id}")
@@ -5369,6 +5420,7 @@ def toggle_bus_promo(id):
     promo_price = request.form.get('promo_price', type=int)
     regular_price = request.form.get('regular_price', type=int)
     promo_badge = request.form.get('promo_badge', '').strip()
+    promo_description = request.form.get('promo_description', '').strip()
     
     if action == 'remove' or request.args.get('remove') == 'true':
         bus.is_promo = False
@@ -5380,6 +5432,8 @@ def toggle_bus_promo(id):
             bus.regular_price = regular_price
         if promo_badge:
             bus.promo_badge = promo_badge
+        if promo_description:
+            bus.promo_description = promo_description
 
     db.session.commit()
     
@@ -5393,16 +5447,57 @@ def toggle_bus_promo(id):
             cars = exp_db.get('cars', [])
             
             target_model = (bus.model or '').lower().strip()
+            found = False
             for car in cars:
                 c_name = (car.get('name') or '').lower()
                 c_model = (car.get('model') or '').lower()
                 if (target_model and (target_model in c_name or c_name in target_model or target_model in c_model)) or (car.get('plate') and car.get('plate') == bus.bus_number):
                     car['isPromo'] = bus.is_promo
                     if bus.is_promo:
-                        if bus.promo_price: car['promoPrice'] = bus.promo_price
-                        if bus.regular_price: car['regularPrice'] = bus.regular_price
-                        if bus.promo_badge: car['promoBadge'] = bus.promo_badge
+                        if bus.promo_price:
+                            car['promoPrice'] = bus.promo_price
+                            car['pricePerDay'] = bus.promo_price
+                        if bus.regular_price:
+                            car['regularPrice'] = bus.regular_price
+                        if bus.promo_badge:
+                            car['promoBadge'] = bus.promo_badge
+                        if bus.promo_description:
+                            car['promoDescription'] = bus.promo_description
+                    found = True
                     break
+            
+            # If not already in db.json cars array, add it so it appears on client site!
+            if not found and bus.is_promo:
+                new_car = {
+                    "id": f"bus-{bus.id}",
+                    "name": f"{bus.brand or 'Toyota'} {bus.model}",
+                    "model": bus.model,
+                    "mark": bus.brand or "Toyota",
+                    "brand": bus.brand or "Toyota",
+                    "category": "4x4 & SUV VIP",
+                    "year": "2023",
+                    "condition": "Prestige VIP",
+                    "mileage": "Certifié Faible Km",
+                    "price": f"{bus.promo_price or 100000:,} FCFA / jour".replace(',', ' '),
+                    "pricePerDay": bus.promo_price or 100000,
+                    "doors": "5",
+                    "seats": f"{bus.capacity} places cuir VIP",
+                    "transmission": "Automatique 4x4",
+                    "fuel": "Diesel",
+                    "air": "Oui (Intégrale bi-zone)",
+                    "status": "Disponible",
+                    "plate": bus.bus_number,
+                    "img": "/images/cars/toyota-landcruiser-v8-black.webp",
+                    "image": "/images/cars/toyota-landcruiser-v8-black.webp",
+                    "description": bus.promo_description or f"{bus.brand} {bus.model} avec chauffeur dédié inclus.",
+                    "isPromo": True,
+                    "regularPrice": bus.regular_price or int((bus.promo_price or 100000) * 1.18),
+                    "promoPrice": bus.promo_price or 100000,
+                    "promoBadge": bus.promo_badge or "OFFRE SPÉCIALE VIP",
+                    "promoDescription": bus.promo_description or f"{bus.model} • {bus.capacity} places cuir VIP • Chauffeur dédié inclus"
+                }
+                cars.append(new_car)
+
             with open(db_path, 'w', encoding='utf-8') as f:
                 _json.dump(exp_db, f, indent=2, ensure_ascii=False)
     except Exception as e:
