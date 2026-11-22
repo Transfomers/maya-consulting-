@@ -57,6 +57,18 @@ function PromoCars() {
     return encodeURIComponent(message);
   };
 
+  const handleOpenPrivateChat = (car) => {
+    window.dispatchEvent(
+      new CustomEvent("3m-open-chat", {
+        detail: {
+          car,
+          name: inquiryName,
+          phone: inquiryPhone
+        }
+      })
+    );
+  };
+
   const handleStartConversation = (car) => {
     // 1. Prepare message and open WhatsApp direct conciergerie
     const msg = buildWhatsAppMessage(car);
@@ -181,17 +193,29 @@ function PromoCars() {
                     )}
                   </div>
 
-                  {/* Call to Action Button: Start a Conversation */}
-                  <button
-                    type="button"
-                    onClick={() => handleStartConversation(car)}
-                    className="promo-card__btn-convo"
-                    title="Démarrer une conversation WhatsApp avec un conseiller 3M SERVICES"
-                  >
-                    <i className="fa-brands fa-whatsapp"></i>
-                    <span>{t("promo_start_convo") || "Démarrer une conversation"}</span>
-                    <i className="fa-solid fa-arrow-right arrow-icon"></i>
-                  </button>
+                  {/* Uniform Call to Action Buttons: Private Chat 3M & WhatsApp Direct */}
+                  <div className="promo-card__actions-group">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenPrivateChat(car)}
+                      className="promo-card__btn-private-chat"
+                      title="Échanger directement dans le Chat Privé 3M SERVICES"
+                    >
+                      <i className="fa-solid fa-comments"></i>
+                      <span>Chat Privé 3M</span>
+                      <i className="fa-solid fa-arrow-right arrow-icon"></i>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleStartConversation(car)}
+                      className="promo-card__btn-convo"
+                      title="Démarrer une conversation WhatsApp avec un conseiller 3M SERVICES"
+                    >
+                      <i className="fa-brands fa-whatsapp"></i>
+                      <span>WhatsApp Direct</span>
+                      <i className="fa-solid fa-arrow-right arrow-icon"></i>
+                    </button>
+                  </div>
 
                   {/* Micro subtext info */}
                   <div className="promo-card__micro-info">
@@ -310,6 +334,17 @@ function PromoCars() {
                 </div>
 
                 <div className="promo-modal-actions">
+                  <button
+                    type="button"
+                    className="promo-modal-btn-chat"
+                    onClick={() => {
+                      handleOpenPrivateChat(activeModalCar);
+                      setActiveModalCar(null);
+                    }}
+                    title="Ouvrir la discussion dans l'environnement 3M"
+                  >
+                    <i className="fa-solid fa-comments"></i> Ouvrir le Chat Privé 3M (En direct)
+                  </button>
                   <button type="submit" className="promo-modal-btn-wa">
                     <i className="fa-brands fa-whatsapp"></i> Démarrer la conversation WhatsApp
                   </button>

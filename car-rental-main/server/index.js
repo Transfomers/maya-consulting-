@@ -531,11 +531,9 @@ app.get("/api/cars", (req, res) => {
 app.get("/api/promo-cars", (req, res) => {
   const db = readDb();
   const allCars = db.cars || [];
-  let promoCars = allCars.filter((c) => c.isPromo === true);
-  if (promoCars.length === 0) {
-    promoCars = allCars.slice(0, 3);
-  }
-  res.json(promoCars.slice(0, 3));
+  // Return cars marked as isPromo === true by admin
+  const promoCars = allCars.filter((c) => c.isPromo === true);
+  res.json(promoCars);
 });
 
 app.get("/api/cars/:id", (req, res) => {
@@ -625,24 +623,39 @@ app.patch("/api/cars/:id/status", authenticateToken, (req, res) => {
   res.json(car);
 });
 
-app.patch("/api/cars/:id/promo", authenticateToken, (req, res) => {
+const handleCarPromoToggle = (req, res) => {
   const { isPromo, promoPrice, regularPrice, promoBadge, promoDescription } = req.body;
   const db = readDb();
-  const index = (db.cars || []).findIndex((c) => c.id === req.params.id);
+  const searchKey = (req.params.id || "").toLowerCase().trim();
+  const index = (db.cars || []).findIndex((c) => {
+    if (!c) return false;
+    if (c.id && c.id.toLowerCase() === searchKey) return true;
+    if (c.name && c.name.toLowerCase().includes(searchKey)) return true;
+    if (searchKey && c.name && searchKey.includes(c.name.toLowerCase())) return true;
+    return false;
+  });
+
   if (index === -1) {
     return res.status(404).json({ error: "Véhicule introuvable." });
   }
+
+  const existing = db.cars[index];
+  const updatedPromoStatus = isPromo !== undefined ? Boolean(isPromo) : !existing.isPromo;
+
   db.cars[index] = {
-    ...db.cars[index],
-    isPromo: isPromo !== undefined ? Boolean(isPromo) : db.cars[index].isPromo,
-    promoPrice: promoPrice !== undefined ? Number(promoPrice) : db.cars[index].promoPrice,
-    regularPrice: regularPrice !== undefined ? Number(regularPrice) : db.cars[index].regularPrice,
-    promoBadge: promoBadge !== undefined ? promoBadge : db.cars[index].promoBadge,
-    promoDescription: promoDescription !== undefined ? promoDescription : db.cars[index].promoDescription
+    ...existing,
+    isPromo: updatedPromoStatus,
+    promoPrice: promoPrice !== undefined ? Number(promoPrice) : (existing.promoPrice || existing.pricePerDay || 80000),
+    regularPrice: regularPrice !== undefined ? Number(regularPrice) : (existing.regularPrice || Math.round((existing.promoPrice || existing.pricePerDay || 80000) * 1.2)),
+    promoBadge: promoBadge !== undefined ? promoBadge : (existing.promoBadge || "OFFRE PROMO VIP"),
+    promoDescription: promoDescription !== undefined ? promoDescription : existing.promoDescription
   };
   writeDb(db);
-  res.json(db.cars[index]);
-});
+  res.json({ success: true, car: db.cars[index] });
+};
+
+app.patch("/api/cars/:id/promo", handleCarPromoToggle);
+app.post("/api/cars/:id/promo", handleCarPromoToggle);
 
 app.delete("/api/cars/:id", authenticateToken, (req, res) => {
   const db = readDb();
@@ -1625,6 +1638,197 @@ app.delete("/api/contacts/:id", authenticateToken, (req, res) => {
   db.contacts = (db.contacts || []).filter((c) => c.id !== req.params.id);
   writeDb(db);
   res.json({ success: true, message: "Message supprimé." });
+});
+
+/* ==========================================================================
+   3M PERSONAL PRIVATE CHAT API (REAL-TIME CLIENT & ADMIN MESSAGING)
+   ========================================================================== */
+
+function normalizeChatId(id) {
+  if (!id) return "guest";
+  return String(id).trim().replace(/[^a-zA-Z0-9_\-+@.]/g, "_");
+}
+
+// 1. Get all chat threads (for Admin overview)
+app.get("/api/chats", (req, res) => {
+  const db = readDb();
+  const chats = db.chats || [];
+  const summaries = chats.map((c) => ({
+    id: c.id,
+    clientId: c.clientId,
+    clientName: c.clientName || "Client 3M",
+    clientPhone: c.clientPhone || "",
+    clientEmail: c.clientEmail || "",
+    unreadAdmin: c.unreadAdmin || 0,
+    unreadClient: c.unreadClient || 0,
+    lastMessage: c.lastMessage || "",
+    lastMessageAt: c.lastMessageAt || c.createdAt,
+    messagesCount: (c.messages || []).length
+  }));
+  summaries.sort((a, b) => new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0));
+  res.json(summaries);
+});
+
+// 2. Active unread count badge
+app.get("/api/chats/active-count", (req, res) => {
+  const db = readDb();
+  const chats = db.chats || [];
+  const totalUnreadAdmin = chats.reduce((sum, c) => sum + (c.unreadAdmin || 0), 0);
+  res.json({ unreadAdmin: totalUnreadAdmin, activeThreads: chats.length });
+});
+
+// 3. Get thread and messages for a specific client
+app.get("/api/chats/:clientId", (req, res) => {
+  const db = readDb();
+  db.chats = db.chats || [];
+  const rawId = req.params.clientId;
+  const cleanId = normalizeChatId(rawId);
+
+  let chat = db.chats.find(
+    (c) =>
+      c.id === cleanId ||
+      c.clientId === rawId ||
+      (c.clientPhone && rawId.includes(c.clientPhone)) ||
+      (c.clientEmail && c.clientEmail.toLowerCase() === rawId.toLowerCase())
+  );
+
+  if (!chat) {
+    const customer = (db.customers || []).find(
+      (cust) =>
+        cust.id === rawId ||
+        cust.accountNumber === rawId ||
+        (cust.phone && rawId.includes(cust.phone)) ||
+        (cust.email && cust.email.toLowerCase() === rawId.toLowerCase())
+    );
+
+    const clientName = customer ? customer.name : (req.query.name || "Client VIP 3M");
+    const clientPhone = customer ? customer.phone : (req.query.phone || "");
+    const clientEmail = customer ? customer.email : (req.query.email || "");
+
+    chat = {
+      id: cleanId,
+      clientId: rawId,
+      clientName,
+      clientPhone,
+      clientEmail,
+      unreadAdmin: 0,
+      unreadClient: 0,
+      createdAt: new Date().toISOString(),
+      lastMessageAt: new Date().toISOString(),
+      lastMessage: "Bienvenue sur le Chat Privé 3M SERVICES !",
+      messages: [
+        {
+          id: `msg-welcome-${Date.now()}`,
+          sender: "admin",
+          senderName: "Conciergerie VIP 3M",
+          text: "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
+          timestamp: new Date().toISOString()
+        }
+      ]
+    };
+    db.chats.unshift(chat);
+    writeDb(db);
+  }
+
+  res.json(chat);
+});
+
+// 4. Send message in a client thread (by client or by admin)
+app.post("/api/chats/:clientId/messages", (req, res) => {
+  const { text, sender, senderName, carInfo, clientName, clientPhone, clientEmail } = req.body;
+  if (!text || !text.trim()) {
+    return res.status(400).json({ error: "Le message ne peut pas être vide." });
+  }
+
+  const db = readDb();
+  db.chats = db.chats || [];
+  const rawId = req.params.clientId;
+  const cleanId = normalizeChatId(rawId);
+
+  let chatIndex = db.chats.findIndex(
+    (c) =>
+      c.id === cleanId ||
+      c.clientId === rawId ||
+      (c.clientPhone && rawId.includes(c.clientPhone)) ||
+      (c.clientEmail && c.clientEmail.toLowerCase() === rawId.toLowerCase())
+  );
+
+  const isClient = sender !== "admin";
+  const now = new Date().toISOString();
+
+  const newMsg = {
+    id: `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    sender: isClient ? "client" : "admin",
+    senderName: senderName || (isClient ? (clientName || "Client") : "Conciergerie VIP 3M"),
+    text: text.trim(),
+    carInfo: carInfo || null,
+    timestamp: now
+  };
+
+  if (chatIndex === -1) {
+    const newChat = {
+      id: cleanId,
+      clientId: rawId,
+      clientName: clientName || (isClient ? senderName : "Client VIP 3M"),
+      clientPhone: clientPhone || "",
+      clientEmail: clientEmail || "",
+      unreadAdmin: isClient ? 1 : 0,
+      unreadClient: isClient ? 0 : 1,
+      createdAt: now,
+      lastMessageAt: now,
+      lastMessage: newMsg.text,
+      messages: [
+        {
+          id: `msg-welcome`,
+          sender: "admin",
+          senderName: "Conciergerie VIP 3M",
+          text: "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7.",
+          timestamp: now
+        },
+        newMsg
+      ]
+    };
+    db.chats.unshift(newChat);
+  } else {
+    const chat = db.chats[chatIndex];
+    chat.messages = chat.messages || [];
+    chat.messages.push(newMsg);
+    chat.lastMessage = newMsg.text;
+    chat.lastMessageAt = now;
+    if (clientName) chat.clientName = clientName;
+    if (clientPhone) chat.clientPhone = clientPhone;
+    if (clientEmail) chat.clientEmail = clientEmail;
+
+    if (isClient) {
+      chat.unreadAdmin = (chat.unreadAdmin || 0) + 1;
+    } else {
+      chat.unreadClient = (chat.unreadClient || 0) + 1;
+    }
+    db.chats[chatIndex] = chat;
+  }
+
+  writeDb(db);
+  res.status(201).json({ success: true, message: newMsg });
+});
+
+// 5. Mark messages as read
+app.post("/api/chats/:clientId/read", (req, res) => {
+  const { reader } = req.body;
+  const db = readDb();
+  db.chats = db.chats || [];
+  const rawId = req.params.clientId;
+  const cleanId = normalizeChatId(rawId);
+
+  const chat = db.chats.find((c) => c.id === cleanId || c.clientId === rawId);
+  if (chat) {
+    if (reader === "admin") {
+      chat.unreadAdmin = 0;
+    } else {
+      chat.unreadClient = 0;
+    }
+    writeDb(db);
+  }
+  res.json({ success: true });
 });
 
 /* ==========================================================================

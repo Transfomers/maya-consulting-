@@ -13,6 +13,7 @@ import PwaInstallPrompt from "./components/PwaInstallPrompt";
 import ScrollReveal from "./components/ScrollReveal";
 import ScrollToTop from "./components/ScrollToTop";
 import ClientPortalModal from "./components/ClientPortalModal";
+import PrivateChatWidget from "./components/PrivateChatWidget";
 import { LanguageProvider } from "./context/LanguageContext";
 
 // Forward any administrative access directly to the official 3M SERVICES Admin Control Center (Port 5002)
@@ -29,6 +30,7 @@ function App() {
       <PwaInstallPrompt />
       <Navbar />
       <ClientPortalModal />
+      <PrivateChatWidget />
       <Routes>
         <Route index path="/" element={<Home />} />
         <Route path="about" element={<About />} />

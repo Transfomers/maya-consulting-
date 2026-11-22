@@ -12,7 +12,62 @@ function ClientPortalModal() {
   const [client, setClient] = useState(null);
   const [loginInput, setLoginInput] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [activeTab, setActiveTab] = useState("orders"); // orders, profile
+  const [activeTab, setActiveTab] = useState("orders"); // orders, profile, chat
+  const [portalChatMessages, setPortalChatMessages] = useState([]);
+  const [portalChatInput, setPortalChatInput] = useState("");
+  const [portalChatSending, setPortalChatSending] = useState(false);
+
+  const fetchPortalChat = async (accountNum) => {
+    if (!accountNum) return;
+    try {
+      const res = await fetch(`http://127.0.0.1:5001/api/chats/${encodeURIComponent(accountNum)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.messages) {
+          setPortalChatMessages(data.messages);
+        }
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    if (client && activeTab === "chat") {
+      fetchPortalChat(client.accountNumber);
+      const interval = setInterval(() => {
+        fetchPortalChat(client.accountNumber);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [client, activeTab]);
+
+  const handleSendPortalChat = async (e) => {
+    e.preventDefault();
+    if (!portalChatInput.trim() || !client) return;
+
+    const textToSend = portalChatInput.trim();
+    setPortalChatInput("");
+    setPortalChatSending(true);
+
+    try {
+      await fetch(`http://127.0.0.1:5001/api/chats/${encodeURIComponent(client.accountNumber)}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: textToSend,
+          sender: "client",
+          senderName: client.name,
+          clientName: client.name,
+          clientPhone: client.phone,
+          clientEmail: client.email
+        })
+      });
+      fetchPortalChat(client.accountNumber);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPortalChatSending(false);
+    }
+  };
 
   useEffect(() => {
     // Check initial logged-in state
@@ -459,6 +514,27 @@ function ClientPortalModal() {
                   <i className="fa-solid fa-id-card" style={{ marginRight: "6px" }}></i>
                   Mon Profil & Avantages VIP
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("chat")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    borderBottom: activeTab === "chat" ? "3px solid #E20713" : "3px solid transparent",
+                    padding: "0.8rem 1.4rem",
+                    fontSize: "1.45rem",
+                    fontWeight: 700,
+                    color: activeTab === "chat" ? "#E20713" : "#64748b",
+                    cursor: "pointer",
+                    marginBottom: "-2px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px"
+                  }}
+                >
+                  <i className="fa-solid fa-comments text-danger"></i>
+                  Chat Privé Conciergerie
+                </button>
               </div>
 
               {/* Profile Tab */}
@@ -666,6 +742,147 @@ function ClientPortalModal() {
                   </div>
                 )}
               </div>
+              )}
+
+              {/* 3M Personal Private Chat Tab */}
+              {activeTab === "chat" && (
+                <div style={{ padding: "1.5rem", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0", marginBottom: "2rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.2rem", flexWrap: "wrap", gap: "1rem" }}>
+                    <div>
+                      <h4 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
+                        <i className="fa-solid fa-comments text-danger me-2"></i>
+                        Chat Privé avec la Conciergerie 3M SERVICES
+                      </h4>
+                      <span style={{ fontSize: "1.2rem", color: "#64748b" }}>
+                        Échanges en direct liés à votre compte VIP N° {client.accountNumber}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent("3m-open-chat", { detail: { name: client.name, phone: client.phone } }));
+                        setIsOpen(false);
+                      }}
+                      style={{
+                        backgroundColor: "#ffffff",
+                        border: "1.5px solid #cbd5e1",
+                        color: "#0f172a",
+                        padding: "0.6rem 1.2rem",
+                        borderRadius: "8px",
+                        fontSize: "1.2rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px"
+                      }}
+                    >
+                      <i className="fa-solid fa-up-right-from-square"></i>
+                      Ouvrir en fenêtre flottante
+                    </button>
+                  </div>
+
+                  {/* Messages Stream Box */}
+                  <div
+                    style={{
+                      height: "320px",
+                      overflowY: "auto",
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "10px",
+                      padding: "1.2rem",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "1rem",
+                      marginBottom: "1.2rem"
+                    }}
+                  >
+                    {portalChatMessages.length === 0 ? (
+                      <div style={{ textAlign: "center", color: "#94a3b8", margin: "auto", fontSize: "1.2rem" }}>
+                        <i className="fa-solid fa-comments fs-2 d-block mb-2"></i>
+                        Aucun message précédent. Envoyez un message ci-dessous pour joindre immédiatement votre concierge dédié.
+                      </div>
+                    ) : (
+                      portalChatMessages.map((msg, i) => {
+                        const isMe = msg.sender === "client";
+                        return (
+                          <div
+                            key={msg.id || i}
+                            style={{
+                              alignSelf: isMe ? "flex-end" : "flex-start",
+                              maxWidth: "80%",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: isMe ? "flex-end" : "flex-start"
+                            }}
+                          >
+                            {!isMe && (
+                              <span style={{ fontSize: "1rem", fontWeight: 700, color: "#E20713", marginBottom: "2px" }}>
+                                3M Conciergerie VIP
+                              </span>
+                            )}
+                            <div
+                              style={{
+                                padding: "0.8rem 1.2rem",
+                                borderRadius: "12px",
+                                backgroundColor: isMe ? "#E20713" : "#f1f5f9",
+                                color: isMe ? "#ffffff" : "#0f172a",
+                                fontSize: "1.25rem",
+                                lineHeight: 1.4,
+                                borderBottomRightRadius: isMe ? "2px" : "12px",
+                                borderBottomLeftRadius: isMe ? "12px" : "2px"
+                              }}
+                            >
+                              {msg.text}
+                            </div>
+                            <span style={{ fontSize: "0.95rem", color: "#94a3b8", marginTop: "2px" }}>
+                              {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : ""}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Input Form */}
+                  <form onSubmit={handleSendPortalChat} style={{ display: "flex", gap: "0.8rem" }}>
+                    <input
+                      type="text"
+                      placeholder="Posez votre question à votre conseiller VIP 3M..."
+                      value={portalChatInput}
+                      onChange={(e) => setPortalChatInput(e.target.value)}
+                      style={{
+                        flex: 1,
+                        padding: "1rem 1.2rem",
+                        borderRadius: "8px",
+                        border: "1.5px solid #cbd5e1",
+                        fontSize: "1.3rem",
+                        outline: "none"
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      disabled={!portalChatInput.trim() || portalChatSending}
+                      style={{
+                        backgroundColor: "#E20713",
+                        color: "#ffffff",
+                        border: "none",
+                        padding: "0 1.8rem",
+                        borderRadius: "8px",
+                        fontSize: "1.3rem",
+                        fontWeight: 700,
+                        cursor: portalChatInput.trim() ? "pointer" : "not-allowed",
+                        opacity: portalChatInput.trim() ? 1 : 0.6,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px"
+                      }}
+                    >
+                      <i className="fa-solid fa-paper-plane"></i>
+                      Envoyer
+                    </button>
+                  </form>
+                </div>
               )}
             </div>
           )}

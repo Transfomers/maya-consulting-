@@ -211,6 +211,12 @@ class Bus(db.Model):
     is_deleted = db.Column(db.Boolean, default=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     is_archived = db.Column(db.Boolean, default=False)
+
+    # Promo & Featured Offers Fields
+    is_promo = db.Column(db.Boolean, default=False)
+    promo_price = db.Column(db.Integer, nullable=True)
+    promo_badge = db.Column(db.String(50), nullable=True)
+    regular_price = db.Column(db.Integer, nullable=True)
     
     # Belongs to an agency
     agency_id = db.Column(db.Integer, db.ForeignKey('agency.id'), nullable=False)

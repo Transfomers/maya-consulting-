@@ -135,6 +135,9 @@
                         </td>
                         <td class="text-end pe-3 text-nowrap">
                             <div class="d-inline-flex align-items-center gap-1.5">
+                                <a href="{{ url_for('admin.chats', client_id=user.username) }}" class="action-icon-link action-chat" title="Chat Privé 3M avec ce client">
+                                    <i class="bi bi-chat-dots-fill text-danger"></i>
+                                </a>
                                 <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link action-view" title="Consulter la fiche client">
                                     <i class="bi bi-eye"></i>
                                 </a>

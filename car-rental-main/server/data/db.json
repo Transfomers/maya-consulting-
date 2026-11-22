@@ -1322,5 +1322,40 @@
       "status": "Publié",
       "createdAt": "2026-10-28"
     }
+  ],
+  "chats": [
+    {
+      "id": "3M-CLI-1001",
+      "clientId": "3M-CLI-1001",
+      "clientName": "Arnaud Mbarga",
+      "clientPhone": "+237 691 78 64 47",
+      "clientEmail": "arnaud.mbarga@example.cm",
+      "unreadAdmin": 1,
+      "unreadClient": 0,
+      "createdAt": "2026-11-20T10:00:00.000Z",
+      "lastMessageAt": "2026-11-20T14:45:00.000Z",
+      "lastMessage": "Bonjour, la Toyota Land Cruiser V8 est-elle bien disponible ce week-end ?",
+      "messages": [
+        {
+          "id": "msg-1",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M",
+          "text": "Bonjour M. Mbarga ! Bienvenue sur le Chat Privé 3M SERVICES. En quoi pouvons-nous vous assister ?",
+          "timestamp": "2026-11-20T10:05:00.000Z"
+        },
+        {
+          "id": "msg-2",
+          "sender": "client",
+          "senderName": "Arnaud Mbarga",
+          "text": "Bonjour, la Toyota Land Cruiser V8 est-elle bien disponible ce week-end ?",
+          "carInfo": {
+            "name": "Toyota Land Cruiser V8 (LC200 Prestige)",
+            "price": 130000,
+            "badge": "OFFRE FLASH -15%"
+          },
+          "timestamp": "2026-11-20T14:45:00.000Z"
+        }
+      ]
+    }
   ]
 }

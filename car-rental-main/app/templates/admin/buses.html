@@ -141,6 +141,7 @@
                         <th style="min-width: 140px;">Chauffeur</th>
                         <th style="min-width: 110px;">Dernière Maint.</th>
                         <th style="min-width: 110px;">Statut</th>
+                        <th style="min-width: 140px;">Offre Promo VIP</th>
                         <th style="min-width: 110px;" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -178,6 +179,31 @@
                             <span class="badge bg-success-soft text-success"><i class="bi bi-check-circle-fill me-1"></i> En Service</span>
                             {% else %}
                             <span class="badge bg-danger-soft text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> Maintenance</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if bus.is_promo %}
+                            <div class="d-flex flex-column gap-1">
+                                <span class="badge bg-danger text-white fw-bold text-nowrap" style="letter-spacing: 0.3px; font-size: 0.68rem;">
+                                    <i class="bi bi-fire me-1"></i> EN PROMO
+                                </span>
+                                <span class="fw-bold text-dark" style="font-size: 0.78rem;">{{ "{:,}".format(bus.promo_price or 100000).replace(',', ' ') }} FCFA</span>
+                                <a href="{{ url_for('admin.toggle_bus_promo', id=bus.id, remove='true') }}" 
+                                   class="btn btn-sm btn-outline-danger py-0 px-1 mt-0.5" 
+                                   style="font-size: 0.68rem !important; border-radius: 4px !important;"
+                                   onclick="return confirm('Retirer ce véhicule des promotions VIP affichées sur le site client ?');"
+                                   title="Retirer de la promotion">
+                                    <i class="bi bi-x-circle me-1"></i> Retirer Promo
+                                </a>
+                            </div>
+                            {% else %}
+                            <button type="button" 
+                                    class="btn btn-sm btn-outline-success py-1 px-2" 
+                                    style="font-size: 0.72rem !important; border-radius: 6px !important;"
+                                    onclick="openPromoModal('{{ bus.id }}', '{{ bus.brand or 'Toyota' }} {{ bus.model }}', '{{ bus.promo_price or 100000 }}', '{{ bus.regular_price or 130000 }}', '{{ bus.promo_badge or 'OFFRE VIP' }}')"
+                                    title="Mettre en promotion VIP sur le site client">
+                                <i class="bi bi-tag-fill me-1"></i> + Mettre en Promo
+                            </button>
                             {% endif %}
                         </td>
                         <td class="text-end text-nowrap">
@@ -298,5 +324,64 @@
             applyFilters();
         };
     });
+
+    function openPromoModal(busId, vehicleName, promoPrice, regularPrice, promoBadge) {
+        const form = document.getElementById('promoForm');
+        form.action = '/admin/buses/' + busId + '/toggle_promo';
+        document.getElementById('promoVehicleName').textContent = vehicleName;
+        document.getElementById('modalPromoPrice').value = promoPrice || 100000;
+        document.getElementById('modalRegularPrice').value = regularPrice || 130000;
+        document.getElementById('modalPromoBadge').value = promoBadge || 'OFFRE VIP';
+        const modal = new bootstrap.Modal(document.getElementById('promoModal'));
+        modal.show();
+    }
 </script>
+
+<!-- Modal Configuration Promotion VIP -->
+<div class="modal fade" id="promoModal" tabindex="-1" aria-labelledby="promoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <form id="promoForm" method="POST" action="">
+                <input type="hidden" name="action" value="set">
+                <div class="modal-header border-bottom py-3 px-4" style="background: #f8fafc;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="background: #fee4e2; color: #b42318; width: 36px; height: 36px;">
+                            <i class="bi bi-fire fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold text-dark mb-0 fs-6" id="promoModalLabel">Activer Offre VIP Promotionnelle</h5>
+                            <span class="small text-muted" id="promoVehicleName">Véhicule VIP</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-3">
+                        Cette offre sera instantanément mise en avant dans la section <strong>Nos Véhicules en Promotion — Forfaits VIP 3M SERVICES</strong> sur le site client.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">Tarif Promo Journalier (FCFA) *</label>
+                        <input type="number" name="promo_price" id="modalPromoPrice" class="form-control" required placeholder="Ex: 110000">
+                        <span class="form-text text-muted small">Prix remisé affiché aux clients avec chauffeur inclus.</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">Tarif Régulier / Barré (FCFA)</label>
+                        <input type="number" name="regular_price" id="modalRegularPrice" class="form-control" placeholder="Ex: 130000">
+                        <span class="form-text text-muted small">Prix habituel pour montrer la réduction (ex: <s>130 000 FCFA</s>).</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">Badge Promotionnel (Texte)</label>
+                        <input type="text" name="promo_badge" id="modalPromoBadge" class="form-control" placeholder="Ex: OFFRE SPÉCIALE • VIP">
+                    </div>
+                </div>
+                <div class="modal-footer border-top py-2 px-4" style="background: #f8fafc;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger btn-sm px-3 fw-bold">
+                        <i class="bi bi-check-circle-fill me-1"></i> Publier la Promotion
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -43,7 +43,7 @@
                             <select class="form-select" id="driver_id" name="driver_id">
                                 <option value="">Aucun chauffeur assigné (Sans chauffeur)</option>
                                 {% for driver in drivers if drivers is defined %}
-                                    <option value="{{ driver.id }}">{{ driver.name }}</option>
+                                    <option value="{{ driver.id }}">{{ driver.name }} ({{ driver.phone or 'VIP' }}) - Permis: {{ driver.license_number }}</option>
                                 {% endfor %}
                             </select>
                         </div>

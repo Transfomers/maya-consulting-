@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container-fluid px-0">
-    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
             <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Sorties & Missions de Flotte VIP</h2>
             <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Programmez et gérez les missions, forfaits et sorties de véhicules VIP avec chauffeur.</p>
@@ -15,6 +15,39 @@
             </a>
             <a href="{{ url_for('admin.export_bookings_pdf', filter=current_filter or 'all') }}" class="btn btn-sm btn-export-pdf"><i class="bi bi-file-pdf me-1"></i> PDF</a>
             <a href="{{ url_for('admin.export_bookings_csv', filter=current_filter or 'all') }}" class="btn btn-sm btn-export-csv"><i class="bi bi-file-csv me-1"></i> CSV</a>
+        </div>
+    </div>
+
+    <!-- 7-Days Date Filter & Instant Report Download Bar -->
+    <div class="card border-0 shadow-xs mb-4 p-2.5 px-3" style="border-radius: 10px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="fw-semibold text-muted small me-1"><i class="bi bi-calendar-range text-danger me-1"></i> Période :</span>
+                <a href="{{ url_for('admin.bookings', filter='week') }}" class="btn btn-xs {% if current_filter == 'week' %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} fw-semibold">
+                    <i class="bi bi-calendar-check me-1"></i> 7 Derniers Jours (7 Days)
+                </a>
+                <a href="{{ url_for('admin.bookings', filter='day') }}" class="btn btn-xs {% if current_filter == 'day' %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} fw-semibold">
+                    Aujourd'hui
+                </a>
+                <a href="{{ url_for('admin.bookings', filter='month') }}" class="btn btn-xs {% if current_filter == 'month' %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} fw-semibold">
+                    Ce Mois (30j)
+                </a>
+                <a href="{{ url_for('admin.bookings', filter='all') }}" class="btn btn-xs {% if current_filter == 'all' or not current_filter %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} fw-semibold">
+                    Toutes les Sorties
+                </a>
+            </div>
+
+            <!-- Instant Download with all content automatically included -->
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ url_for('admin.export_bookings_pdf', filter=current_filter or 'week') }}" class="btn btn-xs btn-outline-danger d-inline-flex align-items-center gap-1 fw-bold shadow-xs" title="Télécharger le rapport PDF officiel avec tout le contenu">
+                    <i class="bi bi-cloud-arrow-down-fill"></i>
+                    <span>Télécharger Rapport 7 Jours (PDF)</span>
+                </a>
+                <a href="{{ url_for('admin.export_bookings_csv', filter=current_filter or 'week') }}" class="btn btn-xs btn-outline-success d-inline-flex align-items-center gap-1 fw-bold shadow-xs" title="Télécharger l'export Excel CSV avec tous les champs">
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                    <span>Export CSV (7j)</span>
+                </a>
+            </div>
         </div>
     </div>
 

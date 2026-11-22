@@ -1132,12 +1132,14 @@
             border-right: 1px solid #eaecf0 !important;
             color: #1e293b;
             height: 100vh;
+            max-height: 100vh;
             position: sticky;
             top: 0;
             z-index: 1040;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            overflow: hidden;
             transition: width 0.25s cubic-bezier(0.2, 0, 0, 1), min-width 0.25s cubic-bezier(0.2, 0, 0, 1), max-width 0.25s cubic-bezier(0.2, 0, 0, 1), transform 0.28s cubic-bezier(0.2, 0, 0, 1);
             user-select: none;
         }
@@ -1151,9 +1153,9 @@
         .admin-sidebar-brand {
             background: #ffffff;
             border-bottom: 1px solid #eaecf0 !important;
-            min-height: 70px;
-            height: 70px;
-            padding: 1rem 1.25rem;
+            min-height: 58px;
+            height: 58px;
+            padding: 0.6rem 1rem;
         }
 
         body.dark-mode .admin-sidebar-brand {
@@ -1162,38 +1164,32 @@
         }
 
         .admin-sidebar-brand .sidebar-logo {
-            width: 36px;
             height: 36px;
+            max-width: 130px;
             object-fit: contain;
             transition: transform 0.2s ease;
         }
 
         .admin-sidebar-nav {
             flex: 1;
-            overflow-y: auto;
+            overflow-y: hidden; /* Static non-scrolling */
             overflow-x: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 91, 53, 0.25) transparent;
-            padding: 0.85rem 0.75rem;
-        }
-
-        .admin-sidebar-nav::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .admin-sidebar-nav::-webkit-scrollbar-thumb {
-            background-color: rgba(255, 91, 53, 0.25);
-            border-radius: 4px;
+            padding: 0.4rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
 
         .sidebar-section-title {
-            font-size: 0.75rem;
-            letter-spacing: 0.04em;
+            font-size: 0.65rem;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            font-weight: 600;
+            font-weight: 700;
             color: #98a2b3;
-            padding: 0.85rem 0.65rem 0.35rem;
+            padding: 0.35rem 0.6rem 0.15rem;
+            margin: 0;
             white-space: nowrap;
+            line-height: 1.1;
         }
 
         body.dark-mode .sidebar-section-title {
@@ -1203,14 +1199,15 @@
         .sidebar-nav-item {
             display: flex;
             align-items: center;
-            gap: 0.85rem;
-            padding: 0.55rem 0.75rem;
-            margin: 2px 0;
-            border-radius: 8px;
+            gap: 0.65rem;
+            padding: 0.36rem 0.65rem;
+            min-height: 32px;
+            border-radius: 6px;
             color: #344054;
             font-weight: 500;
-            font-size: 0.92rem;
+            font-size: 0.8125rem;
             text-decoration: none;
+            margin-bottom: 1px;
             transition: color 0.15s ease, background-color 0.15s ease;
             position: relative;
             white-space: nowrap;
@@ -1221,10 +1218,10 @@
         }
 
         .sidebar-nav-item i {
-            font-size: 1.15rem;
+            font-size: 0.95rem;
             color: #344054;
             transition: color 0.15s ease;
-            min-width: 22px;
+            min-width: 20px;
             text-align: center;
         }
 
@@ -1521,42 +1518,23 @@
 
         <!-- Left Admin Sidebar -->
         <aside class="admin-sidebar" id="adminSidebar">
-            <!-- Sidebar Brand Header (3M SERVICES Brand) -->
-            <div class="admin-sidebar-brand d-flex align-items-center justify-content-between px-3 py-3 border-bottom"
-                style="border-color: #eaecf0 !important; background: #ffffff;">
-                <a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none d-flex align-items-center gap-2">
+            <!-- Sidebar Brand Header (Centered 3M Logo + Clean Exit Arrow) -->
+            <div class="admin-sidebar-brand d-flex align-items-center justify-content-between px-3 py-2 border-bottom"
+                style="border-color: #eaecf0 !important; background: #ffffff; min-height: 58px; height: 58px;">
+                <a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none d-flex align-items-center justify-content-center flex-grow-1" style="padding-left: 14px;">
                     <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES" class="sidebar-logo"
-                        style="width: 36px; height: 36px; object-fit: contain;">
-                    <div class="d-flex flex-column brand-details">
-                        <div
-                            style="font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.25rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.3px; color: #101828;">
-                            3M <span style="color: #FF5B35;">SERVICES</span>
-                        </div>
-                        <div
-                            style="font-size: 0.65rem; font-weight: 600; color: #98a2b3; letter-spacing: 0.5px; margin-top: 2px; text-transform: uppercase;">
-                            Location & Flotte VIP
-                        </div>
-                    </div>
+                        style="height: 38px; max-width: 130px; object-fit: contain;">
                 </a>
-                <div class="d-flex align-items-center gap-1">
-                    <!-- Desktop Collapse Chevron Button -->
-                    <button type="button"
-                        class="btn btn-sm btn-light border-0 rounded-2 p-1 d-none d-lg-inline-flex align-items-center justify-content-center"
-                        onclick="toggleAdminSidebar()" title="Replier / Agrandir le menu"
-                        style="width: 30px; height: 30px; color: #667085; background: #f8fafc;" id="btnDesktopCollapse">
-                        <i class="bi bi-chevron-left" id="collapseSidebarChevron"></i>
-                    </button>
-                    <!-- Mobile Close (X) Button -->
-                    <button type="button" class="btn btn-sm d-lg-none rounded-circle p-1 border-0"
-                        onclick="toggleAdminSidebar(true)" aria-label="Fermer"
-                        style="width: 32px; height: 32px; background: rgba(0,0,0,0.05); color: #4b5563;">
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                </div>
+                <button type="button"
+                    class="btn btn-sm btn-light border-0 rounded-2 p-1 d-inline-flex align-items-center justify-content-center"
+                    onclick="toggleAdminSidebar()" title="Replier / Agrandir le menu"
+                    style="width: 28px; height: 28px; color: #667085; background: #f8fafc;" id="btnDesktopCollapse">
+                    <i class="bi bi-chevron-left" id="collapseSidebarChevron"></i>
+                </button>
             </div>
 
-            <!-- Sidebar Navigation Menu -->
-            <div class="admin-sidebar-nav px-2 py-3">
+            <!-- Sidebar Navigation Menu (Static Non-scrolling) -->
+            <div class="admin-sidebar-nav px-2 py-2">
                 <!-- Main -->
                 <div class="sidebar-section-title">Main</div>
                 <a href="{{ url_for('admin.dashboard') }}"
@@ -1583,6 +1561,13 @@
                     <i class="bi bi-person"></i>
                     <span class="sidebar-text">Customers</span>
                 </a>
+                <a href="{{ url_for('admin.chats') }}"
+                    class="sidebar-nav-item {% if request.endpoint in ['admin.chats'] %}active{% endif %}"
+                    title="Messagerie & Chat Privé 3M">
+                    <i class="bi bi-chat-dots-fill text-danger"></i>
+                    <span class="sidebar-text">Messagerie & Chat</span>
+                    <span class="badge bg-danger rounded-pill ms-auto" id="sidebarChatBadge" style="font-size: 0.62rem; display: none;">0</span>
+                </a>
 
                 <!-- Management -->
                 <div class="sidebar-section-title">Management</div>
@@ -1598,9 +1583,9 @@
                     <i class="bi bi-credit-card"></i>
                     <span class="sidebar-text">Payments</span>
                 </a>
-                <a href="{{ url_for('admin.calendar_view') }}"
-                    class="sidebar-nav-item {% if request.endpoint == 'admin.calendar_view' %}active{% endif %}"
-                    title="Reports">
+                <a href="{{ url_for('admin.shifts') }}"
+                    class="sidebar-nav-item {% if request.endpoint in ['admin.shifts', 'admin.calendar_view'] %}active{% endif %}"
+                    title="Reports & Shifts">
                     <i class="bi bi-file-earmark-text"></i>
                     <span class="sidebar-text">Reports</span>
                 </a>
@@ -1739,12 +1724,13 @@
                             style="font-size: 0.58rem; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; background-color: #ef4444 !important; color: #fff;">1</span>
                     </a>
 
-                    <!-- Messages/Mail with Orange Badge 0 -->
-                    <a href="{{ url_for('admin.notifications') }}"
-                        class="position-relative text-dark text-decoration-none" title="Messages">
-                        <i class="bi bi-envelope fs-5 text-dark"></i>
+                    <!-- Messages/Mail with Chat Badge -->
+                    <a href="{{ url_for('admin.chats') }}"
+                        class="position-relative text-dark text-decoration-none" title="Messagerie & Chat Privé 3M">
+                        <i class="bi bi-chat-dots fs-5 text-dark"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle"
-                            style="font-size: 0.58rem; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; background-color: #f97316 !important; color: #fff;">0</span>
+                            id="topbarChatBadge"
+                            style="font-size: 0.58rem; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; background-color: #ef4444 !important; color: #fff;">1</span>
                     </a>
 
                     <!-- User Avatar Dropdown -->

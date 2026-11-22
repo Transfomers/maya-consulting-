@@ -1812,7 +1812,20 @@ def edit_user(id):
         flash('Compte client modifié avec succès !', 'success')
         return redirect(url_for('admin.users'))
         
-    return render_template('admin/edit_user.html', user=user)
+    chat = None
+    try:
+        import json as _json
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+        if os.path.exists(db_path):
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = _json.load(f)
+            chats = exp_db.get('chats', [])
+            raw_id = user.username
+            chat = next((c for c in chats if c.get('id') == raw_id or c.get('clientId') == raw_id or (user.phone and user.phone in (c.get('clientPhone') or '')) or (user.email and user.email == c.get('clientEmail'))), None)
+    except Exception as e:
+        logger.warning(f"Error loading client chat in edit_user: {e}")
+
+    return render_template('admin/edit_user.html', user=user, chat=chat)
 
 @admin.route('/admin/user/toggle_status/<int:id>')
 @login_required
@@ -2377,11 +2390,13 @@ def add_trip():
     if current_user.role == 'super_admin':
         routes = Route.query.filter_by(is_deleted=False).all()
         buses = Bus.query.filter_by(status='active', is_deleted=False).all()
+        drivers = Driver.query.filter_by(is_deleted=False).all()
     else:
         routes = Route.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).all()
         buses = Bus.query.filter_by(agency_id=current_user.agency_id, status='active', is_deleted=False).all()
+        drivers = Driver.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).all()
         
-    return render_template('admin/add_trip.html', routes=routes, buses=buses)
+    return render_template('admin/add_trip.html', routes=routes, buses=buses, drivers=drivers)
 
 @admin.route('/admin/trip/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -2408,11 +2423,13 @@ def edit_trip(id):
     if current_user.role == 'super_admin':
         routes = Route.query.filter_by(is_deleted=False).all()
         buses = Bus.query.filter_by(status='active', is_deleted=False).all()
+        drivers = Driver.query.filter_by(is_deleted=False).all()
     else:
         routes = Route.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).all()
         buses = Bus.query.filter_by(agency_id=current_user.agency_id, status='active', is_deleted=False).all()
+        drivers = Driver.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).all()
         
-    return render_template('admin/edit_trip.html', trip=trip, routes=routes, buses=buses)
+    return render_template('admin/edit_trip.html', trip=trip, routes=routes, buses=buses, drivers=drivers)
 
 @admin.route('/admin/trip/toggle_status/<int:id>')
 @login_required
@@ -5336,4 +5353,151 @@ def profile():
         global_settings=global_settings,
         payment_settings=payment_settings,
         contact_messages=contact_messages
-    ) 
+    )
+
+# =========================================================================
+# 3M SERVICES PROMO VEHICLES MANAGEMENT & 3M PERSONAL PRIVATE CHAT
+# =========================================================================
+
+@admin.route('/admin/buses/<int:id>/toggle_promo', methods=['POST', 'GET'])
+@login_required
+@admin_required
+def toggle_bus_promo(id):
+    bus = Bus.query.filter_by(id=id, is_deleted=False).first_or_404()
+    
+    action = request.form.get('action') or request.args.get('action')
+    promo_price = request.form.get('promo_price', type=int)
+    regular_price = request.form.get('regular_price', type=int)
+    promo_badge = request.form.get('promo_badge', '').strip()
+    
+    if action == 'remove' or request.args.get('remove') == 'true':
+        bus.is_promo = False
+    else:
+        bus.is_promo = True
+        if promo_price:
+            bus.promo_price = promo_price
+        if regular_price:
+            bus.regular_price = regular_price
+        if promo_badge:
+            bus.promo_badge = promo_badge
+
+    db.session.commit()
+    
+    # Synchronize with Express backend server/data/db.json
+    try:
+        import json as _json
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+        if os.path.exists(db_path):
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = _json.load(f)
+            cars = exp_db.get('cars', [])
+            
+            target_model = (bus.model or '').lower().strip()
+            for car in cars:
+                c_name = (car.get('name') or '').lower()
+                c_model = (car.get('model') or '').lower()
+                if (target_model and (target_model in c_name or c_name in target_model or target_model in c_model)) or (car.get('plate') and car.get('plate') == bus.bus_number):
+                    car['isPromo'] = bus.is_promo
+                    if bus.is_promo:
+                        if bus.promo_price: car['promoPrice'] = bus.promo_price
+                        if bus.regular_price: car['regularPrice'] = bus.regular_price
+                        if bus.promo_badge: car['promoBadge'] = bus.promo_badge
+                    break
+            with open(db_path, 'w', encoding='utf-8') as f:
+                _json.dump(exp_db, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        logger.warning(f"Error syncing promo to db.json: {e}")
+
+    log_audit("BUS_PROMO_TOGGLED", "Bus", bus.id, f"Bus {bus.bus_number} promo status set to {bus.is_promo}")
+    
+    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'success': True, 'is_promo': bus.is_promo, 'promo_price': bus.promo_price})
+
+    flash(f"Offre promotionnelle {'activée' if bus.is_promo else 'retirée'} pour le véhicule {bus.brand} {bus.model} !", 'success')
+    return redirect(url_for('admin.buses'))
+
+@admin.route('/admin/chats')
+@login_required
+@admin_required
+def chats():
+    import json as _json
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    chat_threads = []
+    if os.path.exists(db_path):
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = _json.load(f)
+            chat_threads = exp_db.get('chats', [])
+        except Exception as e:
+            logger.warning(f"Error reading chats from db.json: {e}")
+
+    selected_client_id = request.args.get('client_id')
+    active_chat = None
+    if selected_client_id and chat_threads:
+        active_chat = next((c for c in chat_threads if c.get('id') == selected_client_id or c.get('clientId') == selected_client_id), None)
+    if not active_chat and chat_threads:
+        active_chat = chat_threads[0]
+
+    return render_template('admin/chats.html', chat_threads=chat_threads, active_chat=active_chat)
+
+@admin.route('/admin/chats/<client_id>/send', methods=['POST'])
+@login_required
+@admin_required
+def send_admin_chat_reply(client_id):
+    import json as _json
+    text = (request.form.get('text') or '').strip()
+    if not text:
+        if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'error': 'Message vide'}), 400
+        flash('Le message ne peut pas être vide.', 'danger')
+        return redirect(url_for('admin.chats', client_id=client_id))
+
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    if os.path.exists(db_path):
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = _json.load(f)
+            chats = exp_db.get('chats', [])
+            chat = next((c for c in chats if c.get('id') == client_id or c.get('clientId') == client_id), None)
+            now = datetime.utcnow().isoformat() + "Z"
+            new_msg = {
+                'id': f"msg-admin-{int(datetime.utcnow().timestamp()*1000)}",
+                'sender': 'admin',
+                'senderName': f"Conciergerie VIP 3M ({current_user.username})",
+                'text': text,
+                'timestamp': now
+            }
+            if chat:
+                chat['messages'] = chat.get('messages', [])
+                chat['messages'].append(new_msg)
+                chat['lastMessage'] = text
+                chat['lastMessageAt'] = now
+                chat['unreadClient'] = chat.get('unreadClient', 0) + 1
+                chat['unreadAdmin'] = 0
+            else:
+                chat = {
+                    'id': client_id,
+                    'clientId': client_id,
+                    'clientName': request.form.get('client_name') or 'Client VIP 3M',
+                    'clientPhone': request.form.get('client_phone') or '',
+                    'unreadAdmin': 0,
+                    'unreadClient': 1,
+                    'lastMessage': text,
+                    'lastMessageAt': now,
+                    'messages': [new_msg]
+                }
+                chats.insert(0, chat)
+                exp_db['chats'] = chats
+
+            with open(db_path, 'w', encoding='utf-8') as f:
+                _json.dump(exp_db, f, indent=2, ensure_ascii=False)
+
+            if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': True, 'message': new_msg})
+
+            flash('Réponse transmise avec succès au client !', 'success')
+            return redirect(url_for('admin.chats', client_id=client_id))
+        except Exception as e:
+            logger.error(f"Error saving chat reply: {e}")
+
+    return redirect(url_for('admin.chats', client_id=client_id)) 
