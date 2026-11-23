@@ -253,6 +253,26 @@
   ],
   "bookings": [
     {
+      "id": "3M-POS-202611-9873",
+      "clientName": "Samuel Eto'o",
+      "phone": "699112233",
+      "email": "samuel.etoo@fecafoot.cm",
+      "carName": "Toyota Land Cruiser V8 LC200 Prestige",
+      "carId": "car-1",
+      "pickUp": "Comptoir Agence 3M SERVICES",
+      "dropOff": "Comptoir Agence 3M SERVICES",
+      "pickTime": "2026-11-25 10:00",
+      "dropTime": "2026-11-28 18:00",
+      "days": 4,
+      "pricePerDay": 130000,
+      "totalPrice": 520000,
+      "status": "Confirmée",
+      "paymentMethod": "cash",
+      "notes": "Mise à disposition VIP pour délégation officielle FECAFOOT Tsinga.",
+      "withDriver": false,
+      "createdAt": "2026-11-23T19:38:33.053390Z"
+    },
+    {
       "id": "3M-RES-2026-011",
       "clientName": "Transformers Network",
       "firstName": "",

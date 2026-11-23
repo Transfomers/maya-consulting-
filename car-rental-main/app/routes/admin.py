@@ -1,9 +1,10 @@
 import os
 import json
+import random
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app, session
 from werkzeug.security import generate_password_hash
 from flask_login import login_required, current_user
-from app.models import User, Agency, Bus, Route, Trip, Booking, Feedback, AuditLog, SystemNotification, Driver, CaisseSession, Parcel, TripSchedule, Apartment
+from app.models import User, Agency, Bus, Route, Trip, Booking, Payment, Feedback, AuditLog, SystemNotification, Driver, CaisseSession, Parcel, TripSchedule, Apartment
 from app import db
 from datetime import datetime, date, timedelta
 from sqlalchemy import func, or_
@@ -495,285 +496,219 @@ def teller_dashboard():
 def teller_book():
     caisse = get_current_caisse(current_user.agency_id)
     if request.method == 'POST':
-        if not caisse:
-            flash("Erreur: La caisse est fermée. Vous ne pouvez pas émettre de contrats de location.", "danger")
-            return redirect(url_for('admin.teller_book'))
-            
-        # Retrieve form data
-        trip_id = request.form.get('trip_id')
-        seat_number = request.form.get('seat_number')
-        return_trip_id = request.form.get('return_trip_id')
-        return_seat_number = request.form.get('return_seat_number')
-        passenger_name = request.form.get('passenger_name')
-        passenger_phone = request.form.get('passenger_phone')
-        passenger_gender = request.form.get('passenger_gender')
-        passenger_email = request.form.get('passenger_email')
-        passenger_cni = request.form.get('passenger_cni')
-        passenger_dob_str = request.form.get('passenger_dob')
-        passenger_emergency = request.form.get('passenger_emergency')
-        passenger_category = request.form.get('passenger_category', 'Adult')
-        
-        trip_type = request.form.get('trip_type', 'one_way')
-        return_date_str = request.form.get('return_date')
-        
-        bags_count = int(request.form.get('bags_count', 0) or 0)
-        luggage_weight = float(request.form.get('luggage_weight', 0.0) or 0.0)
-        luggage_charge = float(request.form.get('luggage_charge', 0.0) or 0.0)
-        
-        boarding_point = request.form.get('boarding_point')
-        boarding_time = request.form.get('boarding_time')
-        special_instructions = request.form.get('special_instructions')
-        
-        payment_status = request.form.get('payment_status', 'Paid')
-        payment_method = request.form.get('payment_method', 'Cash')
-        payment_ref = request.form.get('payment_ref')
-        
-        discount_applied = float(request.form.get('discount_applied', 0.0) or 0.0)
-        additional_charges = float(request.form.get('additional_charges', 0.0) or 0.0)
-        price_paid = float(request.form.get('price_paid', 0.0) or 0.0)
-        
-        booking_action = request.form.get('booking_action', 'confirm')
-        
-        # Parse Dates
-        passenger_dob = None
-        if passenger_dob_str:
-            try:
-                passenger_dob = datetime.strptime(passenger_dob_str, '%Y-%m-%d').date()
-            except ValueError:
-                pass
-                
-        return_date = None
-        if return_date_str:
-            try:
-                return_date = datetime.strptime(return_date_str, '%Y-%m-%d')
-            except ValueError:
-                pass
+        client_name = request.form.get('client_name', '').strip()
+        surname = request.form.get('surname', '').strip()
+        phone = request.form.get('phone', '').strip()
+        email = request.form.get('email', '').strip()
+        bus_id = request.form.get('bus_id') or request.form.get('car_id')
+        date_from_str = request.form.get('date_from', '').strip()
+        date_to_str = request.form.get('date_to', '').strip()
+        payment_method = request.form.get('payment_method', 'cash').strip().lower() # 'mobile', 'cash', 'pending'
+        note = request.form.get('note', '').strip()
+        driver_id = request.form.get('driver_id')
+        total_price_form = request.form.get('total_price', type=float)
 
-        trip = Trip.query.get_or_404(trip_id)
-        if trip.status == 'cancelled':
-            flash("Erreur: Le trajet sélectionné est annulé.", "danger")
+        if not all([client_name, surname, bus_id, date_from_str, date_to_str]):
+            flash("Veuillez renseigner le prénom, le nom, le véhicule VIP et les dates (du / au).", "danger")
             return redirect(url_for('admin.teller_book'))
-        
-        is_round_trip = (trip_type == 'round_trip' and return_trip_id)
-        return_trip = None
-        if is_round_trip:
-            return_trip = Trip.query.get_or_404(return_trip_id)
-            if return_trip.status == 'cancelled':
-                flash("Erreur: Le trajet retour sélectionné est annulé.", "danger")
-                return redirect(url_for('admin.teller_book'))
-        
+
+        bus = Bus.query.get_or_404(int(bus_id))
+
+        # Parse date from & date to
+        try:
+            dep_dt = datetime.strptime(date_from_str, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            try:
+                dep_dt = datetime.strptime(date_from_str, '%Y-%m-%d')
+            except ValueError:
+                dep_dt = datetime.now()
+
+        try:
+            arr_dt = datetime.strptime(date_to_str, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            try:
+                arr_dt = datetime.strptime(date_to_str, '%Y-%m-%d')
+            except ValueError:
+                arr_dt = dep_dt + timedelta(days=1)
+
+        if arr_dt <= dep_dt:
+            flash("La date de restitution doit être postérieure à la date de départ.", "danger")
+            return redirect(url_for('admin.teller_book'))
+
+        # Duration in days
+        delta = arr_dt - dep_dt
+        days = max(1, delta.days + (1 if delta.seconds > 3600*4 else 0))
+
+        # Determine daily rate
+        daily_rate = bus.promo_price if (bus.is_promo and bus.promo_price) else (bus.regular_price or 100000)
+        calculated_total = float(days * daily_rate)
+        final_price = total_price_form if (total_price_form and total_price_form > 0) else calculated_total
+
+        full_passenger_name = f"{client_name} {surname}".strip()
+
+        # Find or create client User
         passenger_user = None
-        if passenger_phone:
-            passenger_user = User.query.filter_by(phone=passenger_phone).first()
-            if not passenger_user:
-                # Create lightweight client user
-                passenger_user = User(
-                    username=passenger_phone,
-                    email=passenger_email or f"{passenger_phone}@lengue.tmp",
-                    phone=passenger_phone,
-                    real_name=passenger_name,
-                    gender=passenger_gender,
-                    date_of_birth=passenger_dob,
-                    emergency_contact_phone=passenger_emergency,
-                    role='client'
-                )
-                passenger_user.set_password(passenger_phone)
-                db.session.add(passenger_user)
-                db.session.flush()
-            else:
-                # Update optional info if not already set
-                if not passenger_user.real_name:
-                    passenger_user.real_name = passenger_name
-                if not passenger_user.email or '@lengue.tmp' in passenger_user.email:
-                    if passenger_email:
-                        passenger_user.email = passenger_email
-                if not passenger_user.gender:
-                    passenger_user.gender = passenger_gender
-                if not passenger_user.date_of_birth:
-                    passenger_user.date_of_birth = passenger_dob
-                if not passenger_user.emergency_contact_phone:
-                    passenger_user.emergency_contact_phone = passenger_emergency
-                db.session.flush()
-        
-        # Determine status based on booking action
-        booking_status = 'confirmed'
-        if booking_action == 'save':
-            booking_status = 'locked'
-            payment_status = 'pending'
-            # Lock reservation for 7 days
-            locked_until = datetime.utcnow() + timedelta(days=7)
-        else:
-            locked_until = None
+        if phone:
+            passenger_user = User.query.filter_by(phone=phone).first()
+        if not passenger_user and email:
+            passenger_user = User.query.filter_by(email=email).first()
 
-        # Price splits for round-trip
-        outbound_price_paid = price_paid / 2 if is_round_trip else price_paid
-        outbound_discount = discount_applied / 2 if is_round_trip else discount_applied
-        outbound_additional = additional_charges / 2 if is_round_trip else additional_charges
-        outbound_luggage_charge = luggage_charge / 2 if is_round_trip else luggage_charge
+        if not passenger_user:
+            user_phone = phone or f"69{random.randint(1000000, 9999999)}"
+            user_email = email or f"client.{random.randint(1000, 9999)}@3mservices.vip"
+            clean_first = "".join(c for c in client_name.lower() if c.isalnum())
+            clean_last = "".join(c for c in surname.lower() if c.isalnum())
+            username = f"{clean_first}.{clean_last}_{random.randint(100, 999)}"
+            passenger_user = User(
+                username=username,
+                email=user_email,
+                phone=user_phone,
+                first_name=client_name,
+                last_name=surname,
+                real_name=full_passenger_name,
+                role='client'
+            )
+            passenger_user.set_password(user_phone)
+            db.session.add(passenger_user)
+            db.session.flush()
+        else:
+            if not passenger_user.first_name:
+                passenger_user.first_name = client_name
+            if not passenger_user.last_name:
+                passenger_user.last_name = surname
+            if not passenger_user.real_name:
+                passenger_user.real_name = full_passenger_name
+            db.session.flush()
+
+        # Route for VIP counter rental mission
+        route = Route.query.filter(Route.origin.like('%Yaoundé%')).first()
+        if not route:
+            route = Route.query.first()
+        route_id = route.id if route else 1
+
+        # Scheduled Trip record representing this vehicle rental sortie
+        trip = Trip(
+            route_id=route_id,
+            bus_id=bus.id,
+            driver_id=int(driver_id) if driver_id else None,
+            departure_time=dep_dt,
+            arrival_time=arr_dt,
+            price=final_price,
+            capacity=bus.capacity,
+            occupied_seats=1,
+            status='scheduled'
+        )
+        db.session.add(trip)
+        db.session.flush()
+
+        # Booking code
+        booking_code = f"3M-POS-{datetime.now().strftime('%Y%m')}-{random.randint(1000, 9999)}"
+        booking_status = 'confirmed' if payment_method in ['cash', 'mobile'] else 'locked'
+        payment_status = 'paid' if payment_method in ['cash', 'mobile'] else 'pending'
 
         booking = Booking(
-            user_id=passenger_user.id if passenger_user else current_user.id,
+            user_id=passenger_user.id,
             trip_id=trip.id,
-            seat_number=seat_number or 'AUTO',
+            seat_number='VIP-CAR',
             status=booking_status,
-            payment_status=payment_status.lower(),
-            payment_method=payment_method,
-            upi_reference=payment_ref,
-            price_paid=outbound_price_paid,
-            passenger_name=passenger_name,
-            passenger_category=passenger_category,
-            bags_count=bags_count,
-            luggage_weight=luggage_weight,
-            luggage_charge=outbound_luggage_charge,
-            trip_type=trip_type,
-            return_date=return_date,
-            discount_applied=outbound_discount,
-            additional_charges=outbound_additional,
-            boarding_point=boarding_point,
-            boarding_time=boarding_time,
-            special_instructions=special_instructions,
-            locked_until=locked_until,
-            booking_code=f"TK-{trip.departure_time.strftime('%Y%m%d')}-{random.randint(10000, 99999)}"
+            payment_status=payment_status,
+            payment_method=payment_method, # 'mobile', 'cash', 'pending'
+            price_paid=final_price if payment_status == 'paid' else 0.0,
+            passenger_name=full_passenger_name,
+            special_instructions=note,
+            return_date=arr_dt,
+            booking_code=booking_code
         )
-        
-        if booking_status == 'confirmed':
-            trip.occupied_seats += 1
-            
         db.session.add(booking)
-        
-        return_booking = None
-        if is_round_trip:
-            return_booking = Booking(
-                user_id=passenger_user.id if passenger_user else current_user.id,
-                trip_id=return_trip.id,
-                seat_number=return_seat_number or 'AUTO',
-                status=booking_status,
-                payment_status=payment_status.lower(),
-                payment_method=payment_method,
-                upi_reference=payment_ref,
-                price_paid=price_paid / 2,
-                passenger_name=passenger_name,
-                passenger_category=passenger_category,
-                bags_count=0,
-                luggage_weight=0.0,
-                luggage_charge=luggage_charge / 2,
-                trip_type=trip_type,
-                return_date=return_date,
-                discount_applied=discount_applied / 2,
-                additional_charges=additional_charges / 2,
-                boarding_point=boarding_point,
-                boarding_time=boarding_time,
-                special_instructions=special_instructions,
-                locked_until=locked_until,
-                booking_code=f"TK-{return_trip.departure_time.strftime('%Y%m%d')}-{random.randint(10000, 99999)}"
-            )
-            if booking_status == 'confirmed':
-                return_trip.occupied_seats += 1
-            db.session.add(return_booking)
-            
-        db.session.commit()
-        
-        log_audit("TELLER_BOOKING", "Booking", booking.id, f"Manual POS booking for {passenger_name} (Aller)")
-        if return_booking:
-            log_audit("TELLER_BOOKING", "Booking", return_booking.id, f"Manual POS booking for {passenger_name} (Retour)")
-        
-        # Outbound notification
-        trigger_notification(
-            title="🎫 Nouveau Billet Émis",
-            message=f"Billet #{booking.booking_code} émis pour {passenger_name} — {trip.route.origin} → {trip.route.destination} le {trip.departure_time.strftime('%d/%m/%Y %H:%M')}. Montant: {outbound_price_paid:.0f} FCFA.",
-            type="success", category='booking', role_target='admin_agence',
-            agency_id=trip.route.agency_id
+        db.session.flush()
+
+        # Record Payment
+        payment = Payment(
+            booking_id=booking.id,
+            amount=final_price,
+            status='completed' if payment_status == 'paid' else 'pending',
+            payment_method='Cash' if payment_method == 'cash' else ('Mobile Money' if payment_method == 'mobile' else 'Pending')
         )
-        if return_booking:
-            trigger_notification(
-                title="🎫 Nouveau Billet Émis (Retour)",
-                message=f"Billet #{return_booking.booking_code} émis pour {passenger_name} — {return_trip.route.origin} → {return_trip.route.destination} le {return_trip.departure_time.strftime('%d/%m/%Y %H:%M')}. Montant: {(price_paid / 2):.0f} FCFA.",
-                type="success", category='booking', role_target='admin_agence',
-                agency_id=return_trip.route.agency_id
-            )
-            
-        # Client notification & Email tickets
-        if passenger_user and booking_status == 'confirmed':
-            # Outbound notification
-            trigger_notification(
-                title="✅ Contrat VIP Confirmé avec Succès",
-                message=f"Votre contrat de location #{booking.booking_code} pour {trip.route.origin} → {trip.route.destination} le {trip.departure_time.strftime('%d/%m/%Y à %H:%M')} est confirmé. Réf: {booking.seat_number}.",
-                type="success", category='passenger', role_target='client',
-                user_id=passenger_user.id
-            )
-            
-            # Send Outbound Email Ticket
-            if passenger_user.email and passenger_user.email_notifications and '@lengue.tmp' not in passenger_user.email:
-                try:
-                    from app.utils.ticket_generator import generate_pdf_ticket
-                    from app.utils.email_service import send_ticket_email
-                    from app.models import TicketQRCode
-                    
-                    pdf_bytes, b64_qr = generate_pdf_ticket(booking)
-                    qr_record = TicketQRCode(booking_id=booking.id, qr_data=b64_qr)
-                    db.session.add(qr_record)
-                    send_ticket_email(passenger_user, booking, pdf_bytes)
-                    db.session.commit()
-                except Exception as e:
-                    db.session.rollback()
-                    print(f"Error generating ticket/sending email for booking {booking.id}:", e)
-            
-            # Send Return Email Ticket
-            if return_booking and passenger_user.email and passenger_user.email_notifications and '@lengue.tmp' not in passenger_user.email:
-                try:
-                    from app.utils.ticket_generator import generate_pdf_ticket
-                    from app.utils.email_service import send_ticket_email
-                    from app.models import TicketQRCode
-                    
-                    pdf_bytes_ret, b64_qr_ret = generate_pdf_ticket(return_booking)
-                    qr_record_ret = TicketQRCode(booking_id=return_booking.id, qr_data=b64_qr_ret)
-                    db.session.add(qr_record_ret)
-                    send_ticket_email(passenger_user, return_booking, pdf_bytes_ret)
-                    db.session.commit()
-                except Exception as e:
-                    db.session.rollback()
-                    print(f"Error generating return ticket/sending email for booking {return_booking.id}:", e)
-        
-        flash(f'Réservation réussie pour {passenger_name} !', 'success')
-        
-        # Redirect back with receipt details to trigger print modal
+        db.session.add(payment)
+
+        # Update open caisse session if active
+        if caisse and payment_status == 'paid':
+            if payment_method == 'cash':
+                caisse.total_cash = (caisse.total_cash or 0.0) + final_price
+            elif payment_method == 'mobile':
+                caisse.total_momo = (caisse.total_momo or 0.0) + final_price
+
+        db.session.commit()
+
+        # Synchronize with Express backend server/data/db.json
+        sync_booking_to_express_db({
+            "id": booking_code,
+            "clientName": full_passenger_name,
+            "phone": passenger_user.phone or phone or "",
+            "email": passenger_user.email or email or "",
+            "carName": f"{bus.brand} {bus.model}",
+            "carId": f"car-{bus.id}",
+            "pickUp": "Comptoir Agence 3M SERVICES",
+            "dropOff": "Comptoir Agence 3M SERVICES",
+            "pickTime": dep_dt.strftime('%Y-%m-%d %H:%M'),
+            "dropTime": arr_dt.strftime('%Y-%m-%d %H:%M'),
+            "days": days,
+            "pricePerDay": daily_rate,
+            "totalPrice": int(final_price),
+            "status": "Confirmée" if payment_status == 'paid' else "En attente",
+            "paymentMethod": payment_method,
+            "notes": note,
+            "withDriver": bool(driver_id),
+            "createdAt": datetime.utcnow().isoformat() + "Z"
+        })
+
+        # Operations notification
+        trigger_notification(
+            title="🚗 Contrat VIP Émis au Comptoir",
+            message=f"Réservation #{booking_code} pour {full_passenger_name} — {bus.brand} {bus.model} du {dep_dt.strftime('%d/%m/%Y %H:%M')} au {arr_dt.strftime('%d/%m/%Y %H:%M')}. Règlement : {payment_method.upper()} ({final_price:,.0f} FCFA).",
+            type="success", category='booking', role_target='super_admin'
+        )
+
+        log_audit("TELLER_BOOKING", "Booking", booking.id, f"VIP POS Booking {booking_code} for {full_passenger_name} ({bus.brand} {bus.model})")
+
+        flash(f"Contrat de location VIP #{booking_code} émis avec succès pour {full_passenger_name} !", "success")
+
+        # Redirect with parameters to trigger receipt modal
         redirect_args = {
             'print_receipt': booking.booking_code,
-            'passenger': passenger_name,
-            'seat': booking.seat_number,
-            'price': price_paid,
-            'phone': passenger_phone or '',
-            'category': passenger_category,
-            'bags': bags_count,
-            'luggage_charge': luggage_charge,
-            'boarding_point': boarding_point or '',
-            'boarding_time': boarding_time or '',
-            'trip_type': trip_type,
+            'client_name': client_name,
+            'surname': surname,
+            'full_name': full_passenger_name,
+            'phone': passenger_user.phone or phone or '',
+            'car_name': f"{bus.brand} {bus.model} ({bus.bus_number})",
+            'date_from': dep_dt.strftime('%d/%m/%Y %H:%M'),
+            'date_to': arr_dt.strftime('%d/%m/%Y %H:%M'),
+            'days': days,
+            'daily_price': int(daily_rate),
+            'price': int(final_price),
             'payment_method': payment_method,
-            'payment_status': payment_status,
-            'bus_number': trip.bus.bus_number if trip.bus else 'TBA',
-            'bus_type': trip.bus.model if trip.bus else 'Standard VIP',
-            'departure_city': trip.route.origin,
-            'destination_city': trip.route.destination,
-            'travel_date': trip.departure_time.strftime('%d/%m/%Y'),
-            'departure_time': trip.departure_time.strftime('%H:%M')
+            'note': note
         }
-        
-        if return_booking:
-            redirect_args.update({
-                'return_print_receipt': return_booking.booking_code,
-                'return_seat': return_booking.seat_number,
-                'return_bus_number': return_trip.bus.bus_number if return_trip.bus else 'TBA',
-                'return_bus_type': return_trip.bus.model if return_trip.bus else 'Standard VIP',
-                'return_travel_date': return_trip.departure_time.strftime('%d/%m/%Y'),
-                'return_departure_time': return_trip.departure_time.strftime('%H:%M')
-            })
-            
         return redirect(url_for('admin.teller_book', **redirect_args))
 
-    # For the GET request, we just render the new layout (search happens via AJAX)
-    today_str = datetime.now().strftime('%Y-%m-%d')
-    return render_template('admin/teller_pos.html', today_str=today_str, caisse=caisse)
+    # GET Request: Fetch VIP fleet, drivers, existing clients and recent bookings
+    buses = Bus.query.filter_by(is_deleted=False).order_by(Bus.id.asc()).all()
+    drivers = Driver.query.filter_by(is_deleted=False).all()
+    clients = User.query.filter_by(role='client', is_deleted=False).order_by(User.id.desc()).limit(40).all()
+    recent_bookings = Booking.query.order_by(Booking.id.desc()).limit(8).all()
+    today_str = datetime.now().strftime('%Y-%m-%dT%H:00')
+    tomorrow_str = (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%dT%H:00')
+
+    return render_template(
+        'admin/teller_pos.html',
+        buses=buses,
+        drivers=drivers,
+        clients=clients,
+        recent_bookings=recent_bookings,
+        today_str=today_str,
+        tomorrow_str=tomorrow_str,
+        caisse=caisse
+    )
 
 @admin.route('/admin/teller/trips')
 @login_required
@@ -2485,6 +2420,25 @@ def sync_apartment_to_express_db(apt_dict, action='upsert'):
             json.dump(exp_db, f, indent=2, ensure_ascii=False)
     except Exception as e:
         logger.warning(f"Error syncing apartment to express db.json: {e}")
+
+def sync_booking_to_express_db(booking_dict):
+    """Synchronize counter VIP booking into server/data/db.json."""
+    try:
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+        if not os.path.exists(db_path):
+            return
+        with open(db_path, 'r', encoding='utf-8') as f:
+            exp_db = json.load(f)
+        bookings = exp_db.setdefault('bookings', [])
+        idx = next((i for i, b in enumerate(bookings) if b.get('id') == booking_dict.get('id')), -1)
+        if idx >= 0:
+            bookings[idx].update(booking_dict)
+        else:
+            bookings.insert(0, booking_dict)
+        with open(db_path, 'w', encoding='utf-8') as f:
+            json.dump(exp_db, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        logger.warning(f"Error syncing booking to express db.json: {e}")
 
 @admin.route('/admin/apartments')
 @admin.route('/admin/locations')
