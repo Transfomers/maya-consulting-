@@ -35,7 +35,7 @@ function ClientPortalModal() {
       fetchPortalChat(client.accountNumber);
       const interval = setInterval(() => {
         fetchPortalChat(client.accountNumber);
-      }, 4000);
+      }, 1500);
       return () => clearInterval(interval);
     }
   }, [client, activeTab]);

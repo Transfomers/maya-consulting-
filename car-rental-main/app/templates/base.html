@@ -1519,16 +1519,16 @@
         <!-- Left Admin Sidebar -->
         <aside class="admin-sidebar" id="adminSidebar">
             <!-- Sidebar Brand Header (Centered 3M Logo + Clean Exit Arrow) -->
-            <div class="admin-sidebar-brand d-flex align-items-center justify-content-between px-3 py-2 border-bottom"
-                style="border-color: #eaecf0 !important; background: #ffffff; min-height: 58px; height: 58px;">
-                <a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none d-flex align-items-center justify-content-center flex-grow-1" style="padding-left: 14px;">
+            <div class="admin-sidebar-brand position-relative d-flex align-items-center justify-content-center px-3 py-2 border-bottom"
+                style="border-color: #eaecf0 !important; background: #ffffff; min-height: 60px; height: 60px;">
+                <a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none d-flex align-items-center justify-content-center" style="max-width: 150px;">
                     <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES" class="sidebar-logo"
-                        style="height: 38px; max-width: 130px; object-fit: contain;">
+                        style="height: 38px; max-width: 135px; object-fit: contain;">
                 </a>
                 <button type="button"
-                    class="btn btn-sm btn-light border-0 rounded-2 p-1 d-inline-flex align-items-center justify-content-center"
+                    class="btn btn-sm btn-light border-0 rounded-2 p-1 d-inline-flex align-items-center justify-content-center position-absolute"
                     onclick="toggleAdminSidebar()" title="Replier / Agrandir le menu"
-                    style="width: 28px; height: 28px; color: #667085; background: #f8fafc;" id="btnDesktopCollapse">
+                    style="right: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; color: #667085; background: #f8fafc; z-index: 5;" id="btnDesktopCollapse">
                     <i class="bi bi-chevron-left" id="collapseSidebarChevron"></i>
                 </button>
             </div>

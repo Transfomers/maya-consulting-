@@ -1644,6 +1644,8 @@ app.delete("/api/contacts/:id", authenticateToken, (req, res) => {
    3M PERSONAL PRIVATE CHAT API (REAL-TIME CLIENT & ADMIN MESSAGING)
    ========================================================================== */
 
+const chatTypingState = {};
+
 function normalizeChatId(id) {
   if (!id) return "guest";
   return String(id).trim().replace(/[^a-zA-Z0-9_\-+@.]/g, "_");
@@ -1730,7 +1732,15 @@ app.get("/api/chats/:clientId", (req, res) => {
     writeDb(db);
   }
 
-  res.json(chat);
+  const typingState = chatTypingState[cleanId] || { clientTypingUntil: 0, adminTypingUntil: 0 };
+  const now = Date.now();
+  const chatResponse = {
+    ...chat,
+    clientTyping: typingState.clientTypingUntil > now,
+    adminTyping: typingState.adminTypingUntil > now
+  };
+
+  res.json(chatResponse);
 });
 
 // 4. Send message in a client thread (by client or by admin)
@@ -1826,6 +1836,103 @@ app.post("/api/chats/:clientId/read", (req, res) => {
     } else {
       chat.unreadClient = 0;
     }
+    writeDb(db);
+  }
+  res.json({ success: true });
+});
+
+// 6. Update typing status
+app.post("/api/chats/:clientId/typing", (req, res) => {
+  const cleanId = normalizeChatId(req.params.clientId);
+  const { sender, isTyping } = req.body;
+  if (!chatTypingState[cleanId]) {
+    chatTypingState[cleanId] = { clientTypingUntil: 0, adminTypingUntil: 0 };
+  }
+  const duration = isTyping ? 4000 : 0;
+  if (sender === "admin") {
+    chatTypingState[cleanId].adminTypingUntil = isTyping ? Date.now() + duration : 0;
+  } else {
+    chatTypingState[cleanId].clientTypingUntil = isTyping ? Date.now() + duration : 0;
+  }
+  res.json({ success: true });
+});
+
+// 7. Get typing status
+app.get("/api/chats/:clientId/typing", (req, res) => {
+  const cleanId = normalizeChatId(req.params.clientId);
+  const state = chatTypingState[cleanId] || { clientTypingUntil: 0, adminTypingUntil: 0 };
+  const now = Date.now();
+  res.json({
+    clientTyping: state.clientTypingUntil > now,
+    adminTyping: state.adminTypingUntil > now
+  });
+});
+
+// 8. CRUD: Edit / Update message
+app.patch("/api/chats/:clientId/messages/:msgId", (req, res) => {
+  const cleanId = normalizeChatId(req.params.clientId);
+  const rawId = req.params.clientId;
+  const msgId = req.params.msgId;
+  const { text } = req.body;
+  if (!text || !text.trim()) {
+    return res.status(400).json({ error: "Le texte ne peut pas être vide." });
+  }
+
+  const db = readDb();
+  db.chats = db.chats || [];
+  const chat = db.chats.find((c) => c.id === cleanId || c.clientId === rawId);
+  if (!chat || !chat.messages) {
+    return res.status(404).json({ error: "Conversation introuvable." });
+  }
+
+  const msg = chat.messages.find((m) => m.id === msgId);
+  if (!msg) {
+    return res.status(404).json({ error: "Message introuvable." });
+  }
+
+  msg.text = text.trim();
+  msg.isEdited = true;
+  msg.editedAt = new Date().toISOString();
+  chat.lastMessage = msg.text;
+  writeDb(db);
+  res.json({ success: true, message: msg });
+});
+
+// 9. CRUD: Delete message (soft delete)
+app.delete("/api/chats/:clientId/messages/:msgId", (req, res) => {
+  const cleanId = normalizeChatId(req.params.clientId);
+  const rawId = req.params.clientId;
+  const msgId = req.params.msgId;
+
+  const db = readDb();
+  db.chats = db.chats || [];
+  const chat = db.chats.find((c) => c.id === cleanId || c.clientId === rawId);
+  if (!chat || !chat.messages) {
+    return res.status(404).json({ error: "Conversation introuvable." });
+  }
+
+  const msg = chat.messages.find((m) => m.id === msgId);
+  if (!msg) {
+    return res.status(404).json({ error: "Message introuvable." });
+  }
+
+  msg.isDeleted = true;
+  msg.text = "Ce message a été supprimé.";
+  msg.deletedAt = new Date().toISOString();
+  writeDb(db);
+  res.json({ success: true, message: msg });
+});
+
+// 10. CRUD: Clear / Delete thread
+app.delete("/api/chats/:clientId", (req, res) => {
+  const cleanId = normalizeChatId(req.params.clientId);
+  const rawId = req.params.clientId;
+  const db = readDb();
+  db.chats = db.chats || [];
+
+  const chatIndex = db.chats.findIndex((c) => c.id === cleanId || c.clientId === rawId);
+  if (chatIndex !== -1) {
+    db.chats.splice(chatIndex, 1);
     writeDb(db);
   }
   res.json({ success: true });

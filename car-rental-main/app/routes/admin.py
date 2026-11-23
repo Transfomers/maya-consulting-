@@ -5533,19 +5533,40 @@ def chats():
     if not active_chat and chat_threads:
         active_chat = chat_threads[0]
 
-    return render_template('admin/chats.html', chat_threads=chat_threads, active_chat=active_chat)
+    # Also mark as read for admin when viewing active chat
+    if active_chat:
+        active_chat['unreadAdmin'] = 0
+        try:
+            with open(db_path, 'w', encoding='utf-8') as f:
+                _json.dump(exp_db, f, indent=2, ensure_ascii=False)
+        except Exception:
+            pass
+
+    available_buses = Bus.query.filter(Bus.status != 'maintenance').all()
+
+    return render_template('admin/chats.html', chat_threads=chat_threads, active_chat=active_chat, available_buses=available_buses)
 
 @admin.route('/admin/chats/<client_id>/send', methods=['POST'])
 @login_required
 @admin_required
 def send_admin_chat_reply(client_id):
     import json as _json
-    text = (request.form.get('text') or '').strip()
+    data = request.get_json(silent=True) or {}
+    text = (data.get('text') or request.form.get('text') or '').strip()
     if not text:
         if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({'error': 'Message vide'}), 400
         flash('Le message ne peut pas être vide.', 'danger')
         return redirect(url_for('admin.chats', client_id=client_id))
+
+    car_info = data.get('carInfo')
+    if not car_info and request.form.get('car_name'):
+        car_info = {
+            'id': request.form.get('car_id'),
+            'name': request.form.get('car_name'),
+            'price': request.form.get('car_price'),
+            'badge': request.form.get('car_badge') or 'VIP FLOTTE'
+        }
 
     db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
     if os.path.exists(db_path):
@@ -5560,7 +5581,8 @@ def send_admin_chat_reply(client_id):
                 'sender': 'admin',
                 'senderName': f"Conciergerie VIP 3M ({current_user.username})",
                 'text': text,
-                'timestamp': now
+                'timestamp': now,
+                'carInfo': car_info
             }
             if chat:
                 chat['messages'] = chat.get('messages', [])
@@ -5573,8 +5595,8 @@ def send_admin_chat_reply(client_id):
                 chat = {
                     'id': client_id,
                     'clientId': client_id,
-                    'clientName': request.form.get('client_name') or 'Client VIP 3M',
-                    'clientPhone': request.form.get('client_phone') or '',
+                    'clientName': data.get('client_name') or request.form.get('client_name') or 'Client VIP 3M',
+                    'clientPhone': data.get('client_phone') or request.form.get('client_phone') or '',
                     'unreadAdmin': 0,
                     'unreadClient': 1,
                     'lastMessage': text,
@@ -5594,5 +5616,117 @@ def send_admin_chat_reply(client_id):
             return redirect(url_for('admin.chats', client_id=client_id))
         except Exception as e:
             logger.error(f"Error saving chat reply: {e}")
+            if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'error': str(e)}), 500
 
-    return redirect(url_for('admin.chats', client_id=client_id)) 
+    return redirect(url_for('admin.chats', client_id=client_id))
+
+@admin.route('/admin/chats/<client_id>/api/messages', methods=['GET'])
+@login_required
+@admin_required
+def get_admin_chat_messages(client_id):
+    import json as _json
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    if os.path.exists(db_path):
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = _json.load(f)
+            chats = exp_db.get('chats', [])
+            chat = next((c for c in chats if c.get('id') == client_id or c.get('clientId') == client_id), None)
+            if chat:
+                # Mark as read
+                chat['unreadAdmin'] = 0
+                with open(db_path, 'w', encoding='utf-8') as f:
+                    _json.dump(exp_db, f, indent=2, ensure_ascii=False)
+                return jsonify({'success': True, 'chat': chat})
+            return jsonify({'success': False, 'error': 'Conversation introuvable'}), 404
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)}), 500
+    return jsonify({'success': False, 'error': 'Base db.json introuvable'}), 404
+
+@admin.route('/admin/chats/<client_id>/api/edit/<msg_id>', methods=['POST'])
+@login_required
+@admin_required
+def edit_admin_chat_message(client_id, msg_id):
+    import json as _json
+    data = request.get_json(silent=True) or {}
+    text = (data.get('text') or request.form.get('text') or '').strip()
+    if not text:
+        return jsonify({'error': 'Texte requis'}), 400
+
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    if os.path.exists(db_path):
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = _json.load(f)
+            chats = exp_db.get('chats', [])
+            chat = next((c for c in chats if c.get('id') == client_id or c.get('clientId') == client_id), None)
+            if not chat:
+                return jsonify({'error': 'Conversation introuvable'}), 404
+            msg = next((m for m in chat.get('messages', []) if m.get('id') == msg_id), None)
+            if not msg:
+                return jsonify({'error': 'Message introuvable'}), 404
+
+            msg['text'] = text
+            msg['isEdited'] = True
+            msg['editedAt'] = datetime.utcnow().isoformat() + "Z"
+            chat['lastMessage'] = text
+
+            with open(db_path, 'w', encoding='utf-8') as f:
+                _json.dump(exp_db, f, indent=2, ensure_ascii=False)
+            return jsonify({'success': True, 'message': msg})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'Base introuvable'}), 500
+
+@admin.route('/admin/chats/<client_id>/api/delete/<msg_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_admin_chat_message(client_id, msg_id):
+    import json as _json
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    if os.path.exists(db_path):
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = _json.load(f)
+            chats = exp_db.get('chats', [])
+            chat = next((c for c in chats if c.get('id') == client_id or c.get('clientId') == client_id), None)
+            if not chat:
+                return jsonify({'error': 'Conversation introuvable'}), 404
+            msg = next((m for m in chat.get('messages', []) if m.get('id') == msg_id), None)
+            if not msg:
+                return jsonify({'error': 'Message introuvable'}), 404
+
+            msg['isDeleted'] = True
+            msg['text'] = "Ce message a été supprimé par l'administration."
+            msg['deletedAt'] = datetime.utcnow().isoformat() + "Z"
+
+            with open(db_path, 'w', encoding='utf-8') as f:
+                _json.dump(exp_db, f, indent=2, ensure_ascii=False)
+            return jsonify({'success': True, 'message': msg})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'Base introuvable'}), 500
+
+@admin.route('/admin/chats/<client_id>/api/clear', methods=['POST'])
+@login_required
+@admin_required
+def clear_admin_chat_thread(client_id):
+    import json as _json
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    if os.path.exists(db_path):
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = _json.load(f)
+            chats = exp_db.get('chats', [])
+            chat = next((c for c in chats if c.get('id') == client_id or c.get('clientId') == client_id), None)
+            if chat:
+                chat['messages'] = []
+                chat['lastMessage'] = "Discussion réinitialisée"
+                with open(db_path, 'w', encoding='utf-8') as f:
+                    _json.dump(exp_db, f, indent=2, ensure_ascii=False)
+                return jsonify({'success': True})
+            return jsonify({'error': 'Conversation introuvable'}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'Base introuvable'}), 500 

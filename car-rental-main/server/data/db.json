@@ -1334,16 +1334,8 @@
       "unreadClient": 0,
       "createdAt": "2026-11-22T12:08:32.765Z",
       "lastMessageAt": "2026-11-22T12:08:32.765Z",
-      "lastMessage": "Bienvenue sur le Chat Privé 3M SERVICES !",
-      "messages": [
-        {
-          "id": "msg-welcome-1795349312765",
-          "sender": "admin",
-          "senderName": "Conciergerie VIP 3M",
-          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
-          "timestamp": "2026-11-22T12:08:32.765Z"
-        }
-      ]
+      "lastMessage": "Discussion réinitialisée",
+      "messages": []
     },
     {
       "id": "GUEST-431524",
@@ -1354,8 +1346,8 @@
       "unreadAdmin": 0,
       "unreadClient": 0,
       "createdAt": "2026-11-22T12:08:32.668Z",
-      "lastMessageAt": "2026-11-22T15:42:53.243240Z",
-      "lastMessage": "Souhaitez-vous une prise en charge à l'Aéroport de Nsimalen ou en agence Omnisports ?",
+      "lastMessageAt": "2026-11-23T12:33:17.482Z",
+      "lastMessage": "test",
       "messages": [
         {
           "id": "msg-welcome-1795349312668",
@@ -1407,6 +1399,14 @@
           "senderName": "Conciergerie VIP 3M (admin3m)",
           "text": "Souhaitez-vous une prise en charge à l'Aéroport de Nsimalen ou en agence Omnisports ?",
           "timestamp": "2026-11-22T15:42:53.243240Z"
+        },
+        {
+          "id": "msg-1795437197482-289",
+          "sender": "client",
+          "senderName": "Client Invité VIP",
+          "text": "test",
+          "carInfo": null,
+          "timestamp": "2026-11-23T12:33:17.482Z"
         }
       ]
     },
@@ -1416,11 +1416,11 @@
       "clientName": "Arnaud Mbarga",
       "clientPhone": "+237 691 78 64 47",
       "clientEmail": "arnaud.mbarga@example.cm",
-      "unreadAdmin": 1,
-      "unreadClient": 0,
+      "unreadAdmin": 0,
+      "unreadClient": 3,
       "createdAt": "2026-11-20T10:00:00.000Z",
-      "lastMessageAt": "2026-11-20T14:45:00.000Z",
-      "lastMessage": "Bonjour, la Toyota Land Cruiser V8 est-elle bien disponible ce week-end ?",
+      "lastMessageAt": "2026-11-23T12:32:10.510259Z",
+      "lastMessage": "toys",
       "messages": [
         {
           "id": "msg-1",
@@ -1440,6 +1440,41 @@
             "badge": "OFFRE FLASH -15%"
           },
           "timestamp": "2026-11-20T14:45:00.000Z"
+        },
+        {
+          "id": "msg-admin-1795433406442",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "Ce message a été supprimé par l'administration.",
+          "timestamp": "2026-11-23T12:30:06.442595Z",
+          "carInfo": null,
+          "isEdited": true,
+          "editedAt": "2026-11-23T12:30:06.449897Z",
+          "isDeleted": true,
+          "deletedAt": "2026-11-23T12:30:06.468998Z"
+        },
+        {
+          "id": "msg-admin-1795433518042",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "Le forfait VIP comprend le carburant initial, le chauffeur professionnel et l'assurance tous risques.",
+          "timestamp": "2026-11-23T12:31:58.042155Z",
+          "carInfo": {
+            "id": "5",
+            "name": "Toyota Camry Berline Prestige",
+            "price": "100000",
+            "badge": "OFFRE PROMO"
+          }
+        },
+        {
+          "id": "msg-admin-1795433530510",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "Ce message a été supprimé par l'administration.",
+          "timestamp": "2026-11-23T12:32:10.510259Z",
+          "carInfo": null,
+          "isDeleted": true,
+          "deletedAt": "2026-11-23T12:34:14.202490Z"
         }
       ]
     }

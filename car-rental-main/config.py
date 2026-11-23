@@ -16,6 +16,7 @@ class Config:
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or f"sqlite:///{db_path}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    TEMPLATES_AUTO_RELOAD = True
     
     # Static & Upload Folders
     UPLOAD_FOLDER = os.path.join(basedir, 'app', 'static', 'uploads')
