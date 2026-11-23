@@ -2364,10 +2364,68 @@ def delete_route(id):
     return redirect(url_for('admin.routes'))
 
 # === AGENCY ADMIN: CRUD TRIPS (TRAJETS) ===
+def check_due_vehicle_restitutions():
+    """
+    Vérifie les sorties de véhicules arrivées à terme ou dont la restitution est imminente.
+    Envoie une notification officielle à l'administration contenant :
+    - Nom du client VIP
+    - Véhicule (Marque, Modèle, Immat)
+    - Date de Restitution
+    """
+    try:
+        now = datetime.utcnow()
+        # Trips reaching return date (due now or today, up to 2h in future)
+        trips_due = Trip.query.filter(
+            Trip.arrival_time <= now + timedelta(hours=2),
+            Trip.status.in_(['scheduled', 'departed', 'boarding']),
+            Trip.is_deleted == False
+        ).all()
+
+        for t in trips_due:
+            ref_tag = f"[TRIP_RESTITUTION:{t.id}]"
+            existing = SystemNotification.query.filter(
+                SystemNotification.message.like(f"%{ref_tag}%")
+            ).first()
+
+            if not existing:
+                # Find client name
+                booking = t.bookings.filter_by(is_deleted=False).first()
+                client_name = "Client VIP 3M"
+                if booking:
+                    client_name = booking.passenger_name or (booking.user.real_name if booking.user else booking.user.username if booking.user else "Client VIP 3M")
+                elif t.bus and t.bus.driver_name:
+                    client_name = f"Mission Chauffeur {t.bus.driver_name}"
+
+                car_name = f"{t.bus.brand} {t.bus.model}" if t.bus else "Véhicule VIP"
+                car_plate = f"({t.bus.bus_number})" if (t.bus and t.bus.bus_number) else ""
+                car_desc = f"{car_name} {car_plate}".strip()
+                restitution_date = t.arrival_time.strftime("%d/%m/%Y à %H:%M")
+
+                title = f"🔔 Restitution Véhicule VIP : {car_name} ({client_name})"
+                message = (
+                    f"Alerte Restitution Véhicule 3M SERVICES :\n"
+                    f"• Client VIP : {client_name}\n"
+                    f"• Véhicule : {car_desc}\n"
+                    f"• Date & Heure de Restitution : {restitution_date}\n"
+                    f"• Mission / Destination : {t.route.origin if t.route else 'Yaoundé'} → {t.route.destination if t.route else 'Parc VIP'}\n"
+                    f"Le véhicule est attendu au parc. Veuillez effectuer l'état des lieux de retour. {ref_tag}"
+                )
+
+                trigger_notification(
+                    title=title,
+                    message=message,
+                    type="warning",
+                    category="operations",
+                    role_target="super_admin"
+                )
+    except Exception as e:
+        logger.warning(f"Error in check_due_vehicle_restitutions: {e}")
+
 @admin.route('/admin/trips')
 @login_required
 @admin_required
 def trips():
+    check_due_vehicle_restitutions()
     if current_user.role == 'super_admin':
         trips = Trip.query.filter_by(is_deleted=False).all()
     else:
@@ -2378,6 +2436,7 @@ def trips():
 @login_required
 @admin_required
 def add_trip():
+    check_due_vehicle_restitutions()
     if request.method == 'POST':
         route_id = request.form.get('route_id')
         bus_id = request.form.get('bus_id')
@@ -2386,7 +2445,7 @@ def add_trip():
         price = request.form.get('price')
         
         if not all([route_id, bus_id, departure_time, arrival_time, price]):
-            flash('Veuillez remplir tous les champs.', 'danger')
+            flash('Veuillez remplir tous les champs obligatoires.', 'danger')
             return redirect(url_for('admin.add_trip'))
             
         try:
@@ -2398,14 +2457,18 @@ def add_trip():
                 return redirect(url_for('admin.add_trip'))
                 
             if arr_time <= dep_time:
-                flash('L\'heure d\'arrivée doit être postérieure à l\'heure de départ.', 'danger')
+                flash('La date et heure de restitution (arrivée) doit être postérieure à la date de sortie (départ).', 'danger')
                 return redirect(url_for('admin.add_trip'))
             
-            # Get new fields
+            # Form fields
             booking_cutoff = request.form.get('booking_cutoff_minutes', 30, type=int)
             capacity_val = request.form.get('capacity', 0, type=int)
             driver_id_val = request.form.get('driver_id', type=int)
-                
+            
+            client_user_id = request.form.get('client_user_id', type=int)
+            client_name = (request.form.get('client_name') or '').strip()
+            client_phone = (request.form.get('client_phone') or '').strip()
+
             trip = Trip(
                 route_id=int(route_id),
                 bus_id=int(bus_id),
@@ -2418,19 +2481,60 @@ def add_trip():
             )
             db.session.add(trip)
             db.session.commit()
+
+            # Attach client VIP booking if specified
+            client_user = User.query.get(client_user_id) if client_user_id else None
+            if client_user and not client_name:
+                client_name = client_user.real_name or client_user.username
+            if client_user and not client_phone and client_user.phone:
+                client_phone = client_user.phone
+
+            if client_name or client_user:
+                import random
+                target_user = client_user or User.query.filter_by(role='client', is_deleted=False).first() or current_user
+                b_code = f"3M-MIS-{datetime.utcnow().strftime('%y%m%d')}-{random.randint(100, 999)}"
+                booking = Booking(
+                    user_id=target_user.id,
+                    trip_id=trip.id,
+                    seat_number="VIP",
+                    passenger_name=client_name or (target_user.real_name or target_user.username),
+                    booking_code=b_code,
+                    price_paid=float(price),
+                    status="confirmed",
+                    payment_status="paid",
+                    payment_method="momo",
+                    booking_date=datetime.utcnow(),
+                    num_persons=1,
+                    special_instructions=client_phone or ""
+                )
+                db.session.add(booking)
+                trip.occupied_seats = 1
+                db.session.commit()
             
-            log_audit("TRIP_CREATED", "Trip", trip.id, f"Scheduled trip on route {trip.route_id} with bus {trip.bus_id}")
+            log_audit("TRIP_CREATED", "Trip", trip.id, f"Scheduled VIP sortie on route {trip.route_id} with bus {trip.bus_id} for {client_name or 'Flotte VIP'}")
             
-            # NOTIFICATION: Notify Super Admin if Agency Admin sets a custom price different from the Route's base price
+            # Check if restitution is today and notify immediately
+            bus_obj = Bus.query.get(trip.bus_id)
+            car_label = f"{bus_obj.brand} {bus_obj.model} ({bus_obj.bus_number})" if bus_obj else "Véhicule VIP"
+            final_client = client_name or "Client VIP 3M"
+            
+            # Route custom price notification
             route = Route.query.get(trip.route_id)
             if current_user.role == 'admin_agence' and route and trip.price != route.base_price:
                 trigger_notification(
-                    title="⚠️ Tarif Modifié sur Voyage",
-                    message=f"L'agence {current_user.agency.name} a planifié un voyage ({route.origin} → {route.destination}) au tarif de {trip.price:.0f} FCFA au lieu du tarif de base {route.base_price:.0f} FCFA.",
+                    title="⚠️ Tarif Modifié sur Sortie VIP",
+                    message=f"L'agence {current_user.agency.name} a planifié une sortie ({route.origin} → {route.destination}) au tarif de {trip.price:.0f} FCFA.",
                     type="warning", category='operations', role_target='super_admin'
                 )
+
+            # Trigger planning notification to admin
+            trigger_notification(
+                title=f"🚗 Sortie VIP Planifiée : {car_label}",
+                message=f"Nouvelle sortie programmée pour {final_client}.\n• Sortie : {dep_time.strftime('%d/%m/%Y %H:%M')}\n• Restitution attendue : {arr_time.strftime('%d/%m/%Y %H:%M')}\nLe système notifiera l'administrateur dès l'arrivée du véhicule.",
+                type="info", category='operations', role_target='super_admin'
+            )
             
-            flash('Voyage (Trajet) planifié avec succès !', 'success')
+            flash(f'Sortie du véhicule {car_label} planifiée avec succès ! Restitution prévue le {arr_time.strftime("%d/%m/%Y à %H:%M")}.', 'success')
             return redirect(url_for('admin.trips'))
         except ValueError:
             flash('Valeurs de saisie ou formats de date incorrects.', 'danger')
@@ -2445,12 +2549,14 @@ def add_trip():
         buses = Bus.query.filter_by(agency_id=current_user.agency_id, status='active', is_deleted=False).all()
         drivers = Driver.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).all()
         
-    return render_template('admin/add_trip.html', routes=routes, buses=buses, drivers=drivers)
+    clients = User.query.filter_by(is_deleted=False).order_by(User.real_name, User.username).all()
+    return render_template('admin/add_trip.html', routes=routes, buses=buses, drivers=drivers, clients=clients)
 
 @admin.route('/admin/trip/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit_trip(id):
+    check_due_vehicle_restitutions()
     trip = Trip.query.filter_by(id=id, is_deleted=False).first_or_404()
     if current_user.role != 'super_admin' and trip.route.agency_id != current_user.agency_id:
         flash("Accès non autorisé.", 'danger')
@@ -2459,16 +2565,40 @@ def edit_trip(id):
     if request.method == 'POST':
         trip.route_id = int(request.form.get('route_id'))
         trip.bus_id = int(request.form.get('bus_id'))
-        trip.departure_time = datetime.strptime(request.form.get('departure_time'), '%Y-%m-%dT%H:%M')
-        trip.arrival_time = datetime.strptime(request.form.get('arrival_time'), '%Y-%m-%dT%H:%M')
+        dep_time = datetime.strptime(request.form.get('departure_time'), '%Y-%m-%dT%H:%M')
+        arr_time = datetime.strptime(request.form.get('arrival_time'), '%Y-%m-%dT%H:%M')
+        trip.departure_time = dep_time
+        trip.arrival_time = arr_time
         trip.price = float(request.form.get('price'))
-        trip.status = request.form.get('status')
+        prev_status = trip.status
+        new_status = request.form.get('status')
+        trip.status = new_status
         driver_id_val = request.form.get('driver_id', type=int)
         trip.driver_id = driver_id_val if driver_id_val else None
+
+        # Update client if booking exists
+        client_name = (request.form.get('client_name') or '').strip()
+        client_phone = (request.form.get('client_phone') or '').strip()
+        booking = trip.bookings.filter_by(is_deleted=False).first()
+        if booking and client_name:
+            booking.passenger_name = client_name
+            if client_phone:
+                booking.special_instructions = client_phone
+
+        # If status marked as arrived / completed: send restitution confirmation notification
+        if new_status in ['arrived', 'completed'] and prev_status not in ['arrived', 'completed']:
+            car_label = f"{trip.bus.brand} {trip.bus.model} ({trip.bus.bus_number})" if trip.bus else "Véhicule VIP"
+            client_label = (booking.passenger_name if booking else None) or "Client VIP 3M"
+            restitution_time = datetime.utcnow().strftime("%d/%m/%Y à %H:%M")
+            trigger_notification(
+                title=f"✅ Véhicule Restitué : {trip.bus.brand if trip.bus else 'Flotte'} ({client_label})",
+                message=f"Le véhicule {car_label} loué par {client_label} a été restitué au parc 3M SERVICES le {restitution_time}.\nL'inspection de retour a été validée avec succès.",
+                type="success", category="operations", role_target="super_admin"
+            )
         
         db.session.commit()
-        log_audit("TRIP_EDITED", "Trip", trip.id, f"Modified trip schedule: #{trip.id}")
-        flash('Voyage modifié avec succès !', 'success')
+        log_audit("TRIP_EDITED", "Trip", trip.id, f"Modified sortie/trip schedule: #{trip.id}")
+        flash('Sortie de véhicule VIP modifiée avec succès !', 'success')
         return redirect(url_for('admin.trips'))
         
     if current_user.role == 'super_admin':
@@ -2480,7 +2610,9 @@ def edit_trip(id):
         buses = Bus.query.filter_by(agency_id=current_user.agency_id, status='active', is_deleted=False).all()
         drivers = Driver.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).all()
         
-    return render_template('admin/edit_trip.html', trip=trip, routes=routes, buses=buses, drivers=drivers)
+    clients = User.query.filter_by(is_deleted=False).order_by(User.real_name, User.username).all()
+    existing_booking = trip.bookings.filter_by(is_deleted=False).first()
+    return render_template('admin/edit_trip.html', trip=trip, routes=routes, buses=buses, drivers=drivers, clients=clients, existing_booking=existing_booking)
 
 @admin.route('/admin/trip/toggle_status/<int:id>')
 @login_required
@@ -2588,6 +2720,7 @@ def restore_trip(id):
 @login_required
 @admin_required
 def bookings():
+    check_due_vehicle_restitutions()
     filter_val = request.args.get('filter', 'all')
     if current_user.role == 'super_admin':
         query = Booking.query.filter_by(is_deleted=False)

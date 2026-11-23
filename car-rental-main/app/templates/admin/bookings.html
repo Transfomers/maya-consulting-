@@ -160,7 +160,7 @@
                         <th style="min-width: 190px;">Véhicule VIP & Immat</th>
                         <th style="min-width: 190px;">Mission & Trajet</th>
                         <th style="min-width: 150px;">Chauffeur VIP</th>
-                        <th style="min-width: 140px;">Date & Départ</th>
+                        <th style="min-width: 155px;">Sortie & Restitution</th>
                         <th style="min-width: 110px;">Formule</th>
                         <th style="min-width: 135px;">Règlement</th>
                         <th style="min-width: 115px;">Tarif Total</th>
@@ -241,13 +241,13 @@
                         <td>
                             {% if booking.trip and booking.trip.departure_time %}
                                 <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">
-                                    {{ booking.trip.departure_time.strftime('%d/%m/%Y %H:%M') }}
+                                    <span class="text-danger fw-bold"><i class="bi bi-box-arrow-up-right me-1"></i>Sortie :</span> {{ booking.trip.departure_time.strftime('%d/%m/%Y %H:%M') }}
                                 </div>
-                                <div class="small text-muted" style="font-size: 0.72rem;">
+                                <div class="small text-muted mt-0.5" style="font-size: 0.72rem;">
                                     {% if booking.trip.arrival_time %}
-                                        Fin: {{ booking.trip.arrival_time.strftime('%H:%M') }}
+                                        <span class="text-success fw-bold"><i class="bi bi-box-arrow-in-down-left me-1"></i>Retour :</span> {{ booking.trip.arrival_time.strftime('%d/%m/%Y %H:%M') }}
                                     {% else %}
-                                        Mission VIP
+                                        Mission VIP 3M
                                     {% endif %}
                                 </div>
                             {% else %}

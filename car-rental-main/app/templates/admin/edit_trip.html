@@ -1,111 +1,302 @@
 {% extends "base.html" %}
 
-{% block title %}Modifier la Mission VIP - 3M SERVICES{% endblock %}
+{% block title %}Modifier la Sortie / Mission VIP : #{{ trip.id }} — 3M SERVICES{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    {% include 'admin/_subnav.html' %}
-
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
-                <div class="mb-4">
-                    <h3 class="fw-bold"><i class="bi bi-car-front-fill text-danger me-2"></i> Modifier la Mission VIP : #{{ trip.id }}</h3>
-                    <p class="text-muted">Ajustez la mission, le véhicule VIP assigné, les dates et heures de location, le tarif ou le statut.</p>
-                </div>
-
-                <form method="POST" class="needs-validation" novalidate>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label for="route_id" class="form-label">Mission / Destination</label>
-                            <select class="form-select" id="route_id" name="route_id" required>
-                                {% for route in routes %}
-                                    <option value="{{ route.id }}" data-price="{{ route.base_price }}" {% if trip.route_id == route.id %}selected{% endif %}>{{ route.origin }} &rarr; {{ route.destination }} ({{ route.agency.name }})</option>
-                                {% endfor %}
-                            </select>
-                            <div class="invalid-feedback">Veuillez sélectionner une mission.</div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="bus_id" class="form-label">Véhicule VIP Assigné</label>
-                            <select class="form-select" id="bus_id" name="bus_id" required>
-                                {% for bus in buses %}
-                                    <option value="{{ bus.id }}" {% if trip.bus_id == bus.id %}selected{% endif %}>{{ bus.bus_number }} - {{ bus.brand }} {{ bus.model }} ({{ bus.capacity }} places)</option>
-                                {% endfor %}
-                            </select>
-                            <div class="invalid-feedback">Veuillez assigner un véhicule VIP.</div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <label for="driver_id" class="form-label">Chauffeur VIP <small class="text-muted">(optionnel)</small></label>
-                            <select class="form-select" id="driver_id" name="driver_id">
-                                <option value="">Aucun chauffeur assigné (Sans chauffeur)</option>
-                                {% for driver in drivers if drivers is defined %}
-                                    <option value="{{ driver.id }}" {% if trip.driver_id == driver.id %}selected{% endif %}>{{ driver.name }} ({{ driver.phone or 'VIP' }}) - Permis: {{ driver.license_number }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="departure_time" class="form-label">Début de Location (Prise en charge)</label>
-                            <input type="datetime-local" class="form-control" id="departure_time" name="departure_time" value="{{ trip.departure_time.strftime('%Y-%m-%dT%H:%M') }}" required>
-                            <div class="invalid-feedback">La date et l'heure de début sont obligatoires.</div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="arrival_time" class="form-label">Fin de Location (Restitution Estimée)</label>
-                            <input type="datetime-local" class="form-control" id="arrival_time" name="arrival_time" value="{{ trip.arrival_time.strftime('%Y-%m-%dT%H:%M') }}" required>
-                            <div class="invalid-feedback">La date et l'heure de fin estimées sont obligatoires.</div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="price" class="form-label">Tarif Journalier / Forfait (FCFA)</label>
-                            <input type="number" step="100" class="form-control" id="price" name="price" value="{{ trip.price }}" required>
-                            <div class="invalid-feedback">Veuillez renseigner un tarif valide.</div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="status" class="form-label">Statut de la Mission</label>
-                            <select class="form-select" id="status" name="status" required>
-                                <option value="scheduled" {% if trip.status == 'scheduled' %}selected{% endif %}>Planifié</option>
-                                <option value="cancelled" {% if trip.status == 'cancelled' %}selected{% endif %}>Annulé</option>
-                                <option value="completed" {% if trip.status == 'completed' %}selected{% endif %}>Terminé</option>
-                            </select>
-                            <div class="invalid-feedback">Veuillez sélectionner un statut.</div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <a href="{{ url_for('admin.trips') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
-                            <i class="bi bi-arrow-left me-2"></i> Annuler
-                        </a>
-                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
-                            <i class="bi bi-check-circle me-2"></i> Enregistrer les Modifications
-                        </button>
-                    </div>
-                </form>
-            </div>
+<div class="container-fluid px-0 py-2">
+    <!-- Breadcrumb & Page Header -->
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1" style="font-size: 0.78rem;">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.trips') }}" class="text-decoration-none text-muted">Sorties & Missions</a></li>
+                    <li class="breadcrumb-item active text-danger fw-bold" aria-current="page">Modifier Sortie #{{ trip.id }}</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.65rem; letter-spacing: -0.5px; color: #101828 !important;">
+                <i class="bi bi-pencil-square text-danger me-2"></i> Modifier la Mission VIP : #{{ trip.id }}
+            </h2>
+            <p class="text-muted mb-0" style="font-size: 0.88rem; color: #667085 !important;">
+                Ajustez la mission, le véhicule VIP assigné, le client bénéficiaire, les dates de sortie & restitution et le statut.
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-danger-soft text-danger px-3 py-1.5 fw-semibold border border-danger" style="font-size: 0.78rem; background: #fef2f2;">
+                <i class="bi bi-bell-fill me-1"></i> Notification Restitution Automatique Active
+            </span>
+            <a href="{{ url_for('admin.trips') }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5" style="font-size: 0.82rem;">
+                <i class="bi bi-arrow-left"></i> <span>Retour aux Sorties</span>
+            </a>
         </div>
     </div>
+
+    <form method="POST" class="needs-validation" id="editMissionForm" novalidate>
+        <div class="row g-3">
+            <!-- Left Column: Settings -->
+            <div class="col-lg-8">
+                <!-- 1. Mission, Véhicule & Chauffeur -->
+                <div class="card border-0 shadow-xs mb-3 p-3.5" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: #eaecf0 !important;">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background: #fff0ec; color: #E20713; font-size: 0.85rem; font-weight: bold;">
+                            1
+                        </div>
+                        <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;">Mission, Véhicule VIP & Chauffeur</h6>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Mission / Destination -->
+                        <div class="col-12">
+                            <label for="route_id" class="form-label fw-semibold text-dark small mb-1">
+                                Mission / Destination <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-geo-alt-fill text-danger"></i></span>
+                                <select class="form-select border-start-0 ps-0" id="route_id" name="route_id" required style="font-size: 0.85rem;">
+                                    {% for route in routes %}
+                                        <option value="{{ route.id }}" data-price="{{ route.base_price }}" {% if trip.route_id == route.id %}selected{% endif %}>
+                                            {{ route.origin }} &rarr; {{ route.destination }} ({{ route.agency.name }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Véhicule VIP Assigné -->
+                        <div class="col-md-6">
+                            <label for="bus_id" class="form-label fw-semibold text-dark small mb-1">
+                                Véhicule VIP Assigné <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-car-front-fill text-primary"></i></span>
+                                <select class="form-select border-start-0 ps-0" id="bus_id" name="bus_id" required style="font-size: 0.85rem;">
+                                    {% for bus in buses %}
+                                        <option value="{{ bus.id }}" {% if trip.bus_id == bus.id %}selected{% endif %} data-brand="{{ bus.brand }}" data-model="{{ bus.model }}" data-plate="{{ bus.bus_number }}">
+                                            {{ bus.bus_number }} — {{ bus.brand }} {{ bus.model }} ({{ bus.capacity }} places)
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Chauffeur VIP -->
+                        <div class="col-md-6">
+                            <label for="driver_id" class="form-label fw-semibold text-dark small mb-1">
+                                Chauffeur VIP <small class="text-muted fw-normal">(optionnel)</small>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-person-badge-fill text-success"></i></span>
+                                <select class="form-select border-start-0 ps-0" id="driver_id" name="driver_id" style="font-size: 0.85rem;">
+                                    <option value="">Aucun chauffeur assigné (Sans chauffeur)</option>
+                                    {% for driver in drivers if drivers is defined %}
+                                        <option value="{{ driver.id }}" {% if trip.driver_id == driver.id %}selected{% endif %}>
+                                            {{ driver.name }} (Permis: {{ driver.license_number }}) {% if driver.rating %}— ⭐ {{ "%.1f"|format(driver.rating) }}{% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Client VIP Bénéficiaire -->
+                <div class="card border-0 shadow-xs mb-3 p-3.5" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: #eaecf0 !important;">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background: #eff8ff; color: #175cd3; font-size: 0.85rem; font-weight: bold;">
+                                2
+                            </div>
+                            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;">Client VIP Bénéficiaire</h6>
+                        </div>
+                        <span class="badge bg-light text-muted border" style="font-size: 0.68rem;">Inclus dans l'alerte restitution</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="client_name" class="form-label fw-semibold text-dark small mb-1">
+                                Nom du Client VIP / Délégation
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-person-fill"></i></span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="client_name" name="client_name" value="{{ existing_booking.passenger_name if existing_booking else '' }}" placeholder="Ex: Arnaud Mbarga / Délégation Minrex" style="font-size: 0.85rem;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="client_phone" class="form-label fw-semibold text-dark small mb-1">
+                                Téléphone / Contact Client
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-telephone-fill text-success"></i></span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="client_phone" name="client_phone" value="{{ existing_booking.special_instructions if existing_booking else '' }}" placeholder="Ex: +237 698 66 87 61" style="font-size: 0.85rem;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Dates de Sortie & Restitution (The date it goes out & date it comes back) -->
+                <div class="card border-0 shadow-xs mb-3 p-3.5" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-color: #eaecf0 !important;">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background: #ecfdf3; color: #027a48; font-size: 0.85rem; font-weight: bold;">
+                                3
+                            </div>
+                            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;">Dates de Sortie & Restitution du Véhicule</h6>
+                        </div>
+                        <div id="liveDurationBadge" class="badge bg-primary-soft text-primary border border-primary px-2.5 py-1" style="font-size: 0.75rem;">
+                            <i class="bi bi-clock-history me-1"></i> <span id="durationText">Calcul en cours...</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Date de Sortie (Départ) -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 border" style="background: #fafbfc; border-color: #eaecf0 !important;">
+                                <label for="departure_time" class="form-label fw-bold text-dark small mb-1 d-flex align-items-center justify-content-between">
+                                    <span><i class="bi bi-box-arrow-up-right text-danger me-1"></i> Date & Heure de Sortie (Départ) <span class="text-danger">*</span></span>
+                                    <span class="badge bg-danger text-white small" style="font-size: 0.65rem;">Quitte le parc</span>
+                                </label>
+                                <input type="datetime-local" class="form-control" id="departure_time" name="departure_time" value="{{ trip.departure_time.strftime('%Y-%m-%dT%H:%M') }}" required style="font-size: 0.88rem; background: #ffffff;">
+                                <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">Prise en charge officielle du véhicule VIP.</small>
+                            </div>
+                        </div>
+
+                        <!-- Date de Restitution (Arrivée / Retour) -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 border" style="background: #fffbfa; border-color: #fed7aa !important;">
+                                <label for="arrival_time" class="form-label fw-bold text-dark small mb-1 d-flex align-items-center justify-content-between">
+                                    <span><i class="bi bi-box-arrow-in-down-left text-success me-1"></i> Date & Heure de Restitution (Retour) <span class="text-danger">*</span></span>
+                                    <span class="badge bg-success text-white small" style="font-size: 0.65rem;">Retour au parc</span>
+                                </label>
+                                <input type="datetime-local" class="form-control" id="arrival_time" name="arrival_time" value="{{ trip.arrival_time.strftime('%Y-%m-%dT%H:%M') }}" required style="font-size: 0.88rem; background: #ffffff; border-color: #f97316;">
+                                <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">Date d'arrivée prévue : déclenche l'alerte à l'administrateur.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Tarif & Statut -->
+                <div class="card border-0 shadow-xs mb-3 p-3.5" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom" style="border-color: #eaecf0 !important;">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; background: #fdf2fa; color: #c11574; font-size: 0.85rem; font-weight: bold;">
+                            4
+                        </div>
+                        <h6 class="fw-bold text-dark mb-0" style="font-size: 0.95rem;">Tarif & Statut de la Mission</h6>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Tarif -->
+                        <div class="col-md-6">
+                            <label for="price" class="form-label fw-semibold text-dark small mb-1">
+                                Tarif Journalier / Forfait (FCFA) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-cash-stack"></i></span>
+                                <input type="number" step="100" class="form-control border-start-0 ps-0" id="price" name="price" value="{{ trip.price }}" required style="font-size: 0.85rem;">
+                                <span class="input-group-text bg-light text-muted" style="font-size: 0.75rem;">FCFA</span>
+                            </div>
+                        </div>
+
+                        <!-- Statut -->
+                        <div class="col-md-6">
+                            <label for="status" class="form-label fw-semibold text-dark small mb-1">
+                                Statut Opérationnel de la Mission <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="status" name="status" required style="font-size: 0.85rem;">
+                                <option value="scheduled" {% if trip.status == 'scheduled' %}selected{% endif %}>🟢 Planifié / En attente de départ</option>
+                                <option value="departed" {% if trip.status == 'departed' %}selected{% endif %}>🚗 En mission (Véhicule sorti)</option>
+                                <option value="arrived" {% if trip.status == 'arrived' %}selected{% endif %}>🏁 Arrivé / Véhicule Restitué</option>
+                                <option value="completed" {% if trip.status == 'completed' %}selected{% endif %}>✅ Clôturé / Terminé</option>
+                                <option value="cancelled" {% if trip.status == 'cancelled' %}selected{% endif %}>🔴 Annulé</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Action Buttons -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-2">
+                    <a href="{{ url_for('admin.trips') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold" style="font-size: 0.85rem;">
+                        <i class="bi bi-arrow-left me-1"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-xs d-inline-flex align-items-center gap-2" style="font-size: 0.88rem; background-color: #D62828 !important; border-color: #D62828 !important;">
+                        <i class="bi bi-check2-circle"></i>
+                        <span>Enregistrer les Modifications</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: Status & Live Restitution Card -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-xs p-3.5 sticky-top" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important; top: 80px;">
+                    <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom" style="font-size: 0.95rem; border-color: #eaecf0 !important;">
+                        <i class="bi bi-info-circle text-danger me-1"></i> Suivi Restitution Sortie VIP
+                    </h6>
+
+                    <div class="p-2.5 rounded-3 border bg-light mb-2.5" style="border-color: #eaecf0 !important;">
+                        <span class="text-muted small d-block" style="font-size: 0.7rem;">VÉHICULE VIP ASSIGNÉ</span>
+                        <strong class="text-dark d-block" style="font-size: 0.85rem;">{{ trip.bus.brand }} {{ trip.bus.model }}</strong>
+                        <small class="text-muted" style="font-size: 0.72rem;">Immatriculation : {{ trip.bus.bus_number }}</small>
+                    </div>
+
+                    <div class="p-2.5 rounded-3 border mb-3" style="background: #fff8f8; border-color: #fecdd3 !important;">
+                        <span class="text-danger fw-bold small d-block" style="font-size: 0.7rem;">CALENDRIER RESTITUTION</span>
+                        <div class="mt-1 small" style="font-size: 0.75rem;">
+                            <div><strong>Sortie :</strong> {{ trip.departure_time.strftime('%d/%m/%Y à %H:%M') }}</div>
+                            <div class="mt-0.5"><strong>Restitution :</strong> <span class="text-danger fw-bold">{{ trip.arrival_time.strftime('%d/%m/%Y à %H:%M') }}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="p-2.5 rounded-3 bg-light border text-muted small mb-3" style="font-size: 0.72rem; line-height: 1.4; border-color: #eaecf0 !important;">
+                        <i class="bi bi-bell-fill text-warning me-1"></i>
+                        <strong>Alerte automatique :</strong> À l'arrivée de la date de restitution, une notification officielle informe l'administrateur avec le nom du client, le véhicule et la date pour la réintégration en flotte.
+                    </div>
+
+                    <button type="submit" form="editMissionForm" class="btn btn-primary w-100 py-2 rounded-pill fw-semibold shadow-xs" style="font-size: 0.85rem; background-color: #D62828 !important; border-color: #D62828 !important;">
+                        <i class="bi bi-check2-circle me-1"></i> Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const routeSelect = document.getElementById('route_id');
-        const priceInput = document.getElementById('price');
-        
-        routeSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const basePrice = selectedOption.getAttribute('data-price');
-            if (basePrice) {
-                priceInput.value = basePrice;
-                // Optional: add a tiny visual feedback
-                priceInput.classList.add('is-valid');
-                setTimeout(() => priceInput.classList.remove('is-valid'), 1500);
+document.addEventListener('DOMContentLoaded', function() {
+    const depInput = document.getElementById('departure_time');
+    const arrInput = document.getElementById('arrival_time');
+    const durationBadge = document.getElementById('liveDurationBadge');
+    const durationText = document.getElementById('durationText');
+
+    function updateDuration() {
+        const depVal = depInput.value;
+        const arrVal = arrInput.value;
+        if (depVal && arrVal) {
+            const depDate = new Date(depVal);
+            const arrDate = new Date(arrVal);
+            const diffMs = arrDate - depDate;
+            if (diffMs > 0) {
+                const totalHours = Math.round(diffMs / (1000 * 60 * 60));
+                const days = Math.floor(totalHours / 24);
+                const remainingHours = totalHours % 24;
+                let txt = '';
+                if (days > 0) {
+                    txt += `${days} Jour${days > 1 ? 's' : ''}`;
+                    if (remainingHours > 0) txt += ` et ${remainingHours}h`;
+                } else {
+                    txt += `${totalHours} Heure${totalHours > 1 ? 's' : ''}`;
+                }
+                durationText.textContent = `Durée : ${txt}`;
+                durationBadge.style.display = 'inline-flex';
+            } else {
+                durationBadge.style.display = 'none';
             }
-        });
-    });
+        }
+    }
+
+    depInput?.addEventListener('change', updateDuration);
+    arrInput?.addEventListener('change', updateDuration);
+    updateDuration();
+});
 </script>
 {% endblock %}
