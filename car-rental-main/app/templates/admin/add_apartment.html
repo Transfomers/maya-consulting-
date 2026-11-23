@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Ajouter un Appartement Meublé VIP — 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include 'admin/_subnav.html' %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem; background: #ffffff;">
+                <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-danger text-white px-2 py-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">IMMOBILIER MEUBLÉ</span>
+                            <span class="text-muted small">• 3M SERVICES</span>
+                        </div>
+                        <h3 class="fw-bold text-dark mt-1 mb-1">
+                            <i class="bi bi-building-add text-danger me-2"></i> Ajouter un Appartement VIP
+                        </h3>
+                        <p class="text-muted small mb-0">Enregistrez un nouvel appartement meublé de haut standing dans le catalogue des locations 3M.</p>
+                    </div>
+                    <a href="{{ url_for('admin.apartments') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                        <i class="bi bi-arrow-left me-1"></i> Locations
+                    </a>
+                </div>
+
+                <form method="POST" class="needs-validation" novalidate id="apartmentForm">
+                    <div class="row g-3 mb-4">
+                        <!-- Titre -->
+                        <div class="col-md-8">
+                            <label for="title" class="form-label fw-bold text-dark">
+                                Titre de l'Appartement <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-tag"></i></span>
+                                <input type="text" class="form-control" id="title" name="title" placeholder="Ex: Appartement Prestige Tsinga (Face FECAFOOT)" required>
+                            </div>
+                            <div class="invalid-feedback">Veuillez renseigner un titre attractif.</div>
+                        </div>
+
+                        <!-- Statut -->
+                        <div class="col-md-4">
+                            <label for="status" class="form-label fw-bold text-dark">
+                                Statut de Disponibilité <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-toggle-on"></i></span>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="Disponible" selected>Disponible</option>
+                                    <option value="Occupé">Occupé</option>
+                                    <option value="Réservé">Réservé</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Type de résidence -->
+                        <div class="col-md-6">
+                            <label for="type" class="form-label fw-bold text-dark">
+                                Type & Standing <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-house"></i></span>
+                                <input type="text" class="form-control" id="type" name="type" list="typeSuggestions" placeholder="Ex: T3 Meublé Haut Standing" required>
+                            </div>
+                            <datalist id="typeSuggestions">
+                                <option value="T3 Meublé Haut Standing">
+                                <option value="T2 Meublé Contemporain">
+                                <option value="T4 Prestige Exécutif">
+                                <option value="Studio Meublé VIP">
+                                <option value="Penthouse Exclusif 3M">
+                            </datalist>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge rounded-pill bg-light text-dark border apt-pill" role="button" data-target="type" data-val="T3 Meublé Haut Standing">T3 Haut Standing</span>
+                                <span class="badge rounded-pill bg-light text-dark border apt-pill" role="button" data-target="type" data-val="T2 Meublé Contemporain">T2 Cosy</span>
+                                <span class="badge rounded-pill bg-light text-dark border apt-pill" role="button" data-target="type" data-val="T4 Prestige Exécutif">T4 Prestige</span>
+                                <span class="badge rounded-pill bg-light text-dark border apt-pill" role="button" data-target="type" data-val="Studio Meublé VIP">Studio VIP</span>
+                            </div>
+                        </div>
+
+                        <!-- Emplacement -->
+                        <div class="col-md-6">
+                            <label for="location" class="form-label fw-bold text-dark">
+                                Emplacement / Adresse <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-geo-alt"></i></span>
+                                <input type="text" class="form-control" id="location" name="location" list="locSuggestions" value="Tsinga (Face FECAFOOT), Yaoundé" required>
+                            </div>
+                            <datalist id="locSuggestions">
+                                <option value="Tsinga (Face FECAFOOT), Yaoundé">
+                                <option value="Omnisports (Rue Foe), Yaoundé">
+                                <option value="Bastos, Yaoundé">
+                                <option value="Bonapriso, Douala">
+                            </datalist>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge rounded-pill bg-light text-dark border apt-pill" role="button" data-target="location" data-val="Tsinga (Face FECAFOOT), Yaoundé">Tsinga Face FECAFOOT</span>
+                                <span class="badge rounded-pill bg-light text-dark border apt-pill" role="button" data-target="location" data-val="Omnisports (Rue Foe), Yaoundé">Omnisports Yaoundé</span>
+                                <span class="badge rounded-pill bg-light text-dark border apt-pill" role="button" data-target="location" data-val="Bastos, Yaoundé">Bastos Yaoundé</span>
+                            </div>
+                        </div>
+
+                        <!-- Configuration des pièces -->
+                        <div class="col-md-6">
+                            <label for="rooms" class="form-label fw-bold text-dark">
+                                Configuration des Pièces
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-door-open"></i></span>
+                                <input type="text" class="form-control" id="rooms" name="rooms" list="roomSuggestions" placeholder="Ex: 2 Chambres • 2 Salons • 2 Salles de bain">
+                            </div>
+                            <datalist id="roomSuggestions">
+                                <option value="2 Chambres • 2 Salons • 2 Salles de bain">
+                                <option value="1 Chambre • 1 Grand Salon • 1 Salle de bain">
+                                <option value="3 Chambres • Double Séjour • 3 Salles de bain">
+                                <option value="1 Grande Chambre Suite • Kitchenette équipée">
+                            </datalist>
+                        </div>
+
+                        <!-- Tarif de location -->
+                        <div class="col-md-6">
+                            <label for="price" class="form-label fw-bold text-dark">
+                                Tarif de Location <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-cash"></i></span>
+                                <input type="text" class="form-control" id="price" name="price" list="priceSuggestions" placeholder="Ex: 65 000 FCFA / nuitée" required>
+                            </div>
+                            <datalist id="priceSuggestions">
+                                <option value="65 000 FCFA / nuitée (Dégressif au mois)">
+                                <option value="40 000 FCFA / nuitée (Tarif long séjour)">
+                                <option value="90 000 FCFA / nuitée">
+                                <option value="35 000 FCFA / nuitée">
+                            </datalist>
+                        </div>
+
+                        <!-- Image & Galerie 3M -->
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold text-dark d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-image text-danger me-1"></i> Photo Principale de l'Appartement</span>
+                                <small class="text-muted">Sélectionnez une photo officielle 3M ci-dessous ou entrez une URL</small>
+                            </label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-link-45deg"></i></span>
+                                <input type="text" class="form-control" id="image" name="image" value="/Asset/appartements/appartement-meuble-suite-parentale.webp" placeholder="URL de l'image...">
+                                <span class="input-group-text bg-light text-muted">Photos :</span>
+                                <input type="number" class="form-control" name="photos_count" value="5" min="1" max="20" style="max-width: 90px;" title="Nombre de photos">
+                            </div>
+
+                            <!-- Clickable Quick Gallery -->
+                            <div class="d-flex gap-2 overflow-x-auto py-2">
+                                {% for g in gallery_images %}
+                                <div class="card border gallery-item p-1 text-center" style="cursor: pointer; width: 140px; min-width: 140px; border-radius: 8px;" onclick="selectGalleryImage('{{ g.url }}')">
+                                    <img src="{{ g.url }}" class="rounded w-100 object-fit-cover" style="height: 75px;" alt="{{ g.label }}" onerror="this.src='/Asset/appartements/appartement-meuble-suite-parentale.webp'">
+                                    <div class="small text-truncate mt-1 text-muted" style="font-size: 0.68rem;">{{ g.label }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-md-12">
+                            <label for="description" class="form-label fw-bold text-dark">
+                                Description Détaillée & Atouts
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="Présentation du confort, de la vue, de la sécurité 24/7 et des commodités..."></textarea>
+                        </div>
+
+                        <!-- Équipements inclus -->
+                        <div class="col-md-12">
+                            <div class="p-3 rounded-3 border" style="background: #fafbfc; border-color: #eaecf0 !important;">
+                                <label class="form-label fw-bold text-dark d-flex align-items-center justify-content-between mb-2">
+                                    <span><i class="bi bi-list-check text-danger me-1"></i> Équipements Inclus</span>
+                                    <small class="text-muted">Cochez les équipements disponibles</small>
+                                </label>
+                                <div class="row g-2 mb-2">
+                                    {% for eq in default_equipments %}
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="equipments" value="{{ eq }}" id="eq_{{ loop.index }}" checked>
+                                            <label class="form-check-label small text-dark" for="eq_{{ loop.index }}">
+                                                {{ eq }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="mt-2">
+                                    <input type="text" class="form-control form-control-sm" name="custom_equipment" placeholder="+ Ajouter un équipement personnalisé (ex: Machine à café Nespresso...)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Services VIP inclus -->
+                        <div class="col-md-12">
+                            <div class="p-3 rounded-3 border" style="background: #fff8f5; border-color: #ffd4c9 !important;">
+                                <label class="form-label fw-bold text-dark d-flex align-items-center justify-content-between mb-2">
+                                    <span><i class="bi bi-stars text-danger me-1"></i> Services & Conciergerie VIP Inclus</span>
+                                    <small class="text-muted">Engagements de standing 3M SERVICES</small>
+                                </label>
+                                <div class="row g-2 mb-2">
+                                    {% for vs in default_vip_services %}
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="vip_services" value="{{ vs }}" id="vs_{{ loop.index }}" checked>
+                                            <label class="form-check-label small text-dark" for="vs_{{ loop.index }}">
+                                                {{ vs }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="mt-2">
+                                    <input type="text" class="form-control form-control-sm" name="custom_vip_service" placeholder="+ Ajouter un service VIP personnalisé (ex: Blanchisserie sur mesure...)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 border-top">
+                        <a href="{{ url_for('admin.apartments') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-arrow-left me-2"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-danger px-5 py-2.5 rounded-pill fw-bold shadow-sm" style="background: #E20713; border-color: #E20713;">
+                            <i class="bi bi-check-circle me-2"></i> Enregistrer l'Appartement VIP
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectGalleryImage(url) {
+    document.getElementById('image').value = url;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.apt-pill').forEach(pill => {
+        pill.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-target');
+            const val = this.getAttribute('data-val');
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                targetEl.value = val;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

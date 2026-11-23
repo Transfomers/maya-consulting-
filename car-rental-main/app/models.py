@@ -220,6 +220,10 @@ class Bus(db.Model):
     regular_price = db.Column(db.Integer, nullable=True)
     promo_description = db.Column(db.String(255), nullable=True)
     
+    # Division & Release Information
+    division = db.Column(db.String(50), default='LOCATION') # 'LOCATION' or '3MCONSULTING'
+    release_date = db.Column(db.String(30), nullable=True) # Année / Date de mise en circulation
+    
     # Belongs to an agency
     agency_id = db.Column(db.Integer, db.ForeignKey('agency.id'), nullable=False)
     
@@ -228,6 +232,75 @@ class Bus(db.Model):
 
     def __repr__(self):
         return f'<Bus {self.bus_number} - {self.model}>'
+
+class Apartment(db.Model):
+    __tablename__ = 'apartment'
+    id = db.Column(db.String(50), primary_key=True) # e.g. 'apt-01'
+    title = db.Column(db.String(255), nullable=False)
+    type = db.Column(db.String(100), nullable=False) # e.g. 'T3 Meublé Haut Standing'
+    location = db.Column(db.String(255), nullable=False) # e.g. 'Tsinga (Face FECAFOOT), Yaoundé'
+    rooms = db.Column(db.String(150), nullable=True) # e.g. '2 Chambres • 2 Salons • 2 Salles de bain'
+    price = db.Column(db.String(100), nullable=False) # e.g. '65 000 FCFA / nuitée'
+    photos_count = db.Column(db.Integer, default=4)
+    image = db.Column(db.String(500), nullable=True)
+    status = db.Column(db.String(50), default='Disponible') # 'Disponible', 'Occupé', 'Réservé', 'Maintenance'
+    description = db.Column(db.Text, nullable=True)
+    equipments_json = db.Column(db.Text, nullable=True)
+    vip_services_json = db.Column(db.Text, nullable=True)
+    agency_id = db.Column(db.Integer, db.ForeignKey('agency.id'), nullable=True)
+    is_deleted = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @property
+    def equipments(self):
+        if not self.equipments_json:
+            return []
+        try:
+            return _json.loads(self.equipments_json)
+        except Exception:
+            return [e.strip() for e in self.equipments_json.split(',') if e.strip()]
+
+    @equipments.setter
+    def equipments(self, val):
+        if isinstance(val, list):
+            self.equipments_json = _json.dumps(val, ensure_ascii=False)
+        elif isinstance(val, str):
+            self.equipments_json = val
+
+    @property
+    def vip_services(self):
+        if not self.vip_services_json:
+            return []
+        try:
+            return _json.loads(self.vip_services_json)
+        except Exception:
+            return [s.strip() for s in self.vip_services_json.split(',') if s.strip()]
+
+    @vip_services.setter
+    def vip_services(self, val):
+        if isinstance(val, list):
+            self.vip_services_json = _json.dumps(val, ensure_ascii=False)
+        elif isinstance(val, str):
+            self.vip_services_json = val
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "type": self.type,
+            "location": self.location,
+            "rooms": self.rooms,
+            "price": self.price,
+            "photosCount": self.photos_count,
+            "image": self.image,
+            "status": self.status,
+            "description": self.description,
+            "equipments": self.equipments,
+            "vipServices": self.vip_services
+        }
+
+    def __repr__(self):
+        return f'<Apartment {self.id} - {self.title}>'
 
 class Route(db.Model): # Representing Lignes (lines)
     id = db.Column(db.Integer, primary_key=True)

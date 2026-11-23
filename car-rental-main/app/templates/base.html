@@ -1571,10 +1571,10 @@
 
                 <!-- Management -->
                 <div class="sidebar-section-title">Management</div>
-                <a href="{{ url_for('admin.trips') }}"
-                    class="sidebar-nav-item {% if request.endpoint in ['admin.trips', 'admin.add_trip', 'admin.edit_trip'] %}active{% endif %}"
-                    title="Locations">
-                    <i class="bi bi-geo-alt"></i>
+                <a href="{{ url_for('admin.apartments') }}"
+                    class="sidebar-nav-item {% if request.endpoint in ['admin.apartments', 'admin.add_apartment', 'admin.edit_apartment'] %}active{% endif %}"
+                    title="Locations Appartements VIP">
+                    <i class="bi bi-building"></i>
                     <span class="sidebar-text">Locations</span>
                 </a>
                 <a href="{{ url_for('admin.finance') }}"

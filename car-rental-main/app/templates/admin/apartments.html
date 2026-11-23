@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}Locations d'Appartements Meublés VIP — 3M SERVICES{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header -->
+    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-danger text-white px-2 py-0.5 fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">IMMOBILIER & RÉSIDENCES</span>
+                <span class="text-muted small">• TSINGA FACE FECAFOOT</span>
+            </div>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">
+                Locations d'Appartements VIP
+            </h2>
+            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">
+                Supervision du parc d'appartements meublés grand standing 3M SERVICES, disponibilités en temps réel, tarifs et prestations VIP.
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="http://127.0.0.1:3001/apartments" target="_blank" class="btn btn-sm btn-outline-secondary shadow-xs">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Voir Vitrine Client
+            </a>
+            <a href="{{ url_for('admin.add_apartment') }}" class="btn btn-sm btn-danger shadow-xs" style="background: #E20713; border-color: #E20713;">
+                <i class="bi bi-plus-lg me-1"></i> Ajouter un Appartement VIP
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Total Appartements</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #eff8ff; color: #175cd3;">
+                        <i class="bi bi-building fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem;">{{ total_count }}</h3>
+                    <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">Résidences Meublées</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Disponibles Immédiatement</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #ecfdf3; color: #039855;">
+                        <i class="bi bi-check-circle-fill fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-success" style="font-size: 1.45rem;">{{ available_count }}</h3>
+                    <span class="badge bg-success-subtle text-success fw-normal" style="font-size: 0.7rem;">Prêts à Louer</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En Séjour / Réservés</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fff8f0; color: #b54708;">
+                        <i class="bi bi-key-fill fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-warning" style="font-size: 1.45rem; color: #b54708 !important;">{{ occupied_count }}</h3>
+                    <span class="badge bg-warning-subtle text-warning fw-normal" style="font-size: 0.7rem; color: #b54708 !important;">Occupés</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Emplacement Vedette</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fef3f2; color: #E20713;">
+                        <i class="bi bi-geo-alt-fill fs-6"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.05rem;">Tsinga VIP</h5>
+                    <span class="badge bg-danger-subtle text-danger fw-normal" style="font-size: 0.7rem;">Face FECAFOOT</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="card bg-white border shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important;">
+        <div class="d-flex flex-wrap gap-2 p-3 align-items-center justify-content-between" style="background: #fafbfc; border-radius: 12px;">
+            <form method="GET" action="{{ url_for('admin.apartments') }}" class="d-flex flex-wrap gap-2 align-items-center">
+                <div class="input-group input-group-sm" style="max-width: 280px;">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" value="{{ current_q }}" class="form-control border-start-0 ps-0" placeholder="Chercher titre, standing...">
+                </div>
+
+                <select name="status" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                    <option value="" {% if not current_status %}selected{% endif %}>Tous les statuts</option>
+                    <option value="Disponible" {% if current_status == 'Disponible' %}selected{% endif %}>Disponible</option>
+                    <option value="Occupé" {% if current_status == 'Occupé' %}selected{% endif %}>Occupé</option>
+                    <option value="Réservé" {% if current_status == 'Réservé' %}selected{% endif %}>Réservé</option>
+                    <option value="Maintenance" {% if current_status == 'Maintenance' %}selected{% endif %}>Maintenance</option>
+                </select>
+
+                <button type="submit" class="btn btn-sm btn-primary">Filtrer</button>
+                {% if current_q or current_status %}
+                <a href="{{ url_for('admin.apartments') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+                </a>
+                {% endif %}
+            </form>
+            <div class="text-muted small">
+                <strong>{{ apartments|length }}</strong> appartement(s) affiché(s)
+            </div>
+        </div>
+    </div>
+
+    <!-- Apartments Grid View -->
+    <div class="row g-4 mb-4">
+        {% for apt in apartments %}
+        <div class="col-md-6 col-xl-6">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius: 16px; border: 1px solid #eaecf0 !important; background: #ffffff; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <!-- Image Header with Badges -->
+                <div class="position-relative" style="height: 220px; overflow: hidden; background: #1e293b;">
+                    <img src="{{ apt.image or '/Asset/appartements/appartement-meuble-suite-parentale.webp' }}" 
+                         alt="{{ apt.title }}" 
+                         class="w-100 h-100 object-fit-cover"
+                         onerror="this.src='/Asset/appartements/appartement-meuble-suite-parentale.webp'">
+                    <div class="position-absolute top-0 start-0 m-3 d-flex gap-1 flex-wrap">
+                        {% if apt.status == 'Disponible' %}
+                        <span class="badge bg-success text-white fw-bold shadow-sm px-2.5 py-1.5" style="border-radius: 8px;">
+                            <i class="bi bi-check-circle-fill me-1"></i> Disponible
+                        </span>
+                        {% elif apt.status in ['Occupé', 'Réservé'] %}
+                        <span class="badge bg-warning text-dark fw-bold shadow-sm px-2.5 py-1.5" style="border-radius: 8px;">
+                            <i class="bi bi-clock-fill me-1"></i> {{ apt.status }}
+                        </span>
+                        {% else %}
+                        <span class="badge bg-secondary text-white fw-bold shadow-sm px-2.5 py-1.5" style="border-radius: 8px;">
+                            <i class="bi bi-wrench me-1"></i> Maintenance
+                        </span>
+                        {% endif %}
+                        <span class="badge bg-dark-subtle text-white fw-semibold shadow-sm px-2 py-1.5" style="background: rgba(0,0,0,0.65) !important; border-radius: 8px;">
+                            {{ apt.id }}
+                        </span>
+                    </div>
+
+                    <div class="position-absolute bottom-0 start-0 end-0 p-3 d-flex justify-content-between align-items-end" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);">
+                        <div>
+                            <span class="badge bg-danger text-white fw-bold mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">{{ apt.type }}</span>
+                            <div class="text-white fw-bold" style="font-size: 1.15rem; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+                                {{ apt.title }}
+                            </div>
+                        </div>
+                        <span class="badge text-white px-2 py-1" style="background: rgba(0,0,0,0.6); font-size: 0.75rem; border-radius: 6px;">
+                            <i class="bi bi-camera me-1"></i> {{ apt.photos_count or 4 }} photos
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <!-- Location & Rooms -->
+                        <div class="mb-3 pb-3 border-bottom">
+                            <div class="text-muted small d-flex align-items-center gap-1 mb-1.5">
+                                <i class="bi bi-geo-alt-fill text-danger"></i>
+                                <span class="fw-semibold text-dark">{{ apt.location }}</span>
+                            </div>
+                            <div class="text-muted small d-flex align-items-center gap-1">
+                                <i class="bi bi-door-open text-primary"></i>
+                                <span>{{ apt.rooms }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Price Highlight -->
+                        <div class="p-2.5 rounded-3 mb-3 d-flex align-items-center justify-content-between" style="background: #fff8f5; border: 1px solid #ffd4c9;">
+                            <div>
+                                <div class="text-muted" style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Tarif de Location VIP</div>
+                                <div class="fw-bold text-danger fs-5" style="letter-spacing: -0.3px;">{{ apt.price }}</div>
+                            </div>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1" style="font-size: 0.7rem;">
+                                Dégressif au mois
+                            </span>
+                        </div>
+
+                        <!-- Description -->
+                        {% if apt.description %}
+                        <p class="text-muted small mb-3 text-truncate-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 38px; line-height: 1.4;">
+                            {{ apt.description }}
+                        </p>
+                        {% endif %}
+
+                        <!-- Key Equipments -->
+                        <div class="mb-3">
+                            <div class="text-muted small fw-bold mb-1.5" style="font-size: 0.72rem; text-transform: uppercase;">Équipements & Prestations Incluses :</div>
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for eq in apt.equipments[:4] %}
+                                <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.72rem; padding: 4px 8px;">
+                                    <i class="bi bi-check2 text-success me-1"></i>{{ eq }}
+                                </span>
+                                {% endfor %}
+                                {% if apt.equipments|length > 4 %}
+                                <span class="badge bg-light text-muted border fw-normal" style="font-size: 0.72rem; padding: 4px 8px;">
+                                    +{{ apt.equipments|length - 4 }} autres
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions Footer -->
+                    <div class="pt-3 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <!-- Quick Status Toggle -->
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle rounded-pill px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-toggle-on me-1"></i> Statut : <strong>{{ apt.status }}</strong>
+                            </button>
+                            <ul class="dropdown-menu shadow-sm">
+                                <li>
+                                    <form action="{{ url_for('admin.toggle_apartment_status', id=apt.id) }}" method="POST">
+                                        <input type="hidden" name="status" value="Disponible">
+                                        <button type="submit" class="dropdown-item text-success"><i class="bi bi-check-circle me-2"></i> Disponible</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ url_for('admin.toggle_apartment_status', id=apt.id) }}" method="POST">
+                                        <input type="hidden" name="status" value="Occupé">
+                                        <button type="submit" class="dropdown-item text-warning"><i class="bi bi-key me-2"></i> Occupé</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ url_for('admin.toggle_apartment_status', id=apt.id) }}" method="POST">
+                                        <input type="hidden" name="status" value="Réservé">
+                                        <button type="submit" class="dropdown-item text-info"><i class="bi bi-clock me-2"></i> Réservé</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ url_for('admin.toggle_apartment_status', id=apt.id) }}" method="POST">
+                                        <input type="hidden" name="status" value="Maintenance">
+                                        <button type="submit" class="dropdown-item text-muted"><i class="bi bi-wrench me-2"></i> Maintenance</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-1.5">
+                            <a href="{{ url_for('admin.edit_apartment', id=apt.id) }}" class="btn btn-sm btn-primary rounded-pill px-3">
+                                <i class="bi bi-pencil me-1"></i> Modifier
+                            </a>
+                            <form action="{{ url_for('admin.delete_apartment', id=apt.id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet appartement VIP ?');" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2" title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="card border-0 shadow-sm p-5 text-center">
+                <i class="bi bi-building-x text-muted mb-3" style="font-size: 3rem;"></i>
+                <h4 class="fw-bold text-dark">Aucun appartement meublé trouvé</h4>
+                <p class="text-muted">Aucun résultat ne correspond à votre recherche ou aucun appartement n'a encore été créé.</p>
+                <div class="mt-2">
+                    <a href="{{ url_for('admin.add_apartment') }}" class="btn btn-danger px-4 rounded-pill">
+                        <i class="bi bi-plus-lg me-1"></i> Ajouter le premier appartement
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

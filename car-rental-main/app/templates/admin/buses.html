@@ -139,9 +139,10 @@
                             <input type="checkbox" id="selectAll" class="form-check-input" style="width: 14px; height: 14px;">
                         </th>
                         <th style="width: 50px;">ID</th>
+                        <th style="min-width: 120px;">Pôle / Division</th>
                         <th style="min-width: 130px;">Immatriculation</th>
                         <th style="min-width: 100px;">Marque</th>
-                        <th style="min-width: 140px;">Modèle</th>
+                        <th style="min-width: 150px;">Modèle & Année</th>
                         <th style="min-width: 90px;">Capacité</th>
                         <th style="min-width: 140px;">Chauffeur</th>
                         <th style="min-width: 110px;">Dernière Maint.</th>
@@ -158,10 +159,28 @@
                         </td>
                         <td class="fw-bold text-dark">#{{ bus.id }}</td>
                         <td>
+                            {% if bus.division == '3MCONSULTING' %}
+                            <span class="badge border fw-semibold" style="color: #6941C6; background: #F9F5FF; border-color: #E9D7FE !important; font-size: 0.72rem;">
+                                <i class="bi bi-briefcase-fill me-1"></i>3MCONSULTING
+                            </span>
+                            {% else %}
+                            <span class="badge border fw-semibold" style="color: #B42318; background: #FEF3F2; border-color: #FECDCA !important; font-size: 0.72rem;">
+                                <i class="bi bi-car-front-fill me-1"></i>LOCATION
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
                             <span class="badge bg-light text-dark border fw-bold" style="letter-spacing: 0.5px; font-size: 0.72rem;">{{ bus.bus_number }}</span>
                         </td>
                         <td class="fw-semibold text-dark">{{ bus.brand or 'Toyota' }}</td>
-                        <td class="text-dark">{{ bus.model }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1 flex-wrap">
+                                <span class="text-dark fw-semibold">{{ bus.model }}</span>
+                                {% if bus.release_date %}
+                                <span class="badge bg-light text-secondary border fw-normal" style="font-size: 0.68rem;" title="Mise en circulation">{{ bus.release_date }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
                         <td>
                             <span class="badge bg-light text-dark border fw-semibold">{{ bus.capacity }} places</span>
                         </td>

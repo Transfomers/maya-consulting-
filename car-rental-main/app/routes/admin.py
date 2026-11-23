@@ -3,7 +3,7 @@ import json
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app, session
 from werkzeug.security import generate_password_hash
 from flask_login import login_required, current_user
-from app.models import User, Agency, Bus, Route, Trip, Booking, Feedback, AuditLog, SystemNotification, Driver, CaisseSession, Parcel, TripSchedule
+from app.models import User, Agency, Bus, Route, Trip, Booking, Feedback, AuditLog, SystemNotification, Driver, CaisseSession, Parcel, TripSchedule, Apartment
 from app import db
 from datetime import datetime, date, timedelta
 from sqlalchemy import func, or_
@@ -2042,6 +2042,8 @@ def add_bus():
         try:
             capacity = int(capacity)
             last_maintenance_date = datetime.strptime(last_maintenance_date_str, '%Y-%m-%d') if last_maintenance_date_str else None
+            division = request.form.get('division', 'LOCATION').strip()
+            release_date = request.form.get('release_date', '').strip()
             bus = Bus(
                 bus_number=bus_number, 
                 brand=brand, 
@@ -2051,6 +2053,8 @@ def add_bus():
                 last_maintenance_date=last_maintenance_date,
                 maintenance_notes=maintenance_notes,
                 agency_id=int(agency_id),
+                division=division,
+                release_date=release_date,
                 is_promo=('is_promo' in request.form),
                 promo_price=request.form.get('promo_price', type=int),
                 regular_price=request.form.get('regular_price', type=int),
@@ -2064,9 +2068,9 @@ def add_bus():
                     driver.current_bus_id = bus.id
             db.session.commit()
             
-            log_audit("BUS_CREATED", "Bus", bus.id, f"Registered bus: {bus.bus_number} under agency {bus.agency_id}")
+            log_audit("BUS_CREATED", "Bus", bus.id, f"Registered VIP vehicle: {bus.bus_number} under agency {bus.agency_id}")
             
-            flash('Bus ajouté avec succès !', 'success')
+            flash(f"Véhicule VIP {bus.brand or ''} {bus.model} ({bus.bus_number}) ajouté avec succès à la flotte 3M !", 'success')
             return redirect(url_for('admin.buses'))
         except ValueError:
             flash('Valeur de capacité invalide.', 'danger')
@@ -2096,6 +2100,8 @@ def edit_bus(id):
         bus.brand = request.form.get('brand')
         bus.model = request.form.get('model')
         bus.capacity = int(request.form.get('capacity'))
+        bus.division = request.form.get('division', 'LOCATION').strip()
+        bus.release_date = request.form.get('release_date', '').strip()
         old_driver_name = bus.driver_name
         bus.driver_name = request.form.get('driver_name')
         bus.maintenance_notes = request.form.get('maintenance_notes')
@@ -2159,8 +2165,8 @@ def edit_bus(id):
                     _json.dump(exp_db, f, indent=2, ensure_ascii=False)
         except Exception as _e:
             current_app.logger.warning(f"Error syncing promo car to db.json: {_e}")
-        log_audit("BUS_EDITED", "Bus", bus.id, f"Modified bus specs: {bus.bus_number}")
-        flash('Bus modifié avec succès !', 'success')
+        log_audit("BUS_EDITED", "Bus", bus.id, f"Modified VIP vehicle specs: {bus.bus_number}")
+        flash(f"Véhicule VIP {bus.brand or ''} {bus.model} ({bus.bus_number}) modifié avec succès !", 'success')
         return redirect(url_for('admin.buses'))
         
     if current_user.role == 'super_admin':
@@ -2420,6 +2426,245 @@ def check_due_vehicle_restitutions():
                 )
     except Exception as e:
         logger.warning(f"Error in check_due_vehicle_restitutions: {e}")
+
+# ==============================================================================
+# LOCATIONS D'APPARTEMENTS MEUBLÉS VIP 3M SERVICES (TSINGA & YAOUNDÉ)
+# ==============================================================================
+
+DEFAULT_EQUIPMENT_OPTIONS = [
+    "Climatisation intégrale",
+    "WiFi Fibre Optique illimité",
+    "Smart TV 55 pouces HD (Netflix / Canal+)",
+    "Cuisine américaine tout équipée",
+    "Literie King Size Grand Confort",
+    "Salle de bain design à l'italienne",
+    "Balcon privé avec vue dégagée",
+    "Forage d'eau & suppresseur automatique",
+    "Machine à laver & espace buanderie",
+    "Micro-ondes & réfrigérateur combiné",
+    "Chauffe-eau électrique permanent"
+]
+
+DEFAULT_VIP_SERVICES_OPTIONS = [
+    "Groupe électrogène automatique 24/7 (Zéro coupure)",
+    "Gardiennage & vigiles 24/7 (Caméras de surveillance)",
+    "Ménage régulier & conciergerie hôtelière 3M",
+    "Parking privé sécurisé et fermé",
+    "Chauffeur privé VIP dédié (sur demande)",
+    "Navette accueil aéroport Nsimalen",
+    "Assistance & conciergerie privée 24/7"
+]
+
+DEFAULT_APARTMENT_GALLERY = [
+    {"url": "/Asset/appartements/appartement-meuble-suite-parentale.webp", "label": "Suite Parentale Prestige"},
+    {"url": "/Asset/appartements/appartement-meuble-chambre-bleue.webp", "label": "Chambre Cosy Contemporaine"},
+    {"url": "/Asset/appartements/appartement-meuble-chambre-confort.webp", "label": "Chambre Grand Standing"},
+    {"url": "/Asset/appartements/appartement-meuble-salon-standing.webp", "label": "Grand Salon avec Balcon"},
+    {"url": "/Asset/appartements/appartement-meuble-cuisine-equipee.webp", "label": "Cuisine Américaine Laquée"}
+]
+
+def sync_apartment_to_express_db(apt_dict, action='upsert'):
+    """Synchronize apartment records into server/data/db.json for real-time frontend parity."""
+    try:
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+        if not os.path.exists(db_path):
+            return
+        with open(db_path, 'r', encoding='utf-8') as f:
+            exp_db = json.load(f)
+        apts = exp_db.setdefault('apartments', [])
+        idx = next((i for i, a in enumerate(apts) if a.get('id') == apt_dict.get('id')), -1)
+        if action == 'delete':
+            if idx >= 0:
+                apts.pop(idx)
+        else:
+            if idx >= 0:
+                apts[idx].update(apt_dict)
+            else:
+                apts.insert(0, apt_dict)
+        with open(db_path, 'w', encoding='utf-8') as f:
+            json.dump(exp_db, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        logger.warning(f"Error syncing apartment to express db.json: {e}")
+
+@admin.route('/admin/apartments')
+@admin.route('/admin/locations')
+@login_required
+@admin_required
+def apartments():
+    """Locations d'Appartements Meublés VIP 3M SERVICES - Overview and Management"""
+    q = request.args.get('q', '').strip().lower()
+    status_filter = request.args.get('status', '').strip()
+    
+    query = Apartment.query.filter_by(is_deleted=False)
+    all_apts = query.order_by(Apartment.id.asc()).all()
+    
+    filtered_apts = all_apts
+    if q:
+        filtered_apts = [a for a in filtered_apts if q in (a.title or '').lower() or q in (a.location or '').lower() or q in (a.type or '').lower()]
+    if status_filter:
+        filtered_apts = [a for a in filtered_apts if (a.status or '').lower() == status_filter.lower()]
+        
+    total_count = len(all_apts)
+    available_count = sum(1 for a in all_apts if a.status == 'Disponible')
+    occupied_count = sum(1 for a in all_apts if a.status in ['Occupé', 'Réservé'])
+    maintenance_count = sum(1 for a in all_apts if a.status == 'Maintenance')
+    
+    return render_template(
+        'admin/apartments.html',
+        apartments=filtered_apts,
+        total_count=total_count,
+        available_count=available_count,
+        occupied_count=occupied_count,
+        maintenance_count=maintenance_count,
+        current_status=status_filter,
+        current_q=request.args.get('q', '')
+    )
+
+@admin.route('/admin/apartments/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_apartment():
+    """Create a new furnished VIP apartment in 3M SERVICES portfolio"""
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        type_apt = request.form.get('type', '').strip()
+        location = request.form.get('location', '').strip()
+        rooms = request.form.get('rooms', '').strip()
+        price = request.form.get('price', '').strip()
+        status = request.form.get('status', 'Disponible').strip()
+        image = request.form.get('image', '').strip() or '/Asset/appartements/appartement-meuble-suite-parentale.webp'
+        photos_count = request.form.get('photos_count', type=int) or 4
+        description = request.form.get('description', '').strip()
+        
+        # Equipments
+        equipments = request.form.getlist('equipments')
+        custom_eq = request.form.get('custom_equipment', '').strip()
+        if custom_eq and custom_eq not in equipments:
+            equipments.append(custom_eq)
+            
+        # VIP Services
+        vip_services = request.form.getlist('vip_services')
+        custom_vip = request.form.get('custom_vip_service', '').strip()
+        if custom_vip and custom_vip not in vip_services:
+            vip_services.append(custom_vip)
+            
+        if not all([title, type_apt, location, price]):
+            flash('Veuillez remplir au moins le titre, le type, la localisation et le tarif.', 'danger')
+            return redirect(url_for('admin.add_apartment'))
+            
+        # Generate new unique ID
+        existing_ids = [a.id for a in Apartment.query.all()]
+        next_num = 1
+        new_id = f"apt-{next_num:02d}"
+        while new_id in existing_ids:
+            next_num += 1
+            new_id = f"apt-{next_num:02d}"
+            
+        new_apt = Apartment(
+            id=new_id,
+            title=title,
+            type=type_apt,
+            location=location,
+            rooms=rooms,
+            price=price,
+            photos_count=photos_count,
+            image=image,
+            status=status,
+            description=description,
+            agency_id=current_user.agency_id if current_user.role != 'super_admin' else 1
+        )
+        new_apt.equipments = equipments
+        new_apt.vip_services = vip_services
+        
+        db.session.add(new_apt)
+        db.session.commit()
+        
+        sync_apartment_to_express_db(new_apt.to_dict(), action='upsert')
+        log_audit("APARTMENT_CREATED", "Apartment", 0, f"Created apartment {new_id}: {title}")
+        
+        flash(f"Appartement VIP '{title}' ({new_id}) ajouté avec succès !", 'success')
+        return redirect(url_for('admin.apartments'))
+        
+    return render_template(
+        'admin/add_apartment.html',
+        default_equipments=DEFAULT_EQUIPMENT_OPTIONS,
+        default_vip_services=DEFAULT_VIP_SERVICES_OPTIONS,
+        gallery_images=DEFAULT_APARTMENT_GALLERY
+    )
+
+@admin.route('/admin/apartments/edit/<id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_apartment(id):
+    """Edit an existing furnished VIP apartment"""
+    apt = Apartment.query.filter_by(id=id, is_deleted=False).first_or_404()
+    
+    if request.method == 'POST':
+        apt.title = request.form.get('title', apt.title).strip()
+        apt.type = request.form.get('type', apt.type).strip()
+        apt.location = request.form.get('location', apt.location).strip()
+        apt.rooms = request.form.get('rooms', apt.rooms).strip()
+        apt.price = request.form.get('price', apt.price).strip()
+        apt.status = request.form.get('status', apt.status).strip()
+        apt.image = request.form.get('image', apt.image).strip()
+        apt.photos_count = request.form.get('photos_count', type=int) or apt.photos_count or 4
+        apt.description = request.form.get('description', apt.description).strip()
+        
+        equipments = request.form.getlist('equipments')
+        custom_eq = request.form.get('custom_equipment', '').strip()
+        if custom_eq and custom_eq not in equipments:
+            equipments.append(custom_eq)
+        apt.equipments = equipments
+        
+        vip_services = request.form.getlist('vip_services')
+        custom_vip = request.form.get('custom_vip_service', '').strip()
+        if custom_vip and custom_vip not in vip_services:
+            vip_services.append(custom_vip)
+        apt.vip_services = vip_services
+        
+        db.session.commit()
+        sync_apartment_to_express_db(apt.to_dict(), action='upsert')
+        log_audit("APARTMENT_EDITED", "Apartment", 0, f"Updated apartment {apt.id}: {apt.title}")
+        
+        flash(f"Appartement VIP '{apt.title}' mis à jour avec succès !", 'success')
+        return redirect(url_for('admin.apartments'))
+        
+    return render_template(
+        'admin/edit_apartment.html',
+        apt=apt,
+        default_equipments=DEFAULT_EQUIPMENT_OPTIONS,
+        default_vip_services=DEFAULT_VIP_SERVICES_OPTIONS,
+        gallery_images=DEFAULT_APARTMENT_GALLERY
+    )
+
+@admin.route('/admin/apartments/delete/<id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_apartment(id):
+    """Soft delete an apartment and synchronize with json"""
+    apt = Apartment.query.filter_by(id=id, is_deleted=False).first_or_404()
+    apt.is_deleted = True
+    db.session.commit()
+    
+    sync_apartment_to_express_db({"id": id}, action='delete')
+    log_audit("APARTMENT_DELETED", "Apartment", 0, f"Deleted apartment {apt.id}: {apt.title}")
+    
+    flash(f"Appartement '{apt.title}' supprimé avec succès.", 'warning')
+    return redirect(url_for('admin.apartments'))
+
+@admin.route('/admin/apartments/toggle_status/<id>', methods=['POST'])
+@login_required
+@admin_required
+def toggle_apartment_status(id):
+    """Quickly toggle apartment status between Disponible, Réservé, Occupé, Maintenance"""
+    apt = Apartment.query.filter_by(id=id, is_deleted=False).first_or_404()
+    new_status = request.form.get('status', '').strip()
+    if new_status in ['Disponible', 'Réservé', 'Occupé', 'Maintenance']:
+        apt.status = new_status
+        db.session.commit()
+        sync_apartment_to_express_db(apt.to_dict(), action='upsert')
+        flash(f"Statut de l'appartement '{apt.title}' changé à : {new_status}", 'success')
+    return redirect(url_for('admin.apartments'))
 
 @admin.route('/admin/trips')
 @login_required

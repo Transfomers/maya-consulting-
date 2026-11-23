@@ -7,89 +7,261 @@
     {% include 'admin/_subnav.html' %}
 
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
-                <div class="mb-4">
-                    <h3 class="fw-bold"><i class="bi bi-car-front-fill text-danger me-2"></i> Ajouter un Véhicule VIP</h3>
-                    <p class="text-muted">Enregistrez un nouveau véhicule de luxe dans la flotte officielle 3M SERVICES.</p>
+        <div class="col-lg-9 col-xl-8">
+            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem; background: #ffffff;">
+                <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-danger text-white px-2 py-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">FLOTTE OFFICIELLE</span>
+                            <span class="text-muted small">• 3M SERVICES</span>
+                        </div>
+                        <h3 class="fw-bold text-dark mt-1 mb-1">
+                            <i class="bi bi-car-front-fill text-danger me-2"></i> Ajouter un Véhicule VIP
+                        </h3>
+                        <p class="text-muted small mb-0">Enregistrez un nouveau véhicule de prestige ou utilitaire VIP dans le parc automobile 3M.</p>
+                    </div>
+                    <a href="{{ url_for('admin.buses') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                        <i class="bi bi-arrow-left me-1"></i> Flotte VIP
+                    </a>
                 </div>
                 
-                <form method="POST" class="needs-validation" novalidate>
+                <form method="POST" class="needs-validation" novalidate id="vehicleForm">
+                    <!-- Section 1 : Pôle / Division 3M SERVICES -->
+                    <div class="mb-4 p-3 rounded-3 border" style="background: #fafbfc; border-color: #eaecf0 !important;">
+                        <label class="form-label fw-bold text-dark d-flex align-items-center justify-content-between mb-2">
+                            <span><i class="bi bi-diagram-3-fill text-danger me-1"></i> Pôle d'Affectation du Véhicule <span class="text-danger">*</span></span>
+                            <small class="text-muted fw-normal">Choisissez l'usage opérationnel principal</small>
+                        </label>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check" name="division" id="div_location" value="LOCATION" checked required>
+                                <label class="btn btn-outline-danger w-100 p-3 text-start h-100 rounded-3 border-2 d-flex align-items-center gap-3 bg-white" for="div_location" style="cursor: pointer;">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-danger-subtle text-danger" style="width: 44px; height: 44px; min-width: 44px;">
+                                        <i class="bi bi-car-front-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark" style="font-size: 0.98rem;">LOCATION</div>
+                                        <div class="small text-muted" style="font-size: 0.78rem;">Flotte Location VIP avec ou sans chauffeur (Particuliers & Tourisme)</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check" name="division" id="div_consulting" value="3MCONSULTING">
+                                <label class="btn btn-outline-danger w-100 p-3 text-start h-100 rounded-3 border-2 d-flex align-items-center gap-3 bg-white" for="div_consulting" style="cursor: pointer;">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-danger-subtle text-danger" style="width: 44px; height: 44px; min-width: 44px;">
+                                        <i class="bi bi-briefcase-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark" style="font-size: 0.98rem;">3MCONSULTING</div>
+                                        <div class="small text-muted" style="font-size: 0.78rem;">Flotte Corporate, Missions Institutionnelles & Partenaires 3M Consulting</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2 : Identification & Caractéristiques -->
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <label for="bus_number" class="form-label">Numéro d'Immatriculation</label>
-                            <input type="text" class="form-control" id="bus_number" name="bus_number" placeholder="Ex: CE-982-LT" required>
-                            <div class="invalid-feedback">Veuillez entrer le numéro d'immatriculation.</div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="brand" class="form-label">Marque</label>
-                            <select class="form-select" id="brand" name="brand" required>
-                                <option value="" disabled selected>Choisir une marque...</option>
-                                <option value="Toyota" selected>Toyota</option>
-                                <option value="Mercedes-Benz">Mercedes-Benz</option>
-                                <option value="Land Rover">Land Rover</option>
-                                <option value="Lexus">Lexus</option>
-                                <option value="BMW">BMW</option>
-                                <option value="Audi">Audi</option>
-                                <option value="Hyundai">Hyundai</option>
-                            </select>
-                            <div class="invalid-feedback">Veuillez sélectionner la marque.</div>
+                            <label for="bus_number" class="form-label fw-bold text-dark">
+                                Numéro d'Immatriculation <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-credit-card-2-front"></i></span>
+                                <input type="text" class="form-control" id="bus_number" name="bus_number" placeholder="Ex: CE-982-LT ou LT-104-AB" style="text-transform: uppercase;" required>
+                            </div>
+                            <div class="invalid-feedback">Veuillez entrer le numéro d'immatriculation officiel.</div>
+                            <small class="text-muted" style="font-size: 0.75rem;">Plaque minéralogique officielle CEMAC / Cameroun.</small>
                         </div>
 
+                        <!-- Date de mise en circulation -->
                         <div class="col-md-6">
-                            <label for="model" class="form-label">Modèle VIP & Finition</label>
-                            <input type="text" class="form-control" id="model" name="model" placeholder="Ex: Land Cruiser V8 LC300 VIP" required>
-                            <div class="invalid-feedback">Veuillez spécifier le modèle.</div>
+                            <label for="release_date" class="form-label fw-bold text-dark">
+                                Date ou Année de Mise en Circulation
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-calendar-check"></i></span>
+                                <input type="text" class="form-control" id="release_date" name="release_date" list="releaseDateList" placeholder="Ex: 2024, 2025 ou Neuf (0 km)" autocomplete="off">
+                            </div>
+                            <datalist id="releaseDateList">
+                                <option value="2025">
+                                <option value="2024">
+                                <option value="2023">
+                                <option value="2022">
+                                <option value="Neuf (0 km)">
+                            </datalist>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="release_date" data-val="2025">2025</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="release_date" data-val="2024">2024</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="release_date" data-val="2023">2023</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="release_date" data-val="Neuf (0 km)">Neuf (0 km)</span>
+                            </div>
                         </div>
 
+                        <!-- Marque : Saisie libre + Liste déroulante + Suggestions -->
                         <div class="col-md-6">
-                            <label for="capacity" class="form-label">Capacité (Nombre de places)</label>
-                            <input type="number" class="form-control" id="capacity" name="capacity" min="1" max="12" placeholder="Ex: 7" required>
-                            <div class="invalid-feedback">Veuillez spécifier le nombre de places (ex: 5 ou 7).</div>
+                            <label for="brand" class="form-label fw-bold text-dark">
+                                Marque du Véhicule <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-shield-shaded"></i></span>
+                                <input type="text" class="form-control" id="brand" name="brand" list="brandList" placeholder="Ex: Toyota, Mercedes-Benz, Lexus..." autocomplete="off" value="Toyota" required>
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Choisir
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="max-height: 260px; overflow-y: auto;">
+                                    <li><h6 class="dropdown-header text-uppercase text-danger fw-bold">Marques Flotte VIP 3M</h6></li>
+                                    <li><a class="dropdown-item brand-opt" href="#" data-val="Toyota"><strong>Toyota</strong> <span class="badge bg-light text-muted ms-1">Prado, V8, Hilux</span></a></li>
+                                    <li><a class="dropdown-item brand-opt" href="#" data-val="Mercedes-Benz"><strong>Mercedes-Benz</strong> <span class="badge bg-light text-muted ms-1">Classe G, S, E</span></a></li>
+                                    <li><a class="dropdown-item brand-opt" href="#" data-val="Lexus"><strong>Lexus</strong> <span class="badge bg-light text-muted ms-1">LX600, RX350</span></a></li>
+                                    <li><a class="dropdown-item brand-opt" href="#" data-val="Land Rover"><strong>Land Rover</strong> <span class="badge bg-light text-muted ms-1">Range Rover</span></a></li>
+                                    <li><a class="dropdown-item brand-opt" href="#" data-val="BMW"><strong>BMW</strong> <span class="badge bg-light text-muted ms-1">X5, X7, Série 7</span></a></li>
+                                    <li><a class="dropdown-item brand-opt" href="#" data-val="Audi"><strong>Audi</strong> <span class="badge bg-light text-muted ms-1">Q7, Q8, A8</span></a></li>
+                                    <li><a class="dropdown-item brand-opt" href="#" data-val="Hyundai"><strong>Hyundai</strong> <span class="badge bg-light text-muted ms-1">Santa Fe</span></a></li>
+                                    <li><a class="dropdown-item brand-opt" href="#" data-val="Mitsubishi"><strong>Mitsubishi</strong> <span class="badge bg-light text-muted ms-1">Pajero, L200</span></a></li>
+                                    <li><a class="dropdown-item brand-opt" href="#" data-val="Porsche"><strong>Porsche</strong> <span class="badge bg-light text-muted ms-1">Cayenne</span></a></li>
+                                </ul>
+                            </div>
+                            <datalist id="brandList">
+                                <option value="Toyota">
+                                <option value="Mercedes-Benz">
+                                <option value="Lexus">
+                                <option value="Land Rover">
+                                <option value="BMW">
+                                <option value="Audi">
+                                <option value="Hyundai">
+                                <option value="Mitsubishi">
+                                <option value="Ford">
+                                <option value="Porsche">
+                            </datalist>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="brand" data-val="Toyota">Toyota</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="brand" data-val="Mercedes-Benz">Mercedes-Benz</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="brand" data-val="Lexus">Lexus</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="brand" data-val="Land Rover">Land Rover</span>
+                            </div>
                         </div>
 
+                        <!-- Modèle VIP & Finition : Saisie libre + Liste déroulante + Suggestions -->
                         <div class="col-md-6">
-                            <label for="driver_name" class="form-label">Chauffeur Assigné (Optionnel)</label>
-                            <select class="form-select" id="driver_name" name="driver_name">
-                                <option value="">Choisir un chauffeur...</option>
-                                {% for d in drivers %}
-                                    <option value="{{ d.name }}" data-agency="{{ d.agency_id }}">{{ d.name }} ({% if d.agency %}{{ d.agency.name }}{% else %}N/A{% endif %})</option>
-                                {% endfor %}
-                            </select>
+                            <label for="model" class="form-label fw-bold text-dark">
+                                Modèle VIP & Finition <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-car-front"></i></span>
+                                <input type="text" class="form-control" id="model" name="model" list="modelList" placeholder="Ex: Land Cruiser V8 (LC200 Prestige)..." autocomplete="off" required>
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Modèles VIP
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="max-height: 280px; overflow-y: auto;">
+                                    <li><h6 class="dropdown-header text-uppercase text-danger fw-bold">Modèles Phares Flotte 3M</h6></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Toyota Land Cruiser V8 (LC200 Prestige)" data-brand="Toyota" data-cap="7">Toyota Land Cruiser V8 (LC200 Prestige) • 7p</a></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Toyota Land Cruiser Prado TXL Blanc" data-brand="Toyota" data-cap="7">Toyota Land Cruiser Prado TXL Blanc • 7p</a></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Toyota Land Cruiser Prado TXL Noir" data-brand="Toyota" data-cap="7">Toyota Land Cruiser Prado TXL Noir • 7p</a></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Pickup Toyota Hilux Double Cabine" data-brand="Toyota" data-cap="5">Pickup Toyota Hilux Double Cabine • 5p</a></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Toyota Land Cruiser V8 LC300 VIP" data-brand="Toyota" data-cap="7">Toyota Land Cruiser V8 LC300 VIP • 7p</a></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Toyota Fortuner 4x4" data-brand="Toyota" data-cap="7">Toyota Fortuner 4x4 • 7p</a></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Toyota RAV4 4x4" data-brand="Toyota" data-cap="5">Toyota RAV4 4x4 • 5p</a></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Mercedes-Benz Classe G63 AMG" data-brand="Mercedes-Benz" data-cap="5">Mercedes-Benz Classe G63 AMG • 5p</a></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Mercedes-Benz Classe S500 VIP" data-brand="Mercedes-Benz" data-cap="4">Mercedes-Benz Classe S500 VIP • 4p</a></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Lexus LX600 VIP" data-brand="Lexus" data-cap="7">Lexus LX600 VIP • 7p</a></li>
+                                    <li><a class="dropdown-item model-opt" href="#" data-val="Range Rover Vogue Autobiography" data-brand="Land Rover" data-cap="5">Range Rover Vogue Autobiography • 5p</a></li>
+                                </ul>
+                            </div>
+                            <datalist id="modelList">
+                                <option value="Toyota Land Cruiser V8 (LC200 Prestige)">
+                                <option value="Toyota Land Cruiser Prado TXL Blanc">
+                                <option value="Toyota Land Cruiser Prado TXL Noir">
+                                <option value="Pickup Toyota Hilux Double Cabine">
+                                <option value="Toyota Land Cruiser V8 LC300 VIP">
+                                <option value="Toyota Fortuner 4x4">
+                                <option value="Toyota RAV4 4x4">
+                                <option value="Mercedes-Benz Classe G63 AMG">
+                                <option value="Mercedes-Benz Classe S500 VIP">
+                                <option value="Lexus LX600 VIP">
+                                <option value="Range Rover Vogue Autobiography">
+                            </datalist>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="model" data-val="Toyota Land Cruiser V8 (LC200 Prestige)" data-brand="Toyota" data-cap="7">V8 LC200</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="model" data-val="Toyota Land Cruiser Prado TXL Blanc" data-brand="Toyota" data-cap="7">Prado TXL</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="model" data-val="Pickup Toyota Hilux Double Cabine" data-brand="Toyota" data-cap="5">Hilux 4x4</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="model" data-val="Toyota RAV4 4x4" data-brand="Toyota" data-cap="5">RAV4</span>
+                            </div>
                         </div>
 
+                        <!-- Capacité -->
                         <div class="col-md-6">
-                            <label for="last_maintenance_date" class="form-label">Dernière Date de Maintenance (Optionnel)</label>
-                            <input type="date" class="form-control" id="last_maintenance_date" name="last_maintenance_date">
+                            <label for="capacity" class="form-label fw-bold text-dark">
+                                Capacité (Nombre de places) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-people"></i></span>
+                                <input type="number" class="form-control" id="capacity" name="capacity" min="1" max="15" placeholder="Ex: 7" value="7" required>
+                            </div>
+                            <div class="invalid-feedback">Veuillez spécifier le nombre de places assises.</div>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="capacity" data-val="7">7 places (Prestige)</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="capacity" data-val="5">5 places (SUV / Hilux)</span>
+                                <span class="badge rounded-pill bg-light text-dark border suggestion-pill" role="button" data-target="capacity" data-val="4">4 places (Berline VIP)</span>
+                            </div>
+                        </div>
+
+                        <!-- Chauffeur Assigné -->
+                        <div class="col-md-6">
+                            <label for="driver_name" class="form-label fw-bold text-dark">
+                                Chauffeur Assigné <span class="text-muted fw-normal">(Optionnel)</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-person-badge"></i></span>
+                                <select class="form-select" id="driver_name" name="driver_name">
+                                    <option value="">Sélectionner un chauffeur attitré...</option>
+                                    {% for d in drivers %}
+                                        <option value="{{ d.name }}" data-agency="{{ d.agency_id }}">{{ d.name }} ({% if d.agency %}{{ d.agency.name }}{% else %}Flotte Globale{% endif %})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <small class="text-muted" style="font-size: 0.75rem;">Le chauffeur peut être réassigné ou modifié lors de chaque mission.</small>
+                        </div>
+
+                        <!-- Maintenance -->
+                        <div class="col-md-6">
+                            <label for="last_maintenance_date" class="form-label fw-bold text-dark">
+                                Dernière Date de Maintenance <span class="text-muted fw-normal">(Optionnel)</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-wrench-adjustable"></i></span>
+                                <input type="date" class="form-control" id="last_maintenance_date" name="last_maintenance_date">
+                            </div>
                         </div>
 
                         <div class="col-md-12">
-                            <label for="maintenance_notes" class="form-label">Notes de Maintenance (Optionnel)</label>
-                            <textarea class="form-control" id="maintenance_notes" name="maintenance_notes" rows="2" placeholder="Détails sur l'état du bus..."></textarea>
+                            <label for="maintenance_notes" class="form-label fw-bold text-dark">
+                                Notes de Maintenance & Carnet de Bord <span class="text-muted fw-normal">(Optionnel)</span>
+                            </label>
+                            <textarea class="form-control" id="maintenance_notes" name="maintenance_notes" rows="2" placeholder="Détails techniques : vidange, révision générale, climatisation, pneus, kilométrage..."></textarea>
                         </div>
 
-                        <!-- 3M VIP Promo Settings -->
+                        <!-- Offres & Promotions VIP -->
                         <div class="col-md-12">
                             <div class="p-3 rounded-3 border" style="background: #fff8f5; border-color: #ffd4c9 !important;">
                                 <div class="form-check form-switch mb-3">
                                     <input class="form-check-input" type="checkbox" id="is_promo" name="is_promo">
                                     <label class="form-check-label fw-bold text-dark" for="is_promo">
-                                        <i class="bi bi-fire text-danger me-1"></i> Mettre ce véhicule en Promotion VIP sur le site client
+                                        <i class="bi bi-fire text-danger me-1"></i> Mettre ce véhicule en Promotion VIP sur la vitrine client
                                     </label>
                                 </div>
                                 <div class="row g-2">
                                     <div class="col-md-4">
-                                        <label class="form-label small fw-semibold text-dark">Tarif Promo Journalier (FCFA)</label>
+                                        <label class="form-label small fw-semibold text-dark">Tarif Journalier Promo (FCFA)</label>
                                         <input type="number" class="form-control form-control-sm" name="promo_price" placeholder="Ex: 110000">
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label small fw-semibold text-dark">Tarif Régulier / Barré (FCFA)</label>
+                                        <label class="form-label small fw-semibold text-dark">Tarif Standard / Barré (FCFA)</label>
                                         <input type="number" class="form-control form-control-sm" name="regular_price" placeholder="Ex: 130000">
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label small fw-semibold text-dark">Badge Promotionnel</label>
-                                        <input type="text" class="form-control form-control-sm" name="promo_badge" placeholder="Ex: OFFRE SPÉCIALE • VIP">
+                                        <input type="text" class="form-control form-control-sm" name="promo_badge" placeholder="Ex: OFFRE FLASH -15%">
                                     </div>
                                 </div>
                             </div>
@@ -97,24 +269,30 @@
 
                         {% if current_user.role == 'super_admin' %}
                         <div class="col-md-12">
-                            <label for="agency_id" class="form-label">Attribuer à l'Agence</label>
-                            <select class="form-select" id="agency_id" name="agency_id" required>
-                                <option value="" disabled selected>Choisir l'agence propriétaire...</option>
-                                {% for agency in agencies %}
-                                    <option value="{{ agency.id }}">{{ agency.name }} ({{ agency.city }})</option>
-                                {% endfor %}
-                            </select>
-                            <div class="invalid-feedback">Veuillez attribuer ce bus à une agence.</div>
+                            <label for="agency_id" class="form-label fw-bold text-dark">
+                                Attribuer à l'Agence <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted"><i class="bi bi-building"></i></span>
+                                <select class="form-select" id="agency_id" name="agency_id" required>
+                                    <option value="" disabled selected>Choisir l'agence propriétaire...</option>
+                                    {% for agency in agencies %}
+                                        <option value="{{ agency.id }}">{{ agency.name }} ({{ agency.city }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="invalid-feedback">Veuillez attribuer ce véhicule à une agence.</div>
                         </div>
                         {% endif %}
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 border-top">
                         <a href="{{ url_for('admin.buses') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
-                            <i class="bi bi-arrow-left me-2"></i> Retour à la flotte
+                            <i class="bi bi-arrow-left me-2"></i> Retour à la Flotte VIP
                         </a>
-                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
-                            <i class="bi bi-check-circle me-2"></i> Enregistrer le Bus
+                        <button type="submit" class="btn btn-danger px-5 py-2.5 rounded-pill fw-bold shadow-sm" style="background: #E20713; border-color: #E20713;">
+                            <i class="bi bi-check-circle me-2"></i> Enregistrer le Véhicule VIP
                         </button>
                     </div>
                 </form>
@@ -125,6 +303,68 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Quick suggestion pills handler
+    document.querySelectorAll('.suggestion-pill').forEach(pill => {
+        pill.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-target');
+            const val = this.getAttribute('data-val');
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                targetEl.value = val;
+                targetEl.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            // Auto fill brand and capacity if provided on the pill
+            const brandVal = this.getAttribute('data-brand');
+            if (brandVal) {
+                const brandEl = document.getElementById('brand');
+                if (brandEl) brandEl.value = brandVal;
+            }
+            const capVal = this.getAttribute('data-cap');
+            if (capVal) {
+                const capEl = document.getElementById('capacity');
+                if (capEl) capEl.value = capVal;
+            }
+        });
+    });
+
+    // Brand dropdown item clicks
+    document.querySelectorAll('.brand-opt').forEach(opt => {
+        opt.addEventListener('click', function(e) {
+            e.preventDefault();
+            const val = this.getAttribute('data-val');
+            const brandEl = document.getElementById('brand');
+            if (brandEl) {
+                brandEl.value = val;
+                brandEl.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+    });
+
+    // Model dropdown item clicks
+    document.querySelectorAll('.model-opt').forEach(opt => {
+        opt.addEventListener('click', function(e) {
+            e.preventDefault();
+            const val = this.getAttribute('data-val');
+            const brandVal = this.getAttribute('data-brand');
+            const capVal = this.getAttribute('data-cap');
+            const modelEl = document.getElementById('model');
+            if (modelEl) {
+                modelEl.value = val;
+                modelEl.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (brandVal) {
+                const brandEl = document.getElementById('brand');
+                if (brandEl) brandEl.value = brandVal;
+            }
+            if (capVal) {
+                const capEl = document.getElementById('capacity');
+                if (capEl) capEl.value = capVal;
+            }
+        });
+    });
+
+    // Agency & Driver sync
     const agencySelect = document.getElementById('agency_id');
     const driverSelect = document.getElementById('driver_name');
     
@@ -146,9 +386,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         agencySelect.addEventListener('change', filterDrivers);
-        // Initial run
         filterDrivers();
     }
 });
 </script>
-{% endblock %} 
+{% endblock %}
