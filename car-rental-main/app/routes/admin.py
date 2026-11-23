@@ -899,6 +899,7 @@ def scan_ticket(booking_code):
 
 # === DASHBOARD ===
 def get_dashboard_stats(agency_id, start_dt, end_dt):
+    now_dt = datetime.now()
     # Setup queries with agency filter if needed
     if agency_id:
         trip_ids_query = db.session.query(Trip.id).join(Route).filter(Route.agency_id == agency_id, Trip.is_deleted == False)
@@ -916,8 +917,8 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
         # Active trips (currently running)
         active_trips_query = Trip.query.join(Route).filter(
             Route.agency_id == agency_id,
-            Trip.departure_time <= datetime.utcnow(),
-            Trip.arrival_time >= datetime.utcnow(),
+            Trip.departure_time <= now_dt,
+            Trip.arrival_time >= now_dt,
             Trip.status != 'cancelled',
             Trip.is_deleted == False
         )
@@ -925,7 +926,7 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
         # Upcoming trips (starting between start_dt and end_dt and > now)
         upcoming_trips_query = Trip.query.join(Route).filter(
             Route.agency_id == agency_id,
-            Trip.departure_time.between(max(start_dt, datetime.utcnow()), end_dt),
+            Trip.departure_time.between(max(start_dt, now_dt), end_dt),
             Trip.status != 'cancelled',
             Trip.is_deleted == False
         )
@@ -937,10 +938,29 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
             Trip.status == 'cancelled',
             Trip.is_deleted == False
         )
+
+        # Cars currently out (active mission)
+        cars_out_now = db.session.query(Trip.bus_id).join(Route).filter(
+            Route.agency_id == agency_id,
+            Trip.departure_time <= now_dt,
+            Trip.arrival_time >= now_dt,
+            Trip.status != 'cancelled',
+            Trip.is_deleted == False
+        ).distinct().count()
+
+        # Cars out in period
+        cars_out_period = db.session.query(Trip.bus_id).join(Route).filter(
+            Route.agency_id == agency_id,
+            Trip.departure_time.between(start_dt, end_dt),
+            Trip.status != 'cancelled',
+            Trip.is_deleted == False
+        ).distinct().count()
         
+        buses_count = Bus.query.filter_by(agency_id=agency_id, is_deleted=False).count()
         buses_active = Bus.query.filter_by(agency_id=agency_id, status='active', is_deleted=False).count()
         buses_maint = Bus.query.filter_by(agency_id=agency_id, status='maintenance', is_deleted=False).count()
         drivers_active = Driver.query.filter_by(agency_id=agency_id, status='on_trip', is_deleted=False).count()
+        promo_count = Bus.query.filter_by(agency_id=agency_id, is_promo=True, is_deleted=False).count()
     else:
         # Super admin (global)
         bookings_query = Booking.query.filter_by(is_deleted=False)
@@ -951,14 +971,14 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
         )
         
         active_trips_query = Trip.query.filter(
-            Trip.departure_time <= datetime.utcnow(),
-            Trip.arrival_time >= datetime.utcnow(),
+            Trip.departure_time <= now_dt,
+            Trip.arrival_time >= now_dt,
             Trip.status != 'cancelled',
             Trip.is_deleted == False
         )
         
         upcoming_trips_query = Trip.query.filter(
-            Trip.departure_time.between(max(start_dt, datetime.utcnow()), end_dt),
+            Trip.departure_time.between(max(start_dt, now_dt), end_dt),
             Trip.status != 'cancelled',
             Trip.is_deleted == False
         )
@@ -968,10 +988,31 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
             Trip.status == 'cancelled',
             Trip.is_deleted == False
         )
+
+        # Cars currently out (active mission)
+        cars_out_now = db.session.query(Trip.bus_id).filter(
+            Trip.departure_time <= now_dt,
+            Trip.arrival_time >= now_dt,
+            Trip.status != 'cancelled',
+            Trip.is_deleted == False
+        ).distinct().count()
+
+        # Cars out in period
+        cars_out_period = db.session.query(Trip.bus_id).filter(
+            Trip.departure_time.between(start_dt, end_dt),
+            Trip.status != 'cancelled',
+            Trip.is_deleted == False
+        ).distinct().count()
         
+        buses_count = Bus.query.filter_by(is_deleted=False).count()
         buses_active = Bus.query.filter_by(status='active', is_deleted=False).count()
         buses_maint = Bus.query.filter_by(status='maintenance', is_deleted=False).count()
         drivers_active = Driver.query.filter_by(status='on_trip', is_deleted=False).count()
+        promo_count = Bus.query.filter_by(is_promo=True, is_deleted=False).count()
+
+    total_clients_all = User.query.filter_by(role='client', is_deleted=False).count()
+    apartments_count = Apartment.query.filter_by(is_deleted=False).count()
+    available_apartments = Apartment.query.filter_by(status='Disponible', is_deleted=False).count()
 
     # Calculate metrics
     # 1. Revenue
@@ -1058,6 +1099,9 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
         'active_trips': active_trips,
         'upcoming_trips': upcoming_trips,
         'cancelled_trips': cancelled_trips,
+        'cars_out': cars_out_now,
+        'cars_out_period': cars_out_period,
+        'total_clients': total_clients_all,
         'new_customers': new_customers,
         'active_customers': active_customers,
         'repeat_customers': repeat_customers,
@@ -1065,9 +1109,13 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
         'pending_bookings': pending_bookings,
         'confirmed_bookings': confirmed_bookings,
         'cancelled_bookings': cancelled_bookings,
+        'buses_count': buses_count,
         'buses_active': buses_active,
         'buses_maint': buses_maint,
-        'drivers_active': drivers_active
+        'drivers_active': drivers_active,
+        'apartments_count': apartments_count,
+        'available_apartments': available_apartments,
+        'promo_count': promo_count
     }
 
 @admin.route('/admin')
@@ -1139,6 +1187,18 @@ def dashboard():
         stats_month = get_dashboard_stats(None, month_start, day_end)
         stats_all = get_dashboard_stats(None, datetime(2000, 1, 1), datetime(2100, 1, 1))
         
+        # 6 Overview Metrics
+        total_apartments = Apartment.query.filter_by(is_deleted=False).count()
+        available_apartments = Apartment.query.filter_by(status='Disponible', is_deleted=False).count()
+        total_promos = Bus.query.filter_by(is_promo=True, is_deleted=False).count()
+        total_missions = Trip.query.filter_by(is_deleted=False).count()
+        cars_out_count = db.session.query(Trip.bus_id).filter(
+            Trip.departure_time <= datetime.now(),
+            Trip.arrival_time >= datetime.now(),
+            Trip.status != 'cancelled',
+            Trip.is_deleted == False
+        ).distinct().count()
+
         # Recent audit logs for Live Operations Feed
         recent_audit_logs = AuditLog.query.order_by(AuditLog.created_at.desc()).limit(20).all()
 
@@ -1146,8 +1206,15 @@ def dashboard():
                              is_super=True,
                              total_agencies=total_agencies,
                              total_users=total_users,
+                             total_clients=total_users,
                              total_buses=total_buses,
+                             total_vehicles=total_buses,
                              total_routes=total_routes,
+                             total_missions=total_missions,
+                             cars_out_count=cars_out_count,
+                             total_apartments=total_apartments,
+                             available_apartments=available_apartments,
+                             total_promos=total_promos,
                              total_bookings=total_bookings,
                              total_feedback=total_feedback,
                              total_revenue=total_revenue,
@@ -1236,12 +1303,33 @@ def dashboard():
         stats_month = get_dashboard_stats(agency.id, month_start, day_end)
         stats_all = get_dashboard_stats(agency.id, datetime(2000, 1, 1), datetime(2100, 1, 1))
 
+        # 6 Overview Metrics
+        total_apartments = Apartment.query.filter_by(is_deleted=False).count()
+        available_apartments = Apartment.query.filter_by(status='Disponible', is_deleted=False).count()
+        total_promos = Bus.query.filter_by(agency_id=agency.id, is_promo=True, is_deleted=False).count()
+        total_missions = total_trips
+        total_clients = User.query.filter_by(role='client', is_deleted=False).count()
+        cars_out_count = db.session.query(Trip.bus_id).join(Route).filter(
+            Route.agency_id == agency.id,
+            Trip.departure_time <= datetime.now(),
+            Trip.arrival_time >= datetime.now(),
+            Trip.status != 'cancelled',
+            Trip.is_deleted == False
+        ).distinct().count()
+
         return render_template('admin/dashboard.html',
                              is_super=False,
                              agency=agency,
                              total_buses=total_buses,
+                             total_vehicles=total_buses,
                              total_routes=total_routes,
                              total_trips=total_trips,
+                             total_missions=total_missions,
+                             total_clients=total_clients,
+                             cars_out_count=cars_out_count,
+                             total_apartments=total_apartments,
+                             available_apartments=available_apartments,
+                             total_promos=total_promos,
                              total_bookings=total_bookings,
                              total_feedback=total_feedback,
                              total_revenue=total_revenue,

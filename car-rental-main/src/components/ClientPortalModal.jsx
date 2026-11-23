@@ -16,6 +16,41 @@ function ClientPortalModal() {
   const [portalChatMessages, setPortalChatMessages] = useState([]);
   const [portalChatInput, setPortalChatInput] = useState("");
   const [portalChatSending, setPortalChatSending] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [profileSavedMsg, setProfileSavedMsg] = useState("");
+
+  useEffect(() => {
+    if (client) {
+      setEditName(client.name || "");
+      setEditPhone(client.phone || "");
+      setEditEmail(client.email || "");
+      setEditAddress(client.address || "");
+      setEditCity(client.city || "Yaoundé");
+    }
+  }, [client]);
+
+  const handleSaveProfile = (e) => {
+    e.preventDefault();
+    if (!client) return;
+    const updatedClient = {
+      ...client,
+      name: editName,
+      phone: editPhone,
+      email: editEmail,
+      address: editAddress,
+      city: editCity
+    };
+    setClient(updatedClient);
+    try {
+      localStorage.setItem("3m_vip_account", JSON.stringify(updatedClient));
+      setProfileSavedMsg("Vos informations ont été mises à jour avec succès !");
+      setTimeout(() => setProfileSavedMsg(""), 3500);
+    } catch (err) {}
+  };
 
   const fetchPortalChat = async (accountNum) => {
     if (!accountNum) return;
@@ -540,26 +575,155 @@ function ClientPortalModal() {
               {/* Profile Tab */}
               {activeTab === "profile" && (
                 <div style={{ padding: "1.5rem", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0", marginBottom: "2rem" }}>
-                  <h4 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#0f172a", marginBottom: "1.2rem" }}>
-                    Informations du Compte Client
-                  </h4>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.2rem", marginBottom: "1.5rem" }}>
+                  
+                  {/* Standalone Chat Launch Banner */}
+                  <div
+                    style={{
+                      background: "linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #881337 100%)",
+                      borderRadius: "12px",
+                      padding: "1.4rem",
+                      color: "#ffffff",
+                      marginBottom: "1.5rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: "1rem"
+                    }}
+                  >
                     <div>
-                      <small style={{ color: "#64748b", fontSize: "1.15rem", display: "block" }}>Numéro de Compte 3M</small>
-                      <strong style={{ fontSize: "1.4rem", color: "#E20713" }}>{client.accountNumber || "3M-CLI-1001"}</strong>
+                      <div style={{ fontWeight: 800, fontSize: "1.5rem", display: "flex", alignItems: "center", gap: "8px" }}>
+                        <i className="fa-solid fa-comments text-danger"></i> Messagerie VIP Standalone
+                      </div>
+                      <div style={{ fontSize: "1.2rem", opacity: 0.85, marginTop: "4px" }}>
+                        Échangez en direct avec nos conseillers 3M sur une page dédiée en plein écran.
+                      </div>
                     </div>
-                    <div>
-                      <small style={{ color: "#64748b", fontSize: "1.15rem", display: "block" }}>Palier de Fidélité</small>
-                      <strong style={{ fontSize: "1.4rem", color: "#b45309" }}>⭐ {client.tier || "Bronze VIP"}</strong>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <a
+                        href="/chat"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          backgroundColor: "#E20713",
+                          color: "#ffffff",
+                          padding: "0.6rem 1.4rem",
+                          borderRadius: "30px",
+                          fontWeight: 700,
+                          fontSize: "1.3rem",
+                          textDecoration: "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          boxShadow: "0 4px 10px rgba(226, 7, 19, 0.4)"
+                        }}
+                      >
+                        <i className="fa-solid fa-up-right-from-square"></i> Ouvrir le Chat Dédié
+                      </a>
                     </div>
-                    <div>
-                      <small style={{ color: "#64748b", fontSize: "1.15rem", display: "block" }}>Téléphone Associé</small>
-                      <strong style={{ fontSize: "1.35rem", color: "#0f172a" }}>{client.phone}</strong>
-                    </div>
-                    <div>
-                      <small style={{ color: "#64748b", fontSize: "1.15rem", display: "block" }}>Email</small>
-                      <strong style={{ fontSize: "1.35rem", color: "#0f172a" }}>{client.email || "Non renseigné"}</strong>
-                    </div>
+                  </div>
+
+                  {/* Form to fill/edit profile */}
+                  <div style={{ backgroundColor: "#ffffff", padding: "1.5rem", borderRadius: "10px", border: "1px solid #e2e8f0", marginBottom: "1.5rem" }}>
+                    <h4 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#0f172a", marginBottom: "0.5rem" }}>
+                      <i className="fa-solid fa-user-pen text-danger" style={{ marginRight: "8px" }}></i>
+                      Remplir & Mettre à jour mon Profil
+                    </h4>
+                    <p style={{ color: "#64748b", fontSize: "1.2rem", marginBottom: "1.2rem" }}>
+                      Complétez vos coordonnées pour faciliter vos prochaines réservations de véhicules VIP et résidences meublées.
+                    </p>
+
+                    {profileSavedMsg && (
+                      <div style={{ backgroundColor: "#dcfce7", color: "#166534", padding: "0.8rem 1.2rem", borderRadius: "8px", marginBottom: "1.2rem", fontSize: "1.3rem", fontWeight: 600 }}>
+                        <i className="fa-solid fa-check-circle" style={{ marginRight: "6px" }}></i> {profileSavedMsg}
+                      </div>
+                    )}
+
+                    <form onSubmit={handleSaveProfile}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+                        <div>
+                          <label style={{ display: "block", fontSize: "1.2rem", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                            Nom Complet
+                          </label>
+                          <input
+                            type="text"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            placeholder="Votre nom et prénom"
+                            style={{ width: "100%", padding: "0.8rem 1rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: "1.2rem", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                            Numéro de Téléphone
+                          </label>
+                          <input
+                            type="tel"
+                            value={editPhone}
+                            onChange={(e) => setEditPhone(e.target.value)}
+                            placeholder="+237 6XX XX XX XX"
+                            style={{ width: "100%", padding: "0.8rem 1rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: "1.2rem", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                            Adresse Email
+                          </label>
+                          <input
+                            type="email"
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            placeholder="votre-email@domaine.com"
+                            style={{ width: "100%", padding: "0.8rem 1rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontSize: "1.2rem", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                            Ville de Résidence
+                          </label>
+                          <input
+                            type="text"
+                            value={editCity}
+                            onChange={(e) => setEditCity(e.target.value)}
+                            placeholder="Yaoundé, Douala..."
+                            style={{ width: "100%", padding: "0.8rem 1rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }}
+                          />
+                        </div>
+                        <div style={{ gridColumn: "span 2" }}>
+                          <label style={{ display: "block", fontSize: "1.2rem", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                            Adresse Résidentielle / Quartier
+                          </label>
+                          <input
+                            type="text"
+                            value={editAddress}
+                            onChange={(e) => setEditAddress(e.target.value)}
+                            placeholder="Ex: Bastos, Rue 1.834 / Tsinga"
+                            style={{ width: "100%", padding: "0.8rem 1rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }}
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        style={{
+                          backgroundColor: "#0f172a",
+                          color: "#ffffff",
+                          border: "none",
+                          padding: "0.8rem 2rem",
+                          borderRadius: "30px",
+                          fontSize: "1.35rem",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "8px"
+                        }}
+                      >
+                        <i className="fa-solid fa-floppy-disk"></i> Enregistrer mes modifications
+                      </button>
+                    </form>
                   </div>
 
                   <h5 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#0f172a", marginBottom: "0.8rem" }}>
@@ -567,7 +731,7 @@ function ClientPortalModal() {
                   </h5>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
                     <div style={{ padding: "0.8rem", background: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1.25rem", color: "#334155" }}>
-                      ✅ Concierge dédié 24/7 sur WhatsApp
+                      ✅ Concierge dédié 24/7 sur WhatsApp & Chat
                     </div>
                     <div style={{ padding: "0.8rem", background: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1.25rem", color: "#334155" }}>
                       ✅ Véhicules de remplacement prioritaire
@@ -757,29 +921,54 @@ function ClientPortalModal() {
                         Échanges en direct liés à votre compte VIP N° {client.accountNumber}
                       </span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        window.dispatchEvent(new CustomEvent("3m-open-chat", { detail: { name: client.name, phone: client.phone } }));
-                        setIsOpen(false);
-                      }}
-                      style={{
-                        backgroundColor: "#ffffff",
-                        border: "1.5px solid #cbd5e1",
-                        color: "#0f172a",
-                        padding: "0.6rem 1.2rem",
-                        borderRadius: "8px",
-                        fontSize: "1.2rem",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px"
-                      }}
-                    >
-                      <i className="fa-solid fa-up-right-from-square"></i>
-                      Ouvrir en fenêtre flottante
-                    </button>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                      <a
+                        href="/chat"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          backgroundColor: "#E20713",
+                          border: "none",
+                          color: "#ffffff",
+                          padding: "0.6rem 1.2rem",
+                          borderRadius: "8px",
+                          fontSize: "1.2rem",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          textDecoration: "none",
+                          boxShadow: "0 2px 6px rgba(226,7,19,0.3)"
+                        }}
+                      >
+                        <i className="fa-solid fa-up-right-from-square"></i>
+                        Ouvrir en Page Standalone
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          window.dispatchEvent(new CustomEvent("3m-open-chat", { detail: { name: client.name, phone: client.phone } }));
+                          setIsOpen(false);
+                        }}
+                        style={{
+                          backgroundColor: "#ffffff",
+                          border: "1.5px solid #cbd5e1",
+                          color: "#0f172a",
+                          padding: "0.6rem 1.2rem",
+                          borderRadius: "8px",
+                          fontSize: "1.2rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px"
+                        }}
+                      >
+                        <i className="fa-solid fa-comment-dots"></i>
+                        Fenêtre Flottante
+                      </button>
+                    </div>
                   </div>
 
                   {/* Messages Stream Box */}

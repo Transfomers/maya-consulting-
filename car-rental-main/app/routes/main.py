@@ -36,6 +36,14 @@ def index():
         return redirect(url_for('admin.dashboard'))
     return redirect('http://localhost:3001/')
 
+@bp.route('/chat')
+def chat_redirect():
+    if current_user.is_authenticated:
+        if current_user.role in ['super_admin', 'admin_agence']:
+            return redirect(url_for('admin.chats'))
+        return redirect(url_for('client.chat'))
+    return redirect(url_for('auth.login', next=url_for('client.chat')))
+
 @bp.route('/service-worker.js')
 def service_worker():
     return send_file('static/service-worker.js', mimetype='application/javascript')

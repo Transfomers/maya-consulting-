@@ -1,12 +1,13 @@
 from functools import wraps
-from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, session
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, session, jsonify
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from app import db
-from app.models import User, Booking, Trip, Payment, SystemNotification
+from app.models import User, Booking, Trip, Payment, SystemNotification, Bus, Route
 from datetime import datetime
 import os
+import json
 
 client = Blueprint('client', __name__, url_prefix='/client')
 
@@ -182,6 +183,57 @@ def profile():
             current_user.password_hash = generate_password_hash(new_password, method='pbkdf2:sha256')
 
         db.session.commit()
+
+        # Synchronize updated client profile with server/data/db.json
+        try:
+            db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+            if os.path.exists(db_path):
+                with open(db_path, 'r', encoding='utf-8') as f:
+                    exp_db = json.load(f)
+                
+                # Update or insert into customers
+                customers = exp_db.get('customers', [])
+                full_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.username
+                cust = next((c for c in customers if c.get('id') == f"CLI-{current_user.id}" or c.get('email') == current_user.email or (current_user.phone and c.get('phone') == current_user.phone)), None)
+                if cust:
+                    cust['fullName'] = full_name
+                    cust['firstName'] = current_user.first_name or ''
+                    cust['lastName'] = current_user.last_name or ''
+                    cust['phone'] = current_user.phone or ''
+                    cust['email'] = current_user.email or ''
+                    cust['address'] = current_user.address or ''
+                    cust['city'] = current_user.city or ''
+                else:
+                    new_cust = {
+                        'id': f"CLI-{current_user.id}",
+                        'fullName': full_name,
+                        'firstName': current_user.first_name or '',
+                        'lastName': current_user.last_name or '',
+                        'phone': current_user.phone or '',
+                        'email': current_user.email or '',
+                        'address': current_user.address or '',
+                        'city': current_user.city or 'Yaoundé',
+                        'createdAt': datetime.now().isoformat()
+                    }
+                    customers.append(new_cust)
+                    exp_db['customers'] = customers
+
+                # Also update client info in chats if thread exists
+                chats = exp_db.get('chats', [])
+                client_id_tag = f"CLI-{current_user.id}"
+                client_chat = next((c for c in chats if c.get('id') == client_id_tag or c.get('clientId') == client_id_tag or (current_user.phone and current_user.phone in (c.get('clientPhone') or '')) or (current_user.email and current_user.email == c.get('clientEmail')) or c.get('clientId') == current_user.username), None)
+                if client_chat:
+                    client_chat['clientName'] = full_name
+                    if current_user.phone:
+                        client_chat['clientPhone'] = current_user.phone
+                    if current_user.email:
+                        client_chat['clientEmail'] = current_user.email
+
+                with open(db_path, 'w', encoding='utf-8') as f:
+                    json.dump(exp_db, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            current_app.logger.warning(f"Error syncing client profile to db.json: {e}")
+
         flash('Profil mis à jour avec succès.', 'success')
         return redirect(url_for('client.profile'))
 
@@ -326,3 +378,229 @@ def delete_account():
     logout_user()
     flash("Votre compte a été supprimé. Vous pouvez créer un nouveau compte si vous le souhaitez.", "success")
     return jsonify({"success": True})
+
+
+# ==========================================
+# STANDALONE CLIENT CHAT (MESSAGERIE VIP)
+# ==========================================
+
+def _get_client_chat_thread(user):
+    """Helper to retrieve or initialize chat thread in server/data/db.json"""
+    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    if not os.path.exists(db_path):
+        return None, None
+    with open(db_path, 'r', encoding='utf-8') as f:
+        exp_db = json.load(f)
+    
+    chats = exp_db.get('chats', [])
+    client_tag = f"CLI-{user.id}"
+    full_name = f"{user.first_name or ''} {user.last_name or ''}".strip() or user.username
+    user_phone = user.phone or ''
+    user_email = user.email or ''
+    
+    chat_thread = next((c for c in chats if c.get('id') == client_tag or c.get('clientId') == client_tag or (user_phone and user_phone in (c.get('clientPhone') or '')) or (user_email and user_email == c.get('clientEmail')) or c.get('clientId') == user.username), None)
+    
+    if not chat_thread:
+        now_iso = datetime.now().isoformat()
+        chat_thread = {
+            'id': client_tag,
+            'clientId': client_tag,
+            'clientName': full_name,
+            'clientPhone': user_phone,
+            'clientEmail': user_email,
+            'unreadAdmin': 0,
+            'unreadClient': 0,
+            'createdAt': now_iso,
+            'lastMessage': "Bienvenue sur le service de conciergerie VIP 3M SERVICES.",
+            'lastMessageAt': now_iso,
+            'messages': [
+                {
+                    'id': f"msg_welcome_{int(datetime.now().timestamp()*1000)}",
+                    'text': f"Bonjour {full_name} ! Bienvenue sur votre Espace Chat Privé 3M SERVICES. Notre conciergerie VIP est à votre écoute pour organiser vos déplacements haut de gamme, réservations de résidences à Tsinga ou assignations de chauffeurs d'élite. En quoi pouvons-nous vous assister aujourd'hui ?",
+                    'sender': 'admin',
+                    'time': datetime.now().strftime('%H:%M'),
+                    'timestamp': now_iso,
+                    'read': True
+                }
+            ]
+        }
+        chats.insert(0, chat_thread)
+        exp_db['chats'] = chats
+        with open(db_path, 'w', encoding='utf-8') as f:
+            json.dump(exp_db, f, indent=2, ensure_ascii=False)
+            
+    return exp_db, chat_thread
+
+
+@client.route('/chat')
+@catch_errors
+@client_role_required
+def chat():
+    exp_db, chat_thread = _get_client_chat_thread(current_user)
+    if chat_thread and exp_db:
+        # Mark as read for client
+        chat_thread['unreadClient'] = 0
+        db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+        try:
+            with open(db_path, 'w', encoding='utf-8') as f:
+                json.dump(exp_db, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            current_app.logger.warning(f"Error marking chat read: {e}")
+
+    client_tag = f"CLI-{current_user.id}"
+    full_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.username
+    
+    # Also load active fleet vehicles for optional quick inquiry attachment
+    available_buses = Bus.query.filter_by(is_deleted=False).all()
+
+    return render_template(
+        'client/chat.html',
+        chat_thread=chat_thread,
+        client_tag=client_tag,
+        client_name=full_name,
+        client_phone=current_user.phone or '',
+        client_email=current_user.email or '',
+        available_buses=available_buses
+    )
+
+
+@client.route('/api/chat/messages', methods=['GET'])
+@client_role_required
+def api_chat_messages():
+    exp_db, chat_thread = _get_client_chat_thread(current_user)
+    if not chat_thread:
+        return jsonify({'success': False, 'error': 'Discussion introuvable'}), 404
+        
+    chat_thread['unreadClient'] = 0
+    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    try:
+        with open(db_path, 'w', encoding='utf-8') as f:
+            json.dump(exp_db, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
+        
+    return jsonify({
+        'success': True,
+        'chat': chat_thread
+    })
+
+
+@client.route('/api/chat/send', methods=['POST'])
+@client_role_required
+def api_chat_send():
+    data = request.get_json(silent=True) or request.form
+    text = (data.get('text') or '').strip()
+    if not text:
+        return jsonify({'success': False, 'error': 'Message vide'}), 400
+
+    exp_db, chat_thread = _get_client_chat_thread(current_user)
+    if not chat_thread:
+        return jsonify({'success': False, 'error': 'Chat introuvable'}), 404
+
+    now = datetime.now()
+    now_iso = now.isoformat()
+    msg_id = f"msg_{int(now.timestamp()*1000)}"
+    new_msg = {
+        'id': msg_id,
+        'text': text,
+        'sender': 'client',
+        'time': now.strftime('%H:%M'),
+        'timestamp': now_iso,
+        'read': False
+    }
+
+    attached_car = data.get('attachedCar')
+    if attached_car:
+        new_msg['attachedCar'] = attached_car
+
+    chat_thread['messages'] = chat_thread.get('messages', [])
+    chat_thread['messages'].append(new_msg)
+    chat_thread['lastMessage'] = text
+    chat_thread['lastMessageAt'] = now_iso
+    chat_thread['unreadAdmin'] = chat_thread.get('unreadAdmin', 0) + 1
+    chat_thread['unreadClient'] = 0
+
+    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    with open(db_path, 'w', encoding='utf-8') as f:
+        json.dump(exp_db, f, indent=2, ensure_ascii=False)
+
+    return jsonify({'success': True, 'message': new_msg})
+
+
+@client.route('/api/chat/edit/<msg_id>', methods=['POST'])
+@client_role_required
+def api_chat_edit(msg_id):
+    data = request.get_json(silent=True) or request.form
+    text = (data.get('text') or '').strip()
+    if not text:
+        return jsonify({'success': False, 'error': 'Texte vide'}), 400
+
+    exp_db, chat_thread = _get_client_chat_thread(current_user)
+    if not chat_thread:
+        return jsonify({'success': False, 'error': 'Discussion introuvable'}), 404
+
+    msg = next((m for m in chat_thread.get('messages', []) if m.get('id') == msg_id and m.get('sender') == 'client'), None)
+    if not msg:
+        return jsonify({'success': False, 'error': 'Message introuvable ou non autorisé'}), 404
+
+    msg['text'] = text
+    msg['edited'] = True
+    msg['editedAt'] = datetime.now().isoformat()
+    chat_thread['lastMessage'] = text
+
+    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    with open(db_path, 'w', encoding='utf-8') as f:
+        json.dump(exp_db, f, indent=2, ensure_ascii=False)
+
+    return jsonify({'success': True, 'message': msg})
+
+
+@client.route('/api/chat/delete/<msg_id>', methods=['POST'])
+@client_role_required
+def api_chat_delete(msg_id):
+    exp_db, chat_thread = _get_client_chat_thread(current_user)
+    if not chat_thread:
+        return jsonify({'success': False, 'error': 'Discussion introuvable'}), 404
+
+    msg = next((m for m in chat_thread.get('messages', []) if m.get('id') == msg_id and m.get('sender') == 'client'), None)
+    if not msg:
+        return jsonify({'success': False, 'error': 'Message introuvable ou non autorisé'}), 404
+
+    chat_thread['messages'] = [m for m in chat_thread.get('messages', []) if m.get('id') != msg_id]
+    if chat_thread['messages']:
+        chat_thread['lastMessage'] = chat_thread['messages'][-1].get('text', '')
+        chat_thread['lastMessageAt'] = chat_thread['messages'][-1].get('timestamp', datetime.now().isoformat())
+    else:
+        chat_thread['lastMessage'] = "Aucun message"
+
+    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    with open(db_path, 'w', encoding='utf-8') as f:
+        json.dump(exp_db, f, indent=2, ensure_ascii=False)
+
+    return jsonify({'success': True})
+
+
+@client.route('/api/chat/clear', methods=['POST'])
+@client_role_required
+def api_chat_clear():
+    exp_db, chat_thread = _get_client_chat_thread(current_user)
+    if not chat_thread:
+        return jsonify({'success': False, 'error': 'Discussion introuvable'}), 404
+
+    chat_thread['messages'] = []
+    chat_thread['lastMessage'] = "Discussion réinitialisée par le client"
+    chat_thread['lastMessageAt'] = datetime.now().isoformat()
+    chat_thread['unreadAdmin'] = 0
+    chat_thread['unreadClient'] = 0
+
+    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    with open(db_path, 'w', encoding='utf-8') as f:
+        json.dump(exp_db, f, indent=2, ensure_ascii=False)
+
+    return jsonify({'success': True})
+
+
+@client.route('/api/chat/typing', methods=['POST'])
+@client_role_required
+def api_chat_typing():
+    return jsonify({'success': True})

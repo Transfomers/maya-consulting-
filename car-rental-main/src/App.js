@@ -15,6 +15,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import ClientPortalModal from "./components/ClientPortalModal";
 import PrivateChatWidget from "./components/PrivateChatWidget";
 import { LanguageProvider } from "./context/LanguageContext";
+import ChatPage from "./Pages/ChatPage";
 
 // Forward any administrative access directly to the official 3M SERVICES Admin Control Center (Port 5002)
 const AdminRedirect = () => {
@@ -43,6 +44,8 @@ function App() {
         <Route path="testimonials" element={<TestimonialsPage />} />
         <Route path="team" element={<Team />} />
         <Route path="contact" element={<Contact />} />
+        <Route path="chat" element={<ChatPage />} />
+        <Route path="messages" element={<ChatPage />} />
         {/* Admin RQ route removed; automatically forwards to the main Flask Admin */}
         <Route path="admin" element={<AdminRedirect />} />
         <Route path="admin/*" element={<AdminRedirect />} />

@@ -1,0 +1,734 @@
+{% extends "base.html" %}
+
+{% block title %}Chat Privé Conciergerie VIP - 3M SERVICES{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Standalone Chat View Styling (3M VIP Design) ────────────── */
+.standalone-chat-container {
+    max-width: 1100px;
+    margin: 1.5rem auto 3rem;
+    padding: 0 1rem;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.chat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 78vh;
+    min-height: 580px;
+}
+body.dark-mode .chat-card {
+    background: #111827;
+    border-color: #1f2937;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Chat Header */
+.chat-standalone-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 70%, #881337 100%);
+    color: #ffffff;
+    padding: 1.1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border-bottom: 2px solid rgba(226, 7, 19, 0.3);
+}
+
+.chat-concierge-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #C92A2A;
+    border: 2.5px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(201, 42, 42, 0.35);
+}
+
+.chat-online-dot {
+    width: 10px;
+    height: 10px;
+    background: #22c55e;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px #22c55e;
+    animation: pulseDot 2s infinite;
+}
+@keyframes pulseDot {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* Messages Stream */
+.chat-messages-stream {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    scroll-behavior: smooth;
+}
+body.dark-mode .chat-messages-stream {
+    background: #0b0f19;
+}
+
+/* Bubbles */
+.chat-bubble-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.65rem;
+    max-width: 82%;
+    position: relative;
+}
+.chat-bubble-row.is-client {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+.chat-bubble-row.is-admin {
+    align-self: flex-start;
+}
+
+.chat-avatar-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.chat-avatar-mini.admin-av {
+    background: #0f172a;
+    color: #fbbf24;
+    border: 1.5px solid #fbbf24;
+}
+.chat-avatar-mini.client-av {
+    background: #C92A2A;
+    color: #ffffff;
+}
+
+.chat-bubble {
+    padding: 0.85rem 1.15rem;
+    border-radius: 1.25rem;
+    position: relative;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    word-break: break-word;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.chat-bubble.admin-bubble {
+    background: #ffffff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 0.25rem;
+}
+body.dark-mode .chat-bubble.admin-bubble {
+    background: #1e293b;
+    color: #f1f5f9;
+    border-color: #334155;
+}
+.chat-bubble.client-bubble {
+    background: #C92A2A;
+    color: #ffffff;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.chat-meta {
+    font-size: 0.72rem;
+    margin-top: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.chat-bubble.admin-bubble .chat-meta {
+    color: #64748b;
+}
+body.dark-mode .chat-bubble.admin-bubble .chat-meta {
+    color: #94a3b8;
+}
+.chat-bubble.client-bubble .chat-meta {
+    color: rgba(255, 255, 255, 0.8);
+    justify-content: flex-end;
+}
+
+/* Quick chips */
+.chat-chips-scroll {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.75rem 1.25rem;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    scrollbar-width: thin;
+}
+body.dark-mode .chat-chips-scroll {
+    background: #111827;
+    border-color: #1f2937;
+}
+.chat-chip {
+    white-space: nowrap;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #334155;
+    padding: 0.4rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+body.dark-mode .chat-chip {
+    background: #1f2937;
+    border-color: #374151;
+    color: #e2e8f0;
+}
+.chat-chip:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #C92A2A;
+    transform: translateY(-1px);
+}
+
+/* Input area */
+.chat-input-bar {
+    background: #ffffff;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #e2e8f0;
+}
+body.dark-mode .chat-input-bar {
+    background: #111827;
+    border-color: #1f2937;
+}
+
+.chat-textarea {
+    resize: none;
+    height: 48px;
+    max-height: 120px;
+    border-radius: 1rem;
+    padding: 0.75rem 1.15rem;
+    border: 1.5px solid #cbd5e1;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+body.dark-mode .chat-textarea {
+    background: #1f2937;
+    color: #f1f5f9;
+    border-color: #374151;
+}
+.chat-textarea:focus {
+    border-color: #C92A2A;
+    box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.15);
+}
+
+.chat-send-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #C92A2A;
+    color: #ffffff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.chat-send-btn:hover:not(:disabled) {
+    background: #b91c1c;
+    transform: scale(1.05);
+}
+.chat-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Message Hover Actions */
+.msg-actions-trigger {
+    opacity: 0;
+    transition: opacity 0.2s;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+}
+.chat-bubble-row:hover .msg-actions-trigger {
+    opacity: 1;
+}
+.is-client .msg-actions-trigger {
+    left: -28px;
+}
+.is-admin .msg-actions-trigger {
+    right: -28px;
+}
+
+/* Typing Indicator */
+.typing-indicator-box {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 1rem;
+    width: fit-content;
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+body.dark-mode .typing-indicator-box {
+    background: rgba(255, 255, 255, 0.05);
+    color: #94a3b8;
+}
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #C92A2A;
+    border-radius: 50%;
+    display: inline-block;
+    animation: typingBounce 1.4s infinite ease-in-out both;
+}
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typingBounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="standalone-chat-container">
+
+    <!-- Top Navigation Breadcrumb -->
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <a href="{{ url_for('client.profile') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i> Retour à Mon Profil
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-light text-dark border px-3 py-1.5 rounded-pill small">
+                <i class="bi bi-shield-check text-success me-1"></i> Espace Sécurisé Chiffré
+            </span>
+            <a href="https://wa.me/237691786447" target="_blank" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5">
+                <i class="bi bi-whatsapp"></i> WhatsApp Direct
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Chat Window Card -->
+    <div class="chat-card">
+
+        <!-- Standalone Header -->
+        <div class="chat-standalone-header">
+            <div class="d-flex align-items-center gap-3">
+                <div class="chat-concierge-avatar">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h4 class="mb-0 fw-bold text-white" style="font-size: 1.15rem;">Conciergerie VIP 3M SERVICES</h4>
+                        <span class="chat-online-dot" title="En Ligne"></span>
+                    </div>
+                    <div class="text-white text-opacity-75 small" style="font-size: 0.8rem;">
+                        Conseillers d'élite en ligne • Réponse moyenne &lt; 5 min
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client Identity Badge & Options -->
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-white bg-opacity-10 px-3 py-1.5 rounded-pill text-white small border border-white border-opacity-10">
+                    <i class="bi bi-person-fill text-warning me-1"></i>
+                    <strong>{{ client_name }}</strong> <span class="text-white-50 ms-1">({{ client_tag }})</span>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-2.5" onclick="clearMyChat()" title="Effacer l'historique">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Stream -->
+        <div class="chat-messages-stream" id="chatMessagesStream">
+            <!-- Date separator -->
+            <div class="text-center my-2">
+                <span class="badge bg-secondary bg-opacity-10 text-muted border px-3 py-1 rounded-pill small" style="font-size: 0.72rem;">
+                    Aujourd'hui • Échanges confidentiels
+                </span>
+            </div>
+
+            {% if chat_thread and chat_thread.messages %}
+                {% for msg in chat_thread.messages %}
+                    <div class="chat-bubble-row {% if msg.sender == 'client' %}is-client{% else %}is-admin{% endif %}" id="msg-row-{{ msg.id }}">
+                        <div class="chat-avatar-mini {% if msg.sender == 'client' %}client-av{% else %}admin-av{% endif %}">
+                            {% if msg.sender == 'client' %}
+                                {{ (client_name or 'C')[0]|upper }}
+                            {% else %}
+                                3M
+                            {% endif %}
+                        </div>
+
+                        <div class="chat-bubble {% if msg.sender == 'client' %}client-bubble{% else %}admin-bubble{% endif %}">
+                            {% if msg.attachedCar %}
+                                <div class="p-2 mb-2 bg-dark bg-opacity-10 rounded border border-white border-opacity-20 small">
+                                    <i class="bi bi-car-front-fill me-1"></i> <strong>Véhicule mentionné :</strong> {{ msg.attachedCar }}
+                                </div>
+                            {% endif %}
+
+                            <div class="msg-text-content" id="msg-text-{{ msg.id }}">{{ msg.text }}</div>
+
+                            <div class="chat-meta">
+                                <span>{{ msg.time }}</span>
+                                {% if msg.edited %}<span class="fst-italic opacity-75">(modifié)</span>{% endif %}
+                                {% if msg.sender == 'client' %}
+                                    <i class="bi bi-check2-all ms-1 text-white"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if msg.sender == 'client' %}
+                            <div class="dropdown msg-actions-trigger">
+                                <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-1" style="font-size: 0.8rem;">
+                                    <li><button class="dropdown-item py-1" onclick="startEditMsg('{{ msg.id }}')"><i class="bi bi-pencil me-1.5 text-primary"></i> Modifier</button></li>
+                                    <li><button class="dropdown-item py-1 text-danger" onclick="deleteMsg('{{ msg.id }}')"><i class="bi bi-trash me-1.5"></i> Supprimer</button></li>
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5 text-muted small" id="emptyChatNotice">
+                    <i class="bi bi-chat-dots fs-1 d-block mb-2 text-danger opacity-50"></i>
+                    Aucun message pour le moment.<br>Posez votre question à nos conseillers ci-dessous !
+                </div>
+            {% endif %}
+
+            <!-- Typing indicator -->
+            <div class="typing-indicator-box" id="adminTypingIndicator">
+                <i class="bi bi-headset text-danger me-1"></i> Conciergerie 3M est en train d'écrire
+                <span class="ms-1">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Quick Suggestion Chips -->
+        <div class="chat-chips-scroll">
+            <button type="button" class="chat-chip" onclick="applySuggestion('Bonjour, je souhaite connaître la disponibilité du Toyota Land Cruiser V8 avec chauffeur pour ce week-end.')">
+                🚘 Dispo Land Cruiser V8
+            </button>
+            <button type="button" class="chat-chip" onclick="applySuggestion('Bonjour, je voudrais réserver un appartement meublé VIP à Tsinga (face FECAFOOT) pour 3 nuitées.')">
+                🏢 Appartement Tsinga FECAFOOT
+            </button>
+            <button type="button" class="chat-chip" onclick="applySuggestion('Bonjour, quel est le tarif journalier pour une mise à disposition avec chauffeur VIP à Yaoundé ?')">
+                🤵 Forfait Chauffeur VIP
+            </button>
+            <button type="button" class="chat-chip" onclick="applySuggestion('Bonjour, j\'aimerais prolonger ma location en cours de 48 heures. Quelles sont les démarches ?')">
+                ⏱️ Prolonger ma location
+            </button>
+            <button type="button" class="chat-chip" onclick="applySuggestion('Bonjour, pouvez-vous m\'envoyer la facture certifiée et le contrat de ma réservation ?')">
+                📄 Facture & Contrat
+            </button>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="chat-input-bar">
+            <!-- Inline Car Selector Optional Attachment -->
+            <div class="d-flex align-items-center gap-2 mb-2" id="attachCarContainer" style="display: none !important;">
+                <span class="badge bg-secondary bg-opacity-10 text-muted border small"><i class="bi bi-paperclip"></i> Véhicule :</span>
+                <select id="chatAttachedCar" class="form-select form-select-sm py-1" style="font-size: 0.8rem; max-width: 320px;">
+                    <option value="">Aucun véhicule associé</option>
+                    {% for bus in available_buses %}
+                        <option value="{{ bus.brand }} {{ bus.model }} ({{ bus.bus_number }})">{{ bus.brand }} {{ bus.model }} [{{ bus.bus_number }}]</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="toggleAttachCar()"><i class="bi bi-x"></i></button>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-light rounded-circle border p-0 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" onclick="toggleAttachCar()" title="Associer un véhicule">
+                    <i class="bi bi-car-front text-muted"></i>
+                </button>
+
+                <textarea id="chatInputText" class="form-control chat-textarea" placeholder="Écrivez votre message à notre conciergerie VIP... (Entrée pour envoyer)" rows="1"></textarea>
+
+                <button type="button" id="chatSendBtn" class="chat-send-btn shadow-sm" onclick="sendClientMessage()" title="Envoyer">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-1.5 px-1 text-muted" style="font-size: 0.72rem;">
+                <span><i class="bi bi-shield-lock-fill text-success me-1"></i> Échanges directs et confidentiels 3M SERVICES</span>
+                <span>Maj+Entrée pour saut de ligne</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Modal Edit Message -->
+<div class="modal fade" id="editMsgModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem;">
+            <div class="modal-header border-bottom py-3">
+                <h5 class="modal-title fw-bold text-dark fs-6"><i class="bi bi-pencil-square text-primary me-2"></i>Modifier mon message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="editMsgId">
+                <label class="form-label small fw-semibold text-muted">Votre message :</label>
+                <textarea id="editMsgInput" class="form-control" rows="3" style="border-radius: 0.75rem; font-size: 0.95rem;"></textarea>
+            </div>
+            <div class="modal-footer border-top py-2.5">
+                <button type="button" class="btn btn-sm btn-light rounded-pill px-3" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-sm btn-danger rounded-pill px-4 fw-bold" onclick="submitEditMsg()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stream = document.getElementById('chatMessagesStream');
+    const input = document.getElementById('chatInputText');
+    const sendBtn = document.getElementById('chatSendBtn');
+    
+    // Auto scroll bottom
+    function scrollToBottom() {
+        if (stream) {
+            stream.scrollTop = stream.scrollHeight;
+        }
+    }
+    scrollToBottom();
+
+    // Keydown Enter to send
+    if (input) {
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendClientMessage();
+            }
+        });
+    }
+
+    // Toggle attach car
+    window.toggleAttachCar = function() {
+        const c = document.getElementById('attachCarContainer');
+        if (c) {
+            if (c.style.display === 'none' || c.style.display === '') {
+                c.style.display = 'flex';
+            } else {
+                c.style.display = 'none';
+                document.getElementById('chatAttachedCar').value = '';
+            }
+        }
+    };
+
+    // Apply suggestion
+    window.applySuggestion = function(text) {
+        if (input) {
+            input.value = text;
+            input.focus();
+            scrollToBottom();
+        }
+    };
+
+    // Send Client Message
+    window.sendClientMessage = async function() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        const attachedCar = document.getElementById('chatAttachedCar') ? document.getElementById('chatAttachedCar').value : '';
+
+        // Disable input during send
+        sendBtn.disabled = true;
+        input.value = '';
+
+        // Remove empty notice if present
+        const emptyNotice = document.getElementById('emptyChatNotice');
+        if (emptyNotice) emptyNotice.remove();
+
+        try {
+            const res = await fetch("{{ url_for('client.api_chat_send') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    text: text,
+                    attachedCar: attachedCar
+                })
+            });
+            const data = await res.json();
+            if (data.success && data.message) {
+                appendClientBubble(data.message);
+                scrollToBottom();
+            }
+        } catch (err) {
+            console.error("Erreur envoi chat client:", err);
+        } finally {
+            sendBtn.disabled = false;
+            input.focus();
+        }
+    };
+
+    function appendClientBubble(msg) {
+        const row = document.createElement('div');
+        row.className = 'chat-bubble-row is-client';
+        row.id = 'msg-row-' + msg.id;
+
+        let carHtml = '';
+        if (msg.attachedCar) {
+            carHtml = `<div class="p-2 mb-2 bg-dark bg-opacity-10 rounded border border-white border-opacity-20 small">
+                <i class="bi bi-car-front-fill me-1"></i> <strong>Véhicule mentionné :</strong> ${msg.attachedCar}
+            </div>`;
+        }
+
+        row.innerHTML = `
+            <div class="chat-avatar-mini client-av">{{ (client_name or 'C')[0]|upper }}</div>
+            <div class="chat-bubble client-bubble">
+                ${carHtml}
+                <div class="msg-text-content" id="msg-text-${msg.id}">${escapeHtml(msg.text)}</div>
+                <div class="chat-meta">
+                    <span>${msg.time || 'À l\'instant'}</span>
+                    <i class="bi bi-check2-all ms-1 text-white"></i>
+                </div>
+            </div>
+            <div class="dropdown msg-actions-trigger">
+                <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-1" style="font-size: 0.8rem;">
+                    <li><button class="dropdown-item py-1" onclick="startEditMsg('${msg.id}')"><i class="bi bi-pencil me-1.5 text-primary"></i> Modifier</button></li>
+                    <li><button class="dropdown-item py-1 text-danger" onclick="deleteMsg('${msg.id}')"><i class="bi bi-trash me-1.5"></i> Supprimer</button></li>
+                </ul>
+            </div>
+        `;
+        stream.appendChild(row);
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Edit message
+    window.startEditMsg = function(msgId) {
+        const textEl = document.getElementById('msg-text-' + msgId);
+        if (!textEl) return;
+        document.getElementById('editMsgId').value = msgId;
+        document.getElementById('editMsgInput').value = textEl.textContent.trim();
+        const modal = new bootstrap.Modal(document.getElementById('editMsgModal'));
+        modal.show();
+    };
+
+    window.submitEditMsg = async function() {
+        const msgId = document.getElementById('editMsgId').value;
+        const newText = document.getElementById('editMsgInput').value.trim();
+        if (!newText) return;
+
+        try {
+            const res = await fetch(`/client/api/chat/edit/${encodeURIComponent(msgId)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: newText })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const textEl = document.getElementById('msg-text-' + msgId);
+                if (textEl) textEl.textContent = newText;
+                bootstrap.Modal.getInstance(document.getElementById('editMsgModal')).hide();
+            }
+        } catch (err) {
+            console.error("Erreur modification:", err);
+        }
+    };
+
+    // Delete message
+    window.deleteMsg = async function(msgId) {
+        if (!confirm("Voulez-vous supprimer ce message ?")) return;
+        try {
+            const res = await fetch(`/client/api/chat/delete/${encodeURIComponent(msgId)}`, {
+                method: "POST"
+            });
+            const data = await res.json();
+            if (data.success) {
+                const row = document.getElementById('msg-row-' + msgId);
+                if (row) row.remove();
+            }
+        } catch (err) {
+            console.error("Erreur suppression:", err);
+        }
+    };
+
+    // Clear chat
+    window.clearMyChat = async function() {
+        if (!confirm("Voulez-vous réinitialiser toute la discussion ?")) return;
+        try {
+            const res = await fetch("{{ url_for('client.api_chat_clear') }}", {
+                method: "POST"
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error("Erreur clear chat:", err);
+        }
+    };
+
+    // Real-time polling every 2.5s for incoming admin replies
+    let knownMsgCount = {{ chat_thread.messages|length if chat_thread and chat_thread.messages else 0 }};
+    setInterval(async function() {
+        try {
+            const res = await fetch("{{ url_for('client.api_chat_messages') }}");
+            const data = await res.json();
+            if (data.success && data.chat && data.chat.messages) {
+                const messages = data.chat.messages;
+                if (messages.length > knownMsgCount) {
+                    // New message arrived!
+                    const lastMsg = messages[messages.length - 1];
+                    if (lastMsg.sender === 'admin') {
+                        const row = document.createElement('div');
+                        row.className = 'chat-bubble-row is-admin';
+                        row.id = 'msg-row-' + lastMsg.id;
+                        row.innerHTML = `
+                            <div class="chat-avatar-mini admin-av">3M</div>
+                            <div class="chat-bubble admin-bubble">
+                                <div class="msg-text-content" id="msg-text-${lastMsg.id}">${escapeHtml(lastMsg.text)}</div>
+                                <div class="chat-meta">
+                                    <span>${lastMsg.time || 'À l\'instant'}</span>
+                                </div>
+                            </div>
+                        `;
+                        stream.appendChild(row);
+                        scrollToBottom();
+                    }
+                    knownMsgCount = messages.length;
+                }
+            }
+        } catch (err) {
+            // silent polling error
+        }
+    }, 2500);
+});
+</script>
+{% endblock %}
