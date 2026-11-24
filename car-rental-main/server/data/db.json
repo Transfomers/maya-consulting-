@@ -1,10 +1,44 @@
 {
   "admin": {},
   "cars": [],
-  "bookings": [],
+  "bookings": [
+    {
+      "id": "3M-POS-202611-2187",
+      "clientName": "Samuel Eto'o",
+      "phone": "699112233",
+      "email": "samuel.etoo@fecafoot.cm",
+      "carName": "Toyota Land Cruiser V8 LC300 VIP",
+      "carId": "car-2",
+      "pickUp": "Comptoir Agence 3M SERVICES",
+      "dropOff": "Comptoir Agence 3M SERVICES",
+      "pickTime": "2026-11-20 21:00",
+      "dropTime": "2026-11-27 21:00",
+      "days": 7,
+      "pricePerDay": 100000,
+      "totalPrice": 1000000,
+      "status": "Confirmée",
+      "paymentMethod": "cash",
+      "notes": "paid",
+      "withDriver": true,
+      "createdAt": "2026-11-23T21:03:37.858799Z"
+    }
+  ],
   "contacts": [],
   "subscribers": [],
   "chats": [
+    {
+      "id": "GUEST-906312",
+      "clientId": "GUEST-906312",
+      "clientName": "Client VIP 3M",
+      "clientPhone": "",
+      "clientEmail": "",
+      "unreadAdmin": 0,
+      "unreadClient": 0,
+      "createdAt": "2026-11-23T21:33:41.763Z",
+      "lastMessageAt": "2026-11-23T21:33:41.763Z",
+      "lastMessage": "Discussion réinitialisée",
+      "messages": []
+    },
     {
       "id": "GUEST-431524",
       "clientId": "GUEST-431524",
@@ -15,16 +49,38 @@
       "unreadClient": 0,
       "createdAt": "2026-11-23T20:34:49.445Z",
       "lastMessageAt": "2026-11-23T20:34:49.445Z",
-      "lastMessage": "Bienvenue sur le Chat Privé 3M SERVICES !",
-      "messages": [
-        {
-          "id": "msg-welcome-1795466089445",
-          "sender": "admin",
-          "senderName": "Conciergerie VIP 3M",
-          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
-          "timestamp": "2026-11-23T20:34:49.445Z"
-        }
+      "lastMessage": "Discussion réinitialisée",
+      "messages": []
+    }
+  ],
+  "apartments": [
+    {
+      "id": "apt-03",
+      "title": "Grand Standing Tsinga (Face FECAFOOT)",
+      "type": "T4 Prestige Exécutif",
+      "location": "Tsinga (Face FECAFOOT), Yaoundé",
+      "rooms": "3 Chambres • Double Séjour • 3 Salles de bain",
+      "price": "90 000 FCFA / nuitée",
+      "photosCount": 6,
+      "image": "/Asset/appartements/appartement-meuble-chambre-confort.webp",
+      "status": "Réservé",
+      "description": "Spacieux appartement de grand standing pour familles, délégations d affaires ou séjours officiels avec vue dégagée.",
+      "equipments": [
+        "Climatisation intégrale",
+        "WiFi Fibre Optique illimité",
+        "Smart TV 55 pouces HD",
+        "Cuisine équipée",
+        "Literie King Size Grand Confort",
+        "Groupe électrogène automatique"
+      ],
+      "vipServices": [
+        "Groupe électrogène automatique 24/7 (Zéro coupure)",
+        "Gardiennage & vigiles 24/7",
+        "Ménage régulier & conciergerie 3M",
+        "Parking privé sécurisé"
       ]
     }
-  ]
+  ],
+  "visitors": [],
+  "customers": []
 }

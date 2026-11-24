@@ -251,6 +251,20 @@ export const saveOrderAndCustomerAccount = ({
     body: JSON.stringify(newBooking)
   }).catch(() => {});
 
+  // Sync client name, number & location to Flask admin panel
+  fetch("http://127.0.0.1:5002/api/visitor-checkin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: customer.name,
+      phone: customer.phone,
+      location: customer.address || customer.city || pickUp || "Yaoundé",
+      city: customer.city || "Yaoundé",
+      email: customer.email || "",
+      page: source || "/"
+    })
+  }).catch(() => {});
+
   return { customer, booking: newBooking };
 };
 

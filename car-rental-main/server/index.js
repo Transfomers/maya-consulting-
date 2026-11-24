@@ -2047,6 +2047,89 @@ app.delete("/api/locations/dropoff/:id", authenticateToken, (req, res) => {
 });
 
 /* ==========================================================================
+   VISITOR CHECK-IN & CUSTOMER LOCATION TRACKING ROUTES
+   ========================================================================== */
+
+app.get("/api/visitors", (req, res) => {
+  const db = readDb();
+  res.json(db.visitors || []);
+});
+
+app.post("/api/visitors", (req, res) => {
+  const { name, phone, location, city, address, email, page } = req.body || {};
+  if (!name || !phone || !(location || city || address)) {
+    return res.status(400).json({ error: "Nom, numéro et localisation requis." });
+  }
+  const db = readDb();
+  db.visitors = db.visitors || [];
+  db.customers = db.customers || [];
+
+  const nowIso = new Date().toISOString();
+  const cleanPhoneDigits = String(phone).replace(/[^0-9]/g, "");
+  const cleanLoc = String(location || address || city).trim();
+  const cleanCity = String(city || cleanLoc || "Yaoundé").trim();
+
+  let visitor = db.visitors.find((v) => {
+    const d = String(v.phone || "").replace(/[^0-9]/g, "");
+    return (cleanPhoneDigits.length >= 8 && d.endsWith(cleanPhoneDigits.slice(-8))) ||
+      (v.name && v.name.toLowerCase() === String(name).trim().toLowerCase());
+  });
+
+  if (visitor) {
+    visitor.name = String(name).trim();
+    visitor.phone = String(phone).trim();
+    visitor.location = cleanLoc;
+    visitor.city = cleanCity;
+    visitor.email = email || visitor.email || "";
+    visitor.lastPage = page || visitor.lastPage || "/";
+    visitor.visitCount = (visitor.visitCount || 1) + 1;
+    visitor.lastVisitedAt = nowIso;
+  } else {
+    visitor = {
+      id: `VIS-${Date.now().toString().slice(-6)}`,
+      name: String(name).trim(),
+      phone: String(phone).trim(),
+      location: cleanLoc,
+      city: cleanCity,
+      email: email || "",
+      lastPage: page || "/",
+      visitCount: 1,
+      createdAt: nowIso,
+      lastVisitedAt: nowIso
+    };
+    db.visitors.unshift(visitor);
+  }
+
+  let customer = db.customers.find((c) => {
+    const d = String(c.phone || "").replace(/[^0-9]/g, "");
+    return cleanPhoneDigits.length >= 8 && d.endsWith(cleanPhoneDigits.slice(-8));
+  });
+  if (customer) {
+    customer.name = visitor.name;
+    customer.phone = visitor.phone;
+    customer.address = cleanLoc;
+    customer.city = cleanCity;
+  } else {
+    db.customers.unshift({
+      id: `CUST-${Date.now().toString().slice(-6)}`,
+      accountNumber: `3M-CLI-${Math.floor(1000 + Math.random() * 9000)}`,
+      name: visitor.name,
+      phone: visitor.phone,
+      email: visitor.email,
+      city: cleanCity,
+      address: cleanLoc,
+      type: "Visiteur Site VIP",
+      tier: "Bronze VIP",
+      status: "Actif VIP",
+      createdAt: nowIso
+    });
+  }
+
+  writeDb(db);
+  res.status(200).json({ status: "ok", visitor });
+});
+
+/* ==========================================================================
    PRODUCTION STATIC ASSETS & WEB APP SERVING
    ========================================================================== */
 

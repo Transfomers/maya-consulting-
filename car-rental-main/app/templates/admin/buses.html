@@ -6,11 +6,15 @@
 <div class="container-fluid px-0">
     <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Fleet & Vehicles Management</h2>
-            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Supervision en temps réel des véhicules VIP 3M SERVICES, assignations chauffeurs et disponibilité.</p>
+            <h2 class="fw-bold text-dark mb-1"
+                style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Fleet & Vehicles
+                Management</h2>
+            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Supervision en temps réel
+                des véhicules VIP 3M SERVICES, assignations chauffeurs et disponibilité.</p>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-sm btn-danger shadow-xs" onclick="openPromoModal('1', 'Toyota Land Cruiser V8 (LC200 Prestige)', '130000', '150000', 'OFFRE FLASH -15%', 'V8 Prestige grand luxe • 7 places cuir VIP • Chauffeur dédié inclus')">
+            <button type="button" class="btn btn-sm btn-danger shadow-xs"
+                onclick="openPromoModal('1', 'Toyota Land Cruiser V8 (LC200 Prestige)', '130000', '150000', 'OFFRE FLASH -15%', 'V8 Prestige grand luxe • 7 places cuir VIP • Chauffeur dédié inclus')">
                 <i class="bi bi-fire me-1"></i> + Configurer Offre Promo VIP
             </button>
             <a href="{{ url_for('admin.add_bus') }}" class="btn btn-sm btn-primary">
@@ -22,10 +26,14 @@
     <!-- 3M Services Fleet KPI Summary Row -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+            <div class="card border-0 shadow-xs h-100 p-3"
+                style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Total Flotte</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #eff8ff; color: #175cd3;">
+                    <span class="text-muted fw-semibold"
+                        style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Total
+                        Flotte</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3"
+                        style="width: 32px; height: 32px; background: #eff8ff; color: #175cd3;">
                         <i class="bi bi-car-front-fill fs-6"></i>
                     </div>
                 </div>
@@ -36,10 +44,14 @@
             </div>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+            <div class="card border-0 shadow-xs h-100 p-3"
+                style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En Service / Disponibles</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #ecfdf3; color: #039855;">
+                    <span class="text-muted fw-semibold"
+                        style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En Service /
+                        Disponibles</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3"
+                        style="width: 32px; height: 32px; background: #ecfdf3; color: #039855;">
                         <i class="bi bi-check-circle-fill fs-6"></i>
                     </div>
                 </div>
@@ -52,10 +64,14 @@
             </div>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+            <div class="card border-0 shadow-xs h-100 p-3"
+                style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En Maintenance</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fef3f2; color: #d92d20;">
+                    <span class="text-muted fw-semibold"
+                        style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En
+                        Maintenance</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3"
+                        style="width: 32px; height: 32px; background: #fef3f2; color: #d92d20;">
                         <i class="bi bi-wrench-adjustable fs-6"></i>
                     </div>
                 </div>
@@ -68,10 +84,14 @@
             </div>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+            <div class="card border-0 shadow-xs h-100 p-3"
+                style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En Promotion VIP</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fff5f5; color: #E20713;">
+                    <span class="text-muted fw-semibold"
+                        style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En Promotion
+                        VIP</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3"
+                        style="width: 32px; height: 32px; background: #fff5f5; color: #E20713;">
                         <i class="bi bi-fire fs-6"></i>
                     </div>
                 </div>
@@ -85,13 +105,16 @@
         </div>
     </div>
 
-    <div class="card bg-white border shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important; overflow: hidden; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
+    <div class="card bg-white border shadow-xs mb-4"
+        style="border-radius: 12px; border-color: #eaecf0 !important; overflow: hidden; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
         <!-- Filter Bar -->
-        <div class="d-flex flex-wrap gap-2 p-3 border-bottom align-items-center justify-content-between" style="background: #fafbfc; border-color: #eaecf0 !important;">
+        <div class="d-flex flex-wrap gap-2 p-3 border-bottom align-items-center justify-content-between"
+            style="background: #fafbfc; border-color: #eaecf0 !important;">
             <div class="d-flex flex-wrap gap-2 align-items-center">
                 <div class="input-group input-group-sm" style="max-width: 260px;">
                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                    <input type="text" id="busesSearch" class="form-control border-start-0 ps-0" placeholder="Chercher immat, modèle...">
+                    <input type="text" id="busesSearch" class="form-control border-start-0 ps-0"
+                        placeholder="Chercher immat, modèle...">
                 </div>
 
                 <select id="busesFilterStatus" class="form-select form-select-sm" style="width: auto;">
@@ -105,19 +128,24 @@
                     <option value="oldest">Plus ancien d'abord</option>
                 </select>
 
-                <button class="btn btn-sm btn-outline-secondary" onclick="resetBusesFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="resetBusesFilters()"><i
+                        class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ url_for('admin.export_buses_pdf') }}" class="btn btn-sm btn-export-pdf"><i class="bi bi-file-pdf me-1"></i> PDF</a>
-                <a href="{{ url_for('admin.export_buses_csv') }}" class="btn btn-sm btn-export-csv"><i class="bi bi-file-csv me-1"></i> CSV</a>
+                <a href="{{ url_for('admin.export_buses_pdf') }}" class="btn btn-sm btn-export-pdf"><i
+                        class="bi bi-file-pdf me-1"></i> PDF</a>
+                <a href="{{ url_for('admin.export_buses_csv') }}" class="btn btn-sm btn-export-csv"><i
+                        class="bi bi-file-csv me-1"></i> CSV</a>
             </div>
         </div>
 
         <!-- Bulk Actions Toolbar -->
         <form id="bulkForm" action="{{ url_for('admin.bulk_buses') }}" method="POST" class="mb-3 d-none">
-            <div class="bg-light p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2 border">
+            <div
+                class="bg-light p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2 border">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="fw-bold text-dark"><i class="bi bi-check2-square text-primary me-1"></i> <span id="checkedCount">0</span> sélectionné(s) :</span>
+                    <span class="fw-bold text-dark"><i class="bi bi-check2-square text-primary me-1"></i> <span
+                            id="checkedCount">0</span> sélectionné(s) :</span>
                     <select name="action" class="form-select form-select-sm d-inline-block w-auto" required>
                         <option value="" disabled selected>Choisir une action groupée...</option>
                         <option value="active">Rendre Actifs (En Service)</option>
@@ -125,7 +153,8 @@
                         <option value="delete">Supprimer de la flotte (Soft Delete)</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-sm btn-primary px-3" onclick="return confirm('Confirmer l\'action de groupe ?');">
+                <button type="submit" class="btn btn-sm btn-primary px-3"
+                    onclick="return confirm('Confirmer l\'action de groupe ?');">
                     Appliquer
                 </button>
             </div>
@@ -136,7 +165,8 @@
                 <thead>
                     <tr>
                         <th style="width: 36px;">
-                            <input type="checkbox" id="selectAll" class="form-check-input" style="width: 14px; height: 14px;">
+                            <input type="checkbox" id="selectAll" class="form-check-input"
+                                style="width: 14px; height: 14px;">
                         </th>
                         <th style="width: 50px;">ID</th>
                         <th style="min-width: 120px;">Pôle / Division</th>
@@ -155,29 +185,35 @@
                     {% for bus in buses %}
                     <tr class="bus-row" data-status="{{ bus.status }}" data-id="{{ bus.id }}">
                         <td>
-                            <input type="checkbox" name="bus_ids" value="{{ bus.id }}" class="form-check-input bus-checkbox" form="bulkForm" style="width: 14px; height: 14px;">
+                            <input type="checkbox" name="bus_ids" value="{{ bus.id }}"
+                                class="form-check-input bus-checkbox" form="bulkForm"
+                                style="width: 14px; height: 14px;">
                         </td>
                         <td class="fw-bold text-dark">#{{ bus.id }}</td>
                         <td>
                             {% if bus.division == '3MCONSULTING' %}
-                            <span class="badge border fw-semibold" style="color: #6941C6; background: #F9F5FF; border-color: #E9D7FE !important; font-size: 0.72rem;">
+                            <span class="badge border fw-semibold"
+                                style="color: #6941C6; background: #F9F5FF; border-color: #E9D7FE !important; font-size: 0.72rem;">
                                 <i class="bi bi-briefcase-fill me-1"></i>3MCONSULTING
                             </span>
                             {% else %}
-                            <span class="badge border fw-semibold" style="color: #B42318; background: #FEF3F2; border-color: #FECDCA !important; font-size: 0.72rem;">
+                            <span class="badge border fw-semibold"
+                                style="color: #B42318; background: #FEF3F2; border-color: #FECDCA !important; font-size: 0.72rem;">
                                 <i class="bi bi-car-front-fill me-1"></i>LOCATION
                             </span>
                             {% endif %}
                         </td>
                         <td>
-                            <span class="badge bg-light text-dark border fw-bold" style="letter-spacing: 0.5px; font-size: 0.72rem;">{{ bus.bus_number }}</span>
+                            <span class="badge bg-light text-dark border fw-bold"
+                                style="letter-spacing: 0.5px; font-size: 0.72rem;">{{ bus.bus_number }}</span>
                         </td>
                         <td class="fw-semibold text-dark">{{ bus.brand or 'Toyota' }}</td>
                         <td>
                             <div class="d-flex align-items-center gap-1 flex-wrap">
                                 <span class="text-dark fw-semibold">{{ bus.model }}</span>
                                 {% if bus.release_date %}
-                                <span class="badge bg-light text-secondary border fw-normal" style="font-size: 0.68rem;" title="Mise en circulation">{{ bus.release_date }}</span>
+                                <span class="badge bg-light text-secondary border fw-normal" style="font-size: 0.68rem;"
+                                    title="Mise en circulation">{{ bus.release_date }}</span>
                                 {% endif %}
                             </div>
                         </td>
@@ -186,7 +222,8 @@
                         </td>
                         <td>
                             {% if bus.driver_name %}
-                            <span class="fw-semibold text-dark"><i class="bi bi-person-badge text-primary me-1"></i>{{ bus.driver_name }}</span>
+                            <span class="fw-semibold text-dark"><i class="bi bi-person-badge text-primary me-1"></i>{{
+                                bus.driver_name }}</span>
                             {% else %}
                             <span class="text-muted small">Non assigné</span>
                             {% endif %}
@@ -200,64 +237,74 @@
                         </td>
                         <td>
                             {% if bus.status == 'active' %}
-                            <span class="badge bg-success-soft text-success"><i class="bi bi-check-circle-fill me-1"></i> En Service</span>
+                            <span class="badge bg-success-soft text-success"><i
+                                    class="bi bi-check-circle-fill me-1"></i> En Service</span>
                             {% else %}
-                            <span class="badge bg-danger-soft text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> Maintenance</span>
+                            <span class="badge bg-danger-soft text-danger"><i
+                                    class="bi bi-exclamation-triangle-fill me-1"></i> Maintenance</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if bus.is_promo %}
                             <div class="d-flex flex-column gap-1">
                                 <div class="d-flex align-items-center gap-1">
-                                    <span class="badge bg-danger text-white fw-bold text-nowrap" style="letter-spacing: 0.3px; font-size: 0.68rem;">
+                                    <span class="badge bg-danger text-white fw-bold text-nowrap"
+                                        style="letter-spacing: 0.3px; font-size: 0.68rem;">
                                         <i class="bi bi-fire me-1"></i> {{ bus.promo_badge or 'EN PROMO' }}
                                     </span>
                                 </div>
                                 <div class="d-flex align-items-baseline gap-1">
-                                    <span class="fw-bold text-dark" style="font-size: 0.78rem;">{{ "{:,}".format(bus.promo_price or 100000).replace(',', ' ') }} FCFA</span>
+                                    <span class="fw-bold text-dark" style="font-size: 0.78rem;">{{
+                                        "{:,}".format(bus.promo_price or 100000).replace(',', ' ') }} FCFA</span>
                                     {% if bus.regular_price %}
-                                    <s class="text-muted" style="font-size: 0.68rem;">{{ "{:,}".format(bus.regular_price).replace(',', ' ') }}</s>
+                                    <s class="text-muted" style="font-size: 0.68rem;">{{
+                                        "{:,}".format(bus.regular_price).replace(',', ' ') }}</s>
                                     {% endif %}
                                 </div>
                                 {% if bus.promo_description %}
-                                <span class="small text-muted text-truncate" style="max-width: 150px; font-size: 0.65rem;" title="{{ bus.promo_description }}">{{ bus.promo_description }}</span>
+                                <span class="small text-muted text-truncate"
+                                    style="max-width: 150px; font-size: 0.65rem;" title="{{ bus.promo_description }}">{{
+                                    bus.promo_description }}</span>
                                 {% endif %}
                                 <div class="d-flex align-items-center gap-1 mt-0.5">
-                                    <button type="button" 
-                                            class="btn btn-sm btn-outline-primary py-0 px-1" 
-                                            style="font-size: 0.68rem !important; border-radius: 4px !important;"
-                                            onclick="openPromoModal('{{ bus.id }}', '{{ bus.brand or 'Toyota' }} {{ bus.model }}', '{{ bus.promo_price or 100000 }}', '{{ bus.regular_price or 130000 }}', '{{ bus.promo_badge or 'OFFRE VIP' }}', '{{ bus.promo_description or '' }}')"
-                                            title="Modifier l'offre promotionnelle">
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-1"
+                                        style="font-size: 0.68rem !important; border-radius: 4px !important;"
+                                        onclick="openPromoModal('{{ bus.id }}', '{{ bus.brand or 'Toyota' }} {{ bus.model }}', '{{ bus.promo_price or 100000 }}', '{{ bus.regular_price or 130000 }}', '{{ bus.promo_badge or 'OFFRE VIP' }}', '{{ bus.promo_description or '' }}')"
+                                        title="Modifier l'offre promotionnelle">
                                         <i class="bi bi-pencil-square"></i> Modifier
                                     </button>
-                                    <a href="{{ url_for('admin.toggle_bus_promo', id=bus.id, remove='true') }}" 
-                                       class="btn btn-sm btn-outline-danger py-0 px-1" 
-                                       style="font-size: 0.68rem !important; border-radius: 4px !important;"
-                                       onclick="return confirm('Retirer ce véhicule des promotions VIP affichées sur le site client ?');"
-                                       title="Retirer de la promotion">
+                                    <a href="{{ url_for('admin.toggle_bus_promo', id=bus.id, remove='true') }}"
+                                        class="btn btn-sm btn-outline-danger py-0 px-1"
+                                        style="font-size: 0.68rem !important; border-radius: 4px !important;"
+                                        onclick="return confirm('Retirer ce véhicule des promotions VIP affichées sur le site client ?');"
+                                        title="Retirer de la promotion">
                                         <i class="bi bi-x-circle"></i> Retirer
                                     </a>
                                 </div>
                             </div>
                             {% else %}
-                            <button type="button" 
-                                    class="btn btn-sm btn-outline-success py-1 px-2" 
-                                    style="font-size: 0.72rem !important; border-radius: 6px !important;"
-                                    onclick="openPromoModal('{{ bus.id }}', '{{ bus.brand or 'Toyota' }} {{ bus.model }}', '{{ bus.promo_price or 100000 }}', '{{ bus.regular_price or 130000 }}', '{{ bus.promo_badge or 'OFFRE VIP' }}', '{{ bus.promo_description or '' }}')"
-                                    title="Mettre en promotion VIP sur le site client">
+                            <button type="button" class="btn btn-sm btn-outline-success py-1 px-2"
+                                style="font-size: 0.72rem !important; border-radius: 6px !important;"
+                                onclick="openPromoModal('{{ bus.id }}', '{{ bus.brand or 'Toyota' }} {{ bus.model }}', '{{ bus.promo_price or 100000 }}', '{{ bus.regular_price or 130000 }}', '{{ bus.promo_badge or 'OFFRE VIP' }}', '{{ bus.promo_description or '' }}')"
+                                title="Mettre en promotion VIP sur le site client">
                                 <i class="bi bi-tag-fill me-1"></i> + Mettre en Promo
                             </button>
                             {% endif %}
                         </td>
                         <td class="text-end text-nowrap">
                             <div class="d-inline-flex align-items-center gap-1.5">
-                                <a href="{{ url_for('admin.edit_bus', id=bus.id) }}" class="action-icon-link action-edit" title="Modifier le véhicule">
+                                <a href="{{ url_for('admin.edit_bus', id=bus.id) }}"
+                                    class="action-icon-link action-edit" title="Modifier le véhicule">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{{ url_for('admin.toggle_bus_maintenance', id=bus.id) }}" class="action-icon-link action-maint" title="{{ 'Activer' if bus.status == 'maintenance' else 'Mettre en Maintenance' }}">
+                                <a href="{{ url_for('admin.toggle_bus_maintenance', id=bus.id) }}"
+                                    class="action-icon-link action-maint"
+                                    title="{{ 'Activer' if bus.status == 'maintenance' else 'Mettre en Maintenance' }}">
                                     <i class="bi bi-wrench-adjustable"></i>
                                 </a>
-                                <a href="{{ url_for('admin.delete_bus', id=bus.id) }}" class="action-icon-link action-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?');">
+                                <a href="{{ url_for('admin.delete_bus', id=bus.id) }}"
+                                    class="action-icon-link action-delete" title="Supprimer"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?');">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -405,58 +452,81 @@
                 <input type="hidden" name="action" value="set">
                 <div class="modal-header border-bottom py-3 px-4" style="background: #0f172a; color: #ffffff;">
                     <div class="d-flex align-items-center gap-2">
-                        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="background: rgba(226, 7, 19, 0.2); color: #E20713; width: 38px; height: 38px;">
+                        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center"
+                            style="background: rgba(226, 7, 19, 0.2); color: #E20713; width: 38px; height: 38px;">
                             <i class="bi bi-fire fs-5 text-danger"></i>
                         </div>
                         <div>
-                            <h5 class="modal-title fw-bold text-white mb-0 fs-6" id="promoModalLabel">Configurer Offre VIP Promotionnelle</h5>
-                            <span class="small text-muted" id="promoVehicleName" style="color: #94a3b8 !important;">Véhicule VIP</span>
+                            <h5 class="modal-title fw-bold text-white mb-0 fs-6" id="promoModalLabel">Configurer Offre
+                                VIP Promotionnelle</h5>
+                            <span class="small text-muted" id="promoVehicleName"
+                                style="color: #94a3b8 !important;">Véhicule VIP</span>
                         </div>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4" style="background: #ffffff;">
                     <div class="alert alert-light border small text-muted mb-3 d-flex align-items-center gap-2">
                         <i class="bi bi-info-circle-fill text-danger fs-6"></i>
-                        <span>Cette offre apparaîtra directement dans <strong>Nos Véhicules en Promotion — Forfaits VIP 3M SERVICES</strong> sur le site client.</span>
+                        <span>Cette offre apparaîtra directement dans <strong>Nos Véhicules en Promotion — Forfaits VIP
+                                3M SERVICES</strong> sur le site client.</span>
                     </div>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-bold text-dark small">Tarif Promo Journalier (FCFA) *</label>
-                            <input type="number" name="promo_price" id="modalPromoPrice" class="form-control" required placeholder="Ex: 130000" oninput="updateModalSavings()">
-                            <span class="form-text text-muted" style="font-size: 0.72rem;">Prix remisé affiché avec chauffeur inclus.</span>
+                            <input type="number" name="promo_price" id="modalPromoPrice" class="form-control" required
+                                placeholder="Ex: 130000" oninput="updateModalSavings()">
+                            <span class="form-text text-muted" style="font-size: 0.72rem;">Prix remisé affiché avec
+                                chauffeur inclus.</span>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold text-dark small">Tarif Régulier / Standard (FCFA)</label>
-                            <input type="number" name="regular_price" id="modalRegularPrice" class="form-control" placeholder="Ex: 150000" oninput="updateModalSavings()">
+                            <input type="number" name="regular_price" id="modalRegularPrice" class="form-control"
+                                placeholder="Ex: 150000" oninput="updateModalSavings()">
                             <span class="form-text text-muted" style="font-size: 0.72rem;">Prix barré habituel.</span>
                         </div>
                     </div>
 
                     <div class="mb-2">
-                        <span id="modalSavingsDisplay" class="badge bg-success-soft text-success px-2 py-1 mb-2 fw-semibold" style="display: none;"></span>
+                        <span id="modalSavingsDisplay"
+                            class="badge bg-success-soft text-success px-2 py-1 mb-2 fw-semibold"
+                            style="display: none;"></span>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold text-dark small">Badge Promotionnel (Ruban rouge)</label>
-                        <input type="text" name="promo_badge" id="modalPromoBadge" class="form-control mb-1.5" placeholder="Ex: OFFRE FLASH -15%">
+                        <input type="text" name="promo_badge" id="modalPromoBadge" class="form-control mb-1.5"
+                            placeholder="Ex: OFFRE FLASH -15%">
                         <div class="d-flex gap-1 flex-wrap">
-                            <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size: 0.68rem;" onclick="setBadgePreset('OFFRE FLASH -15%')">OFFRE FLASH -15%</button>
-                            <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size: 0.68rem;" onclick="setBadgePreset('PROMO DU MOIS -17%')">PROMO DU MOIS -17%</button>
-                            <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size: 0.68rem;" onclick="setBadgePreset('TARIF PRIVILÈGE -18%')">TARIF PRIVILÈGE -18%</button>
-                            <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2" style="font-size: 0.68rem;" onclick="setBadgePreset('OFFRE VIP EXCLUSIVE')">OFFRE VIP EXCLUSIVE</button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2"
+                                style="font-size: 0.68rem;" onclick="setBadgePreset('OFFRE FLASH -15%')">OFFRE FLASH
+                                -15%</button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2"
+                                style="font-size: 0.68rem;" onclick="setBadgePreset('PROMO DU MOIS -17%')">PROMO DU MOIS
+                                -17%</button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2"
+                                style="font-size: 0.68rem;" onclick="setBadgePreset('TARIF PRIVILÈGE -18%')">TARIF
+                                PRIVILÈGE -18%</button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2"
+                                style="font-size: 0.68rem;" onclick="setBadgePreset('OFFRE VIP EXCLUSIVE')">OFFRE VIP
+                                EXCLUSIVE</button>
                         </div>
                     </div>
 
                     <div class="mb-2">
-                        <label class="form-label fw-bold text-dark small">Points Forts / Description Promotionnelle</label>
-                        <textarea name="promo_description" id="modalPromoDescription" class="form-control" rows="2" placeholder="Ex: V8 Prestige grand luxe • 7 places cuir VIP • Chauffeur dédié inclus"></textarea>
-                        <span class="form-text text-muted" style="font-size: 0.72rem;">Texte descriptif mis en avant sur la carte client.</span>
+                        <label class="form-label fw-bold text-dark small">Points Forts / Description
+                            Promotionnelle</label>
+                        <textarea name="promo_description" id="modalPromoDescription" class="form-control" rows="2"
+                            placeholder="Ex: V8 Prestige grand luxe • 7 places cuir VIP • Chauffeur dédié inclus"></textarea>
+                        <span class="form-text text-muted" style="font-size: 0.72rem;">Texte descriptif mis en avant sur
+                            la carte client.</span>
                     </div>
                 </div>
                 <div class="modal-footer border-top py-2.5 px-4" style="background: #f8fafc;">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                        data-bs-dismiss="modal">Annuler</button>
                     <button type="submit" class="btn btn-danger btn-sm px-3 fw-bold">
                         <i class="bi bi-check-circle-fill me-1"></i> Enregistrer & Publier sur le Site
                     </button>

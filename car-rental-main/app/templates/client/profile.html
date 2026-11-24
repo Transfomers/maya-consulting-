@@ -5,463 +5,547 @@
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
 <style>
-/* ── Layout & Premium Glassmorphism Theme ──────────────── */
-.profile-container {
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 2.5rem 1rem;
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-.profile-grid {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 2.5rem;
-}
-@media (max-width: 992px) {
-    .profile-grid { grid-template-columns: 1fr; gap: 1.5rem; }
-}
-
-/* Glassmorphism Sidebar & Card Widgets */
-.glass-widget {
-    background: var(--glass-bg-light);
-    border: 1px solid rgba(201, 42, 42, 0.08);
-    border-radius: 1.5rem;
-    padding: 2rem 1.5rem;
-    box-shadow: 0 10px 30px rgba(201, 42, 42, 0.03);
-    backdrop-filter: blur(var(--glass-blur));
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-body.dark-mode .glass-widget {
-    background: var(--glass-bg-dark);
-    border-color: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-}
-
-/* Interactive Avatar Editor */
-.avatar-editor {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 1.25rem;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 3.5px solid var(--primary-light);
-    box-shadow: 0 8px 24px rgba(201, 42, 42, 0.15);
-    transition: border-color 0.3s;
-}
-body.dark-mode .avatar-editor {
-    border-color: var(--accent-dark);
-    box-shadow: 0 8px 24px rgba(224, 171, 65, 0.25);
-}
-.avatar-editor img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.avatar-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.55);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    cursor: pointer;
-}
-.avatar-editor:hover .avatar-overlay {
-    opacity: 1;
-}
-.avatar-overlay i {
-    color: #fff !important;
-    font-size: 1.5rem;
-    margin-bottom: 2px;
-}
-.avatar-overlay span {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
-
-/* Navigation Links */
-.profile-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-}
-.menu-tab-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    padding: 0.9rem 1.15rem;
-    color: var(--text-light);
-    font-weight: 600;
-    font-size: 0.95rem;
-    text-decoration: none;
-    border-radius: 1rem;
-    background: transparent;
-    border: none;
-    text-align: left;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-}
-body.dark-mode .menu-tab-btn {
-    color: var(--text-dark);
-}
-.menu-tab-btn i {
-    font-size: 1.15rem;
-    transition: transform 0.25s;
-}
-.menu-tab-btn:hover {
-    background: rgba(201, 42, 42, 0.04);
-    transform: translateX(4px);
-}
-body.dark-mode .menu-tab-btn:hover {
-    background: rgba(255, 255, 255, 0.03);
-}
-.menu-tab-btn.active {
-    background: rgba(201, 42, 42, 0.08) !important;
-    color: var(--primary-light) !important;
-}
-body.dark-mode .menu-tab-btn.active {
-    background: rgba(224, 171, 65, 0.12) !important;
-    color: var(--accent-dark) !important;
-}
-
-/* Restricted Fields Widget */
-.restricted-section {
-    border-top: 1.5px dashed var(--input-border-light);
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-}
-body.dark-mode .restricted-section {
-    border-color: var(--input-border-dark);
-}
-.locked-field {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(0, 0, 0, 0.02);
-    border: 1px solid var(--input-border-light);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.75rem;
-}
-body.dark-mode .locked-field {
-    background: rgba(255, 255, 255, 0.01);
-    border-color: var(--input-border-dark);
-}
-.locked-label {
-    font-size: 0.8rem;
-    color: var(--text-muted-light);
-    font-weight: 600;
-}
-body.dark-mode .locked-label {
-    color: var(--text-muted-dark);
-}
-.locked-val {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-light);
-}
-body.dark-mode .locked-val {
-    color: var(--text-dark);
-}
-.locked-icon {
-    font-size: 0.85rem;
-    color: #94a3b8 !important;
-}
-
-/* Premium Profile View Card */
-.view-card-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--primary-light);
-    border-bottom: 2px solid var(--input-border-light);
-    padding-bottom: 0.75rem;
-}
-body.dark-mode .view-card-title {
-    color: var(--accent-dark);
-    border-color: var(--input-border-dark);
-}
-.sub-data-card {
-    background: rgba(201, 42, 42, 0.01);
-    border: 1px solid rgba(201, 42, 42, 0.06);
-    border-radius: 1.25rem;
-    padding: 1.5rem;
-    height: 100%;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-body.dark-mode .sub-data-card {
-    background: rgba(255, 255, 255, 0.01);
-    border-color: rgba(255, 255, 255, 0.04);
-}
-.sub-card-header {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--primary-light);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-body.dark-mode .sub-card-header {
-    color: var(--accent-dark);
-}
-.sub-card-header i {
-    font-size: 1.25rem;
-}
-.info-field-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.65rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
-    font-size: 0.9rem;
-}
-body.dark-mode .info-field-row {
-    border-color: rgba(255, 255, 255, 0.03);
-}
-.info-field-row:last-child {
-    border-bottom: none;
-}
-.info-field-lbl {
-    color: var(--text-muted-light);
-    font-weight: 500;
-}
-body.dark-mode .info-field-lbl {
-    color: var(--text-muted-dark);
-}
-.info-field-val {
-    font-weight: 600;
-    color: var(--text-light);
-    text-align: right;
-}
-body.dark-mode .info-field-val {
-    color: var(--text-dark);
-}
-
-/* Custom form inputs styling */
-.form-section-title {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--primary-light);
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid var(--input-border-light);
-    padding-bottom: 0.5rem;
-}
-body.dark-mode .form-section-title {
-    color: var(--accent-dark);
-    border-color: var(--input-border-dark);
-}
-.input-label {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-light);
-    margin-bottom: 0.5rem;
-}
-body.dark-mode .input-label {
-    color: var(--text-dark);
-}
-.premium-switch {
-    padding: 0.75rem 1rem;
-    border-radius: 1rem;
-    background: rgba(201, 42, 42, 0.02);
-    border: 1.5px solid var(--input-border-light);
-    transition: all 0.3s;
-}
-body.dark-mode .premium-switch {
-    background: rgba(255, 255, 255, 0.01);
-    border-color: var(--input-border-dark);
-}
-
-.ops-btn-primary {
-    background: linear-gradient(135deg, var(--primary-light), #a02a4f) !important;
-    color: #fff !important;
-    border: none !important;
-    font-weight: 700 !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 4px 15px rgba(201, 42, 42, 0.2) !important;
-}
-.ops-btn-primary:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(201, 42, 42, 0.3) !important;
-}
-.ops-btn-primary i {
-    color: #fff !important;
-}
-body.dark-mode .ops-btn-primary {
-    background: linear-gradient(135deg, var(--accent-dark), #ffb74d) !important;
-    color: #181a1b !important;
-    box-shadow: 0 4px 15px rgba(224, 171, 65, 0.2) !important;
-}
-body.dark-mode .ops-btn-primary:hover {
-    box-shadow: 0 6px 20px rgba(224, 171, 65, 0.3) !important;
-}
-body.dark-mode .ops-btn-primary i {
-    color: #181a1b !important;
-}
-
-/* Tab panes animations */
-.profile-tab-pane {
-    display: none;
-    animation: slideUp 0.4s ease-out forwards;
-}
-.profile-tab-pane.active {
-    display: block;
-}
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* iOS Style Mobile Profile Menu */
-@media (max-width: 991px) {
-    body {
-        background-color: #fdfafb !important; /* Soft pink background matching design */
-    }
+    /* ── Layout & Premium Glassmorphism Theme ──────────────── */
     .profile-container {
-        padding: 0 0 2rem 0 !important;
-        max-width: 100% !important;
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 2.5rem 1rem;
+        font-family: 'Outfit', 'Poppins', sans-serif;
     }
-    .mobile-header-bar {
-        display: flex;
-        align-items: center;
-        padding: 0.5rem 1rem 1rem;
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2.5rem;
     }
-    .mobile-back-btn {
-        font-size: 1.5rem;
-        color: var(--text-light);
-        text-decoration: none;
-        margin-right: auto;
+
+    @media (max-width: 992px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
     }
-    body.dark-mode .mobile-back-btn {
-        color: #fff;
+
+    /* Glassmorphism Sidebar & Card Widgets */
+    .glass-widget {
+        background: var(--glass-bg-light);
+        border: 1px solid rgba(201, 42, 42, 0.08);
+        border-radius: 1.5rem;
+        padding: 2rem 1.5rem;
+        box-shadow: 0 10px 30px rgba(201, 42, 42, 0.03);
+        backdrop-filter: blur(var(--glass-blur));
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .mobile-avatar-section {
+
+    body.dark-mode .glass-widget {
+        background: var(--glass-bg-dark);
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Interactive Avatar Editor */
+    .avatar-editor {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 1.25rem;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 3.5px solid var(--primary-light);
+        box-shadow: 0 8px 24px rgba(201, 42, 42, 0.15);
+        transition: border-color 0.3s;
+    }
+
+    body.dark-mode .avatar-editor {
+        border-color: var(--accent-dark);
+        box-shadow: 0 8px 24px rgba(224, 171, 65, 0.25);
+    }
+
+    .avatar-editor img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.55);
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-bottom: 2rem;
+        justify-content: center;
+        color: #fff;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        cursor: pointer;
     }
-    .mobile-avatar-section .avatar-editor {
-        width: 100px;
-        height: 100px;
-        border-width: 2px;
-        border-color: #f1f5f9;
-        box-shadow: none;
-        margin-bottom: 0.8rem;
+
+    .avatar-editor:hover .avatar-overlay {
+        opacity: 1;
     }
-    body.dark-mode .mobile-avatar-section .avatar-editor {
-        border-color: #334155;
+
+    .avatar-overlay i {
+        color: #fff !important;
+        font-size: 1.5rem;
+        margin-bottom: 2px;
     }
-    .mobile-profile-name {
-        font-size: 1.4rem;
-        font-weight: 700;
-        margin: 0;
+
+    .avatar-overlay span {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    /* Navigation Links */
+    .profile-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .menu-tab-btn {
         display: flex;
         align-items: center;
-        gap: 0.25rem;
-    }
-    .mobile-profile-phone {
-        font-size: 0.85rem;
-        color: #94a3b8;
-        margin-top: 0.2rem;
-    }
-    
-    .ios-menu-group {
-        background: #f8fafc;
-        border-radius: 1.25rem;
-        margin: 0 1rem 1.5rem;
-        overflow: hidden;
-    }
-    body.dark-mode .ios-menu-group {
-        background: #1e293b;
-    }
-    .ios-menu-item {
-        display: flex;
-        align-items: center;
-        padding: 1.1rem 1.25rem;
+        gap: 0.85rem;
+        padding: 0.9rem 1.15rem;
         color: var(--text-light);
+        font-weight: 600;
+        font-size: 0.95rem;
         text-decoration: none;
+        border-radius: 1rem;
         background: transparent;
         border: none;
-        width: 100%;
         text-align: left;
-        border-bottom: 1px solid rgba(0,0,0,0.04);
-        transition: background 0.2s;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
     }
-    body.dark-mode .ios-menu-item {
-        color: #e2e8f0;
-        border-bottom-color: rgba(255,255,255,0.04);
+
+    body.dark-mode .menu-tab-btn {
+        color: var(--text-dark);
     }
-    .ios-menu-item:last-child {
+
+    .menu-tab-btn i {
+        font-size: 1.15rem;
+        transition: transform 0.25s;
+    }
+
+    .menu-tab-btn:hover {
+        background: rgba(201, 42, 42, 0.04);
+        transform: translateX(4px);
+    }
+
+    body.dark-mode .menu-tab-btn:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .menu-tab-btn.active {
+        background: rgba(201, 42, 42, 0.08) !important;
+        color: var(--primary-light) !important;
+    }
+
+    body.dark-mode .menu-tab-btn.active {
+        background: rgba(224, 171, 65, 0.12) !important;
+        color: var(--accent-dark) !important;
+    }
+
+    /* Restricted Fields Widget */
+    .restricted-section {
+        border-top: 1.5px dashed var(--input-border-light);
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+    }
+
+    body.dark-mode .restricted-section {
+        border-color: var(--input-border-dark);
+    }
+
+    .locked-field {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(0, 0, 0, 0.02);
+        border: 1px solid var(--input-border-light);
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    body.dark-mode .locked-field {
+        background: rgba(255, 255, 255, 0.01);
+        border-color: var(--input-border-dark);
+    }
+
+    .locked-label {
+        font-size: 0.8rem;
+        color: var(--text-muted-light);
+        font-weight: 600;
+    }
+
+    body.dark-mode .locked-label {
+        color: var(--text-muted-dark);
+    }
+
+    .locked-val {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-light);
+    }
+
+    body.dark-mode .locked-val {
+        color: var(--text-dark);
+    }
+
+    .locked-icon {
+        font-size: 0.85rem;
+        color: #94a3b8 !important;
+    }
+
+    /* Premium Profile View Card */
+    .view-card-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--primary-light);
+        border-bottom: 2px solid var(--input-border-light);
+        padding-bottom: 0.75rem;
+    }
+
+    body.dark-mode .view-card-title {
+        color: var(--accent-dark);
+        border-color: var(--input-border-dark);
+    }
+
+    .sub-data-card {
+        background: rgba(201, 42, 42, 0.01);
+        border: 1px solid rgba(201, 42, 42, 0.06);
+        border-radius: 1.25rem;
+        padding: 1.5rem;
+        height: 100%;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    body.dark-mode .sub-data-card {
+        background: rgba(255, 255, 255, 0.01);
+        border-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .sub-card-header {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--primary-light);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    body.dark-mode .sub-card-header {
+        color: var(--accent-dark);
+    }
+
+    .sub-card-header i {
+        font-size: 1.25rem;
+    }
+
+    .info-field-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        font-size: 0.9rem;
+    }
+
+    body.dark-mode .info-field-row {
+        border-color: rgba(255, 255, 255, 0.03);
+    }
+
+    .info-field-row:last-child {
         border-bottom: none;
     }
-    .ios-menu-item:active {
-        background: rgba(0,0,0,0.05);
-    }
-    body.dark-mode .ios-menu-item:active {
-        background: rgba(255,255,255,0.05);
-    }
-    .ios-menu-icon {
-        width: 24px;
-        font-size: 1.25rem;
-        color: var(--text-light);
-        margin-right: 1rem;
-        display: flex;
-        justify-content: center;
-    }
-    body.dark-mode .ios-menu-icon {
-        color: #e2e8f0;
-    }
-    .ios-menu-content {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    .ios-menu-label {
-        font-size: 1rem;
+
+    .info-field-lbl {
+        color: var(--text-muted-light);
         font-weight: 500;
     }
-    .ios-menu-sublabel {
-        font-size: 0.75rem;
-        color: #94a3b8;
-        margin-top: 0.1rem;
+
+    body.dark-mode .info-field-lbl {
+        color: var(--text-muted-dark);
     }
-    .ios-menu-chevron {
-        color: #cbd5e1;
-        font-size: 1.2rem;
+
+    .info-field-val {
+        font-weight: 600;
+        color: var(--text-light);
+        text-align: right;
     }
-    body.dark-mode .ios-menu-chevron {
-        color: #475569;
+
+    body.dark-mode .info-field-val {
+        color: var(--text-dark);
     }
-    
-    /* Hide desktop elements on mobile */
-    .desktop-profile-header, .desktop-profile-card {
-        display: none !important;
+
+    /* Custom form inputs styling */
+    .form-section-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--primary-light);
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--input-border-light);
+        padding-bottom: 0.5rem;
     }
-    
-    /* Hide footer on mobile */
-    .footer {
-        display: none !important;
+
+    body.dark-mode .form-section-title {
+        color: var(--accent-dark);
+        border-color: var(--input-border-dark);
     }
-    
-    /* Hide main navbar on mobile since we have a custom header */
-    #mainNavbar {
-        display: none !important;
+
+    .input-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
     }
-}
-@media (min-width: 992px) {
-    .mobile-ios-menu-container {
-        display: none !important;
+
+    body.dark-mode .input-label {
+        color: var(--text-dark);
     }
-}
+
+    .premium-switch {
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+        background: rgba(201, 42, 42, 0.02);
+        border: 1.5px solid var(--input-border-light);
+        transition: all 0.3s;
+    }
+
+    body.dark-mode .premium-switch {
+        background: rgba(255, 255, 255, 0.01);
+        border-color: var(--input-border-dark);
+    }
+
+    .ops-btn-primary {
+        background: linear-gradient(135deg, var(--primary-light), #a02a4f) !important;
+        color: #fff !important;
+        border: none !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(201, 42, 42, 0.2) !important;
+    }
+
+    .ops-btn-primary:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(201, 42, 42, 0.3) !important;
+    }
+
+    .ops-btn-primary i {
+        color: #fff !important;
+    }
+
+    body.dark-mode .ops-btn-primary {
+        background: linear-gradient(135deg, var(--accent-dark), #ffb74d) !important;
+        color: #181a1b !important;
+        box-shadow: 0 4px 15px rgba(224, 171, 65, 0.2) !important;
+    }
+
+    body.dark-mode .ops-btn-primary:hover {
+        box-shadow: 0 6px 20px rgba(224, 171, 65, 0.3) !important;
+    }
+
+    body.dark-mode .ops-btn-primary i {
+        color: #181a1b !important;
+    }
+
+    /* Tab panes animations */
+    .profile-tab-pane {
+        display: none;
+        animation: slideUp 0.4s ease-out forwards;
+    }
+
+    .profile-tab-pane.active {
+        display: block;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* iOS Style Mobile Profile Menu */
+    @media (max-width: 991px) {
+        body {
+            background-color: #fdfafb !important;
+            /* Soft pink background matching design */
+        }
+
+        .profile-container {
+            padding: 0 0 2rem 0 !important;
+            max-width: 100% !important;
+        }
+
+        .mobile-header-bar {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem 1rem;
+        }
+
+        .mobile-back-btn {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            text-decoration: none;
+            margin-right: auto;
+        }
+
+        body.dark-mode .mobile-back-btn {
+            color: #fff;
+        }
+
+        .mobile-avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .mobile-avatar-section .avatar-editor {
+            width: 100px;
+            height: 100px;
+            border-width: 2px;
+            border-color: #f1f5f9;
+            box-shadow: none;
+            margin-bottom: 0.8rem;
+        }
+
+        body.dark-mode .mobile-avatar-section .avatar-editor {
+            border-color: #334155;
+        }
+
+        .mobile-profile-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .mobile-profile-phone {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 0.2rem;
+        }
+
+        .ios-menu-group {
+            background: #f8fafc;
+            border-radius: 1.25rem;
+            margin: 0 1rem 1.5rem;
+            overflow: hidden;
+        }
+
+        body.dark-mode .ios-menu-group {
+            background: #1e293b;
+        }
+
+        .ios-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 1.1rem 1.25rem;
+            color: var(--text-light);
+            text-decoration: none;
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            transition: background 0.2s;
+        }
+
+        body.dark-mode .ios-menu-item {
+            color: #e2e8f0;
+            border-bottom-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .ios-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .ios-menu-item:active {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark-mode .ios-menu-item:active {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .ios-menu-icon {
+            width: 24px;
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-right: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        body.dark-mode .ios-menu-icon {
+            color: #e2e8f0;
+        }
+
+        .ios-menu-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ios-menu-label {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .ios-menu-sublabel {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 0.1rem;
+        }
+
+        .ios-menu-chevron {
+            color: #cbd5e1;
+            font-size: 1.2rem;
+        }
+
+        body.dark-mode .ios-menu-chevron {
+            color: #475569;
+        }
+
+        /* Hide desktop elements on mobile */
+        .desktop-profile-header,
+        .desktop-profile-card {
+            display: none !important;
+        }
+
+        /* Hide footer on mobile */
+        .footer {
+            display: none !important;
+        }
+
+        /* Hide main navbar on mobile since we have a custom header */
+        #mainNavbar {
+            display: none !important;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .mobile-ios-menu-container {
+            display: none !important;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -469,10 +553,13 @@ body.dark-mode .ops-btn-primary i {
 <div class="profile-container">
 
     <!-- Header info with clean travel agency styling -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-3 border-bottom desktop-profile-header">
+    <div
+        class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-3 border-bottom desktop-profile-header">
         <div>
-            <h1 class="fw-bold mb-1 text-dark"><i class="bi bi-person-bounding-box me-2 text-primary"></i>{{ _t('Mon Profil Voyageur') }}</h1>
-            <p class="text-muted mb-0">{{ _t('Consultez vos coordonnées de voyage sécurisées ou gérez vos alertes et notifications.') }}</p>
+            <h1 class="fw-bold mb-1 text-dark"><i class="bi bi-person-bounding-box me-2 text-primary"></i>{{ _t('Mon
+                Profil Voyageur') }}</h1>
+            <p class="text-muted mb-0">{{ _t('Consultez vos coordonnées de voyage sécurisées ou gérez vos alertes et
+                notifications.') }}</p>
         </div>
         <div>
             <a href="{{ url_for('main.my_bookings') }}" class="btn btn-primary d-flex align-items-center gap-2">
@@ -493,41 +580,54 @@ body.dark-mode .ops-btn-primary i {
 
         <!-- Mobile Avatar Section (New Design Card) -->
         <div class="mobile-profile-card shadow-sm mx-3 mb-4 p-4 text-center bg-white" style="border-radius: 1.5rem;">
-            <div class="avatar-editor mx-auto mb-3" onclick="triggerAvatarSelect()" style="width: 110px; height: 110px; border: 4px solid var(--primary-light); border-radius: 50%; box-shadow: 0 4px 10px rgba(112,29,54,0.15);">
+            <div class="avatar-editor mx-auto mb-3" onclick="triggerAvatarSelect()"
+                style="width: 110px; height: 110px; border: 4px solid var(--primary-light); border-radius: 50%; box-shadow: 0 4px 10px rgba(112,29,54,0.15);">
                 {% if current_user.profile_picture %}
-                    <img src="{{ current_user.avatar_url }}" alt="Avatar" id="mobileSidebarAvatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                <img src="{{ current_user.avatar_url }}" alt="Avatar" id="mobileSidebarAvatar"
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                 {% else %}
-                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-white" style="font-size: 2.5rem; font-weight: 700; border-radius: 50%; background: var(--primary-light);">
-                        {{ (current_user.first_name[0] if current_user.first_name else current_user.username[0]) | upper }}
-                    </div>
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center text-white"
+                    style="font-size: 2.5rem; font-weight: 700; border-radius: 50%; background: var(--primary-light);">
+                    {{ (current_user.first_name[0] if current_user.first_name else current_user.username[0]) | upper }}
+                </div>
                 {% endif %}
             </div>
-            
-            <h2 class="mobile-profile-name fw-bold mb-1 d-flex justify-content-center align-items-center" style="color: var(--primary-light); font-size: 1.6rem; letter-spacing: -0.5px;">
-                {{ current_user.first_name ~ ' ' ~ current_user.last_name if (current_user.first_name and current_user.last_name) else current_user.username }}
+
+            <h2 class="mobile-profile-name fw-bold mb-1 d-flex justify-content-center align-items-center"
+                style="color: var(--primary-light); font-size: 1.6rem; letter-spacing: -0.5px;">
+                {{ current_user.first_name ~ ' ' ~ current_user.last_name if (current_user.first_name and
+                current_user.last_name) else current_user.username }}
             </h2>
             <div class="text-muted mb-3" style="font-size: 1rem;">@{{ current_user.username }}</div>
-            
-            <div class="badge rounded-pill mb-4 px-4 py-2 text-white" style="background-color: var(--primary-light); font-size: 0.95rem; font-weight: 600;">
+
+            <div class="badge rounded-pill mb-4 px-4 py-2 text-white"
+                style="background-color: var(--primary-light); font-size: 0.95rem; font-weight: 600;">
                 Voyageur
             </div>
-            
+
             <!-- Stats Box -->
-            <div class="d-flex justify-content-between align-items-center p-3 mb-4" style="border: 1px solid #e2e8f0; border-radius: 1rem;">
+            <div class="d-flex justify-content-between align-items-center p-3 mb-4"
+                style="border: 1px solid #e2e8f0; border-radius: 1rem;">
                 <div class="text-center" style="flex: 1; border-right: 1px solid #e2e8f0;">
-                    <div class="fw-bold" style="color: var(--primary-light); font-size: 1.3rem;">{{ total_bookings }}</div>
-                    <div class="text-muted" style="font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px;">Total Voyag...</div>
+                    <div class="fw-bold" style="color: var(--primary-light); font-size: 1.3rem;">{{ total_bookings }}
+                    </div>
+                    <div class="text-muted"
+                        style="font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px;">
+                        Total Voyag...</div>
                 </div>
                 <div class="text-center" style="flex: 1; border-right: 1px solid #e2e8f0;">
                     <div class="fw-bold text-success" style="font-size: 1.3rem;">{{ total_spent }}...</div>
                     <div class="text-muted" style="font-size: 0.75rem;">Dépenses</div>
                 </div>
                 <div class="text-center" style="flex: 1;">
-                    <div class="fw-bold text-warning" style="font-size: 1.3rem;">{{ parcels|length if parcels else 0 }}</div>
-                    <div class="text-muted" style="font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px;">Colis Envoyés</div>
+                    <div class="fw-bold text-warning" style="font-size: 1.3rem;">{{ parcels|length if parcels else 0 }}
+                    </div>
+                    <div class="text-muted"
+                        style="font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px;">
+                        Colis Envoyés</div>
                 </div>
             </div>
-            
+
             <!-- Action Buttons -->
             <div class="d-flex flex-column gap-2 mb-3">
                 <a href="{{ url_for('client.chat') }}" class="btn text-white fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center" style="background-color: #C92A2A; padding: 0.85rem 0.5rem; font-size: 1.05rem;">
@@ -535,10 +635,14 @@ body.dark-mode .ops-btn-primary i {
                 </a>
             </div>
             <div class="d-flex justify-content-center gap-2">
-                <a href="{{ url_for('main.my_bookings') }}" class="btn flex-fill text-white fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center" style="background-color: var(--primary-light); padding: 0.8rem 0.5rem;">
+                <a href="{{ url_for('main.my_bookings') }}"
+                    class="btn flex-fill text-white fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center"
+                    style="background-color: var(--primary-light); padding: 0.8rem 0.5rem;">
                     <i class="bi bi-journal-text me-1"></i> Mes Voyages
                 </a>
-                <a href="{{ url_for('main.my_bookings') }}#pills-parcels" class="btn flex-fill text-white fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center" style="background-color: #059669; padding: 0.8rem 0.5rem;">
+                <a href="{{ url_for('main.my_bookings') }}#pills-parcels"
+                    class="btn flex-fill text-white fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center"
+                    style="background-color: #059669; padding: 0.8rem 0.5rem;">
                     <i class="bi bi-box-seam me-1"></i> Mes Colis
                 </a>
             </div>
@@ -557,7 +661,8 @@ body.dark-mode .ops-btn-primary i {
             <button class="ios-menu-item bg-white" onclick="openMobileTab('tab-personal')" style="border-radius: 0 0 1.25rem 1.25rem; border: none;">
                 <div class="ios-menu-icon" style="color: var(--primary-light);"><i class="bi bi-pencil-square"></i></div>
                 <div class="ios-menu-content">
-                    <div class="ios-menu-label text-dark fw-bold" style="font-size: 1.1rem;">{{ _t('Modifier le profil') }}</div>
+                    <div class="ios-menu-label text-dark fw-bold" style="font-size: 1.1rem;">{{ _t('Modifier le profil')
+                        }}</div>
                 </div>
                 <i class="bi bi-chevron-right ios-menu-chevron" style="color: var(--primary-light);"></i>
             </button>
@@ -565,49 +670,61 @@ body.dark-mode .ops-btn-primary i {
 
         <!-- Group 2 -->
         <div class="ios-menu-group shadow-sm mb-4 mx-3 bg-white" style="border-radius: 1.25rem;">
-            <button class="ios-menu-item bg-white" onclick="openMobileTab('tab-security')" style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+            <button class="ios-menu-item bg-white" onclick="openMobileTab('tab-security')"
+                style="border-bottom: 1px solid rgba(0,0,0,0.05);">
                 <div class="ios-menu-icon" style="color: var(--primary-light);"><i class="bi bi-shield-check"></i></div>
                 <div class="ios-menu-content">
-                    <div class="ios-menu-label text-dark fw-bold" style="font-size: 1.1rem;">{{ _t('Sécurité et accès') }}</div>
+                    <div class="ios-menu-label text-dark fw-bold" style="font-size: 1.1rem;">{{ _t('Sécurité et accès')
+                        }}</div>
                 </div>
                 <i class="bi bi-chevron-right ios-menu-chevron" style="color: var(--primary-light);"></i>
             </button>
-            <a href="{{ url_for('client.notifications') }}" class="ios-menu-item bg-white text-decoration-none" style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+            <a href="{{ url_for('client.notifications') }}" class="ios-menu-item bg-white text-decoration-none"
+                style="border-bottom: 1px solid rgba(0,0,0,0.05);">
                 <div class="ios-menu-icon" style="color: var(--primary-light);"><i class="bi bi-bell"></i></div>
                 <div class="ios-menu-content">
-                    <div class="ios-menu-label text-dark fw-bold" style="font-size: 1.1rem;">{{ _t('Notifications') }}</div>
+                    <div class="ios-menu-label text-dark fw-bold" style="font-size: 1.1rem;">{{ _t('Notifications') }}
+                    </div>
                 </div>
                 <i class="bi bi-chevron-right ios-menu-chevron" style="color: var(--primary-light);"></i>
             </a>
-            <button class="ios-menu-item bg-white" onclick="openMobileTab('tab-emergency')" style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+            <button class="ios-menu-item bg-white" onclick="openMobileTab('tab-emergency')"
+                style="border-bottom: 1px solid rgba(0,0,0,0.05);">
                 <div class="ios-menu-icon" style="color: var(--primary-light);"><i class="bi bi-headset"></i></div>
                 <div class="ios-menu-content">
-                    <div class="ios-menu-label text-dark fw-bold" style="font-size: 1.1rem;">{{ _t('Contacts d\'urgence') }}</div>
+                    <div class="ios-menu-label text-dark fw-bold" style="font-size: 1.1rem;">{{ _t('Contacts
+                        d\'urgence') }}</div>
                 </div>
                 <i class="bi bi-chevron-right ios-menu-chevron" style="color: var(--primary-light);"></i>
             </button>
-            <a href="{{ url_for('main.my_bookings') }}" class="ios-menu-item bg-white text-decoration-none" style="border: none;">
+            <a href="{{ url_for('main.my_bookings') }}" class="ios-menu-item bg-white text-decoration-none"
+                style="border: none;">
                 <div class="ios-menu-icon" style="color: var(--primary-light);"><i class="bi bi-journal-text"></i></div>
                 <div class="ios-menu-content">
-                    <div class="ios-menu-label text-dark fw-bold" style="font-size: 1.1rem;">{{ _t('Historique') }}</div>
+                    <div class="ios-menu-label text-dark fw-bold" style="font-size: 1.1rem;">{{ _t('Historique') }}
+                    </div>
                 </div>
                 <i class="bi bi-chevron-right ios-menu-chevron" style="color: var(--primary-light);"></i>
             </a>
         </div>
-        
+
         <!-- Group 3 (Other items collapsed into 'Plus d\'options') -->
         <div class="ios-menu-group shadow-sm mb-4 mx-3 bg-white" style="border-radius: 1.25rem;">
-            <button class="ios-menu-item bg-white" type="button" data-bs-toggle="modal" data-bs-target="#deleteAccountModal" style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+            <button class="ios-menu-item bg-white" type="button" data-bs-toggle="modal"
+                data-bs-target="#deleteAccountModal" style="border-bottom: 1px solid rgba(0,0,0,0.05);">
                 <div class="ios-menu-icon text-danger"><i class="bi bi-trash"></i></div>
                 <div class="ios-menu-content">
-                    <div class="ios-menu-label fw-bold text-danger" style="font-size: 1.1rem;">{{ _t('Supprimer le compte') }}</div>
+                    <div class="ios-menu-label fw-bold text-danger" style="font-size: 1.1rem;">{{ _t('Supprimer le
+                        compte') }}</div>
                 </div>
                 <i class="bi bi-chevron-right ios-menu-chevron text-danger"></i>
             </button>
-            <a href="{{ url_for('auth.logout') }}" class="ios-menu-item bg-white text-decoration-none" style="border: none;">
+            <a href="{{ url_for('auth.logout') }}" class="ios-menu-item bg-white text-decoration-none"
+                style="border: none;">
                 <div class="ios-menu-icon text-danger"><i class="bi bi-box-arrow-right"></i></div>
                 <div class="ios-menu-content">
-                    <div class="ios-menu-label fw-bold text-danger" style="font-size: 1.1rem;">{{ _t('Déconnexion') }}</div>
+                    <div class="ios-menu-label fw-bold text-danger" style="font-size: 1.1rem;">{{ _t('Déconnexion') }}
+                    </div>
                 </div>
                 <i class="bi bi-chevron-right ios-menu-chevron text-danger"></i>
             </a>
@@ -619,21 +736,24 @@ body.dark-mode .ops-btn-primary i {
 
         <!-- ══ LEFT SIDEBAR ══════════════════════════════════ -->
         <div class="d-flex flex-column gap-4 desktop-profile-card">
-            
+
             <!-- Profile Card & Hidden uploads form -->
             <div class="glass-widget text-center">
 
                 <!-- Hidden avatar-only upload form -->
-                <form id="avatarUploadForm" method="POST" action="{{ url_for('client.profile') }}" enctype="multipart/form-data" class="d-none">
+                <form id="avatarUploadForm" method="POST" action="{{ url_for('client.profile') }}"
+                    enctype="multipart/form-data" class="d-none">
                     {{ csrf_token() if csrf_token else '' }}
-                    <input type="file" id="profilePicInput" name="profile_picture" accept="image/jpeg,image/png,image/gif,image/webp" onchange="previewAndSubmitAvatar(this)">
+                    <input type="file" id="profilePicInput" name="profile_picture"
+                        accept="image/jpeg,image/png,image/gif,image/webp" onchange="previewAndSubmitAvatar(this)">
                 </form>
 
                 <!-- Avatar editor circle -->
-                <div class="avatar-editor" id="avatarEditorCircle" onclick="triggerAvatarSelect()" title="{{ _t('Cliquez pour changer votre photo') }}" style="cursor:pointer;">
+                <div class="avatar-editor" id="avatarEditorCircle" onclick="triggerAvatarSelect()"
+                    title="{{ _t('Cliquez pour changer votre photo') }}" style="cursor:pointer;">
                     <img src="{{ current_user.avatar_url }}" alt="Avatar" id="sidebarAvatar"
-                         style="width:100%;height:100%;object-fit:cover;"
-                         onerror="this.src='{{ url_for('static', filename='default_male.png') }}'">
+                        style="width:100%;height:100%;object-fit:cover;"
+                        onerror="this.src='{{ url_for('static', filename='default_male.png') }}'">
                     <div class="avatar-overlay">
                         <i class="bi bi-camera"></i>
                         <span>{{ _t('MODIFIER') }}</span>
@@ -643,14 +763,17 @@ body.dark-mode .ops-btn-primary i {
                 <!-- Upload progress bar (hidden until upload starts) -->
                 <div id="avatarUploadProgress" class="d-none mb-2">
                     <div class="progress" style="height:4px;border-radius:2px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width:100%"></div>
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                            style="width:100%"></div>
                     </div>
                     <small class="text-muted" style="font-size:.72rem;">{{ _t('Envoi en cours…') }}</small>
                 </div>
 
-                <h4 class="fw-bold mb-1">{{ current_user.first_name ~ ' ' ~ current_user.last_name if (current_user.first_name and current_user.last_name) else current_user.username }}</h4>
+                <h4 class="fw-bold mb-1">{{ current_user.first_name ~ ' ' ~ current_user.last_name if
+                    (current_user.first_name and current_user.last_name) else current_user.username }}</h4>
                 <div class="mb-3">
-                    <span class="badge bg-primary px-3 py-1.5 rounded-pill fw-semibold"><i class="bi bi-person-fill me-1"></i>{{ _t('Voyageur Client') }}</span>
+                    <span class="badge bg-primary px-3 py-1.5 rounded-pill fw-semibold"><i
+                            class="bi bi-person-fill me-1"></i>{{ _t('Voyageur Client') }}</span>
                 </div>
 
                 <!-- Remove photo button — shown whenever there IS a picture -->
@@ -662,7 +785,10 @@ body.dark-mode .ops-btn-primary i {
 
                 <!-- Left Sidebar Navigation Menu (Desktop) & Mobile Hamburger -->
                 <div class="d-lg-none mt-3 mb-2">
-                    <button class="btn w-100 rounded-pill d-flex justify-content-between align-items-center px-4 py-2" type="button" data-bs-toggle="collapse" data-bs-target="#mobileProfileNav" aria-expanded="false" aria-controls="mobileProfileNav" style="background: rgba(201, 42, 42, 0.08); color: var(--primary-light); font-weight: 700; border: 1.5px solid var(--primary-light);">
+                    <button class="btn w-100 rounded-pill d-flex justify-content-between align-items-center px-4 py-2"
+                        type="button" data-bs-toggle="collapse" data-bs-target="#mobileProfileNav" aria-expanded="false"
+                        aria-controls="mobileProfileNav"
+                        style="background: rgba(201, 42, 42, 0.08); color: var(--primary-light); font-weight: 700; border: 1.5px solid var(--primary-light);">
                         <span><i class="bi bi-list me-2"></i> {{ _t('Menu Profil') }}</span>
                         <i class="bi bi-chevron-down"></i>
                     </button>
@@ -670,33 +796,43 @@ body.dark-mode .ops-btn-primary i {
 
                 <div class="profile-menu text-start mt-2 collapse d-lg-flex flex-column gap-1" id="mobileProfileNav">
                     <!-- Global Navigation Links -->
-                    <a href="{{ url_for('main.index') }}" class="menu-tab-btn" style="text-decoration: none;"><i class="bi bi-house-door"></i> {{ _t('Accueil') }}</a>
-                    
+                    <a href="{{ url_for('main.index') }}" class="menu-tab-btn" style="text-decoration: none;"><i
+                            class="bi bi-house-door"></i> {{ _t('Accueil') }}</a>
+
                     <!-- Profile Management -->
-                    <button class="menu-tab-btn active" id="profileCardTabBtn" onclick="openMobileTab('profile-view-card')"><i class="bi bi-person"></i> {{ _t('Mon Profil') }}</button>
-                    
+                    <button class="menu-tab-btn active" id="profileCardTabBtn"
+                        onclick="openMobileTab('profile-view-card')"><i class="bi bi-person"></i> {{ _t('Mon Profil')
+                        }}</button>
+
                     <!-- Bookings -->
-                    <a href="{{ url_for('main.my_bookings') }}" class="menu-tab-btn" style="text-decoration: none;"><i class="bi bi-ticket-detailed"></i> {{ _t('Mes Voyages') }}</a>
-                    <a href="{{ url_for('main.my_bookings') }}#pills-parcels" class="menu-tab-btn" style="text-decoration: none;"><i class="bi bi-box-seam"></i> {{ _t('Mes Colis') }}</a>
-                    
+                    <a href="{{ url_for('main.my_bookings') }}" class="menu-tab-btn" style="text-decoration: none;"><i
+                            class="bi bi-ticket-detailed"></i> {{ _t('Mes Voyages') }}</a>
+                    <a href="{{ url_for('main.my_bookings') }}#pills-parcels" class="menu-tab-btn"
+                        style="text-decoration: none;"><i class="bi bi-box-seam"></i> {{ _t('Mes Colis') }}</a>
+
                     <!-- Communication & Standalone Chat -->
                     <a href="{{ url_for('client.chat') }}" class="menu-tab-btn" style="text-decoration: none; color: #dc2626; font-weight: 700;">
                         <i class="bi bi-chat-dots-fill text-danger"></i> {{ _t('Chat Privé Standalone') }}
                         <span class="badge bg-danger rounded-pill ms-auto" style="font-size: 0.65rem;">Direct</span>
                     </a>
-                    <a href="{{ url_for('client.notifications') }}" class="menu-tab-btn" style="text-decoration: none;"><i class="bi bi-bell"></i> {{ _t('Notifications') }}</a>
-                    
+                    <a href="{{ url_for('client.notifications') }}" class="menu-tab-btn"
+                        style="text-decoration: none;"><i class="bi bi-bell"></i> {{ _t('Notifications') }}</a>
+
                     <!-- Settings -->
-                    <button class="menu-tab-btn" onclick="openMobileTab('tab-personal')"><i class="bi bi-gear"></i> {{ _t('Paramètres') }}</button>
-                    <button class="menu-tab-btn" onclick="openMobileTab('tab-security')"><i class="bi bi-shield-lock"></i> {{ _t('Sécurité') }}</button>
-                    
+                    <button class="menu-tab-btn" onclick="openMobileTab('tab-personal')"><i class="bi bi-gear"></i> {{
+                        _t('Paramètres') }}</button>
+                    <button class="menu-tab-btn" onclick="openMobileTab('tab-security')"><i
+                            class="bi bi-shield-lock"></i> {{ _t('Sécurité') }}</button>
+
                     <hr class="my-2" style="border-color: rgba(0,0,0,0.1);">
-                    <a href="{{ url_for('auth.logout') }}" class="menu-tab-btn text-danger" style="text-decoration: none;"><i class="bi bi-box-arrow-left"></i> {{ _t('Déconnexion') }}</a>
+                    <a href="{{ url_for('auth.logout') }}" class="menu-tab-btn text-danger"
+                        style="text-decoration: none;"><i class="bi bi-box-arrow-left"></i> {{ _t('Déconnexion') }}</a>
                 </div>
 
                 <!-- 🚫 RESTRICTED FIELDS VIEW ONLY -->
                 <div class="restricted-section text-start">
-                    <h6 class="fw-bold mb-3 text-muted text-uppercase d-flex align-items-center gap-1.5" style="font-size: 0.75rem;">
+                    <h6 class="fw-bold mb-3 text-muted text-uppercase d-flex align-items-center gap-1.5"
+                        style="font-size: 0.75rem;">
                         <i class="bi bi-lock-fill"></i> {{ _t('Données Système Sécurisées') }}
                     </h6>
 
@@ -711,7 +847,8 @@ body.dark-mode .ops-btn-primary i {
                     <div class="locked-field" title="Créé lors de votre inscription.">
                         <span class="locked-label">{{ _t('Date d\'inscription') }}</span>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="locked-val">{{ current_user.created_at.strftime('%d/%m/%Y') if current_user.created_at else _t('Non renseigné') }}</span>
+                            <span class="locked-val">{{ current_user.created_at.strftime('%d/%m/%Y') if
+                                current_user.created_at else _t('Non renseigné') }}</span>
                             <i class="bi bi-lock-fill locked-icon"></i>
                         </div>
                     </div>
@@ -720,9 +857,11 @@ body.dark-mode .ops-btn-primary i {
                         <span class="locked-label">{{ _t('Vérification') }}</span>
                         <div class="d-flex align-items-center gap-2">
                             {% if current_user.verification_status == 'Verified' %}
-                                <span class="badge bg-success py-1.5 px-2.5 rounded-pill"><i class="bi bi-patch-check-fill me-1"></i>{{ _t('Vérifié') }}</span>
+                            <span class="badge bg-success py-1.5 px-2.5 rounded-pill"><i
+                                    class="bi bi-patch-check-fill me-1"></i>{{ _t('Vérifié') }}</span>
                             {% else %}
-                                <span class="badge bg-secondary py-1.5 px-2.5 rounded-pill"><i class="bi bi-info-circle me-1"></i>{{ _t('Non vérifié') }}</span>
+                            <span class="badge bg-secondary py-1.5 px-2.5 rounded-pill"><i
+                                    class="bi bi-info-circle me-1"></i>{{ _t('Non vérifié') }}</span>
                             {% endif %}
                             <i class="bi bi-lock-fill locked-icon"></i>
                         </div>
@@ -798,542 +937,676 @@ body.dark-mode .ops-btn-primary i {
                 </button>
             </div>
 
-            <div class="row g-4">
-                <!-- Section Civil Info -->
-                <div class="col-md-6">
-                    <div class="sub-data-card">
-                        <div class="sub-card-header">
-                            <i class="bi bi-person-badge"></i> {{ _t('État Civil / Identité') }}
+            <!-- 1. READ ONLY PORTRAIT TRAVELER CARD (ACTIVE BY DEFAULT) -->
+            <div class="glass-widget" id="profile-view-card">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                    <h3 class="view-card-title mb-0 border-0 pb-0"><i
+                            class="bi bi-card-heading me-2 text-primary"></i>{{ _t('Fiche d\'identité Voyageur') }}</h3>
+                    <button class="btn btn-sm btn-primary rounded-pill px-4 py-2"
+                        onclick="switchToEditMode('tab-personal')">
+                        <i class="bi bi-pencil-square me-1"></i> {{ _t('Modifier mes informations') }}
+                    </button>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Section Civil Info -->
+                    <div class="col-md-6">
+                        <div class="sub-data-card">
+                            <div class="sub-card-header">
+                                <i class="bi bi-person-badge"></i> {{ _t('État Civil / Identité') }}
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Nom d\'utilisateur') }}</span>
+                                <span class="info-field-val text-primary">{{ current_user.username }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Prénom') }}</span>
+                                <span class="info-field-val">{{ current_user.first_name or _t('Non renseigné') }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Nom') }}</span>
+                                <span class="info-field-val">{{ current_user.last_name or _t('Non renseigné') }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Date de naissance') }}</span>
+                                <span class="info-field-val">{{ current_user.date_of_birth.strftime('%d/%m/%Y') if
+                                    current_user.date_of_birth else _t('Non renseignée') }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Genre') }}</span>
+                                <span class="info-field-val">
+                                    {% if current_user.gender == 'Male' %}{{ _t('Homme / Male') }}
+                                    {% elif current_user.gender == 'Female' %}{{ _t('Femme / Female') }}
+                                    {% elif current_user.gender == 'Other' %}{{ _t('Autre / Other') }}
+                                    {% else %}{{ _t('Non spécifié') }}
+                                    {% endif %}
+                                </span>
+                            </div>
                         </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Nom d\'utilisateur') }}</span>
-                            <span class="info-field-val text-primary">{{ current_user.username }}</span>
+                    </div>
+
+                    <!-- Section Contact Info -->
+                    <div class="col-md-6">
+                        <div class="sub-data-card">
+                            <div class="sub-card-header">
+                                <i class="bi bi-envelope-paper"></i> {{ _t('Coordonnées & Contact') }}
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Téléphone') }}</span>
+                                <span class="info-field-val">{{ current_user.phone or _t('Non renseigné') }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Adresse Email') }}</span>
+                                <span class="info-field-val">{{ current_user.email }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Adresse Résidentielle') }}</span>
+                                <span class="info-field-val">{{ current_user.address or _t('Non renseignée') }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Ville / Pays') }}</span>
+                                <span class="info-field-val">{{ (current_user.city or '') ~ (', ' ~ current_user.country
+                                    if current_user.country else '') if (current_user.city or current_user.country) else
+                                    _t('Non renseigné') }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Langue préférée') }}</span>
+                                <span class="info-field-val">{{ _t('Français') if current_user.language == 'fr' else
+                                    _t('English') }}</span>
+                            </div>
                         </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Prénom') }}</span>
-                            <span class="info-field-val">{{ current_user.first_name or _t('Non renseigné') }}</span>
+                    </div>
+
+                    <!-- Section Emergency Contact -->
+                    <div class="col-md-6">
+                        <div class="sub-data-card" style="border-left: 3.5px solid var(--bs-warning);">
+                            <div class="sub-card-header text-warning">
+                                <i class="bi bi-heart-pulse"></i> {{ _t('En cas d\'Urgence (Sécurité)') }}
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Contact d\'urgence') }}</span>
+                                <span class="info-field-val">{{ current_user.emergency_contact_name or _t('Non
+                                    renseigné') }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Téléphone d\'urgence') }}</span>
+                                <span class="info-field-val">{{ current_user.emergency_contact_phone or _t('Non
+                                    renseigné') }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Lien / Relation') }}</span>
+                                <span class="info-field-val">
+                                    {% if current_user.emergency_contact_relationship == 'Father' %}{{ _t('Père /
+                                    Father') }}
+                                    {% elif current_user.emergency_contact_relationship == 'Mother' %}{{ _t('Mère /
+                                    Mother') }}
+                                    {% elif current_user.emergency_contact_relationship == 'Spouse' %}{{ _t('Conjoint(e)
+                                    / Spouse') }}
+                                    {% elif current_user.emergency_contact_relationship == 'Brother' %}{{ _t('Frère /
+                                    Brother') }}
+                                    {% elif current_user.emergency_contact_relationship == 'Sister' %}{{ _t('Sœur /
+                                    Sister') }}
+                                    {% elif current_user.emergency_contact_relationship == 'Friend' %}{{ _t('Ami(e) /
+                                    Friend') }}
+                                    {% elif current_user.emergency_contact_relationship == 'Other' %}{{ _t('Autre /
+                                    Other') }}
+                                    {% else %}{{ _t('Non spécifié') }}
+                                    {% endif %}
+                                </span>
+                            </div>
                         </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Nom') }}</span>
-                            <span class="info-field-val">{{ current_user.last_name or _t('Non renseigné') }}</span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Date de naissance') }}</span>
-                            <span class="info-field-val">{{ current_user.date_of_birth.strftime('%d/%m/%Y') if current_user.date_of_birth else _t('Non renseignée') }}</span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Genre') }}</span>
-                            <span class="info-field-val">
-                                {% if current_user.gender == 'Male' %}{{ _t('Homme / Male') }}
-                                {% elif current_user.gender == 'Female' %}{{ _t('Femme / Female') }}
-                                {% elif current_user.gender == 'Other' %}{{ _t('Autre / Other') }}
-                                {% else %}{{ _t('Non spécifié') }}
-                                {% endif %}
-                            </span>
+                    </div>
+
+                    <!-- Section Mobile Payment & Preferences -->
+                    <div class="col-md-6">
+                        <div class="sub-data-card">
+                            <div class="sub-card-header">
+                                <i class="bi bi-credit-card-2-front"></i> {{ _t('Comptes de Paiement & Alertes') }}
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">MTN Mobile Money</span>
+                                <span class="info-field-val">{{ current_user.momo_number or 'Non configuré' }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">Orange Money</span>
+                                <span class="info-field-val">{{ current_user.orange_number or 'Non configuré' }}</span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Opérateur Favori') }}</span>
+                                <span class="info-field-val">
+                                    {% if current_user.preferred_payment_method == 'momo' %}MTN MoMo
+                                    {% elif current_user.preferred_payment_method == 'orange' %}Orange Money
+                                    {% else %}{{ _t('Non spécifié') }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="info-field-row">
+                                <span class="info-field-lbl">{{ _t('Canaux d\'alertes') }}</span>
+                                <span class="info-field-val text-primary" style="font-size: 0.8rem;">
+                                    {% set active_alerts = [] %}
+                                    {% if current_user.email_notifications %}{% set _ = active_alerts.append('Email')
+                                    %}{% endif %}
+                                    {% if current_user.push_notifications %}{% set _ = active_alerts.append('Push') %}{%
+                                    endif %}
+                                    {{ active_alerts | join(', ') if active_alerts else _t('Aucun') }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section Contact Info -->
-                <div class="col-md-6">
-                    <div class="sub-data-card">
-                        <div class="sub-card-header">
-                            <i class="bi bi-envelope-paper"></i> {{ _t('Coordonnées & Contact') }}
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Téléphone') }}</span>
-                            <span class="info-field-val">{{ current_user.phone or _t('Non renseigné') }}</span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Adresse Email') }}</span>
-                            <span class="info-field-val">{{ current_user.email }}</span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Adresse Résidentielle') }}</span>
-                            <span class="info-field-val">{{ current_user.address or _t('Non renseignée') }}</span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Ville / Pays') }}</span>
-                            <span class="info-field-val">{{ (current_user.city or '') ~ (', ' ~ current_user.country if current_user.country else '') if (current_user.city or current_user.country) else _t('Non renseigné') }}</span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Langue préférée') }}</span>
-                            <span class="info-field-val">{{ _t('Français') if current_user.language == 'fr' else _t('English') }}</span>
-                        </div>
+                <!-- Travel metrics summary card at the bottom -->
+                <div
+                    class="glass-widget mt-4 p-3 border border-secondary border-opacity-10 d-flex justify-content-between text-center align-items-center">
+                    <div class="flex-fill px-1" style="min-width: 0;">
+                        <h5 class="text-primary fw-bold mb-1 text-truncate">{{ total_bookings }}</h5>
+                        <span class="text-muted d-block text-truncate" style="font-size: 0.75rem;">{{ _t('Total
+                            Billets') }}</span>
                     </div>
-                </div>
-
-                <!-- Section Emergency Contact -->
-                <div class="col-md-6">
-                    <div class="sub-data-card" style="border-left: 3.5px solid var(--bs-warning);">
-                        <div class="sub-card-header text-warning">
-                            <i class="bi bi-heart-pulse"></i> {{ _t('En cas d\'Urgence (Sécurité)') }}
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Contact d\'urgence') }}</span>
-                            <span class="info-field-val">{{ current_user.emergency_contact_name or _t('Non renseigné') }}</span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Téléphone d\'urgence') }}</span>
-                            <span class="info-field-val">{{ current_user.emergency_contact_phone or _t('Non renseigné') }}</span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Lien / Relation') }}</span>
-                            <span class="info-field-val">
-                                {% if current_user.emergency_contact_relationship == 'Father' %}{{ _t('Père / Father') }}
-                                {% elif current_user.emergency_contact_relationship == 'Mother' %}{{ _t('Mère / Mother') }}
-                                {% elif current_user.emergency_contact_relationship == 'Spouse' %}{{ _t('Conjoint(e) / Spouse') }}
-                                {% elif current_user.emergency_contact_relationship == 'Brother' %}{{ _t('Frère / Brother') }}
-                                {% elif current_user.emergency_contact_relationship == 'Sister' %}{{ _t('Sœur / Sister') }}
-                                {% elif current_user.emergency_contact_relationship == 'Friend' %}{{ _t('Ami(e) / Friend') }}
-                                {% elif current_user.emergency_contact_relationship == 'Other' %}{{ _t('Autre / Other') }}
-                                {% else %}{{ _t('Non spécifié') }}
-                                {% endif %}
-                            </span>
-                        </div>
+                    <div class="vr mx-1 mx-md-2" style="height: 40px; align-self: center;"></div>
+                    <div class="flex-fill px-1" style="min-width: 0;">
+                        <h5 class="text-success fw-bold mb-1 text-truncate">{{ total_spent | int }} F</h5>
+                        <span class="text-muted d-block text-truncate" style="font-size: 0.75rem;">{{ _t('Dépenses')
+                            }}</span>
                     </div>
-                </div>
-
-                <!-- Section Mobile Payment & Preferences -->
-                <div class="col-md-6">
-                    <div class="sub-data-card">
-                        <div class="sub-card-header">
-                            <i class="bi bi-credit-card-2-front"></i> {{ _t('Comptes de Paiement & Alertes') }}
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">MTN Mobile Money</span>
-                            <span class="info-field-val">{{ current_user.momo_number or 'Non configuré' }}</span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">Orange Money</span>
-                            <span class="info-field-val">{{ current_user.orange_number or 'Non configuré' }}</span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Opérateur Favori') }}</span>
-                            <span class="info-field-val">
-                                {% if current_user.preferred_payment_method == 'momo' %}MTN MoMo
-                                {% elif current_user.preferred_payment_method == 'orange' %}Orange Money
-                                {% else %}{{ _t('Non spécifié') }}
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="info-field-row">
-                            <span class="info-field-lbl">{{ _t('Canaux d\'alertes') }}</span>
-                            <span class="info-field-val text-primary" style="font-size: 0.8rem;">
-                                {% set active_alerts = [] %}
-                                {% if current_user.email_notifications %}{% set _ = active_alerts.append('Email') %}{% endif %}
-                                {% if current_user.push_notifications %}{% set _ = active_alerts.append('Push') %}{% endif %}
-                                {{ active_alerts | join(', ') if active_alerts else _t('Aucun') }}
-                            </span>
-                        </div>
+                    <div class="vr mx-1 mx-md-2" style="height: 40px; align-self: center;"></div>
+                    <div class="flex-fill px-1" style="min-width: 0;">
+                        <h5 class="text-warning fw-bold mb-1 text-truncate">{{ current_user.loyalty_points or 0 }}</h5>
+                        <span class="text-muted d-block text-truncate" style="font-size: 0.75rem;">{{ _t('Fidélité')
+                            }}</span>
+                    </div>
+                    <div class="vr mx-1 mx-md-2" style="height: 40px; align-self: center;"></div>
+                    <div class="flex-fill px-1" style="min-width: 0;">
+                        <h5 class="text-info fw-bold mb-1 text-truncate">{{ parcels|length if parcels else 0 }}</h5>
+                        <span class="text-muted d-block text-truncate" style="font-size: 0.75rem;">{{ _t('Colis')
+                            }}</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Travel metrics summary card at the bottom -->
-            <div class="glass-widget mt-4 p-3 border border-secondary border-opacity-10 d-flex justify-content-between text-center align-items-center">
-                <div class="flex-fill px-1" style="min-width: 0;">
-                    <h5 class="text-primary fw-bold mb-1 text-truncate">{{ total_bookings }}</h5>
-                    <span class="text-muted d-block text-truncate" style="font-size: 0.75rem;">{{ _t('Total Billets') }}</span>
+
+
+            <!-- 2. EDITABLE PROFILE FORM (HIDDEN BY DEFAULT) -->
+            <div class="glass-widget" id="profile-edit-card" style="display: none;">
+
+                <div class="d-flex align-items-center border-bottom pb-3 mb-4">
+                    <h3 class="view-card-title mb-0 border-0 pb-0"><i
+                            class="bi bi-pencil-square me-2 text-primary"></i>{{ _t('Modification de vos données') }}
+                    </h3>
                 </div>
-                <div class="vr mx-1 mx-md-2" style="height: 40px; align-self: center;"></div>
-                <div class="flex-fill px-1" style="min-width: 0;">
-                    <h5 class="text-success fw-bold mb-1 text-truncate">{{ total_spent | int }} F</h5>
-                    <span class="text-muted d-block text-truncate" style="font-size: 0.75rem;">{{ _t('Dépenses') }}</span>
-                </div>
-                <div class="vr mx-1 mx-md-2" style="height: 40px; align-self: center;"></div>
-                <div class="flex-fill px-1" style="min-width: 0;">
-                    <h5 class="text-warning fw-bold mb-1 text-truncate">{{ current_user.loyalty_points or 0 }}</h5>
-                    <span class="text-muted d-block text-truncate" style="font-size: 0.75rem;">{{ _t('Fidélité') }}</span>
-                </div>
-                <div class="vr mx-1 mx-md-2" style="height: 40px; align-self: center;"></div>
-                <div class="flex-fill px-1" style="min-width: 0;">
-                    <h5 class="text-info fw-bold mb-1 text-truncate">{{ parcels|length if parcels else 0 }}</h5>
-                    <span class="text-muted d-block text-truncate" style="font-size: 0.75rem;">{{ _t('Colis') }}</span>
-                </div>
+
+                <form id="profileForm" method="POST" action="{{ url_for('client.profile') }}"
+                    enctype="multipart/form-data">
+                    {{ csrf_token() if csrf_token else '' }}
+
+                    <!-- Hidden inputs for avatar operations -->
+                    <input type="hidden" id="removeProfilePictureInput" name="remove_profile_picture" value="false">
+
+                    <!-- ================= TAB: PERSONAL INFO ================= -->
+                    <div id="tab-personal" class="profile-tab-pane">
+                        <h3 class="form-section-title"><i class="bi bi-person-lines-fill me-2"></i>{{ _t('Informations
+                            Personnelles') }}</h3>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="username" class="form-label input-label">{{ _t('Nom d\'utilisateur') }}
+                                    (Username)</label>
+                                <input type="text" class="form-control py-2.5" id="username" name="username"
+                                    value="{{ current_user.username }}" required
+                                    placeholder="{{ _t('Saisir votre nom d\'utilisateur') }}">
+                                <small class="text-muted"><i class="bi bi-info-circle"></i> {{ _t('Le nom d\'utilisateur
+                                    doit être unique sur la plateforme.') }}</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label input-label">{{ _t('Prénom') }}</label>
+                                <input type="text" class="form-control py-2.5" id="first_name" name="first_name"
+                                    value="{{ current_user.first_name or '' }}" placeholder="{{ _t('Votre prénom') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label input-label">{{ _t('Nom de famille') }}</label>
+                                <input type="text" class="form-control py-2.5" id="last_name" name="last_name"
+                                    value="{{ current_user.last_name or '' }}" placeholder="{{ _t('Votre nom') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="date_of_birth" class="form-label input-label">{{ _t('Date de naissance')
+                                    }}</label>
+                                <input type="text" class="form-control py-2.5" id="date_of_birth" name="date_of_birth"
+                                    value="{{ current_user.date_of_birth.strftime('%Y-%m-%d') if current_user.date_of_birth else '' }}"
+                                    placeholder="AAAA-MM-JJ" style="background: var(--input-bg-light) !important;">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label input-label">{{ _t('Genre') }}</label>
+                                <select class="form-select py-2.5" id="gender" name="gender">
+                                    <option value="" {% if not current_user.gender %}selected{% endif %}>{{
+                                        _t('Sélectionnez') }}</option>
+                                    <option value="Male" {% if current_user.gender=='Male' %}selected{% endif %}>{{
+                                        _t('Homme / Male') }}</option>
+                                    <option value="Female" {% if current_user.gender=='Female' %}selected{% endif %}>{{
+                                        _t('Femme / Female') }}</option>
+                                    <option value="Other" {% if current_user.gender=='Other' %}selected{% endif %}>{{
+                                        _t('Autre / Other') }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h3 class="form-section-title mt-5"><i class="bi bi-telephone-outbound me-2"></i>{{
+                            _t('Coordonnées de Contact') }}</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label input-label">{{ _t('Numéro de Téléphone')
+                                    }}</label>
+                                <input type="tel" class="form-control py-2.5 iti-phone" id="phone" name="phone"
+                                    value="{{ current_user.phone or '' }}" placeholder="+237 6XX XX XX XX">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label input-label">{{ _t('Adresse Email') }}</label>
+                                <input type="email" class="form-control py-2.5" id="email" name="email"
+                                    value="{{ current_user.email }}" required placeholder="email@exemple.com">
+                            </div>
+                            <div class="col-12">
+                                <label for="address" class="form-label input-label">{{ _t('Adresse Résidentielle')
+                                    }}</label>
+                                <input type="text" class="form-control py-2.5" id="address" name="address"
+                                    value="{{ current_user.address or '' }}"
+                                    placeholder="{{ _t('Ex: 123 Rue Principale, Akwa') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="city" class="form-label input-label">{{ _t('Ville') }}</label>
+                                <input type="text" class="form-control py-2.5" id="city" name="city"
+                                    value="{{ current_user.city or '' }}" placeholder="{{ _t('Douala, Yaoundé...') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="country" class="form-label input-label">{{ _t('Pays') }}</label>
+                                <input type="text" class="form-control py-2.5" id="country" name="country"
+                                    value="{{ current_user.country or '' }}" placeholder="{{ _t('Cameroun...') }}">
+                            </div>
+                        </div>
+
+                        <h3 class="form-section-title mt-5"><i class="bi bi-translate me-2"></i>{{ _t('Préférences
+                            Linguistiques') }}</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="language" class="form-label input-label">{{ _t('Langue Préférée') }}</label>
+                                <select class="form-select py-2.5" id="language" name="language">
+                                    <option value="fr" {% if current_user.language=='fr' %}selected{% endif %}>{{
+                                        _t('Français (French)') }}</option>
+                                    <option value="en" {% if current_user.language=='en' %}selected{% endif %}>{{
+                                        _t('English (Anglais)') }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Payment configurations (maintained compatibility fields) -->
+                        <h3 class="form-section-title mt-5"><i class="bi bi-wallet2 me-2"></i>{{ _t('Modes de Paiement
+                            Mobile') }}</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="momo_number" class="form-label input-label">{{ _t('Numéro MTN Mobile Money')
+                                    }}</label>
+                                <input type="text" class="form-control py-2.5 iti-phone" id="momo_number"
+                                    name="momo_number" value="{{ current_user.momo_number or '' }}"
+                                    placeholder="e.g., 677123456">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="orange_number" class="form-label input-label">{{ _t('Numéro Orange Money')
+                                    }}</label>
+                                <input type="text" class="form-control py-2.5 iti-phone" id="orange_number"
+                                    name="orange_number" value="{{ current_user.orange_number or '' }}"
+                                    placeholder="e.g., 699123456">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="preferred_payment_method" class="form-label input-label">{{ _t('Opérateur
+                                    Favori') }}</label>
+                                <select class="form-select py-2.5" id="preferred_payment_method"
+                                    name="preferred_payment_method">
+                                    <option value="" {% if not current_user.preferred_payment_method %}selected{% endif
+                                        %}>{{ _t('Sélectionnez') }}</option>
+                                    <option value="momo" {% if current_user.preferred_payment_method=='momo'
+                                        %}selected{% endif %}>MTN MoMo</option>
+                                    <option value="orange" {% if current_user.preferred_payment_method=='orange'
+                                        %}selected{% endif %}>Orange Money</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= TAB: SECURITY ================= -->
+                    <div id="tab-security" class="profile-tab-pane">
+                        <h3 class="form-section-title"><i class="bi bi-shield-lock-fill me-2"></i>{{ _t('Changement de')
+                            }} {{ _t('Mot de passe') }}</h3>
+                        <p class="text-muted mb-4">{{ _t('Pour sécuriser votre compte, utilisez un mot de passe fort
+                            comprenant des lettres, des chiffres et des caractères spéciaux.') }}</p>
+
+                        <div class="row g-3" style="max-width: 600px;">
+                            <div class="col-12">
+                                <label for="current_password" class="form-label input-label">{{ _t('Mot de passe') }}
+                                    actuel</label>
+                                <input type="password" class="form-control py-2.5" id="current_password"
+                                    name="current_password" autocomplete="current-password"
+                                    placeholder="{{ _t('Saisir votre mot de passe actuel') }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="new_password" class="form-label input-label">{{ _t('Nouveau mot de passe')
+                                    }}</label>
+                                <input type="password" class="form-control py-2.5" id="new_password" name="new_password"
+                                    autocomplete="new-password" placeholder="{{ _t('Nouveau mot de passe fort') }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="confirm_password" class="form-label input-label">{{ _t('Confirmer le nouveau
+                                    mot de passe') }}</label>
+                                <input type="password" class="form-control py-2.5" id="confirm_password"
+                                    name="confirm_password" autocomplete="new-password"
+                                    placeholder="{{ _t('Confirmer le nouveau mot de passe') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= TAB: PREFERENCES ================= -->
+                    <div id="tab-notifications" class="profile-tab-pane">
+                        <h3 class="form-section-title"><i class="bi bi-bell-fill me-2"></i>{{ _t('Préférences de
+                            Notification') }}</h3>
+                        <p class="text-muted mb-4">{{ _t('Ajustez la manière dont vous recevez les confirmations de
+                            contrats, mises à disposition de véhicules et alertes conciergerie.') }}</p>
+
+                        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-broadcast text-primary me-2"></i>{{
+                            _t('Canaux de Réception') }}</h5>
+                        <div class="d-flex flex-column gap-3 mb-4 max-w-lg">
+                            <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
+                                <div class="text-start">
+                                    <h6 class="fw-bold mb-1">{{ _t('Notifications par Email') }}</h6>
+                                    <p class="text-muted small mb-0">{{ _t('Recevez vos reçus de paiement en format PDF,
+                                        contrats de location VIP et confirmations de réservation.') }}</p>
+                                </div>
+                                <div class="form-check form-switch fs-4">
+                                    <input class="form-check-input" type="checkbox" id="email_notifications"
+                                        name="email_notifications" {% if current_user.email_notifications %}checked{%
+                                        endif %}>
+                                </div>
+                            </div>
+
+                            <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
+                                <div class="text-start">
+                                    <h6 class="fw-bold mb-1">{{ _t('Notifications In-App') }}</h6>
+                                    <p class="text-muted small mb-0">{{ _t('Recevez des alertes directement dans
+                                        l\'application concernant vos locations de véhicules et conciergerie.') }}</p>
+                                </div>
+                                <div class="form-check form-switch fs-4">
+                                    <input class="form-check-input" type="checkbox" id="push_notifications"
+                                        name="push_notifications" {% if current_user.push_notifications %}checked{%
+                                        endif %}>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-sliders text-primary me-2"></i>{{ _t('Thèmes
+                            & Catégories d\'alertes') }}</h5>
+                        <div class="d-flex flex-column gap-3 max-w-lg">
+                            <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
+                                <div class="text-start">
+                                    <h6 class="fw-bold mb-1">{{ _t('Locations & Flotte VIP') }}</h6>
+                                    <p class="text-muted small mb-0">{{ _t('Mises à jour des contrats, mise à
+                                        disposition de véhicule, chauffeur assigné.') }}</p>
+                                </div>
+                                <div class="form-check form-switch fs-4">
+                                    <input class="form-check-input" type="checkbox" id="pref_booking"
+                                        name="pref_booking" {% if current_user.pref_booking %}checked{% endif %}>
+                                </div>
+                            </div>
+
+                            <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
+                                <div class="text-start">
+                                    <h6 class="fw-bold mb-1">{{ _t('Conciergerie & Demandes VIP') }}</h6>
+                                    <p class="text-muted small mb-0">{{ _t('Alertes de suivi pour vos demandes
+                                        spéciales, navettes aéroport et résidences meublées.') }}</p>
+                                </div>
+                                <div class="form-check form-switch fs-4">
+                                    <input class="form-check-input" type="checkbox" id="pref_parcel" name="pref_parcel"
+                                        {% if current_user.pref_parcel %}checked{% endif %}>
+                                </div>
+                            </div>
+
+                            <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
+                                <div class="text-start">
+                                    <h6 class="fw-bold mb-1">{{ _t('Transactions & Factures') }}</h6>
+                                    <p class="text-muted small mb-0">{{ _t('Factures proforma, reçus de paiement Mobile
+                                        Money/Carte et cautions.') }}</p>
+                                </div>
+                                <div class="form-check form-switch fs-4">
+                                    <input class="form-check-input" type="checkbox" id="pref_financial"
+                                        name="pref_financial" {% if current_user.pref_financial %}checked{% endif %}>
+                                </div>
+                            </div>
+
+                            <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
+                                <div class="text-start">
+                                    <h6 class="fw-bold mb-1">{{ _t('Quarts de travail (Shifts)') }}</h6>
+                                    <p class="text-muted small mb-0">{{ _t('Alertes sur les statuts d\'ouverture,
+                                        rappels de fermeture et validations.') }}</p>
+                                </div>
+                                <div class="form-check form-switch fs-4">
+                                    <input class="form-check-input" type="checkbox" id="pref_shift" name="pref_shift" {%
+                                        if current_user.pref_shift %}checked{% endif %}>
+                                </div>
+                            </div>
+
+                            <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
+                                <div class="text-start">
+                                    <h6 class="fw-bold mb-1">{{ _t('Système & Sécurité') }}</h6>
+                                    <p class="text-muted small mb-0">{{ _t('Changements de mots de passe, connexions
+                                        suspectes ou modifications de profils.') }}</p>
+                                </div>
+                                <div class="form-check form-switch fs-4">
+                                    <input class="form-check-input" type="checkbox" id="pref_system" name="pref_system"
+                                        {% if current_user.pref_system %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= TAB: EMERGENCY CONTACT ================= -->
+                    <div id="tab-emergency" class="profile-tab-pane">
+                        <h3 class="form-section-title text-danger"><i class="bi bi-heart-pulse-fill me-2"></i>{{
+                            _t('Contact d\'Urgence') }}</h3>
+                        <p class="text-muted mb-4">{{ _t('Ces informations sont essentielles pour votre sécurité à bord.
+                            En cas d\'incident de trajet, l\'agence contactera cette personne en priorité.') }}</p>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="emergency_contact_name" class="form-label input-label">{{ _t('Nom complet du
+                                    contact') }}</label>
+                                <input type="text" class="form-control py-2.5" id="emergency_contact_name"
+                                    name="emergency_contact_name"
+                                    value="{{ current_user.emergency_contact_name or '' }}"
+                                    placeholder="{{ _t('Ex: Marie Dupont') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emergency_contact_phone" class="form-label input-label">{{ _t('Numéro de
+                                    téléphone d\'urgence') }}</label>
+                                <input type="tel" class="form-control py-2.5 iti-phone" id="emergency_contact_phone"
+                                    name="emergency_contact_phone"
+                                    value="{{ current_user.emergency_contact_phone or '' }}"
+                                    placeholder="+237 6XX XX XX XX">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emergency_contact_relationship" class="form-label input-label">{{ _t('Lien
+                                    de parenté / Relation') }}</label>
+                                <select class="form-select py-2.5" id="emergency_contact_relationship"
+                                    name="emergency_contact_relationship">
+                                    <option value="" {% if not current_user.emergency_contact_relationship %}selected{%
+                                        endif %}>{{ _t('Sélectionnez') }}</option>
+                                    <option value="Father" {% if current_user.emergency_contact_relationship=='Father'
+                                        %}selected{% endif %}>{{ _t('Père / Father') }}</option>
+                                    <option value="Mother" {% if current_user.emergency_contact_relationship=='Mother'
+                                        %}selected{% endif %}>{{ _t('Mère / Mother') }}</option>
+                                    <option value="Spouse" {% if current_user.emergency_contact_relationship=='Spouse'
+                                        %}selected{% endif %}>{{ _t('Conjoint(e) / Spouse') }}</option>
+                                    <option value="Brother" {% if current_user.emergency_contact_relationship=='Brother'
+                                        %}selected{% endif %}>{{ _t('Frère / Brother') }}</option>
+                                    <option value="Sister" {% if current_user.emergency_contact_relationship=='Sister'
+                                        %}selected{% endif %}>{{ _t('Sœur / Sister') }}</option>
+                                    <option value="Friend" {% if current_user.emergency_contact_relationship=='Friend'
+                                        %}selected{% endif %}>{{ _t('Ami(e) / Friend') }}</option>
+                                    <option value="Other" {% if current_user.emergency_contact_relationship=='Other'
+                                        %}selected{% endif %}>{{ _t('Autre / Other') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-top text-start d-grid gap-3 d-md-flex">
+                        <button type="submit" class="ops-btn-primary py-3 px-5 fs-6 rounded-pill"><i
+                                class="bi bi-save-fill me-2"></i>{{ _t('Enregistrer les modifications') }}</button>
+                    </div>
+
+                </form>
+
             </div>
-        </div>
 
+            <!-- (Bookings dashboard removed from profile page. Links now point to main.my_bookings directly) -->
 
-
-        <!-- 2. EDITABLE PROFILE FORM (HIDDEN BY DEFAULT) -->
-        <div class="glass-widget" id="profile-edit-card" style="display: none;">
-
-            <div class="d-flex align-items-center border-bottom pb-3 mb-4">
-                <h3 class="view-card-title mb-0 border-0 pb-0"><i class="bi bi-pencil-square me-2 text-primary"></i>{{ _t('Modification de vos données') }}</h3>
-            </div>
-
-            <form id="profileForm" method="POST" action="{{ url_for('client.profile') }}" enctype="multipart/form-data">
-                {{ csrf_token() if csrf_token else '' }}
-                
-                <!-- Hidden inputs for avatar operations -->
-                <input type="hidden" id="removeProfilePictureInput" name="remove_profile_picture" value="false">
-
-                <!-- ================= TAB: PERSONAL INFO ================= -->
-                <div id="tab-personal" class="profile-tab-pane">
-                    <h3 class="form-section-title"><i class="bi bi-person-lines-fill me-2"></i>{{ _t('Informations Personnelles') }}</h3>
-                    
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label for="username" class="form-label input-label">{{ _t('Nom d\'utilisateur') }} (Username)</label>
-                            <input type="text" class="form-control py-2.5" id="username" name="username" value="{{ current_user.username }}" required placeholder="{{ _t('Saisir votre nom d\'utilisateur') }}">
-                            <small class="text-muted"><i class="bi bi-info-circle"></i> {{ _t('Le nom d\'utilisateur doit être unique sur la plateforme.') }}</small>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="first_name" class="form-label input-label">{{ _t('Prénom') }}</label>
-                            <input type="text" class="form-control py-2.5" id="first_name" name="first_name" value="{{ current_user.first_name or '' }}" placeholder="{{ _t('Votre prénom') }}">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="last_name" class="form-label input-label">{{ _t('Nom de famille') }}</label>
-                            <input type="text" class="form-control py-2.5" id="last_name" name="last_name" value="{{ current_user.last_name or '' }}" placeholder="{{ _t('Votre nom') }}">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="date_of_birth" class="form-label input-label">{{ _t('Date de naissance') }}</label>
-                            <input type="text" class="form-control py-2.5" id="date_of_birth" name="date_of_birth" value="{{ current_user.date_of_birth.strftime('%Y-%m-%d') if current_user.date_of_birth else '' }}" placeholder="AAAA-MM-JJ" style="background: var(--input-bg-light) !important;">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="gender" class="form-label input-label">{{ _t('Genre') }}</label>
-                            <select class="form-select py-2.5" id="gender" name="gender">
-                                <option value="" {% if not current_user.gender %}selected{% endif %}>{{ _t('Sélectionnez') }}</option>
-                                <option value="Male" {% if current_user.gender == 'Male' %}selected{% endif %}>{{ _t('Homme / Male') }}</option>
-                                <option value="Female" {% if current_user.gender == 'Female' %}selected{% endif %}>{{ _t('Femme / Female') }}</option>
-                                <option value="Other" {% if current_user.gender == 'Other' %}selected{% endif %}>{{ _t('Autre / Other') }}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <h3 class="form-section-title mt-5"><i class="bi bi-telephone-outbound me-2"></i>{{ _t('Coordonnées de Contact') }}</h3>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="phone" class="form-label input-label">{{ _t('Numéro de Téléphone') }}</label>
-                            <input type="tel" class="form-control py-2.5 iti-phone" id="phone" name="phone" value="{{ current_user.phone or '' }}" placeholder="+237 6XX XX XX XX">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="email" class="form-label input-label">{{ _t('Adresse Email') }}</label>
-                            <input type="email" class="form-control py-2.5" id="email" name="email" value="{{ current_user.email }}" required placeholder="email@exemple.com">
-                        </div>
-                        <div class="col-12">
-                            <label for="address" class="form-label input-label">{{ _t('Adresse Résidentielle') }}</label>
-                            <input type="text" class="form-control py-2.5" id="address" name="address" value="{{ current_user.address or '' }}" placeholder="{{ _t('Ex: 123 Rue Principale, Akwa') }}">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="city" class="form-label input-label">{{ _t('Ville') }}</label>
-                            <input type="text" class="form-control py-2.5" id="city" name="city" value="{{ current_user.city or '' }}" placeholder="{{ _t('Douala, Yaoundé...') }}">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="country" class="form-label input-label">{{ _t('Pays') }}</label>
-                            <input type="text" class="form-control py-2.5" id="country" name="country" value="{{ current_user.country or '' }}" placeholder="{{ _t('Cameroun...') }}">
-                        </div>
-                    </div>
-
-                    <h3 class="form-section-title mt-5"><i class="bi bi-translate me-2"></i>{{ _t('Préférences Linguistiques') }}</h3>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="language" class="form-label input-label">{{ _t('Langue Préférée') }}</label>
-                            <select class="form-select py-2.5" id="language" name="language">
-                                <option value="fr" {% if current_user.language == 'fr' %}selected{% endif %}>{{ _t('Français (French)') }}</option>
-                                <option value="en" {% if current_user.language == 'en' %}selected{% endif %}>{{ _t('English (Anglais)') }}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Payment configurations (maintained compatibility fields) -->
-                    <h3 class="form-section-title mt-5"><i class="bi bi-wallet2 me-2"></i>{{ _t('Modes de Paiement Mobile') }}</h3>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="momo_number" class="form-label input-label">{{ _t('Numéro MTN Mobile Money') }}</label>
-                            <input type="text" class="form-control py-2.5 iti-phone" id="momo_number" name="momo_number" value="{{ current_user.momo_number or '' }}" placeholder="e.g., 677123456">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="orange_number" class="form-label input-label">{{ _t('Numéro Orange Money') }}</label>
-                            <input type="text" class="form-control py-2.5 iti-phone" id="orange_number" name="orange_number" value="{{ current_user.orange_number or '' }}" placeholder="e.g., 699123456">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="preferred_payment_method" class="form-label input-label">{{ _t('Opérateur Favori') }}</label>
-                            <select class="form-select py-2.5" id="preferred_payment_method" name="preferred_payment_method">
-                                <option value="" {% if not current_user.preferred_payment_method %}selected{% endif %}>{{ _t('Sélectionnez') }}</option>
-                                <option value="momo" {% if current_user.preferred_payment_method == 'momo' %}selected{% endif %}>MTN MoMo</option>
-                                <option value="orange" {% if current_user.preferred_payment_method == 'orange' %}selected{% endif %}>Orange Money</option>
-                            </select>
-                        </div>
-                    </div>
+            <!-- 3. RECENT ACTIVITIES / NOTIFICATIONS (ADDED RESPONSIVELY) -->
+            <div class="glass-widget">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                    <h4 class="view-card-title mb-0 border-0 pb-0" style="font-size: 1.3rem;"><i
+                            class="bi bi-activity me-2 text-primary"></i>{{ _t('Activités Récentes') }}</h4>
                 </div>
-
-                <!-- ================= TAB: SECURITY ================= -->
-                <div id="tab-security" class="profile-tab-pane">
-                    <h3 class="form-section-title"><i class="bi bi-shield-lock-fill me-2"></i>{{ _t('Changement de') }} {{ _t('Mot de passe') }}</h3>
-                    <p class="text-muted mb-4">{{ _t('Pour sécuriser votre compte, utilisez un mot de passe fort comprenant des lettres, des chiffres et des caractères spéciaux.') }}</p>
-
-                    <div class="row g-3" style="max-width: 600px;">
-                        <div class="col-12">
-                            <label for="current_password" class="form-label input-label">{{ _t('Mot de passe') }} actuel</label>
-                            <input type="password" class="form-control py-2.5" id="current_password" name="current_password" autocomplete="current-password" placeholder="{{ _t('Saisir votre mot de passe actuel') }}">
-                        </div>
-                        <div class="col-12">
-                            <label for="new_password" class="form-label input-label">{{ _t('Nouveau mot de passe') }}</label>
-                            <input type="password" class="form-control py-2.5" id="new_password" name="new_password" autocomplete="new-password" placeholder="{{ _t('Nouveau mot de passe fort') }}">
-                        </div>
-                        <div class="col-12">
-                            <label for="confirm_password" class="form-label input-label">{{ _t('Confirmer le nouveau mot de passe') }}</label>
-                            <input type="password" class="form-control py-2.5" id="confirm_password" name="confirm_password" autocomplete="new-password" placeholder="{{ _t('Confirmer le nouveau mot de passe') }}">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ================= TAB: PREFERENCES ================= -->
-                <div id="tab-notifications" class="profile-tab-pane">
-                    <h3 class="form-section-title"><i class="bi bi-bell-fill me-2"></i>{{ _t('Préférences de Notification') }}</h3>
-                    <p class="text-muted mb-4">{{ _t('Ajustez la manière dont vous recevez les confirmations de contrats, mises à disposition de véhicules et alertes conciergerie.') }}</p>
-
-                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-broadcast text-primary me-2"></i>{{ _t('Canaux de Réception') }}</h5>
-                    <div class="d-flex flex-column gap-3 mb-4 max-w-lg">
-                        <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
-                            <div class="text-start">
-                                <h6 class="fw-bold mb-1">{{ _t('Notifications par Email') }}</h6>
-                                <p class="text-muted small mb-0">{{ _t('Recevez vos reçus de paiement en format PDF, contrats de location VIP et confirmations de réservation.') }}</p>
-                            </div>
-                            <div class="form-check form-switch fs-4">
-                                <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" {% if current_user.email_notifications %}checked{% endif %}>
-                            </div>
-                        </div>
-
-                        <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
-                            <div class="text-start">
-                                <h6 class="fw-bold mb-1">{{ _t('Notifications In-App') }}</h6>
-                                <p class="text-muted small mb-0">{{ _t('Recevez des alertes directement dans l\'application concernant vos locations de véhicules et conciergerie.') }}</p>
-                            </div>
-                            <div class="form-check form-switch fs-4">
-                                <input class="form-check-input" type="checkbox" id="push_notifications" name="push_notifications" {% if current_user.push_notifications %}checked{% endif %}>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-sliders text-primary me-2"></i>{{ _t('Thèmes & Catégories d\'alertes') }}</h5>
-                    <div class="d-flex flex-column gap-3 max-w-lg">
-                        <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
-                            <div class="text-start">
-                                <h6 class="fw-bold mb-1">{{ _t('Locations & Flotte VIP') }}</h6>
-                                <p class="text-muted small mb-0">{{ _t('Mises à jour des contrats, mise à disposition de véhicule, chauffeur assigné.') }}</p>
-                            </div>
-                            <div class="form-check form-switch fs-4">
-                                <input class="form-check-input" type="checkbox" id="pref_booking" name="pref_booking" {% if current_user.pref_booking %}checked{% endif %}>
-                            </div>
-                        </div>
-
-                        <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
-                            <div class="text-start">
-                                <h6 class="fw-bold mb-1">{{ _t('Conciergerie & Demandes VIP') }}</h6>
-                                <p class="text-muted small mb-0">{{ _t('Alertes de suivi pour vos demandes spéciales, navettes aéroport et résidences meublées.') }}</p>
-                            </div>
-                            <div class="form-check form-switch fs-4">
-                                <input class="form-check-input" type="checkbox" id="pref_parcel" name="pref_parcel" {% if current_user.pref_parcel %}checked{% endif %}>
-                            </div>
-                        </div>
-
-                        <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
-                            <div class="text-start">
-                                <h6 class="fw-bold mb-1">{{ _t('Transactions & Factures') }}</h6>
-                                <p class="text-muted small mb-0">{{ _t('Factures proforma, reçus de paiement Mobile Money/Carte et cautions.') }}</p>
-                            </div>
-                            <div class="form-check form-switch fs-4">
-                                <input class="form-check-input" type="checkbox" id="pref_financial" name="pref_financial" {% if current_user.pref_financial %}checked{% endif %}>
-                            </div>
-                        </div>
-
-                        <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
-                            <div class="text-start">
-                                <h6 class="fw-bold mb-1">{{ _t('Quarts de travail (Shifts)') }}</h6>
-                                <p class="text-muted small mb-0">{{ _t('Alertes sur les statuts d\'ouverture, rappels de fermeture et validations.') }}</p>
-                            </div>
-                            <div class="form-check form-switch fs-4">
-                                <input class="form-check-input" type="checkbox" id="pref_shift" name="pref_shift" {% if current_user.pref_shift %}checked{% endif %}>
-                            </div>
-                        </div>
-
-                        <div class="premium-switch d-flex justify-content-between align-items-center gap-3">
-                            <div class="text-start">
-                                <h6 class="fw-bold mb-1">{{ _t('Système & Sécurité') }}</h6>
-                                <p class="text-muted small mb-0">{{ _t('Changements de mots de passe, connexions suspectes ou modifications de profils.') }}</p>
-                            </div>
-                            <div class="form-check form-switch fs-4">
-                                <input class="form-check-input" type="checkbox" id="pref_system" name="pref_system" {% if current_user.pref_system %}checked{% endif %}>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ================= TAB: EMERGENCY CONTACT ================= -->
-                <div id="tab-emergency" class="profile-tab-pane">
-                    <h3 class="form-section-title text-danger"><i class="bi bi-heart-pulse-fill me-2"></i>{{ _t('Contact d\'Urgence') }}</h3>
-                    <p class="text-muted mb-4">{{ _t('Ces informations sont essentielles pour votre sécurité à bord. En cas d\'incident de trajet, l\'agence contactera cette personne en priorité.') }}</p>
- 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="emergency_contact_name" class="form-label input-label">{{ _t('Nom complet du contact') }}</label>
-                            <input type="text" class="form-control py-2.5" id="emergency_contact_name" name="emergency_contact_name" value="{{ current_user.emergency_contact_name or '' }}" placeholder="{{ _t('Ex: Marie Dupont') }}">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="emergency_contact_phone" class="form-label input-label">{{ _t('Numéro de téléphone d\'urgence') }}</label>
-                            <input type="tel" class="form-control py-2.5 iti-phone" id="emergency_contact_phone" name="emergency_contact_phone" value="{{ current_user.emergency_contact_phone or '' }}" placeholder="+237 6XX XX XX XX">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="emergency_contact_relationship" class="form-label input-label">{{ _t('Lien de parenté / Relation') }}</label>
-                            <select class="form-select py-2.5" id="emergency_contact_relationship" name="emergency_contact_relationship">
-                                <option value="" {% if not current_user.emergency_contact_relationship %}selected{% endif %}>{{ _t('Sélectionnez') }}</option>
-                                <option value="Father" {% if current_user.emergency_contact_relationship == 'Father' %}selected{% endif %}>{{ _t('Père / Father') }}</option>
-                                <option value="Mother" {% if current_user.emergency_contact_relationship == 'Mother' %}selected{% endif %}>{{ _t('Mère / Mother') }}</option>
-                                <option value="Spouse" {% if current_user.emergency_contact_relationship == 'Spouse' %}selected{% endif %}>{{ _t('Conjoint(e) / Spouse') }}</option>
-                                <option value="Brother" {% if current_user.emergency_contact_relationship == 'Brother' %}selected{% endif %}>{{ _t('Frère / Brother') }}</option>
-                                <option value="Sister" {% if current_user.emergency_contact_relationship == 'Sister' %}selected{% endif %}>{{ _t('Sœur / Sister') }}</option>
-                                <option value="Friend" {% if current_user.emergency_contact_relationship == 'Friend' %}selected{% endif %}>{{ _t('Ami(e) / Friend') }}</option>
-                                <option value="Other" {% if current_user.emergency_contact_relationship == 'Other' %}selected{% endif %}>{{ _t('Autre / Other') }}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
- 
-                <div class="mt-5 pt-4 border-top text-start d-grid gap-3 d-md-flex">
-                    <button type="submit" class="ops-btn-primary py-3 px-5 fs-6 rounded-pill"><i class="bi bi-save-fill me-2"></i>{{ _t('Enregistrer les modifications') }}</button>
-                </div>
-
-            </form>
-
-        </div>
-
-        <!-- (Bookings dashboard removed from profile page. Links now point to main.my_bookings directly) -->
-
-        <!-- 3. RECENT ACTIVITIES / NOTIFICATIONS (ADDED RESPONSIVELY) -->
-        <div class="glass-widget">
-            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
-                <h4 class="view-card-title mb-0 border-0 pb-0" style="font-size: 1.3rem;"><i class="bi bi-activity me-2 text-primary"></i>{{ _t('Activités Récentes') }}</h4>
-            </div>
-            <div id="profileActivityList" class="d-flex flex-column gap-2">
-                {% if recent_activities %}
+                <div id="profileActivityList" class="d-flex flex-column gap-2">
+                    {% if recent_activities %}
                     {% for activity in recent_activities %}
-                        <div class="d-flex align-items-center p-3 rounded-3" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05);">
-                            <div class="me-3 fs-4 text-{{ 'primary' if activity.type == 'info' else activity.type }}">
-                                <i class="bi bi-bell-fill"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1 fw-bold">{{ activity.title }}</h6>
-                                <p class="mb-0 text-muted small">{{ activity.message }}</p>
-                            </div>
-                            <div class="text-muted small" style="white-space: nowrap;">
-                                {{ activity.created_at.strftime('%d/%m/%Y %H:%M') if activity.created_at else '' }}
-                            </div>
+                    <div class="d-flex align-items-center p-3 rounded-3"
+                        style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05);">
+                        <div class="me-3 fs-4 text-{{ 'primary' if activity.type == 'info' else activity.type }}">
+                            <i class="bi bi-bell-fill"></i>
                         </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 fw-bold">{{ activity.title }}</h6>
+                            <p class="mb-0 text-muted small">{{ activity.message }}</p>
+                        </div>
+                        <div class="text-muted small" style="white-space: nowrap;">
+                            {{ activity.created_at.strftime('%d/%m/%Y %H:%M') if activity.created_at else '' }}
+                        </div>
+                    </div>
                     {% endfor %}
-                {% else %}
+                    {% else %}
                     <div class="text-center py-4 text-muted small">
                         {{ _t('Aucune activité récente à afficher.') }}
                     </div>
-                {% endif %}
-            </div>
-        </div>
-
-        </div>
-    </div>
-
-<!-- ================= DELETE ACCOUNT MODAL ================= -->
-<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem; background: var(--input-bg-light); color: var(--text-light);">
-            <div class="modal-header border-bottom border-secondary border-opacity-10 py-3">
-                <h5 class="modal-title fw-bold text-danger d-flex align-items-center gap-2" id="deleteAccountModalLabel">
-                    <i class="bi bi-exclamation-triangle-fill fs-4"></i> {{ _t('Supprimer') }} {{ _t('votre compte voyageur ?') }}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body py-4">
-                <p class="mb-3">{{ _t('Êtes-vous absolument sûr de vouloir supprimer votre compte ? Cette action est irréversible et aura les conséquences suivantes :') }}</p>
-                <ul class="text-muted small text-start d-flex flex-column gap-2 mb-3">
-                    <li><i class="bi bi-dash-circle-fill text-danger me-1"></i> {{ _t('Suppression immédiate de vos données personnelles.') }}</li>
-                    <li><i class="bi bi-dash-circle-fill text-danger me-1"></i> {{ _t('Perte définitive de vos') }} <strong>{{ current_user.loyalty_points or 0 }} {{ _t('points fidélité cumulés.') }}</strong></li>
-                    <li><i class="bi bi-dash-circle-fill text-danger me-1"></i> {{ _t('Annulation de vos réservations futures en cours.') }}</li>
-                </ul>
-                <div class="alert alert-warning border-0 small rounded-3 p-3 mb-0 d-flex align-items-start gap-2.5">
-                    <i class="bi bi-info-circle-fill fs-5 mt-0.5"></i>
-                    <div>
-                        {{ _t('Pour des raisons fiscales et juridiques, vos données de facturation et historiques de contrats de location seront conservés sous forme d\'archive sécurisée.') }}
-                    </div>
+                    {% endif %}
                 </div>
             </div>
-            <div class="modal-footer border-top border-secondary border-opacity-10 py-3">
-                <button type="button" class="btn btn-outline-secondary px-4 rounded-pill fw-bold" data-bs-dismiss="modal">{{ _t('Annuler') }}</button>
-                <form action="#" method="POST" class="d-inline">
-                    <button type="button" class="btn btn-danger px-4 rounded-pill fw-bold" onclick="simulateDeleteAccount()">{{ _t('Confirmer la suppression') }}</button>
-                </form>
+
+        </div>
+    </div>
+
+    <!-- ================= DELETE ACCOUNT MODAL ================= -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg"
+                style="border-radius: 1.25rem; background: var(--input-bg-light); color: var(--text-light);">
+                <div class="modal-header border-bottom border-secondary border-opacity-10 py-3">
+                    <h5 class="modal-title fw-bold text-danger d-flex align-items-center gap-2"
+                        id="deleteAccountModalLabel">
+                        <i class="bi bi-exclamation-triangle-fill fs-4"></i> {{ _t('Supprimer') }} {{ _t('votre compte
+                        voyageur ?') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="mb-3">{{ _t('Êtes-vous absolument sûr de vouloir supprimer votre compte ? Cette action est
+                        irréversible et aura les conséquences suivantes :') }}</p>
+                    <ul class="text-muted small text-start d-flex flex-column gap-2 mb-3">
+                        <li><i class="bi bi-dash-circle-fill text-danger me-1"></i> {{ _t('Suppression immédiate de vos
+                            données personnelles.') }}</li>
+                        <li><i class="bi bi-dash-circle-fill text-danger me-1"></i> {{ _t('Perte définitive de vos') }}
+                            <strong>{{ current_user.loyalty_points or 0 }} {{ _t('points fidélité cumulés.') }}</strong>
+                        </li>
+                        <li><i class="bi bi-dash-circle-fill text-danger me-1"></i> {{ _t('Annulation de vos
+                            réservations futures en cours.') }}</li>
+                    </ul>
+                    <div class="alert alert-warning border-0 small rounded-3 p-3 mb-0 d-flex align-items-start gap-2.5">
+                        <i class="bi bi-info-circle-fill fs-5 mt-0.5"></i>
+                        <div>
+                            {{ _t('Pour des raisons fiscales et juridiques, vos données de facturation et historiques de
+                            contrats de location seront conservés sous forme d\'archive sécurisée.') }}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-10 py-3">
+                    <button type="button" class="btn btn-outline-secondary px-4 rounded-pill fw-bold"
+                        data-bs-dismiss="modal">{{ _t('Annuler') }}</button>
+                    <form action="#" method="POST" class="d-inline">
+                        <button type="button" class="btn btn-danger px-4 rounded-pill fw-bold"
+                            onclick="simulateDeleteAccount()">{{ _t('Confirmer la suppression') }}</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const phoneInputs = document.querySelectorAll('.iti-phone');
-        phoneInputs.forEach(input => {
-            window.intlTelInput(input, {
-                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
-                initialCountry: "cm",
-                preferredCountries: ["cm", "fr", "us"],
-                separateDialCode: true,
-                autoInsertDialCode: true,
-                nationalMode: false
-            });
-            
-            // On form submit, we need to ensure the full number is sent if separateDialCode is used.
-            // But intlTelInput provides it natively via getNumber().
-            const form = input.closest('form');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    const iti = window.intlTelInputGlobals.getInstance(input);
-                    if (iti) {
-                        input.value = iti.getNumber();
-                    }
+    {% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const phoneInputs = document.querySelectorAll('.iti-phone');
+            phoneInputs.forEach(input => {
+                window.intlTelInput(input, {
+                    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
+                    initialCountry: "cm",
+                    preferredCountries: ["cm", "fr", "us"],
+                    separateDialCode: true,
+                    autoInsertDialCode: true,
+                    nationalMode: false
                 });
-            }
+
+                // On form submit, we need to ensure the full number is sent if separateDialCode is used.
+                // But intlTelInput provides it natively via getNumber().
+                const form = input.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function () {
+                        const iti = window.intlTelInputGlobals.getInstance(input);
+                        if (iti) {
+                            input.value = iti.getNumber();
+                        }
+                    });
+                }
+            });
         });
-    });
-</script>
-<script>
-// Datepicker flatpickr logic for Date of Birth
-document.addEventListener("DOMContentLoaded", function() {
-    flatpickr("#date_of_birth", {
-        dateFormat: "Y-m-d",
-        maxDate: new Date(),
-        locale: "fr",
-        theme: "material_red"
-    });
-});
+    </script>
+    <script>
+        // Datepicker flatpickr logic for Date of Birth
+        document.addEventListener("DOMContentLoaded", function () {
+            flatpickr("#date_of_birth", {
+                dateFormat: "Y-m-d",
+                maxDate: new Date(),
+                locale: "fr",
+                theme: "material_red"
+            });
+        });
 
-// Interactive Client Tab Switching with micro-animations
-function switchTab(tabId, btnElement) {
-    // Show only the requested pane
-    document.querySelectorAll('.profile-tab-pane').forEach(function(pane) {
-        pane.classList.remove('active');
-    });
-    document.getElementById(tabId).classList.add('active');
+        // Interactive Client Tab Switching with micro-animations
+        function switchTab(tabId, btnElement) {
+            // Show only the requested pane
+            document.querySelectorAll('.profile-tab-pane').forEach(function (pane) {
+                pane.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
 
-    // Make sure edit card is visible
-    document.getElementById('profile-view-card').style.display = 'none';
-    document.getElementById('profile-edit-card').style.display = 'block';
+            // Make sure edit card is visible
+            document.getElementById('profile-view-card').style.display = 'none';
+            document.getElementById('profile-edit-card').style.display = 'block';
 
-    // Style the buttons
-    document.querySelectorAll('.menu-tab-btn').forEach(function(btn) {
-        btn.classList.remove('active');
-    });
-    btnElement.classList.add('active');
-}
+            // Style the buttons
+            document.querySelectorAll('.menu-tab-btn').forEach(function (btn) {
+                btn.classList.remove('active');
+            });
+            btnElement.classList.add('active');
+        }
 
-function switchToCardMode() {
-    let viewCard = document.getElementById('profile-view-card');
-    if (viewCard) viewCard.style.display = 'block';
-    
-    let editCard = document.getElementById('profile-edit-card');
-    if (editCard) editCard.style.display = 'none';
+        function switchToCardMode() {
+            let viewCard = document.getElementById('profile-view-card');
+            if (viewCard) viewCard.style.display = 'block';
 
     const bEdit = document.getElementById('btnToggleEdit');
     const bView = document.getElementById('btnToggleView');
@@ -1357,31 +1630,31 @@ function switchToCardMode() {
     }
 }
 
-function switchToBookingsMode() {
-    document.getElementById('profile-view-card').style.display = 'none';
-    document.getElementById('profile-edit-card').style.display = 'none';
-    document.getElementById('profile-bookings-card').style.display = 'block';
+            // Close mobile nav if open
+            let mobileNav = document.getElementById('mobileProfileNav');
+            if (mobileNav.classList.contains('show')) {
+                let bsCollapse = new bootstrap.Collapse(mobileNav, { toggle: false });
+                bsCollapse.hide();
+            }
+        }
 
-    document.querySelectorAll('.menu-tab-btn').forEach(function(btn) {
-        btn.classList.remove('active');
-    });
-    document.getElementById('profileBookingsTabBtn').classList.add('active');
+        function switchToBookingsMode() {
+            document.getElementById('profile-view-card').style.display = 'none';
+            document.getElementById('profile-edit-card').style.display = 'none';
+            document.getElementById('profile-bookings-card').style.display = 'block';
 
-    // Close mobile nav if open
-    let mobileNav = document.getElementById('mobileProfileNav');
-    if (mobileNav.classList.contains('show')) {
-        let bsCollapse = new bootstrap.Collapse(mobileNav, {toggle: false});
-        bsCollapse.hide();
-    }
-}
+            document.querySelectorAll('.menu-tab-btn').forEach(function (btn) {
+                btn.classList.remove('active');
+            });
+            document.getElementById('profileBookingsTabBtn').classList.add('active');
 
-// Function to open the edit tabs directly
-function switchToEditMode(tabId) {
-    let viewCard = document.getElementById('profile-view-card');
-    if (viewCard) viewCard.style.display = 'none';
-    
-    let editCard = document.getElementById('profile-edit-card');
-    if (editCard) editCard.style.display = 'block';
+            // Close mobile nav if open
+            let mobileNav = document.getElementById('mobileProfileNav');
+            if (mobileNav.classList.contains('show')) {
+                let bsCollapse = new bootstrap.Collapse(mobileNav, { toggle: false });
+                bsCollapse.hide();
+            }
+        }
 
     const bEdit = document.getElementById('btnToggleEdit');
     const bView = document.getElementById('btnToggleView');
@@ -1397,14 +1670,13 @@ function switchToEditMode(tabId) {
     const targetPane = document.getElementById(tabId);
     if (targetPane) targetPane.classList.add('active');
 
-    document.querySelectorAll('.menu-tab-btn').forEach(function(btn) {
-        btn.classList.remove('active');
-    });
+            let editCard = document.getElementById('profile-edit-card');
+            if (editCard) editCard.style.display = 'block';
 
-    let matchingBtn = Array.from(document.querySelectorAll('.menu-tab-btn')).find(btn => btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId));
-    if (matchingBtn) {
-        matchingBtn.classList.add('active');
-    }
+            document.querySelectorAll('.profile-tab-pane').forEach(function (pane) {
+                pane.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
 
     // Close mobile nav if open
     let mobileNav = document.getElementById('mobileProfileNav');
@@ -1414,102 +1686,115 @@ function switchToEditMode(tabId) {
     }
 }
 
-// Set Profile View as default tab on mobile
-document.addEventListener("DOMContentLoaded", function() {
-    if (window.innerWidth < 992) {
-        switchToCardMode();
-    }
-});
+            let matchingBtn = Array.from(document.querySelectorAll('.menu-tab-btn')).find(btn => btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId));
+            if (matchingBtn) {
+                matchingBtn.classList.add('active');
+            }
 
-// Trigger the hidden file input
-function triggerAvatarSelect() {
-    document.getElementById('profilePicInput').click();
-}
-
-// Preview the chosen image instantly, then submit
-function previewAndSubmitAvatar(input) {
-    const file = input.files[0];
-    if (!file) return;
-
-    // Client-side size guard (3 MB)
-    if (file.size > 3 * 1024 * 1024) {
-        alert('La photo est trop volumineuse (max 3 Mo). Veuillez choisir une image plus petite.');
-        input.value = '';
-        return;
-    }
-
-    // Instant preview via FileReader
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const img = document.getElementById('sidebarAvatar');
-        if (img) {
-            img.src = e.target.result;
-        } else {
-            // Avatar circle currently shows initials div — replace with img
-            const circle = document.getElementById('avatarEditorCircle');
-            const preview = document.createElement('img');
-            preview.id = 'sidebarAvatar';
-            preview.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-            preview.src = e.target.result;
-            circle.insertBefore(preview, circle.firstChild);
+            // Close mobile nav if open
+            let mobileNav = document.getElementById('mobileProfileNav');
+            if (mobileNav.classList.contains('show')) {
+                let bsCollapse = new bootstrap.Collapse(mobileNav, { toggle: false });
+                bsCollapse.hide();
+            }
         }
-        // Show remove button
-        document.getElementById('removeAvatarBtn').classList.remove('d-none');
-    };
-    reader.readAsDataURL(file);
 
-    // Show progress and submit
-    document.getElementById('avatarUploadProgress').classList.remove('d-none');
-    document.getElementById('avatarUploadForm').submit();
-}
+        // Set Profile View as default tab on mobile
+        document.addEventListener("DOMContentLoaded", function () {
+            if (window.innerWidth < 992) {
+                switchToCardMode();
+            }
+        });
 
-// Support removing profile pictures
-function removeAvatar() {
-    if (!confirm("{{ _t('Voulez-vous supprimer votre photo de profil ?') }}")) return;
-    document.getElementById('removeProfilePictureInput').value = 'true';
-    document.getElementById('profileForm').submit();
-}
-
-
-// Interactive simulated delete account trigger
-function simulateDeleteAccount() {
-    if (!confirm("{{ _t('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.') }}")) return;
-    
-    fetch("{{ url_for('client.delete_account') }}", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
+        // Trigger the hidden file input
+        function triggerAvatarSelect() {
+            document.getElementById('profilePicInput').click();
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = "{{ url_for('auth.logout') }}";
-        } else {
-            alert("Une erreur s'est produite lors de la suppression de votre compte.");
+
+        // Preview the chosen image instantly, then submit
+        function previewAndSubmitAvatar(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Client-side size guard (3 MB)
+            if (file.size > 3 * 1024 * 1024) {
+                alert('La photo est trop volumineuse (max 3 Mo). Veuillez choisir une image plus petite.');
+                input.value = '';
+                return;
+            }
+
+            // Instant preview via FileReader
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.getElementById('sidebarAvatar');
+                if (img) {
+                    img.src = e.target.result;
+                } else {
+                    // Avatar circle currently shows initials div — replace with img
+                    const circle = document.getElementById('avatarEditorCircle');
+                    const preview = document.createElement('img');
+                    preview.id = 'sidebarAvatar';
+                    preview.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+                    preview.src = e.target.result;
+                    circle.insertBefore(preview, circle.firstChild);
+                }
+                // Show remove button
+                document.getElementById('removeAvatarBtn').classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+
+            // Show progress and submit
+            document.getElementById('avatarUploadProgress').classList.remove('d-none');
+            document.getElementById('avatarUploadForm').submit();
         }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("Une erreur s'est produite.");
-    });
-}
 
-// Fetch and render recent activities (notifications) in profile
-document.addEventListener("DOMContentLoaded", function() {
-    fetch('/api/notifications')
-        .then(response => response.json())
-        .then(data => {
-            const listContainer = document.getElementById('profileActivityList');
-            if (data.success && data.notifications && data.notifications.length > 0) {
-                let html = '';
-                data.notifications.forEach(notif => {
-                    let iconClass = 'bi-info-circle text-info';
-                    if(notif.type === 'success') iconClass = 'bi-check-circle text-success';
-                    else if(notif.type === 'warning') iconClass = 'bi-exclamation-triangle text-warning';
-                    else if(notif.type === 'danger') iconClass = 'bi-x-octagon text-danger';
+        // Support removing profile pictures
+        function removeAvatar() {
+            if (!confirm("{{ _t('Voulez-vous supprimer votre photo de profil ?') }}")) return;
+            document.getElementById('removeProfilePictureInput').value = 'true';
+            document.getElementById('profileForm').submit();
+        }
 
-                    html += `
+
+        // Interactive simulated delete account trigger
+        function simulateDeleteAccount() {
+            if (!confirm("{{ _t('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.') }}")) return;
+
+            fetch("{{ url_for('client.delete_account') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "{{ url_for('auth.logout') }}";
+                    } else {
+                        alert("Une erreur s'est produite lors de la suppression de votre compte.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Une erreur s'est produite.");
+                });
+        }
+
+        // Fetch and render recent activities (notifications) in profile
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/api/notifications')
+                .then(response => response.json())
+                .then(data => {
+                    const listContainer = document.getElementById('profileActivityList');
+                    if (data.success && data.notifications && data.notifications.length > 0) {
+                        let html = '';
+                        data.notifications.forEach(notif => {
+                            let iconClass = 'bi-info-circle text-info';
+                            if (notif.type === 'success') iconClass = 'bi-check-circle text-success';
+                            else if (notif.type === 'warning') iconClass = 'bi-exclamation-triangle text-warning';
+                            else if (notif.type === 'danger') iconClass = 'bi-x-octagon text-danger';
+
+                            html += `
                         <div class="p-3 border rounded-3 bg-white bg-opacity-50 d-flex gap-3 align-items-start transition" style="box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                             <i class="bi ${iconClass} fs-4 mt-1"></i>
                             <div class="w-100">
@@ -1521,133 +1806,133 @@ document.addEventListener("DOMContentLoaded", function() {
                             </div>
                         </div>
                     `;
-                });
-                listContainer.innerHTML = html;
-            } else {
-                listContainer.innerHTML = `
+                        });
+                        listContainer.innerHTML = html;
+                    } else {
+                        listContainer.innerHTML = `
                     <div class="text-center py-4 text-muted bg-light bg-opacity-25 rounded-3 border border-secondary border-opacity-10">
                         <i class="bi bi-inbox fs-2 mb-2 d-block text-secondary opacity-50"></i>
                         {{ _t('Aucune activité récente trouvée.') }}
                     </div>
                 `;
-            }
-        })
-        .catch(err => {
-            document.getElementById('profileActivityList').innerHTML = `
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('profileActivityList').innerHTML = `
                 <div class="text-center py-4 text-danger bg-danger bg-opacity-10 rounded-3">
                     {{ _t('Erreur lors du chargement des activités.') }}
                 </div>
             `;
+                });
         });
-});
 
-    function openMobileTab(tabId, pushHistory = true) {
-        if (window.innerWidth < 992) {
-            document.getElementById('mobileMenuContainer').style.display = 'none';
-            document.getElementById('mainProfileGrid').style.display = 'grid';
-            
-            // Add a dynamic mobile back button to the opened card if it doesn't exist
-            injectMobileBackBtn();
-        }
+        function openMobileTab(tabId, pushHistory = true) {
+            if (window.innerWidth < 992) {
+                document.getElementById('mobileMenuContainer').style.display = 'none';
+                document.getElementById('mainProfileGrid').style.display = 'grid';
 
-        // Re-use existing functions
-        let hashTab = tabId;
-        if(tabId === 'profile-view-card') {
-            switchToCardMode();
-        } else {
-            switchToEditMode(tabId);
-        }
-        
-        if (pushHistory) {
-            history.pushState({tab: hashTab}, null, "#" + hashTab);
-        }
-    }
-
-    function closeMobileTab() {
-        if (window.innerWidth < 992) {
-            document.getElementById('mainProfileGrid').style.display = 'none';
-            document.getElementById('mobileMenuContainer').style.display = 'block';
-            history.pushState(null, null, window.location.pathname);
-        } else {
-            switchToCardMode();
-            history.pushState(null, null, window.location.pathname);
-        }
-    }
-
-    function injectMobileBackBtn() {
-        // Append a back button to the currently active right pane
-        const rightPanes = ['profile-view-card', 'profile-edit-card'];
-        rightPanes.forEach(paneId => {
-            const pane = document.getElementById(paneId);
-            if (pane && !pane.querySelector('.mobile-pane-back-btn')) {
-                // Find the first header element (using border-bottom or similar classes)
-                const header = pane.querySelector('.d-flex.align-items-center.border-bottom') || pane.querySelector('.d-flex.justify-content-between');
-                if (header) {
-                    const backBtn = document.createElement('button');
-                    backBtn.className = 'btn btn-link text-dark p-0 me-3 d-lg-none mobile-pane-back-btn';
-                    backBtn.innerHTML = '<i class="bi bi-arrow-left fs-3"></i>';
-                    backBtn.onclick = closeMobileTab;
-                    header.insertBefore(backBtn, header.firstChild);
-                }
+                // Add a dynamic mobile back button to the opened card if it doesn't exist
+                injectMobileBackBtn();
             }
-        });
-    }
 
-    // Initialize layout on load
-    document.addEventListener("DOMContentLoaded", function() {
-        let hash = window.location.hash.substring(1);
-        if (hash) {
-            openMobileTab(hash, false);
-        } else if (window.innerWidth < 992) {
-            document.getElementById('mainProfileGrid').style.display = 'none';
+            // Re-use existing functions
+            let hashTab = tabId;
+            if (tabId === 'profile-view-card') {
+                switchToCardMode();
+            } else {
+                switchToEditMode(tabId);
+            }
+
+            if (pushHistory) {
+                history.pushState({ tab: hashTab }, null, "#" + hashTab);
+            }
         }
-    });
 
-    window.addEventListener('popstate', function(event) {
-        let hash = window.location.hash.substring(1);
-        if (hash) {
-            openMobileTab(hash, false);
-        } else {
+        function closeMobileTab() {
             if (window.innerWidth < 992) {
                 document.getElementById('mainProfileGrid').style.display = 'none';
                 document.getElementById('mobileMenuContainer').style.display = 'block';
+                history.pushState(null, null, window.location.pathname);
             } else {
                 switchToCardMode();
+                history.pushState(null, null, window.location.pathname);
             }
         }
-    });
 
-    window.addEventListener('resize', function() {
-        if (window.innerWidth >= 992) {
-            document.getElementById('mainProfileGrid').style.display = 'grid';
-            document.getElementById('mobileMenuContainer').style.display = 'none';
-        } else {
-            // Only hide mainProfileGrid if we haven't actively opened a tab
-            let hash = window.location.hash.substring(1);
-            if (!hash) {
-                document.getElementById('mainProfileGrid').style.display = 'none';
-                document.getElementById('mobileMenuContainer').style.display = 'block';
-            }
-        }
-    });
-
-    function requestPushPermission(checkbox) {
-        if (checkbox.checked) {
-            if (!("Notification" in window)) {
-                alert("{{ _t('Ce navigateur ne prend pas en charge les notifications push.') }}");
-                checkbox.checked = false;
-            } else if (Notification.permission !== "denied" && Notification.permission !== "granted") {
-                Notification.requestPermission().then(function (permission) {
-                    if (permission !== "granted") {
-                        checkbox.checked = false;
-                        alert("{{ _t('Vous devez autoriser les notifications dans votre navigateur pour activer cette option.') }}");
+        function injectMobileBackBtn() {
+            // Append a back button to the currently active right pane
+            const rightPanes = ['profile-view-card', 'profile-edit-card'];
+            rightPanes.forEach(paneId => {
+                const pane = document.getElementById(paneId);
+                if (pane && !pane.querySelector('.mobile-pane-back-btn')) {
+                    // Find the first header element (using border-bottom or similar classes)
+                    const header = pane.querySelector('.d-flex.align-items-center.border-bottom') || pane.querySelector('.d-flex.justify-content-between');
+                    if (header) {
+                        const backBtn = document.createElement('button');
+                        backBtn.className = 'btn btn-link text-dark p-0 me-3 d-lg-none mobile-pane-back-btn';
+                        backBtn.innerHTML = '<i class="bi bi-arrow-left fs-3"></i>';
+                        backBtn.onclick = closeMobileTab;
+                        header.insertBefore(backBtn, header.firstChild);
                     }
-                });
-            } else if (Notification.permission === "denied") {
-                alert("{{ _t('Les notifications sont bloquées par votre navigateur. Veuillez les réactiver dans vos paramètres.') }}");
-                checkbox.checked = false;
+                }
+            });
+        }
+
+        // Initialize layout on load
+        document.addEventListener("DOMContentLoaded", function () {
+            let hash = window.location.hash.substring(1);
+            if (hash) {
+                openMobileTab(hash, false);
+            } else if (window.innerWidth < 992) {
+                document.getElementById('mainProfileGrid').style.display = 'none';
+            }
+        });
+
+        window.addEventListener('popstate', function (event) {
+            let hash = window.location.hash.substring(1);
+            if (hash) {
+                openMobileTab(hash, false);
+            } else {
+                if (window.innerWidth < 992) {
+                    document.getElementById('mainProfileGrid').style.display = 'none';
+                    document.getElementById('mobileMenuContainer').style.display = 'block';
+                } else {
+                    switchToCardMode();
+                }
+            }
+        });
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 992) {
+                document.getElementById('mainProfileGrid').style.display = 'grid';
+                document.getElementById('mobileMenuContainer').style.display = 'none';
+            } else {
+                // Only hide mainProfileGrid if we haven't actively opened a tab
+                let hash = window.location.hash.substring(1);
+                if (!hash) {
+                    document.getElementById('mainProfileGrid').style.display = 'none';
+                    document.getElementById('mobileMenuContainer').style.display = 'block';
+                }
+            }
+        });
+
+        function requestPushPermission(checkbox) {
+            if (checkbox.checked) {
+                if (!("Notification" in window)) {
+                    alert("{{ _t('Ce navigateur ne prend pas en charge les notifications push.') }}");
+                    checkbox.checked = false;
+                } else if (Notification.permission !== "denied" && Notification.permission !== "granted") {
+                    Notification.requestPermission().then(function (permission) {
+                        if (permission !== "granted") {
+                            checkbox.checked = false;
+                            alert("{{ _t('Vous devez autoriser les notifications dans votre navigateur pour activer cette option.') }}");
+                        }
+                    });
+                } else if (Notification.permission === "denied") {
+                    alert("{{ _t('Les notifications sont bloquées par votre navigateur. Veuillez les réactiver dans vos paramètres.') }}");
+                    checkbox.checked = false;
+                }
             }
         }
-    }
-</script>
-{% endblock %}
+    </script>
+    {% endblock %}

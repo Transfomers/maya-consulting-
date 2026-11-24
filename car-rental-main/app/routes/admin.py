@@ -1123,6 +1123,9 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
 @login_required
 @admin_required
 def dashboard():
+    check_due_vehicle_restitutions()
+    sync_visitors_and_customers_from_db_json()
+    recent_visitors = User.query.filter_by(role='client', is_deleted=False).order_by(User.created_at.desc(), User.id.desc()).limit(8).all()
     today = date.today()
     chart_labels = []
     chart_data = []
@@ -1202,6 +1205,7 @@ def dashboard():
         # Recent audit logs for Live Operations Feed
         recent_audit_logs = AuditLog.query.order_by(AuditLog.created_at.desc()).limit(20).all()
 
+        from app.routes.missions import build_quick_actions_context
         return render_template('admin/dashboard.html',
                              is_super=True,
                              total_agencies=total_agencies,
@@ -1230,7 +1234,9 @@ def dashboard():
                              stats_week=stats_week,
                              stats_month=stats_month,
                              stats_all=stats_all,
-                             recent_audit_logs=recent_audit_logs)
+                             recent_audit_logs=recent_audit_logs,
+                             recent_visitors=recent_visitors,
+                             **build_quick_actions_context())
                              
     else:
         # Agency Admin - Scoped stats
@@ -1317,6 +1323,7 @@ def dashboard():
             Trip.is_deleted == False
         ).distinct().count()
 
+        from app.routes.missions import build_quick_actions_context
         return render_template('admin/dashboard.html',
                              is_super=False,
                              agency=agency,
@@ -1344,7 +1351,9 @@ def dashboard():
                              stats_day=stats_day,
                              stats_week=stats_week,
                              stats_month=stats_month,
-                             stats_all=stats_all)
+                             stats_all=stats_all,
+                             recent_visitors=recent_visitors,
+                             **build_quick_actions_context())
 
 
 # === EXPORTS FOR DASHBOARD GROUPED STATS ===
@@ -1779,18 +1788,250 @@ def delete_admin(id):
     flash('Compte administrateur supprimé avec succès !', 'success')
     return redirect(url_for('admin.admins'))
 
+def _upsert_visitor_user(name, phone='', location='', city='', email='', ip_addr=None):
+    """Upsert a site visitor/customer into the Flask User table (role='client')."""
+    clean_name = (name or '').strip()
+    clean_phone = (phone or '').strip()
+    clean_loc = (location or city or '').strip()
+    clean_city = (city or clean_loc or 'Yaoundé').strip()
+    clean_email = (email or '').strip()
+
+    if not clean_name and not clean_phone:
+        return None
+
+    user = None
+    if clean_email:
+        user = User.query.filter_by(email=clean_email, is_deleted=False).first()
+
+    if not user and clean_phone:
+        phone_digits = "".join(c for c in clean_phone if c.isdigit())
+        user = User.query.filter_by(phone=clean_phone, is_deleted=False).first()
+        if not user and len(phone_digits) >= 8:
+            suffix = phone_digits[-8:]
+            for cand in User.query.filter_by(role='client', is_deleted=False).all():
+                c_digits = "".join(c for c in (cand.phone or '') if c.isdigit())
+                if c_digits and c_digits.endswith(suffix):
+                    user = cand
+                    break
+
+    if not user and clean_name:
+        user = User.query.filter_by(role='client', real_name=clean_name, is_deleted=False).first()
+
+    if user:
+        if clean_name and (not user.real_name or clean_name != 'Visiteur Site 3M'):
+            user.real_name = clean_name
+            parts = clean_name.split(' ', 1)
+            user.first_name = parts[0]
+            user.last_name = parts[1] if len(parts) > 1 else (user.last_name or '')
+        if clean_phone:
+            user.phone = clean_phone
+        if clean_loc:
+            user.address = clean_loc
+        if clean_city:
+            user.city = clean_city
+        if ip_addr:
+            user.last_login_ip = ip_addr
+    else:
+        base_slug = "".join(c for c in (clean_name or 'visiteur').lower() if c.isalnum())[:12] or "visiteur"
+        uname = f"{base_slug}_{random.randint(1000, 9999)}"
+        while User.query.filter_by(username=uname).first():
+            uname = f"{base_slug}_{random.randint(1000, 99999)}"
+
+        uemail = clean_email if (clean_email and not User.query.filter_by(email=clean_email).first()) else f"{uname}@visiteur.3mservices.cm"
+        parts = (clean_name or 'Visiteur VIP').split(' ', 1)
+        user = User(
+            username=uname,
+            email=uemail,
+            phone=clean_phone or '+237 690 00 00 00',
+            real_name=clean_name or 'Visiteur VIP',
+            first_name=parts[0],
+            last_name=parts[1] if len(parts) > 1 else '',
+            city=clean_city,
+            address=clean_loc or clean_city,
+            role='client',
+            last_login_ip=ip_addr
+        )
+        user.set_password(clean_phone or '3MServices2026!')
+        db.session.add(user)
+
+    db.session.flush()
+    return user
+
+
+def _sync_visitor_to_db_json(name, phone, location, city='', email='', page='/', ip_addr=None):
+    """Persist visitor entry into Express server/data/db.json (`visitors` and `customers`)."""
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    try:
+        exp_db = {}
+        if os.path.exists(db_path):
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = json.load(f)
+
+        visitors = exp_db.setdefault('visitors', [])
+        customers = exp_db.setdefault('customers', [])
+        now_iso = datetime.utcnow().isoformat() + 'Z'
+        phone_digits = "".join(c for c in (phone or '') if c.isdigit())
+
+        # Upsert visitor entry
+        existing_v = next(
+            (v for v in visitors if (phone_digits and "".join(c for c in (v.get('phone') or '') if c.isdigit()).endswith(phone_digits[-8:])) or (name and v.get('name', '').lower() == name.lower())),
+            None
+        )
+        if existing_v:
+            existing_v['name'] = name or existing_v.get('name')
+            existing_v['phone'] = phone or existing_v.get('phone')
+            existing_v['location'] = location or existing_v.get('location')
+            existing_v['city'] = city or location or existing_v.get('city')
+            existing_v['lastPage'] = page or existing_v.get('lastPage', '/')
+            existing_v['visitCount'] = int(existing_v.get('visitCount', 1)) + 1
+            existing_v['lastVisitedAt'] = now_iso
+        else:
+            visitors.insert(0, {
+                'id': f"VIS-{random.randint(100000, 999999)}",
+                'name': name,
+                'phone': phone,
+                'location': location or city or 'Yaoundé',
+                'city': city or location or 'Yaoundé',
+                'email': email or '',
+                'lastPage': page or '/',
+                'ip': ip_addr or '',
+                'visitCount': 1,
+                'createdAt': now_iso,
+                'lastVisitedAt': now_iso
+            })
+
+        # Upsert customer summary entry
+        existing_c = next(
+            (c for c in customers if (phone_digits and "".join(c for c in (c.get('phone') or '') if c.isdigit()).endswith(phone_digits[-8:])) or (email and c.get('email', '').lower() == email.lower())),
+            None
+        )
+        if existing_c:
+            existing_c['name'] = name or existing_c.get('name')
+            existing_c['phone'] = phone or existing_c.get('phone')
+            existing_c['address'] = location or existing_c.get('address')
+            existing_c['city'] = city or location or existing_c.get('city', 'Yaoundé')
+        else:
+            customers.insert(0, {
+                'id': f"CUST-{random.randint(100000, 999999)}",
+                'accountNumber': f"3M-CLI-{random.randint(1000, 9999)}",
+                'name': name,
+                'phone': phone,
+                'email': email or '',
+                'city': city or location or 'Yaoundé',
+                'address': location or city or 'Yaoundé',
+                'type': 'Visiteur Site VIP',
+                'tier': 'Bronze VIP',
+                'status': 'Actif VIP',
+                'createdAt': now_iso
+            })
+
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        with open(db_path, 'w', encoding='utf-8') as f:
+            json.dump(exp_db, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        current_app.logger.warning(f"Error syncing visitor to db.json: {e}")
+
+
+def sync_visitors_and_customers_from_db_json():
+    """Ensure visitors and customers recorded on the React portal appear in Flask User table."""
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    if not os.path.exists(db_path):
+        return
+    try:
+        with open(db_path, 'r', encoding='utf-8') as f:
+            exp_db = json.load(f)
+        changed = False
+        for entry in (exp_db.get('visitors', []) + exp_db.get('customers', [])):
+            v_name = (entry.get('name') or entry.get('clientName') or '').strip()
+            v_phone = (entry.get('phone') or '').strip()
+            v_loc = (entry.get('location') or entry.get('address') or entry.get('city') or '').strip()
+            v_city = (entry.get('city') or v_loc or 'Yaoundé').strip()
+            v_email = (entry.get('email') or '').strip()
+            if v_name or v_phone:
+                _upsert_visitor_user(v_name, v_phone, v_loc, v_city, v_email)
+                changed = True
+        if changed:
+            db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.warning(f"Error syncing visitors from db.json: {e}")
+
+
+@admin.route('/api/visitor-checkin', methods=['POST', 'OPTIONS'])
+def api_visitor_checkin():
+    """Public CORS endpoint capturing client name, number, and location when visiting the site."""
+    cors_headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+    }
+    if request.method == 'OPTIONS':
+        return ('', 200, cors_headers)
+
+    data = request.get_json(silent=True) or request.form or {}
+    name = (data.get('name') or data.get('clientName') or '').strip()
+    phone = (data.get('phone') or data.get('number') or '').strip()
+    location = (data.get('location') or data.get('address') or data.get('city') or '').strip()
+    city = (data.get('city') or location or 'Yaoundé').strip()
+    email = (data.get('email') or '').strip()
+    page = (data.get('page') or '/').strip()
+
+    if not name or not phone or not location:
+        return (jsonify({'error': 'Veuillez renseigner votre nom, numéro et localisation.'}), 400, cors_headers)
+
+    user = _upsert_visitor_user(name, phone, location, city, email, ip_addr=request.remote_addr)
+    db.session.commit()
+    _sync_visitor_to_db_json(name, phone, location, city, email, page=page, ip_addr=request.remote_addr)
+
+    log_audit("VISITOR_CHECKIN", "User", user.id if user else 0, f"Site visitor check-in: {name} | {phone} | {location}")
+    trigger_notification(
+        title=f"👋 Visiteur Client sur le Site : {name}",
+        message=f"• Nom : {name}\n• Numéro : {phone}\n• Localisation : {location}\n• Page visitée : {page}",
+        type="info",
+        category="booking",
+        role_target="super_admin"
+    )
+
+    resp_data = {
+        'status': 'ok',
+        'client': {
+            'id': user.id if user else None,
+            'name': user.real_name if user else name,
+            'phone': user.phone if user else phone,
+            'location': (user.address or user.city) if user else location
+        }
+    }
+    return (jsonify(resp_data), 200, cors_headers)
+
+
 # === COMMON ADMIN: VIEW USERS ===
-@admin.route('/admin/users')
+@admin.route('/admin/users', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def users():
+    if request.method == 'POST':
+        v_name = (request.form.get('name') or '').strip()
+        v_phone = (request.form.get('phone') or '').strip()
+        v_location = (request.form.get('location') or '').strip()
+        v_email = (request.form.get('email') or '').strip()
+        if not v_name or not v_phone or not v_location:
+            flash("Veuillez renseigner le nom, le numéro et la localisation du client.", "danger")
+            return redirect(url_for('admin.users'))
+        user = _upsert_visitor_user(v_name, v_phone, v_location, v_location, v_email, ip_addr=request.remote_addr)
+        db.session.commit()
+        _sync_visitor_to_db_json(v_name, v_phone, v_location, v_location, v_email, page='/admin/users', ip_addr=request.remote_addr)
+        log_audit("VISITOR_ADDED", "User", user.id if user else 0, f"Admin added client/visitor: {v_name} ({v_phone}, {v_location})")
+        flash(f"Client '{v_name}' enregistré avec succès ({v_location}).", "success")
+        return redirect(url_for('admin.users'))
+
+    sync_visitors_and_customers_from_db_json()
     if current_user.role == 'super_admin':
-        users = User.query.filter_by(role='client', is_deleted=False).all()
+        users = User.query.filter_by(role='client', is_deleted=False).order_by(User.created_at.desc(), User.id.desc()).all()
     else:
-        # Scoped view of users who booked with current admin's agency
+        # Scoped view of users who booked with current admin's agency or visited recently
         trip_ids_query = db.session.query(Trip.id).join(Route).filter(Route.agency_id == current_user.agency_id, Trip.is_deleted == False)
         users = User.query.join(Booking).filter(
-            Booking.trip_id.in_(trip_ids_query), 
+            Booking.trip_id.in_(trip_ids_query),
             Booking.is_deleted == False,
             User.is_deleted == False,
             User.role == 'client'
@@ -1814,7 +2055,16 @@ def edit_user(id):
     if request.method == 'POST':
         user.username = request.form.get('username')
         user.email = request.form.get('email')
-        
+        real_name_val = (request.form.get('real_name') or '').strip()
+        if real_name_val:
+            user.real_name = real_name_val
+        city_val = (request.form.get('city') or '').strip()
+        address_val = (request.form.get('address') or request.form.get('location') or '').strip()
+        if city_val:
+            user.city = city_val
+        if address_val:
+            user.address = address_val
+
         phone_val = request.form.get('phone')
         from app.utils.validators import is_valid_phone
         if phone_val and not is_valid_phone(phone_val):
@@ -2402,8 +2652,8 @@ def check_due_vehicle_restitutions():
     - Date de Restitution
     """
     try:
-        now = datetime.utcnow()
-        # Trips reaching return date (due now or today, up to 2h in future)
+        now = datetime.now()
+        # Trips reaching return date (due now or within next 2 hours)
         trips_due = Trip.query.filter(
             Trip.arrival_time <= now + timedelta(hours=2),
             Trip.status.in_(['scheduled', 'departed', 'boarding']),
@@ -2417,11 +2667,16 @@ def check_due_vehicle_restitutions():
             ).first()
 
             if not existing:
-                # Find client name
+                # Find client name & phone
                 booking = t.bookings.filter_by(is_deleted=False).first()
                 client_name = "Client VIP 3M"
+                client_phone = ""
                 if booking:
-                    client_name = booking.passenger_name or (booking.user.real_name if booking.user else booking.user.username if booking.user else "Client VIP 3M")
+                    client_name = booking.passenger_name or (booking.user.real_name if (booking.user and booking.user.real_name) else (booking.user.username if booking.user else "Client VIP 3M"))
+                    if booking.user and booking.user.phone:
+                        client_phone = booking.user.phone
+                    elif booking.special_instructions:
+                        client_phone = booking.special_instructions
                 elif t.bus and t.bus.driver_name:
                     client_name = f"Mission Chauffeur {t.bus.driver_name}"
 
@@ -2430,14 +2685,14 @@ def check_due_vehicle_restitutions():
                 car_desc = f"{car_name} {car_plate}".strip()
                 restitution_date = t.arrival_time.strftime("%d/%m/%Y à %H:%M")
 
-                title = f"🔔 Restitution Véhicule VIP : {car_name} ({client_name})"
+                title = f"🔔 Restitution Véhicule VIP : {car_desc} — {client_name}"
                 message = (
-                    f"Alerte Restitution Véhicule 3M SERVICES :\n"
-                    f"• Client VIP : {client_name}\n"
+                    f"Alerte Restitution Véhicule VIP 3M SERVICES :\n"
+                    f"• Client VIP : {client_name}" + (f" ({client_phone})" if client_phone else "") + "\n"
                     f"• Véhicule : {car_desc}\n"
                     f"• Date & Heure de Restitution : {restitution_date}\n"
                     f"• Mission / Destination : {t.route.origin if t.route else 'Yaoundé'} → {t.route.destination if t.route else 'Parc VIP'}\n"
-                    f"Le véhicule est attendu au parc. Veuillez effectuer l'état des lieux de retour. {ref_tag}"
+                    f"Le véhicule est attendu au parc VIP. Veuillez effectuer l'état des lieux de retour. {ref_tag}"
                 )
 
                 trigger_notification(
@@ -2448,7 +2703,7 @@ def check_due_vehicle_restitutions():
                     role_target="super_admin"
                 )
     except Exception as e:
-        logger.warning(f"Error in check_due_vehicle_restitutions: {e}")
+        current_app.logger.warning(f"Error in check_due_vehicle_restitutions: {e}")
 
 # ==============================================================================
 # LOCATIONS D'APPARTEMENTS MEUBLÉS VIP 3M SERVICES (TSINGA & YAOUNDÉ)
@@ -2714,10 +2969,17 @@ def toggle_apartment_status(id):
 def trips():
     check_due_vehicle_restitutions()
     if current_user.role == 'super_admin':
-        trips = Trip.query.filter_by(is_deleted=False).all()
+        trips = Trip.query.filter_by(is_deleted=False).order_by(Trip.departure_time.desc()).all()
+        routes = Route.query.filter_by(is_deleted=False).all()
+        buses = Bus.query.filter_by(status='active', is_deleted=False).all()
+        drivers = Driver.query.filter_by(is_deleted=False).all()
     else:
-        trips = Trip.query.join(Route).filter(Route.agency_id == current_user.agency_id, Trip.is_deleted == False).all()
-    return render_template('admin/trips.html', trips=trips)
+        trips = Trip.query.join(Route).filter(Route.agency_id == current_user.agency_id, Trip.is_deleted == False).order_by(Trip.departure_time.desc()).all()
+        routes = Route.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).all()
+        buses = Bus.query.filter_by(agency_id=current_user.agency_id, status='active', is_deleted=False).all()
+        drivers = Driver.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).all()
+    clients = User.query.filter_by(is_deleted=False).order_by(User.real_name, User.username).all()
+    return render_template('admin/trips.html', trips=trips, routes=routes, buses=buses, drivers=drivers, clients=clients, now=datetime.now())
 
 @admin.route('/admin/add_trip', methods=['GET', 'POST'])
 @login_required
@@ -2730,31 +2992,33 @@ def add_trip():
         departure_time = request.form.get('departure_time')
         arrival_time = request.form.get('arrival_time')
         price = request.form.get('price')
-        
+        redirect_to = (request.form.get('redirect_to') or 'trips').strip()
+
         if not all([route_id, bus_id, departure_time, arrival_time, price]):
             flash('Veuillez remplir tous les champs obligatoires.', 'danger')
             return redirect(url_for('admin.add_trip'))
-            
+
         try:
             dep_time = datetime.strptime(departure_time, '%Y-%m-%dT%H:%M')
             arr_time = datetime.strptime(arrival_time, '%Y-%m-%dT%H:%M')
-            
-            if dep_time < datetime.now():
-                flash('La date de départ ne peut pas être dans le passé.', 'danger')
-                return redirect(url_for('admin.add_trip'))
-                
+
             if arr_time <= dep_time:
                 flash('La date et heure de restitution (arrivée) doit être postérieure à la date de sortie (départ).', 'danger')
                 return redirect(url_for('admin.add_trip'))
-            
+
             # Form fields
             booking_cutoff = request.form.get('booking_cutoff_minutes', 30, type=int)
             capacity_val = request.form.get('capacity', 0, type=int)
             driver_id_val = request.form.get('driver_id', type=int)
-            
+
             client_user_id = request.form.get('client_user_id', type=int)
             client_name = (request.form.get('client_name') or '').strip()
             client_phone = (request.form.get('client_phone') or '').strip()
+            client_email = (request.form.get('client_email') or '').strip()
+            formula = (request.form.get('formula') or 'Chauffeur VIP Inclus').strip()
+            payment_method = (request.form.get('payment_method') or 'momo').strip()
+            payment_status = (request.form.get('payment_status') or ('pending' if payment_method == 'pending' else 'paid')).strip()
+            notify_restitution = request.form.get('notify_restitution', 'on') == 'on'
 
             trip = Trip(
                 route_id=int(route_id),
@@ -2767,45 +3031,67 @@ def add_trip():
                 capacity=capacity_val,
             )
             db.session.add(trip)
-            db.session.commit()
+            db.session.flush()
 
-            # Attach client VIP booking if specified
+            # Resolve or create client User
             client_user = User.query.get(client_user_id) if client_user_id else None
+            if not client_user and client_phone:
+                client_user = User.query.filter_by(phone=client_phone, is_deleted=False).first()
+            if not client_user and client_email:
+                client_user = User.query.filter_by(email=client_email, is_deleted=False).first()
+
+            if not client_user and client_name:
+                clean_slug = "".join(c for c in client_name.lower() if c.isalnum())[:12] or "client"
+                gen_phone = client_phone or f"69{random.randint(1000000, 9999999)}"
+                gen_email = client_email or f"{clean_slug}.{random.randint(100, 9999)}@3mservices.vip"
+                name_parts = client_name.split(' ', 1)
+                client_user = User(
+                    username=f"{clean_slug}_{random.randint(100, 999)}",
+                    email=gen_email,
+                    phone=gen_phone,
+                    first_name=name_parts[0],
+                    last_name=name_parts[1] if len(name_parts) > 1 else '',
+                    real_name=client_name,
+                    role='client'
+                )
+                client_user.set_password(gen_phone)
+                db.session.add(client_user)
+                db.session.flush()
+
             if client_user and not client_name:
                 client_name = client_user.real_name or client_user.username
             if client_user and not client_phone and client_user.phone:
                 client_phone = client_user.phone
 
-            if client_name or client_user:
-                import random
-                target_user = client_user or User.query.filter_by(role='client', is_deleted=False).first() or current_user
-                b_code = f"3M-MIS-{datetime.utcnow().strftime('%y%m%d')}-{random.randint(100, 999)}"
-                booking = Booking(
-                    user_id=target_user.id,
-                    trip_id=trip.id,
-                    seat_number="VIP",
-                    passenger_name=client_name or (target_user.real_name or target_user.username),
-                    booking_code=b_code,
-                    price_paid=float(price),
-                    status="confirmed",
-                    payment_status="paid",
-                    payment_method="momo",
-                    booking_date=datetime.utcnow(),
-                    num_persons=1,
-                    special_instructions=client_phone or ""
-                )
-                db.session.add(booking)
-                trip.occupied_seats = 1
-                db.session.commit()
-            
-            log_audit("TRIP_CREATED", "Trip", trip.id, f"Scheduled VIP sortie on route {trip.route_id} with bus {trip.bus_id} for {client_name or 'Flotte VIP'}")
-            
-            # Check if restitution is today and notify immediately
+            target_user = client_user or User.query.filter_by(role='client', is_deleted=False).first() or current_user
+            final_client = client_name or (target_user.real_name or target_user.username if target_user else "Client VIP 3M")
+
+            b_code = f"3M-MIS-{datetime.utcnow().strftime('%y%m%d')}-{random.randint(100, 999)}"
+            booking = Booking(
+                user_id=target_user.id,
+                trip_id=trip.id,
+                seat_number="VIP-CAR",
+                passenger_category=formula[:50],
+                passenger_name=final_client,
+                booking_code=b_code,
+                price_paid=float(price),
+                status="confirmed",
+                payment_status=payment_status,
+                payment_method=payment_method,
+                booking_date=datetime.utcnow(),
+                return_date=arr_time,
+                num_persons=1,
+                special_instructions=client_phone or ""
+            )
+            db.session.add(booking)
+            trip.occupied_seats = 1
+            db.session.commit()
+
+            log_audit("TRIP_CREATED", "Trip", trip.id, f"Scheduled VIP sortie on route {trip.route_id} with bus {trip.bus_id} for {final_client}")
+
             bus_obj = Bus.query.get(trip.bus_id)
             car_label = f"{bus_obj.brand} {bus_obj.model} ({bus_obj.bus_number})" if bus_obj else "Véhicule VIP"
-            final_client = client_name or "Client VIP 3M"
-            
-            # Route custom price notification
+
             route = Route.query.get(trip.route_id)
             if current_user.role == 'admin_agence' and route and trip.price != route.base_price:
                 trigger_notification(
@@ -2814,14 +3100,17 @@ def add_trip():
                     type="warning", category='operations', role_target='super_admin'
                 )
 
-            # Trigger planning notification to admin
-            trigger_notification(
-                title=f"🚗 Sortie VIP Planifiée : {car_label}",
-                message=f"Nouvelle sortie programmée pour {final_client}.\n• Sortie : {dep_time.strftime('%d/%m/%Y %H:%M')}\n• Restitution attendue : {arr_time.strftime('%d/%m/%Y %H:%M')}\nLe système notifiera l'administrateur dès l'arrivée du véhicule.",
-                type="info", category='operations', role_target='super_admin'
-            )
-            
-            flash(f'Sortie du véhicule {car_label} planifiée avec succès ! Restitution prévue le {arr_time.strftime("%d/%m/%Y à %H:%M")}.', 'success')
+            if notify_restitution:
+                trigger_notification(
+                    title=f"🚗 Sortie VIP Planifiée : {car_label}",
+                    message=f"Nouvelle sortie programmée pour {final_client}.\n• Sortie : {dep_time.strftime('%d/%m/%Y %H:%M')}\n• Restitution attendue : {arr_time.strftime('%d/%m/%Y %H:%M')}\nNotification Restitution Automatique Active : l'administrateur sera alerté automatiquement au retour du véhicule.",
+                    type="info", category='operations', role_target='super_admin'
+                )
+                check_due_vehicle_restitutions()
+
+            flash(f'Mission / Sortie du véhicule {car_label} planifiée avec succès pour {final_client} ! Restitution prévue le {arr_time.strftime("%d/%m/%Y à %H:%M")}.', 'success')
+            if redirect_to == 'bookings':
+                return redirect(url_for('admin.bookings'))
             return redirect(url_for('admin.trips'))
         except ValueError:
             flash('Valeurs de saisie ou formats de date incorrects.', 'danger')
@@ -2854,6 +3143,9 @@ def edit_trip(id):
         trip.bus_id = int(request.form.get('bus_id'))
         dep_time = datetime.strptime(request.form.get('departure_time'), '%Y-%m-%dT%H:%M')
         arr_time = datetime.strptime(request.form.get('arrival_time'), '%Y-%m-%dT%H:%M')
+        if arr_time <= dep_time:
+            flash('La date et heure de restitution (arrivée) doit être postérieure à la date de sortie (départ).', 'danger')
+            return redirect(url_for('admin.edit_trip', id=id))
         trip.departure_time = dep_time
         trip.arrival_time = arr_time
         trip.price = float(request.form.get('price'))
@@ -2863,20 +3155,58 @@ def edit_trip(id):
         driver_id_val = request.form.get('driver_id', type=int)
         trip.driver_id = driver_id_val if driver_id_val else None
 
-        # Update client if booking exists
+        # Update or create client VIP booking details
+        client_user_id = request.form.get('client_user_id', type=int)
         client_name = (request.form.get('client_name') or '').strip()
         client_phone = (request.form.get('client_phone') or '').strip()
+        formula = (request.form.get('formula') or 'Chauffeur VIP Inclus').strip()
+        payment_method = (request.form.get('payment_method') or '').strip()
+        payment_status = (request.form.get('payment_status') or '').strip()
+
         booking = trip.bookings.filter_by(is_deleted=False).first()
-        if booking and client_name:
-            booking.passenger_name = client_name
+        if booking:
+            if client_user_id:
+                booking.user_id = client_user_id
+            if client_name:
+                booking.passenger_name = client_name
             if client_phone:
                 booking.special_instructions = client_phone
+            if formula:
+                booking.passenger_category = formula[:50]
+            if payment_method:
+                booking.payment_method = payment_method
+            if payment_status:
+                booking.payment_status = payment_status
+            booking.price_paid = trip.price
+            booking.return_date = arr_time
+        elif client_name or client_user_id:
+            target_user = User.query.get(client_user_id) if client_user_id else (User.query.filter_by(role='client', is_deleted=False).first() or current_user)
+            final_client = client_name or (target_user.real_name or target_user.username)
+            b_code = f"3M-MIS-{datetime.utcnow().strftime('%y%m%d')}-{random.randint(100, 999)}"
+            booking = Booking(
+                user_id=target_user.id,
+                trip_id=trip.id,
+                seat_number="VIP-CAR",
+                passenger_category=formula[:50],
+                passenger_name=final_client,
+                booking_code=b_code,
+                price_paid=trip.price,
+                status="confirmed" if new_status != "cancelled" else "cancelled",
+                payment_status=payment_status or "paid",
+                payment_method=payment_method or "momo",
+                booking_date=datetime.utcnow(),
+                return_date=arr_time,
+                num_persons=1,
+                special_instructions=client_phone or ""
+            )
+            db.session.add(booking)
+            trip.occupied_seats = 1
 
         # If status marked as arrived / completed: send restitution confirmation notification
         if new_status in ['arrived', 'completed'] and prev_status not in ['arrived', 'completed']:
             car_label = f"{trip.bus.brand} {trip.bus.model} ({trip.bus.bus_number})" if trip.bus else "Véhicule VIP"
-            client_label = (booking.passenger_name if booking else None) or "Client VIP 3M"
-            restitution_time = datetime.utcnow().strftime("%d/%m/%Y à %H:%M")
+            client_label = (booking.passenger_name if booking else None) or client_name or "Client VIP 3M"
+            restitution_time = datetime.now().strftime("%d/%m/%Y à %H:%M")
             trigger_notification(
                 title=f"✅ Véhicule Restitué : {trip.bus.brand if trip.bus else 'Flotte'} ({client_label})",
                 message=f"Le véhicule {car_label} loué par {client_label} a été restitué au parc 3M SERVICES le {restitution_time}.\nL'inspection de retour a été validée avec succès.",
@@ -2884,6 +3214,7 @@ def edit_trip(id):
             )
         
         db.session.commit()
+        check_due_vehicle_restitutions()
         log_audit("TRIP_EDITED", "Trip", trip.id, f"Modified sortie/trip schedule: #{trip.id}")
         flash('Sortie de véhicule VIP modifiée avec succès !', 'success')
         return redirect(url_for('admin.trips'))
@@ -3008,29 +3339,12 @@ def restore_trip(id):
 @admin_required
 def bookings():
     check_due_vehicle_restitutions()
+    from app.routes.missions import build_mission_hub_context
     filter_val = request.args.get('filter', 'all')
-    if current_user.role == 'super_admin':
-        query = Booking.query.filter_by(is_deleted=False)
-    else:
-        trip_ids_query = db.session.query(Trip.id).join(Route).filter(Route.agency_id == current_user.agency_id, Trip.is_deleted == False)
-        query = Booking.query.filter(Booking.trip_id.in_(trip_ids_query), Booking.is_deleted == False)
-
-    if filter_val in ['day', 'week', 'month']:
-        today = date.today()
-        if filter_val == 'day':
-            start_dt = datetime.combine(today, datetime.min.time())
-            end_dt = datetime.combine(today, datetime.max.time())
-        elif filter_val == 'week':
-            start_dt = datetime.combine(today - timedelta(days=6), datetime.min.time())
-            end_dt = datetime.combine(today, datetime.max.time())
-        elif filter_val == 'month':
-            start_dt = datetime.combine(today - timedelta(days=29), datetime.min.time())
-            end_dt = datetime.combine(today, datetime.max.time())
-            
-        query = query.filter(Booking.booking_date.between(start_dt, end_dt))
-
-    bookings = query.order_by(Booking.booking_date.desc().nulls_last()).all()
-    return render_template('admin/bookings.html', bookings=bookings, current_filter=filter_val)
+    active_tab = request.args.get('tab', 'overview')
+    ctx = build_mission_hub_context(filter_val=filter_val)
+    ctx['active_tab'] = active_tab
+    return render_template('admin/bookings.html', **ctx)
 
 @admin.route('/admin/booking/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -3472,15 +3786,19 @@ def generate_recurring_instances(trip, horizon_days=90):
 @login_required
 @admin_required
 def calendar_view():
+    check_due_vehicle_restitutions()
     if current_user.role == 'super_admin':
         routes = Route.query.filter_by(is_deleted=False).order_by(Route.origin).all()
         buses = Bus.query.filter_by(is_deleted=False).order_by(Bus.bus_number).all()
+        drivers = Driver.query.filter_by(is_deleted=False).order_by(Driver.name).all()
         agencies = Agency.query.filter_by(is_deleted=False).all()
     else:
         routes = Route.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).order_by(Route.origin).all()
         buses = Bus.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).order_by(Bus.bus_number).all()
+        drivers = Driver.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).order_by(Driver.name).all()
         agencies = []
-    return render_template('admin/calendar.html', routes=routes, buses=buses, agencies=agencies)
+    clients = User.query.filter_by(role='client', is_deleted=False).order_by(User.real_name, User.username).all()
+    return render_template('admin/calendar.html', routes=routes, buses=buses, drivers=drivers, clients=clients, agencies=agencies)
 
 
 @admin.route('/api/admin/calendar/events')
@@ -3587,21 +3905,68 @@ def get_trip_detail(trip_id):
     now = datetime.utcnow()
     locked = [b for b in bookings if b.status == 'locked' and b.locked_until and b.locked_until > now]
 
+    # Load active chat threads from server/data/db.json to match existing in-app client chats
+    chat_threads = []
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    if os.path.exists(db_path):
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = json.load(f)
+            chat_threads = exp_db.get('chats', [])
+        except Exception as e:
+            current_app.logger.warning(f"Error loading chats for trip detail: {e}")
+
+    def _find_chat_url(client_name, client_phone, client_email, username):
+        p_digits = "".join(c for c in (client_phone or '') if c.isdigit())
+        c_name_low = (client_name or '').strip().lower()
+        c_email_low = (client_email or '').strip().lower()
+        u_low = (username or '').strip().lower()
+
+        for th in chat_threads:
+            th_id = str(th.get('id') or th.get('clientId') or '')
+            th_phone_digits = "".join(c for c in str(th.get('clientPhone') or '') if c.isdigit())
+            th_email_low = str(th.get('clientEmail') or '').strip().lower()
+            th_name_low = str(th.get('clientName') or '').strip().lower()
+
+            matched = False
+            if u_low and th_id.lower() == u_low:
+                matched = True
+            elif len(p_digits) >= 8 and len(th_phone_digits) >= 8 and th_phone_digits.endswith(p_digits[-8:]):
+                matched = True
+            elif c_email_low and th_email_low and c_email_low == th_email_low:
+                matched = True
+            elif c_name_low and th_name_low and (c_name_low == th_name_low or c_name_low in th_name_low or th_name_low in c_name_low):
+                matched = True
+
+            if matched and th_id:
+                return url_for('admin.chats', client_id=th_id)
+        return None
+
     capacity = trip.capacity if trip.capacity > 0 else (trip.bus.capacity if trip.bus else 1)
     booked_seats = {b.seat_number: b.status for b in bookings if b.status in ['confirmed', 'locked']}
 
     booking_list = []
-    for b in (confirmed + locked):
+    for b in bookings:
+        c_name = b.passenger_name or (b.user.real_name if (b.user and b.user.real_name) else (b.user.username if b.user else 'Client VIP 3M'))
+        c_phone = (b.user.phone if (b.user and b.user.phone) else (b.special_instructions or ''))
+        c_email = b.user.email if b.user else ''
+        c_username = b.user.username if b.user else ''
+        chat_url = _find_chat_url(c_name, c_phone, c_email, c_username)
+        formula_val = b.passenger_category if (b.passenger_category and b.passenger_category != 'Adult') else (b.seat_number if b.seat_number not in ['VIP', 'VIP-CAR'] else 'Chauffeur VIP Inclus')
         booking_list.append({
             'id': b.id,
-            'code': b.booking_code or f'LV-{b.id}',
-            'passenger': b.passenger_name or (b.user.username if b.user else 'N/A'),
+            'code': b.booking_code or f'3M-MIS-{b.id:04d}',
+            'passenger': c_name,
+            'phone': c_phone or 'Contact direct',
+            'formula': formula_val,
             'seat': b.seat_number,
             'status': b.status,
             'payment_status': b.payment_status,
-            'price': b.price_paid,
-            'date': b.booking_date.strftime('%d/%m/%Y %H:%M'),
-            'phone': b.user.phone if b.user else '',
+            'price': b.price_paid if (b.price_paid and b.price_paid > 0) else trip.price,
+            'date': b.booking_date.strftime('%d/%m/%Y %H:%M') if b.booking_date else '',
+            'has_chat': bool(chat_url),
+            'chat_url': chat_url,
+            'edit_url': url_for('admin.edit_booking', id=b.id)
         })
 
     recurrence_info = None
@@ -3612,15 +3977,15 @@ def get_trip_detail(trip_id):
             db.session.rollback()
             pass
 
-    total_booked = len(confirmed) + len(locked)
-    fill_pct = min(100, int((total_booked / capacity) * 100)) if capacity > 0 else 0
+    driver_label = trip.driver.name if trip.driver else (trip.bus.driver_name if (trip.bus and trip.bus.driver_name) else 'Chauffeur VIP Dédié')
 
     return jsonify({
         'id': trip.id,
-        'origin': trip.route.origin,
-        'destination': trip.route.destination,
-        'agency': trip.route.agency.name if trip.route.agency else 'N/A',
-        'bus': f"{trip.bus.brand or ''} {trip.bus.model} ({trip.bus.bus_number})" if trip.bus else 'N/A',
+        'origin': trip.route.origin if trip.route else 'Yaoundé',
+        'destination': trip.route.destination if trip.route else 'Mission VIP',
+        'agency': trip.route.agency.name if (trip.route and trip.route.agency) else '3M SERVICES VIP',
+        'driver': driver_label,
+        'bus': f"{trip.bus.brand or ''} {trip.bus.model} ({trip.bus.bus_number})".strip() if trip.bus else 'Véhicule VIP',
         'bus_id': trip.bus_id,
         'route_id': trip.route_id,
         'departure': trip.departure_time.strftime('%d/%m/%Y %H:%M'),
@@ -3632,8 +3997,6 @@ def get_trip_detail(trip_id):
         'capacity': capacity,
         'confirmed_count': len(confirmed),
         'locked_count': len(locked),
-        'available': max(0, capacity - total_booked),
-        'fill_pct': fill_pct,
         'bookings': booking_list,
         'booked_seats': booked_seats,
         'is_recurring': trip.parent_trip_id is not None or bool(trip.recurrence_rule and trip.recurrence_rule not in ('null', 'None')),
@@ -3694,32 +4057,40 @@ def move_trip(trip_id):
 @login_required
 @admin_required
 def create_trip_api():
-    data = request.get_json()
+    data = request.get_json() or {}
 
     route_id = data.get('route_id')
     bus_id = data.get('bus_id')
+    driver_id = data.get('driver_id')
     departure_str = data.get('departure_time')
     arrival_str = data.get('arrival_time')
     price = data.get('price')
     capacity = data.get('capacity', 0)
     recurrence = data.get('recurrence')
+    client_user_id = data.get('client_user_id')
+    client_name = (data.get('client_name') or '').strip()
+    client_phone = (data.get('client_phone') or '').strip()
+    formula = (data.get('formula') or 'Chauffeur VIP Inclus').strip()
+    payment_method = (data.get('payment_method') or 'momo').strip()
+    payment_status = (data.get('payment_status') or ('pending' if payment_method == 'pending' else 'paid')).strip()
+    notify_restitution = data.get('notify_restitution', True)
 
     if not all([route_id, bus_id, departure_str, arrival_str, price]):
         return jsonify({'error': 'Champs obligatoires manquants'}), 400
 
     try:
-        departure_dt = datetime.strptime(departure_str, '%Y-%m-%dT%H:%M')
-        arrival_dt = datetime.strptime(arrival_str, '%Y-%m-%dT%H:%M')
+        departure_dt = datetime.strptime(departure_str[:16], '%Y-%m-%dT%H:%M')
+        arrival_dt = datetime.strptime(arrival_str[:16], '%Y-%m-%dT%H:%M')
     except Exception:
         db.session.rollback()
         return jsonify({'error': 'Format de date invalide'}), 400
 
     if departure_dt >= arrival_dt:
-        return jsonify({'error': "L'heure de départ doit être avant l'heure d'arrivée"}), 400
+        return jsonify({'error': "La date de sortie doit être avant la date de restitution"}), 400
 
     route = Route.query.filter_by(id=route_id, is_deleted=False).first()
     if not route:
-        return jsonify({'error': 'Ligne introuvable'}), 404
+        return jsonify({'error': 'Mission / Trajet introuvable'}), 404
     if current_user.role != 'super_admin' and route.agency_id != current_user.agency_id:
         return jsonify({'error': 'Accès non autorisé'}), 403
 
@@ -3733,8 +4104,8 @@ def create_trip_api():
 
     if conflict:
         return jsonify({
-            'error': 'Conflit de bus détecté',
-            'message': f"Bus déjà assigné: {conflict.route.origin} → {conflict.route.destination} ({conflict.departure_time.strftime('%d/%m %H:%M')}–{conflict.arrival_time.strftime('%H:%M')})"
+            'error': 'Conflit de véhicule VIP détecté',
+            'message': f"Véhicule VIP déjà en mission : {conflict.route.origin} → {conflict.route.destination} ({conflict.departure_time.strftime('%d/%m %H:%M')}–{conflict.arrival_time.strftime('%d/%m %H:%M')})"
         }), 409
 
     recurrence_json = None
@@ -3742,11 +4113,13 @@ def create_trip_api():
         recurrence_json = json.dumps(recurrence)
 
     bus = Bus.query.get(bus_id)
-    effective_capacity = int(capacity) if int(capacity) > 0 else (bus.capacity if bus else 40)
+    effective_capacity = int(capacity) if (capacity and int(capacity) > 0) else (bus.capacity if bus else 5)
+    driver_id_int = int(driver_id) if driver_id else None
 
     trip = Trip(
         route_id=int(route_id),
         bus_id=int(bus_id),
+        driver_id=driver_id_int,
         departure_time=departure_dt,
         arrival_time=arrival_dt,
         price=float(price),
@@ -3756,6 +4129,39 @@ def create_trip_api():
     )
     db.session.add(trip)
     db.session.flush()
+
+    # Resolve/upsert client VIP and create linked Booking for the 11-column missions table
+    client_user = User.query.get(int(client_user_id)) if client_user_id else None
+    if not client_user and (client_name or client_phone):
+        client_user = _upsert_visitor_user(client_name, client_phone, '', 'Yaoundé')
+
+    if client_user and not client_name:
+        client_name = client_user.real_name or client_user.username
+    if client_user and not client_phone and client_user.phone:
+        client_phone = client_user.phone
+
+    target_user = client_user or User.query.filter_by(role='client', is_deleted=False).first() or current_user
+    final_client = client_name or (target_user.real_name or target_user.username if target_user else "Client VIP 3M")
+
+    b_code = f"3M-MIS-{datetime.utcnow().strftime('%y%m%d')}-{random.randint(100, 999)}"
+    booking = Booking(
+        user_id=target_user.id,
+        trip_id=trip.id,
+        seat_number="VIP-CAR",
+        passenger_category=formula[:50],
+        passenger_name=final_client,
+        booking_code=b_code,
+        price_paid=float(price),
+        status="confirmed",
+        payment_status=payment_status,
+        payment_method=payment_method,
+        booking_date=datetime.utcnow(),
+        return_date=arrival_dt,
+        num_persons=1,
+        special_instructions=client_phone or ""
+    )
+    db.session.add(booking)
+    trip.occupied_seats = 1
 
     created_count = 1
 
@@ -3773,6 +4179,7 @@ def create_trip_api():
                 child = Trip(
                     route_id=int(route_id),
                     bus_id=int(bus_id),
+                    driver_id=driver_id_int,
                     departure_time=inst['departure_time'],
                     arrival_time=inst['arrival_time'],
                     price=float(price),
@@ -3784,10 +4191,20 @@ def create_trip_api():
                 created_count += 1
 
     db.session.commit()
-    log_audit("TRIP_CREATED_CALENDAR", "Trip", trip.id,
-              f"Créé via calendrier: #{trip.id}, {created_count} instances")
 
-    return jsonify({'success': True, 'trip_id': trip.id, 'instances_created': created_count})
+    car_label = f"{bus.brand} {bus.model} ({bus.bus_number})" if bus else "Véhicule VIP"
+    if notify_restitution:
+        trigger_notification(
+            title=f"🚗 Mission VIP Planifiée : {car_label}",
+            message=f"Mission calendrier créée pour {final_client}.\n• Sortie : {departure_dt.strftime('%d/%m/%Y %H:%M')}\n• Restitution prévue : {arrival_dt.strftime('%d/%m/%Y %H:%M')}\nNotification Restitution Automatique Active.",
+            type="info", category='operations', role_target='super_admin'
+        )
+        check_due_vehicle_restitutions()
+
+    log_audit("TRIP_CREATED_CALENDAR", "Trip", trip.id,
+              f"Mission VIP créée via calendrier: #{trip.id} ({car_label} — {final_client}), {created_count} instance(s)")
+
+    return jsonify({'success': True, 'trip_id': trip.id, 'booking_code': b_code, 'instances_created': created_count})
 
 
 @admin.route('/api/admin/trip/<int:trip_id>/duplicate', methods=['POST'])
@@ -3819,6 +4236,7 @@ def duplicate_trip(trip_id):
     new_trip = Trip(
         route_id=trip.route_id,
         bus_id=trip.bus_id,
+        driver_id=trip.driver_id,
         departure_time=new_departure,
         arrival_time=new_arrival,
         price=trip.price,
@@ -3826,11 +4244,79 @@ def duplicate_trip(trip_id):
         status='scheduled'
     )
     db.session.add(new_trip)
+    db.session.flush()
+
+    # Duplicate primary client VIP contract if one exists on the original mission
+    orig_booking = trip.bookings.filter_by(is_deleted=False).first()
+    if orig_booking:
+        dup_code = f"3M-MIS-{datetime.utcnow().strftime('%y%m%d')}-{random.randint(100, 999)}"
+        dup_booking = Booking(
+            user_id=orig_booking.user_id,
+            trip_id=new_trip.id,
+            seat_number=orig_booking.seat_number or 'VIP-CAR',
+            passenger_category=orig_booking.passenger_category,
+            passenger_name=orig_booking.passenger_name,
+            booking_code=dup_code,
+            price_paid=orig_booking.price_paid,
+            status='confirmed',
+            payment_status=orig_booking.payment_status or 'pending',
+            payment_method=orig_booking.payment_method or 'momo',
+            booking_date=datetime.utcnow(),
+            return_date=new_arrival,
+            num_persons=orig_booking.num_persons or 1,
+            special_instructions=orig_booking.special_instructions or ''
+        )
+        db.session.add(dup_booking)
+        new_trip.occupied_seats = 1
+
     db.session.commit()
 
     log_audit("TRIP_DUPLICATED", "Trip", new_trip.id,
-              f"Dupliqué depuis #{trip.id} vers {new_date_str}")
+              f"Mission VIP dupliquée depuis #{trip.id} vers {new_date_str}")
     return jsonify({'success': True, 'new_trip_id': new_trip.id})
+
+
+@admin.route('/api/admin/trip/<int:trip_id>/cancel', methods=['POST'])
+@login_required
+@admin_required
+def cancel_trip_api(trip_id):
+    trip = Trip.query.filter_by(id=trip_id, is_deleted=False).first_or_404()
+    if current_user.role != 'super_admin' and trip.route.agency_id != current_user.agency_id:
+        return jsonify({'error': 'Accès non autorisé'}), 403
+
+    trip.status = 'cancelled'
+    affected = Booking.query.filter_by(trip_id=trip.id, is_deleted=False).all()
+    for b in affected:
+        if b.status != 'cancelled':
+            b.status = 'cancelled'
+            if b.payment_status == 'paid':
+                b.payment_status = 'refunded'
+                b.refund_amount = b.price_paid
+
+    db.session.commit()
+    log_audit("TRIP_CANCELLED_CALENDAR", "Trip", trip.id, f"Mission VIP #{trip.id} annulée depuis le calendrier")
+    return jsonify({'success': True, 'trip_id': trip.id, 'status': 'cancelled'})
+
+
+@admin.route('/api/admin/trip/<int:trip_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_trip_api(trip_id):
+    trip = Trip.query.filter_by(id=trip_id, is_deleted=False).first_or_404()
+    if current_user.role != 'super_admin' and trip.route.agency_id != current_user.agency_id:
+        return jsonify({'error': 'Accès non autorisé'}), 403
+
+    now_utc = datetime.utcnow()
+    trip.is_deleted = True
+    trip.deleted_at = now_utc
+    affected = Booking.query.filter_by(trip_id=trip.id, is_deleted=False).all()
+    for b in affected:
+        b.is_deleted = True
+        b.deleted_at = now_utc
+
+    db.session.commit()
+    log_audit("TRIP_DELETED_CALENDAR", "Trip", trip.id, f"Mission VIP #{trip.id} supprimée depuis le calendrier")
+    return jsonify({'success': True, 'trip_id': trip.id})
 
 
 @admin.route('/api/admin/conflict-check', methods=['POST'])
@@ -4181,13 +4667,48 @@ def check_and_manage_shifts():
             import logging
             logging.getLogger(__name__).error(f"[check_and_manage_shifts] Unhandled error: {e}")
 
-@admin.route('/admin/shifts')
+@admin.route('/admin/shifts', methods=['GET', 'POST'])
+@admin.route('/admin/reports', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def shifts():
+    check_due_vehicle_restitutions()
+
+    if request.method == 'POST':
+        op_date_str = (request.form.get('operation_date') or date.today().strftime('%Y-%m-%d')).strip()
+        mission_summary = (request.form.get('mission_summary') or '').strip()
+        messages_summary = (request.form.get('messages_summary') or '').strip()
+        apartment_summary = (request.form.get('apartment_summary') or '').strip()
+        driver_summary = (request.form.get('driver_summary') or '').strip()
+        rating_val = request.form.get('rating', 4.9, type=float)
+        rep_agency_id = request.form.get('agency_id', type=int) or current_user.agency_id
+        notes = (request.form.get('notes') or '').strip()
+
+        summary_text = (
+            f"Opérations du {op_date_str} | "
+            f"Sorties & Missions VIP: {mission_summary or 'RAS'} | "
+            f"Messages: {messages_summary or 'RAS'} | "
+            f"Appartements VIP (Tsinga / Face FECAFOOT): {apartment_summary or 'RAS'} | "
+            f"Drivers: {driver_summary or 'RAS'} | "
+            f"Note VIP: {rating_val:.1f}/5.0"
+            + (f" | Notes: {notes}" if notes else "")
+        )
+
+        log_audit("DAILY_OPERATION_REPORT", "DailyReport", rep_agency_id or 0, summary_text)
+        trigger_notification(
+            title=f"📋 Rapport des Opérations du Jour — {op_date_str}",
+            message=summary_text,
+            type="success",
+            agency_id=rep_agency_id,
+            category="operations",
+            role_target="super_admin"
+        )
+        flash("Rapport des opérations du jour enregistré avec succès !", "success")
+        return redirect(url_for('admin.shifts'))
+
     agencies = []
     selected_agency = None
-    
+
     if current_user.role == 'super_admin':
         agencies = Agency.query.filter_by(is_deleted=False).all()
         agency_id_param = request.args.get('agency_id', type=int)
@@ -4199,9 +4720,20 @@ def shifts():
     else:
         agency_id = current_user.agency_id
         selected_agency = current_user.agency
-        
-    today = datetime.utcnow().date()
-    
+
+    today = date.today()
+    now_dt = datetime.now()
+
+    # Date & Period for Daily Operations Report
+    period = request.args.get('period', 'day').strip()
+    date_param = request.args.get('date')
+    report_date = today
+    if date_param:
+        try:
+            report_date = datetime.strptime(date_param, '%Y-%m-%d').date()
+        except ValueError:
+            report_date = today
+
     # Active shift for current agency
     active_shift = None
     active_metrics = None
@@ -4210,53 +4742,173 @@ def shifts():
         if active_shift:
             active_metrics = aggregate_shift_metrics(agency_id, today)
     else:
-        # Super admin global view - aggregate entire system info for today
         active_metrics = aggregate_shift_metrics(None, today)
-            
-    # Build filter query for historical list
+
+    # ── PILLAR 1: Sorties & Missions de Flotte VIP ──
+    b_query = Booking.query.filter_by(is_deleted=False)
+    if current_user.role != 'super_admin':
+        trip_ids_q = db.session.query(Trip.id).join(Route).filter(Route.agency_id == current_user.agency_id, Trip.is_deleted == False)
+        b_query = b_query.filter(Booking.trip_id.in_(trip_ids_q))
+    elif agency_id:
+        trip_ids_q = db.session.query(Trip.id).join(Route).filter(Route.agency_id == agency_id, Trip.is_deleted == False)
+        b_query = b_query.filter(Booking.trip_id.in_(trip_ids_q))
+
+    all_bookings = b_query.order_by(Booking.booking_date.desc().nulls_last()).all()
+
+    def _is_booking_on_date(b, target_d):
+        if b.booking_date and b.booking_date.date() == target_d:
+            return True
+        if b.trip and b.trip.departure_time and b.trip.arrival_time:
+            if b.trip.departure_time.date() <= target_d <= b.trip.arrival_time.date():
+                return True
+        elif b.trip and b.trip.departure_time and b.trip.departure_time.date() == target_d:
+            return True
+        return False
+
+    today_bookings = [b for b in all_bookings if _is_booking_on_date(b, report_date)]
+
+    if period == 'day':
+        report_bookings = today_bookings if today_bookings else all_bookings
+        is_today_fallback = (len(today_bookings) == 0 and len(all_bookings) > 0)
+    elif period == 'week':
+        cutoff_w = report_date - timedelta(days=6)
+        report_bookings = [
+            b for b in all_bookings
+            if (b.booking_date and cutoff_w <= b.booking_date.date() <= report_date)
+            or (b.trip and b.trip.departure_time and cutoff_w <= b.trip.departure_time.date() <= report_date + timedelta(days=7))
+        ]
+        is_today_fallback = False
+    elif period == 'month':
+        cutoff_m = report_date - timedelta(days=29)
+        report_bookings = [
+            b for b in all_bookings
+            if (b.booking_date and cutoff_m <= b.booking_date.date() <= report_date)
+            or (b.trip and b.trip.departure_time and cutoff_m <= b.trip.departure_time.date() <= report_date + timedelta(days=30))
+        ]
+        is_today_fallback = False
+    else:
+        report_bookings = all_bookings
+        is_today_fallback = False
+
+    cars_out_count = sum(
+        1 for b in report_bookings
+        if b.status != 'cancelled' and b.trip and b.trip.status in ['scheduled', 'departed', 'boarding']
+    )
+    missions_confirmed_count = sum(1 for b in report_bookings if b.status == 'confirmed')
+    restitutions_due_count = sum(
+        1 for b in report_bookings
+        if b.status != 'cancelled' and b.trip and b.trip.arrival_time and b.trip.arrival_time <= now_dt and b.trip.status in ['scheduled', 'departed', 'boarding']
+    )
+    missions_revenue = sum(
+        float(b.price_paid if (b.price_paid and b.price_paid > 0) else (b.trip.price if b.trip else 0))
+        for b in report_bookings if b.status != 'cancelled'
+    )
+
+    # ── PILLAR 2: Messages & Chat Privé 3M ──
+    import json as _json
+    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    chat_threads = []
+    if os.path.exists(db_path):
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                exp_db = _json.load(f)
+            chat_threads = exp_db.get('chats', [])
+        except Exception as e:
+            current_app.logger.warning(f"Error reading chats in reports: {e}")
+
+    total_chats = len(chat_threads)
+    unread_chats_count = sum(int(c.get('unreadAdmin', 0) or 0) for c in chat_threads)
+    total_messages_count = sum(len(c.get('messages', [])) for c in chat_threads)
+
+    # ── PILLAR 3: Appartements VIP (/admin/locations) ──
+    apartments_list = Apartment.query.filter_by(is_deleted=False).order_by(Apartment.id.asc()).all()
+    apartments_total = len(apartments_list)
+    apartments_available = sum(1 for a in apartments_list if a.status == 'Disponible')
+    apartments_occupied = sum(1 for a in apartments_list if a.status in ['Occupé', 'Réservé'])
+
+    # ── PILLAR 4: Chauffeurs VIP (Drivers) ──
+    if current_user.role == 'super_admin' and not agency_id:
+        drivers_list = Driver.query.filter_by(is_deleted=False).order_by(Driver.id.asc()).all()
+    else:
+        target_aid = agency_id or current_user.agency_id
+        drivers_list = Driver.query.filter_by(agency_id=target_aid, is_deleted=False).order_by(Driver.id.asc()).all()
+
+    driver_missions = {}
+    for drv in drivers_list:
+        latest_trip = Trip.query.filter_by(driver_id=drv.id, is_deleted=False).order_by(Trip.departure_time.desc()).first()
+        driver_missions[drv.id] = latest_trip
+
+    drivers_total = len(drivers_list)
+    drivers_active_count = sum(1 for d in drivers_list if (d.status or 'available').lower() in ['available', 'active', 'on_trip'])
+    drivers_avg_rating = round(sum((d.rating or 5.0) for d in drivers_list) / len(drivers_list), 1) if drivers_list else 5.0
+
+    # Build filter query for historical shift list
     query = Shift.query
     if current_user.role == 'super_admin':
         if agency_id:
             query = query.filter(Shift.agency_id == agency_id)
     else:
         query = query.filter(Shift.agency_id == agency_id)
-        
+
     status_param = request.args.get('status')
     if status_param:
         query = query.filter(Shift.status == status_param)
-        
-    date_param = request.args.get('date')
+
     if date_param:
         try:
             parsed_date = datetime.strptime(date_param, '%Y-%m-%d').date()
             query = query.filter(Shift.date == parsed_date)
         except ValueError:
             pass
-            
+
     month_param = request.args.get('month', type=int)
     if month_param:
         query = query.filter(db.extract('month', Shift.date) == month_param)
-        
+
     year_param = request.args.get('year', type=int)
     if year_param:
         query = query.filter(db.extract('year', Shift.date) == year_param)
-        
+
     past_shifts = query.order_by(Shift.date.desc(), Shift.opened_at.desc()).all()
-    
+    daily_reports = AuditLog.query.filter_by(action='DAILY_OPERATION_REPORT').order_by(AuditLog.id.desc()).limit(10).all()
     years = [today.year - i for i in range(5)]
-    
+
     return render_template(
         'admin/shifts.html',
         active_shift=active_shift,
         active_metrics=active_metrics,
         past_shifts=past_shifts,
+        daily_reports=daily_reports,
         agencies=agencies,
         selected_agency=selected_agency,
         years=years,
         selected_status=status_param,
         selected_date=date_param,
         selected_month=month_param,
-        selected_year=year_param
+        selected_year=year_param,
+        now=now_dt,
+        report_date=report_date,
+        period=period,
+        is_today_fallback=is_today_fallback,
+        report_bookings=report_bookings,
+        today_bookings_count=len(today_bookings),
+        cars_out_count=cars_out_count,
+        missions_confirmed_count=missions_confirmed_count,
+        restitutions_due_count=restitutions_due_count,
+        missions_revenue=missions_revenue,
+        chat_threads=chat_threads,
+        total_chats=total_chats,
+        unread_chats_count=unread_chats_count,
+        total_messages_count=total_messages_count,
+        apartments_list=apartments_list,
+        apartments_total=apartments_total,
+        apartments_available=apartments_available,
+        apartments_occupied=apartments_occupied,
+        drivers_list=drivers_list,
+        driver_missions=driver_missions,
+        drivers_total=drivers_total,
+        drivers_active_count=drivers_active_count,
+        drivers_avg_rating=drivers_avg_rating
     )
 
 @admin.route('/admin/shifts/open', methods=['POST'])

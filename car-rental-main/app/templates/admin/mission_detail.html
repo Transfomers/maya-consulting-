@@ -1,0 +1,574 @@
+{% extends "base.html" %}
+{% block title %}{{ trip.mission_ref or ('Mission #' ~ trip.id) }} — 3M SERVICES VIP{% endblock %}
+
+{% block content %}
+<style>
+.md-card {
+    background: #ffffff;
+    border: 1px solid #eaecf0;
+    border-radius: 1.25rem;
+    padding: 1.35rem 1.5rem;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+    margin-bottom: 1.25rem;
+}
+.md-section-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 1rem;
+}
+.md-section-title i { color: #D62828; font-size: 1rem; }
+.md-input, .md-select, .md-textarea {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.52rem 0.8rem;
+    font-size: 0.86rem;
+    color: #0f172a;
+    background: #ffffff;
+}
+.md-input:focus, .md-select:focus, .md-textarea:focus {
+    border-color: #D62828;
+    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.1);
+    outline: none;
+}
+.md-label {
+    font-size: 0.71rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.32rem;
+    display: block;
+}
+.md-btn-red {
+    background: #D62828;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.55rem 1.15rem;
+    font-weight: 700;
+    font-size: 0.84rem;
+    transition: background .15s;
+}
+.md-btn-red:hover { background: #b91c1c; color: #ffffff; }
+.md-btn-outline {
+    background: #ffffff;
+    color: #334155;
+    border: 1px solid #d0d5dd;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.95rem;
+    font-weight: 600;
+    font-size: 0.83rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.md-btn-outline:hover { border-color: #D62828; color: #D62828; background: #fff5f5; }
+.lifecycle-track {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(92px, 1fr));
+    gap: 0.45rem;
+    overflow-x: auto;
+    padding-bottom: 0.4rem;
+}
+.stage-pill {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.85rem;
+    padding: 0.6rem 0.5rem;
+    text-align: center;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all .15s;
+}
+.stage-pill.done { background: #ecfdf3; border-color: #abefc6; color: #067647; }
+.stage-pill.current { background: #D62828; border-color: #D62828; color: #ffffff; box-shadow: 0 4px 12px rgba(214, 40, 40, 0.25); }
+.stage-pill .stage-num { font-size: 0.68rem; font-weight: 800; opacity: 0.75; display: block; }
+.stage-pill .stage-lbl { font-size: 0.76rem; font-weight: 700; display: block; line-height: 1.2; }
+.stage-pill .stage-sub { font-size: 0.64rem; opacity: 0.78; display: block; margin-top: 2px; }
+.info-kv {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.45rem 0;
+    border-bottom: 1px dashed #eef2f6;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+}
+.info-kv:last-child { border-bottom: none; }
+.info-kv .k { color: #64748b; font-weight: 600; flex-shrink: 0; }
+.info-kv .v { color: #0f172a; font-weight: 700; text-align: right; }
+.margin-box { border-radius: 1rem; padding: 0.85rem; border: 1px solid #eaecf0; background: #f8fafc; }
+.audit-item { position: relative; padding-left: 1.25rem; padding-bottom: 0.85rem; border-left: 2px solid #e2e8f0; }
+.audit-item:last-child { border-left-color: transparent; padding-bottom: 0; }
+.audit-item::before { content: ""; position: absolute; left: -6px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #D62828; border: 2px solid #ffffff; }
+</style>
+
+{% set status_map = {
+    'draft': ('Brouillon', 'bg-secondary'),
+    'pending_approval': ('En validation', 'bg-warning text-dark'),
+    'scheduled': ('Planifiée', 'bg-primary'),
+    'confirmed': ('Confirmée', 'bg-success'),
+    'assigned': ('Affectée', 'bg-info text-dark'),
+    'ready_for_departure': ('Prête départ', 'bg-info text-dark'),
+    'departed': ('Partie', 'bg-warning text-dark'),
+    'in_progress': ('En cours', 'bg-danger'),
+    'arrived': ('Arrivée', 'bg-primary'),
+    'returned': ('Restituée', 'bg-success'),
+    'completed': ('Terminée', 'bg-dark'),
+    'closed': ('Clôturée', 'bg-dark'),
+    'cancelled': ('Annulée', 'bg-danger'),
+    'rejected': ('Rejetée', 'bg-danger'),
+    'interrupted': ('Interrompue', 'bg-warning text-dark'),
+    'no_show': ('No-show', 'bg-secondary'),
+} %}
+{% set st_label, st_badge = status_map.get(trip.status, (trip.status|capitalize, 'bg-secondary')) %}
+{% set is_terminal = trip.status in ['cancelled', 'rejected', 'interrupted', 'no_show'] %}
+
+<div class="container-fluid py-3 px-3 px-lg-4">
+    <!-- HEADER & 10 DOCUMENTS DROPDOWN -->
+    <div class="md-card d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                <a href="{{ url_for('admin.bookings', tab='missions') }}" class="text-decoration-none text-muted fw-semibold small">
+                    <i class="fas fa-arrow-left me-1"></i>Sorties & Missions VIP
+                </a>
+                <span class="text-muted">/</span>
+                <span class="badge bg-light text-dark border fw-bold">{{ trip.mission_ref or ('3M-MIS-' ~ trip.id) }}</span>
+                <span class="badge {{ st_badge }} rounded-pill px-3">{{ st_label }}</span>
+                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2">{{ mission_category_map.get(trip.mission_category or 'custom', 'VIP') }}</span>
+                {% if trip.source_booking_id %}<span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2">Convertie de réservation</span>{% endif %}
+            </div>
+            <h4 class="fw-bold mb-0 text-dark">{{ trip.mission_title or (trip.route.origin ~ ' → ' ~ trip.route.destination if trip.route else 'Mission Flotte VIP') }}</h4>
+            <div class="text-muted small mt-1">
+                <i class="far fa-calendar-alt text-danger me-1"></i>
+                Sortie : <strong>{{ trip.departure_time.strftime('%d/%m/%Y %H:%M') if trip.departure_time else '—' }}</strong>
+                <span class="mx-2">•</span>
+                Restitution : <strong>{{ trip.arrival_time.strftime('%d/%m/%Y %H:%M') if trip.arrival_time else '—' }}</strong>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            {% if chat_url %}
+            <a href="{{ chat_url }}" class="md-btn-red text-decoration-none d-inline-flex align-items-center gap-2">
+                <i class="fas fa-comments"></i> Chat Privé Client
+            </a>
+            {% endif %}
+            <div class="dropdown">
+                <button class="md-btn-outline dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-file-pdf text-danger"></i> Documents Officiels (10)
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-2" style="min-width: 260px;">
+                    {% for d_key, d_title, _, d_icon in mission_doc_types %}
+                    <li>
+                        <a class="dropdown-item rounded-3 small py-2 d-flex align-items-center gap-2" href="{{ url_for('missions.mission_document', id=trip.id, doc_type=d_key) }}" target="_blank">
+                            <i class="fas {{ d_icon }} text-danger" style="width: 16px;"></i> {{ d_title }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <a href="{{ url_for('missions.mission_order_doc', id=trip.id) }}" target="_blank" class="md-btn-outline">
+                <i class="fas fa-file-signature text-danger"></i> Ordre de Mission
+            </a>
+            <a href="{{ url_for('missions.mission_invoice_doc', id=trip.id) }}" target="_blank" class="md-btn-outline">
+                <i class="fas fa-file-invoice-dollar text-danger"></i> Facture
+            </a>
+        </div>
+    </div>
+
+    {% if is_terminal and trip.cancellation_reason %}
+    <div class="alert alert-danger border-0 rounded-4 shadow-sm mb-3 d-flex align-items-center gap-2">
+        <i class="fas fa-ban fs-5"></i>
+        <div><strong>Mission {{ st_label }} :</strong> {{ trip.cancellation_reason }}</div>
+    </div>
+    {% endif %}
+
+    <!-- 8-STAGE OPERATIONAL LIFECYCLE & TELEMETRY -->
+    <div class="md-card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div class="md-section-title mb-0"><i class="fas fa-route"></i> Cycle Opérationnel de la Mission (8 Étapes) & Exécution</div>
+            <div class="small text-muted">
+                {% if trip.actual_departure %}<span class="me-3"><i class="fas fa-play-circle text-success me-1"></i>Départ réel : <strong>{{ trip.actual_departure.strftime('%d/%m %H:%M') }}</strong></span>{% endif %}
+                {% if trip.actual_arrival %}<span><i class="fas fa-flag-checkered text-primary me-1"></i>Retour réel : <strong>{{ trip.actual_arrival.strftime('%d/%m %H:%M') }}</strong></span>{% endif %}
+            </div>
+        </div>
+
+        <div class="lifecycle-track mb-3">
+            {% for key, label, sub in mission_stages %}
+                {% set idx = loop.index0 %}
+                {% set pill_cls = 'current' if (not is_terminal and idx == current_stage_idx) else ('done' if (not is_terminal and idx < current_stage_idx) else '') %}
+                <div class="stage-pill {{ pill_cls }}" onclick="document.getElementById('lifecycleStatusSelect').value='{{ key }}'; toggleCancelBox();">
+                    <span class="stage-num">0{{ loop.index }}</span>
+                    <span class="stage-lbl">{{ label }}</span>
+                    <span class="stage-sub">{{ sub }}</span>
+                </div>
+            {% endfor %}
+        </div>
+
+        <form method="POST" action="{{ url_for('missions.update_mission_lifecycle', id=trip.id) }}" class="row g-3 align-items-end pt-2 border-top">
+            <div class="col-md-3">
+                <label class="md-label">Statut Opérationnel</label>
+                <select name="status" id="lifecycleStatusSelect" class="form-select md-select" onchange="toggleCancelBox()">
+                    <optgroup label="Cycle Principal (8 Étapes)">
+                        {% for key, label, sub in mission_stages %}
+                        <option value="{{ key }}" {% if trip.status == key %}selected{% endif %}>{{ loop.index }}. {{ label }} — {{ sub }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="États Terminaux (Motif Obligatoire)">
+                        {% for tk, tl in terminal_states %}
+                        <option value="{{ tk }}" {% if trip.status == tk %}selected{% endif %}>✖ {{ tl }}</option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+            <div class="col-md-2 col-6">
+                <label class="md-label">Km Départ</label>
+                <input type="number" name="mileage_start" class="form-control md-input" value="{{ trip.mileage_start or '' }}" placeholder="42500">
+            </div>
+            <div class="col-md-2 col-6">
+                <label class="md-label">Km Retour</label>
+                <input type="number" name="mileage_end" class="form-control md-input" value="{{ trip.mileage_end or '' }}" placeholder="42780">
+            </div>
+            <div class="col-md-2 col-6">
+                <label class="md-label">Carburant Départ</label>
+                <select name="fuel_start" class="form-select md-select">
+                    <option value="">--</option>
+                    {% for lvl in ['Plein (100%)', '3/4 (75%)', '1/2 (50%)', '1/4 (25%)', 'Réserve'] %}
+                    <option value="{{ lvl }}" {% if trip.fuel_start == lvl %}selected{% endif %}>{{ lvl }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 col-6">
+                <label class="md-label">Carburant Retour</label>
+                <select name="fuel_end" class="form-select md-select">
+                    <option value="">--</option>
+                    {% for lvl in ['Plein (100%)', '3/4 (75%)', '1/2 (50%)', '1/4 (25%)', 'Réserve'] %}
+                    <option value="{{ lvl }}" {% if trip.fuel_end == lvl %}selected{% endif %}>{{ lvl }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="md-label">État Véhicule (Départ / Retour)</label>
+                <input type="text" name="vehicle_condition" class="form-control md-input" value="{{ trip.vehicle_condition or '' }}" placeholder="RAS, carrosserie propre...">
+            </div>
+            <div class="col-md-4">
+                <label class="md-label">Retard / Déviation</label>
+                <input type="text" name="delay_reason" class="form-control md-input" value="{{ trip.delay_reason or '' }}" placeholder="Vol retardé, déviation...">
+            </div>
+            <div class="col-md-4">
+                <label class="md-label">Rapport de Clôture / Retour Client</label>
+                <input type="text" name="completion_notes" class="form-control md-input" value="{{ trip.completion_notes or '' }}" placeholder="Client satisfait, mission clôturée...">
+            </div>
+            <div class="col-12" id="cancelReasonWrap" style="display: {% if is_terminal %}block{% else %}none{% endif %};">
+                <label class="md-label text-danger">Motif Obligatoire (Annulation / Rejet / Interruption / No-show)</label>
+                <input type="text" name="cancellation_reason" id="cancelReasonInput" class="form-control md-input border-danger" value="{{ trip.cancellation_reason or '' }}" placeholder="Précisez la raison exacte...">
+            </div>
+            <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="small text-muted">
+                    {% if trip.mileage_start and trip.mileage_end and trip.mileage_end >= trip.mileage_start %}
+                    <span class="badge bg-light text-dark border fw-bold px-3 py-2">
+                        <i class="fas fa-tachometer-alt text-danger me-1"></i>Distance parcourue : {{ trip.mileage_end - trip.mileage_start }} km
+                    </span>
+                    {% endif %}
+                </div>
+                <button type="submit" class="md-btn-red"><i class="fas fa-save me-1"></i> Mettre à Jour Statut & Exécution</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-3">
+        <!-- LEFT COLUMN -->
+        <div class="col-lg-7">
+            <!-- PRE-DEPARTURE CHECKLIST -->
+            {% set chk = trip.pre_departure_checklist %}
+            <div class="md-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="md-section-title mb-0"><i class="fas fa-clipboard-check"></i> Check-list Pré-Départ & Autorisation de Sortie</div>
+                    <span class="badge bg-dark rounded-pill">{{ chk.values()|select('equalto', true)|list|length }}/{{ pre_departure_items|length }} validés</span>
+                </div>
+                <form method="POST" action="{{ url_for('missions.update_pre_departure_checklist', id=trip.id) }}">
+                    <div class="row g-2 mb-3">
+                        {% for ck, clbl in pre_departure_items %}
+                        <div class="col-md-6">
+                            <label class="d-flex align-items-center gap-2 p-2 px-3 rounded-3 border {% if chk.get(ck) %}bg-success bg-opacity-10 border-success{% else %}bg-light{% endif %} small fw-semibold" style="cursor:pointer;">
+                                <input class="form-check-input mt-0" type="checkbox" name="{{ ck }}" {% if chk.get(ck) %}checked{% endif %}>
+                                <span>{{ clbl }}</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-sm btn-dark rounded-3 fw-bold px-3">
+                            <i class="fas fa-check-double me-1"></i> Enregistrer Check-list Pré-Départ
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- CLIENT & ITINERARY -->
+            <div class="md-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="md-section-title mb-0"><i class="fas fa-user-tie"></i> Client VIP, Itinéraire & Protocole</div>
+                    {% if booking %}<span class="badge bg-light text-dark border">Contrat {{ booking.booking_code }}</span>{% endif %}
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="info-kv"><span class="k">Client VIP</span><span class="v">{{ booking.passenger_name if booking else 'Non associé' }}</span></div>
+                        <div class="info-kv"><span class="k">Téléphone</span><span class="v">{{ (booking.user.phone if (booking and booking.user and booking.user.phone) else (booking.special_instructions if booking else '')) or '—' }}</span></div>
+                        <div class="info-kv"><span class="k">Passagers & Bagages</span><span class="v">{{ trip.passenger_count or 1 }} pax • {{ trip.luggage_info or 'Standard' }}</span></div>
+                        <div class="info-kv"><span class="k">Protocole VIP</span><span class="v text-danger">{{ trip.vip_protocol or 'Standard 3M' }}</span></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-kv"><span class="k">Prise en Charge</span><span class="v">{{ trip.pickup_location or (trip.route.origin if trip.route else '—') }}</span></div>
+                        <div class="info-kv"><span class="k">Destination</span><span class="v">{{ trip.destination_location or (trip.route.destination if trip.route else '—') }}</span></div>
+                        <div class="info-kv"><span class="k">Étapes / Stops</span><span class="v">{{ trip.intermediate_stops or 'Direct' }}</span></div>
+                        <div class="info-kv"><span class="k">Contact sur Place</span><span class="v">{{ trip.contact_person or '—' }}</span></div>
+                    </div>
+                </div>
+                {% if trip.route_instructions or trip.special_instructions or trip.internal_notes %}
+                <div class="mt-3 pt-2 border-top small row g-2">
+                    {% if trip.route_instructions %}<div class="col-12"><strong>Consignes itinéraire :</strong> <span class="text-muted">{{ trip.route_instructions }}</span></div>{% endif %}
+                    {% if trip.special_instructions %}<div class="col-md-6"><strong>Exigences client :</strong> <span class="text-muted">{{ trip.special_instructions }}</span></div>{% endif %}
+                    {% if trip.internal_notes %}<div class="col-md-6"><strong>Notes internes :</strong> <span class="text-muted">{{ trip.internal_notes }}</span></div>{% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- MULTI-VEHICLE & MULTI-DRIVER CONVOY ASSIGNMENT -->
+            <div class="md-card">
+                <div class="md-section-title"><i class="fas fa-car-side"></i> Affectation Convoi : Véhicule(s) & Chauffeur(s) VIP</div>
+                <form method="POST" action="{{ url_for('missions.assign_mission_resources', id=trip.id) }}" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="md-label">Véhicule Principal VIP *</label>
+                        <select name="bus_id" class="form-select md-select" required>
+                            {% for b in buses %}
+                            <option value="{{ b.id }}" {% if trip.bus_id == b.id %}selected{% endif %}>{{ b.brand }} {{ b.model }} ({{ b.bus_number }}) — {{ b.status|upper }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="md-label">Véhicules Convoi (Multi-sélection)</label>
+                        <select name="extra_vehicle_ids" class="form-select md-select" multiple size="2">
+                            {% for b in buses %}
+                                {% if b.id != trip.bus_id %}
+                                <option value="{{ b.id }}" {% if b.id in trip.extra_vehicle_ids %}selected{% endif %}>{{ b.brand }} {{ b.model }} ({{ b.bus_number }})</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="md-label">Chauffeur Principal</label>
+                        <select name="driver_id" class="form-select md-select">
+                            <option value="">-- Sans chauffeur --</option>
+                            {% for d in drivers %}
+                            <option value="{{ d.id }}" {% if trip.driver_id == d.id %}selected{% endif %}>{{ d.name }} ({{ d.phone }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="md-label">Co-Chauffeur / Remplaçant</label>
+                        <select name="secondary_driver_id" class="form-select md-select">
+                            <option value="">-- Aucun --</option>
+                            {% for d in drivers %}
+                            <option value="{{ d.id }}" {% if trip.secondary_driver_id == d.id %}selected{% endif %}>{{ d.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="md-label">Chauffeurs Convoi (Multi)</label>
+                        <select name="extra_driver_ids" class="form-select md-select" multiple size="2">
+                            {% for d in drivers %}
+                                {% if d.id != trip.driver_id and d.id != trip.secondary_driver_id %}
+                                <option value="{{ d.id }}" {% if d.id in trip.extra_driver_ids %}selected{% endif %}>{{ d.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="md-label">Confirmation Chauffeur</label>
+                        <select name="driver_assignment_status" class="form-select md-select">
+                            {% for k, lbl in [('pending','En attente'), ('assigned','Assigné'), ('accepted','Accepté'), ('declined','Refusé'), ('completed','Terminé')] %}
+                            <option value="{{ k }}" {% if trip.driver_assignment_status == k %}selected{% endif %}>{{ lbl }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="md-label">Prime / Per Diem (FCFA)</label>
+                        <input type="number" name="driver_allowance" class="form-control md-input" value="{{ (trip.driver_allowance or 0)|int }}" min="0" step="500">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <div class="small">
+                            <span class="badge bg-dark rounded-pill">{{ 1 + (extra_vehicles|length) }} véh.</span>
+                            <span class="badge bg-danger rounded-pill">{{ (1 if trip.driver else 0) + (1 if trip.secondary_driver else 0) + (extra_drivers|length) }} chauff.</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="md-label">Instructions Chauffeur(s)</label>
+                        <textarea name="driver_instructions" rows="2" class="form-control md-textarea">{{ trip.driver_instructions or '' }}</textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="md-label">Rapport / Feedback Chauffeur</label>
+                        <textarea name="driver_feedback" rows="2" class="form-control md-textarea">{{ trip.driver_feedback or '' }}</textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        <button type="submit" class="md-btn-red"><i class="fas fa-check-circle me-1"></i> Valider Affectation Convoi</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- INTERNAL EXPENSES & MARGIN -->
+            <div class="md-card">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <div class="md-section-title mb-0"><i class="fas fa-gas-pump"></i> Coûts Internes & Marge Mission</div>
+                    <span class="badge {% if trip.mission_margin >= 0 %}bg-success{% else %}bg-danger{% endif %} rounded-pill px-3 py-2">
+                        Marge : {{ "{:,.0f}".format(trip.mission_margin).replace(',', ' ') }} FCFA
+                    </span>
+                </div>
+                <div class="row g-2 mb-3 text-center">
+                    <div class="col-4"><div class="margin-box"><div class="small text-muted">Prix Client</div><div class="fw-bold">{{ "{:,.0f}".format(trip.price or 0).replace(',', ' ') }} F</div></div></div>
+                    <div class="col-4"><div class="margin-box"><div class="small text-muted">Coûts Internes</div><div class="fw-bold text-danger">{{ "{:,.0f}".format(trip.total_expenses_amount or 0).replace(',', ' ') }} F</div></div></div>
+                    <div class="col-4"><div class="margin-box"><div class="small text-muted">Marge Nette</div><div class="fw-bold {% if trip.mission_margin >= 0 %}text-success{% else %}text-danger{% endif %}">{{ "{:,.0f}".format(trip.mission_margin).replace(',', ' ') }} F</div></div></div>
+                </div>
+                {% if expenses %}
+                <div class="table-responsive mb-3">
+                    <table class="table table-sm align-middle mb-0 small">
+                        <thead class="table-light"><tr><th>Catégorie</th><th>Description</th><th class="text-end">Montant</th><th class="text-end">Action</th></tr></thead>
+                        <tbody>
+                            {% for exp in expenses %}
+                            <tr>
+                                <td><span class="badge bg-light text-dark border">{{ expense_categories.get(exp.category, exp.category) }}</span></td>
+                                <td>{{ exp.description }}</td>
+                                <td class="text-end fw-bold text-danger">{{ "{:,.0f}".format(exp.amount or 0).replace(',', ' ') }} F</td>
+                                <td class="text-end">
+                                    <form method="POST" action="{{ url_for('missions.delete_mission_expense', id=trip.id, exp_id=exp.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="fas fa-trash-alt"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                <form method="POST" action="{{ url_for('missions.add_mission_expense', id=trip.id) }}" class="row g-2 align-items-end pt-2 border-top">
+                    <div class="col-md-4"><label class="md-label">Catégorie</label><select name="category" class="form-select md-select">{% for k, lbl in expense_categories.items() %}<option value="{{ k }}">{{ lbl }}</option>{% endfor %}</select></div>
+                    <div class="col-md-4"><label class="md-label">Libellé</label><input type="text" name="description" class="form-control md-input" placeholder="Carburant / péage..."></div>
+                    <div class="col-md-2 col-6"><label class="md-label">Montant</label><input type="number" name="amount" class="form-control md-input" required min="100" step="100"></div>
+                    <div class="col-md-2 col-6"><button type="submit" class="md-btn-red w-100"><i class="fas fa-plus"></i></button></div>
+                </form>
+            </div>
+
+            <!-- INCIDENTS -->
+            <div class="md-card">
+                <div class="md-section-title"><i class="fas fa-exclamation-triangle"></i> Incidents & Suivi Qualité</div>
+                {% for inc in incidents %}
+                <div class="p-3 rounded-3 border mb-2 {% if inc.status == 'resolved' %}bg-light{% else %}bg-warning bg-opacity-10 border-warning{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div><span class="badge bg-dark me-1">{{ inc.incident_ref }}</span> <span class="badge bg-danger me-1">{{ inc.severity|upper }}</span> <strong class="small">{{ incident_categories.get(inc.category, inc.category) }}</strong></div>
+                        <span class="badge {% if inc.status == 'resolved' %}bg-success{% else %}bg-danger{% endif %} rounded-pill">{{ 'Résolu' if inc.status == 'resolved' else 'Ouvert' }}</span>
+                    </div>
+                    <div class="small text-dark mb-1">{{ inc.description }}</div>
+                    {% if inc.status != 'resolved' %}
+                    <form method="POST" action="{{ url_for('missions.resolve_mission_incident', id=trip.id, inc_id=inc.id) }}" class="d-flex gap-1 mt-1">
+                        <input type="text" name="resolution" class="form-control form-control-sm" placeholder="Action corrective...">
+                        <button type="submit" class="btn btn-sm btn-success fw-bold">Résoudre</button>
+                    </form>
+                    {% elif inc.resolution %}<div class="small text-success"><i class="fas fa-check me-1"></i>{{ inc.resolution }}</div>{% endif %}
+                </div>
+                {% endfor %}
+                <form method="POST" action="{{ url_for('missions.add_mission_incident', id=trip.id) }}" class="row g-2 align-items-end pt-2 border-top">
+                    <div class="col-md-4"><label class="md-label">Type</label><select name="category" class="form-select md-select">{% for k, lbl in incident_categories.items() %}<option value="{{ k }}">{{ lbl }}</option>{% endfor %}</select></div>
+                    <div class="col-md-3"><label class="md-label">Gravité</label><select name="severity" class="form-select md-select"><option value="low">Faible</option><option value="medium" selected>Moyenne</option><option value="high">Élevée</option><option value="critical">Critique</option></select></div>
+                    <div class="col-md-5"><label class="md-label">Responsable</label><input type="text" name="responsible_person" class="form-control md-input" placeholder="Superviseur"></div>
+                    <div class="col-md-9"><label class="md-label">Description *</label><input type="text" name="description" class="form-control md-input" required></div>
+                    <div class="col-md-3"><button type="submit" class="btn btn-warning fw-bold w-100 rounded-3 py-2">Signaler</button></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-lg-5">
+            <!-- FROZEN QUOTATION BREAKDOWN -->
+            <div class="md-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="md-section-title mb-0"><i class="fas fa-tags"></i> Tarification Client & Devis Figé</div>
+                    {% if price_snapshot %}<span class="badge bg-success bg-opacity-10 text-success rounded-pill"><i class="fas fa-lock me-1"></i>Prix Figé</span>{% endif %}
+                </div>
+                <div class="info-kv"><span class="k">Forfait / Base</span><span class="v">{{ "{:,.0f}".format(trip.base_price or trip.price or 0).replace(',', ' ') }} FCFA</span></div>
+                {% if trip.distance_charge %}<div class="info-kv"><span class="k">Frais Distance</span><span class="v">+ {{ "{:,.0f}".format(trip.distance_charge).replace(',', ' ') }} FCFA</span></div>{% endif %}
+                {% if trip.duration_charge %}<div class="info-kv"><span class="k">Frais Durée</span><span class="v">+ {{ "{:,.0f}".format(trip.duration_charge).replace(',', ' ') }} FCFA</span></div>{% endif %}
+                {% if trip.waiting_charge %}<div class="info-kv"><span class="k">Temps d'Attente</span><span class="v">+ {{ "{:,.0f}".format(trip.waiting_charge).replace(',', ' ') }} FCFA</span></div>{% endif %}
+                {% if trip.fuel_surcharge %}<div class="info-kv"><span class="k">Supplément Carburant</span><span class="v">+ {{ "{:,.0f}".format(trip.fuel_surcharge).replace(',', ' ') }} FCFA</span></div>{% endif %}
+                {% if trip.toll_parking_charge %}<div class="info-kv"><span class="k">Péages / Parking</span><span class="v">+ {{ "{:,.0f}".format(trip.toll_parking_charge).replace(',', ' ') }} FCFA</span></div>{% endif %}
+                {% if trip.stops_charge %}<div class="info-kv"><span class="k">Arrêts Supplémentaires</span><span class="v">+ {{ "{:,.0f}".format(trip.stops_charge).replace(',', ' ') }} FCFA</span></div>{% endif %}
+                {% if trip.extras_price %}<div class="info-kv"><span class="k">Extras / Sécurité VIP</span><span class="v">+ {{ "{:,.0f}".format(trip.extras_price).replace(',', ' ') }} FCFA</span></div>{% endif %}
+                {% if trip.additional_charges %}<div class="info-kv"><span class="k">Autres Frais</span><span class="v">+ {{ "{:,.0f}".format(trip.additional_charges).replace(',', ' ') }} FCFA</span></div>{% endif %}
+                {% if trip.tax_amount %}<div class="info-kv"><span class="k">Taxes</span><span class="v">+ {{ "{:,.0f}".format(trip.tax_amount).replace(',', ' ') }} FCFA</span></div>{% endif %}
+                {% if trip.discount_amount %}<div class="info-kv"><span class="k">Remise</span><span class="v text-success">- {{ "{:,.0f}".format(trip.discount_amount).replace(',', ' ') }} FCFA</span></div>{% endif %}
+                <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top">
+                    <span class="fw-bold text-dark">TOTAL CLIENT TTC</span>
+                    <span class="fs-5 fw-bold text-danger">{{ "{:,.0f}".format(trip.price or 0).replace(',', ' ') }} FCFA</span>
+                </div>
+            </div>
+
+            <!-- CENTRAL PAYMENTS LEDGER -->
+            <div class="md-card">
+                <div class="md-section-title"><i class="fas fa-credit-card"></i> Règlements & Solde (Grand Livre Central)</div>
+                {% set pct_paid = ((paid_total / trip.price) * 100) if (trip.price and trip.price > 0) else 0 %}
+                {% if pct_paid > 100 %}{% set pct_paid = 100 %}{% endif %}
+                <div class="row g-2 mb-3 text-center">
+                    <div class="col-6"><div class="margin-box"><div class="small text-muted">Encaissé</div><div class="fw-bold text-success">{{ "{:,.0f}".format(paid_total).replace(',', ' ') }} F</div></div></div>
+                    <div class="col-6"><div class="margin-box"><div class="small text-muted">Solde Restant</div><div class="fw-bold {% if balance_due > 0 %}text-danger{% else %}text-success{% endif %}">{{ "{:,.0f}".format(balance_due).replace(',', ' ') }} F</div></div></div>
+                </div>
+                <div class="progress mb-3" style="height: 8px; border-radius: 99px;"><div class="progress-bar bg-success" style="width: {{ pct_paid|round }}%"></div></div>
+                {% for p in payments %}
+                <div class="d-flex justify-content-between align-items-center py-1 border-bottom small">
+                    <div><strong>{{ p.payment_method|upper }}</strong> <span class="text-muted">• {{ p.transaction_id or ('#' ~ p.id) }}</span></div>
+                    <span class="fw-bold text-success">{{ "{:,.0f}".format(p.amount or 0).replace(',', ' ') }} F</span>
+                </div>
+                {% endfor %}
+                {% if booking %}
+                <form method="POST" action="{{ url_for('missions.record_mission_payment', id=trip.id) }}" class="row g-2 pt-3">
+                    <div class="col-6"><label class="md-label">Montant</label><input type="number" name="amount" class="form-control md-input" value="{{ balance_due|int if balance_due > 0 else '' }}" required min="100" step="500"></div>
+                    <div class="col-6"><label class="md-label">Mode</label><select name="payment_method" class="form-select md-select"><option value="momo">MTN MoMo</option><option value="orange">Orange Money</option><option value="cash">Espèces</option><option value="bank_transfer">Virement</option><option value="card">Carte</option></select></div>
+                    <div class="col-12"><label class="md-label">Référence</label><input type="text" name="transaction_id" class="form-control md-input" placeholder="Réf transaction..."></div>
+                    <div class="col-12 mt-2"><button type="submit" class="md-btn-red w-100"><i class="fas fa-cash-register me-1"></i> Encaisser Règlement</button></div>
+                </form>
+                {% endif %}
+            </div>
+
+            <!-- AUDIT TRAIL -->
+            <div class="md-card">
+                <div class="md-section-title"><i class="fas fa-history"></i> Journal d'Audit & Traçabilité</div>
+                {% for log in audit_logs %}
+                <div class="audit-item">
+                    <div class="d-flex justify-content-between small"><strong class="text-dark">{{ log.action }}</strong><span class="text-muted" style="font-size: 0.72rem;">{{ log.created_at.strftime('%d/%m %H:%M') if log.created_at else '' }}</span></div>
+                    <div class="small text-muted">{{ log.details }}</div>
+                </div>
+                {% else %}
+                <p class="small text-muted mb-0">Aucun événement d'audit.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleCancelBox() {
+    var sel = document.getElementById('lifecycleStatusSelect');
+    var wrap = document.getElementById('cancelReasonWrap');
+    var inp = document.getElementById('cancelReasonInput');
+    if (!sel || !wrap) return;
+    var term = ['cancelled', 'rejected', 'interrupted', 'no_show'].includes(sel.value);
+    wrap.style.display = term ? 'block' : 'none';
+    if (inp) inp.required = term;
+}
+</script>
+{% endblock %}

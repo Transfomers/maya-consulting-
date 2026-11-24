@@ -1,147 +1,99 @@
 {% extends "base.html" %}
+{% from 'admin/_mission_table_macros.html' import mission_table_head, mission_row_cells %}
 
-{% block title %}Missions & Sorties de Flotte VIP - 3M SERVICES{% endblock %}
+{% block title %}Missions &amp; Sorties de Flotte VIP — 3M SERVICES{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container-fluid px-0 py-2">
     {% include 'admin/_subnav.html' %}
 
-    <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div class="card border-0 shadow-xs p-3 p-md-4 fade-in" style="border-radius: 14px; border: 1px solid #eaecf0 !important;">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
             <div>
-                <h3 class="mb-1 fw-bold"><i class="bi bi-car-front-fill text-danger me-2"></i> Sorties & Missions de Flotte VIP</h3>
-                <p class="text-muted mb-0">Programmez et gérez les missions, forfaits et sorties de véhicules VIP avec chauffeur.</p>
+                <h3 class="mb-1 fw-bold text-dark"><i class="bi bi-car-front-fill text-danger me-2"></i> Sorties &amp; Missions de Flotte VIP</h3>
+                <p class="text-muted mb-0 small">Programmez et gérez les missions, forfaits et sorties de véhicules VIP avec chauffeur.</p>
             </div>
-            <a href="{{ url_for('admin.add_trip') }}" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
-                <i class="bi bi-plus-circle me-2"></i> Planifier une Mission
-            </a>
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <button type="button" class="btn btn-primary px-3 py-2 rounded-pill fw-semibold shadow-xs d-inline-flex align-items-center gap-1.5" data-bs-toggle="collapse" data-bs-target="#inlinePlanMissionCollapse" aria-expanded="false" aria-controls="inlinePlanMissionCollapse" style="background-color: #D62828 !important; border-color: #D62828 !important; font-size: 0.85rem;">
+                    <i class="bi bi-plus-circle"></i> <span>Planifier une Mission</span>
+                </button>
+                <a href="{{ url_for('admin.add_trip') }}" class="btn btn-outline-danger px-3 py-2 rounded-pill fw-semibold d-inline-flex align-items-center gap-1.5" style="font-size: 0.85rem;">
+                    <i class="bi bi-window-fullscreen"></i> <span class="d-none d-sm-inline">Formulaire Pleine Page</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Collapsible Responsive Mission Form ("Planifier une Mission / Sortie VIP" + "Notification Restitution Automatique Active") -->
+        <div class="collapse mb-4" id="inlinePlanMissionCollapse">
+            {% with redirect_target='trips', is_modal_or_collapse=True %}
+                {% include 'admin/_mission_form.html' %}
+            {% endwith %}
         </div>
 
         <!-- Filter & Actions Bar -->
-        <div class="d-flex flex-column gap-3 mb-4 bg-light p-3 rounded-3 border">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex flex-column gap-3 mb-4 bg-light p-3 rounded-3 border" style="border-color: #eaecf0 !important;">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <!-- Time Range Filter Pills -->
                 <div class="d-flex gap-2 flex-wrap" id="timeFilterGroup">
-                    <button type="button" class="btn btn-primary px-3 py-1.5 rounded-pill shadow-sm fw-semibold active" data-range="all">Tous</button>
-                    <button type="button" class="btn btn-outline-primary px-3 py-1.5 rounded-pill shadow-sm fw-semibold" data-range="day">Aujourd'hui</button>
-                    <button type="button" class="btn btn-outline-primary px-3 py-1.5 rounded-pill shadow-sm fw-semibold" data-range="week">Cette Semaine</button>
-                    <button type="button" class="btn btn-outline-primary px-3 py-1.5 rounded-pill shadow-sm fw-semibold" data-range="month">Ce Mois</button>
+                    <button type="button" class="btn btn-sm btn-primary px-3 py-1.5 rounded-pill shadow-xs fw-semibold active" data-range="all">Tous</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary px-3 py-1.5 rounded-pill shadow-xs fw-semibold" data-range="day">Aujourd'hui</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary px-3 py-1.5 rounded-pill shadow-xs fw-semibold" data-range="week">Cette Semaine</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary px-3 py-1.5 rounded-pill shadow-xs fw-semibold" data-range="month">Ce Mois</button>
                 </div>
 
                 <!-- Export Action Buttons -->
-                <div class="d-flex gap-2">
-                    <a href="{{ url_for('admin.export_trips_csv', range='all') }}" id="btnExportCSV" class="btn btn-outline-success rounded-pill px-3 shadow-sm">
-                        <i class="bi bi-file-earmark-spreadsheet me-2"></i> Exporter CSV
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('admin.export_trips_csv', range='all') }}" id="btnExportCSV" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-xs">
+                        <i class="bi bi-file-earmark-spreadsheet me-1"></i> Exporter CSV
                     </a>
-                    <a href="{{ url_for('admin.export_trips_pdf', range='all') }}" id="btnExportPDF" class="btn btn-outline-danger rounded-pill px-3 shadow-sm">
-                        <i class="bi bi-file-pdf me-2"></i> Exporter PDF
+                    <a href="{{ url_for('admin.export_trips_pdf', range='all') }}" id="btnExportPDF" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-xs">
+                        <i class="bi bi-file-pdf me-1"></i> Exporter PDF
                     </a>
                 </div>
             </div>
 
             <div class="d-flex flex-wrap gap-2 align-items-center">
                 <!-- Search -->
-                <div class="input-group" style="max-width: 250px;">
+                <div class="input-group input-group-sm" style="max-width: 280px;">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                    <input type="text" id="tripsSearch" class="form-control border-start-0 ps-0" placeholder="Chercher mission, véhicule...">
+                    <input type="text" id="tripsSearch" class="form-control border-start-0 ps-0" placeholder="Chercher mission, client, véhicule...">
                 </div>
-                
+
                 <!-- Status Filter -->
-                <select id="tripsFilterStatus" class="form-select" style="width: auto;">
+                <select id="tripsFilterStatus" class="form-select form-select-sm" style="width: auto;">
                     <option value="">Statut (Tous)</option>
                     <option value="scheduled">Planifié</option>
+                    <option value="departed">En mission</option>
+                    <option value="arrived">Restitué</option>
                     <option value="completed">Terminé</option>
                     <option value="cancelled">Annulé</option>
                 </select>
-                
+
                 <!-- Sorting Filter -->
-                <select id="tripsFilterDate" class="form-select" style="width: auto;">
+                <select id="tripsFilterDate" class="form-select form-select-sm" style="width: auto;">
                     <option value="newest">Départ le plus récent</option>
                     <option value="oldest">Départ le plus lointain</option>
                 </select>
-                
-                <button class="btn btn-outline-secondary ms-auto" onclick="resetTripsFilters()">
+
+                <button class="btn btn-sm btn-outline-secondary ms-md-auto" onclick="resetTripsFilters()">
                     <i class="bi bi-arrow-counterclockwise me-1"></i> Réinitialiser
                 </button>
             </div>
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Mission / Trajet</th>
-                        <th>Véhicule VIP</th>
-                        <th>Date Sortie (Départ)</th>
-                        <th>Date Restitution (Retour)</th>
-                        <th>Tarif Journalier</th>
-                        <th>Disponibilité</th>
-                        <th>Statut</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
+            <table class="table table-hover align-middle mb-0" style="min-width: 1320px;">
+                {{ mission_table_head() }}
                 <tbody id="tripsTableBody">
                     {% for trip in trips %}
+                    {% set trip_booking = trip.bookings.filter_by(is_deleted=False).first() %}
                     <tr class="trip-row {% if trip.status == 'cancelled' %}table-danger-soft{% elif trip.is_archived %}table-secondary-soft{% endif %}"
                         data-status="{{ trip.status }}"
                         data-date="{{ trip.departure_time.timestamp() }}"
                         data-date-iso="{{ trip.departure_time.isoformat() }}">
-                        <td class="fw-bold">#{{ trip.id }}</td>
-                        <td>
-                            {% if trip.route %}
-                                <div class="fw-bold text-primary">{{ trip.route.origin }} &rarr; {{ trip.route.destination }}</div>
-                                <div class="small text-muted">
-                                    {{ trip.route.agency.name }}
-                                    {% if trip.is_archived %}
-                                        <span class="badge bg-secondary ms-1">ARCHIVÉ</span>
-                                    {% endif %}
-                                </div>
-                            {% else %}
-                                <span class="text-muted">Inconnu</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if trip.bus %}
-                                <div class="fw-semibold">{{ trip.bus.brand }} ({{ trip.bus.model }})</div>
-                                <div class="small text-muted">Immat: {{ trip.bus.bus_number }}</div>
-                            {% else %}
-                                <span class="text-muted">N/A</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="fw-semibold">{{ trip.departure_time.strftime('%d/%m/%Y') }}</div>
-                            <div class="text-primary fw-bold">{{ trip.departure_time.strftime('%H:%M') }}</div>
-                        </td>
-                        <td>
-                            <div class="fw-semibold">{{ trip.arrival_time.strftime('%d/%m/%Y') }}</div>
-                            <div class="text-success fw-bold">{{ trip.arrival_time.strftime('%H:%M') }}</div>
-                        </td>
-                        <td class="fw-bold text-warning">{{ trip.price | int }} FCFA</td>
-                        <td>
-                            {% if trip.bus %}
-                                {% set bookings_count = trip.bookings.filter_by(status='confirmed', is_deleted=False).count() %}
-                                {% set percentage = (bookings_count / trip.bus.capacity * 100) | int %}
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="progress" style="height: 6px; width: 60px;">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ percentage }}%"></div>
-                                    </div>
-                                    <span class="small fw-bold">{{ bookings_count }}/{{ trip.bus.capacity }} ({{ percentage }}%)</span>
-                                </div>
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if trip.status == 'scheduled' %}
-                                <span class="badge bg-success-soft text-success px-3 py-2 rounded-pill"><i class="bi bi-check-circle me-1"></i> Planifié</span>
-                            {% elif trip.status == 'cancelled' %}
-                                <span class="badge bg-danger-soft text-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle me-1"></i> Annulé</span>
-                            {% else %}
-                                <span class="badge bg-secondary-soft text-secondary px-3 py-2 rounded-pill"><i class="bi bi-check-all me-1"></i> Terminé</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end text-nowrap">
+                        {{ mission_row_cells(trip_booking, trip, now) }}
+                        <!-- 11. ACTIONS -->
+                        <td class="text-end pe-3 text-nowrap">
                             <a href="{{ url_for('admin.edit_trip', id=trip.id) }}" class="btn btn-sm btn-outline-primary rounded-circle me-1" title="Modifier" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
                                 <i class="bi bi-pencil" style="font-size: 0.85rem;"></i>
                             </a>
@@ -157,23 +109,22 @@
                                     <i class="bi bi-arrow-up-circle" style="font-size: 0.85rem;"></i>
                                 </a>
                             {% endif %}
-                            <a href="{{ url_for('admin.delete_trip', id=trip.id) }}" class="btn btn-sm btn-outline-danger rounded-circle" title="Supprimer" onclick="return confirm('Supprimer définitivement ce trajet (soft delete) ?');" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
+                            <a href="{{ url_for('admin.delete_trip', id=trip.id) }}" class="btn btn-sm btn-outline-danger rounded-circle" title="Supprimer" onclick="return confirm('Supprimer définitivement cette mission VIP ?');" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
                                 <i class="bi bi-trash" style="font-size: 0.85rem;"></i>
                             </a>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="8" class="text-center py-5 text-muted">
+                        <td colspan="11" class="text-center py-5 text-muted">
                             <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
-                            Aucun voyage planifié dans le système.
+                            Aucune mission ou sortie VIP planifiée dans le système.
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-    </div>
     </div>
 </div>
 {% endblock %}
@@ -188,54 +139,50 @@ document.addEventListener('DOMContentLoaded', function() {
     const rangeButtons = document.querySelectorAll('[data-range]');
     const btnExportCSV = document.getElementById('btnExportCSV');
     const btnExportPDF = document.getElementById('btnExportPDF');
-    
+
     let activeRange = 'all';
-    
+
     if(!tableBody) return;
 
     function applyFilters() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = filterStatus.value.toLowerCase();
-        const sortValue = filterDate.value;
-        
+        const searchTerm = (searchInput ? searchInput.value : '').toLowerCase();
+        const statusValue = (filterStatus ? filterStatus.value : '').toLowerCase();
+        const sortValue = filterDate ? filterDate.value : 'newest';
+
         let rows = Array.from(tableBody.querySelectorAll('tr.trip-row'));
-        
+
         rows.forEach(row => {
-            const targetStatus = row.getAttribute('data-status');
+            const targetStatus = (row.getAttribute('data-status') || '').toLowerCase();
             const dateIso = row.getAttribute('data-date-iso');
             const rowText = row.innerText.toLowerCase();
-            
+
             const matchesSearch = rowText.includes(searchTerm);
             const matchesStatus = (statusValue === "" || targetStatus === statusValue);
             const matchesDate = matchesDateRange(dateIso, activeRange);
-            
-            if (matchesSearch && matchesStatus && matchesDate) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
+
+            row.style.display = (matchesSearch && matchesStatus && matchesDate) ? '' : 'none';
         });
-        
+
         rows.sort((a, b) => {
-            const dateA = parseFloat(a.getAttribute('data-date'));
-            const dateB = parseFloat(b.getAttribute('data-date'));
+            const dateA = parseFloat(a.getAttribute('data-date') || 0);
+            const dateB = parseFloat(b.getAttribute('data-date') || 0);
             return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
         });
-        
+
         rows.forEach(row => tableBody.appendChild(row));
     }
-    
+
     function matchesDateRange(dateIsoString, range) {
         if (range === 'all') return true;
         if (!dateIsoString) return false;
-        
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const todayTime = today.getTime();
-        
+
         const tripDate = new Date(dateIsoString);
         const tripDateTime = tripDate.getTime();
-        
+
         if (range === 'day') {
             const endOfToday = new Date(today);
             endOfToday.setHours(23, 59, 59, 999);
@@ -253,21 +200,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return true;
     }
-    
-    // Add event listeners for range buttons
+
     rangeButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             rangeButtons.forEach(b => {
-                b.classList.remove('active');
-                b.classList.remove('btn-primary');
+                b.classList.remove('active', 'btn-primary');
                 b.classList.add('btn-outline-primary');
             });
-            this.classList.add('active');
+            this.classList.add('active', 'btn-primary');
             this.classList.remove('btn-outline-primary');
-            this.classList.add('btn-primary');
             activeRange = this.getAttribute('data-range');
-            
-            // Update export urls dynamically
+
             if (btnExportCSV) {
                 const url = new URL(btnExportCSV.href, window.location.origin);
                 url.searchParams.set('range', activeRange);
@@ -278,37 +221,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 url.searchParams.set('range', activeRange);
                 btnExportPDF.href = url.pathname + url.search;
             }
-            
+
             applyFilters();
         });
     });
-    
+
     if(searchInput) searchInput.addEventListener('input', applyFilters);
     if(filterStatus) filterStatus.addEventListener('change', applyFilters);
     if(filterDate) filterDate.addEventListener('change', applyFilters);
-    
+
     window.resetTripsFilters = function() {
         if(searchInput) searchInput.value = '';
         if(filterStatus) filterStatus.value = '';
         if(filterDate) filterDate.value = 'newest';
-        
-        // Reset range to all
+
         rangeButtons.forEach(b => {
-            b.classList.remove('active');
-            b.classList.remove('btn-primary');
+            b.classList.remove('active', 'btn-primary');
             b.classList.add('btn-outline-primary');
         });
         const allBtn = document.querySelector('[data-range="all"]');
         if (allBtn) {
-            allBtn.classList.add('active');
+            allBtn.classList.add('active', 'btn-primary');
             allBtn.classList.remove('btn-outline-primary');
-            allBtn.classList.add('btn-primary');
         }
         activeRange = 'all';
-        
+
         if (btnExportCSV) btnExportCSV.href = "{{ url_for('admin.export_trips_csv', range='all') }}";
         if (btnExportPDF) btnExportPDF.href = "{{ url_for('admin.export_trips_pdf', range='all') }}";
-        
+
         applyFilters();
     };
 });

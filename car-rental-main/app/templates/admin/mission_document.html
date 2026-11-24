@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% set doc_titles = {
+        'order': 'ORDRE DE MISSION VIP',
+        'quotation': 'DEVIS CLIENT VIP',
+        'confirmation': 'CONFIRMATION DE RÉSERVATION VIP',
+        'contract': 'CONTRAT DE SERVICE TRANSPORT VIP',
+        'invoice': 'FACTURE OFFICIELLE VIP',
+        'receipt': 'REÇU DE PAIEMENT OFFICIEL',
+        'driver_sheet': 'FICHE D\'AFFECTATION CHAUFFEUR VIP',
+        'inspection': 'RAPPORT D\'INSPECTION VÉHICULE (DÉPART / RETOUR)',
+        'completion': 'RAPPORT DE CLÔTURE DE MISSION',
+        'incident': 'RAPPORT D\'INCIDENT OPÉRATIONNEL',
+    } %}
+    <title>{{ doc_titles.get(doc_type, 'DOCUMENT 3M') }} — {{ trip.mission_ref or ('3M-MIS-' ~ trip.id) }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f1f5f9; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; padding: 1.5rem 1rem; }
+        .doc-sheet { max-width: 880px; margin: 0 auto; background: #fff; border-radius: 1rem; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(15,23,42,.08); padding: 2.25rem; }
+        .doc-header { border-bottom: 3px solid #D62828; padding-bottom: 1.15rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+        .brand-mark { width: 50px; height: 50px; border-radius: .85rem; background: #D62828; color: #fff; font-weight: 900; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; }
+        .doc-title { font-size: 1.2rem; font-weight: 900; color: #D62828; text-transform: uppercase; letter-spacing: .02em; }
+        .doc-box { border: 1px solid #e2e8f0; border-radius: .75rem; padding: .95rem 1.1rem; background: #f8fafc; height: 100%; }
+        .doc-box h6 { font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; color: #D62828; font-weight: 800; margin-bottom: .55rem; }
+        .doc-kv { display: flex; justify-content: space-between; gap: .5rem; font-size: .85rem; padding: .26rem 0; border-bottom: 1px dashed #e2e8f0; }
+        .doc-kv:last-child { border-bottom: none; }
+        .doc-kv span:first-child { color: #64748b; }
+        .doc-kv span:last-child { font-weight: 700; text-align: right; }
+        .sig-box { border: 1px dashed #94a3b8; border-radius: .75rem; min-height: 86px; padding: .65rem; font-size: .76rem; color: #64748b; display: flex; flex-direction: column; justify-content: space-between; }
+        .no-print-bar { max-width: 880px; margin: 0 auto 1rem auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .6rem; }
+        @media print {
+            body { background: #fff; padding: 0; }
+            .no-print-bar { display: none !important; }
+            .doc-sheet { box-shadow: none; border: none; border-radius: 0; padding: .4rem; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    {% set balance_due = [0, (trip.price or 0) - (paid_total or 0)]|max %}
+    <div class="no-print-bar">
+        <a href="{{ url_for('missions.mission_detail', id=trip.id) }}" class="btn btn-outline-secondary btn-sm fw-semibold rounded-3">
+            <i class="fas fa-arrow-left me-1"></i> Retour Mission
+        </a>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <select class="form-select form-select-sm rounded-3" style="max-width: 240px;" onchange="if(this.value) window.location=this.value;">
+                {% for dk, dt, _, _ in doc_types %}
+                <option value="{{ url_for('missions.mission_document', id=trip.id, doc_type=dk) }}" {% if doc_type == dk %}selected{% endif %}>{{ dt }}</option>
+                {% endfor %}
+            </select>
+            <button onclick="window.print()" class="btn btn-danger btn-sm fw-bold rounded-3 px-3">
+                <i class="fas fa-print me-1"></i> Imprimer / PDF
+            </button>
+        </div>
+    </div>
+
+    <div class="doc-sheet">
+        <!-- LETTERHEAD -->
+        <div class="doc-header">
+            <div class="d-flex align-items-center gap-3">
+                <div class="brand-mark">3M</div>
+                <div>
+                    <div class="fs-5 lh-1 text-dark" style="font-weight: 900;">3M SERVICES VIP</div>
+                    <div class="small text-muted">Flotte Véhicules de Prestige, Chauffeurs VIP & Résidences</div>
+                    <div class="small text-muted">Yaoundé, Cameroun • Omnisports / Tsinga Face FECAFOOT</div>
+                </div>
+            </div>
+            <div class="text-md-end">
+                <div class="doc-title">{{ doc_titles.get(doc_type, 'DOCUMENT OFFICIEL 3M') }}</div>
+                <div class="fw-bold text-dark">Réf Mission : {{ trip.mission_ref or ('3M-MIS-' ~ trip.id) }}</div>
+                <div class="small text-muted">Émis le {{ now.strftime('%d/%m/%Y à %H:%M') }}</div>
+            </div>
+        </div>
+
+        <!-- COMMON SUMMARY BAND -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <div class="doc-box">
+                    <h6><i class="fas fa-user-tie me-1"></i>Client VIP & Contrat</h6>
+                    <div class="doc-kv"><span>Client</span><span>{{ booking.passenger_name if booking else 'Client VIP 3M' }}</span></div>
+                    <div class="doc-kv"><span>Téléphone</span><span>{{ (booking.user.phone if (booking and booking.user and booking.user.phone) else (booking.special_instructions if booking else '—')) or '—' }}</span></div>
+                    <div class="doc-kv"><span>Réf Contrat</span><span>{{ booking.booking_code if booking else (trip.mission_ref or ('#' ~ trip.id)) }}</span></div>
+                    <div class="doc-kv"><span>Passagers / Bagages</span><span>{{ trip.passenger_count or 1 }} pax • {{ trip.luggage_info or 'Standard' }}</span></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="doc-box">
+                    <h6><i class="fas fa-route me-1"></i>Itinéraire & Calendrier</h6>
+                    <div class="doc-kv"><span>Mission</span><span>{{ trip.mission_title or 'Mission Flotte VIP' }}</span></div>
+                    <div class="doc-kv"><span>Trajet</span><span>{{ trip.pickup_location or (trip.route.origin if trip.route else '—') }} → {{ trip.destination_location or (trip.route.destination if trip.route else '—') }}</span></div>
+                    <div class="doc-kv"><span>Sortie</span><span>{{ trip.departure_time.strftime('%d/%m/%Y %H:%M') if trip.departure_time else '—' }}</span></div>
+                    <div class="doc-kv"><span>Restitution</span><span>{{ trip.arrival_time.strftime('%d/%m/%Y %H:%M') if trip.arrival_time else '—' }}</span></div>
+                </div>
+            </div>
+        </div>
+
+        {% if doc_type in ['order', 'driver_sheet', 'confirmation'] %}
+        <!-- FLEET & CREW DETAILS -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <div class="doc-box">
+                    <h6><i class="fas fa-car me-1"></i>Véhicule(s) du Convoi</h6>
+                    {% if trip.bus %}
+                    <div class="doc-kv"><span>Principal</span><span>{{ trip.bus.brand }} {{ trip.bus.model }} ({{ trip.bus.bus_number }})</span></div>
+                    {% endif %}
+                    {% if extra_vehicles %}
+                    <div class="doc-kv"><span>Convoi</span><span>{% for ev in extra_vehicles %}{{ ev.brand }} {{ ev.model }} ({{ ev.bus_number }}){% if not loop.last %}, {% endif %}{% endfor %}</span></div>
+                    {% endif %}
+                    <div class="doc-kv"><span>Protocole VIP</span><span>{{ trip.vip_protocol or 'Standard 3M VIP' }}</span></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="doc-box">
+                    <h6><i class="fas fa-id-badge me-1"></i>Équipage Chauffeur(s)</h6>
+                    <div class="doc-kv"><span>Chauffeur Principal</span><span>{{ trip.driver.name if trip.driver else 'À désigner' }} ({{ trip.driver.phone if trip.driver else '—' }})</span></div>
+                    {% if trip.secondary_driver %}<div class="doc-kv"><span>Co-Chauffeur</span><span>{{ trip.secondary_driver.name }} ({{ trip.secondary_driver.phone }})</span></div>{% endif %}
+                    {% if extra_drivers %}<div class="doc-kv"><span>Équipe Convoi</span><span>{% for ed in extra_drivers %}{{ ed.name }}{% if not loop.last %}, {% endif %}{% endfor %}</span></div>{% endif %}
+                    <div class="doc-kv"><span>Prime / Per Diem</span><span>{{ "{:,.0f}".format(trip.driver_allowance or 0).replace(',', ' ') }} FCFA</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="doc-box mb-4 small">
+            <h6><i class="fas fa-clipboard-list me-1"></i>Consignes & Étapes</h6>
+            <div><strong>Étapes :</strong> {{ trip.intermediate_stops or 'Trajet direct' }}</div>
+            <div><strong>Instructions Client :</strong> {{ trip.special_instructions or 'Protocole VIP habituel 3M.' }}</div>
+            <div><strong>Instructions Chauffeur :</strong> {{ trip.driver_instructions or 'Tenue de gala, véhicule propre, ponctualité 20 min avant prise en charge.' }}</div>
+        </div>
+
+        {% elif doc_type in ['quotation', 'invoice', 'receipt'] %}
+        <!-- FINANCIAL BREAKDOWN -->
+        <table class="table table-bordered align-middle mb-4 small">
+            <thead class="table-light">
+                <tr><th>Désignation Prestation VIP</th><th class="text-end" style="width: 180px;">Montant (FCFA)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>{{ trip.package.name if trip.package else (trip.mission_title or 'Mise à disposition Véhicule & Chauffeur VIP') }}</strong></td><td class="text-end">{{ "{:,.0f}".format(trip.base_price or trip.price or 0).replace(',', ' ') }} FCFA</td></tr>
+                {% if trip.distance_charge %}<tr><td>Frais de distance supplémentaire</td><td class="text-end">+ {{ "{:,.0f}".format(trip.distance_charge).replace(',', ' ') }} FCFA</td></tr>{% endif %}
+                {% if trip.duration_charge %}<tr><td>Frais de durée supplémentaire</td><td class="text-end">+ {{ "{:,.0f}".format(trip.duration_charge).replace(',', ' ') }} FCFA</td></tr>{% endif %}
+                {% if trip.waiting_charge %}<tr><td>Temps d'attente additionnel</td><td class="text-end">+ {{ "{:,.0f}".format(trip.waiting_charge).replace(',', ' ') }} FCFA</td></tr>{% endif %}
+                {% if trip.fuel_surcharge %}<tr><td>Supplément carburant</td><td class="text-end">+ {{ "{:,.0f}".format(trip.fuel_surcharge).replace(',', ' ') }} FCFA</td></tr>{% endif %}
+                {% if trip.toll_parking_charge %}<tr><td>Péages & stationnement</td><td class="text-end">+ {{ "{:,.0f}".format(trip.toll_parking_charge).replace(',', ' ') }} FCFA</td></tr>{% endif %}
+                {% if trip.stops_charge %}<tr><td>Arrêts intermédiaires</td><td class="text-end">+ {{ "{:,.0f}".format(trip.stops_charge).replace(',', ' ') }} FCFA</td></tr>{% endif %}
+                {% if trip.extras_price %}<tr><td>Options & services spéciaux VIP</td><td class="text-end">+ {{ "{:,.0f}".format(trip.extras_price).replace(',', ' ') }} FCFA</td></tr>{% endif %}
+                {% if trip.additional_charges %}<tr><td>Frais supplémentaires</td><td class="text-end">+ {{ "{:,.0f}".format(trip.additional_charges).replace(',', ' ') }} FCFA</td></tr>{% endif %}
+                {% if trip.tax_amount %}<tr><td>Taxes applicables</td><td class="text-end">+ {{ "{:,.0f}".format(trip.tax_amount).replace(',', ' ') }} FCFA</td></tr>{% endif %}
+                {% if trip.discount_amount %}<tr class="text-success"><td>Remise commerciale</td><td class="text-end">- {{ "{:,.0f}".format(trip.discount_amount).replace(',', ' ') }} FCFA</td></tr>{% endif %}
+            </tbody>
+            <tfoot>
+                <tr class="table-light"><th class="text-end">TOTAL TTC</th><th class="text-end fs-6 text-danger">{{ "{:,.0f}".format(trip.price or 0).replace(',', ' ') }} FCFA</th></tr>
+                <tr><th class="text-end text-success">ENCAISSÉ</th><th class="text-end text-success">{{ "{:,.0f}".format(paid_total or 0).replace(',', ' ') }} FCFA</th></tr>
+                <tr><th class="text-end">SOLDE RESTANT DÛ</th><th class="text-end {% if balance_due > 0 %}text-danger{% else %}text-success{% endif %}">{{ "{:,.0f}".format(balance_due).replace(',', ' ') }} FCFA</th></tr>
+            </tfoot>
+        </table>
+        {% if payments %}
+        <h6 class="small fw-bold text-uppercase text-muted mb-2">Détail des Règlements</h6>
+        <table class="table table-sm table-striped small mb-4">
+            <thead><tr><th>Date</th><th>Mode</th><th>Référence</th><th class="text-end">Montant</th></tr></thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <td>{{ p.created_at.strftime('%d/%m/%Y %H:%M') if p.created_at else '' }}</td>
+                    <td class="text-uppercase fw-semibold">{{ p.payment_method }}</td>
+                    <td>{{ p.transaction_id or ('PAY-' ~ p.id) }}</td>
+                    <td class="text-end fw-bold">{{ "{:,.0f}".format(p.amount or 0).replace(',', ' ') }} FCFA</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        {% elif doc_type == 'contract' %}
+        <!-- SERVICE CONTRACT -->
+        <div class="doc-box mb-4 small">
+            <h6>Conditions Générales & Engagements de Service 3M SERVICES</h6>
+            <ol class="mb-0 ps-3">
+                <li class="mb-1"><strong>Objet :</strong> 3M SERVICES SARL s'engage à mettre à disposition du Client le(s) véhicule(s) VIP désigné(s) avec chauffeur(s) qualifié(s) pour la durée et l'itinéraire convenus.</li>
+                <li class="mb-1"><strong>Tarification Figée :</strong> Le montant total convenu s'élève à <strong>{{ "{:,.0f}".format(trip.price or 0).replace(',', ' ') }} FCFA</strong>. Toute prolongation, heure d'attente additionnelle ou déviation hors forfait fera l'objet d'une facturation complémentaire selon les barèmes en vigueur.</li>
+                <li class="mb-1"><strong>Assurance & Sécurité :</strong> Les véhicules sont couverts par une assurance tous risques en cours de validité et inspectés avant chaque sortie.</li>
+                <li class="mb-1"><strong>Annulation :</strong> Toute annulation doit être notifiée avec motif écrit. Les conditions d'acompte et remboursement s'appliquent selon le forfait choisi.</li>
+                <li><strong>Confidentialité :</strong> Les chauffeurs 3M SERVICES sont soumis à une stricte obligation de confidentialité et de discrétion VIP.</li>
+            </ol>
+        </div>
+
+        {% elif doc_type == 'inspection' %}
+        <!-- VEHICLE INSPECTION REPORT -->
+        {% set chk = trip.pre_departure_checklist %}
+        <h6 class="small fw-bold text-uppercase text-danger mb-2">Relevés Compteur, Carburant & État Carrosserie</h6>
+        <table class="table table-bordered table-sm small mb-3">
+            <thead class="table-light"><tr><th>Point de Contrôle</th><th>Départ (Sortie)</th><th>Restitution (Retour)</th></tr></thead>
+            <tbody>
+                <tr><td class="fw-semibold">Kilométrage</td><td>{{ (trip.mileage_start ~ ' km') if trip.mileage_start else '________________ km' }}</td><td>{{ (trip.mileage_end ~ ' km') if trip.mileage_end else '________________ km' }}</td></tr>
+                <tr><td class="fw-semibold">Carburant</td><td>{{ trip.fuel_start or '☐ Plein  ☐ 3/4  ☐ 1/2  ☐ 1/4' }}</td><td>{{ trip.fuel_end or '☐ Plein  ☐ 3/4  ☐ 1/2  ☐ 1/4' }}</td></tr>
+                <tr><td class="fw-semibold">Horodatage Réel</td><td>{{ trip.actual_departure.strftime('%d/%m/%Y %H:%M') if trip.actual_departure else '____/____/202__ ____:____' }}</td><td>{{ trip.actual_arrival.strftime('%d/%m/%Y %H:%M') if trip.actual_arrival else '____/____/202__ ____:____' }}</td></tr>
+                <tr><td class="fw-semibold">Observations État</td><td colspan="2">{{ trip.vehicle_condition or 'RAS — Carrosserie, intérieur, pneus, climatisation et papiers de bord conformes.' }}</td></tr>
+            </tbody>
+        </table>
+        <div class="doc-box mb-4 small">
+            <h6>Check-list Pré-Départ</h6>
+            <div class="row g-1">
+                {% for ck, clbl in pre_departure_items %}
+                <div class="col-6">{{ '☑' if chk.get(ck) else '☐' }} {{ clbl }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% elif doc_type == 'completion' %}
+        <!-- COMPLETION REPORT -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="doc-box">
+                    <h6>Exécution Réelle</h6>
+                    <div class="doc-kv"><span>Statut Final</span><span class="text-uppercase">{{ trip.status }}</span></div>
+                    <div class="doc-kv"><span>Départ Réel</span><span>{{ trip.actual_departure.strftime('%d/%m/%Y %H:%M') if trip.actual_departure else '—' }}</span></div>
+                    <div class="doc-kv"><span>Retour Réel</span><span>{{ trip.actual_arrival.strftime('%d/%m/%Y %H:%M') if trip.actual_arrival else '—' }}</span></div>
+                    <div class="doc-kv"><span>Distance Parcourue</span><span>{{ ((trip.mileage_end - trip.mileage_start) ~ ' km') if (trip.mileage_start and trip.mileage_end) else '—' }}</span></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="doc-box">
+                    <h6>Bilan Financier Interne</h6>
+                    <div class="doc-kv"><span>Revenu Facturé</span><span>{{ "{:,.0f}".format(trip.price or 0).replace(',', ' ') }} FCFA</span></div>
+                    <div class="doc-kv"><span>Dépenses Mission</span><span>{{ "{:,.0f}".format(trip.total_expenses_amount or 0).replace(',', ' ') }} FCFA</span></div>
+                    <div class="doc-kv"><span>Marge Nette</span><span class="text-success">{{ "{:,.0f}".format(trip.mission_margin).replace(',', ' ') }} FCFA</span></div>
+                    <div class="doc-kv"><span>Incidents Déclarés</span><span>{{ incidents|length }}</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="doc-box mb-4 small">
+            <h6>Notes de Clôture & Retour Chauffeur</h6>
+            <div><strong>Synthèse clôture :</strong> {{ trip.completion_notes or 'Mission exécutée conformément aux exigences VIP 3M.' }}</div>
+            <div><strong>Retour chauffeur :</strong> {{ trip.driver_feedback or 'RAS.' }}</div>
+        </div>
+
+        {% elif doc_type == 'incident' %}
+        <!-- INCIDENT REPORT -->
+        <h6 class="small fw-bold text-uppercase text-danger mb-2">Journal des Incidents Déclarés sur la Mission</h6>
+        {% if incidents %}
+        <table class="table table-bordered table-sm small mb-4">
+            <thead class="table-light"><tr><th>Réf</th><th>Type & Gravité</th><th>Description</th><th>Responsable</th><th>Statut & Résolution</th></tr></thead>
+            <tbody>
+                {% for inc in incidents %}
+                <tr>
+                    <td class="fw-bold">{{ inc.incident_ref }}</td>
+                    <td>{{ incident_categories.get(inc.category, inc.category) }} ({{ inc.severity|upper }})</td>
+                    <td>{{ inc.description }}</td>
+                    <td>{{ inc.responsible_person or '—' }}</td>
+                    <td><strong>{{ inc.status|upper }}</strong>{% if inc.resolution %}<br>{{ inc.resolution }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="doc-box mb-4 small text-muted">Aucun incident déclaré sur cette mission à la date d'émission.</div>
+        {% endif %}
+        {% endif %}
+
+        <!-- SIGNATURES -->
+        <div class="row g-3 mt-2">
+            <div class="col-4"><div class="sig-box"><strong>Direction / Dispatch 3M</strong><span>Date & Cachet</span></div></div>
+            <div class="col-4"><div class="sig-box"><strong>Chauffeur VIP</strong><span>Signature</span></div></div>
+            <div class="col-4"><div class="sig-box"><strong>Client VIP</strong><span>Bon pour accord</span></div></div>
+        </div>
+
+        <div class="text-center text-muted mt-4 pt-3 border-top" style="font-size: .73rem;">
+            <strong>3M SERVICES SARL</strong> • Flotte VIP, Conciergerie & Résidences • Yaoundé, Cameroun • Document généré par 3M Fleet Mission Management System.
+        </div>
+    </div>
+</body>
+</html>

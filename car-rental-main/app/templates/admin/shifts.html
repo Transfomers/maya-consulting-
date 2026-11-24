@@ -1,545 +1,435 @@
 {% extends "base.html" %}
+{% from 'admin/_mission_table_macros.html' import mission_table_head, mission_row_cells %}
 
-{% block title %}Shift Management - 3M SERVICES{% endblock %}
+{% block title %}Rapport des Opérations du Jour — 3M SERVICES{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     {% include 'admin/_subnav.html' %}
 
-    <!-- Page Title -->
-    <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
-        <div>
-            <h3 class="fw-bold mb-1 text-dark"><i class="bi bi-clock-history text-primary me-2"></i> Centre des Shifts & Finances</h3>
-            <p class="text-muted mb-0">Suivi opérationnel journalier, clôtures de caisse et réconciliations Mobile Money.</p>
-        </div>
-    </div>
-
-    <!-- Unified Filters Panel (Always Visible for Super Admin, Visible for Agency Admin without agency filter) -->
-    <div class="card border-0 shadow-sm p-4 mb-4 fade-in animate-slide-up" style="border-radius: 1.25rem;">
-        <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-funnel me-2 text-primary"></i> Filtrer les Rapports de Shift</h5>
-        <form method="GET" action="{{ url_for('admin.shifts') }}" class="row g-3">
-            {% if current_user.role == 'super_admin' %}
-            <div class="col-md-3">
-                <label class="form-label small fw-semibold text-muted">Agence</label>
-                <select name="agency_id" class="form-select border-2">
-                    <option value="">-- Toutes les agences --</option>
-                    {% for agency in agencies %}
-                    <option value="{{ agency.id }}" {% if selected_agency and selected_agency.id == agency.id %}selected{% endif %}>
-                        {{ agency.name }} ({{ agency.city }})
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            {% endif %}
-            
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold text-muted">Statut</label>
-                <select name="status" class="form-select border-2">
-                    <option value="">-- Tous --</option>
-                    <option value="open" {% if selected_status == 'open' %}selected{% endif %}>Open</option>
-                    <option value="closed" {% if selected_status == 'closed' %}selected{% endif %}>Closed</option>
-                    <option value="auto_closed" {% if selected_status == 'auto_closed' %}selected{% endif %}>Auto Closed</option>
-                    <option value="reviewed" {% if selected_status == 'reviewed' %}selected{% endif %}>Reviewed</option>
-                    <option value="reopened" {% if selected_status == 'reopened' %}selected{% endif %}>Reopened</option>
-                </select>
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold text-muted">Date Spécifique</label>
-                <input type="date" name="date" class="form-control border-2" value="{{ selected_date or '' }}">
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold text-muted">Mois</label>
-                <select name="month" class="form-select border-2">
-                    <option value="">-- Tous --</option>
-                    <option value="1" {% if selected_month == 1 %}selected{% endif %}>Janvier</option>
-                    <option value="2" {% if selected_month == 2 %}selected{% endif %}>Février</option>
-                    <option value="3" {% if selected_month == 3 %}selected{% endif %}>Mars</option>
-                    <option value="4" {% if selected_month == 4 %}selected{% endif %}>Avril</option>
-                    <option value="5" {% if selected_month == 5 %}selected{% endif %}>Mai</option>
-                    <option value="6" {% if selected_month == 6 %}selected{% endif %}>Juin</option>
-                    <option value="7" {% if selected_month == 7 %}selected{% endif %}>Juillet</option>
-                    <option value="8" {% if selected_month == 8 %}selected{% endif %}>Août</option>
-                    <option value="9" {% if selected_month == 9 %}selected{% endif %}>Septembre</option>
-                    <option value="10" {% if selected_month == 10 %}selected{% endif %}>Octobre</option>
-                    <option value="11" {% if selected_month == 11 %}selected{% endif %}>Novembre</option>
-                    <option value="12" {% if selected_month == 12 %}selected{% endif %}>Décembre</option>
-                </select>
-            </div>
-
-            <div class="col-md-1">
-                <label class="form-label small fw-semibold text-muted">Année</label>
-                <select name="year" class="form-select border-2">
-                    <option value="">-- Tout --</option>
-                    {% for y in years %}
-                    <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="col-md-2 d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-primary w-100 fw-bold">
-                    <i class="bi bi-search me-1"></i> Filtrer
-                </button>
-                <a href="{{ url_for('admin.shifts') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-counterclockwise"></i>
-                </a>
-            </div>
-        </form>
-    </div>
-
-    <!-- Active Shift Panel (For Agency Admin or selected Agency for Super Admin) -->
-    <div class="row g-4 mb-4 fade-in">
-        <div class="col-12">
-            {% if active_shift %}
-            <!-- Active Shift Card -->
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative border-start border-4 border-warning">
-                <div class="bg-light p-4 d-flex justify-content-between align-items-center flex-wrap gap-3 border-bottom">
+    <!-- Top Centered Form Card Styled Like Add Driver -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10 col-xl-9">
+            <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
                     <div>
-                        <span class="badge bg-warning text-dark mb-2 px-3 py-2 text-uppercase fw-bold shadow-sm">
-                            <i class="bi bi-circle-fill me-1 animate-pulse text-danger"></i> Shift Actif en cours
-                        </span>
-                        <h4 class="fw-bold mb-1 text-dark">Shift du {{ active_shift.date.strftime('%d %B %Y') }} ({{ selected_agency.name if selected_agency else current_user.agency.name }})</h4>
-                        <p class="mb-0 text-muted small">
-                            <i class="bi bi-clock me-1"></i> Ouvert automatiquement à {{ active_shift.opened_at.strftime('%H:%M:%S') }}
+                        <h3 class="fw-bold"><i class="bi bi-plus-circle text-primary me-2"></i> Rapport des Opérations du Jour</h3>
+                        <p class="text-muted mb-0">
+                            Enregistrez le bilan quotidien sur les Sorties &amp; Missions de Flotte VIP, Messages, Appartements VIP ({{ apartments_total }} Tsinga &bull; {{ apartments_available }} dispos &bull; Face FECAFOOT) et Drivers.
                         </p>
                     </div>
-                    <div>
-                        <button class="btn btn-primary fw-bold px-4 py-2 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#closeShiftModal">
-                            <i class="bi bi-lock-fill me-2"></i> Soumettre Rapport & Clôturer
+                    <div class="d-flex gap-2">
+                        <button type="button" onclick="window.print()" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold">
+                            <i class="bi bi-printer me-1"></i> Imprimer / PDF
                         </button>
                     </div>
                 </div>
 
-                <div class="card-body p-4 bg-white">
-                    <h5 class="fw-bold text-dark mb-3">Statistiques en Temps Réel (Cashless)</h5>
-
-                    <div class="row g-3">
-                        <!-- Tickets Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
-                                    <i class="bi bi-ticket-perforated-fill fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Contrats Location</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ active_metrics.tickets_count }}</h4>
-                                </div>
+                <form method="POST" action="{{ url_for('admin.shifts') }}" class="needs-validation" novalidate>
+                    <div class="row g-3 mb-4">
+                        <!-- 1. Sorties & Missions de Flotte VIP -->
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="mission_summary" class="form-label">Sorties &amp; Missions de Flotte VIP</label>
+                                <a href="{{ url_for('admin.bookings') }}" class="small text-primary text-decoration-none fw-semibold mb-2">Voir &rarr;</a>
                             </div>
+                            <select class="form-select" id="mission_summary" name="mission_summary" required>
+                                <option value="{{ report_bookings|length }} missions ({{ cars_out_count }} véhicules en sortie) — CA {{ '{:,}'.format(missions_revenue|int).replace(',', ' ') }} FCFA" selected>
+                                    {{ report_bookings|length }} missions ({{ cars_out_count }} en sortie) — {{ "{:,}".format(missions_revenue | int).replace(",", " ") }} FCFA
+                                </option>
+                                {% for booking in report_bookings[:10] %}
+                                    {% set b_client = booking.passenger_name or (booking.user.real_name if (booking.user and booking.user.real_name) else (booking.user.username if booking.user else 'Client VIP')) %}
+                                    {% set b_car = (booking.trip.bus.brand ~ ' ' ~ booking.trip.bus.bus_number) if (booking.trip and booking.trip.bus) else 'Véhicule VIP' %}
+                                    <option value="{{ booking.booking_code or ('#' ~ booking.id) }} : {{ b_client }} — {{ b_car }}">
+                                        {{ booking.booking_code or ('3M-' ~ booking.id) }} : {{ b_client }} ({{ b_car }})
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
 
-                        <!-- Ticket Revenue Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
-                                    <i class="bi bi-currency-exchange fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Revenu Locations VIP</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ "{:,.0f}".format(active_metrics.tickets_revenue) }} FCFA</h4>
-                                </div>
+                        <!-- 2. Messages & Chat Privé 3M -->
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="messages_summary" class="form-label">Messages &amp; Chat Clients</label>
+                                <a href="{{ url_for('admin.chats') }}" class="small text-primary text-decoration-none fw-semibold mb-2">Ouvrir Chat &rarr;</a>
                             </div>
+                            <select class="form-select" id="messages_summary" name="messages_summary" required>
+                                <option value="{{ total_chats }} conversations ({{ total_messages_count }} messages, {{ unread_chats_count }} non lus)" selected>
+                                    {{ total_chats }} fils actifs — {{ total_messages_count }} messages ({{ unread_chats_count }} non lus)
+                                </option>
+                                {% for thread in chat_threads %}
+                                    <option value="Chat {{ thread.get('clientName') or 'Client VIP' }} : {{ thread.get('lastMessage') or 'Discussion ouverte' }}">
+                                        {{ thread.get('clientName') or 'Client VIP' }} — {{ (thread.get('lastMessage') or 'Discussion ouverte')[:45] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
 
-                        <!-- Parcels Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info">
-                                    <i class="bi bi-box-seam-fill fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Colis Envoyés</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ active_metrics.parcels_count }}</h4>
-                                </div>
+                        <!-- 3. APPARTEMENTS VIP (Tsinga • Face FECAFOOT /admin/locations) -->
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="apartment_summary" class="form-label">APPARTEMENTS VIP ({{ apartments_total }} Tsinga &bull; {{ apartments_available }} dispos &bull; Face FECAFOOT)</label>
+                                <a href="{{ url_for('admin.apartments') }}" class="small text-primary text-decoration-none fw-semibold mb-2">/admin/locations &rarr;</a>
                             </div>
+                            <select class="form-select" id="apartment_summary" name="apartment_summary" required>
+                                <option value="{{ apartments_total }} Tsinga / {{ apartments_available }} dispos (Face FECAFOOT)" selected>
+                                    APPARTEMENTS VIP : {{ apartments_total }} Tsinga &bull; {{ apartments_available }} dispos &bull; Face FECAFOOT
+                                </option>
+                                {% for apt in apartments_list %}
+                                    <option value="{{ apt.title }} ({{ apt.status }}) — {{ apt.location }}">
+                                        {{ apt.title }} — {{ apt.status }} ({{ apt.price }})
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
 
-                        <!-- Parcel Revenue Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
-                                    <i class="bi bi-wallet2 fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Revenu Colis</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ "{:,.0f}".format(active_metrics.parcels_revenue) }} FCFA</h4>
-                                </div>
+                        <!-- 4. Chauffeurs VIP (Drivers) -->
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="driver_summary" class="form-label">Chauffeurs VIP (Drivers)</label>
+                                <a href="{{ url_for('admin.drivers') }}" class="small text-primary text-decoration-none fw-semibold mb-2">Drivers &rarr;</a>
                             </div>
+                            <select class="form-select" id="driver_summary" name="driver_summary" required>
+                                <option value="{{ drivers_total }} chauffeurs ({{ drivers_active_count }} actifs) — Moyenne ⭐ {{ drivers_avg_rating }}" selected>
+                                    {{ drivers_total }} chauffeurs ({{ drivers_active_count }} actifs) — Moy. ⭐ {{ drivers_avg_rating }}
+                                </option>
+                                {% for drv in drivers_list %}
+                                    <option value="{{ drv.name }} ({{ drv.license_number }}) — {{ drv.status or 'available' }}">
+                                        {{ drv.name }} — Permis {{ drv.license_number }} ({{ 'Disponible' if (drv.status or 'available') in ['available', 'active'] else drv.status }})
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
 
-                        <!-- Agency Earnings Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
-                                    <i class="bi bi-cash-stack fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Gains Net Agence</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ "{:,.0f}".format(active_metrics.agency_earnings) }} FCFA</h4>
-                                </div>
-                            </div>
+                        <!-- 5. Date d'Opération du Jour -->
+                        <div class="col-md-6">
+                            <label for="operation_date" class="form-label">Date de l'Opération du Jour</label>
+                            <input type="date" class="form-control" id="operation_date" name="operation_date" value="{{ report_date.strftime('%Y-%m-%d') }}" required>
                         </div>
 
-                        <!-- Refunds Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-secondary bg-opacity-10 p-3 rounded-circle text-secondary">
-                                    <i class="bi bi-arrow-counterclockwise fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Remboursements</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ "{:,.0f}".format(active_metrics.refund_amount) }} FCFA</h4>
-                                </div>
+                        <!-- 6. Note Opérationnelle VIP (sur 5.0) — exact add_driver star group -->
+                        <div class="col-md-6">
+                            <label for="rating" class="form-label">Note Opérationnelle VIP (sur 5.0)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-warning"><i class="bi bi-star-fill"></i></span>
+                                <input type="number" step="0.1" min="1.0" max="5.0" class="form-control" id="rating" name="rating" value="{{ drivers_avg_rating or 4.9 }}" placeholder="4.9">
                             </div>
+                            <small class="text-muted">Évaluation moyenne des opérations &amp; chauffeurs VIP</small>
                         </div>
 
-                        <!-- Withdrawals Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
-                                    <i class="bi bi-bank fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Retraits Approuvés</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ "{:,.0f}".format(active_metrics.withdrawal_amount) }} FCFA</h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% elif not selected_agency and current_user.role == 'super_admin' and active_metrics %}
-            <!-- Global Metrics for Super Admin -->
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative border-start border-4 border-info">
-                <div class="bg-light p-4 d-flex justify-content-between align-items-center flex-wrap gap-3 border-bottom">
-                    <div>
-                        <span class="badge bg-info text-white mb-2 px-3 py-2 text-uppercase fw-bold shadow-sm">
-                            <i class="bi bi-globe me-1"></i> Vue Globale du Système
-                        </span>
-                        <h4 class="fw-bold mb-1 text-dark">Métriques d'Aujourd'hui (Toutes les agences)</h4>
-                    </div>
-                </div>
-                <div class="card-body p-4 bg-white">
-                    <h5 class="fw-bold text-dark mb-3">Statistiques en Temps Réel (Cashless)</h5>
-
-                    <div class="row g-3">
-                        <!-- Tickets Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
-                                    <i class="bi bi-ticket-perforated-fill fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Contrats Location</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ active_metrics.tickets_count }}</h4>
-                                </div>
-                            </div>
+                        <!-- 7. Attribuer à l'Agence -->
+                        <div class="col-md-12">
+                            <label for="agency_id" class="form-label">Attribuer à l'Agence</label>
+                            <select class="form-select" id="agency_id" name="agency_id">
+                                <option value="">Toutes les agences (3M SERVICES Global)</option>
+                                {% for agency in agencies %}
+                                    <option value="{{ agency.id }}" {% if selected_agency and selected_agency.id == agency.id %}selected{% endif %}>
+                                        {{ agency.name }} ({{ agency.city }})
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
 
-                        <!-- Ticket Revenue Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
-                                    <i class="bi bi-currency-exchange fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Revenu Locations VIP</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ "{:,.0f}".format(active_metrics.tickets_revenue) }} FCFA</h4>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Parcels Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info">
-                                    <i class="bi bi-box-seam-fill fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Colis Envoyés</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ active_metrics.parcels_count }}</h4>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Parcel Revenue Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
-                                    <i class="bi bi-wallet2 fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Revenu Colis</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ "{:,.0f}".format(active_metrics.parcels_revenue) }} FCFA</h4>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Agency Earnings Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
-                                    <i class="bi bi-cash-stack fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Gains Net Agence</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ "{:,.0f}".format(active_metrics.agency_earnings) }} FCFA</h4>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Refunds Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-secondary bg-opacity-10 p-3 rounded-circle text-secondary">
-                                    <i class="bi bi-arrow-counterclockwise fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Remboursements</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ "{:,.0f}".format(active_metrics.refund_amount) }} FCFA</h4>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Withdrawals Card -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
-                                <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
-                                    <i class="bi bi-bank fs-4"></i>
-                                </div>
-                                <div>
-                                    <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.75rem;">Retraits Approuvés</small>
-                                    <h4 class="fw-bold text-dark mb-0">{{ "{:,.0f}".format(active_metrics.withdrawal_amount) }} FCFA</h4>
-                                </div>
-                            </div>
+                        <!-- 8. Observations / Bilan du jour -->
+                        <div class="col-md-12">
+                            <label for="notes" class="form-label">Observations &amp; Synthèse des Opérations du Jour</label>
+                            <input type="text" class="form-control" id="notes" name="notes" placeholder="Ex: Toutes les sorties VIP confirmées, 4 appartements disponibles à Tsinga Face FECAFOOT, zéro incident...">
                         </div>
                     </div>
-                </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-arrow-left me-2"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                            <i class="bi bi-check-circle me-2"></i> Enregistrer
+                        </button>
+                    </div>
+                </form>
             </div>
-            {% else %}
-            <!-- Shift Closed for today or missing -->
-            <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-light border border-2 border-dashed">
-                <i class="bi bi-calendar-check fs-2 text-muted mb-2"></i>
-                <h6 class="fw-bold mb-1 text-dark">Pas de shift actif ouvert pour aujourd'hui</h6>
-                <p class="text-muted small mb-0">Le shift a déjà été clôturé pour aujourd'hui, ou le système est en attente.</p>
-            </div>
-            {% endif %}
         </div>
     </div>
 
-    <!-- Shift Table -->
-    <div class="card border-0 shadow-sm rounded-4 fade-in">
-        <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4">
-            <h5 class="fw-bold text-dark mb-1">Rapports Journaliers des Shifts</h5>
-            <p class="text-muted small mb-0">Historique complet de toutes les journées d'opération cashless.</p>
+    <!-- 4 Operational Pillar Cards & Period Tabs -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+            <a href="{{ url_for('admin.bookings') }}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 p-3 fade-in" style="border-radius: 1.25rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.7rem;">Sorties &amp; Missions VIP</span>
+                        <i class="bi bi-car-front-fill text-danger"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0">{{ report_bookings|length }} <small class="text-danger fs-6 fw-normal">({{ cars_out_count }} en sortie)</small></h4>
+                    <small class="text-muted mt-1">{{ "{:,}".format(missions_revenue | int).replace(",", " ") }} FCFA</small>
+                </div>
+            </a>
         </div>
-
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light text-muted small text-uppercase">
-                        <tr>
-                            <th class="ps-4">Date</th>
-                            <th>Agence</th>
-                            <th>Recettes Cashless</th>
-                            <th>Tickets</th>
-                            <th>Colis</th>
-                            <th>Remboursements</th>
-                            <th>Gains Net Agence</th>
-                            <th>Statut</th>
-                            <th class="text-end pe-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for shift in past_shifts %}
-                        <tr>
-                            <td class="ps-4 fw-bold text-dark">
-                                {{ shift.date.strftime('%d/%m/%Y') }}
-                            </td>
-                            <td>
-                                <span class="fw-semibold text-secondary">{{ shift.agency.name if shift.agency else 'Globale' }}</span>
-                            </td>
-                            <td>
-                                <div class="fw-bold text-dark">{{ "{:,.0f}".format(shift.total_revenue) }} FCFA</div>
-                                <div class="small text-muted" style="font-size: 0.75rem;">
-                                    MoMo: {{ "{:,.0f}".format(shift.momo_revenue) }} | OM: {{ "{:,.0f}".format(shift.orange_revenue) }}
-                                </div>
-                            </td>
-                            <td>
-                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1 small fw-bold">
-                                    {{ shift.tickets_count }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2 py-1 small fw-bold">
-                                    {{ shift.parcels_count }}
-                                </span>
-                            </td>
-                            <td class="text-danger fw-semibold">
-                                {{ "{:,.0f}".format(shift.refund_amount) }} FCFA
-                            </td>
-                            <td class="text-success fw-bold">
-                                {{ "{:,.0f}".format(shift.agency_earnings) }} FCFA
-                            </td>
-                            <td>
-                                {% if shift.status == 'open' %}
-                                <span class="badge bg-warning text-dark"><i class="bi bi-unlock-fill me-1"></i> Open</span>
-                                {% elif shift.status == 'closed' %}
-                                <span class="badge bg-success"><i class="bi bi-lock-fill me-1"></i> Closed</span>
-                                {% elif shift.status == 'auto_closed' %}
-                                <span class="badge bg-secondary"><i class="bi bi-robot me-1"></i> Auto Closed</span>
-                                {% elif shift.status == 'reviewed' %}
-                                <span class="badge bg-primary"><i class="bi bi-patch-check-fill me-1"></i> Reviewed</span>
-                                {% elif shift.status == 'reopened' %}
-                                <span class="badge bg-info text-dark"><i class="bi bi-arrow-repeat me-1"></i> Reopened</span>
-                                {% else %}
-                                <span class="badge bg-dark">{{ shift.status }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-end pe-4 text-nowrap">
-                                <a href="{{ url_for('admin.shift_detail', shift_id=shift.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 me-1">
-                                    <i class="bi bi-eye-fill"></i> Détails
-                                </a>
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle rounded-pill px-3 py-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Exporter
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                                        <li>
-                                            <a class="dropdown-item" href="{{ url_for('admin.export_shift_pdf', shift_id=shift.id) }}">
-                                                <i class="bi bi-file-pdf text-danger me-2"></i> PDF
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ url_for('admin.export_shift_csv', shift_id=shift.id) }}">
-                                                <i class="bi bi-file-csv text-success me-2"></i> CSV
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="9" class="text-center py-5 text-muted">
-                                <i class="bi bi-inbox fs-2 d-block mb-3"></i>
-                                Aucun shift enregistré correspondant aux critères.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div class="col-6 col-xl-3">
+            <a href="{{ url_for('admin.chats') }}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 p-3 fade-in" style="border-radius: 1.25rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.7rem;">Messages Clients</span>
+                        <i class="bi bi-chat-dots-fill text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0">{{ total_chats }} <small class="text-primary fs-6 fw-normal">({{ unread_chats_count }} non lus)</small></h4>
+                    <small class="text-muted mt-1">{{ total_messages_count }} messages échangés</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-xl-3">
+            <a href="{{ url_for('admin.apartments') }}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 p-3 fade-in" style="border-radius: 1.25rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.7rem;">APPARTEMENTS VIP</span>
+                        <i class="bi bi-building-fill-check text-success"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0">{{ apartments_total }} Tsinga <small class="text-success fs-6 fw-normal">&bull; {{ apartments_available }} dispos</small></h4>
+                    <small class="text-muted mt-1"><i class="bi bi-geo-alt-fill text-danger me-1"></i>Face FECAFOOT</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-xl-3">
+            <a href="{{ url_for('admin.drivers') }}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 p-3 fade-in" style="border-radius: 1.25rem;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.7rem;">Chauffeurs VIP (Drivers)</span>
+                        <i class="bi bi-person-badge-fill text-warning"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0">{{ drivers_total }} <small class="text-warning fs-6 fw-normal">({{ drivers_active_count }} actifs)</small></h4>
+                    <small class="text-muted mt-1">Moyenne ⭐ {{ drivers_avg_rating }} / 5.0</small>
+                </div>
+            </a>
         </div>
     </div>
+
+    <!-- Filter Pills -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <div class="d-flex flex-wrap gap-2" id="reportSectionTabs">
+            <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold report-tab-btn active" data-section="all">Tous les Détails</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold report-tab-btn" data-section="sec-missions">Sorties &amp; Missions VIP</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold report-tab-btn" data-section="sec-messages">Messages</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold report-tab-btn" data-section="sec-apartments">Appartements VIP Tsinga</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold report-tab-btn" data-section="sec-drivers">Drivers</button>
+        </div>
+        <div class="d-flex gap-1.5 flex-wrap">
+            <a href="{{ url_for('admin.shifts', period='day') }}" class="btn btn-xs {% if period == 'day' %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} rounded-pill px-2.5">Jour</a>
+            <a href="{{ url_for('admin.shifts', period='week') }}" class="btn btn-xs {% if period == 'week' %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} rounded-pill px-2.5">7 Jours</a>
+            <a href="{{ url_for('admin.shifts', period='month') }}" class="btn btn-xs {% if period == 'month' %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} rounded-pill px-2.5">Mois</a>
+            <a href="{{ url_for('admin.shifts', period='all') }}" class="btn btn-xs {% if period == 'all' %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} rounded-pill px-2.5">Tous</a>
+        </div>
+    </div>
+
+    <!-- 1. Sorties & Missions de Flotte VIP Table Card -->
+    <div class="card border-0 shadow-sm p-4 mb-4 fade-in report-block" id="sec-missions" style="border-radius: 1.5rem;">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-car-front-fill text-danger me-2"></i> Sorties &amp; Missions de Flotte VIP</h5>
+                <small class="text-muted">Opérations de flotte, clients VIP, chauffeurs assignés et retours prévus.</small>
+            </div>
+            <a href="{{ url_for('admin.bookings') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold">Gérer Sorties &rarr;</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="min-width: 1320px;">
+                {{ mission_table_head() }}
+                <tbody>
+                    {% for booking in report_bookings %}
+                    <tr>
+                        {{ mission_row_cells(booking, booking.trip, now) }}
+                        <td class="text-end pe-3">
+                            <a href="{{ url_for('admin.edit_booking', id=booking.id) }}" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5">Détails</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="11" class="text-center py-4 text-muted">Aucune mission VIP enregistrée sur cette période.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 2. Messages Clients Card -->
+    <div class="card border-0 shadow-sm p-4 mb-4 fade-in report-block" id="sec-messages" style="border-radius: 1.5rem;">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-chat-dots-fill text-primary me-2"></i> Messages &amp; Chat Privé 3M</h5>
+                <small class="text-muted">Fils de discussion actifs entre clients et administration.</small>
+            </div>
+            <a href="{{ url_for('admin.chats') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold">Ouvrir Chat &rarr;</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="small text-muted">CLIENT VIP</th>
+                        <th class="small text-muted">CONTACT</th>
+                        <th class="small text-muted">DERNIER MESSAGE</th>
+                        <th class="small text-muted">STATUT</th>
+                        <th class="small text-muted text-end">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for thread in chat_threads %}
+                    {% set unread = (thread.get('unreadAdmin', 0) | int) %}
+                    <tr>
+                        <td class="fw-bold small text-dark">{{ thread.get('clientName') or 'Client VIP 3M' }}</td>
+                        <td class="small text-muted">{{ thread.get('clientPhone') or thread.get('clientEmail') or 'Direct' }}</td>
+                        <td class="small text-dark">{{ thread.get('lastMessage') or 'Discussion ouverte' }}</td>
+                        <td>
+                            {% if unread > 0 %}
+                                <span class="badge bg-danger text-white">{{ unread }} Non lu</span>
+                            {% else %}
+                                <span class="badge bg-success-soft text-success">Répondu</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('admin.chats', client_id=thread.get('id') or thread.get('clientId')) }}" class="btn btn-xs btn-primary rounded-pill px-3">Répondre</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center py-3 text-muted">Aucun message actif.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. APPARTEMENTS VIP (Tsinga • Face FECAFOOT /admin/locations) Card -->
+    <div class="card border-0 shadow-sm p-4 mb-4 fade-in report-block" id="sec-apartments" style="border-radius: 1.5rem;">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-building-fill-check text-success me-2"></i> APPARTEMENTS VIP ({{ apartments_total }} Tsinga &bull; {{ apartments_available }} dispos &bull; Face FECAFOOT)</h5>
+                <small class="text-muted">Catalogue locatif des appartements meublés sur <a href="{{ url_for('admin.apartments') }}" class="text-decoration-none fw-semibold">/admin/locations</a>.</small>
+            </div>
+            <a href="{{ url_for('admin.apartments') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold">Voir Locations &rarr;</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="small text-muted">RÉF</th>
+                        <th class="small text-muted">APPARTEMENT</th>
+                        <th class="small text-muted">LOCALISATION</th>
+                        <th class="small text-muted">TARIF</th>
+                        <th class="small text-muted">STATUT</th>
+                        <th class="small text-muted text-end">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apt in apartments_list %}
+                    <tr>
+                        <td class="fw-bold small font-monospace">#{{ apt.id }}</td>
+                        <td>
+                            <div class="fw-bold small text-dark">{{ apt.title }}</div>
+                            <small class="text-muted">{{ apt.type }}</small>
+                        </td>
+                        <td class="small text-dark"><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ apt.location }}</td>
+                        <td class="fw-bold small text-dark">{{ apt.price }}</td>
+                        <td>
+                            <span class="badge {% if apt.status == 'Disponible' %}bg-success-soft text-success{% else %}bg-warning-soft text-warning{% endif %}">{{ apt.status }}</span>
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('admin.apartments') }}" class="btn btn-xs btn-outline-secondary rounded-pill px-3">Gérer</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center py-3 text-muted">Aucun appartement enregistré.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. Drivers Card -->
+    <div class="card border-0 shadow-sm p-4 mb-4 fade-in report-block" id="sec-drivers" style="border-radius: 1.5rem;">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-person-badge-fill text-warning me-2"></i> Chauffeurs VIP (Drivers)</h5>
+                <small class="text-muted">Effectif chauffeurs d'élite, permis de conduire et missions assignées.</small>
+            </div>
+            <a href="{{ url_for('admin.drivers') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold">Gérer Drivers &rarr;</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="small text-muted">CHAUFFEUR</th>
+                        <th class="small text-muted">TÉLÉPHONE</th>
+                        <th class="small text-muted">PERMIS</th>
+                        <th class="small text-muted">DERNIÈRE MISSION</th>
+                        <th class="small text-muted">NOTE VIP</th>
+                        <th class="small text-muted">STATUT</th>
+                        <th class="small text-muted text-end">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for drv in drivers_list %}
+                    {% set drv_trip = driver_missions.get(drv.id) %}
+                    <tr>
+                        <td class="fw-bold small text-dark">{{ drv.name }}</td>
+                        <td class="small text-muted">{{ drv.phone or 'Contact 3M' }}</td>
+                        <td class="small font-monospace">{{ drv.license_number }}</td>
+                        <td class="small text-dark">
+                            {% if drv_trip and drv_trip.bus %}
+                                {{ drv_trip.bus.brand }} ({{ drv_trip.bus.bus_number }})
+                            {% else %}
+                                Disponible
+                            {% endif %}
+                        </td>
+                        <td class="small fw-bold">⭐ {{ "%.1f"|format(drv.rating or 4.9) }}</td>
+                        <td>
+                            <span class="badge bg-success-soft text-success">{{ 'Disponible' if (drv.status or 'available') in ['available', 'active'] else drv.status }}</span>
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('admin.edit_driver', id=drv.id) }}" class="btn btn-xs btn-outline-secondary rounded-pill px-3">Modifier</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="text-center py-3 text-muted">Aucun chauffeur enregistré.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if daily_reports %}
+    <!-- Historical Saved Daily Operation Reports -->
+    <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-journal-check text-primary me-2"></i> Historique des Rapports Enregistrés</h6>
+        <div class="list-group list-group-flush">
+            {% for rep in daily_reports %}
+            <div class="list-group-item px-0 py-2.5 d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div class="small text-dark">{{ rep.details }}</div>
+                <span class="badge bg-light text-muted border">{{ rep.timestamp.strftime('%d/%m/%Y %H:%M') if rep.timestamp else '' }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 </div>
+{% endblock %}
 
-{% if active_shift %}
-<!-- Close Shift Modal -->
-<div class="modal fade" id="closeShiftModal" tabindex="-1" aria-labelledby="closeShiftModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-            <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold text-dark" id="closeShiftModalLabel">Résumé du Rapport Journalier & Clôture</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="{{ url_for('admin.close_shift') }}" method="POST">
-                <input type="hidden" name="agency_id" value="{{ active_shift.agency_id }}">
-                <div class="modal-body py-4 px-4">
-                    <p class="text-muted mb-4">
-                        Ce rapport consolidé résume l'activité cashless de votre agence pour le <strong>{{ active_shift.date.strftime('%d/%m/%Y') }}</strong>. 
-                        Veuillez le relire attentivement et ajouter vos commentaires de réconciliation avant de le soumettre.
-                    </p>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('#reportSectionTabs .report-tab-btn');
+    const blocks = document.querySelectorAll('.report-block');
 
-                    <div class="row g-3">
-                        <!-- Left Panel: Summary numbers -->
-                        <div class="col-md-7">
-                            <div class="bg-light p-4 rounded-3 border h-100">
-                                <h6 class="fw-bold mb-3 text-dark border-bottom pb-2">Détails Financiers Consolidés</h6>
-                                
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Chiffre d'Affaires Tickets :</span>
-                                    <span class="fw-semibold text-dark">{{ "{:,.0f}".format(active_metrics.tickets_revenue) }} FCFA</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Chiffre d'Affaires Colis :</span>
-                                    <span class="fw-semibold text-dark">{{ "{:,.0f}".format(active_metrics.parcels_revenue) }} FCFA</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2 text-danger">
-                                    <span>Remboursements accordés :</span>
-                                    <span>- {{ "{:,.0f}".format(active_metrics.refund_amount) }} FCFA</span>
-                                </div>
-                                <hr class="my-2">
-                                <div class="d-flex justify-content-between mb-2 text-dark fw-bold">
-                                    <span>Recette Brute Consolide :</span>
-                                    <span>{{ "{:,.0f}".format(active_metrics.total_revenue) }} FCFA</span>
-                                </div>
-
-                                <div class="d-flex justify-content-between mb-2 text-success fw-bold">
-                                    <span>Gains Net de l'Agence :</span>
-                                    <span>{{ "{:,.0f}".format(active_metrics.agency_earnings) }} FCFA</span>
-                                </div>
-                                <hr class="my-2">
-                                <div class="d-flex justify-content-between mb-2 text-warning fw-semibold">
-                                    <span>Retraits & Décaissements :</span>
-                                    <span>- {{ "{:,.0f}".format(active_metrics.withdrawal_amount) }} FCFA</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-0 text-success fw-bold fs-5">
-                                    <span>Balance Disponible :</span>
-                                    <span>{{ "{:,.0f}".format(active_metrics.agency_earnings - active_metrics.withdrawal_amount) }} FCFA</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Panel: Payment methods & counters -->
-                        <div class="col-md-5">
-                            <div class="bg-light p-4 rounded-3 border h-100">
-                                <h6 class="fw-bold mb-3 text-dark border-bottom pb-2">Volumes & Flux</h6>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Tickets Confirmés :</span>
-                                    <span class="badge bg-primary rounded-pill">{{ active_metrics.tickets_count }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Colis Enregistrés :</span>
-                                    <span class="badge bg-info text-dark rounded-pill">{{ active_metrics.parcels_count }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Passagers Voyageurs :</span>
-                                    <span class="badge bg-secondary rounded-pill">{{ active_metrics.passenger_count }}</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-3 text-danger">
-                                    <span>Billets Annulés :</span>
-                                    <span>{{ active_metrics.cancelled_tickets }}</span>
-                                </div>
-
-                                <h6 class="fw-bold mb-2 text-dark pt-2">Opérateurs Mobiles</h6>
-                                <div class="d-flex justify-content-between mb-1 text-muted small">
-                                    <span>MTN Mobile Money :</span>
-                                    <span class="fw-semibold">{{ "{:,.0f}".format(active_metrics.momo_revenue) }} FCFA</span>
-                                </div>
-                                <div class="d-flex justify-content-between text-muted small">
-                                    <span>Orange Money :</span>
-                                    <span class="fw-semibold">{{ "{:,.0f}".format(active_metrics.orange_revenue) }} FCFA</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Reconciliation notes input -->
-                    <div class="mb-0 mt-4">
-                        <label for="summary_notes" class="form-label fw-bold text-dark"><i class="bi bi-chat-left-text me-1"></i> Notes de Clôture / Réconciliation</label>
-                        <textarea class="form-control border-2" id="summary_notes" name="summary_notes" rows="3" 
-                                  placeholder="Veuillez détailler toute anomalie, écart de caisse Mobile Money ou explication des flux financiers de la journée..." required></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Valider et Clôturer la Journée</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-{% endif %}
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            tabButtons.forEach(b => {
+                b.classList.remove('active', 'btn-primary');
+                b.classList.add('btn-outline-secondary');
+            });
+            this.classList.add('active', 'btn-primary');
+            this.classList.remove('btn-outline-secondary');
+            const target = this.getAttribute('data-section');
+            blocks.forEach(block => {
+                block.style.display = (target === 'all' || block.id === target) ? '' : 'none';
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

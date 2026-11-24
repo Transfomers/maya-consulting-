@@ -49,6 +49,18 @@ function ClientPortalModal() {
       localStorage.setItem("3m_vip_account", JSON.stringify(updatedClient));
       setProfileSavedMsg("Vos informations ont été mises à jour avec succès !");
       setTimeout(() => setProfileSavedMsg(""), 3500);
+      fetch("http://127.0.0.1:5002/api/visitor-checkin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: updatedClient.name,
+          phone: updatedClient.phone,
+          location: updatedClient.address || updatedClient.city || "Yaoundé",
+          city: updatedClient.city || "Yaoundé",
+          email: updatedClient.email || "",
+          page: "/client-portal"
+        })
+      }).catch(() => {});
     } catch (err) {}
   };
 

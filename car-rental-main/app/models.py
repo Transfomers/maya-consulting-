@@ -192,7 +192,7 @@ class Driver(db.Model):
     is_deleted = db.Column(db.Boolean, default=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     
-    trips = db.relationship('Trip', backref='driver', lazy='dynamic')
+    trips = db.relationship('Trip', foreign_keys='Trip.driver_id', backref='driver', lazy='dynamic')
     
     def __repr__(self):
         return f'<Driver {self.name}>'
@@ -310,6 +310,7 @@ class Route(db.Model): # Representing Lignes (lines)
     duration = db.Column(db.String(50), nullable=True) # Durée estimée
     base_price = db.Column(db.Float, nullable=True) # Tarif de base (optionnel)
     stops = db.Column(db.Text, nullable=True) # Arrêts intermédiaires
+    route_instructions = db.Column(db.Text, nullable=True) # Consignes d'itinéraire VIP
     
     # New Audit/Status Fields
     is_deleted = db.Column(db.Boolean, default=False)
@@ -409,7 +410,62 @@ class Trip(db.Model): # Representing Trajets (scheduled trips)
     booking_cutoff_minutes = db.Column(db.Integer, nullable=False, default=30)
     schedule_id = db.Column(db.Integer, db.ForeignKey('trip_schedule.id'), nullable=True)  # links generated trips to their schedule
 
-    
+    # ── Fleet Mission Management System (VIP Operations) ──
+    mission_ref = db.Column(db.String(40), nullable=True)
+    mission_title = db.Column(db.String(160), nullable=True)
+    mission_type = db.Column(db.String(30), default='vip_rental')  # one_way, round_trip, hourly, daily, multi_day, vip_rental
+    mission_category = db.Column(db.String(50), default='custom')  # airport_transfer, intercity, city_transport, chauffeur_disposal, vip_delegation, corporate, event, long_distance, multi_day, custom
+    service_category = db.Column(db.String(30), default='VIP')  # VIP, Premium, Standard, Delegation
+    source_booking_id = db.Column(db.Integer, nullable=True)  # Link to existing customer reservation when converted
+    pickup_location = db.Column(db.String(200), nullable=True)
+    destination_location = db.Column(db.String(200), nullable=True)
+    intermediate_stops = db.Column(db.Text, nullable=True)
+    route_instructions = db.Column(db.Text, nullable=True)
+    passenger_count = db.Column(db.Integer, default=1)
+    luggage_info = db.Column(db.String(160), nullable=True)
+    special_instructions = db.Column(db.Text, nullable=True)
+    internal_notes = db.Column(db.Text, nullable=True)
+    vip_protocol = db.Column(db.String(200), nullable=True)
+    contact_person = db.Column(db.String(160), nullable=True)
+
+    # Multi-vehicle & Multi-Driver Convoys
+    extra_vehicle_ids_json = db.Column(db.Text, nullable=True)
+    secondary_driver_id = db.Column(db.Integer, db.ForeignKey('driver.id'), nullable=True)
+    extra_driver_ids_json = db.Column(db.Text, nullable=True)
+    driver_assignment_status = db.Column(db.String(30), default='assigned')  # pending, assigned, accepted, declined, completed
+    driver_instructions = db.Column(db.Text, nullable=True)
+    driver_allowance = db.Column(db.Float, default=0.0)
+    driver_feedback = db.Column(db.Text, nullable=True)
+
+    # Package & Frozen Pricing Engine (Customer Pricing separate from Internal Cost)
+    package_id = db.Column(db.Integer, db.ForeignKey('mission_package.id'), nullable=True)
+    base_price = db.Column(db.Float, default=0.0)
+    distance_charge = db.Column(db.Float, default=0.0)
+    duration_charge = db.Column(db.Float, default=0.0)
+    waiting_charge = db.Column(db.Float, default=0.0)
+    fuel_surcharge = db.Column(db.Float, default=0.0)
+    toll_parking_charge = db.Column(db.Float, default=0.0)
+    stops_charge = db.Column(db.Float, default=0.0)
+    extras_price = db.Column(db.Float, default=0.0)
+    additional_charges = db.Column(db.Float, default=0.0)
+    discount_amount = db.Column(db.Float, default=0.0)
+    tax_amount = db.Column(db.Float, default=0.0)
+    customer_deposit = db.Column(db.Float, default=0.0)
+    price_snapshot_json = db.Column(db.Text, nullable=True)
+
+    # Execution, Pre-Departure Checklist, Telemetry, Mileage & Condition
+    pre_departure_checklist_json = db.Column(db.Text, nullable=True)
+    mileage_start = db.Column(db.Integer, nullable=True)
+    mileage_end = db.Column(db.Integer, nullable=True)
+    fuel_start = db.Column(db.String(30), nullable=True)
+    fuel_end = db.Column(db.String(30), nullable=True)
+    vehicle_condition = db.Column(db.Text, nullable=True)
+    actual_departure = db.Column(db.DateTime, nullable=True)
+    actual_arrival = db.Column(db.DateTime, nullable=True)
+    delay_reason = db.Column(db.String(255), nullable=True)
+    cancellation_reason = db.Column(db.String(255), nullable=True)
+    completion_notes = db.Column(db.Text, nullable=True)
+
     # New Audit/Status Fields
     is_deleted = db.Column(db.Boolean, default=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
@@ -418,6 +474,79 @@ class Trip(db.Model): # Representing Trajets (scheduled trips)
     # Relationships
     bookings = db.relationship('Booking', backref='trip', lazy='dynamic', cascade="all, delete-orphan")
     feedbacks = db.relationship('Feedback', backref='trip', lazy='dynamic')
+    secondary_driver = db.relationship('Driver', foreign_keys=[secondary_driver_id])
+    package = db.relationship('MissionPackage', foreign_keys=[package_id])
+    expenses = db.relationship('MissionExpense', backref='trip', lazy='dynamic', cascade="all, delete-orphan")
+    mission_incidents = db.relationship('MissionIncident', backref='trip', lazy='dynamic', cascade="all, delete-orphan")
+
+    @property
+    def extra_vehicle_ids(self):
+        if not self.extra_vehicle_ids_json:
+            return []
+        try:
+            return [int(x) for x in _json.loads(self.extra_vehicle_ids_json) if str(x).isdigit()]
+        except Exception:
+            return []
+
+    @extra_vehicle_ids.setter
+    def extra_vehicle_ids(self, val):
+        if isinstance(val, list):
+            self.extra_vehicle_ids_json = _json.dumps([int(x) for x in val if str(x).isdigit()])
+        else:
+            self.extra_vehicle_ids_json = None
+
+    @property
+    def extra_driver_ids(self):
+        if not self.extra_driver_ids_json:
+            return []
+        try:
+            return [int(x) for x in _json.loads(self.extra_driver_ids_json) if str(x).isdigit()]
+        except Exception:
+            return []
+
+    @extra_driver_ids.setter
+    def extra_driver_ids(self, val):
+        if isinstance(val, list):
+            self.extra_driver_ids_json = _json.dumps([int(x) for x in val if str(x).isdigit()])
+        else:
+            self.extra_driver_ids_json = None
+
+    @property
+    def pre_departure_checklist(self):
+        defaults = {
+            'vehicle_inspected': False,
+            'fuel_checked': False,
+            'mileage_logged': False,
+            'photos_taken': False,
+            'driver_confirmed': False,
+            'passenger_confirmed': False,
+            'documents_ready': False,
+            'departure_authorized': False,
+        }
+        if not self.pre_departure_checklist_json:
+            return defaults
+        try:
+            parsed = _json.loads(self.pre_departure_checklist_json)
+            if isinstance(parsed, dict):
+                defaults.update(parsed)
+        except Exception:
+            pass
+        return defaults
+
+    @pre_departure_checklist.setter
+    def pre_departure_checklist(self, val):
+        if isinstance(val, dict):
+            self.pre_departure_checklist_json = _json.dumps(val, ensure_ascii=False)
+        else:
+            self.pre_departure_checklist_json = None
+
+    @property
+    def total_expenses_amount(self):
+        return sum((e.amount or 0.0) for e in self.expenses.all())
+
+    @property
+    def mission_margin(self):
+        return float(self.price or 0.0) - float(self.total_expenses_amount or 0.0)
 
     @property
     def available_seats(self):
@@ -815,3 +944,74 @@ class ContactMessage(db.Model):
 
     def __repr__(self):
         return f'<ContactMessage {self.name} - {self.email}>'
+
+
+class MissionPackage(db.Model):
+    """Reusable VIP service packages (Forfaits VIP) with pricing & policy metadata."""
+    __tablename__ = 'mission_package'
+    id = db.Column(db.Integer, primary_key=True)
+    package_ref = db.Column(db.String(40), nullable=True)
+    name = db.Column(db.String(140), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    service_category = db.Column(db.String(40), default='VIP')  # VIP, Premium, Standard, Delegation
+    pricing_mode = db.Column(db.String(30), default='fixed')  # fixed, hourly, daily, one_way, round_trip, distance, custom
+    base_price = db.Column(db.Float, nullable=False, default=75000.0)
+    included_km = db.Column(db.Integer, default=100)
+    included_hours = db.Column(db.Integer, default=8)
+    extra_km_price = db.Column(db.Float, default=500.0)
+    extra_hour_price = db.Column(db.Float, default=15000.0)
+    waiting_allowance_minutes = db.Column(db.Integer, default=30)
+    waiting_hour_price = db.Column(db.Float, default=10000.0)
+    overtime_price = db.Column(db.Float, default=15000.0)
+    fuel_toll_policy = db.Column(db.String(160), default='Carburant & péages inclus en zone urbaine')
+    applicable_routes = db.Column(db.String(200), default='Toutes destinations Cameroun')
+    terms_conditions = db.Column(db.Text, nullable=True)
+    passenger_limit = db.Column(db.Integer, default=4)
+    luggage_limit = db.Column(db.String(80), default='4 valises')
+    vehicle_categories = db.Column(db.String(160), default='Berline VIP, SUV 4x4, Pick-up, Minibus')
+    promo_code = db.Column(db.String(40), nullable=True)
+    discount_percent = db.Column(db.Float, default=0.0)
+    corporate_price = db.Column(db.Float, nullable=True)
+    valid_from = db.Column(db.Date, nullable=True)
+    valid_until = db.Column(db.Date, nullable=True)
+    status = db.Column(db.String(20), default='active')  # active, inactive, archived
+    agency_id = db.Column(db.Integer, db.ForeignKey('agency.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<MissionPackage {self.id}: {self.name}>'
+
+
+class MissionExpense(db.Model):
+    """Operational expenses tied directly to a fleet mission."""
+    __tablename__ = 'mission_expense'
+    id = db.Column(db.Integer, primary_key=True)
+    trip_id = db.Column(db.Integer, db.ForeignKey('trip.id'), nullable=False)
+    category = db.Column(db.String(40), nullable=False, default='fuel')  # fuel, toll, parking, driver_allowance, accommodation, maintenance, other
+    description = db.Column(db.String(255), nullable=True)
+    amount = db.Column(db.Float, nullable=False, default=0.0)
+    expense_date = db.Column(db.DateTime, default=datetime.utcnow)
+    recorded_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<MissionExpense {self.id}: {self.category} {self.amount}>'
+
+
+class MissionIncident(db.Model):
+    """Operational incident log for a fleet mission."""
+    __tablename__ = 'mission_incident'
+    id = db.Column(db.Integer, primary_key=True)
+    incident_ref = db.Column(db.String(40), nullable=False)
+    trip_id = db.Column(db.Integer, db.ForeignKey('trip.id'), nullable=False)
+    category = db.Column(db.String(40), nullable=False, default='delay')  # breakdown, accident, complaint, driver_absence, delay, damage, lost_property, other
+    severity = db.Column(db.String(20), nullable=False, default='medium')  # low, medium, high, critical
+    description = db.Column(db.Text, nullable=False)
+    responsible_person = db.Column(db.String(120), nullable=True)
+    resolution = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), default='open')  # open, in_progress, resolved
+    occurred_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<MissionIncident {self.incident_ref}: {self.category}>'

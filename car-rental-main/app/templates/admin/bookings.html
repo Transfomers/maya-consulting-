@@ -1,321 +1,1023 @@
 {% extends "base.html" %}
-
+{% from 'admin/_mission_table_macros.html' import mission_table_head, mission_row_cells %}
 {% block title %}Sorties & Missions de Flotte VIP — 3M SERVICES{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-0">
-    <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+<style>
+.fm-tabbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    background: #ffffff;
+    border: 1px solid #eaecf0;
+    border-radius: 1rem;
+    padding: 0.45rem;
+    margin-bottom: 1.25rem;
+}
+.fm-tab-btn {
+    border: none;
+    background: transparent;
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.48rem 0.85rem;
+    border-radius: 0.7rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.15s;
+}
+.fm-tab-btn:hover {
+    background: #fff5f5;
+    color: #D62828;
+}
+.fm-tab-btn.active {
+    background: #D62828;
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(214, 40, 40, 0.22);
+}
+.fm-card {
+    background: #ffffff;
+    border: 1px solid #eaecf0;
+    border-radius: 1.25rem;
+    padding: 1.35rem 1.45rem;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+    margin-bottom: 1.25rem;
+}
+.fm-kpi {
+    background: #ffffff;
+    border: 1px solid #eaecf0;
+    border-radius: 1rem;
+    padding: 1rem 1.15rem;
+    height: 100%;
+    transition: transform .15s, box-shadow .15s;
+}
+.fm-kpi:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+.fm-kpi-lbl {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+}
+.fm-kpi-val {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 0.2rem;
+    line-height: 1.15;
+}
+.fm-input, .fm-select, .fm-textarea {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.52rem 0.8rem;
+    font-size: 0.85rem;
+    color: #0f172a;
+}
+.fm-input:focus, .fm-select:focus, .fm-textarea:focus {
+    border-color: #D62828;
+    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.1);
+    outline: none;
+}
+.fm-lbl {
+    font-size: 0.71rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.3rem;
+    display: block;
+}
+.fm-btn-red {
+    background: #D62828;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.55rem 1.1rem;
+    font-weight: 700;
+    font-size: 0.84rem;
+    transition: background .15s;
+}
+.fm-btn-red:hover { background: #b91c1c; color: #ffffff; }
+.doc-tile {
+    border: 1px solid #eaecf0;
+    border-radius: 0.9rem;
+    padding: 0.85rem;
+    background: #f8fafc;
+    text-decoration: none;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    transition: all .15s;
+}
+.doc-tile:hover {
+    border-color: #D62828;
+    background: #fff5f5;
+    color: #D62828;
+}
+.doc-tile i {
+    width: 34px;
+    height: 34px;
+    border-radius: 0.65rem;
+    background: #ffffff;
+    border: 1px solid #eaecf0;
+    color: #D62828;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+</style>
+
+{% set cur_tab = active_tab or 'overview' %}
+{% set status_labels = {
+    'draft': ('Brouillon', 'bg-secondary'),
+    'pending_approval': ('En validation', 'bg-warning text-dark'),
+    'scheduled': ('Planifiée', 'bg-primary'),
+    'confirmed': ('Confirmée', 'bg-success'),
+    'assigned': ('Affectée', 'bg-info text-dark'),
+    'ready_for_departure': ('Prête départ', 'bg-info text-dark'),
+    'departed': ('Partie', 'bg-warning text-dark'),
+    'in_progress': ('En cours', 'bg-danger'),
+    'arrived': ('Arrivée', 'bg-primary'),
+    'returned': ('Restituée', 'bg-success'),
+    'completed': ('Terminée', 'bg-dark'),
+    'closed': ('Clôturée', 'bg-dark'),
+    'cancelled': ('Annulée', 'bg-danger'),
+    'rejected': ('Rejetée', 'bg-danger'),
+    'interrupted': ('Interrompue', 'bg-warning text-dark'),
+    'no_show': ('No-show', 'bg-secondary'),
+} %}
+
+<div class="container-fluid py-3 px-3 px-lg-4">
+    <!-- TOP HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <div>
-            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Sorties & Missions de Flotte VIP</h2>
-            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Programmez et gérez les missions, forfaits et sorties de véhicules VIP avec chauffeur.</p>
+            <h4 class="fw-bold mb-0 text-dark">
+                <i class="fas fa-car-side text-danger me-2"></i>Sorties & Missions de Flotte VIP
+            </h4>
+            <div class="text-muted small">Système complet de gestion opérationnelle, dispatch convoi, tarification & clôture 3M SERVICES</div>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <a href="{{ url_for('admin.add_trip') }}" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1.5 shadow-xs">
-                <i class="bi bi-plus-circle"></i> <span>Planifier une Mission</span>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('admin.bookings', tab='missions') }}#newMissionFormCard" class="fm-btn-red text-decoration-none d-inline-flex align-items-center gap-2">
+                <i class="fas fa-plus-circle"></i> Nouvelle Mission VIP
             </a>
-            <a href="{{ url_for('admin.export_bookings_pdf', filter=current_filter or 'all') }}" class="btn btn-sm btn-export-pdf"><i class="bi bi-file-pdf me-1"></i> PDF</a>
-            <a href="{{ url_for('admin.export_bookings_csv', filter=current_filter or 'all') }}" class="btn btn-sm btn-export-csv"><i class="bi bi-file-csv me-1"></i> CSV</a>
+            <a href="{{ url_for('admin.bookings', tab='missions') }}#convertBookingCard" class="btn btn-outline-danger btn-sm fw-bold rounded-3 d-inline-flex align-items-center gap-2 px-3">
+                <i class="fas fa-exchange-alt"></i> Convertir Réservation
+            </a>
         </div>
     </div>
 
-    <!-- 7-Days Date Filter & Instant Report Download Bar -->
-    <div class="card border-0 shadow-xs mb-4 p-2.5 px-3" style="border-radius: 10px; background: #ffffff; border: 1px solid #eaecf0 !important;">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span class="fw-semibold text-muted small me-1"><i class="bi bi-calendar-range text-danger me-1"></i> Période :</span>
-                <a href="{{ url_for('admin.bookings', filter='week') }}" class="btn btn-xs {% if current_filter == 'week' %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} fw-semibold">
-                    <i class="bi bi-calendar-check me-1"></i> 7 Derniers Jours (7 Days)
-                </a>
-                <a href="{{ url_for('admin.bookings', filter='day') }}" class="btn btn-xs {% if current_filter == 'day' %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} fw-semibold">
-                    Aujourd'hui
-                </a>
-                <a href="{{ url_for('admin.bookings', filter='month') }}" class="btn btn-xs {% if current_filter == 'month' %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} fw-semibold">
-                    Ce Mois (30j)
-                </a>
-                <a href="{{ url_for('admin.bookings', filter='all') }}" class="btn btn-xs {% if current_filter == 'all' or not current_filter %}btn-danger text-white{% else %}btn-outline-secondary{% endif %} fw-semibold">
-                    Toutes les Sorties
-                </a>
-            </div>
-
-            <!-- Instant Download with all content automatically included -->
-            <div class="d-flex align-items-center gap-2">
-                <a href="{{ url_for('admin.export_bookings_pdf', filter=current_filter or 'week') }}" class="btn btn-xs btn-outline-danger d-inline-flex align-items-center gap-1 fw-bold shadow-xs" title="Télécharger le rapport PDF officiel avec tout le contenu">
-                    <i class="bi bi-cloud-arrow-down-fill"></i>
-                    <span>Télécharger Rapport 7 Jours (PDF)</span>
-                </a>
-                <a href="{{ url_for('admin.export_bookings_csv', filter=current_filter or 'week') }}" class="btn btn-xs btn-outline-success d-inline-flex align-items-center gap-1 fw-bold shadow-xs" title="Télécharger l'export Excel CSV avec tous les champs">
-                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
-                    <span>Export CSV (7j)</span>
-                </a>
-            </div>
-        </div>
+    <!-- 10-SECTION MODULE NAVIGATION -->
+    <div class="fm-tabbar">
+        <a href="{{ url_for('admin.bookings', tab='overview') }}" class="fm-tab-btn {% if cur_tab == 'overview' %}active{% endif %}">
+            <i class="fas fa-chart-pie"></i> Dashboard
+        </a>
+        <a href="{{ url_for('admin.bookings', tab='planning') }}" class="fm-tab-btn {% if cur_tab == 'planning' %}active{% endif %}">
+            <i class="fas fa-calendar-alt"></i> Planning
+        </a>
+        <a href="{{ url_for('admin.bookings', tab='missions') }}" class="fm-tab-btn {% if cur_tab == 'missions' %}active{% endif %}">
+            <i class="fas fa-list-check"></i> Missions & Sorties <span class="badge bg-dark bg-opacity-25 rounded-pill">{{ kpis.total_missions }}</span>
+        </a>
+        <a href="{{ url_for('admin.bookings', tab='packages') }}" class="fm-tab-btn {% if cur_tab == 'packages' %}active{% endif %}">
+            <i class="fas fa-tags"></i> Forfaits & Tarifs
+        </a>
+        <a href="{{ url_for('admin.bookings', tab='fleet') }}" class="fm-tab-btn {% if cur_tab in ['fleet', 'assignments'] %}active{% endif %}">
+            <i class="fas fa-car"></i> Affectation Flotte
+        </a>
+        <a href="{{ url_for('admin.bookings', tab='drivers') }}" class="fm-tab-btn {% if cur_tab == 'drivers' %}active{% endif %}">
+            <i class="fas fa-id-badge"></i> Chauffeurs VIP
+        </a>
+        <a href="{{ url_for('admin.bookings', tab='routes') }}" class="fm-tab-btn {% if cur_tab == 'routes' %}active{% endif %}">
+            <i class="fas fa-map-marked-alt"></i> Routes & Stops
+        </a>
+        <a href="{{ url_for('admin.bookings', tab='tracking') }}" class="fm-tab-btn {% if cur_tab == 'tracking' %}active{% endif %}">
+            <i class="fas fa-satellite-dish"></i> Suivi Opérationnel <span class="badge bg-warning text-dark rounded-pill">{{ tracking_trips|length }}</span>
+        </a>
+        <a href="{{ url_for('admin.bookings', tab='documents') }}" class="fm-tab-btn {% if cur_tab == 'documents' %}active{% endif %}">
+            <i class="fas fa-folder-open"></i> Documents
+        </a>
+        <a href="{{ url_for('admin.bookings', tab='reports') }}" class="fm-tab-btn {% if cur_tab == 'reports' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i> Historique & Rapports
+        </a>
     </div>
 
-    <!-- 3M Services SaaS KPI Summary Row -->
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Total Missions VIP</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #f4f3ff; color: #7f56d9;">
-                        <i class="bi bi-shield-check fs-6"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-baseline gap-2">
-                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem;">{{ bookings|length }}</h3>
-                    <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">Actives</span>
-                </div>
+    <!-- ================================================================== -->
+    <!-- TAB 1: MISSIONS DASHBOARD (OVERVIEW)                               -->
+    <!-- ================================================================== -->
+    {% if cur_tab == 'overview' %}
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3 col-xl-2">
+            <div class="fm-kpi">
+                <div class="fm-kpi-lbl">Total Missions</div>
+                <div class="fm-kpi-val">{{ kpis.total_missions }}</div>
+                <div class="small text-muted">Aujourd'hui : <strong>{{ kpis.missions_today }}</strong></div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Missions Confirmées</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #ecfdf3; color: #039855;">
-                        <i class="bi bi-check-circle-fill fs-6"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-baseline gap-2">
-                    <h3 class="fw-bold mb-0 text-success" style="font-size: 1.45rem;">
-                        {{ bookings|selectattr('status', 'equalto', 'confirmed')|list|length }}
-                    </h3>
-                    <span class="badge bg-success-soft text-success" style="font-size: 0.7rem;">Engagées VIP</span>
-                </div>
+        <div class="col-6 col-md-3 col-xl-2">
+            <div class="fm-kpi">
+                <div class="fm-kpi-lbl">En Cours</div>
+                <div class="fm-kpi-val text-danger">{{ kpis.missions_in_progress }}</div>
+                <div class="small text-muted">À venir : <strong>{{ kpis.missions_upcoming }}</strong></div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">En Attente / Prep</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fffaeb; color: #b54708;">
-                        <i class="bi bi-hourglass-split fs-6"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-baseline gap-2">
-                    <h3 class="fw-bold mb-0 text-warning" style="font-size: 1.45rem;">
-                        {{ bookings|selectattr('status', 'ne', 'confirmed')|selectattr('status', 'ne', 'cancelled')|list|length }}
-                    </h3>
-                    <span class="badge bg-warning-soft text-warning" style="font-size: 0.7rem;">À valider</span>
-                </div>
+        <div class="col-6 col-md-3 col-xl-2">
+            <div class="fm-kpi">
+                <div class="fm-kpi-lbl">Terminées / Clôturées</div>
+                <div class="fm-kpi-val text-success">{{ kpis.missions_completed }}</div>
+                <div class="small text-muted">Annulées : <strong>{{ kpis.missions_cancelled }}</strong> ({{ kpis.cancellation_rate_pct }}%)</div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Sorties Annulées</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fef3f2; color: #d92d20;">
-                        <i class="bi bi-x-circle fs-6"></i>
-                    </div>
-                </div>
-                <div class="d-flex align-items-baseline gap-2">
-                    <h3 class="fw-bold mb-0 text-danger" style="font-size: 1.45rem;">
-                        {{ bookings|selectattr('status', 'equalto', 'cancelled')|list|length }}
-                    </h3>
-                    <span class="badge bg-danger-soft text-danger" style="font-size: 0.7rem;">Libérées</span>
-                </div>
+        <div class="col-6 col-md-3 col-xl-2">
+            <div class="fm-kpi">
+                <div class="fm-kpi-lbl">Utilisation Flotte</div>
+                <div class="fm-kpi-val text-primary">{{ kpis.vehicle_utilization_pct }}%</div>
+                <div class="small text-muted">{{ kpis.vehicles_on_mission }} véh. / {{ kpis.drivers_assigned }} chauff.</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 col-xl-2">
+            <div class="fm-kpi">
+                <div class="fm-kpi-lbl">Ponctualité Départ</div>
+                <div class="fm-kpi-val text-success">{{ kpis.on_time_rate_pct }}%</div>
+                <div class="small text-muted">Utilisation chauff. : <strong>{{ kpis.driver_utilization_pct }}%</strong></div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 col-xl-2">
+            <div class="fm-kpi">
+                <div class="fm-kpi-lbl">CA Missions VIP</div>
+                <div class="fm-kpi-val text-danger" style="font-size: 1.15rem;">{{ "{:,.0f}".format(kpis.missions_revenue).replace(',', ' ') }} F</div>
+                <div class="small text-muted">Impayés : <strong>{{ "{:,.0f}".format(kpis.outstanding_payments).replace(',', ' ') }} F</strong></div>
             </div>
         </div>
     </div>
 
-    <div class="card bg-white border shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important; overflow: hidden; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
-        <!-- Filter Bar -->
-        <div class="d-flex flex-wrap gap-2 p-3 border-bottom align-items-center justify-content-between" style="background: #fafbfc; border-color: #eaecf0 !important;">
-            <div class="d-flex flex-wrap gap-2 align-items-center">
-                <div class="input-group input-group-sm" style="max-width: 270px;">
-                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                    <input type="text" id="bookingsSearch" class="form-control border-start-0 ps-0" placeholder="Chercher mission, client, véhicule, chauffeur...">
+    <div class="row g-3">
+        <!-- Operational Alerts -->
+        <div class="col-lg-5">
+            <div class="fm-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0"><i class="fas fa-bell text-danger me-2"></i>Alertes Opérationnelles</h6>
+                    <span class="badge {% if alerts %}bg-danger{% else %}bg-success{% endif %} rounded-pill">{{ alerts|length }}</span>
                 </div>
-                
-                <select id="bookingsFilterStatus" class="form-select form-select-sm" style="width: auto;">
-                    <option value="">Statut Mission (Tous)</option>
-                    <option value="confirmé">Confirmée</option>
-                    <option value="en_attente">En attente / Préparation</option>
-                    <option value="annulé">Annulée</option>
+                {% if alerts %}
+                <div class="d-flex flex-column gap-2">
+                    {% for a in alerts %}
+                    <div class="p-2 px-3 rounded-3 border border-{{ a.severity }} bg-{{ a.severity }} bg-opacity-10 d-flex justify-content-between align-items-center gap-2">
+                        <div>
+                            <div class="fw-bold small text-dark">{{ a.title }}</div>
+                            <div class="small text-muted">{{ a.detail }}</div>
+                        </div>
+                        <span class="badge bg-{{ a.severity }} rounded-pill fs-6">{{ a.count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-3 rounded-3 bg-success bg-opacity-10 text-success small fw-semibold">
+                    <i class="fas fa-check-circle me-1"></i> Aucune anomalie détectée. Flotte, chauffeurs et restitutions 100% conformes.
+                </div>
+                {% endif %}
+
+                {% if category_breakdown %}
+                <div class="mt-4 pt-3 border-top">
+                    <div class="fm-lbl mb-2">Répartition par Catégorie de Mission</div>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for cb in category_breakdown %}
+                        <span class="badge bg-light text-dark border px-3 py-2">
+                            {{ cb.label }} : <strong class="text-danger">{{ cb.count }}</strong>
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Upcoming & Active Missions -->
+        <div class="col-lg-7">
+            <div class="fm-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0"><i class="fas fa-clock text-danger me-2"></i>Missions Actives & Prochains Départs</h6>
+                    <a href="{{ url_for('admin.bookings', tab='tracking') }}" class="small fw-bold text-danger text-decoration-none">Voir Suivi Opérationnel →</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Réf & Mission</th>
+                                <th>Véhicule & Chauffeur</th>
+                                <th>Départ / Retour</th>
+                                <th>Statut</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in tracking_trips[:8] %}
+                            {% set sl, sb = status_labels.get(t.status, (t.status, 'bg-secondary')) %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold small text-dark">{{ t.mission_ref or ('#' ~ t.id) }}</div>
+                                    <div class="text-muted" style="font-size: 0.74rem;">{{ t.mission_title or (t.route.origin ~ ' → ' ~ t.route.destination if t.route else '') }}</div>
+                                </td>
+                                <td class="small">
+                                    <div><strong>{{ (t.bus.brand ~ ' ' ~ t.bus.model) if t.bus else 'Sans véhicule' }}</strong> {% if t.extra_vehicle_ids %}<span class="badge bg-dark">+{{ t.extra_vehicle_ids|length }}</span>{% endif %}</div>
+                                    <div class="text-muted" style="font-size: 0.74rem;">{{ t.driver.name if t.driver else 'Sans chauffeur' }}</div>
+                                </td>
+                                <td class="small">
+                                    <div>{{ t.departure_time.strftime('%d/%m %H:%M') if t.departure_time else '—' }}</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">→ {{ t.arrival_time.strftime('%d/%m %H:%M') if t.arrival_time else '—' }}</div>
+                                </td>
+                                <td><span class="badge {{ sb }} rounded-pill">{{ sl }}</span></td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('missions.mission_detail', id=t.id) }}" class="btn btn-sm btn-outline-danger rounded-3 py-0 px-2 fw-bold">Gérer</a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-center text-muted py-4 small">Aucune mission active ou à venir.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- TAB 2: PLANNING & CALENDAR (FILTERS + DRAG-DROP RESCHEDULE)        -->
+    <!-- ================================================================== -->
+    {% elif cur_tab == 'planning' %}
+    <div class="fm-card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h6 class="fw-bold mb-0"><i class="fas fa-calendar-week text-danger me-2"></i>Planning Flotte & Chauffeurs (Glisser-Déposer avec Validation Conflits)</h6>
+                <div class="small text-muted">Filtrez par véhicule, chauffeur, agence ou statut. Déplacez une mission pour replanifier avec contrôle automatique des disponibilités.</div>
+            </div>
+            <a href="{{ url_for('admin.calendar_view') }}" class="btn btn-sm btn-outline-secondary rounded-3 fw-semibold">
+                <i class="fas fa-expand-arrows-alt me-1"></i> Vue Plein Écran
+            </a>
+        </div>
+
+        <div class="row g-2 mb-3">
+            <div class="col-md-3 col-6">
+                <label class="fm-lbl">Véhicule</label>
+                <select id="calFilterBus" class="form-select fm-select" onchange="reloadMissionCal()">
+                    <option value="">Tous les véhicules</option>
+                    {% for b in all_buses %}
+                    <option value="{{ b.id }}">{{ b.brand }} {{ b.model }} ({{ b.bus_number }})</option>
+                    {% endfor %}
                 </select>
-                
-                <select id="bookingsFilterPaymentStatus" class="form-select form-select-sm" style="width: auto;">
-                    <option value="">Règlement (Tous)</option>
-                    <option value="payé">Payé</option>
-                    <option value="en attente">En Attente</option>
-                    <option value="remboursé">Remboursé</option>
+            </div>
+            <div class="col-md-3 col-6">
+                <label class="fm-lbl">Chauffeur VIP</label>
+                <select id="calFilterDriver" class="form-select fm-select" onchange="reloadMissionCal()">
+                    <option value="">Tous les chauffeurs</option>
+                    {% for d in drivers %}
+                    <option value="{{ d.id }}">{{ d.name }}</option>
+                    {% endfor %}
                 </select>
-                
-                <div class="date-filter-group">
-                    <button type="button" class="date-filter-btn {% if current_filter == 'all' or not current_filter %}active{% endif %}" onclick="applyBackendDateFilter('all')">Tous</button>
-                    <button type="button" class="date-filter-btn {% if current_filter == 'day' %}active{% endif %}" onclick="applyBackendDateFilter('day')">Aujourd'hui</button>
-                    <button type="button" class="date-filter-btn {% if current_filter == 'week' %}active{% endif %}" onclick="applyBackendDateFilter('week')">Semaine</button>
-                    <button type="button" class="date-filter-btn {% if current_filter == 'month' %}active{% endif %}" onclick="applyBackendDateFilter('month')">Mois</button>
-                </div>
-                
-                <button class="btn btn-sm btn-outline-secondary" onclick="resetBookingsFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+            </div>
+            <div class="col-md-3 col-6">
+                <label class="fm-lbl">Agence</label>
+                <select id="calFilterAgency" class="form-select fm-select" onchange="reloadMissionCal()">
+                    <option value="">Toutes les agences</option>
+                    {% for ag in agencies %}
+                    <option value="{{ ag.id }}">{{ ag.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 col-6">
+                <label class="fm-lbl">Statut Mission</label>
+                <select id="calFilterStatus" class="form-select fm-select" onchange="reloadMissionCal()">
+                    <option value="">Tous les statuts</option>
+                    {% for sk, sl, _ in mission_stages %}
+                    <option value="{{ sk }}">{{ sl }}</option>
+                    {% endfor %}
+                    {% for tk, tl in terminal_states %}
+                    <option value="{{ tk }}">{{ tl }}</option>
+                    {% endfor %}
+                </select>
             </div>
         </div>
+        <div id="calToast" class="alert py-2 px-3 small d-none rounded-3 mb-3"></div>
+        <div id="missionsFullCalendar" style="min-height: 580px;"></div>
+    </div>
 
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script>
+    let missionCalendar = null;
+    function getCalUrl() {
+        const p = new URLSearchParams();
+        const b = document.getElementById('calFilterBus').value;
+        const d = document.getElementById('calFilterDriver').value;
+        const a = document.getElementById('calFilterAgency').value;
+        const s = document.getElementById('calFilterStatus').value;
+        if (b) p.set('bus_id', b);
+        if (d) p.set('driver_id', d);
+        if (a) p.set('agency_id', a);
+        if (s) p.set('status', s);
+        return "{{ url_for('missions.missions_calendar_events') }}?" + p.toString();
+    }
+    function showCalToast(msg, ok) {
+        const el = document.getElementById('calToast');
+        el.className = 'alert py-2 px-3 small rounded-3 mb-3 ' + (ok ? 'alert-success' : 'alert-danger');
+        el.textContent = msg;
+        el.classList.remove('d-none');
+    }
+    function reloadMissionCal() {
+        if (!missionCalendar) return;
+        missionCalendar.removeAllEventSources();
+        missionCalendar.addEventSource(getCalUrl());
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const el = document.getElementById('missionsFullCalendar');
+        if (!el || typeof FullCalendar === 'undefined') return;
+        missionCalendar = new FullCalendar.Calendar(el, {
+            initialView: 'dayGridMonth',
+            locale: 'fr',
+            editable: true,
+            eventResizableFromStart: false,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            },
+            events: getCalUrl(),
+            eventDrop: function(info) {
+                fetch("{{ url_for('missions.missions_calendar_reschedule') }}", {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        id: info.event.id,
+                        start: info.event.startStr,
+                        end: info.event.endStr || ''
+                    })
+                }).then(r => r.json()).then(res => {
+                    if (!res.ok) {
+                        info.revert();
+                        showCalToast(res.error || 'Conflit détecté, replanification annulée.', false);
+                    } else {
+                        showCalToast(res.message || 'Mission replanifiée avec succès.', true);
+                    }
+                }).catch(() => { info.revert(); });
+            }
+        });
+        missionCalendar.render();
+    });
+    </script>
+
+    <!-- ================================================================== -->
+    <!-- TAB 3: MISSIONS & SORTIES (CONVERT RESERVATION + CREATE + LIST)    -->
+    <!-- ================================================================== -->
+    {% elif cur_tab == 'missions' %}
+    <!-- A. RESERVATION-TO-MISSION CONVERTER -->
+    <div class="fm-card border-danger border-opacity-25" id="convertBookingCard">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h6 class="fw-bold mb-0 text-danger"><i class="fas fa-exchange-alt me-2"></i>Convertir une Réservation Client en Mission VIP (Sans Dupliquer la Facture)</h6>
+                <div class="small text-muted">Générez une ou plusieurs missions (ex: délégation multi-véhicules) directement à partir d'un contrat client existant.</div>
+            </div>
+        </div>
+        <form method="POST" action="{{ url_for('missions.convert_booking_to_mission') }}" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="fm-lbl">Réservation Client Existante *</label>
+                <select name="booking_id" class="form-select fm-select" required>
+                    <option value="">-- Choisir une réservation client --</option>
+                    {% for bk in convertible_bookings %}
+                    <option value="{{ bk.id }}">{{ bk.booking_code }} · {{ bk.passenger_name }} ({{ "{:,.0f}".format(bk.price_paid or 0).replace(',', ' ') }} F)</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Catégorie Mission</label>
+                <select name="mission_category" class="form-select fm-select">
+                    {% for ck, cl in mission_categories %}
+                    <option value="{{ ck }}">{{ cl }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Véhicule VIP Disponible *</label>
+                <select name="bus_id" class="form-select fm-select" required>
+                    <option value="">-- Sélectionner --</option>
+                    {% for b in buses %}
+                    <option value="{{ b.id }}">{{ b.brand }} {{ b.model }} ({{ b.bus_number }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Chauffeur VIP</label>
+                <select name="driver_id" class="form-select fm-select">
+                    <option value="">-- À assigner --</option>
+                    {% for d in drivers %}
+                    <option value="{{ d.id }}">{{ d.name }} ({{ d.phone }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Départ Mission</label>
+                <input type="datetime-local" name="departure_time" class="form-control fm-input">
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Restitution Prévue</label>
+                <input type="datetime-local" name="arrival_time" class="form-control fm-input">
+            </div>
+            <div class="col-md-4">
+                <label class="fm-lbl">Titre Mission (optionnel)</label>
+                <input type="text" name="mission_title" class="form-control fm-input" placeholder="Ex: Convoi Délégation Véhicule #2">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="fm-btn-red w-100"><i class="fas fa-magic me-1"></i> Convertir</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- B. FULL VIP MISSION CREATOR (MULTI-VEHICLE & MULTI-DRIVER CONVOY + FULL PRICING ENGINE) -->
+    <div class="fm-card" id="newMissionFormCard">
+        <h6 class="fw-bold mb-1"><i class="fas fa-plus-circle text-danger me-2"></i>Créer une Nouvelle Mission / Sortie de Flotte VIP</h6>
+        <div class="small text-muted mb-3">Supporte les convois multi-véhicules & multi-chauffeurs, les 10 catégories de mission et le devis tarifaire figé.</div>
+        <form method="POST" action="{{ url_for('missions.create_mission') }}" class="row g-3" id="createMissionForm">
+            <div class="col-md-3">
+                <label class="fm-lbl">Catégorie Mission *</label>
+                <select name="mission_category" class="form-select fm-select">
+                    {% for ck, cl in mission_categories %}
+                    <option value="{{ ck }}">{{ cl }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Type de Mission</label>
+                <select name="mission_type" class="form-select fm-select">
+                    <option value="vip_rental">Location VIP avec Chauffeur</option>
+                    <option value="one_way">Aller Simple</option>
+                    <option value="round_trip">Aller-Retour</option>
+                    <option value="hourly">À l'Heure (Mise à dispo)</option>
+                    <option value="daily">Journée</option>
+                    <option value="multi_day">Multi-Jours</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Forfait VIP (Pré-remplit le tarif)</label>
+                <select name="package_id" id="missionPkgSelect" class="form-select fm-select" onchange="applyMissionPkg(this)">
+                    <option value="">-- Tarif manuel / sur-mesure --</option>
+                    {% for p in packages %}
+                        {% if p.status == 'active' %}
+                        <option value="{{ p.id }}" data-price="{{ p.base_price }}" data-name="{{ p.name }}" data-cat="{{ p.service_category }}">
+                            {{ p.name }} ({{ "{:,.0f}".format(p.base_price).replace(',', ' ') }} F)
+                        </option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Intitulé Mission</label>
+                <input type="text" name="mission_title" id="missionTitleInput" class="form-control fm-input" placeholder="Ex: Délégation Ministérielle Hilton → Nsimalen">
+            </div>
+
+            <div class="col-md-3">
+                <label class="fm-lbl">Itinéraire Enregistré *</label>
+                <select name="route_id" class="form-select fm-select" required>
+                    {% for r in routes %}
+                    <option value="{{ r.id }}">{{ r.origin }} → {{ r.destination }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Lieu Prise en Charge</label>
+                <input type="text" name="pickup_location" class="form-control fm-input" placeholder="Omnisports / Hilton Yaoundé">
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Destination</label>
+                <input type="text" name="destination_location" class="form-control fm-input" placeholder="Aéroport Nsimalen / Douala">
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Étapes Intermédiaires</label>
+                <input type="text" name="intermediate_stops" class="form-control fm-input" placeholder="Centre-ville, Bastos, Ministère...">
+            </div>
+
+            <div class="col-md-3">
+                <label class="fm-lbl">Sortie (Départ) *</label>
+                <input type="datetime-local" name="departure_time" class="form-control fm-input" required>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Restitution (Retour) *</label>
+                <input type="datetime-local" name="arrival_time" class="form-control fm-input" required>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Véhicule Principal VIP *</label>
+                <select name="bus_id" class="form-select fm-select" required>
+                    <option value="">-- Sélectionner --</option>
+                    {% for b in buses %}
+                    <option value="{{ b.id }}">{{ b.brand }} {{ b.model }} ({{ b.bus_number }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Véhicules Convoi (Multi-sélection)</label>
+                <select name="extra_vehicle_ids" class="form-select fm-select" multiple size="2">
+                    {% for b in buses %}
+                    <option value="{{ b.id }}">{{ b.brand }} {{ b.model }} ({{ b.bus_number }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="fm-lbl">Chauffeur Principal VIP</label>
+                <select name="driver_id" class="form-select fm-select">
+                    <option value="">-- À assigner plus tard --</option>
+                    {% for d in drivers %}
+                    <option value="{{ d.id }}">{{ d.name }} ({{ d.phone }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Chauffeur Secondaire / Co-pilote</label>
+                <select name="secondary_driver_id" class="form-select fm-select">
+                    <option value="">-- Aucun --</option>
+                    {% for d in drivers %}
+                    <option value="{{ d.id }}">{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Chauffeurs Convoi (Multi-sélection)</label>
+                <select name="extra_driver_ids" class="form-select fm-select" multiple size="2">
+                    {% for d in drivers %}
+                    <option value="{{ d.id }}">{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Client VIP (Nom & Tél)</label>
+                <div class="input-group input-group-sm">
+                    <input type="text" name="client_name" class="form-control fm-input" placeholder="Nom client VIP">
+                    <input type="text" name="client_phone" class="form-control fm-input" placeholder="+237 6XX">
+                </div>
+            </div>
+
+            <!-- Pricing Engine Breakdown -->
+            <div class="col-12">
+                <div class="p-3 rounded-3 bg-light border">
+                    <div class="fm-lbl text-danger mb-2"><i class="fas fa-calculator me-1"></i>Moteur de Tarification & Devis Figé (FCFA)</div>
+                    <div class="row g-2">
+                        <div class="col-6 col-md-2">
+                            <label class="fm-lbl">Base Forfait</label>
+                            <input type="number" name="base_price" id="pBase" class="form-control fm-input p-calc" value="100000" min="0" step="500">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="fm-lbl">Km / Distance</label>
+                            <input type="number" name="distance_charge" id="pDist" class="form-control fm-input p-calc" value="0" min="0" step="500">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="fm-lbl">Durée / Attente</label>
+                            <input type="number" name="waiting_charge" id="pWait" class="form-control fm-input p-calc" value="0" min="0" step="500">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="fm-lbl">Carb. / Péage</label>
+                            <input type="number" name="toll_parking_charge" id="pToll" class="form-control fm-input p-calc" value="0" min="0" step="500">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="fm-lbl">Extras / Sécurité</label>
+                            <input type="number" name="extras_price" id="pExtra" class="form-control fm-input p-calc" value="0" min="0" step="500">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="fm-lbl">Remise (-)</label>
+                            <input type="number" name="discount_amount" id="pDisc" class="form-control fm-input p-calc" value="0" min="0" step="500">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="fm-lbl">Acompte Client</label>
+                            <input type="number" name="customer_deposit" class="form-control fm-input" value="0" min="0" step="500">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="fm-lbl">Prime Chauffeur</label>
+                            <input type="number" name="driver_allowance" class="form-control fm-input" value="0" min="0" step="500">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="fm-lbl">Passagers</label>
+                            <input type="number" name="passenger_count" class="form-control fm-input" value="2" min="1">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="fm-lbl">Règlement</label>
+                            <select name="payment_method" class="form-select fm-select">
+                                <option value="momo">MTN MoMo</option>
+                                <option value="orange">Orange Money</option>
+                                <option value="cash">Espèces</option>
+                                <option value="bank_transfer">Virement</option>
+                                <option value="pending">À facturer (En attente)</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 d-flex align-items-end justify-content-end">
+                            <div class="text-end w-100">
+                                <div class="small text-muted">TOTAL ESTIMÉ DEVIS</div>
+                                <div class="fs-5 fw-bold text-danger" id="pTotalDisplay">100 000 FCFA</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="fm-lbl">Protocole VIP / Sécurité</label>
+                <input type="text" name="vip_protocol" class="form-control fm-input" placeholder="Accueil tapis rouge, escorte, discrétion...">
+            </div>
+            <div class="col-md-4">
+                <label class="fm-lbl">Exigences Client & Bagages</label>
+                <input type="text" name="special_instructions" class="form-control fm-input" placeholder="Eau fraîche, Wi-Fi, 4 valises...">
+            </div>
+            <div class="col-md-4 d-flex align-items-end justify-content-end gap-2">
+                <div class="form-check me-2">
+                    <input class="form-check-input" type="checkbox" name="notify_restitution" value="on" id="chkNotifRestit" checked>
+                    <label class="form-check-label small fw-semibold" for="chkNotifRestit">Alerte Restitution Auto</label>
+                </div>
+                <button type="submit" class="fm-btn-red px-4">
+                    <i class="fas fa-check-circle me-1"></i> Créer Mission VIP
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- C. ALL MISSIONS REGISTER -->
+    <div class="fm-card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <h6 class="fw-bold mb-0"><i class="fas fa-list text-danger me-2"></i>Registre Complet des Missions & Sorties VIP ({{ trips_all|length }})</h6>
+            <input type="text" id="missionSearchInput" class="form-control fm-input" style="max-width: 280px;" placeholder="Rechercher réf, véhicule, chauffeur, client..." oninput="filterMissionsTable()">
+        </div>
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="min-width: 1120px;">
-                <thead>
+            <table class="table table-hover align-middle small mb-0" id="allMissionsTable">
+                <thead class="table-light">
                     <tr>
-                        <th style="min-width: 125px;">Réf Mission</th>
-                        <th style="min-width: 160px;">Client VIP</th>
-                        <th style="min-width: 190px;">Véhicule VIP & Immat</th>
-                        <th style="min-width: 190px;">Mission & Trajet</th>
-                        <th style="min-width: 150px;">Chauffeur VIP</th>
-                        <th style="min-width: 155px;">Sortie & Restitution</th>
-                        <th style="min-width: 110px;">Formule</th>
-                        <th style="min-width: 135px;">Règlement</th>
-                        <th style="min-width: 115px;">Tarif Total</th>
-                        <th style="min-width: 105px;">Statut</th>
-                        <th style="min-width: 85px;" class="text-end pe-3">Actions</th>
+                        <th>Réf & Catégorie</th>
+                        <th>Mission & Trajet</th>
+                        <th>Véhicule(s)</th>
+                        <th>Chauffeur(s)</th>
+                        <th>Sortie & Restitution</th>
+                        <th class="text-end">Tarif Total</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="bookingsTableBody">
-                    {% for booking in bookings %}
-                    <tr class="booking-row {% if booking.status == 'cancelled' %}table-danger-soft{% endif %}" 
-                        data-status="{{ 'confirmé' if booking.status == 'confirmed' else ('annulé' if booking.status == 'cancelled' else 'en_attente') }}" 
-                        data-payment-status="{{ 'payé' if booking.payment_status == 'paid' else ('remboursé' if booking.payment_status == 'refunded' else 'en attente') }}"
-                        data-date="{{ booking.booking_date.timestamp() if booking.booking_date else 0 }}">
+                <tbody>
+                    {% for t in trips_all %}
+                    {% set sl, sb = status_labels.get(t.status, (t.status, 'bg-secondary')) %}
+                    <tr>
                         <td>
-                            <div class="fw-bold text-dark font-monospace" style="font-size: 0.8125rem;">
-                                {{ booking.booking_code or ('3M-MIS-' ~ '%04d'|format(booking.id)) }}
-                            </div>
-                            <div class="small text-muted" style="font-size: 0.72rem;">
-                                <i class="bi bi-calendar-event me-1"></i>{{ booking.booking_date.strftime('%d/%m/%Y') if booking.booking_date else 'Date N/D' }}
-                            </div>
+                            <div class="fw-bold text-dark">{{ t.mission_ref or ('3M-MIS-' ~ t.id) }}</div>
+                            <span class="badge bg-light text-dark border">{{ mission_category_map.get(t.mission_category or 'custom', 'VIP') }}</span>
+                            {% if t.source_booking_id %}<span class="badge bg-info bg-opacity-10 text-info">Convertie</span>{% endif %}
                         </td>
                         <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="avatar-circle rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; background: #fff4ed; color: #ff5b35; font-size: 0.75rem; font-weight: 600;">
-                                    {{ (booking.passenger_name or (booking.user.username if booking.user else 'C'))[:1]|upper }}
-                                </div>
-                                <div class="text-truncate" style="max-width: 135px;">
-                                    <div class="fw-semibold text-dark text-truncate" style="font-size: 0.8125rem;" title="{{ booking.passenger_name or (booking.user.username if booking.user else 'Client Direct') }}">
-                                        {{ booking.passenger_name or (booking.user.username if booking.user else 'Client Direct') }}
-                                    </div>
-                                    <div class="small text-muted text-truncate" style="font-size: 0.72rem;">
-                                        <i class="bi bi-telephone me-1"></i>{{ booking.user.phone if (booking.user and booking.user.phone) else (booking.special_instructions or 'Contact direct') }}
-                                    </div>
-                                </div>
-                            </div>
+                            <div class="fw-semibold text-dark">{{ t.mission_title or (t.route.origin ~ ' → ' ~ t.route.destination if t.route else 'Mission VIP') }}</div>
+                            <div class="text-muted" style="font-size: 0.74rem;">{{ t.pickup_location or (t.route.origin if t.route else '') }} → {{ t.destination_location or (t.route.destination if t.route else '') }}</div>
                         </td>
                         <td>
-                            {% if booking.trip and booking.trip.bus %}
-                                <div class="fw-semibold text-dark text-truncate" style="font-size: 0.8125rem; max-width: 180px;" title="{{ booking.trip.bus.brand }} {{ booking.trip.bus.model }}">
-                                    {{ booking.trip.bus.brand }} {{ booking.trip.bus.model }}
-                                </div>
-                                <div class="d-flex align-items-center gap-1.5 mt-0.5">
-                                    <span class="badge bg-light text-dark border font-monospace" style="font-size: 0.7rem; letter-spacing: 0.3px; padding: 2px 6px;">
-                                        {{ booking.trip.bus.bus_number }}
-                                    </span>
-                                    <span class="badge bg-light text-muted" style="font-size: 0.68rem;">VIP Flotte</span>
-                                </div>
-                            {% else %}
-                                <span class="text-muted small">Flotte VIP non assignée</span>
+                            <div><strong>{{ (t.bus.brand ~ ' ' ~ t.bus.model) if t.bus else '—' }}</strong></div>
+                            <div class="text-muted" style="font-size: 0.73rem;">{{ t.bus.bus_number if t.bus else '' }} {% if t.extra_vehicle_ids %}<span class="badge bg-dark">+{{ t.extra_vehicle_ids|length }} convoi</span>{% endif %}</div>
+                        </td>
+                        <td>
+                            <div>{{ t.driver.name if t.driver else 'À assigner' }}</div>
+                            {% if t.secondary_driver or t.extra_driver_ids %}
+                            <div class="text-muted" style="font-size: 0.72rem;">+ {{ (1 if t.secondary_driver else 0) + (t.extra_driver_ids|length) }} équipier(s)</div>
                             {% endif %}
                         </td>
                         <td>
-                            {% if booking.trip and booking.trip.route %}
-                                <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">
-                                    {{ booking.trip.route.origin }} <i class="bi bi-arrow-right text-primary mx-0.5"></i> {{ booking.trip.route.destination }}
-                                </div>
-                                <div class="small text-muted" style="font-size: 0.72rem;">
-                                    <i class="bi bi-geo-alt me-0.5 text-danger"></i>{{ booking.trip.route.agency.name if (booking.trip.route.agency) else '3M Douala Prestige' }}
-                                </div>
-                            {% else %}
-                                <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">Mise à disposition VIP</div>
-                                <div class="small text-muted" style="font-size: 0.72rem;">Chauffeur Privé Dédié</div>
-                            {% endif %}
+                            <div>{{ t.departure_time.strftime('%d/%m/%Y %H:%M') if t.departure_time else '—' }}</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">→ {{ t.arrival_time.strftime('%d/%m/%Y %H:%M') if t.arrival_time else '—' }}</div>
                         </td>
-                        <td>
-                            {% set driver_name = (booking.trip.driver.name if (booking.trip and booking.trip.driver) else (booking.trip.bus.driver_name if (booking.trip and booking.trip.bus and booking.trip.bus.driver_name) else 'Chauffeur VIP Dédié')) %}
-                            <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">
-                                <i class="bi bi-person-badge text-primary me-1"></i>{{ driver_name }}
-                            </div>
-                            <div class="small text-muted" style="font-size: 0.72rem;">
-                                {% if booking.trip and booking.trip.driver and booking.trip.driver.phone %}
-                                    <i class="bi bi-whatsapp text-success me-1"></i>{{ booking.trip.driver.phone }}
-                                {% else %}
-                                    <span class="badge bg-success-soft text-success" style="font-size: 0.65rem;">Chauffeur Certifié</span>
-                                {% endif %}
-                            </div>
-                        </td>
-                        <td>
-                            {% if booking.trip and booking.trip.departure_time %}
-                                <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">
-                                    <span class="text-danger fw-bold"><i class="bi bi-box-arrow-up-right me-1"></i>Sortie :</span> {{ booking.trip.departure_time.strftime('%d/%m/%Y %H:%M') }}
-                                </div>
-                                <div class="small text-muted mt-0.5" style="font-size: 0.72rem;">
-                                    {% if booking.trip.arrival_time %}
-                                        <span class="text-success fw-bold"><i class="bi bi-box-arrow-in-down-left me-1"></i>Retour :</span> {{ booking.trip.arrival_time.strftime('%d/%m/%Y %H:%M') }}
-                                    {% else %}
-                                        Mission VIP 3M
-                                    {% endif %}
-                                </div>
-                            {% else %}
-                                <span class="text-muted small">À planifier</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="badge bg-light text-dark fw-medium border" style="font-size: 0.72rem;">
-                                <i class="bi bi-shield-check text-success me-1"></i>{{ booking.seat_number or 'Chauffeur VIP' }}
-                            </span>
-                        </td>
-                        <td>
-                            <div>
-                                {% if booking.payment_method %}
-                                    {% if 'momo' in booking.payment_method.lower() or 'mobile money' in booking.payment_method.lower() or 'mtn' in booking.payment_method.lower() %}
-                                        <span class="badge text-dark fw-semibold" style="background-color: #ffd54f !important; font-size: 0.7rem;"><i class="bi bi-phone-vibrate me-1"></i> MTN MoMo</span>
-                                    {% elif 'orange' in booking.payment_method.lower() or 'om' in booking.payment_method.lower() %}
-                                        <span class="badge text-white fw-semibold" style="background-color: #ff6600 !important; font-size: 0.7rem;"><i class="bi bi-phone me-1"></i> Orange Money</span>
-                                    {% else %}
-                                        <span class="badge bg-light text-muted fw-normal border" style="font-size: 0.7rem;">Espèces / Showroom</span>
-                                    {% endif %}
-                                {% else %}
-                                    <span class="badge bg-light text-muted fw-normal border" style="font-size: 0.7rem;">Showroom 3M</span>
-                                {% endif %}
-                            </div>
-                            <div class="mt-1">
-                                {% if booking.payment_status == 'paid' %}
-                                    <span class="badge bg-success-soft text-success" style="font-size: 0.7rem;"><i class="bi bi-cash-stack me-1"></i> Payé</span>
-                                {% elif booking.payment_status == 'refunded' %}
-                                    <span class="badge bg-danger-soft text-danger" style="font-size: 0.7rem;"><i class="bi bi-arrow-counterclockwise me-1"></i> Remboursé</span>
-                                {% else %}
-                                    <span class="badge bg-warning-soft text-warning" style="font-size: 0.7rem;"><i class="bi bi-clock me-1"></i> En Attente</span>
-                                {% endif %}
-                            </div>
-                        </td>
-                        <td>
-                            <div class="fw-bold text-dark" style="font-size: 0.8125rem;">{{ booking.price_paid | int }} FCFA</div>
-                            {% if booking.refund_amount and booking.refund_amount > 0 %}
-                                <div class="small text-danger" style="font-size: 0.7rem;"><i class="bi bi-arrow-return-left me-0.5"></i>Ret: {{ booking.refund_amount | int }} FCFA</div>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if booking.status == 'confirmed' %}
-                                <span class="badge bg-success-soft text-success" style="font-size: 0.72rem;"><i class="bi bi-check-circle me-1"></i> Confirmée</span>
-                            {% elif booking.status == 'cancelled' %}
-                                <span class="badge bg-danger-soft text-danger" style="font-size: 0.72rem;"><i class="bi bi-x-circle me-1"></i> Annulée</span>
-                            {% else %}
-                                <span class="badge bg-warning-soft text-warning" style="font-size: 0.72rem;"><i class="bi bi-hourglass me-1"></i> En attente</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end pe-3 text-nowrap">
-                            <div class="d-inline-flex align-items-center gap-1.5">
-                                <a href="{{ url_for('admin.edit_booking', id=booking.id) }}" class="action-icon-link action-edit" title="Modifier la mission VIP">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                {% if booking.status != 'cancelled' %}
-                                    <a href="{{ url_for('admin.cancel_booking', id=booking.id) }}" class="action-icon-link action-delete" onclick="return confirm('Confirmez-vous l\'annulation de cette sortie / mission VIP ?');" title="Annuler la sortie">
-                                        <i class="bi bi-x-circle"></i>
-                                    </a>
-                                {% endif %}
-                            </div>
+                        <td class="text-end fw-bold text-danger">{{ "{:,.0f}".format(t.price or 0).replace(',', ' ') }} F</td>
+                        <td><span class="badge {{ sb }} rounded-pill">{{ sl }}</span></td>
+                        <td class="text-end text-nowrap">
+                            <a href="{{ url_for('missions.mission_detail', id=t.id) }}" class="btn btn-sm btn-danger rounded-3 py-0 px-2 fw-bold">Ouvrir</a>
+                            <a href="{{ url_for('missions.mission_order_doc', id=t.id) }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-3 py-0 px-2" title="Ordre de Mission"><i class="fas fa-print"></i></a>
                         </td>
                     </tr>
                     {% else %}
+                    <tr><td colspan="8" class="text-center text-muted py-4">Aucune mission enregistrée.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+    function recalcMissionTotal() {
+        const v = id => parseFloat(document.getElementById(id)?.value || 0) || 0;
+        const tot = Math.max(0, v('pBase') + v('pDist') + v('pWait') + v('pToll') + v('pExtra') - v('pDisc'));
+        const el = document.getElementById('pTotalDisplay');
+        if (el) el.textContent = Math.round(tot).toLocaleString('fr-FR') + ' FCFA';
+    }
+    document.querySelectorAll('.p-calc').forEach(i => i.addEventListener('input', recalcMissionTotal));
+    function applyMissionPkg(sel) {
+        const opt = sel.options[sel.selectedIndex];
+        if (!opt || !opt.value) return;
+        document.getElementById('pBase').value = opt.dataset.price || 0;
+        if (!document.getElementById('missionTitleInput').value) {
+            document.getElementById('missionTitleInput').value = opt.dataset.name || '';
+        }
+        recalcMissionTotal();
+    }
+    function filterMissionsTable() {
+        const q = (document.getElementById('missionSearchInput').value || '').toLowerCase();
+        document.querySelectorAll('#allMissionsTable tbody tr').forEach(tr => {
+            tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+    </script>
+
+    <!-- ================================================================== -->
+    <!-- TAB 4: FORFAITS & TARIFICATION                                     -->
+    <!-- ================================================================== -->
+    {% elif cur_tab == 'packages' %}
+    <div class="row g-3 mb-3">
+        {% for p in packages %}
+        <div class="col-md-4">
+            <div class="fm-card h-100 d-flex flex-column justify-content-between mb-0">
+                <div>
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <div>
+                            <span class="badge bg-light text-dark border small">{{ p.package_ref or ('PKG-' ~ p.id) }}</span>
+                            <span class="badge {% if p.status == 'active' %}bg-success{% else %}bg-secondary{% endif %} rounded-pill ms-1">{{ p.status|upper }}</span>
+                        </div>
+                        <span class="badge bg-danger bg-opacity-10 text-danger">{{ p.pricing_mode|upper }}</span>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">{{ p.name }}</h6>
+                    <div class="fs-4 fw-bold text-danger mb-2">{{ "{:,.0f}".format(p.base_price or 0).replace(',', ' ') }} FCFA</div>
+                    <p class="small text-muted mb-2">{{ p.description }}</p>
+                    <ul class="list-unstyled small text-dark mb-2">
+                        <li><i class="fas fa-road text-danger me-2"></i>{{ p.included_km }} km / {{ p.included_hours or 8 }}h inclus • +{{ "{:,.0f}".format(p.extra_km_price or 0).replace(',', ' ') }} F/km</li>
+                        <li><i class="fas fa-clock text-danger me-2"></i>Attente : {{ p.waiting_allowance_minutes or 30 }} min incl. • +{{ "{:,.0f}".format(p.extra_hour_price or 15000).replace(',', ' ') }} F/h</li>
+                        <li><i class="fas fa-gas-pump text-danger me-2"></i>{{ p.fuel_toll_policy }}</li>
+                        <li><i class="fas fa-car text-danger me-2"></i>{{ p.vehicle_categories }} ({{ p.passenger_limit }} pax)</li>
+                        {% if p.corporate_price %}
+                        <li><i class="fas fa-building text-danger me-2"></i>Tarif Corporate : <strong>{{ "{:,.0f}".format(p.corporate_price).replace(',', ' ') }} FCFA</strong></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                    <form method="POST" action="{{ url_for('missions.toggle_package', pkg_id=p.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-3">
+                            {{ 'Désactiver' if p.status == 'active' else 'Réactiver' }}
+                        </button>
+                    </form>
+                    <a href="{{ url_for('admin.bookings', tab='missions') }}#newMissionFormCard" class="btn btn-sm btn-danger rounded-3 fw-bold">Utiliser</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="fm-card">
+        <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle text-danger me-2"></i>Créer / Modifier un Forfait VIP</h6>
+        <form method="POST" action="{{ url_for('missions.save_package') }}" class="row g-3">
+            <div class="col-md-2">
+                <label class="fm-lbl">Réf Forfait</label>
+                <input type="text" name="package_ref" class="form-control fm-input" placeholder="PKG-VIP-04">
+            </div>
+            <div class="col-md-4">
+                <label class="fm-lbl">Nom du Forfait *</label>
+                <input type="text" name="name" class="form-control fm-input" required placeholder="Ex: Forfait Délégation Ambassade 3 Jours">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Modèle Tarifaire</label>
+                <select name="pricing_mode" class="form-select fm-select">
+                    <option value="fixed">Prix Fixe</option>
+                    <option value="hourly">Horaire</option>
+                    <option value="daily">Journalier</option>
+                    <option value="distance">Au Kilomètre</option>
+                    <option value="round_trip">Aller-Retour</option>
+                    <option value="custom">Sur-Mesure</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Tarif Base (FCFA) *</label>
+                <input type="number" name="base_price" class="form-control fm-input" required value="120000" step="1000">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Tarif Corporate</label>
+                <input type="number" name="corporate_price" class="form-control fm-input" placeholder="105000" step="1000">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Km Inclus</label>
+                <input type="number" name="included_km" class="form-control fm-input" value="100">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Heures Incluses</label>
+                <input type="number" name="included_hours" class="form-control fm-input" value="8">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Km Sup (FCFA)</label>
+                <input type="number" name="extra_km_price" class="form-control fm-input" value="500">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Heure Sup (FCFA)</label>
+                <input type="number" name="extra_hour_price" class="form-control fm-input" value="15000">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Attente Incl. (min)</label>
+                <input type="number" name="waiting_allowance_minutes" class="form-control fm-input" value="30">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Code Promo</label>
+                <input type="text" name="promo_code" class="form-control fm-input" placeholder="VIP2026">
+            </div>
+            <div class="col-md-4">
+                <label class="fm-lbl">Politique Carburant & Péages</label>
+                <input type="text" name="fuel_toll_policy" class="form-control fm-input" value="Carburant urbain inclus, péages inclus">
+            </div>
+            <div class="col-md-4">
+                <label class="fm-lbl">Routes Applicables</label>
+                <input type="text" name="applicable_routes" class="form-control fm-input" value="Yaoundé, Douala, Kribi, Aéroport Nsimalen">
+            </div>
+            <div class="col-md-4">
+                <label class="fm-lbl">Catégories Véhicules Éligibles</label>
+                <input type="text" name="vehicle_categories" class="form-control fm-input" value="SUV 4x4 VIP, Berline Prestige, Minibus VIP">
+            </div>
+            <div class="col-md-6">
+                <label class="fm-lbl">Description</label>
+                <input type="text" name="description" class="form-control fm-input" placeholder="Prestations incluses dans le forfait...">
+            </div>
+            <div class="col-md-4">
+                <label class="fm-lbl">Conditions & Annulation</label>
+                <input type="text" name="terms_conditions" class="form-control fm-input" placeholder="Annulation gratuite 24h avant...">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="fm-btn-red w-100"><i class="fas fa-save me-1"></i> Enregistrer</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- TAB 5: AFFECTATION DE FLOTTE (VEHICLES)                            -->
+    <!-- ================================================================== -->
+    {% elif cur_tab in ['fleet', 'assignments'] %}
+    <div class="fm-card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h6 class="fw-bold mb-0"><i class="fas fa-car text-danger me-2"></i>Affectation de Flotte & Disponibilité Véhicules ({{ vehicle_status_rows|length }})</h6>
+                <div class="small text-muted">Contrôle automatique : maintenance, statut inactif et chevauchement horaire bloqués automatiquement.</div>
+            </div>
+            <select id="fleetAvailFilter" class="form-select fm-select" style="max-width: 220px;" onchange="filterFleetRows()">
+                <option value="all">Tous les véhicules</option>
+                <option value="available">Disponibles uniquement</option>
+                <option value="busy">En mission / Maintenance</option>
+            </select>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle small mb-0" id="fleetAssignTable">
+                <thead class="table-light">
                     <tr>
-                        <td colspan="11" class="text-center py-5 text-muted">
-                            <i class="bi bi-calendar-x fs-1 d-block mb-3 text-secondary"></i>
-                            Aucune sortie ou mission VIP enregistrée pour le moment.
+                        <th>Véhicule & Immat</th>
+                        <th>Catégorie / Cap.</th>
+                        <th>Dernier Km</th>
+                        <th>Disponibilité</th>
+                        <th>Mission Active</th>
+                        <th>Total Missions / CA</th>
+                        <th>Affectation Rapide</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in vehicle_status_rows %}
+                    <tr data-avail="{{ 'available' if row.available else 'busy' }}">
+                        <td>
+                            <div class="fw-bold text-dark">{{ row.bus.brand }} {{ row.bus.model }}</div>
+                            <span class="badge bg-light text-dark border">{{ row.bus.bus_number }}</span>
+                        </td>
+                        <td>{{ row.bus.bus_type or 'VIP' }} • {{ row.bus.capacity }} pl.</td>
+                        <td>{{ (row.last_mileage ~ ' km') if row.last_mileage else '—' }}</td>
+                        <td>
+                            {% if row.bus.status == 'maintenance' %}
+                            <span class="badge bg-warning text-dark rounded-pill">Maintenance</span>
+                            {% elif row.available %}
+                            <span class="badge bg-success rounded-pill">Disponible</span>
+                            {% else %}
+                            <span class="badge bg-danger rounded-pill">En Mission</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if row.current_trip %}
+                            <a href="{{ url_for('missions.mission_detail', id=row.current_trip.id) }}" class="fw-bold text-danger text-decoration-none">
+                                {{ row.current_trip.mission_ref or ('#' ~ row.current_trip.id) }}
+                            </a>
+                            <div class="text-muted" style="font-size: 0.72rem;">→ {{ row.current_trip.arrival_time.strftime('%d/%m %H:%M') }}</div>
+                            {% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        <td><strong>{{ row.trip_count }}</strong> • {{ "{:,.0f}".format(row.revenue).replace(',', ' ') }} F</td>
+                        <td>
+                            {% if row.bus.status == 'active' and tracking_trips %}
+                            <form method="POST" action="{{ url_for('missions.quick_assign_resource', id=tracking_trips[0].id) }}" class="d-flex gap-1" onsubmit="this.action='/admin/mission/' + this.querySelector('.m-pick').value + '/quick-assign';">
+                                <input type="hidden" name="bus_id" value="{{ row.bus.id }}">
+                                <input type="hidden" name="back_tab" value="fleet">
+                                <select class="form-select form-select-sm m-pick" style="max-width: 155px;">
+                                    {% for mt in tracking_trips %}
+                                    <option value="{{ mt.id }}">{{ mt.mission_ref or ('#' ~ mt.id) }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold">Assigner</button>
+                            </form>
+                            {% else %}<span class="text-muted small">Indisponible</span>{% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -323,59 +1025,385 @@
             </table>
         </div>
     </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('bookingsSearch');
-    const filterStatus = document.getElementById('bookingsFilterStatus');
-    const filterPaymentStatus = document.getElementById('bookingsFilterPaymentStatus');
-    const tableBody = document.getElementById('bookingsTableBody');
-    
-    if(!tableBody) return;
-
-    function applyFilters() {
-        const searchTerm = (searchInput ? searchInput.value.toLowerCase() : '').trim();
-        const statusValue = filterStatus ? filterStatus.value.toLowerCase() : '';
-        const paymentStatusValue = filterPaymentStatus ? filterPaymentStatus.value.toLowerCase() : '';
-        
-        let rows = Array.from(tableBody.querySelectorAll('tr.booking-row'));
-        
-        rows.forEach(row => {
-            const targetStatus = row.getAttribute('data-status') || '';
-            const targetPaymentStatus = row.getAttribute('data-payment-status') || '';
-            const rowText = row.innerText.toLowerCase();
-            
-            const matchesSearch = !searchTerm || rowText.includes(searchTerm);
-            const matchesStatus = (statusValue === "" || targetStatus === statusValue);
-            const matchesPaymentStatus = (paymentStatusValue === "" || targetPaymentStatus === paymentStatusValue);
-            
-            if (matchesSearch && matchesStatus && matchesPaymentStatus) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
+    <script>
+    function filterFleetRows() {
+        const f = document.getElementById('fleetAvailFilter').value;
+        document.querySelectorAll('#fleetAssignTable tbody tr').forEach(tr => {
+            tr.style.display = (f === 'all' || tr.dataset.avail === f) ? '' : 'none';
         });
     }
-    
-    if(searchInput) searchInput.addEventListener('input', applyFilters);
-    if(filterStatus) filterStatus.addEventListener('change', applyFilters);
-    if(filterPaymentStatus) filterPaymentStatus.addEventListener('change', applyFilters);
-    
-    window.applyBackendDateFilter = function(value) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('filter', value);
-        window.location.href = url.toString();
-    };
+    </script>
 
-    window.resetBookingsFilters = function() {
-        if(searchInput) searchInput.value = '';
-        if(filterStatus) filterStatus.value = '';
-        if(filterPaymentStatus) filterPaymentStatus.value = '';
-        window.location.href = "{{ url_for('admin.bookings') }}";
-    };
-});
-</script>
+    <!-- ================================================================== -->
+    <!-- TAB 6: AFFECTATION DES CHAUFFEURS VIP                              -->
+    <!-- ================================================================== -->
+    {% elif cur_tab == 'drivers' %}
+    <div class="fm-card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h6 class="fw-bold mb-0"><i class="fas fa-id-badge text-danger me-2"></i>Affectation & Planning des Chauffeurs VIP ({{ driver_status_rows|length }})</h6>
+                <div class="small text-muted">Disponibilité indépendante des véhicules, contrôle permis de conduire, heures & primes cumulées.</div>
+            </div>
+            <a href="{{ url_for('admin.add_driver') }}" class="btn btn-sm btn-danger rounded-3 fw-bold">
+                <i class="fas fa-user-plus me-1"></i> Nouveau Chauffeur
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle small mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Chauffeur VIP</th>
+                        <th>Permis & Validité</th>
+                        <th>Disponibilité</th>
+                        <th>Mission Active</th>
+                        <th>Charge / Primes</th>
+                        <th>Affectation Rapide</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in driver_status_rows %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">{{ row.driver.name }}</div>
+                            <div class="text-muted" style="font-size: 0.75rem;"><i class="fas fa-phone text-danger me-1"></i>{{ row.driver.phone }}</div>
+                        </td>
+                        <td>
+                            <div>{{ row.driver.license_number or '—' }}</div>
+                            {% if row.license_expired %}
+                            <span class="badge bg-danger">Expiré ({{ row.driver.license_expiration.strftime('%d/%m/%Y') }})</span>
+                            {% elif row.driver.license_expiration %}
+                            <span class="text-success small">Valide jusqu'au {{ row.driver.license_expiration.strftime('%d/%m/%Y') }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if row.available %}
+                            <span class="badge bg-success rounded-pill">Disponible</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark rounded-pill">{{ row.driver.status or 'Assigné' }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if row.current_trip %}
+                            <a href="{{ url_for('missions.mission_detail', id=row.current_trip.id) }}" class="fw-bold text-danger text-decoration-none">
+                                {{ row.current_trip.mission_ref or ('#' ~ row.current_trip.id) }}
+                            </a>
+                            {% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ row.trip_count }}</strong> missions • {{ row.total_hours }}h
+                            <div class="text-muted" style="font-size: 0.72rem;">Primes : {{ "{:,.0f}".format(row.total_allowances).replace(',', ' ') }} F</div>
+                        </td>
+                        <td>
+                            {% if tracking_trips %}
+                            <form method="POST" action="{{ url_for('missions.quick_assign_resource', id=tracking_trips[0].id) }}" class="d-flex gap-1" onsubmit="this.action='/admin/mission/' + this.querySelector('.m-pick').value + '/quick-assign';">
+                                <input type="hidden" name="driver_id" value="{{ row.driver.id }}">
+                                <input type="hidden" name="back_tab" value="drivers">
+                                <select class="form-select form-select-sm m-pick" style="max-width: 155px;">
+                                    {% for mt in tracking_trips %}
+                                    <option value="{{ mt.id }}">{{ mt.mission_ref or ('#' ~ mt.id) }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold">Assigner</button>
+                            </form>
+                            {% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- TAB 7: ROUTES & DESTINATIONS                                       -->
+    <!-- ================================================================== -->
+    {% elif cur_tab == 'routes' %}
+    <div class="fm-card">
+        <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle text-danger me-2"></i>Enregistrer un Itinéraire / Destination Fréquente VIP</h6>
+        <form method="POST" action="{{ url_for('missions.save_mission_route') }}" class="row g-3">
+            <div class="col-md-3">
+                <label class="fm-lbl">Point de Départ (Origine) *</label>
+                <input type="text" name="origin" class="form-control fm-input" required placeholder="Ex: Yaoundé (Omnisports)">
+            </div>
+            <div class="col-md-3">
+                <label class="fm-lbl">Destination *</label>
+                <input type="text" name="destination" class="form-control fm-input" required placeholder="Ex: Aéroport International Nsimalen">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Distance (km)</label>
+                <input type="number" name="distance" class="form-control fm-input" step="0.5" placeholder="25">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Durée Estimée</label>
+                <input type="text" name="duration" class="form-control fm-input" placeholder="45 min / 4h00">
+            </div>
+            <div class="col-md-2">
+                <label class="fm-lbl">Tarif Base (FCFA)</label>
+                <input type="number" name="base_price" class="form-control fm-input" step="1000" placeholder="75000">
+            </div>
+            <div class="col-md-5">
+                <label class="fm-lbl">Arrêts / Étapes Intermédiaires</label>
+                <input type="text" name="stops" class="form-control fm-input" placeholder="Centre-ville, Hilton, Bastos...">
+            </div>
+            <div class="col-md-5">
+                <label class="fm-lbl">Consignes d'Itinéraire VIP</label>
+                <input type="text" name="route_instructions" class="form-control fm-input" placeholder="Voie rapide Nsimalen, stationnement zone VIP...">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="fm-btn-red w-100"><i class="fas fa-save me-1"></i> Enregistrer</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="fm-card">
+        <h6 class="fw-bold mb-3"><i class="fas fa-map-marked-alt text-danger me-2"></i>Itinéraires Enregistrés ({{ routes|length }})</h6>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle small mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Origine → Destination</th>
+                        <th>Étapes / Stops</th>
+                        <th>Distance & Durée</th>
+                        <th class="text-end">Tarif Base</th>
+                        <th>Consignes</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in routes %}
+                    <tr>
+                        <td class="fw-bold text-dark">{{ r.origin }} <i class="fas fa-arrow-right text-danger mx-1"></i> {{ r.destination }}</td>
+                        <td class="text-muted">{{ r.stops or 'Direct' }}</td>
+                        <td>{{ (r.distance|int ~ ' km') if r.distance else '—' }} • {{ r.duration or '—' }}</td>
+                        <td class="text-end fw-bold text-danger">{{ "{:,.0f}".format(r.base_price or 0).replace(',', ' ') }} F</td>
+                        <td class="text-muted">{{ r.route_instructions or '—' }}</td>
+                        <td class="text-end">
+                            <form method="POST" action="{{ url_for('missions.delete_mission_route', route_id=r.id) }}" class="d-inline" onsubmit="return confirm('Archiver cet itinéraire ?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="fas fa-archive"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- TAB 8: SUIVI OPÉRATIONNEL (LIVE EXECUTION BOARD)                   -->
+    <!-- ================================================================== -->
+    {% elif cur_tab == 'tracking' %}
+    <div class="fm-card">
+        <h6 class="fw-bold mb-1"><i class="fas fa-satellite-dish text-danger me-2"></i>Suivi Opérationnel en Direct ({{ tracking_trips|length }} missions actives)</h6>
+        <div class="small text-muted mb-3">Pilotez les départs, check-lists pré-départ, relevés kilométriques, carburants et clôtures en temps réel.</div>
+        {% for t in tracking_trips %}
+        {% set sl, sb = status_labels.get(t.status, (t.status, 'bg-secondary')) %}
+        {% set chk = t.pre_departure_checklist %}
+        {% set chk_done = chk.values()|select('equalto', true)|list|length %}
+        <div class="p-3 rounded-4 border mb-3 bg-light bg-opacity-50">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                <div>
+                    <span class="badge bg-dark me-1">{{ t.mission_ref or ('#' ~ t.id) }}</span>
+                    <span class="badge {{ sb }} rounded-pill me-1">{{ sl }}</span>
+                    <strong class="text-dark">{{ t.mission_title or (t.route.origin ~ ' → ' ~ t.route.destination if t.route else 'Mission VIP') }}</strong>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge {% if chk_done >= 6 %}bg-success{% else %}bg-warning text-dark{% endif %} rounded-pill">
+                        Check-list : {{ chk_done }}/{{ pre_departure_items|length }}
+                    </span>
+                    <a href="{{ url_for('missions.mission_detail', id=t.id) }}" class="btn btn-sm btn-danger rounded-3 fw-bold">Contrôle Complet</a>
+                </div>
+            </div>
+            <div class="row g-2 small text-muted mb-2">
+                <div class="col-md-3"><i class="fas fa-car text-danger me-1"></i>{{ (t.bus.brand ~ ' ' ~ t.bus.model ~ ' (' ~ t.bus.bus_number ~ ')') if t.bus else 'Sans véhicule' }}</div>
+                <div class="col-md-3"><i class="fas fa-user-tie text-danger me-1"></i>{{ t.driver.name if t.driver else 'Sans chauffeur' }}</div>
+                <div class="col-md-3"><i class="far fa-clock text-danger me-1"></i>{{ t.departure_time.strftime('%d/%m %H:%M') }} → {{ t.arrival_time.strftime('%d/%m %H:%M') }}</div>
+                <div class="col-md-3"><i class="fas fa-tachometer-alt text-danger me-1"></i>Km : {{ t.mileage_start or '—' }} → {{ t.mileage_end or '—' }}</div>
+            </div>
+            <form method="POST" action="{{ url_for('missions.update_mission_lifecycle', id=t.id) }}" class="row g-2 align-items-center pt-2 border-top">
+                <input type="hidden" name="next_url" value="{{ url_for('admin.bookings', tab='tracking') }}">
+                <div class="col-md-3">
+                    <select name="status" class="form-select form-select-sm fm-select">
+                        {% for sk, lbl, _ in mission_stages %}
+                        <option value="{{ sk }}" {% if t.status == sk %}selected{% endif %}>{{ loop.index }}. {{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 col-6">
+                    <input type="number" name="mileage_start" class="form-control form-control-sm fm-input" value="{{ t.mileage_start or '' }}" placeholder="Km départ">
+                </div>
+                <div class="col-md-2 col-6">
+                    <input type="number" name="mileage_end" class="form-control form-control-sm fm-input" value="{{ t.mileage_end or '' }}" placeholder="Km retour">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="vehicle_condition" class="form-control form-control-sm fm-input" value="{{ t.vehicle_condition or '' }}" placeholder="État / note terrain...">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-sm btn-dark w-100 rounded-3 fw-bold">Mettre à jour</button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-4 small mb-0">Aucune mission active à suivre pour le moment.</p>
+        {% endfor %}
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- TAB 9: DOCUMENTS & CONTRATS (10 BRANDED PDF DOCUMENTS)             -->
+    <!-- ================================================================== -->
+    {% elif cur_tab == 'documents' %}
+    <div class="fm-card">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h6 class="fw-bold mb-0"><i class="fas fa-folder-open text-danger me-2"></i>Centre Documentaire Officiel 3M SERVICES (10 Modèles PDF / Impression)</h6>
+                <div class="small text-muted">Sélectionnez une mission ci-dessous pour générer instantanément l'un des 10 documents officiels siglés 3M SERVICES.</div>
+            </div>
+            <select id="docMissionSelect" class="form-select fm-select" style="max-width: 340px;" onchange="updateDocLinks()">
+                {% for t in trips_all %}
+                <option value="{{ t.id }}">{{ t.mission_ref or ('3M-MIS-' ~ t.id) }} — {{ t.mission_title or (t.route.origin ~ ' → ' ~ t.route.destination if t.route else 'Mission VIP') }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {% if trips_all %}
+        {% set first_id = trips_all[0].id %}
+        <div class="row g-3">
+            {% for d_key, d_title, d_desc, d_icon in mission_doc_types %}
+            <div class="col-md-6 col-lg-4">
+                <a href="{{ url_for('missions.mission_document', id=first_id, doc_type=d_key) }}" target="_blank" class="doc-tile mission-doc-link" data-doctype="{{ d_key }}">
+                    <i class="fas {{ d_icon }}"></i>
+                    <div>
+                        <div class="fw-bold small">{{ d_title }}</div>
+                        <div class="text-muted" style="font-size: 0.74rem;">{{ d_desc }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        <script>
+        function updateDocLinks() {
+            const tid = document.getElementById('docMissionSelect').value;
+            document.querySelectorAll('.mission-doc-link').forEach(a => {
+                a.href = '/admin/mission/' + tid + '/doc/' + a.dataset.doctype;
+            });
+        }
+        </script>
+        {% else %}
+        <p class="text-muted small mb-0">Créez d'abord une mission pour générer ses documents officiels.</p>
+        {% endif %}
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- TAB 10: HISTORIQUE & RAPPORTS                                      -->
+    <!-- ================================================================== -->
+    {% elif cur_tab == 'reports' %}
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="fm-kpi">
+                <div class="fm-kpi-lbl">Revenu Total Missions</div>
+                <div class="fm-kpi-val text-dark">{{ "{:,.0f}".format(kpis.missions_revenue).replace(',', ' ') }} F</div>
+                <div class="small text-muted">Valeur moy. : {{ "{:,.0f}".format(kpis.avg_mission_value).replace(',', ' ') }} F</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="fm-kpi">
+                <div class="fm-kpi-lbl">Dépenses Opérationnelles</div>
+                <div class="fm-kpi-val text-danger">{{ "{:,.0f}".format(kpis.total_mission_expenses).replace(',', ' ') }} F</div>
+                <div class="small text-muted">Incidents ouverts : <strong>{{ open_incidents_count }}</strong></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="fm-kpi">
+                <div class="fm-kpi-lbl">Marge Nette Flotte</div>
+                <div class="fm-kpi-val text-success">{{ "{:,.0f}".format(kpis.net_mission_margin).replace(',', ' ') }} F</div>
+                <div class="small text-muted">Revenus − Dépenses</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="fm-kpi">
+                <div class="fm-kpi-lbl">Paiements Restants Dûs</div>
+                <div class="fm-kpi-val text-warning">{{ "{:,.0f}".format(kpis.outstanding_payments).replace(',', ' ') }} F</div>
+                <div class="small text-muted">Taux annulation : {{ kpis.cancellation_rate_pct }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-lg-6">
+            <div class="fm-card h-100 mb-0">
+                <h6 class="fw-bold mb-3"><i class="fas fa-road text-danger me-2"></i>Performance par Itinéraire</h6>
+                <table class="table table-sm align-middle small mb-0">
+                    <thead class="table-light"><tr><th>Itinéraire</th><th class="text-center">Missions</th><th class="text-end">Chiffre d'Affaires</th></tr></thead>
+                    <tbody>
+                        {% for rp in route_perf[:8] %}
+                        <tr>
+                            <td class="fw-semibold">{{ rp.route.origin }} → {{ rp.route.destination }}</td>
+                            <td class="text-center"><span class="badge bg-light text-dark border">{{ rp.count }}</span></td>
+                            <td class="text-end fw-bold text-danger">{{ "{:,.0f}".format(rp.revenue).replace(',', ' ') }} FCFA</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="fm-card h-100 mb-0">
+                <h6 class="fw-bold mb-3"><i class="fas fa-tags text-danger me-2"></i>Performance par Forfait VIP</h6>
+                <table class="table table-sm align-middle small mb-0">
+                    <thead class="table-light"><tr><th>Forfait</th><th class="text-center">Utilisations</th><th class="text-end">Revenu Généré</th></tr></thead>
+                    <tbody>
+                        {% for pp in package_perf %}
+                        <tr>
+                            <td class="fw-semibold">{{ pp.package.name }}</td>
+                            <td class="text-center"><span class="badge bg-light text-dark border">{{ pp.count }}</span></td>
+                            <td class="text-end fw-bold text-success">{{ "{:,.0f}".format(pp.revenue).replace(',', ' ') }} FCFA</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="fm-card">
+        <h6 class="fw-bold mb-3"><i class="fas fa-archive text-danger me-2"></i>Historique des Missions Clôturées & Annulées ({{ history_trips|length }})</h6>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle small mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Réf</th>
+                        <th>Mission</th>
+                        <th>Véhicule & Chauffeur</th>
+                        <th>Date</th>
+                        <th class="text-end">Revenu</th>
+                        <th class="text-end">Marge</th>
+                        <th>Statut / Motif</th>
+                        <th class="text-end">Dossier</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in history_trips %}
+                    {% set sl, sb = status_labels.get(t.status, (t.status, 'bg-secondary')) %}
+                    <tr>
+                        <td class="fw-bold">{{ t.mission_ref or ('#' ~ t.id) }}</td>
+                        <td>{{ t.mission_title or (t.route.origin ~ ' → ' ~ t.route.destination if t.route else '') }}</td>
+                        <td>{{ (t.bus.bus_number if t.bus else '—') }} • {{ t.driver.name if t.driver else '—' }}</td>
+                        <td>{{ t.departure_time.strftime('%d/%m/%Y') if t.departure_time else '—' }}</td>
+                        <td class="text-end fw-bold">{{ "{:,.0f}".format(t.price or 0).replace(',', ' ') }} F</td>
+                        <td class="text-end fw-bold {% if t.mission_margin >= 0 %}text-success{% else %}text-danger{% endif %}">{{ "{:,.0f}".format(t.mission_margin).replace(',', ' ') }} F</td>
+                        <td>
+                            <span class="badge {{ sb }} rounded-pill">{{ sl }}</span>
+                            {% if t.cancellation_reason %}<div class="text-muted" style="font-size: 0.7rem;">{{ t.cancellation_reason }}</div>{% endif %}
+                        </td>
+                        <td class="text-end"><a href="{{ url_for('missions.mission_detail', id=t.id) }}" class="btn btn-sm btn-outline-dark py-0 px-2 rounded-3">Voir</a></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="8" class="text-center text-muted py-4">Aucune mission clôturée ou annulée dans l'historique.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

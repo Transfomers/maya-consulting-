@@ -1,26 +1,79 @@
 {% extends "base.html" %}
 
-{% block title %}Customer Management - 3M SERVICES{% endblock %}
+{% block title %}Clients &amp; Visiteurs VIP — 3M SERVICES{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
-    <!-- Header matching RentQ & 3M Style -->
+    <!-- Header -->
     <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Customer Management</h2>
-            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Consultez et gérez la base de données des clients VIP et comptes synchronisés.</p>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Clients &amp; Visiteurs VIP</h2>
+            <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">
+                Consultez en temps réel le nom, le numéro et la localisation des clients visitant le site et des comptes VIP.
+            </p>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i> Imprimer</button>
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold shadow-sm" data-bs-toggle="collapse" data-bs-target="#addVisitorCollapse" aria-expanded="false">
+                <i class="bi bi-plus-circle me-1"></i> Enregistrer un Client / Visiteur VIP
+            </button>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i> Imprimer
+            </button>
         </div>
     </div>
 
-    <!-- 3M Services SaaS Customer KPI Summary Row -->
+    <!-- Collapsible Add Client / Visitor Card (Styled like add_driver.html) -->
+    <div class="collapse mb-4" id="addVisitorCollapse">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+                    <div class="mb-4">
+                        <h3 class="fw-bold"><i class="bi bi-plus-circle text-primary me-2"></i> Enregistrer un Client / Visiteur VIP</h3>
+                        <p class="text-muted mb-0">Ajoutez manuellement le nom, le numéro et la localisation d'un client visiteur.</p>
+                    </div>
+                    <form method="POST" action="{{ url_for('admin.users') }}" class="needs-validation" novalidate>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="v_name" class="form-label">Nom et Prénom</label>
+                                <input type="text" class="form-control" id="v_name" name="name" placeholder="Ex: Arnaud Mbarga" required>
+                                <div class="invalid-feedback">Le nom est obligatoire.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="v_phone" class="form-label">Numéro de Téléphone / WhatsApp</label>
+                                <input type="text" class="form-control" id="v_phone" name="phone" placeholder="Ex: +237 698 66 87 61" required>
+                                <div class="invalid-feedback">Le numéro est obligatoire.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="v_location" class="form-label">Localisation (Ville / Quartier)</label>
+                                <input type="text" class="form-control" id="v_location" name="location" placeholder="Ex: Yaoundé — Tsinga (Face FECAFOOT)" required>
+                                <div class="invalid-feedback">La localisation est obligatoire.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="v_email" class="form-label">Email <small class="text-muted">(Optionnel)</small></label>
+                                <input type="email" class="form-control" id="v_email" name="email" placeholder="client@exemple.cm">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <button type="button" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold" data-bs-toggle="collapse" data-bs-target="#addVisitorCollapse">
+                                <i class="bi bi-arrow-left me-2"></i> Annuler
+                            </button>
+                            <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                                <i class="bi bi-check-circle me-2"></i> Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Summary Row -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+            <div class="card border-0 shadow-xs h-100 p-3"
+                style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Total Clients</span>
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Total Clients &amp; Visiteurs</span>
                     <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #eff8ff; color: #175cd3;">
                         <i class="bi bi-people-fill fs-6"></i>
                     </div>
@@ -32,10 +85,14 @@
             </div>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+            <div class="card border-0 shadow-xs h-100 p-3"
+                style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Clients VIP Actifs</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #ecfdf3; color: #039855;">
+                    <span class="text-muted fw-semibold"
+                        style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Clients VIP
+                        Actifs</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3"
+                        style="width: 32px; height: 32px; background: #ecfdf3; color: #039855;">
                         <i class="bi bi-shield-check fs-6"></i>
                     </div>
                 </div>
@@ -46,24 +103,29 @@
             </div>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+            <div class="card border-0 shadow-xs h-100 p-3"
+                style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Statut Comptes</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fdf2fa; color: #c11574;">
-                        <i class="bi bi-person-check fs-6"></i>
+                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Localisation Capturée</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fef2f2; color: #D62828;">
+                        <i class="bi bi-geo-alt-fill fs-6"></i>
                     </div>
                 </div>
                 <div class="d-flex align-items-baseline gap-2">
-                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem;">Vérifiés</h3>
-                    <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">3M-CLI</span>
+                    <h3 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem;">En Temps Réel</h3>
+                    <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">Port 3001</span>
                 </div>
             </div>
         </div>
         <div class="col-6 col-lg-3">
-            <div class="card border-0 shadow-xs h-100 p-3" style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
+            <div class="card border-0 shadow-xs h-100 p-3"
+                style="border-radius: 12px; background: #ffffff; border: 1px solid #eaecf0 !important;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-semibold" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Programme Fidélité</span>
-                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width: 32px; height: 32px; background: #fffaeb; color: #b54708;">
+                    <span class="text-muted fw-semibold"
+                        style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;">Programme
+                        Fidélité</span>
+                    <div class="d-flex align-items-center justify-content-center rounded-3"
+                        style="width: 32px; height: 32px; background: #fffaeb; color: #b54708;">
                         <i class="bi bi-star-fill fs-6"></i>
                     </div>
                 </div>
@@ -75,16 +137,18 @@
         </div>
     </div>
 
-    <!-- Main Table Card matching RentQ Screenshot exactly -->
-    <div class="card bg-white border shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important; overflow: hidden; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
-        <!-- Table Filter / Search Header -->
-        <div class="d-flex flex-wrap gap-2 p-3 border-bottom align-items-center justify-content-between" style="background: #fafbfc; border-color: #eaecf0 !important;">
+    <!-- Main Customers & Visitors Table Card -->
+    <div class="card bg-white border shadow-xs mb-4"
+        style="border-radius: 12px; border-color: #eaecf0 !important; overflow: hidden; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
+        <div class="d-flex flex-wrap gap-2 p-3 border-bottom align-items-center justify-content-between"
+            style="background: #fafbfc; border-color: #eaecf0 !important;">
             <div class="d-flex flex-wrap gap-2 align-items-center">
-                <div class="input-group input-group-sm" style="max-width: 280px;">
+                <div class="input-group input-group-sm" style="max-width: 300px;">
                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                    <input type="text" id="usersTableSearch" class="form-control border-start-0 ps-0" placeholder="Chercher client, téléphone, email...">
+                    <input type="text" id="usersTableSearch" class="form-control border-start-0 ps-0" placeholder="Chercher nom, numéro, localisation...">
                 </div>
-                <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('usersTableSearch').value=''; document.getElementById('usersTableSearch').dispatchEvent(new Event('input'));">
+                <button class="btn btn-sm btn-outline-secondary"
+                    onclick="document.getElementById('usersTableSearch').value=''; document.getElementById('usersTableSearch').dispatchEvent(new Event('input'));">
                     <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
                 </button>
             </div>
@@ -94,57 +158,69 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="min-width: 840px;">
+            <table class="table table-hover align-middle mb-0" style="min-width: 960px;">
                 <thead>
                     <tr>
-                        <th class="ps-3" style="width: 14%;">Customer ID</th>
-                        <th style="width: 20%;">Name</th>
-                        <th style="width: 22%;">Email</th>
-                        <th style="width: 16%;">Phone</th>
-                        <th style="width: 14%;">Join Date</th>
-                        <th style="width: 10%;">Tarif / Jour</th>
-                        <th class="text-end pe-3" style="width: 8%;">Actions</th>
+                        <th class="ps-3" style="width: 11%;">Customer ID</th>
+                        <th style="width: 19%;">Name (Nom &amp; Prénom)</th>
+                        <th style="width: 16%;">Number (Téléphone)</th>
+                        <th style="width: 22%;">Location (Localisation)</th>
+                        <th style="width: 16%;">Email</th>
+                        <th style="width: 10%;">Date Visite</th>
+                        <th class="text-end pe-3" style="width: 6%;">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="usersTableBody">
                     {% for user in users %}
+                    {% set display_name = user.real_name or user.username %}
+                    {% set display_loc = user.address or user.city or 'Yaoundé — Tsinga' %}
                     <tr class="user-row" style="transition: background 0.15s ease;">
-                        <td class="ps-3 fw-semibold" style="color: #475467;">
-                            #CUS-{{ '%03d'|format(user.id if user.id <= 5 else (loop.index)) }}
+                        <td class="ps-3 fw-semibold font-monospace" style="color: #475467; font-size: 0.8rem;">
+                            #CUS-{{ '%03d'|format(user.id) }}
                         </td>
                         <td>
-                            <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">{{ user.real_name or user.username }}</div>
-                            <div class="small text-muted" style="font-size: 0.7rem;">Client VIP Particulier</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold"
+                                     style="width: 30px; height: 30px; background: #fff1f2; color: #E20713; font-size: 0.72rem;">
+                                    {{ (display_name[:2]|upper) if display_name else 'CL' }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">{{ display_name }}</div>
+                                    <div class="small text-muted" style="font-size: 0.68rem;">Client / Visiteur VIP</div>
+                                </div>
+                            </div>
                         </td>
-                        <td style="color: #475467;">
+                        <td style="color: #101828; font-weight: 500; font-size: 0.82rem;">
+                            <i class="bi bi-whatsapp text-success me-1"></i>{{ user.phone or '+237 691 78 64 47' }}
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border fw-medium text-wrap text-start" style="font-size: 0.75rem;">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ display_loc }}
+                            </span>
+                        </td>
+                        <td class="small" style="color: #475467;">
                             {{ user.email }}
                         </td>
-                        <td style="color: #475467;">
-                            {{ user.phone or '+237 691 78 64 47' }}
-                        </td>
-                        <td style="color: #475467;">
-                            {{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'Jan 15, 2026' }}
-                        </td>
-                        <td class="fw-semibold text-dark">
-                            {% if loop.index == 1 %}120 000 FCFA
-                            {% elif loop.index == 2 %}85 000 FCFA
-                            {% elif loop.index == 3 %}150 000 FCFA
-                            {% elif loop.index == 4 %}95 000 FCFA
-                            {% elif loop.index == 5 %}65 000 FCFA
-                            {% else %}80 000 FCFA{% endif %}
+                        <td class="small" style="color: #475467;">
+                            {{ user.created_at.strftime('%d/%m/%Y') if user.created_at else '23/11/2026' }}
                         </td>
                         <td class="text-end pe-3 text-nowrap">
                             <div class="d-inline-flex align-items-center gap-1.5">
-                                <a href="{{ url_for('admin.chats', client_id=user.username) }}" class="action-icon-link action-chat" title="Chat Privé 3M avec ce client">
+                                <a href="{{ url_for('admin.chats', client_id=user.username) }}"
+                                    class="action-icon-link action-chat" title="Chat Privé 3M avec ce client">
                                     <i class="bi bi-chat-dots-fill text-danger"></i>
                                 </a>
-                                <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link action-view" title="Consulter la fiche client">
+                                <a href="{{ url_for('admin.edit_user', id=user.id) }}"
+                                    class="action-icon-link action-view" title="Consulter la fiche client">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="action-icon-link action-edit" title="Modifier le compte">
+                                <a href="{{ url_for('admin.edit_user', id=user.id) }}"
+                                    class="action-icon-link action-edit" title="Modifier le compte">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{{ url_for('admin.delete_user', id=user.id) }}" class="action-icon-link action-delete" title="Supprimer" onclick="return confirm('Supprimer ce compte client ?');">
+                                <a href="{{ url_for('admin.delete_user', id=user.id) }}"
+                                    class="action-icon-link action-delete" title="Supprimer"
+                                    onclick="return confirm('Supprimer ce compte client ?');">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -154,7 +230,7 @@
                     <tr>
                         <td colspan="7" class="text-center py-5 text-muted">
                             <i class="bi bi-people fs-1 d-block mb-3 text-secondary"></i>
-                            Aucun compte client trouvé dans la base.
+                            Aucun compte client ou visiteur trouvé.
                         </td>
                     </tr>
                     {% endfor %}
@@ -163,7 +239,6 @@
         </div>
     </div>
 
-    <!-- Footer matching Clean Dashboard Style -->
     <div class="text-center py-3 text-muted small" style="color: #98a2b3 !important; font-size: 0.8125rem;">
         © 3M SERVICES. All Rights Reserved.
     </div>
@@ -176,24 +251,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const tableSearch = document.getElementById('usersTableSearch');
     const topSearch = document.getElementById('adminSearchInput');
     const tableBody = document.getElementById('usersTableBody');
-    
+
     function filterRows(val) {
         if (!tableBody) return;
         const query = (val || '').toLowerCase().trim();
         const rows = tableBody.querySelectorAll('tr.user-row');
-        
+
         rows.forEach(function(row) {
             const text = row.innerText.toLowerCase();
             row.style.display = text.includes(query) ? '' : 'none';
         });
     }
 
-    if (tableSearch) {
-        tableSearch.addEventListener('input', function() { filterRows(this.value); });
-    }
-    if (topSearch) {
-        topSearch.addEventListener('input', function() { filterRows(this.value); });
-    }
-});
+        function filterRows(val) {
+            if (!tableBody) return;
+            const query = (val || '').toLowerCase().trim();
+            const rows = tableBody.querySelectorAll('tr.user-row');
+
+            rows.forEach(function (row) {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        if (tableSearch) {
+            tableSearch.addEventListener('input', function () { filterRows(this.value); });
+        }
+        if (topSearch) {
+            topSearch.addEventListener('input', function () { filterRows(this.value); });
+        }
+    });
 </script>
 {% endblock %}

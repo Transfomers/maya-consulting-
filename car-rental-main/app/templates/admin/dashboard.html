@@ -439,70 +439,6 @@
         </div>
     </div>
 
-    <!-- Financial & Operations Summary Strip -->
-    <div class="row g-3 mb-4 fade-in">
-        <div class="col-12 col-md-4">
-            <div class="card metric-card border-0 shadow-sm p-3">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-bold small text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Revenu MoMo / Orange Money</span>
-                    <div class="metric-icon-box bg-revenue-soft" style="width: 34px; height: 34px;">
-                        <i class="bi bi-phone-fill fs-5"></i>
-                    </div>
-                </div>
-                <h3 class="fw-extrabold mb-1 text-primary" id="metricRevenue"
-                    data-day="{{ (stats_day.revenue + stats_day.parcel_revenue) | int }} FCFA" 
-                    data-week="{{ (stats_week.revenue + stats_week.parcel_revenue) | int }} FCFA" 
-                    data-month="{{ (stats_month.revenue + stats_month.parcel_revenue) | int }} FCFA"
-                    data-all="{{ (stats_all.revenue + stats_all.parcel_revenue) | int }} FCFA"
-                    style="font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.45rem;">
-                    {{ (stats_day.revenue + stats_day.parcel_revenue) | int }} FCFA
-                </h3>
-                <div class="text-muted small" style="font-size: 0.75rem;">
-                    Paiements confirmés pour locations & sorties VIP
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-4">
-            <div class="card metric-card border-0 shadow-sm p-3">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-bold small text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Conciergerie & Services VIP</span>
-                    <div class="metric-icon-box bg-bookings-soft" style="width: 34px; height: 34px;">
-                        <i class="bi bi-gem fs-5"></i>
-                    </div>
-                </div>
-                <h3 class="fw-extrabold mb-1 text-warning" id="metricParcelRevenue"
-                    data-day="{{ stats_day.parcel_revenue | int }} FCFA" 
-                    data-week="{{ stats_week.parcel_revenue | int }} FCFA" 
-                    data-month="{{ stats_month.parcel_revenue | int }} FCFA"
-                    data-all="{{ stats_all.parcel_revenue | int }} FCFA"
-                    style="font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.45rem;">
-                    {{ stats_day.parcel_revenue | int }} FCFA
-                </h3>
-                <div class="text-muted small" style="font-size: 0.75rem;">
-                    Mises à disposition chauffeur & transferts aéroport
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-md-4">
-            <div class="card metric-card border-0 shadow-sm p-3">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted fw-bold small text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Caisse Guichet POS (Espèces)</span>
-                    <div class="metric-icon-box bg-operations-soft" style="width: 34px; height: 34px;">
-                        <i class="bi bi-wallet2 fs-5"></i>
-                    </div>
-                </div>
-                <h3 class="fw-extrabold mb-1 text-success"
-                    style="font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.45rem;">
-                    {{ caisse.montant_actuel | default(0) | int }} FCFA
-                </h3>
-                <div class="d-flex justify-content-between text-muted small" style="font-size: 0.75rem;">
-                    <span>Session: <strong class="text-dark">{{ caisse.status if caisse else 'Fermée' }}</strong></span>
-                    <a href="{{ url_for('admin.teller_book') }}" class="text-primary text-decoration-none fw-semibold">Nouveau Contrat POS →</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Summary & Actions Section (RentQ Clean Style) -->
     <div class="row g-4 mb-4 fade-in">
         <div class="col-lg-7">
@@ -519,52 +455,96 @@
         
         <div class="col-lg-5">
             <div class="card bg-white border p-4 h-100 shadow-xs" style="border-radius: 12px; border-color: #eaecf0 !important;">
-                <h5 class="mb-3 fw-bold text-dark"><i class="bi bi-lightning-charge text-warning me-2"></i> Actions Rapides</h5>
+                <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
+                    <div>
+                        <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-lightning-charge-fill text-danger me-1"></i> Actions Rapides</h5>
+                        <small class="text-muted" style="font-size: 0.74rem;">Création directe &amp; workflows opérationnels</small>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown" style="border-radius: 8px; font-size: 0.76rem;">
+                            Plus d'actions
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 p-1" style="min-width: 245px; font-size: 0.82rem;">
+                            <li>
+                                <button type="button" class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#qaApartmentModal">
+                                    <i class="bi bi-building-add text-danger"></i> Ajouter un appartement VIP
+                                </button>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" href="{{ url_for('admin.bookings', tab='missions') }}#convertBookingCard">
+                                    <i class="bi bi-arrow-left-right text-danger"></i> Convertir réservation en mission
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" href="{{ url_for('admin.bookings', tab='packages') }}">
+                                    <i class="bi bi-tags text-danger"></i> Nouveau Forfait VIP
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" href="{{ url_for('admin.shifts') }}">
+                                    <i class="bi bi-journal-text text-danger"></i> Rapport Opérationnel du Jour
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" href="http://localhost:3001" target="_blank">
+                                    <i class="bi bi-box-arrow-up-right text-dark"></i> Vitrine Client (Port 3001)
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 6 Focused Primary Action Shortcuts (Forms & Direct Workflows) -->
                 <div class="row g-2">
+                    <!-- 1. Nouvelle réservation (Essential) -->
                     <div class="col-6">
-                        <a href="{{ url_for('admin.buses') }}" class="btn btn-outline-danger w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #fee2e2;">
-                            <i class="bi bi-car-front-fill"></i> Flotte VIP ({{ total_vehicles }})
+                        <button type="button" class="btn btn-danger w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" data-bs-toggle="modal" data-bs-target="#qaReservationModal" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700;">
+                            <i class="bi bi-calendar-plus-fill fs-6"></i>
+                            <span class="lh-sm">Nouvelle réservation<br><small class="fw-normal opacity-75" style="font-size: 0.68rem;">Client, véhicule &amp; acompte</small></span>
+                        </button>
+                    </div>
+                    <!-- 2. Créer une mission VIP (Essential) -->
+                    <div class="col-6">
+                        <a href="{{ url_for('admin.bookings', tab='missions') }}#newMissionFormCard" class="btn btn-dark w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" style="background:#0f172a; border-radius: 10px; font-size: 0.8rem; font-weight: 700;">
+                            <i class="bi bi-compass-fill text-danger fs-6"></i>
+                            <span class="lh-sm">Créer une mission VIP<br><small class="fw-normal opacity-75" style="font-size: 0.68rem;">Trajet, convoi &amp; chauffeur</small></span>
                         </a>
                     </div>
+                    <!-- 3. Ajouter un véhicule -->
                     <div class="col-6">
-                        <a href="{{ url_for('admin.add_bus') }}" class="btn btn-outline-secondary w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #eaecf0;">
-                            <i class="bi bi-plus-circle"></i> Ajouter Véhicule
+                        <a href="{{ url_for('admin.add_bus') }}" class="btn btn-outline-secondary w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700; border-color: #e2e8f0; color: #0f172a;">
+                            <i class="bi bi-car-front-fill text-danger fs-6"></i>
+                            <span class="lh-sm">Ajouter un véhicule<br><small class="fw-normal text-muted" style="font-size: 0.68rem;">Immat, tarif &amp; documents</small></span>
                         </a>
                     </div>
+                    <!-- 4. Ajouter un client -->
                     <div class="col-6">
-                        <a href="{{ url_for('admin.bookings') }}" class="btn btn-outline-warning w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #fef3c7;">
-                            <i class="bi bi-journal-check"></i> Sorties & Missions
+                        <button type="button" class="btn btn-outline-secondary w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" data-bs-toggle="modal" data-bs-target="#qaClientModal" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700; border-color: #e2e8f0; color: #0f172a;">
+                            <i class="bi bi-person-plus-fill text-danger fs-6"></i>
+                            <span class="lh-sm">Ajouter un client<br><small class="fw-normal text-muted" style="font-size: 0.68rem;">Particulier ou corporate</small></span>
+                        </button>
+                    </div>
+                    <!-- 5. Ajouter un chauffeur -->
+                    <div class="col-6">
+                        <a href="{{ url_for('admin.add_driver') }}" class="btn btn-outline-secondary w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700; border-color: #e2e8f0; color: #0f172a;">
+                            <i class="bi bi-person-badge-fill text-danger fs-6"></i>
+                            <span class="lh-sm">Ajouter un chauffeur<br><small class="fw-normal text-muted" style="font-size: 0.68rem;">Permis, contact &amp; agence</small></span>
                         </a>
                     </div>
+                    <!-- 6. Enregistrer un paiement (Permission-Gated) -->
                     <div class="col-6">
-                        <a href="{{ url_for('admin.teller_book') }}" class="btn btn-outline-primary w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #dbeafe;">
-                            <i class="bi bi-receipt-cutoff"></i> Guichet POS (Contrat)
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('admin.apartments') }}" class="btn btn-outline-warning w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #fef3c7;">
-                            <i class="bi bi-building-check"></i> Appartements VIP ({{ total_apartments }})
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('admin.drivers') }}" class="btn btn-outline-primary w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #dbeafe;">
-                            <i class="bi bi-person-badge"></i> Chauffeurs VIP
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('admin.routes') }}" class="btn btn-outline-success w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #dcfce7;">
-                            <i class="bi bi-signpost-split"></i> Forfaits & Tarifs
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('admin.finance') }}" class="btn btn-outline-info w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="font-size: 0.82rem; border-color: #e0f2fe;">
-                            <i class="bi bi-wallet2"></i> Caisse & Finances
-                        </a>
-                    </div>
-                    <div class="col-12 mt-2">
-                        <a href="http://localhost:3001" target="_blank" class="btn btn-dark w-100 quick-action-btn shadow-2xs justify-content-center text-nowrap" style="background: #0f172a; color: #fff; font-size: 0.85rem;">
-                            <i class="bi bi-box-arrow-up-right text-warning"></i> Ouvrir le Catalogue Client React (Port 3001)
-                        </a>
+                        {% if qa_can_record_payment %}
+                        <button type="button" class="btn btn-outline-success w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" data-bs-toggle="modal" data-bs-target="#qaPaymentModal" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700; border-color: #bbf7d0; color: #166534; background: #f0fdf4;">
+                            <i class="bi bi-cash-coin fs-6"></i>
+                            <span class="lh-sm">Enregistrer paiement<br><small class="fw-normal text-success" style="font-size: 0.68rem;">Encaissement &amp; reçu PDF</small></span>
+                        </button>
+                        {% else %}
+                        <button type="button" class="btn btn-outline-secondary w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" data-bs-toggle="modal" data-bs-target="#qaApartmentModal" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700; border-color: #e2e8f0; color: #0f172a;">
+                            <i class="bi bi-building-add text-danger fs-6"></i>
+                            <span class="lh-sm">Ajouter appartement<br><small class="fw-normal text-muted" style="font-size: 0.68rem;">Résidence VIP &amp; tarif</small></span>
+                        </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -655,6 +635,73 @@
             </div>
         </div>
         <div class="fc-mini" id="dashMiniCal" style="min-height:360px;"></div>
+    </div>
+
+    <!-- Site Visitors & Clients (Name, Number & Location) -->
+    <div class="card bg-white border p-4 fade-in shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important;">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-geo-alt-fill text-danger me-2"></i> Visiteurs &amp; Clients sur le Site (Nom, Numéro &amp; Localisation)</h5>
+                <small class="text-muted">Coordonnées des visiteurs et clients VIP enregistrés depuis le site.</small>
+            </div>
+            <a href="{{ url_for('admin.users') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Voir tous les clients &rarr;</a>
+        </div>
+        {% if recent_visitors %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="min-width: 720px;">
+                <thead>
+                    <tr>
+                        <th>Client / Visiteur (Name)</th>
+                        <th>Numéro (Phone / WhatsApp)</th>
+                        <th>Localisation (Location)</th>
+                        <th>Date Visite</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in recent_visitors %}
+                    {% set v_name = v.real_name or v.username %}
+                    {% set v_loc = v.address or v.city or 'Yaoundé — Tsinga' %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                                     style="width: 30px; height: 30px; background: #fff1f2; color: #E20713; font-size: 0.72rem;">
+                                    {{ (v_name[:2]|upper) if v_name else 'CL' }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold text-dark small">{{ v_name }}</div>
+                                    <div class="text-muted" style="font-size: 0.68rem;">{{ v.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="small fw-semibold text-dark">
+                            <i class="bi bi-whatsapp text-success me-1"></i>{{ v.phone or '+237 691 78 64 47' }}
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border fw-medium" style="font-size: 0.74rem;">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ v_loc }}
+                            </span>
+                        </td>
+                        <td class="small text-muted">
+                            {{ v.created_at.strftime('%d/%m/%Y %H:%M') if v.created_at else '23/11/2026' }}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a href="{{ url_for('admin.chats', client_id=v.username) }}" class="btn btn-xs btn-outline-danger rounded-pill px-2.5 me-1" title="Chat Privé">
+                                <i class="bi bi-chat-dots-fill"></i>
+                            </a>
+                            <a href="{{ url_for('admin.edit_user', id=v.id) }}" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5" title="Fiche client">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center py-3 mb-0">Aucun visiteur enregistré pour le moment.</p>
+        {% endif %}
     </div>
 
     <!-- Recent Bookings Table (RentQ Clean Style) -->
@@ -819,7 +866,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Elements to toggle
     const toggleElements = [
         'metricCarsOut', 'metricTripsCount', 'metricActiveCustomers', 'metricBusesActive', 
-        'metricApartments', 'metricPromo', 'metricRevenue', 'metricParcelRevenue', 
+        'metricApartments', 'metricPromo', 
         'metricActiveTrips', 'metricUpcomingTrips', 'metricCancelledTrips', 
         'metricNewCustomers', 'metricRepeatCustomers', 'metricBookingsCount', 
         'metricConfirmedBookings', 'metricPendingBookings', 'metricCancelledBookings',
@@ -914,4 +961,314 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 });
 </script>
+
+<!-- ==================== QUICK ACTION MODALS (3M SERVICES) ==================== -->
+<!-- 1. Nouvelle Réservation VIP Modal (Reuses existing client to prevent duplicates) -->
+<div class="modal fade" id="qaReservationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem; overflow: hidden;">
+            <div class="modal-header text-white border-0 py-3 px-4" style="background: #D62828;">
+                <div>
+                    <h5 class="modal-title fw-bold mb-0"><i class="bi bi-calendar-plus-fill me-2"></i>Nouvelle Réservation VIP</h5>
+                    <small class="opacity-75">Réutilisez un client existant (zéro doublon) • Contrôle automatique des disponibilités</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('missions.create_mission') }}">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Client Existant (Recommandé)</label>
+                            <select name="client_user_id" class="form-select rounded-3">
+                                <option value="">-- Nouveau client (saisir à droite) --</option>
+                                {% for c in qa_clients %}
+                                <option value="{{ c.id }}">{{ c.real_name or c.username }} {% if c.phone %}({{ c.phone }}){% endif %}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Ou Nom Nouveau Client</label>
+                            <input type="text" name="client_name" class="form-control rounded-3" placeholder="Nom complet">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Téléphone</label>
+                            <input type="text" name="client_phone" class="form-control rounded-3" placeholder="+237 6XX...">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Forfait / Service</label>
+                            <select name="package_id" class="form-select rounded-3" onchange="const o=this.options[this.selectedIndex]; if(o&&o.dataset.price){document.getElementById('qaResPrice').value=o.dataset.price;}">
+                                <option value="">-- Location / Service VIP --</option>
+                                {% for p in qa_packages %}
+                                <option value="{{ p.id }}" data-price="{{ p.base_price|int }}">{{ p.name }} ({{ "{:,.0f}".format(p.base_price).replace(',', ' ') }} F)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Trajet / Zone *</label>
+                            <select name="route_id" class="form-select rounded-3" required>
+                                {% for r in qa_routes %}
+                                <option value="{{ r.id }}">{{ r.origin }} → {{ r.destination }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Véhicule VIP *</label>
+                            <select name="bus_id" class="form-select rounded-3" required>
+                                <option value="">-- Choisir véhicule --</option>
+                                {% for b in qa_buses %}
+                                <option value="{{ b.id }}">{{ b.brand }} {{ b.model }} ({{ b.bus_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Chauffeur VIP</label>
+                            <select name="driver_id" class="form-select rounded-3">
+                                <option value="">-- À assigner --</option>
+                                {% for d in qa_drivers %}
+                                <option value="{{ d.id }}">{{ d.name }} ({{ d.phone }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Date &amp; Heure Départ *</label>
+                            <input type="datetime-local" name="departure_time" class="form-control rounded-3" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Date &amp; Heure Restitution *</label>
+                            <input type="datetime-local" name="arrival_time" class="form-control rounded-3" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Tarif Total (FCFA) *</label>
+                            <input type="number" name="base_price" id="qaResPrice" class="form-control rounded-3 fw-bold" value="100000" min="0" step="1000" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Acompte (FCFA)</label>
+                            <input type="number" name="customer_deposit" class="form-control rounded-3" value="0" min="0" step="1000">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Mode Règlement</label>
+                            <select name="payment_method" class="form-select rounded-3">
+                                <option value="momo">MTN MoMo</option>
+                                <option value="orange">Orange Money</option>
+                                <option value="cash">Espèces</option>
+                                <option value="bank_transfer">Virement</option>
+                                <option value="pending">À facturer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Statut Paiement</label>
+                            <select name="payment_status" class="form-select rounded-3">
+                                <option value="pending">En attente / Acompte</option>
+                                <option value="paid">Payé intégralement</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Appartement VIP (optionnel / séjour résidence)</label>
+                            <select name="formula" class="form-select rounded-3">
+                                <option value="Location Véhicule VIP">Service Véhicule VIP uniquement</option>
+                                {% for ap in qa_apartments %}
+                                <option value="Résidence {{ ap.title }}">{{ ap.title }} — {{ ap.location }} ({{ ap.price }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Instructions / Protocole</label>
+                            <input type="text" name="special_instructions" class="form-control rounded-3" placeholder="Ex: Prise en charge Hôtel Hilton, accueil pancarte VIP...">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger rounded-3 px-4 fw-bold"><i class="bi bi-check-circle me-1"></i> Confirmer Réservation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Ajouter un Client VIP Modal (Individual or Corporate, Duplicate-Safe) -->
+<div class="modal fade" id="qaClientModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem; overflow: hidden;">
+            <div class="modal-header text-white border-0 py-3 px-4" style="background: #0f172a;">
+                <div>
+                    <h5 class="modal-title fw-bold mb-0"><i class="bi bi-person-plus-fill text-danger me-2"></i>Ajouter un Client VIP</h5>
+                    <small class="opacity-75">Détection automatique des doublons par téléphone ou email</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('missions.qa_create_client') }}">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Type de Client</label>
+                            <select name="client_type" class="form-select rounded-3">
+                                <option value="Particulier VIP">Particulier VIP</option>
+                                <option value="Corporate / Entreprise">Corporate / Entreprise</option>
+                                <option value="Délégation / Ambassade">Délégation / Ambassade</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Société (si corporate)</label>
+                            <input type="text" name="company_name" class="form-control rounded-3" placeholder="Ex: TotalEnergies / ONU">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Nom &amp; Prénom *</label>
+                            <input type="text" name="real_name" class="form-control rounded-3" required placeholder="Ex: Jean-Claude Mbarga">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Téléphone / WhatsApp *</label>
+                            <input type="text" name="phone" class="form-control rounded-3" required placeholder="+237 6XX XX XX XX">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Email</label>
+                            <input type="email" name="email" class="form-control rounded-3" placeholder="client@domaine.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Ville</label>
+                            <input type="text" name="city" class="form-control rounded-3" value="Yaoundé">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Localisation / Adresse de Facturation</label>
+                            <input type="text" name="address" class="form-control rounded-3" placeholder="Bastos, Tsinga, Hilton...">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger rounded-3 px-4 fw-bold"><i class="bi bi-check-circle me-1"></i> Enregistrer Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Enregistrer un Paiement Modal (Permission-Gated) -->
+{% if qa_can_record_payment %}
+<div class="modal fade" id="qaPaymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem; overflow: hidden;">
+            <div class="modal-header text-white border-0 py-3 px-4" style="background: #15803d;">
+                <div>
+                    <h5 class="modal-title fw-bold mb-0"><i class="bi bi-cash-coin me-2"></i>Enregistrer un Paiement</h5>
+                    <small class="opacity-75">Écriture directe au Grand Livre &amp; génération immédiate du reçu PDF</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('missions.qa_record_payment') }}">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Réservation / Facture Concernée *</label>
+                            <select name="booking_id" class="form-select rounded-3" required onchange="const o=this.options[this.selectedIndex]; if(o&&o.dataset.amount){document.getElementById('qaPayAmount').value=o.dataset.amount;}">
+                                <option value="">-- Sélectionner une réservation --</option>
+                                {% for bk in qa_bookings %}
+                                <option value="{{ bk.id }}" data-amount="{{ (bk.price_paid or (bk.trip.price if bk.trip else 0))|int }}">
+                                    {{ bk.booking_code }} · {{ bk.passenger_name }} — {{ "{:,.0f}".format(bk.price_paid or 0).replace(',', ' ') }} F ({{ bk.payment_status|upper }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Montant Encaissé (FCFA) *</label>
+                            <input type="number" name="amount" id="qaPayAmount" class="form-control rounded-3 fw-bold" required min="100" step="500" placeholder="75000">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Mode de Paiement</label>
+                            <select name="payment_method" class="form-select rounded-3">
+                                <option value="momo">MTN MoMo</option>
+                                <option value="orange">Orange Money</option>
+                                <option value="cash">Espèces Agence</option>
+                                <option value="bank_transfer">Virement Bancaire</option>
+                                <option value="card">Carte Bancaire</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Référence Transaction (optionnel)</label>
+                            <input type="text" name="transaction_id" class="form-control rounded-3" placeholder="Ex: OM-2026-88412">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success rounded-3 px-4 fw-bold"><i class="bi bi-check2-circle me-1"></i> Valider Paiement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 4. Ajouter un Appartement VIP Modal -->
+<div class="modal fade" id="qaApartmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem; overflow: hidden;">
+            <div class="modal-header text-white border-0 py-3 px-4" style="background: #D62828;">
+                <div>
+                    <h5 class="modal-title fw-bold mb-0"><i class="bi bi-building-add me-2"></i>Ajouter un Appartement VIP</h5>
+                    <small class="opacity-75">Enregistrement rapide d'une résidence meublée haut standing</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('missions.qa_create_apartment') }}">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Nom de l'Appartement *</label>
+                            <input type="text" name="title" class="form-control rounded-3" required placeholder="Ex: Suite Penthouse Tsinga Face FECAFOOT">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Type de Bien</label>
+                            <select name="type" class="form-select rounded-3">
+                                <option value="Appartement VIP">Appartement VIP</option>
+                                <option value="Duplex Prestige">Duplex Prestige</option>
+                                <option value="Studio Haut Standing">Studio Haut Standing</option>
+                                <option value="Villa VIP">Villa VIP</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Tarif / Nuit (FCFA) *</label>
+                            <input type="number" name="price" class="form-control rounded-3 fw-bold" required value="65000" min="5000" step="1000">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Localisation</label>
+                            <input type="text" name="location" class="form-control rounded-3" value="Yaoundé — Tsinga (Face FECAFOOT)">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Configuration Pièces</label>
+                            <input type="text" name="rooms" class="form-control rounded-3" value="2 Chambres + Salon">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Statut Disponibilité</label>
+                            <select name="status" class="form-select rounded-3">
+                                <option value="Disponible">Disponible</option>
+                                <option value="Occupé">Occupé</option>
+                                <option value="Entretien">Entretien</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Équipements Clés</label>
+                            <input type="text" name="equipments" class="form-control rounded-3" value="Wi-Fi Fibre, Climatisation, Parking, Sécurité 24/7">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Photo Principale (URL optionnelle)</label>
+                            <input type="text" name="image" class="form-control rounded-3" placeholder="https://... ou /static/images/appartement.jpg">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Description</label>
+                            <textarea name="description" rows="2" class="form-control rounded-3" placeholder="Standing, accès, services inclus..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger rounded-3 px-4 fw-bold"><i class="bi bi-check-circle me-1"></i> Enregistrer Appartement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,0 +1,279 @@
+<!-- Reusable VIP Mission / Sortie Form Styled Like Add Driver -->
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-9">
+        <div class="card border-0 shadow-sm p-4 fade-in" style="border-radius: 1.5rem;">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+                <div>
+                    <h3 class="fw-bold"><i class="bi bi-plus-circle text-primary me-2"></i> Planifier une Mission / Sortie VIP</h3>
+                    <p class="text-muted mb-0">Associez un forfait/mission, un véhicule VIP et un chauffeur d'élite.</p>
+                </div>
+                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 rounded-pill fw-semibold" style="font-size: 0.78rem;">
+                    <i class="bi bi-bell-fill me-1"></i> Notification Restitution Automatique Active
+                </span>
+            </div>
+
+            <form method="POST" action="{{ url_for('admin.add_trip') }}" class="needs-validation" id="planMissionForm" novalidate>
+                <input type="hidden" name="redirect_to" value="{{ redirect_target|default('bookings') }}">
+
+                <div class="row g-3 mb-4">
+                    <!-- 1. Mission / Destination -->
+                    <div class="col-md-12">
+                        <label for="route_id" class="form-label">Sélectionner la Mission / Destination</label>
+                        <select class="form-select" id="route_id" name="route_id" required>
+                            <option value="" disabled selected>Choisir une mission, forfait ou destination VIP...</option>
+                            {% for route in routes %}
+                                <option value="{{ route.id }}" data-price="{{ route.base_price or 100000 }}">
+                                    {{ route.origin }} &rarr; {{ route.destination }} ({{ route.duration or 'Mise à disposition' }}) — {{ route.agency.name if route.agency else '3M Services' }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">Veuillez sélectionner une mission / destination.</div>
+                    </div>
+
+                    <!-- 2. Véhicule VIP & Chauffeur -->
+                    <div class="col-md-6">
+                        <label for="bus_id" class="form-label">Sélectionner le Véhicule VIP</label>
+                        <select class="form-select" id="bus_id" name="bus_id" required>
+                            <option value="" disabled selected>Choisir un véhicule de la flotte VIP...</option>
+                            {% for bus in buses %}
+                                <option value="{{ bus.id }}" data-capacity="{{ bus.capacity }}" data-brand="{{ bus.brand }}" data-model="{{ bus.model }}" data-plate="{{ bus.bus_number }}" data-price="{{ bus.promo_price if (bus.is_promo and bus.promo_price) else (bus.regular_price or '') }}">
+                                    {{ bus.bus_number }} — {{ bus.brand }} {{ bus.model }} ({{ bus.capacity }} places)
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">Veuillez attribuer un véhicule VIP.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="driver_id" class="form-label">Chauffeur VIP (optionnel)</label>
+                        <select class="form-select" id="driver_id" name="driver_id">
+                            <option value="">Aucun chauffeur assigné (Sans chauffeur)</option>
+                            {% for driver in drivers if drivers is defined %}
+                                <option value="{{ driver.id }}" data-name="{{ driver.name }}">
+                                    {{ driver.name }} (Permis: {{ driver.license_number }}) {% if driver.rating %}— ⭐ {{ "%.1f"|format(driver.rating) }}{% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- 3. Structure Client VIP -->
+                    <div class="col-md-6">
+                        <label for="client_user_id" class="form-label">Client Enregistré (Optionnel)</label>
+                        <select class="form-select" id="client_user_id" name="client_user_id">
+                            <option value="">+ Nouveau client ou saisie manuelle...</option>
+                            {% for client in clients %}
+                                <option value="{{ client.id }}"
+                                        data-name="{{ client.real_name or client.username }}"
+                                        data-phone="{{ client.phone or '' }}"
+                                        data-email="{{ client.email or '' }}">
+                                    {{ client.real_name or client.username }}{% if client.phone %} • {{ client.phone }}{% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="client_name" class="form-label">Nom Complet du Client VIP / Délégation</label>
+                        <input type="text" class="form-control" id="client_name" name="client_name" placeholder="Ex: Arnaud Mbarga / Délégation Minrex" required>
+                        <div class="invalid-feedback">Le nom du client VIP est obligatoire.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="client_phone" class="form-label">Téléphone / WhatsApp Client</label>
+                        <input type="text" class="form-control" id="client_phone" name="client_phone" placeholder="Ex: +237 698 66 87 61">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="client_email" class="form-label">Email / Organisation (Optionnel)</label>
+                        <input type="text" class="form-control" id="client_email" name="client_email" placeholder="Ex: contact@entreprise.cm">
+                    </div>
+
+                    <!-- 4. Dates de Sortie & Restitution -->
+                    <div class="col-md-6">
+                        <label for="departure_time" class="form-label">Date &amp; Heure de Sortie (Départ)</label>
+                        <input type="datetime-local" class="form-control" id="departure_time" name="departure_time" required>
+                        <small class="text-muted">Moment où le véhicule quitte le parc</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="arrival_time" class="form-label">Date &amp; Heure de Restitution (Retour)</label>
+                        <input type="datetime-local" class="form-control" id="arrival_time" name="arrival_time" required>
+                        <small class="text-muted" id="durationText">Déclenche l'alerte admin à la restitution</small>
+                    </div>
+
+                    <!-- 5. Formule, Règlement & Tarification -->
+                    <div class="col-md-6">
+                        <label for="formula" class="form-label">Formule VIP</label>
+                        <select class="form-select" id="formula" name="formula">
+                            <option value="Chauffeur VIP Inclus" selected>Chauffeur VIP Inclus</option>
+                            <option value="Mise à Disposition VIP">Mise à Disposition VIP</option>
+                            <option value="Forfait Délégation">Forfait Délégation</option>
+                            <option value="Transfert Aéroport VIP">Transfert Aéroport VIP</option>
+                            <option value="Escorte &amp; Sécurité">Escorte &amp; Sécurité</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="price" class="form-label">Tarif Total Mission (FCFA)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-warning"><i class="bi bi-cash-stack"></i></span>
+                            <input type="number" class="form-control" id="price" name="price" min="5000" placeholder="130000" required>
+                        </div>
+                        <small class="text-muted">Tarif journalier ou forfaitaire</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="payment_method" class="form-label">Mode de Règlement</label>
+                        <select class="form-select" id="payment_method" name="payment_method">
+                            <option value="momo" selected>MTN Mobile Money (MoMo)</option>
+                            <option value="orange">Orange Money (OM)</option>
+                            <option value="cash">Espèces / Showroom 3M</option>
+                            <option value="card">Carte / Virement Bancaire</option>
+                            <option value="pending">En attente de règlement</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="payment_status" class="form-label">Statut du Règlement</label>
+                        <select class="form-select" id="payment_status" name="payment_status">
+                            <option value="paid" selected>Payé</option>
+                            <option value="pending">En Attente</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="capacity" class="form-label">Capacité VIP (places)</label>
+                        <input type="number" class="form-control" id="capacity" name="capacity" min="0" max="30" value="0">
+                        <small class="text-muted">0 = utiliser la capacité du véhicule</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="booking_cutoff_minutes" class="form-label">Fermeture réservation (min avant départ)</label>
+                        <input type="number" class="form-control" id="booking_cutoff_minutes" name="booking_cutoff_minutes" min="0" value="30">
+                        <small class="text-muted">30 = réservations fermées 30min avant le départ</small>
+                    </div>
+
+                    <!-- Notification Restitution Automatique Active Switch inside Form -->
+                    <div class="col-md-12">
+                        <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: #fff5f5; border-color: #fecaca !important;">
+                            <div>
+                                <div class="fw-bold text-dark small"><i class="bi bi-bell-fill text-danger me-1"></i> Notification Restitution Automatique Active</div>
+                                <small class="text-muted" id="restitutionAlertLiveDesc">L'administrateur sera alerté automatiquement à la date de restitution avec le client VIP et le véhicule.</small>
+                            </div>
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input" type="checkbox" role="switch" id="notify_restitution" name="notify_restitution" checked style="cursor: pointer;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    {% if is_modal_or_collapse %}
+                        <button type="button" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold" data-bs-toggle="collapse" data-bs-target="#inlinePlanMissionCollapse">
+                            <i class="bi bi-arrow-left me-2"></i> Annuler
+                        </button>
+                    {% else %}
+                        <a href="{{ url_for('admin.bookings') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-arrow-left me-2"></i> Annuler
+                        </a>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                        <i class="bi bi-check-circle me-2"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('planMissionForm');
+    if (!form) return;
+
+    const routeSelect = document.getElementById('route_id');
+    const priceInput = document.getElementById('price');
+    const busSelect = document.getElementById('bus_id');
+    const capacityInput = document.getElementById('capacity');
+    const clientSelect = document.getElementById('client_user_id');
+    const clientNameInput = document.getElementById('client_name');
+    const clientPhoneInput = document.getElementById('client_phone');
+    const clientEmailInput = document.getElementById('client_email');
+    const paymentMethodSelect = document.getElementById('payment_method');
+    const paymentStatusSelect = document.getElementById('payment_status');
+    const depInput = document.getElementById('departure_time');
+    const arrInput = document.getElementById('arrival_time');
+    const durationText = document.getElementById('durationText');
+
+    routeSelect?.addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        const basePrice = opt?.getAttribute('data-price');
+        if (basePrice && !priceInput.value) {
+            priceInput.value = basePrice;
+        }
+    });
+
+    busSelect?.addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        const busCap = opt?.getAttribute('data-capacity');
+        const busPrice = opt?.getAttribute('data-price');
+        if (busCap && (!capacityInput.value || capacityInput.value === '0')) {
+            capacityInput.value = busCap;
+        }
+        if (busPrice && !priceInput.value) {
+            priceInput.value = busPrice;
+        }
+    });
+
+    clientSelect?.addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        if (clientNameInput) clientNameInput.value = opt?.getAttribute('data-name') || '';
+        if (clientPhoneInput) clientPhoneInput.value = opt?.getAttribute('data-phone') || '';
+        if (clientEmailInput) clientEmailInput.value = opt?.getAttribute('data-email') || '';
+    });
+
+    paymentMethodSelect?.addEventListener('change', function() {
+        if (this.value === 'pending' && paymentStatusSelect) {
+            paymentStatusSelect.value = 'pending';
+        }
+    });
+
+    function updateDuration() {
+        const depVal = depInput?.value;
+        const arrVal = arrInput?.value;
+        if (depVal && arrVal && durationText) {
+            const diffMs = new Date(arrVal) - new Date(depVal);
+            if (diffMs > 0) {
+                const totalHours = Math.round(diffMs / (1000 * 60 * 60));
+                const days = Math.floor(totalHours / 24);
+                const rem = totalHours % 24;
+                durationText.textContent = days > 0 ? `Durée : ${days} j ${rem ? rem + 'h' : ''}` : `Durée : ${totalHours} h`;
+            } else {
+                durationText.textContent = "Déclenche l'alerte admin à la restitution";
+            }
+        }
+    }
+
+    depInput?.addEventListener('change', updateDuration);
+    arrInput?.addEventListener('change', updateDuration);
+
+    if (depInput && !depInput.value) {
+        const now = new Date();
+        now.setMinutes(0, 0, 0);
+        const pad = n => String(n).padStart(2, '0');
+        const fmt = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        depInput.value = fmt(now);
+        const ret = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        if (arrInput && !arrInput.value) arrInput.value = fmt(ret);
+        updateDuration();
+    }
+
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    }, false);
+});
+</script>

@@ -14,6 +14,7 @@ import ScrollReveal from "./components/ScrollReveal";
 import ScrollToTop from "./components/ScrollToTop";
 import ClientPortalModal from "./components/ClientPortalModal";
 import PrivateChatWidget from "./components/PrivateChatWidget";
+import VisitorCheckInModal from "./components/VisitorCheckInModal";
 import { LanguageProvider } from "./context/LanguageContext";
 import ChatPage from "./Pages/ChatPage";
 
@@ -32,6 +33,7 @@ function App() {
       <Navbar />
       <ClientPortalModal />
       <PrivateChatWidget />
+      <VisitorCheckInModal />
       <Routes>
         <Route index path="/" element={<Home />} />
         <Route path="about" element={<About />} />

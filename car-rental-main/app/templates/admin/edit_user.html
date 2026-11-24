@@ -17,6 +17,11 @@
                 <form method="POST" class="needs-validation" novalidate>
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
+                            <label for="real_name" class="form-label">Nom et Prénom</label>
+                            <input type="text" class="form-control" id="real_name" name="real_name" value="{{ user.real_name or user.username }}" required>
+                        </div>
+
+                        <div class="col-md-6">
                             <label for="username" class="form-label">Nom d'Utilisateur</label>
                             <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
                             <div class="invalid-feedback">Le nom d'utilisateur est obligatoire.</div>
@@ -28,9 +33,19 @@
                             <div class="invalid-feedback">Une adresse email valide est obligatoire.</div>
                         </div>
 
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <label for="phone" class="form-label">Numéro de Téléphone</label>
                             <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone or '' }}" placeholder="Ex: +237 680 555 555">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="address" class="form-label">Localisation (Adresse / Quartier)</label>
+                            <input type="text" class="form-control" id="address" name="address" value="{{ user.address or user.city or '' }}" placeholder="Ex: Yaoundé — Tsinga (Face FECAFOOT)">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="city" class="form-label">Ville</label>
+                            <input type="text" class="form-control" id="city" name="city" value="{{ user.city or 'Yaoundé' }}" placeholder="Ex: Yaoundé">
                         </div>
 
                         <div class="col-md-12">
