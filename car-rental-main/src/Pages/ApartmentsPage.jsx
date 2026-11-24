@@ -63,6 +63,68 @@ function ApartmentsPage() {
   const [selectedLocation, setSelectedLocation] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeModalApartment, setActiveModalApartment] = useState(null);
+  const [activePhotoIdx, setActivePhotoIdx] = useState(0);
+  const [stayForm, setStayForm] = useState({ checkIn: "", checkOut: "", guestName: "", guestPhone: "" });
+  const [stayFeedback, setStayFeedback] = useState(null);
+  const [staySubmitting, setStaySubmitting] = useState(false);
+
+  const openApartmentModal = (apt) => {
+    setActiveModalApartment(apt);
+    setActivePhotoIdx(0);
+    setStayFeedback(null);
+    const current = getCurrentClient();
+    setStayForm({
+      checkIn: "",
+      checkOut: "",
+      guestName: current?.name || "",
+      guestPhone: current?.phone || ""
+    });
+  };
+
+  const handleDirectStaySubmit = async (e) => {
+    e.preventDefault();
+    if (!activeModalApartment) return;
+    setStayFeedback(null);
+    const { checkIn, checkOut, guestName, guestPhone } = stayForm;
+    if (!checkIn || !checkOut || checkOut <= checkIn) {
+      setStayFeedback({ ok: false, msg: "La date de départ doit être après la date d'arrivée." });
+      return;
+    }
+    const booked = Array.isArray(activeModalApartment.bookedDates) ? activeModalApartment.bookedDates : [];
+    const conflict = booked.find((b) => b.status !== "cancelled" && b.checkIn < checkOut && b.checkOut > checkIn);
+    if (conflict) {
+      setStayFeedback({ ok: false, msg: `Ces dates sont déjà réservées (${conflict.checkIn} → ${conflict.checkOut}).` });
+      return;
+    }
+    setStaySubmitting(true);
+    try {
+      const res = await fetch(`${API_BASE}/apartments/${activeModalApartment.id}/book`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ checkIn, checkOut, guestName, guestPhone })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        setStayFeedback({ ok: false, msg: data.error || "Dates indisponibles." });
+      } else {
+        handleApartmentBookClick(activeModalApartment);
+        setStayFeedback({
+          ok: true,
+          msg: `Réservation confirmée (${data.bookingRef}) pour ${data.nights} nuit(s) — ${Number(data.totalAmount).toLocaleString("fr-FR")} FCFA !`
+        });
+        const refreshed = await fetch(`${API_BASE}/apartments`).then((r) => (r.ok ? r.json() : null));
+        if (Array.isArray(refreshed) && refreshed.length > 0) {
+          setApartments(refreshed);
+          const updatedApt = refreshed.find((x) => x.id === activeModalApartment.id);
+          if (updatedApt) setActiveModalApartment(updatedApt);
+        }
+      }
+    } catch (err) {
+      setStayFeedback({ ok: false, msg: "Impossible de contacter le serveur. Utilisez le bouton WhatsApp ci-dessous." });
+    } finally {
+      setStaySubmitting(false);
+    }
+  };
 
   useEffect(() => {
     try {
@@ -307,10 +369,10 @@ function ApartmentsPage() {
                   <div className="ecom-card__actions">
                     <button
                       type="button"
-                      onClick={() => setActiveModalApartment(apt)}
+                      onClick={() => openApartmentModal(apt)}
                       className="ecom-card__btn-book"
                     >
-                      Détails & Photos
+                      Détails & Photos ({Array.isArray(apt.gallery) && apt.gallery.length > 0 ? apt.gallery.length : apt.photosCount || 1})
                     </button>
                     <a
                       href={getWhatsAppLink(apt)}
@@ -425,11 +487,116 @@ function ApartmentsPage() {
                 </button>
               </div>
 
-              <img
-                src={activeModalApartment.image || "/Asset/appartements/appartement-meuble-suite-parentale.webp"}
-                alt={activeModalApartment.title}
-                style={{ width: "100%", height: "280px", objectFit: "cover", borderRadius: "8px", marginBottom: "2rem" }}
-              />
+              {(() => {
+                const galleryList =
+                  Array.isArray(activeModalApartment.gallery) && activeModalApartment.gallery.length > 0
+                    ? activeModalApartment.gallery
+                    : [{ url: activeModalApartment.image || "/Asset/appartements/appartement-meuble-suite-parentale.webp", category: "Vue principale", caption: activeModalApartment.title }];
+                const safeIdx = activePhotoIdx < galleryList.length ? activePhotoIdx : 0;
+                const curPhoto = galleryList[safeIdx];
+                return (
+                  <div style={{ marginBottom: "2rem" }}>
+                    <div style={{ position: "relative" }}>
+                      <img
+                        src={curPhoto.url}
+                        alt={curPhoto.caption || activeModalApartment.title}
+                        onError={(e) => {
+                          e.target.src = "/Asset/appartements/appartement-meuble-suite-parentale.webp";
+                        }}
+                        style={{ width: "100%", height: "310px", objectFit: "cover", borderRadius: "10px" }}
+                      />
+                      {curPhoto.category && (
+                        <span style={{ position: "absolute", bottom: "12px", left: "12px", background: "rgba(15,23,42,0.8)", color: "#fff", padding: "0.4rem 1rem", borderRadius: "99px", fontSize: "1.2rem", fontWeight: 600 }}>
+                          {curPhoto.category}{curPhoto.caption ? ` — ${curPhoto.caption}` : ""}
+                        </span>
+                      )}
+                    </div>
+                    {galleryList.length > 1 && (
+                      <div style={{ display: "flex", gap: "0.8rem", overflowX: "auto", marginTop: "1rem", paddingBottom: "0.4rem" }}>
+                        {galleryList.map((ph, gIdx) => (
+                          <img
+                            key={gIdx}
+                            src={ph.url}
+                            alt={ph.caption || `Photo ${gIdx + 1}`}
+                            onClick={() => setActivePhotoIdx(gIdx)}
+                            style={{
+                              width: "84px",
+                              height: "60px",
+                              objectFit: "cover",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              border: gIdx === safeIdx ? "2.5px solid #E20713" : "1px solid #cbd5e1",
+                              opacity: gIdx === safeIdx ? 1 : 0.72,
+                              flexShrink: 0
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Multi-tier rates & layout summary */}
+              {(activeModalApartment.weeklyRate || activeModalApartment.monthlyRate || activeModalApartment.surfaceSqm) && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginBottom: "1.8rem", padding: "1.2rem", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1.3rem" }}>
+                  <span><strong>Nuitée :</strong> {activeModalApartment.price}</span>
+                  {activeModalApartment.weeklyRate && (
+                    <span>• <strong>Semaine :</strong> {Number(activeModalApartment.weeklyRate).toLocaleString("fr-FR")} FCFA</span>
+                  )}
+                  {activeModalApartment.monthlyRate && (
+                    <span>• <strong>Mois :</strong> {Number(activeModalApartment.monthlyRate).toLocaleString("fr-FR")} FCFA</span>
+                  )}
+                  {activeModalApartment.surfaceSqm && (
+                    <span>• <strong>Surface :</strong> {activeModalApartment.surfaceSqm} m²</span>
+                  )}
+                  {activeModalApartment.maxGuests && (
+                    <span>• <strong>Capacité :</strong> {activeModalApartment.maxGuests} pers. max</span>
+                  )}
+                </div>
+              )}
+
+              {/* Live Availability & Direct Date-Blocking Reservation */}
+              <div style={{ marginBottom: "2rem", padding: "1.6rem", background: "#fffafa", border: "1px solid #fecaca", borderRadius: "10px" }}>
+                <h4 style={{ fontSize: "1.55rem", color: "#0f172a", marginBottom: "0.8rem", fontWeight: 700 }}>
+                  <i className="fa-solid fa-calendar-check" style={{ color: "#E20713", marginRight: "0.6rem" }}></i>
+                  Vérifier la disponibilité & Réserver ce séjour
+                </h4>
+                {Array.isArray(activeModalApartment.bookedDates) && activeModalApartment.bookedDates.length > 0 && (
+                  <div style={{ fontSize: "1.2rem", color: "#b91c1c", marginBottom: "1rem" }}>
+                    <strong>Périodes déjà réservées :</strong>{" "}
+                    {activeModalApartment.bookedDates.map((b) => `${b.checkIn} → ${b.checkOut}`).join(" | ")}
+                  </div>
+                )}
+                <form onSubmit={handleDirectStaySubmit} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
+                  <div>
+                    <label style={{ fontSize: "1.15rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: "0.3rem" }}>Arrivée *</label>
+                    <input type="date" required value={stayForm.checkIn} onChange={(e) => setStayForm({ ...stayForm, checkIn: e.target.value })} style={{ width: "100%", padding: "0.8rem", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "1.15rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: "0.3rem" }}>Départ *</label>
+                    <input type="date" required value={stayForm.checkOut} onChange={(e) => setStayForm({ ...stayForm, checkOut: e.target.value })} style={{ width: "100%", padding: "0.8rem", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "1.15rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: "0.3rem" }}>Nom & Prénom *</label>
+                    <input type="text" required placeholder="Votre nom" value={stayForm.guestName} onChange={(e) => setStayForm({ ...stayForm, guestName: e.target.value })} style={{ width: "100%", padding: "0.8rem", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "1.15rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: "0.3rem" }}>Téléphone / WhatsApp *</label>
+                    <input type="text" required placeholder="+237 6XX..." value={stayForm.guestPhone} onChange={(e) => setStayForm({ ...stayForm, guestPhone: e.target.value })} style={{ width: "100%", padding: "0.8rem", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }} />
+                  </div>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <button type="submit" disabled={staySubmitting} style={{ width: "100%", padding: "1.1rem", backgroundColor: "#E20713", color: "#fff", border: "none", borderRadius: "6px", fontWeight: 700, fontSize: "1.4rem", cursor: "pointer" }}>
+                      {staySubmitting ? "Vérification..." : "Bloquer mes dates & Réserver en direct"}
+                    </button>
+                  </div>
+                </form>
+                {stayFeedback && (
+                  <div style={{ marginTop: "1rem", padding: "1rem", borderRadius: "6px", fontSize: "1.3rem", fontWeight: 600, background: stayFeedback.ok ? "#dcfce7" : "#fee2e2", color: stayFeedback.ok ? "#166534" : "#991b1b" }}>
+                    {stayFeedback.msg}
+                  </div>
+                )}
+              </div>
 
               <div style={{ marginBottom: "2rem" }}>
                 <h4 style={{ fontSize: "1.6rem", color: "#0f172a", marginBottom: "0.8rem", fontWeight: 700 }}>

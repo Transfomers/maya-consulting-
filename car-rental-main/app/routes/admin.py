@@ -2821,146 +2821,61 @@ def apartments():
 @login_required
 @admin_required
 def add_apartment():
-    """Create a new furnished VIP apartment in 3M SERVICES portfolio"""
+    """Create a new furnished property using the 6-step Property Listing & Management Form."""
+    from app.routes.properties import save_property_from_request, render_property_form
     if request.method == 'POST':
-        title = request.form.get('title', '').strip()
-        type_apt = request.form.get('type', '').strip()
-        location = request.form.get('location', '').strip()
-        rooms = request.form.get('rooms', '').strip()
-        price = request.form.get('price', '').strip()
-        status = request.form.get('status', 'Disponible').strip()
-        image = request.form.get('image', '').strip() or '/Asset/appartements/appartement-meuble-suite-parentale.webp'
-        photos_count = request.form.get('photos_count', type=int) or 4
-        description = request.form.get('description', '').strip()
-        
-        # Equipments
-        equipments = request.form.getlist('equipments')
-        custom_eq = request.form.get('custom_equipment', '').strip()
-        if custom_eq and custom_eq not in equipments:
-            equipments.append(custom_eq)
-            
-        # VIP Services
-        vip_services = request.form.getlist('vip_services')
-        custom_vip = request.form.get('custom_vip_service', '').strip()
-        if custom_vip and custom_vip not in vip_services:
-            vip_services.append(custom_vip)
-            
-        if not all([title, type_apt, location, price]):
-            flash('Veuillez remplir au moins le titre, le type, la localisation et le tarif.', 'danger')
-            return redirect(url_for('admin.add_apartment'))
-            
-        # Generate new unique ID
-        existing_ids = [a.id for a in Apartment.query.all()]
-        next_num = 1
-        new_id = f"apt-{next_num:02d}"
-        while new_id in existing_ids:
-            next_num += 1
-            new_id = f"apt-{next_num:02d}"
-            
-        new_apt = Apartment(
-            id=new_id,
-            title=title,
-            type=type_apt,
-            location=location,
-            rooms=rooms,
-            price=price,
-            photos_count=photos_count,
-            image=image,
-            status=status,
-            description=description,
-            agency_id=current_user.agency_id if current_user.role != 'super_admin' else 1
-        )
-        new_apt.equipments = equipments
-        new_apt.vip_services = vip_services
-        
-        db.session.add(new_apt)
-        db.session.commit()
-        
-        sync_apartment_to_express_db(new_apt.to_dict(), action='upsert')
-        log_audit("APARTMENT_CREATED", "Apartment", 0, f"Created apartment {new_id}: {title}")
-        
-        flash(f"Appartement VIP '{title}' ({new_id}) ajouté avec succès !", 'success')
-        return redirect(url_for('admin.apartments'))
-        
-    return render_template(
-        'admin/add_apartment.html',
-        default_equipments=DEFAULT_EQUIPMENT_OPTIONS,
-        default_vip_services=DEFAULT_VIP_SERVICES_OPTIONS,
-        gallery_images=DEFAULT_APARTMENT_GALLERY
-    )
+        apt, errs = save_property_from_request(apt=None)
+        for err in errs:
+            flash(err, 'warning')
+        if apt:
+            flash(f"Bien meublé « {apt.title} » ({apt.reference}) enregistré avec succès ({apt.photos_count} photo(s)) !", 'success')
+            return redirect(url_for('admin.apartments'))
+    return render_property_form(apt=None)
 
 @admin.route('/admin/apartments/edit/<id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit_apartment(id):
-    """Edit an existing furnished VIP apartment"""
+    """Edit an existing furnished property using the 6-step Property Listing & Management Form."""
+    from app.routes.properties import save_property_from_request, render_property_form
     apt = Apartment.query.filter_by(id=id, is_deleted=False).first_or_404()
-    
     if request.method == 'POST':
-        apt.title = request.form.get('title', apt.title).strip()
-        apt.type = request.form.get('type', apt.type).strip()
-        apt.location = request.form.get('location', apt.location).strip()
-        apt.rooms = request.form.get('rooms', apt.rooms).strip()
-        apt.price = request.form.get('price', apt.price).strip()
-        apt.status = request.form.get('status', apt.status).strip()
-        apt.image = request.form.get('image', apt.image).strip()
-        apt.photos_count = request.form.get('photos_count', type=int) or apt.photos_count or 4
-        apt.description = request.form.get('description', apt.description).strip()
-        
-        equipments = request.form.getlist('equipments')
-        custom_eq = request.form.get('custom_equipment', '').strip()
-        if custom_eq and custom_eq not in equipments:
-            equipments.append(custom_eq)
-        apt.equipments = equipments
-        
-        vip_services = request.form.getlist('vip_services')
-        custom_vip = request.form.get('custom_vip_service', '').strip()
-        if custom_vip and custom_vip not in vip_services:
-            vip_services.append(custom_vip)
-        apt.vip_services = vip_services
-        
-        db.session.commit()
-        sync_apartment_to_express_db(apt.to_dict(), action='upsert')
-        log_audit("APARTMENT_EDITED", "Apartment", 0, f"Updated apartment {apt.id}: {apt.title}")
-        
-        flash(f"Appartement VIP '{apt.title}' mis à jour avec succès !", 'success')
+        apt, errs = save_property_from_request(apt=apt)
+        for err in errs:
+            flash(err, 'warning')
+        flash(f"Bien meublé « {apt.title} » mis à jour et synchronisé avec le site client !", 'success')
         return redirect(url_for('admin.apartments'))
-        
-    return render_template(
-        'admin/edit_apartment.html',
-        apt=apt,
-        default_equipments=DEFAULT_EQUIPMENT_OPTIONS,
-        default_vip_services=DEFAULT_VIP_SERVICES_OPTIONS,
-        gallery_images=DEFAULT_APARTMENT_GALLERY
-    )
+    return render_property_form(apt=apt)
 
 @admin.route('/admin/apartments/delete/<id>', methods=['POST'])
 @login_required
 @admin_required
 def delete_apartment(id):
-    """Soft delete an apartment and synchronize with json"""
+    """Soft delete a property and synchronize published list with db.json"""
+    from app.routes.properties import sync_published_properties_to_express
     apt = Apartment.query.filter_by(id=id, is_deleted=False).first_or_404()
     apt.is_deleted = True
     db.session.commit()
-    
-    sync_apartment_to_express_db({"id": id}, action='delete')
-    log_audit("APARTMENT_DELETED", "Apartment", 0, f"Deleted apartment {apt.id}: {apt.title}")
-    
-    flash(f"Appartement '{apt.title}' supprimé avec succès.", 'warning')
+    sync_published_properties_to_express()
+    log_audit("APARTMENT_DELETED", "Apartment", 0, f"Deleted property {apt.id}: {apt.title}")
+    flash(f"Bien meublé « {apt.title} » supprimé avec succès.", 'warning')
     return redirect(url_for('admin.apartments'))
 
 @admin.route('/admin/apartments/toggle_status/<id>', methods=['POST'])
 @login_required
 @admin_required
 def toggle_apartment_status(id):
-    """Quickly toggle apartment status between Disponible, Réservé, Occupé, Maintenance"""
+    """Quickly toggle property status and synchronize published listings"""
+    from app.routes.properties import sync_published_properties_to_express
     apt = Apartment.query.filter_by(id=id, is_deleted=False).first_or_404()
     new_status = request.form.get('status', '').strip()
-    if new_status in ['Disponible', 'Réservé', 'Occupé', 'Maintenance']:
+    if new_status in ['Disponible', 'Réservé', 'Occupé', 'En maintenance', 'Maintenance', 'Non publié']:
         apt.status = new_status
+        if new_status == 'Non publié':
+            apt.is_published = False
         db.session.commit()
-        sync_apartment_to_express_db(apt.to_dict(), action='upsert')
-        flash(f"Statut de l'appartement '{apt.title}' changé à : {new_status}", 'success')
+        sync_published_properties_to_express()
+        flash(f"Statut du bien « {apt.title} » changé à : {new_status}", 'success')
     return redirect(url_for('admin.apartments'))
 
 @admin.route('/admin/trips')

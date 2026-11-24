@@ -18,12 +18,15 @@
                 Supervision du parc d'appartements meublés grand standing 3M SERVICES, disponibilités en temps réel, tarifs et prestations VIP.
             </p>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a href="{{ url_for('properties.property_calendar') }}" class="btn btn-sm btn-outline-dark shadow-xs fw-semibold">
+                <i class="bi bi-calendar-check me-1"></i> Calendrier Disponibilités
+            </a>
             <a href="http://127.0.0.1:3001/apartments" target="_blank" class="btn btn-sm btn-outline-secondary shadow-xs">
                 <i class="bi bi-box-arrow-up-right me-1"></i> Voir Vitrine Client
             </a>
-            <a href="{{ url_for('admin.add_apartment') }}" class="btn btn-sm btn-danger shadow-xs" style="background: #E20713; border-color: #E20713;">
-                <i class="bi bi-plus-lg me-1"></i> Ajouter un Appartement VIP
+            <a href="{{ url_for('admin.add_apartment') }}" class="btn btn-sm btn-danger shadow-xs fw-bold" style="background: #E20713; border-color: #E20713;">
+                <i class="bi bi-plus-lg me-1"></i> Ajouter un bien meublé
             </a>
         </div>
     </div>

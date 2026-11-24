@@ -434,7 +434,91 @@ app.post("/api/upload", authenticateToken, (req, res) => {
 
 app.get("/api/apartments", (req, res) => {
   const db = readDb();
-  res.json(db.apartments || []);
+  const list = (db.apartments || [])
+    .filter((a) => a.isPublished !== false && a.status !== "Non publié")
+    .sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
+  res.json(list);
+});
+
+app.post("/api/apartments/:id/book", (req, res) => {
+  const db = readDb();
+  db.apartments = db.apartments || [];
+  const idx = db.apartments.findIndex((a) => a.id === req.params.id);
+  if (idx === -1) {
+    return res.status(404).json({ ok: false, error: "Bien meublé introuvable." });
+  }
+  const apt = db.apartments[idx];
+  if (apt.status === "En maintenance" || apt.status === "Maintenance") {
+    return res.status(409).json({ ok: false, error: "Ce bien est actuellement en maintenance." });
+  }
+
+  const checkIn = String(req.body.checkIn || "").slice(0, 10);
+  const checkOut = String(req.body.checkOut || "").slice(0, 10);
+  const guestName = String(req.body.guestName || "Client Résidence VIP").trim();
+  const guestPhone = String(req.body.guestPhone || "").trim();
+
+  if (!checkIn || !checkOut || checkOut <= checkIn) {
+    return res.status(400).json({ ok: false, error: "La date de départ doit être postérieure à la date d'arrivée." });
+  }
+
+  const booked = Array.isArray(apt.bookedDates) ? apt.bookedDates : [];
+  const overlap = booked.find(
+    (b) => b.status !== "cancelled" && b.checkIn < checkOut && b.checkOut > checkIn
+  );
+  if (overlap) {
+    return res.status(409).json({
+      ok: false,
+      error: `Dates indisponibles : ce bien est déjà réservé du ${overlap.checkIn} au ${overlap.checkOut}.`
+    });
+  }
+
+  const nights = Math.max(1, Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000));
+  const minStay = Number(apt.minStayNights || 1);
+  if (nights < minStay) {
+    return res.status(400).json({ ok: false, error: `Séjour minimum requis : ${minStay} nuit(s).` });
+  }
+
+  const nightly = Number(apt.nightlyRate) || Number(String(apt.price || "65000").replace(/[^0-9]/g, "")) || 65000;
+  const totalAmount = nightly * nights + Number(apt.cleaningFee || 0);
+  const ref = `3M-STAY-${Date.now().toString().slice(-6)}`;
+
+  booked.push({ ref, checkIn, checkOut, status: "confirmed", guestName });
+  apt.bookedDates = booked;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  apt.status = checkIn <= todayStr && todayStr < checkOut ? "Occupé" : "Réservé";
+  db.apartments[idx] = apt;
+
+  db.bookings = db.bookings || [];
+  db.bookings.unshift({
+    id: ref,
+    clientName: guestName,
+    phone: guestPhone,
+    carName: apt.title,
+    itemCategory: "Bien Meublé",
+    pickTime: checkIn,
+    dropTime: checkOut,
+    totalPrice: totalAmount,
+    status: "Confirmée",
+    createdAt: new Date().toISOString()
+  });
+  writeDb(db);
+
+  // Mirror into Flask SQLite calendar asynchronously if Flask is running locally
+  try {
+    const http = require("http");
+    const payload = JSON.stringify({ apartmentId: apt.id, checkIn, checkOut, guestName, guestPhone });
+    const fReq = http.request(
+      { hostname: "127.0.0.1", port: 5002, path: "/api/public/apartment-bookings", method: "POST", headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) } },
+      () => {}
+    );
+    fReq.on("error", () => {});
+    fReq.write(payload);
+    fReq.end();
+  } catch (e) {
+    // ignore optional mirror error
+  }
+
+  return res.status(201).json({ ok: true, bookingRef: ref, nights, totalAmount });
 });
 
 app.get("/api/apartments/:id", (req, res) => {

@@ -236,20 +236,61 @@ class Bus(db.Model):
 class Apartment(db.Model):
     __tablename__ = 'apartment'
     id = db.Column(db.String(50), primary_key=True) # e.g. 'apt-01'
+    reference = db.Column(db.String(40), nullable=True) # e.g. '3M-APT-001'
     title = db.Column(db.String(255), nullable=False)
-    type = db.Column(db.String(100), nullable=False) # e.g. 'T3 Meublé Haut Standing'
+    type = db.Column(db.String(100), nullable=False) # combined label e.g. 'T3 • Haut Standing'
+    property_type = db.Column(db.String(50), default='T3') # Studio, T2, T3, T4, Villa, Penthouse, Autre
+    standing = db.Column(db.String(50), default='Haut Standing') # Standard, Confort, Haut Standing, Prestige, Luxe
     location = db.Column(db.String(255), nullable=False) # e.g. 'Tsinga (Face FECAFOOT), Yaoundé'
-    rooms = db.Column(db.String(150), nullable=True) # e.g. '2 Chambres • 2 Salons • 2 Salles de bain'
-    price = db.Column(db.String(100), nullable=False) # e.g. '65 000 FCFA / nuitée'
+    city = db.Column(db.String(100), default='Yaoundé')
+    neighborhood = db.Column(db.String(120), default='Tsinga')
+    exact_address = db.Column(db.String(255), nullable=True)
+    landmark = db.Column(db.String(200), nullable=True)
+    access_instructions = db.Column(db.Text, nullable=True)
+    gps_coordinates = db.Column(db.String(100), nullable=True)
+
+    # Configuration du logement
+    rooms = db.Column(db.String(150), nullable=True) # summary string
+    bedrooms_count = db.Column(db.Integer, default=2)
+    living_rooms_count = db.Column(db.Integer, default=1)
+    bathrooms_count = db.Column(db.Integer, default=2)
+    kitchens_count = db.Column(db.Integer, default=1)
+    balconies_count = db.Column(db.Integer, default=1)
+    max_guests = db.Column(db.Integer, default=4)
+    bedding_details = db.Column(db.String(200), default='2 Lits King Size')
+    surface_sqm = db.Column(db.Float, nullable=True)
+
+    # Tarification & conditions
+    price = db.Column(db.String(100), nullable=False) # display string e.g. '65 000 FCFA / nuitée'
+    nightly_rate = db.Column(db.Float, default=65000.0)
+    weekly_rate = db.Column(db.Float, nullable=True)
+    monthly_rate = db.Column(db.Float, nullable=True)
+    security_deposit = db.Column(db.Float, default=100000.0)
+    cleaning_fee = db.Column(db.Float, default=0.0)
+    min_stay_nights = db.Column(db.Integer, default=1)
+    payment_terms = db.Column(db.String(200), default='50% acompte à la réservation, solde à la remise des clés')
+    long_stay_discount = db.Column(db.String(120), nullable=True)
+
+    # Médias, statut & publication
     photos_count = db.Column(db.Integer, default=4)
     image = db.Column(db.String(500), nullable=True)
-    status = db.Column(db.String(50), default='Disponible') # 'Disponible', 'Occupé', 'Réservé', 'Maintenance'
+    status = db.Column(db.String(50), default='Disponible') # 'Disponible', 'Occupé', 'Réservé', 'En maintenance', 'Non publié'
+    short_description = db.Column(db.String(320), nullable=True)
     description = db.Column(db.Text, nullable=True)
     equipments_json = db.Column(db.Text, nullable=True)
     vip_services_json = db.Column(db.Text, nullable=True)
+    is_published = db.Column(db.Boolean, default=True)
+    is_featured = db.Column(db.Boolean, default=False)
+    manager_name = db.Column(db.String(120), default='Conciergerie 3M SERVICES')
+    internal_notes = db.Column(db.Text, nullable=True)
+    available_from = db.Column(db.Date, nullable=True)
+
     agency_id = db.Column(db.Integer, db.ForeignKey('agency.id'), nullable=True)
     is_deleted = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    photos = db.relationship('ApartmentPhoto', backref='apartment', lazy='dynamic', cascade="all, delete-orphan")
+    stays = db.relationship('ApartmentBooking', backref='apartment', lazy='dynamic', cascade="all, delete-orphan")
 
     @property
     def equipments(self):
@@ -283,24 +324,136 @@ class Apartment(db.Model):
         elif isinstance(val, str):
             self.vip_services_json = val
 
+    def ordered_photos(self):
+        try:
+            return self.photos.order_by(ApartmentPhoto.is_cover.desc(), ApartmentPhoto.sort_order.asc(), ApartmentPhoto.id.asc()).all()
+        except Exception:
+            return []
+
+    def active_booked_ranges(self):
+        try:
+            today = datetime.utcnow().date()
+            rows = self.stays.filter(
+                ApartmentBooking.status.in_(['confirmed', 'checked_in']),
+                ApartmentBooking.check_out >= today
+            ).order_by(ApartmentBooking.check_in.asc()).all()
+            return [
+                {
+                    "id": b.id,
+                    "ref": b.booking_ref,
+                    "checkIn": b.check_in.isoformat(),
+                    "checkOut": b.check_out.isoformat(),
+                    "status": b.status,
+                }
+                for b in rows
+            ]
+        except Exception:
+            return []
+
     def to_dict(self):
+        gallery_items = [p.to_dict() for p in self.ordered_photos()]
+        cover_url = next((g["url"] for g in gallery_items if g.get("isCover")), None) or (gallery_items[0]["url"] if gallery_items else self.image)
         return {
             "id": self.id,
+            "reference": self.reference or f"3M-{self.id.upper()}",
             "title": self.title,
             "type": self.type,
+            "propertyType": self.property_type or "T3",
+            "standing": self.standing or "Haut Standing",
             "location": self.location,
+            "city": self.city or "Yaoundé",
+            "neighborhood": self.neighborhood or "",
+            "exactAddress": self.exact_address or "",
+            "landmark": self.landmark or "",
+            "gpsCoordinates": self.gps_coordinates or "",
             "rooms": self.rooms,
+            "bedrooms": self.bedrooms_count if self.bedrooms_count is not None else 2,
+            "livingRooms": self.living_rooms_count if self.living_rooms_count is not None else 1,
+            "bathrooms": self.bathrooms_count if self.bathrooms_count is not None else 2,
+            "kitchens": self.kitchens_count if self.kitchens_count is not None else 1,
+            "balconies": self.balconies_count if self.balconies_count is not None else 1,
+            "maxGuests": self.max_guests or 4,
+            "beddingDetails": self.bedding_details or "",
+            "surfaceSqm": self.surface_sqm,
             "price": self.price,
-            "photosCount": self.photos_count,
-            "image": self.image,
+            "nightlyRate": self.nightly_rate,
+            "weeklyRate": self.weekly_rate,
+            "monthlyRate": self.monthly_rate,
+            "securityDeposit": self.security_deposit,
+            "cleaningFee": self.cleaning_fee,
+            "minStayNights": self.min_stay_nights or 1,
+            "paymentTerms": self.payment_terms or "",
+            "longStayDiscount": self.long_stay_discount or "",
+            "photosCount": len(gallery_items) if gallery_items else (self.photos_count or 1),
+            "image": cover_url,
+            "gallery": gallery_items,
             "status": self.status,
+            "shortDescription": self.short_description or "",
             "description": self.description,
             "equipments": self.equipments,
-            "vipServices": self.vip_services
+            "vipServices": self.vip_services,
+            "isPublished": bool(self.is_published) if self.is_published is not None else True,
+            "isFeatured": bool(self.is_featured),
+            "managerName": self.manager_name or "Conciergerie 3M SERVICES",
+            "availableFrom": self.available_from.isoformat() if self.available_from else None,
+            "bookedDates": self.active_booked_ranges(),
         }
 
     def __repr__(self):
         return f'<Apartment {self.id} - {self.title}>'
+
+
+class ApartmentPhoto(db.Model):
+    """Persistent multi-photo gallery record for furnished properties."""
+    __tablename__ = 'apartment_photo'
+    id = db.Column(db.Integer, primary_key=True)
+    apartment_id = db.Column(db.String(50), db.ForeignKey('apartment.id'), nullable=False)
+    url = db.Column(db.String(500), nullable=False)
+    filename = db.Column(db.String(255), nullable=True)
+    room_category = db.Column(db.String(80), default='Vue principale') # Salon, Chambre, Cuisine, Salle de bain, Balcon, Façade
+    caption = db.Column(db.String(200), nullable=True)
+    sort_order = db.Column(db.Integer, default=0)
+    is_cover = db.Column(db.Boolean, default=False)
+    file_size = db.Column(db.Integer, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "url": self.url,
+            "filename": self.filename or "",
+            "category": self.room_category or "Vue principale",
+            "caption": self.caption or "",
+            "order": self.sort_order or 0,
+            "isCover": bool(self.is_cover),
+        }
+
+
+class ApartmentBooking(db.Model):
+    """Dedicated availability & reservation schedule for furnished properties (separate from vehicles)."""
+    __tablename__ = 'apartment_booking'
+    id = db.Column(db.Integer, primary_key=True)
+    booking_ref = db.Column(db.String(40), unique=True, nullable=False)
+    apartment_id = db.Column(db.String(50), db.ForeignKey('apartment.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    guest_name = db.Column(db.String(140), nullable=False)
+    guest_phone = db.Column(db.String(60), nullable=False)
+    guest_email = db.Column(db.String(120), nullable=True)
+    check_in = db.Column(db.Date, nullable=False)
+    check_out = db.Column(db.Date, nullable=False)
+    guests_count = db.Column(db.Integer, default=2)
+    rate_formula = db.Column(db.String(30), default='nightly') # nightly, weekly, monthly
+    total_amount = db.Column(db.Float, default=0.0)
+    deposit_paid = db.Column(db.Float, default=0.0)
+    security_deposit = db.Column(db.Float, default=0.0)
+    payment_method = db.Column(db.String(40), default='momo')
+    payment_status = db.Column(db.String(30), default='pending') # pending, partial, paid
+    status = db.Column(db.String(30), default='confirmed') # confirmed, checked_in, checked_out, cancelled, maintenance_block
+    notes = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<ApartmentBooking {self.booking_ref}: {self.apartment_id} ({self.check_in} -> {self.check_out})>'
 
 class Route(db.Model): # Representing Lignes (lines)
     id = db.Column(db.Integer, primary_key=True)

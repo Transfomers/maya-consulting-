@@ -128,6 +128,7 @@ def create_app():
     from app.routes.admin import admin as admin_bp
     from app.routes.trips import trips_bp
     from app.routes.missions import missions_bp, ensure_mission_schema
+    from app.routes.properties import properties_bp, ensure_property_schema
     
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
@@ -135,6 +136,7 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(trips_bp)
     app.register_blueprint(missions_bp)
+    app.register_blueprint(properties_bp)
 
     # ── Error handlers ────────────────────────────────────────
     from flask import render_template
@@ -232,6 +234,7 @@ def create_app():
             db.session.execute(db.text('SELECT 1'))
             logger.info("Database connection verified successfully.")
             ensure_mission_schema()
+            ensure_property_schema()
         except Exception as e:
             logger.error(f"Database connection check failed: {e}")
 
