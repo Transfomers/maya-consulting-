@@ -17,6 +17,10 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or f"sqlite:///{db_path}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TEMPLATES_AUTO_RELOAD = True
+
+    # Public customer website (React SPA). Override locally with
+    # PUBLIC_SITE_URL=http://localhost:3001
+    PUBLIC_SITE_URL = os.environ.get('PUBLIC_SITE_URL') or 'https://3mservice.shop'
     
     # Static & Upload Folders
     UPLOAD_FOLDER = os.path.join(basedir, 'app', 'static', 'uploads')

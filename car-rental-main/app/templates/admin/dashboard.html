@@ -5,549 +5,378 @@
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
 <style>
+  /* ── Brand accent (#E20713) scoped to the dashboard and its modals ── */
+  .dash-scope { --brand: #E20713; --brand-dark: #b80510; --brand-soft: #fff1f2; --bs-danger-rgb: 226, 7, 19; }
+  .dash-scope .btn-danger { background: var(--brand); border-color: var(--brand); }
+  .dash-scope .btn-danger:hover, .dash-scope .btn-danger:focus { background: var(--brand-dark); border-color: var(--brand-dark); }
+  .dash-scope .btn-outline-danger { color: var(--brand); border-color: var(--brand); }
+  .dash-scope .btn-outline-danger:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .dash-scope .modal-header.brand { background: var(--brand); }
+
+  .dash-card { background: #fff; border: 1px solid #eaecf0; border-radius: 12px; box-shadow: 0 1px 3px rgba(16,24,40,.04); }
+  body.dark-mode .dash-card { background: #111827; border-color: #1f2937; }
+  .dash-card-title { font-size: 1rem; font-weight: 700; margin: 0; }
+
+  /* KPI tiles */
+  .kpi { display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 1rem; color: inherit; text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+  a.kpi:hover { border-color: #d0d5dd; box-shadow: 0 4px 12px rgba(16,24,40,.08); color: inherit; }
+  a.kpi:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .kpi-label { font-size: .7rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #64748b; }
+  .kpi-value { font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.7rem; font-weight: 800; line-height: 1.15; color: #0f172a; margin: .35rem 0 .1rem; white-space: nowrap; }
+  .kpi-value.money { font-size: 1.35rem; }
+  body.dark-mode .kpi-value { color: #f1f5f9; }
+  .kpi-icon { width: 34px; height: 34px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; background: var(--brand-soft); color: var(--brand); }
+  body.dark-mode .kpi-icon { background: rgba(226,7,19,.15); color: #f87171; }
+  .kpi-foot { font-size: .74rem; color: #64748b; border-top: 1px solid #f1f3f5; padding-top: .5rem; margin-top: .5rem; display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+  body.dark-mode .kpi-foot { border-color: #1f2937; color: #94a3b8; }
+  .kpi-foot b { color: #0f172a; font-weight: 700; }
+  body.dark-mode .kpi-foot b { color: #e2e8f0; }
+  .live-pill { white-space: nowrap; font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 999px; padding: .05rem .45rem; }
+  .live-pill::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #16a34a; margin-right: .3rem; vertical-align: middle; }
+
+  /* Fleet status bar */
+  .fleet-bar { display: flex; height: 8px; border-radius: 999px; overflow: hidden; gap: 2px; background: transparent; margin-top: .35rem; }
+  .fleet-bar span { display: block; height: 100%; border-radius: 4px; }
+  .fleet-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: .25rem; }
+  .c-available { background: #16a34a; } .c-rented { background: #2563eb; } .c-maint { background: #d97706; }
+
+  /* 48h movements */
+  .move-list { list-style: none; margin: 0; padding: 0; max-height: 360px; overflow-y: auto; }
+  .move-item { display: flex; gap: .75rem; align-items: flex-start; padding: .6rem .25rem; border-bottom: 1px solid #f1f3f5; }
+  .move-item:last-child { border-bottom: 0; }
+  body.dark-mode .move-item { border-color: #1f2937; }
+  .move-tag { flex-shrink: 0; width: 82px; font-size: .68rem; font-weight: 700; text-align: center; border-radius: 6px; padding: .2rem 0; }
+  .move-tag.pickup { background: #f0fdf4; color: #15803d; }
+  .move-tag.return { background: #eff6ff; color: #1d4ed8; }
+  .move-tag.overdue { background: #fef2f2; color: #b91c1c; }
+  .move-time { font-size: .74rem; color: #64748b; white-space: nowrap; }
+
+  .quick-action-btn { border-radius: 10px; font-size: .8rem; font-weight: 700; display: flex; align-items: center; gap: .5rem; text-align: left; padding: .5rem .75rem; }
+
   .fc-mini .fc-toolbar { padding: .4rem .5rem !important; }
   .fc-mini .fc-toolbar-title { font-size: .95rem !important; font-weight: 700 !important; }
-  .fc-mini .fc-button { font-size: .7rem !important; padding: .2rem .5rem !important; border-radius: .4rem !important; background: #C92A2A !important; border-color: #C92A2A !important; }
+  .fc-mini .fc-button { font-size: .7rem !important; padding: .2rem .5rem !important; border-radius: .4rem !important; background: #E20713 !important; border-color: #E20713 !important; }
   .fc-mini .fc-daygrid-day-number { font-size: .72rem; }
   .fc-mini .fc-col-header-cell-cushion { font-size: .72rem; font-weight: 700; color: #64748b; }
   .fc-mini .fc-event { font-size: .65rem !important; padding: 1px 3px !important; border-radius: 3px !important; border: none !important; }
-  .fc-mini .fc-daygrid-event-harness { margin-bottom: 1px !important; }
   body.dark-mode .fc-mini .fc-daygrid-day { background: #1e293b !important; }
   body.dark-mode .fc-mini .fc-daygrid-day.fc-day-today { background: #1a2744 !important; }
   body.dark-mode .fc-mini td, body.dark-mode .fc-mini th { border-color: #334155 !important; }
-  body.dark-mode .fc-mini .fc-toolbar-title { color: #e2e8f0 !important; }
-  body.dark-mode .fc-mini .fc-daygrid-day-number { color: #94a3b8 !important; }
-  body.dark-mode .fc-mini .fc-col-header-cell-cushion { color: #94a3b8 !important; }
+  body.dark-mode .fc-mini .fc-toolbar-title, body.dark-mode .fc-mini .fc-daygrid-day-number, body.dark-mode .fc-mini .fc-col-header-cell-cushion { color: #94a3b8 !important; }
+
+  @media (max-width: 575.98px) {
+    .kpi { padding: .8rem; }
+    .kpi-value { font-size: 1.4rem; }
+    .kpi-value.money { font-size: 1.1rem; }
+    .move-tag { width: 68px; }
+  }
 </style>
 {% endblock %}
 
+{% macro fcfa(v) %}{{ "{:,.0f}".format(v or 0).replace(',', ' ') }} FCFA{% endmacro %}
+
+{# Emits data-day / data-week / data-month / data-all for the period switcher #}
+{% macro rng(ranges, key, money=false) -%}
+{%- for r in ['day', 'week', 'month', 'all'] %} data-{{ r }}="{{ fcfa(ranges[r][key]) if money else ranges[r][key] }}"{% endfor -%}
+{%- endmacro %}
+
 {% block content %}
-<style>
-    .admin-container {
-        padding: 0.5rem 0 2rem;
-    }
-    .metric-card-wrapper {
-        margin-bottom: 1rem;
-    }
-    .metric-card {
-        background: #ffffff !important;
-        border: 1px solid #eaecf0 !important;
-        border-radius: 12px !important;
-        box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04) !important;
-        transition: all 0.2s ease;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-    body.dark-mode .metric-card {
-        background: #111827 !important;
-        border-color: #1f2937 !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
-    }
-    .metric-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08) !important;
-        border-color: #d0d5dd !important;
-    }
-    
-    .metric-icon-box {
-        width: 42px;
-        height: 42px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s ease;
-    }
-    .metric-card:hover .metric-icon-box {
-        transform: scale(1.05);
-    }
-    
-    .bg-revenue-soft { background: #fef2f2; color: #C92A2A; }
-    body.dark-mode .bg-revenue-soft { background: rgba(201, 42, 42, 0.15); color: #f87171; }
-    
-    .bg-operations-soft { background: #f0fdf4; color: #16a34a; }
-    body.dark-mode .bg-operations-soft { background: rgba(22, 163, 74, 0.15); color: #4ade80; }
-    
-    .bg-passengers-soft { background: #eff6ff; color: #2563eb; }
-    body.dark-mode .bg-passengers-soft { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
-    
-    .bg-bookings-soft { background: #fffbeb; color: #d97706; }
-    body.dark-mode .bg-bookings-soft { background: rgba(217, 119, 6, 0.15); color: #fbbf24; }
-    
-    .bg-fleet-soft { background: #fdf2f8; color: #db2777; }
-    body.dark-mode .bg-fleet-soft { background: rgba(219, 39, 119, 0.15); color: #f472b6; }
-    
-    .bg-carsout-soft { background: #fef2f2; color: #dc2626; }
-    body.dark-mode .bg-carsout-soft { background: rgba(220, 38, 38, 0.15); color: #f87171; }
-    
-    .bg-missions-soft { background: #f0fdf4; color: #16a34a; }
-    body.dark-mode .bg-missions-soft { background: rgba(22, 163, 74, 0.15); color: #4ade80; }
-    
-    .bg-clients-soft { background: #eff6ff; color: #2563eb; }
-    body.dark-mode .bg-clients-soft { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
-    
-    .bg-vehicles-soft { background: #f5f3ff; color: #7c3aed; }
-    body.dark-mode .bg-vehicles-soft { background: rgba(124, 58, 237, 0.15); color: #a78bfa; }
-    
-    .bg-apartments-soft { background: #fffbeb; color: #d97706; }
-    body.dark-mode .bg-apartments-soft { background: rgba(217, 119, 6, 0.15); color: #fbbf24; }
-    
-    .bg-promo-soft { background: #fdf2f8; color: #db2777; }
-    body.dark-mode .bg-promo-soft { background: rgba(219, 39, 119, 0.15); color: #f472b6; }
-    
-    .sub-metric-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 6px;
-        margin-top: 0.85rem;
-        padding-top: 0.85rem;
-        border-top: 1px solid #f1f3f5;
-    }
-    body.dark-mode .sub-metric-grid {
-        border-top: 1px solid #1f2937;
-    }
-    
-    .sub-metric-item {
-        text-align: center;
-        padding: 0.4rem 0.25rem;
-        border-radius: 8px;
-        background: #f8fafc;
-        transition: all 0.2s ease;
-    }
-    body.dark-mode .sub-metric-item {
-        background: #1e293b;
-    }
-    .text-value-sub {
-        font-weight: 700;
-        font-size: 0.95rem;
-        color: #1e293b;
-    }
-    body.dark-mode .text-value-sub {
-        color: #f1f5f9;
-    }
-    .quick-action-btn {
-        transition: all 0.2s ease;
-        border-radius: 10px;
-        padding: 0.65rem 1rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .dashboard-header-card {
-        background: #ffffff !important;
-        border: 1px solid #eaecf0 !important;
-        border-radius: 12px !important;
-        box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04) !important;
-        color: #1e293b !important;
-    }
-    .dashboard-header-card h2 {
-        color: #111827 !important;
-        font-size: 1.75rem;
-        letter-spacing: -0.5px;
-    }
-    .dashboard-header-card p {
-        color: #64748b !important;
-        font-size: 0.92rem;
-    }
-    body.dark-mode .dashboard-header-card {
-        background: #111827 !important;
-        border-color: #1f2937 !important;
-        color: #ffffff !important;
-    }
-    body.dark-mode .dashboard-header-card h2 {
-        color: #ffffff !important;
-    }
-    body.dark-mode .dashboard-header-card p {
-        color: #94a3b8 !important;
-    }
-
-    @media (max-width: 575.98px) {
-        .admin-container {
-            padding: 0 0 1.5rem;
-        }
-        .metric-card-wrapper {
-            margin-bottom: 0.75rem;
-        }
-        .sub-metric-grid {
-            gap: 4px;
-        }
-        .text-value-sub {
-            font-size: 0.82rem;
-        }
-        .sub-metric-item {
-            padding: 0.25rem 0.15rem;
-        }
-        .dashboard-header-card {
-            padding: 1rem !important;
-        }
-    }
-</style>
-
-<div class="container-fluid px-0 admin-container">
+{% set ranges = {'day': stats_day, 'week': stats_week, 'month': stats_month, 'all': stats_all} %}
+{% set S = stats_day %}
+<div class="container-fluid px-0 pb-4 dash-scope">
     {% include 'admin/_subnav.html' %}
 
-    <!-- Dashboard Header (RentQ Exact Style) -->
+    <!-- Header -->
     <div class="mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div>
-            <h2 class="fw-bold text-dark mb-1" style="font-size: 1.85rem; letter-spacing: -0.5px;">Dashboard Overview</h2>
-            <p class="text-muted mb-0" style="font-size: 0.95rem;">Fleet operations, active rentals and real-time revenue tracking.</p>
+            <h1 class="fw-bold mb-1" style="font-size: 1.7rem; letter-spacing: -0.5px;">Tableau de bord</h1>
+            <p class="text-muted mb-0" style="font-size: .92rem;">
+                {{ agency.name if agency else 'Toutes les agences' }} · Données au <span id="dashNow">{{ today_date.strftime('%d/%m/%Y') }}</span>
+            </p>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <!-- Period Selector (Uniform 3M Pill Style) -->
-            <div class="date-filter-group">
+            <div class="date-filter-group" role="radiogroup" aria-label="Période des indicateurs">
                 <input type="radio" class="btn-check" name="dashboardRange" id="rangeDay" value="day" checked autocomplete="off">
-                <label class="date-filter-btn active" for="rangeDay">Today</label>
-                
+                <label class="date-filter-btn active" for="rangeDay">Aujourd'hui</label>
                 <input type="radio" class="btn-check" name="dashboardRange" id="rangeWeek" value="week" autocomplete="off">
-                <label class="date-filter-btn" for="rangeWeek">This Week</label>
-                
+                <label class="date-filter-btn" for="rangeWeek">7 jours</label>
                 <input type="radio" class="btn-check" name="dashboardRange" id="rangeMonth" value="month" autocomplete="off">
-                <label class="date-filter-btn" for="rangeMonth">This Month</label>
-                
+                <label class="date-filter-btn" for="rangeMonth">30 jours</label>
                 <input type="radio" class="btn-check" name="dashboardRange" id="rangeAll" value="all" autocomplete="off">
-                <label class="date-filter-btn" for="rangeAll">All</label>
+                <label class="date-filter-btn" for="rangeAll">Tout</label>
             </div>
-
-            <!-- Export Buttons -->
             <div class="d-flex gap-2">
-                <a id="btnExportPdf" href="{{ url_for('admin.export_dashboard_pdf', range='day') }}" class="btn btn-sm btn-export-pdf">
-                    <i class="bi bi-file-pdf me-1"></i> PDF
-                </a>
-                <a id="btnExportCsv" href="{{ url_for('admin.export_dashboard_csv', range='day') }}" class="btn btn-sm btn-export-csv">
-                    <i class="bi bi-file-csv me-1"></i> CSV
-                </a>
+                <a id="btnExportPdf" href="{{ url_for('admin.export_dashboard_pdf', range='day') }}" class="btn btn-sm btn-export-pdf"><i class="bi bi-file-pdf me-1"></i> PDF</a>
+                <a id="btnExportCsv" href="{{ url_for('admin.export_dashboard_csv', range='day') }}" class="btn btn-sm btn-export-csv"><i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV</a>
             </div>
         </div>
     </div>
 
-    <!-- 6 Primary Overview KPI Cards -->
-    <div class="row g-3 mb-4 fade-in">
-        <!-- 1. Number of Car Out (Véhicules Sortis) -->
-        <div class="col-12 col-sm-6 col-lg-4 col-xl-2 metric-card-wrapper">
-            <a href="{{ url_for('admin.bookings') }}" class="text-decoration-none">
-                <div class="card metric-card border-0 shadow-sm h-100">
-                    <div class="card-body p-3 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="text-muted fw-bold small text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Voitures Sorties</span>
-                                <div class="metric-icon-box bg-carsout-soft" style="width: 36px; height: 36px;">
-                                    <i class="bi bi-car-front-fill fs-5"></i>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-baseline gap-2 mb-1">
-                                <h2 class="fw-extrabold mb-0 text-danger" id="metricCarsOut" 
-                                    data-day="{{ stats_day.cars_out }}" 
-                                    data-week="{{ stats_week.cars_out_period }}" 
-                                    data-month="{{ stats_month.cars_out_period }}"
-                                    data-all="{{ stats_all.cars_out }}"
-                                    style="font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.85rem;">
-                                    {{ stats_day.cars_out }}
-                                </h2>
-                                <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" style="font-size: 0.62rem; font-weight: 600;">
-                                    En Sortie
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mt-2 pt-2 border-top border-secondary border-opacity-10">
-                            <span class="text-muted small" style="font-size: 0.72rem;">
-                                <i class="bi bi-broadcast me-1 text-danger"></i> {{ stats_day.active_trips }} mission(s) active(s)
-                            </span>
-                        </div>
+    {% if overdue_count %}
+    <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3 mb-4" role="alert" style="border-radius: 10px;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div class="flex-grow-1"><strong>{{ overdue_count }} restitution{{ 's' if overdue_count > 1 }} en retard</strong> — véhicule(s) non restitué(s) après la date prévue.</div>
+        <a href="#mouvements" class="btn btn-sm btn-outline-danger">Voir</a>
+    </div>
+    {% endif %}
+
+    <!-- KPI tiles -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Revenue collected -->
+        <div class="col-6 col-lg-4 col-xl-2">
+            <a href="{{ url_for('admin.bookings') }}" class="dash-card kpi">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="kpi-label">Encaissé</span>
+                        <span class="kpi-icon"><i class="bi bi-cash-stack"></i></span>
                     </div>
+                    <div class="kpi-value money js-range"{{ rng(ranges, 'revenue_collected', true) }}>{{ fcfa(S.revenue_collected) }}</div>
+                </div>
+                <div class="kpi-foot"><span>À encaisser</span><b class="js-range"{{ rng(ranges, 'revenue_outstanding', true) }}>{{ fcfa(S.revenue_outstanding) }}</b></div>
+            </a>
+        </div>
+
+        <!-- 2. Bookings -->
+        <div class="col-6 col-lg-4 col-xl-2">
+            <a href="{{ url_for('admin.bookings') }}" class="dash-card kpi">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="kpi-label">Réservations</span>
+                        <span class="kpi-icon"><i class="bi bi-journal-check"></i></span>
+                    </div>
+                    <div class="kpi-value js-range"{{ rng(ranges, 'bookings_count') }}>{{ S.bookings_count }}</div>
+                </div>
+                <div class="kpi-foot">
+                    <span><b class="js-range"{{ rng(ranges, 'confirmed_bookings') }}>{{ S.confirmed_bookings }}</b> confirmées</span>
+                    <span><b class="js-range"{{ rng(ranges, 'pending_bookings') }}>{{ S.pending_bookings }}</b> en attente</span>
                 </div>
             </a>
         </div>
 
-        <!-- 2. Missions VIP -->
-        <div class="col-12 col-sm-6 col-lg-4 col-xl-2 metric-card-wrapper">
-            <a href="{{ url_for('admin.bookings') }}" class="text-decoration-none">
-                <div class="card metric-card border-0 shadow-sm h-100">
-                    <div class="card-body p-3 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="text-muted fw-bold small text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Missions VIP</span>
-                                <div class="metric-icon-box bg-missions-soft" style="width: 36px; height: 36px;">
-                                    <i class="bi bi-compass fs-5"></i>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-baseline gap-2 mb-1">
-                                <h2 class="fw-extrabold mb-0 text-success" id="metricTripsCount" 
-                                    data-day="{{ stats_day.trips_count }}" 
-                                    data-week="{{ stats_week.trips_count }}" 
-                                    data-month="{{ stats_month.trips_count }}"
-                                    data-all="{{ stats_all.trips_count }}"
-                                    style="font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.85rem;">
-                                    {{ stats_day.trips_count }}
-                                </h2>
-                                <span class="badge rounded-pill bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size: 0.62rem; font-weight: 600;">
-                                    Missions
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mt-2 pt-2 border-top border-secondary border-opacity-10 d-flex justify-content-between" style="font-size: 0.72rem;">
-                            <span class="text-success fw-semibold"><i class="bi bi-play-circle-fill me-1"></i>{{ stats_day.active_trips }} actives</span>
-                            <span class="text-muted"><i class="bi bi-clock me-1"></i>{{ stats_day.upcoming_trips }} à venir</span>
-                        </div>
+        <!-- 3. Missions -->
+        <div class="col-6 col-lg-4 col-xl-2">
+            <a href="{{ url_for('admin.bookings', tab='missions') }}" class="dash-card kpi">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="kpi-label">Missions</span>
+                        <span class="kpi-icon"><i class="bi bi-compass"></i></span>
                     </div>
+                    <div class="kpi-value js-range"{{ rng(ranges, 'trips_count') }}>{{ S.trips_count }}</div>
+                </div>
+                <div class="kpi-foot">
+                    <span><b>{{ S.active_trips }}</b> en cours</span>
+                    <span><b class="js-range"{{ rng(ranges, 'upcoming_trips') }}>{{ S.upcoming_trips }}</b> à venir</span>
                 </div>
             </a>
         </div>
 
-        <!-- 3. Number of Client (Clients VIP) -->
-        <div class="col-12 col-sm-6 col-lg-4 col-xl-2 metric-card-wrapper">
-            <a href="{{ url_for('admin.users') }}" class="text-decoration-none">
-                <div class="card metric-card border-0 shadow-sm h-100">
-                    <div class="card-body p-3 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="text-muted fw-bold small text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Clients VIP</span>
-                                <div class="metric-icon-box bg-clients-soft" style="width: 36px; height: 36px;">
-                                    <i class="bi bi-people-fill fs-5"></i>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-baseline gap-2 mb-1">
-                                <h2 class="fw-extrabold mb-0 text-primary" id="metricActiveCustomers" 
-                                    data-day="{{ stats_day.total_clients }}" 
-                                    data-week="{{ stats_week.total_clients }}" 
-                                    data-month="{{ stats_month.total_clients }}"
-                                    data-all="{{ stats_all.total_clients }}"
-                                    style="font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.85rem;">
-                                    {{ total_clients }}
-                                </h2>
-                                <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size: 0.62rem; font-weight: 600;">
-                                    Clients
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mt-2 pt-2 border-top border-secondary border-opacity-10 d-flex justify-content-between" style="font-size: 0.72rem;">
-                            <span class="text-primary fw-semibold"><i class="bi bi-person-check me-1"></i>{{ stats_day.active_customers }} actifs</span>
-                            <span class="text-muted">+{{ stats_day.new_customers }} récents</span>
-                        </div>
+        <!-- 4. Clients -->
+        <div class="col-6 col-lg-4 col-xl-2">
+            <a href="{{ url_for('admin.users') }}" class="dash-card kpi">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="kpi-label">Nouveaux clients</span>
+                        <span class="kpi-icon"><i class="bi bi-person-plus"></i></span>
                     </div>
+                    <div class="kpi-value js-range"{{ rng(ranges, 'new_customers') }}>{{ S.new_customers }}</div>
+                </div>
+                <div class="kpi-foot">
+                    <span><b>{{ S.total_clients }}</b> au total</span>
+                    <span><b class="js-range"{{ rng(ranges, 'active_customers') }}>{{ S.active_customers }}</b> actifs</span>
                 </div>
             </a>
         </div>
 
-        <!-- 4. Véhicules (Flotte VIP) -->
-        <div class="col-12 col-sm-6 col-lg-4 col-xl-2 metric-card-wrapper">
-            <a href="{{ url_for('admin.buses') }}" class="text-decoration-none">
-                <div class="card metric-card border-0 shadow-sm h-100">
-                    <div class="card-body p-3 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="text-muted fw-bold small text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Flotte Véhicules</span>
-                                <div class="metric-icon-box bg-vehicles-soft" style="width: 36px; height: 36px;">
-                                    <i class="bi bi-shield-shaded fs-5" style="color: #7c3aed;"></i>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-baseline gap-2 mb-1">
-                                <h2 class="fw-extrabold mb-0" id="metricBusesActive" 
-                                    data-day="{{ stats_day.buses_count }}" 
-                                    data-week="{{ stats_week.buses_count }}" 
-                                    data-month="{{ stats_month.buses_count }}"
-                                    data-all="{{ stats_all.buses_count }}"
-                                    style="color: #7c3aed; font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.85rem;">
-                                    {{ total_vehicles }}
-                                </h2>
-                                <span class="badge rounded-pill border" style="font-size: 0.62rem; font-weight: 600; color: #7c3aed; background: #f5f3ff; border-color: rgba(124, 58, 237, 0.25) !important;">
-                                    Flotte VIP
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mt-2 pt-2 border-top border-secondary border-opacity-10 d-flex justify-content-between" style="font-size: 0.72rem;">
-                            <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>{{ stats_day.buses_active }} dispos</span>
-                            <span class="text-muted"><i class="bi bi-tools me-1"></i>{{ stats_day.buses_maint }} révision</span>
-                        </div>
+        <!-- 5. Fleet (live) -->
+        <div class="col-6 col-lg-4 col-xl-2">
+            <a href="{{ url_for('admin.buses') }}" class="dash-card kpi">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="kpi-label">Flotte</span>
+                        <span class="live-pill">Direct</span>
                     </div>
+                    <div class="kpi-value">{{ fleet.available }}<span class="text-muted fw-semibold" style="font-size: .95rem;"> / {{ fleet.total }} dispo.</span></div>
+                    {% if fleet.total %}
+                    <div class="fleet-bar" role="img" aria-label="{{ fleet.available }} disponibles, {{ fleet.rented }} en location, {{ fleet.maintenance }} en maintenance">
+                        {% if fleet.available %}<span class="c-available" style="flex: {{ fleet.available }};"></span>{% endif %}
+                        {% if fleet.rented %}<span class="c-rented" style="flex: {{ fleet.rented }};"></span>{% endif %}
+                        {% if fleet.maintenance %}<span class="c-maint" style="flex: {{ fleet.maintenance }};"></span>{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="kpi-foot">
+                    <span><i class="fleet-dot c-rented"></i><b>{{ fleet.rented }}</b> loués</span>
+                    <span><i class="fleet-dot c-maint"></i><b>{{ fleet.maintenance }}</b> maint.</span>
                 </div>
             </a>
         </div>
 
-        <!-- 5. Appartements Meublés VIP -->
-        <div class="col-12 col-sm-6 col-lg-4 col-xl-2 metric-card-wrapper">
-            <a href="{{ url_for('admin.apartments') }}" class="text-decoration-none">
-                <div class="card metric-card border-0 shadow-sm h-100">
-                    <div class="card-body p-3 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="text-muted fw-bold small text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Appartements VIP</span>
-                                <div class="metric-icon-box bg-apartments-soft" style="width: 36px; height: 36px;">
-                                    <i class="bi bi-building-check fs-5"></i>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-baseline gap-2 mb-1">
-                                <h2 class="fw-extrabold mb-0 text-warning" id="metricApartments" 
-                                    data-day="{{ stats_day.apartments_count }}" 
-                                    data-week="{{ stats_week.apartments_count }}" 
-                                    data-month="{{ stats_month.apartments_count }}"
-                                    data-all="{{ stats_all.apartments_count }}"
-                                    style="font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.85rem;">
-                                    {{ total_apartments }}
-                                </h2>
-                                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25" style="font-size: 0.62rem; font-weight: 600;">
-                                    Tsinga
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mt-2 pt-2 border-top border-secondary border-opacity-10 d-flex justify-content-between" style="font-size: 0.72rem;">
-                            <span class="text-success fw-semibold"><i class="bi bi-door-open-fill me-1"></i>{{ available_apartments }} dispos</span>
-                            <span class="text-muted">Face FECAFOOT</span>
-                        </div>
+        <!-- 6. Furnished apartments (live) -->
+        <div class="col-6 col-lg-4 col-xl-2">
+            <a href="{{ url_for('admin.apartments') }}" class="dash-card kpi">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="kpi-label">Résidences</span>
+                        <span class="live-pill">Direct</span>
                     </div>
+                    <div class="kpi-value">{{ available_apartments }}<span class="text-muted fw-semibold" style="font-size: .95rem;"> / {{ total_apartments }} dispo.</span></div>
                 </div>
-            </a>
-        </div>
-
-        <!-- 6. Promo (Offres Promo VIP) -->
-        <div class="col-12 col-sm-6 col-lg-4 col-xl-2 metric-card-wrapper">
-            <a href="{{ url_for('admin.buses') }}" class="text-decoration-none">
-                <div class="card metric-card border-0 shadow-sm h-100">
-                    <div class="card-body p-3 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="text-muted fw-bold small text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.5px;">Offres Promo</span>
-                                <div class="metric-icon-box bg-promo-soft" style="width: 36px; height: 36px;">
-                                    <i class="bi bi-tag-fill fs-5" style="color: #db2777;"></i>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-baseline gap-2 mb-1">
-                                <h2 class="fw-extrabold mb-0" id="metricPromo" 
-                                    data-day="{{ stats_day.promo_count }}" 
-                                    data-week="{{ stats_week.promo_count }}" 
-                                    data-month="{{ stats_month.promo_count }}"
-                                    data-all="{{ stats_all.promo_count }}"
-                                    style="color: #db2777; font-family: 'Poppins', -apple-system, sans-serif; font-size: 1.85rem;">
-                                    {{ total_promos }}
-                                </h2>
-                                <span class="badge rounded-pill border" style="font-size: 0.62rem; font-weight: 600; color: #db2777; background: #fdf2f8; border-color: rgba(219, 39, 119, 0.25) !important;">
-                                    Actives
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mt-2 pt-2 border-top border-secondary border-opacity-10 d-flex justify-content-between" style="font-size: 0.72rem;">
-                            <span class="fw-semibold" style="color: #db2777;"><i class="bi bi-stars me-1"></i>Jusqu'à -18%</span>
-                            <span class="text-muted">Vitrine 3001</span>
-                        </div>
-                    </div>
+                <div class="kpi-foot">
+                    <span><b>{{ fleet.promo }}</b> véhicule{{ 's' if fleet.promo != 1 }} en promo</span>
                 </div>
             </a>
         </div>
     </div>
 
-    <!-- Summary & Actions Section (RentQ Clean Style) -->
-    <div class="row g-4 mb-4 fade-in">
-        <div class="col-lg-7">
-            <div class="card bg-white border p-4 h-100 shadow-xs" style="border-radius: 12px; border-color: #eaecf0 !important;">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-bar-chart-line text-danger me-2"></i> Activité des 7 derniers jours</h5>
-                    <span class="badge bg-light text-muted border rounded-pill small">Missions & Réservations</span>
+    <!-- Charts + top vehicles -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-4">
+            <div class="dash-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-baseline mb-2">
+                    <h2 class="dash-card-title">Réservations par jour</h2>
+                    <small class="text-muted js-chart-span">7 derniers jours</small>
                 </div>
-                <div style="position: relative; height: 250px; width: 100%;">
-                    <canvas id="bookingsChart"></canvas>
-                </div>
+                <div style="position: relative; height: 210px;"><canvas id="chartBookings" aria-label="Nombre de réservations par jour" role="img"></canvas></div>
             </div>
         </div>
-        
+        <div class="col-md-6 col-xl-4">
+            <div class="dash-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-baseline mb-2">
+                    <h2 class="dash-card-title">Encaissements par jour</h2>
+                    <small class="text-muted js-chart-span">7 derniers jours</small>
+                </div>
+                <div style="position: relative; height: 210px;"><canvas id="chartRevenue" aria-label="Montant encaissé par jour en FCFA" role="img"></canvas></div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="dash-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-baseline mb-2">
+                    <h2 class="dash-card-title">Véhicules les plus demandés</h2>
+                    <small class="text-muted">30 derniers jours</small>
+                </div>
+                {% if top_vehicles %}
+                {% set top_max = top_vehicles[0].missions %}
+                <ol class="list-unstyled mb-0">
+                    {% for v in top_vehicles %}
+                    <li class="py-2 {{ 'border-bottom' if not loop.last }}">
+                        <div class="d-flex justify-content-between gap-2" style="font-size: .84rem;">
+                            <span class="fw-semibold text-truncate">{{ v.bus.brand or '' }} {{ v.bus.model }} <span class="text-muted fw-normal">· {{ v.bus.bus_number }}</span></span>
+                            <span class="text-nowrap"><b>{{ v.missions }}</b> mission{{ 's' if v.missions > 1 }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <div class="flex-grow-1" style="height: 6px; background: #f1f5f9; border-radius: 4px;">
+                                <div style="height: 100%; width: {{ (v.missions / top_max * 100)|round(0) }}%; background: #E20713; border-radius: 4px;"></div>
+                            </div>
+                            <small class="text-muted text-nowrap" style="font-size: .7rem;">{{ fcfa(v.value) }}</small>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0 small">Aucune mission sur les 30 derniers jours.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 48h movements + quick actions -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-7" id="mouvements">
+            <div class="dash-card p-3 h-100">
+                <div class="d-flex justify-content-between align-items-baseline mb-2 flex-wrap gap-2">
+                    <h2 class="dash-card-title"><i class="bi bi-arrow-left-right me-1" style="color: #E20713;"></i> Départs &amp; retours — 48 h</h2>
+                    <a href="{{ url_for('admin.calendar_view') }}" class="small text-decoration-none">Planning complet &rarr;</a>
+                </div>
+                {% if movements %}
+                <ul class="move-list">
+                    {% for m in movements %}
+                    {% set t = m.trip %}
+                    <li class="move-item">
+                        <span class="move-tag {{ m.kind }}">
+                            {% if m.kind == 'pickup' %}<i class="bi bi-box-arrow-up-right me-1"></i>Départ
+                            {% elif m.kind == 'return' %}<i class="bi bi-box-arrow-in-down-left me-1"></i>Retour
+                            {% else %}<i class="bi bi-exclamation-octagon me-1"></i>En retard{% endif %}
+                        </span>
+                        <div class="flex-grow-1 min-w-0">
+                            <a href="{{ url_for('missions.mission_detail', id=t.id) }}" class="fw-semibold text-decoration-none d-block text-truncate" style="font-size: .85rem; color: inherit;">
+                                {% if t.bus %}{{ t.bus.brand or '' }} {{ t.bus.model }} · {{ t.bus.bus_number }}{% else %}Véhicule non défini{% endif %}
+                            </a>
+                            <div class="text-muted text-truncate" style="font-size: .74rem;">
+                                {{ m.client or 'Client non renseigné' }}
+                                {% if t.driver %} · <i class="bi bi-person-badge"></i> {{ t.driver.name }}{% endif %}
+                                {% set place = t.pickup_location if m.kind == 'pickup' else t.destination_location %}
+                                {% if place %} · <i class="bi bi-geo-alt"></i> {{ place }}{% endif %}
+                            </div>
+                        </div>
+                        <span class="move-time">
+                            {% set d = m.at.date() %}
+                            {% if m.kind == 'overdue' %}prévu {{ m.at.strftime('%d/%m %H:%M') }}
+                            {% elif d == today_date %}Auj. {{ m.at.strftime('%H:%M') }}
+                            {% elif d == tomorrow_date %}Demain {{ m.at.strftime('%H:%M') }}
+                            {% else %}{{ m.at.strftime('%d/%m %H:%M') }}{% endif %}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0 small"><i class="bi bi-calendar-check d-block fs-4 mb-1"></i>Aucun départ ni retour prévu dans les 48 prochaines heures.</p>
+                {% endif %}
+            </div>
+        </div>
+
         <div class="col-lg-5">
-            <div class="card bg-white border p-4 h-100 shadow-xs" style="border-radius: 12px; border-color: #eaecf0 !important;">
+            <div class="dash-card p-3 h-100">
                 <div class="d-flex align-items-center justify-content-between mb-3 gap-2">
-                    <div>
-                        <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-lightning-charge-fill text-danger me-1"></i> Actions Rapides</h5>
-                        <small class="text-muted" style="font-size: 0.74rem;">Création directe &amp; workflows opérationnels</small>
-                    </div>
+                    <h2 class="dash-card-title"><i class="bi bi-lightning-charge-fill me-1" style="color: #E20713;"></i> Actions rapides</h2>
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown" style="border-radius: 8px; font-size: 0.76rem;">
-                            Plus d'actions
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 p-1" style="min-width: 245px; font-size: 0.82rem;">
-                            <li>
-                                <a class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" href="{{ url_for('admin.add_apartment') }}">
-                                    <i class="bi bi-building-add text-danger"></i> Ajouter un bien meublé
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" href="{{ url_for('properties.property_calendar') }}">
-                                    <i class="bi bi-calendar2-range text-danger"></i> Calendrier des biens meublés
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" href="{{ url_for('admin.bookings', tab='missions') }}#convertBookingCard">
-                                    <i class="bi bi-arrow-left-right text-danger"></i> Convertir réservation en mission
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" href="{{ url_for('admin.bookings', tab='packages') }}">
-                                    <i class="bi bi-tags text-danger"></i> Nouveau Forfait VIP
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" href="{{ url_for('admin.shifts') }}">
-                                    <i class="bi bi-journal-text text-danger"></i> Rapport Opérationnel du Jour
-                                </a>
-                            </li>
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 8px; font-size: .76rem;">Plus</button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 p-1" style="min-width: 245px; font-size: .82rem;">
+                            <li><a class="dropdown-item rounded-2 py-2" href="{{ url_for('admin.add_apartment') }}"><i class="bi bi-building-add me-2 text-danger"></i>Ajouter un bien meublé</a></li>
+                            <li><a class="dropdown-item rounded-2 py-2" href="{{ url_for('properties.property_calendar') }}"><i class="bi bi-calendar2-range me-2 text-danger"></i>Calendrier des biens meublés</a></li>
+                            <li><a class="dropdown-item rounded-2 py-2" href="{{ url_for('admin.bookings', tab='missions') }}#convertBookingCard"><i class="bi bi-arrow-left-right me-2 text-danger"></i>Convertir réservation en mission</a></li>
+                            <li><a class="dropdown-item rounded-2 py-2" href="{{ url_for('admin.bookings', tab='packages') }}"><i class="bi bi-tags me-2 text-danger"></i>Nouveau forfait VIP</a></li>
+                            <li><a class="dropdown-item rounded-2 py-2" href="{{ url_for('admin.shifts') }}"><i class="bi bi-journal-text me-2 text-danger"></i>Rapport opérationnel du jour</a></li>
+                            {% if public_site_url %}
                             <li><hr class="dropdown-divider my-1"></li>
-                            <li>
-                                <a class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2" href="http://localhost:3001" target="_blank">
-                                    <i class="bi bi-box-arrow-up-right text-dark"></i> Vitrine Client (Port 3001)
-                                </a>
-                            </li>
+                            <li><a class="dropdown-item rounded-2 py-2" href="{{ public_site_url }}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right me-2"></i>Voir le site client</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
-
-                <!-- 6 Focused Primary Action Shortcuts (Forms & Direct Workflows) -->
                 <div class="row g-2">
-                    <!-- 1. Nouvelle réservation (Essential) -->
                     <div class="col-6">
-                        <button type="button" class="btn btn-danger w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" data-bs-toggle="modal" data-bs-target="#qaReservationModal" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700;">
-                            <i class="bi bi-calendar-plus-fill fs-6"></i>
-                            <span class="lh-sm">Nouvelle réservation<br><small class="fw-normal opacity-75" style="font-size: 0.68rem;">Client, véhicule &amp; acompte</small></span>
+                        <button type="button" class="btn btn-danger w-100 quick-action-btn" data-bs-toggle="modal" data-bs-target="#qaReservationModal">
+                            <i class="bi bi-calendar-plus-fill fs-6"></i><span class="lh-sm">Nouvelle réservation<br><small class="fw-normal opacity-75" style="font-size: .68rem;">Client, véhicule &amp; acompte</small></span>
                         </button>
                     </div>
-                    <!-- 2. Créer une mission VIP (Essential) -->
                     <div class="col-6">
-                        <a href="{{ url_for('admin.bookings', tab='missions') }}#newMissionFormCard" class="btn btn-dark w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" style="background:#0f172a; border-radius: 10px; font-size: 0.8rem; font-weight: 700;">
-                            <i class="bi bi-compass-fill text-danger fs-6"></i>
-                            <span class="lh-sm">Créer une mission VIP<br><small class="fw-normal opacity-75" style="font-size: 0.68rem;">Trajet, convoi &amp; chauffeur</small></span>
+                        <a href="{{ url_for('admin.bookings', tab='missions') }}#newMissionFormCard" class="btn btn-dark w-100 quick-action-btn" style="background: #0f172a;">
+                            <i class="bi bi-compass-fill fs-6" style="color: #E20713;"></i><span class="lh-sm">Créer une mission<br><small class="fw-normal opacity-75" style="font-size: .68rem;">Trajet, convoi &amp; chauffeur</small></span>
                         </a>
                     </div>
-                    <!-- 3. Ajouter un véhicule -->
                     <div class="col-6">
-                        <a href="{{ url_for('admin.add_bus') }}" class="btn btn-outline-secondary w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700; border-color: #e2e8f0; color: #0f172a;">
-                            <i class="bi bi-car-front-fill text-danger fs-6"></i>
-                            <span class="lh-sm">Ajouter un véhicule<br><small class="fw-normal text-muted" style="font-size: 0.68rem;">Immat, tarif &amp; documents</small></span>
+                        <a href="{{ url_for('admin.add_bus') }}" class="btn btn-outline-secondary w-100 quick-action-btn">
+                            <i class="bi bi-car-front-fill text-danger fs-6"></i><span class="lh-sm">Ajouter un véhicule<br><small class="fw-normal text-muted" style="font-size: .68rem;">Immat, tarif &amp; documents</small></span>
                         </a>
                     </div>
-                    <!-- 4. Ajouter un client -->
                     <div class="col-6">
-                        <button type="button" class="btn btn-outline-secondary w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" data-bs-toggle="modal" data-bs-target="#qaClientModal" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700; border-color: #e2e8f0; color: #0f172a;">
-                            <i class="bi bi-person-plus-fill text-danger fs-6"></i>
-                            <span class="lh-sm">Ajouter un client<br><small class="fw-normal text-muted" style="font-size: 0.68rem;">Particulier ou corporate</small></span>
+                        <button type="button" class="btn btn-outline-secondary w-100 quick-action-btn" data-bs-toggle="modal" data-bs-target="#qaClientModal">
+                            <i class="bi bi-person-plus-fill text-danger fs-6"></i><span class="lh-sm">Ajouter un client<br><small class="fw-normal text-muted" style="font-size: .68rem;">Particulier ou corporate</small></span>
                         </button>
                     </div>
-                    <!-- 5. Ajouter un chauffeur -->
                     <div class="col-6">
-                        <a href="{{ url_for('admin.add_driver') }}" class="btn btn-outline-secondary w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700; border-color: #e2e8f0; color: #0f172a;">
-                            <i class="bi bi-person-badge-fill text-danger fs-6"></i>
-                            <span class="lh-sm">Ajouter un chauffeur<br><small class="fw-normal text-muted" style="font-size: 0.68rem;">Permis, contact &amp; agence</small></span>
+                        <a href="{{ url_for('admin.add_driver') }}" class="btn btn-outline-secondary w-100 quick-action-btn">
+                            <i class="bi bi-person-badge-fill text-danger fs-6"></i><span class="lh-sm">Ajouter un chauffeur<br><small class="fw-normal text-muted" style="font-size: .68rem;">Permis, contact &amp; agence</small></span>
                         </a>
                     </div>
-                    <!-- 6. Enregistrer un paiement (Permission-Gated) -->
                     <div class="col-6">
                         {% if qa_can_record_payment %}
-                        <button type="button" class="btn btn-outline-success w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" data-bs-toggle="modal" data-bs-target="#qaPaymentModal" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700; border-color: #bbf7d0; color: #166534; background: #f0fdf4;">
-                            <i class="bi bi-cash-coin fs-6"></i>
-                            <span class="lh-sm">Enregistrer paiement<br><small class="fw-normal text-success" style="font-size: 0.68rem;">Encaissement &amp; reçu PDF</small></span>
+                        <button type="button" class="btn btn-outline-success w-100 quick-action-btn" data-bs-toggle="modal" data-bs-target="#qaPaymentModal">
+                            <i class="bi bi-cash-coin fs-6"></i><span class="lh-sm">Enregistrer paiement<br><small class="fw-normal" style="font-size: .68rem;">Encaissement &amp; reçu PDF</small></span>
                         </button>
                         {% else %}
-                        <a href="{{ url_for('admin.add_apartment') }}" class="btn btn-outline-secondary w-100 quick-action-btn shadow-2xs d-flex align-items-center justify-content-start gap-2 text-start px-3 py-2" style="border-radius: 10px; font-size: 0.8rem; font-weight: 700; border-color: #e2e8f0; color: #0f172a;">
-                            <i class="bi bi-building-add text-danger fs-6"></i>
-                            <span class="lh-sm">Ajouter un bien meublé<br><small class="fw-normal text-muted" style="font-size: 0.68rem;">Photos, tarifs &amp; standing</small></span>
+                        <a href="{{ url_for('admin.add_apartment') }}" class="btn btn-outline-secondary w-100 quick-action-btn">
+                            <i class="bi bi-building-add text-danger fs-6"></i><span class="lh-sm">Ajouter un bien meublé<br><small class="fw-normal text-muted" style="font-size: .68rem;">Photos, tarifs &amp; standing</small></span>
                         </a>
                         {% endif %}
                     </div>
@@ -556,148 +385,144 @@
         </div>
     </div>
 
-    {% if is_super %}
-    <!-- LIVE OPERATIONS FEED (Super Admin Logistics View) -->
-    <div class="row mb-4 fade-in">
-        <div class="col-12">
-            <div class="card bg-white border p-4 shadow-xs" style="border-radius: 12px; border-color: #eaecf0 !important;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0 text-dark">
-                        <i class="bi bi-activity text-danger me-2"></i> Flux d'Opérations en Direct
-                    </h5>
-                    <a href="{{ url_for('admin.logs') }}" class="btn btn-sm btn-outline-secondary">Voir tout le journal d'audit</a>
-                </div>
-                
-                <div class="live-ops-feed" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
-                    {% if recent_audit_logs %}
-                        <div class="timeline position-relative ps-4" style="border-left: 2px solid #e9ecef;">
-                            {% for log in recent_audit_logs %}
-                            <div class="timeline-item position-relative mb-4">
-                                <div class="timeline-marker position-absolute bg-primary rounded-circle border border-white" style="width: 14px; height: 14px; left: -24.5px; top: 4px; box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);"></div>
-                                <div class="timeline-content bg-white p-3 rounded-3 shadow-xs border border-light">
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <div class="fw-bold" style="font-size: 0.9rem;">
-                                            <i class="bi bi-person-badge text-muted me-1"></i> 
-                                            {% if log.user %}
-                                                {{ log.user.username }} <span class="badge bg-secondary ms-1" style="font-size: 0.6rem;">{{ log.user.role }}</span>
-                                            {% else %}
-                                                Système
-                                            {% endif %}
-                                        </div>
-                                        <div class="text-muted small">
-                                            <i class="bi bi-clock me-1"></i> {{ log.created_at.strftime('%d/%m/%Y %H:%M:%S') }}
-                                        </div>
-                                    </div>
-                                    <div class="mb-1" style="font-size: 0.95rem;">
-                                        <span class="badge bg-dark me-2">{{ log.action }}</span> 
-                                        {% if log.target_type %}
-                                        <span class="fw-semibold text-primary">{{ log.target_type }} #{{ log.target_id }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="text-muted" style="font-size: 0.85rem;">
-                                        {{ log.details }}
-                                    </div>
-                                </div>
+    <!-- Recent bookings -->
+    <div class="dash-card p-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h2 class="dash-card-title"><i class="bi bi-journal-check me-1" style="color: #E20713;"></i> Dernières réservations <small class="text-muted fw-normal">({{ recent_bookings|length }} plus récentes)</small></h2>
+            <a href="{{ url_for('admin.bookings') }}" class="btn btn-sm btn-outline-secondary">Toutes les réservations</a>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+            <div class="input-group input-group-sm" style="max-width: 220px;">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="search" id="dashSearch" class="form-control" placeholder="Réf, client, trajet…" aria-label="Rechercher une réservation">
+            </div>
+            <select id="dashFilterStatus" class="form-select form-select-sm" style="width: auto;" aria-label="Filtrer par statut">
+                <option value="">Tous les statuts</option>
+                <option value="confirmed">Confirmée</option>
+                <option value="locked">En attente</option>
+                <option value="cancelled">Annulée</option>
+            </select>
+            <select id="dashFilterPayment" class="form-select form-select-sm" style="width: auto;" aria-label="Filtrer par paiement">
+                <option value="">Tous les paiements</option>
+                <option value="paid">Payé</option>
+                <option value="pending">Non payé</option>
+                <option value="refunded">Remboursé</option>
+            </select>
+            <input type="date" id="dashFilterExactDate" class="form-control form-control-sm" style="max-width: 160px;" aria-label="Date de réservation">
+            <select id="dashFilterDate" class="form-select form-select-sm" style="width: auto;" aria-label="Ordre de tri">
+                <option value="newest">Plus récentes</option>
+                <option value="oldest">Plus anciennes</option>
+            </select>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="dashReset"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+        </div>
+
+        {% if recent_bookings %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="min-width: 820px; font-size: .84rem;">
+                <thead>
+                    <tr>
+                        <th>Réf.</th>
+                        <th>Client</th>
+                        <th>Véhicule / Mission</th>
+                        <th>Date réservation</th>
+                        <th class="text-end">Montant</th>
+                        <th>Paiement</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody id="dashTableBody">
+                    {% for b in recent_bookings %}
+                    {% set trip = b.trip %}
+                    <tr class="dash-row" data-status="{{ b.status }}" data-payment="{{ b.payment_status }}"
+                        data-date="{{ b.booking_date.timestamp() if b.booking_date else 0 }}"
+                        data-exact-date="{{ b.booking_date.strftime('%Y-%m-%d') if b.booking_date else '' }}">
+                        <td class="fw-bold">{{ b.booking_code or '#' ~ b.id }}</td>
+                        <td>
+                            <div class="fw-semibold">{{ b.passenger_name or (b.user.real_name or b.user.username if b.user else '—') }}</div>
+                            {% if b.user and b.user.phone %}<div class="small text-muted">{{ b.user.phone }}</div>{% endif %}
+                        </td>
+                        <td>
+                            {% if trip %}
+                            <div class="fw-semibold">{% if trip.bus %}{{ trip.bus.brand or '' }} {{ trip.bus.model }}{% endif %}</div>
+                            <div class="small text-muted">
+                                {% if trip.route %}{{ trip.route.origin }} &rarr; {{ trip.route.destination }} · {% endif %}{{ trip.departure_time.strftime('%d/%m/%Y %H:%M') }}
                             </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4 text-muted">
-                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
-                            Aucune opération récente
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+                            {% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        <td class="text-muted">{{ b.booking_date.strftime('%d/%m/%Y %H:%M') if b.booking_date else '—' }}</td>
+                        <td class="fw-bold text-end text-nowrap">{{ fcfa(b.price_paid) }}</td>
+                        <td>
+                            {% if b.payment_status == 'paid' %}<span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-check2"></i> Payé</span>
+                            {% elif b.payment_status == 'refunded' %}<span class="badge bg-secondary bg-opacity-10 text-secondary"><i class="bi bi-arrow-return-left"></i> Remboursé</span>
+                            {% else %}<span class="badge bg-warning bg-opacity-10 text-dark"><i class="bi bi-hourglass-split"></i> Non payé</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if b.status == 'confirmed' %}<span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle me-1"></i>Confirmée</span>
+                            {% elif b.status == 'cancelled' %}<span class="badge bg-danger bg-opacity-10 text-danger"><i class="bi bi-x-circle me-1"></i>Annulée</span>
+                            {% else %}<span class="badge bg-warning bg-opacity-10 text-dark"><i class="bi bi-hourglass me-1"></i>En attente</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr id="dashNoMatch" style="display: none;"><td colspan="7" class="text-center text-muted py-3">Aucune réservation ne correspond aux filtres.</td></tr>
+                </tbody>
+            </table>
         </div>
+        {% else %}
+        <p class="text-muted text-center py-4 mb-0">Aucune réservation pour le moment.</p>
+        {% endif %}
     </div>
-    {% endif %}
 
-    <!-- LIVE MINI CALENDAR on Dashboard -->
-    <div class="card bg-white border p-4 fade-in mb-4 shadow-xs" style="border-radius: 12px; border-color: #eaecf0 !important;">
+    <!-- Mini calendar -->
+    <div class="dash-card p-3 mb-4">
         <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-            <h5 class="mb-0 fw-bold">
-                <i class="bi bi-calendar3 me-2" style="color:#C92A2A;"></i>
-                Planning de Disponibilité des Véhicules VIP
-            </h5>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <!-- Legend -->
-                <span style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;">
-                    <span style="width:9px;height:9px;border-radius:50%;background:#198754;display:inline-block;"></span> Disponible
-                </span>
-                <span style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;">
-                    <span style="width:9px;height:9px;border-radius:50%;background:#0d6efd;display:inline-block;"></span> En Location
-                </span>
-                <span style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;">
-                    <span style="width:9px;height:9px;border-radius:50%;background:#fd7e14;display:inline-block;"></span> Réservé
-                </span>
-                <span style="font-size:.72rem;display:flex;align-items:center;gap:.3rem;">
-                    <span style="width:9px;height:9px;border-radius:50%;background:#dc3545;display:inline-block;"></span> Maintenance
-                </span>
-                <a href="{{ url_for('admin.calendar_view') }}" class="btn btn-sm btn-primary ms-1" style="border-radius:.6rem;font-size:.78rem;font-weight:700;">
-                    <i class="bi bi-arrows-fullscreen me-1"></i> Plein écran
-                </a>
+            <h2 class="dash-card-title"><i class="bi bi-calendar3 me-1" style="color: #E20713;"></i> Planning des missions</h2>
+            <div class="d-flex align-items-center gap-3 flex-wrap" style="font-size: .72rem;">
+                <span><span class="fleet-dot" style="background:#198754;"></span>Planifiée</span>
+                <span><span class="fleet-dot" style="background:#0d6efd;"></span>Confirmée</span>
+                <span><span class="fleet-dot" style="background:#fd7e14;"></span>Complète</span>
+                <span><span class="fleet-dot" style="background:#dc3545;"></span>Annulée</span>
+                <a href="{{ url_for('admin.calendar_view') }}" class="btn btn-sm btn-outline-secondary" style="font-size: .76rem;"><i class="bi bi-arrows-fullscreen me-1"></i> Plein écran</a>
             </div>
         </div>
-        <div class="fc-mini" id="dashMiniCal" style="min-height:360px;"></div>
+        <div class="fc-mini" id="dashMiniCal" style="min-height: 360px;"></div>
     </div>
 
-    <!-- Site Visitors & Clients (Name, Number & Location) -->
-    <div class="card bg-white border p-4 fade-in shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important;">
+    <!-- Site visitors & clients -->
+    <div class="dash-card p-3 mb-4">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <div>
-                <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-geo-alt-fill text-danger me-2"></i> Visiteurs &amp; Clients sur le Site (Nom, Numéro &amp; Localisation)</h5>
-                <small class="text-muted">Coordonnées des visiteurs et clients VIP enregistrés depuis le site.</small>
+                <h2 class="dash-card-title"><i class="bi bi-geo-alt-fill me-1" style="color: #E20713;"></i> Derniers visiteurs &amp; clients du site</h2>
+                <small class="text-muted">Nom, numéro et localisation laissés sur le site.</small>
             </div>
-            <a href="{{ url_for('admin.users') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Voir tous les clients &rarr;</a>
+            <a href="{{ url_for('admin.users') }}" class="btn btn-sm btn-outline-secondary">Tous les clients &rarr;</a>
         </div>
         {% if recent_visitors %}
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="min-width: 720px;">
+            <table class="table table-hover align-middle mb-0" style="min-width: 680px; font-size: .84rem;">
                 <thead>
-                    <tr>
-                        <th>Client / Visiteur (Name)</th>
-                        <th>Numéro (Phone / WhatsApp)</th>
-                        <th>Localisation (Location)</th>
-                        <th>Date Visite</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
+                    <tr><th>Nom</th><th>Téléphone / WhatsApp</th><th>Localisation</th><th>Inscrit le</th><th class="text-end">Actions</th></tr>
                 </thead>
                 <tbody>
                     {% for v in recent_visitors %}
                     {% set v_name = v.real_name or v.username %}
-                    {% set v_loc = v.address or v.city or 'Yaoundé — Tsinga' %}
+                    {% set v_loc = v.address or v.city %}
                     <tr>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
-                                     style="width: 30px; height: 30px; background: #fff1f2; color: #E20713; font-size: 0.72rem;">
-                                    {{ (v_name[:2]|upper) if v_name else 'CL' }}
-                                </div>
+                                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 30px; height: 30px; background: #fff1f2; color: #E20713; font-size: .72rem;" aria-hidden="true">{{ (v_name[:2]|upper) if v_name else '?' }}</div>
                                 <div>
-                                    <div class="fw-semibold text-dark small">{{ v_name }}</div>
-                                    <div class="text-muted" style="font-size: 0.68rem;">{{ v.email }}</div>
+                                    <div class="fw-semibold">{{ v_name }}</div>
+                                    {% if v.email and not v.email.endswith('@visiteur.3mservices.cm') %}<div class="text-muted" style="font-size: .7rem;">{{ v.email }}</div>{% endif %}
                                 </div>
                             </div>
                         </td>
-                        <td class="small fw-semibold text-dark">
-                            <i class="bi bi-whatsapp text-success me-1"></i>{{ v.phone or '+237 691 78 64 47' }}
-                        </td>
-                        <td>
-                            <span class="badge bg-light text-dark border fw-medium" style="font-size: 0.74rem;">
-                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ v_loc }}
-                            </span>
-                        </td>
-                        <td class="small text-muted">
-                            {{ v.created_at.strftime('%d/%m/%Y %H:%M') if v.created_at else '23/11/2026' }}
-                        </td>
+                        <td class="fw-semibold">{% if v.phone %}<i class="bi bi-whatsapp text-success me-1"></i>{{ v.phone }}{% else %}<span class="text-muted fw-normal">—</span>{% endif %}</td>
+                        <td>{% if v_loc %}<span class="badge bg-light text-dark border fw-medium"><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ v_loc }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                        <td class="text-muted">{{ v.created_at.strftime('%d/%m/%Y %H:%M') if v.created_at else '—' }}</td>
                         <td class="text-end text-nowrap">
-                            <a href="{{ url_for('admin.chats', client_id=v.username) }}" class="btn btn-xs btn-outline-danger rounded-pill px-2.5 me-1" title="Chat Privé">
-                                <i class="bi bi-chat-dots-fill"></i>
-                            </a>
-                            <a href="{{ url_for('admin.edit_user', id=v.id) }}" class="btn btn-xs btn-outline-secondary rounded-pill px-2.5" title="Fiche client">
-                                <i class="bi bi-eye"></i>
-                            </a>
+                            <a href="{{ url_for('admin.chats', client_id=v.username) }}" class="btn btn-sm btn-outline-danger py-0 px-2" title="Chat privé" aria-label="Chat avec {{ v_name }}"><i class="bi bi-chat-dots-fill"></i></a>
+                            <a href="{{ url_for('admin.edit_user', id=v.id) }}" class="btn btn-sm btn-outline-secondary py-0 px-2" title="Fiche client" aria-label="Fiche de {{ v_name }}"><i class="bi bi-eye"></i></a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -709,270 +534,177 @@
         {% endif %}
     </div>
 
-    <!-- Recent Bookings Table (RentQ Clean Style) -->
-    <div class="card bg-white border p-4 fade-in shadow-xs mb-4" style="border-radius: 12px; border-color: #eaecf0 !important;">
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-journal-check text-danger me-2"></i> Dernières Réservations de Location</h5>
-            <a href="{{ url_for('admin.bookings') }}" class="btn btn-sm btn-outline-secondary">Voir toutes les réservations</a>
+    {% if is_super %}
+    <!-- Live audit feed (super admin) -->
+    <div class="dash-card p-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h2 class="dash-card-title"><i class="bi bi-activity me-1" style="color: #E20713;"></i> Journal d'activité</h2>
+            <a href="{{ url_for('admin.logs') }}" class="btn btn-sm btn-outline-secondary">Journal d'audit complet</a>
         </div>
-        
-        <!-- Filter Bar -->
-        <div class="d-flex flex-wrap gap-2 mb-3 bg-light p-2.5 rounded-3 border align-items-center" style="border-color: #f1f3f5 !important;">
-            <div class="input-group input-group-sm" style="max-width: 200px;">
-                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                <input type="text" id="dashSearch" class="form-control border-start-0 ps-0" placeholder="Rechercher...">
-            </div>
-            
-            <select id="dashFilterStatus" class="form-select form-select-sm" style="width: auto;">
-                <option value="">Statut (Tous)</option>
-                <option value="confirmée">Confirmée</option>
-                <option value="en_attente">En attente</option>
-                <option value="annulée">Annulée</option>
-                <option value="locked">Locked</option>
-            </select>
-            
-            <div class="input-group input-group-sm" style="max-width: 160px;">
-                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-calendar-date"></i></span>
-                <input type="date" id="dashFilterExactDate" class="form-control border-start-0" title="Date de réservation">
-            </div>
-            
-            <select id="dashFilterDate" class="form-select form-select-sm" style="width: auto;">
-                <option value="newest">Du plus récent</option>
-                <option value="oldest">Du plus ancien</option>
-            </select>
-            
-            <button class="btn btn-sm btn-outline-secondary" onclick="resetDashFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
-        </div>
-        
-        {% if recent_bookings %}
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" style="min-width: 820px;">
-                    <thead>
-                        <tr>
-                            <th style="min-width: 100px;">Réf Contrat</th>
-                            <th style="min-width: 150px;">Client VIP</th>
-                            <th style="min-width: 160px;">Véhicule & Mission</th>
-                            <th style="min-width: 80px;">Formule</th>
-                            <th style="min-width: 130px;">Date Réservation</th>
-                            <th style="min-width: 110px;">Tarif Total</th>
-                            <th style="min-width: 100px;">Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dashTableBody">
-                        {% for b in recent_bookings %}
-                            <tr class="dash-row" data-status="{{ b.status|lower }}" data-date="{{ b.booking_date.timestamp() if b.booking_date else 0 }}" data-exact-date="{{ b.booking_date.strftime('%Y-%m-%d') if b.booking_date else '' }}">
-                                <td class="fw-bold" style="color: #101828;">{{ b.booking_code or '#' ~ b.id }}</td>
-                                <td>
-                                    <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">{{ b.passenger_name or b.user.username }}</div>
-                                    <div class="small text-muted">{{ b.user.phone or '' }}</div>
-                                </td>
-                                <td>
-                                    <div class="fw-semibold text-dark" style="font-size: 0.8125rem;">{{ b.trip.route.origin }} &rarr; {{ b.trip.route.destination }}</div>
-                                    <div class="small text-muted">{{ b.trip.departure_time.strftime('%d/%m/%Y %H:%M') }}</div>
-                                </td>
-                                <td><span class="badge bg-light text-dark fw-semibold border">{{ b.seat_number }}</span></td>
-                                <td class="text-muted">{{ b.booking_date.strftime('%d/%m/%Y %H:%M') if b.booking_date else '' }}</td>
-                                <td class="fw-bold text-dark">{{ b.price_paid | int }} FCFA</td>
-                                <td>
-                                    {% if b.status == 'confirmed' %}
-                                        <span class="badge bg-success-soft text-success"><i class="bi bi-check-circle me-1"></i> Confirmé</span>
-                                    {% elif b.status == 'cancelled' %}
-                                        <span class="badge bg-danger-soft text-danger"><i class="bi bi-x-circle me-1"></i> Annulé</span>
-                                    {% else %}
-                                        <span class="badge bg-warning-soft text-warning"><i class="bi bi-hourglass me-1"></i> En attente</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        {% if recent_audit_logs %}
+        <ul class="list-unstyled mb-0" style="max-height: 340px; overflow-y: auto;">
+            {% for log in recent_audit_logs %}
+            <li class="d-flex gap-3 py-2 {{ 'border-bottom' if not loop.last }}" style="font-size: .82rem;">
+                <span class="text-muted text-nowrap" style="width: 92px;">{{ log.created_at.strftime('%d/%m %H:%M') }}</span>
+                <div class="flex-grow-1 min-w-0">
+                    <span class="fw-semibold">{{ log.user.username if log.user else 'Système' }}</span>
+                    <span class="badge bg-dark ms-1" style="font-size: .62rem;">{{ log.action }}</span>
+                    {% if log.target_type %}<span class="text-muted ms-1">{{ log.target_type }} #{{ log.target_id }}</span>{% endif %}
+                    {% if log.details %}<div class="text-muted text-truncate">{{ log.details }}</div>{% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
         {% else %}
-            <p class="text-muted text-center py-4 mb-0">Aucune réservation récente trouvée.</p>
+        <p class="text-center py-3 text-muted mb-0">Aucune opération récente.</p>
         {% endif %}
     </div>
+    {% endif %}
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales-all.global.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // ── Bookings line chart ──────────────────────────────────
-    var ctx = document.getElementById('bookingsChart').getContext('2d');
-    var bookingsChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: {{ chart_labels|tojson }},
-            datasets: [{
-                label: 'Réservations',
-                data: {{ chart_data|tojson }},
-                borderColor: '#0d6efd',
-                backgroundColor: 'rgba(13, 110, 253, 0.05)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-                x: { grid: { display: false } }
-            }
-        }
-    });
+document.addEventListener('DOMContentLoaded', function () {
+    var fmtFcfa = function (v) { return Math.round(v).toLocaleString('fr-FR').replace(/ | /g, ' ') + ' FCFA'; };
+    var isDark = document.body.classList.contains('dark-mode');
+    var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)';
+    var tickColor = isDark ? '#94a3b8' : '#64748b';
 
-    // ── Mini Calendar on Dashboard ───────────────────────────
-    var miniCalEl = document.getElementById('dashMiniCal');
-    if (miniCalEl) {
-        var miniCal = new FullCalendar.Calendar(miniCalEl, {
-            initialView: 'dayGridMonth',
-            locale: 'fr',
-            headerToolbar: {
-                left: 'prev,next',
-                center: 'title',
-                right: 'today'
-            },
-            buttonText: { today: "Auj." },
-            height: 'auto',
-            editable: false,
-            selectable: false,
-            nowIndicator: true,
-            eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
-            events: function(fetchInfo, successCallback, failureCallback) {
-                fetch('/api/admin/calendar/events?start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr)
-                    .then(r => r.json())
-                    .then(data => successCallback(data))
-                    .catch(err => failureCallback(err));
-            },
-            eventClick: function(info) {
-                window.location.href = '{{ url_for("admin.calendar_view") }}';
-            },
-            eventContent: function(arg) {
-                var p = arg.event.extendedProps;
-                var seats = (p.booked || 0) + '/' + (p.capacity || '?');
-                return {
-                    html: '<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.65rem;font-weight:700;padding:0 2px;">'
-                        + arg.event.title + ' <span style="opacity:.8;">(' + seats + ')</span></div>'
-                };
-            }
-        });
-        miniCal.render();
-    }
+    // ── Daily charts (one measure per chart, no dual axis) ───────────────
+    var ALL_LABELS = {{ chart_labels|tojson }};
+    var ALL_BOOKINGS = {{ chart_bookings|tojson }};
+    var ALL_REVENUE = {{ chart_revenue|tojson }};
 
-    // ── Timeframe grouping selection and export url updates ─────────────────
-    const rangeRadios = document.querySelectorAll('input[name="dashboardRange"]');
-    const btnExportPdf = document.getElementById('btnExportPdf');
-    const btnExportCsv = document.getElementById('btnExportCsv');
-    
-    // Elements to toggle
-    const toggleElements = [
-        'metricCarsOut', 'metricTripsCount', 'metricActiveCustomers', 'metricBusesActive', 
-        'metricApartments', 'metricPromo', 
-        'metricActiveTrips', 'metricUpcomingTrips', 'metricCancelledTrips', 
-        'metricNewCustomers', 'metricRepeatCustomers', 'metricBookingsCount', 
-        'metricConfirmedBookings', 'metricPendingBookings', 'metricCancelledBookings',
-        'metricBusesMaint', 'metricDriversActive'
-    ];
-    
-    function switchRange(range) {
-        toggleElements.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                const val = el.getAttribute('data-' + range);
-                if (val !== null) {
-                    el.textContent = val;
+    function barChart(id, data, color, label, tooltipFmt, tickFmt) {
+        var el = document.getElementById(id);
+        if (!el || typeof Chart === 'undefined') return null;
+        return new Chart(el, {
+            type: 'bar',
+            data: { labels: ALL_LABELS.slice(-7), datasets: [{ label: label, data: data.slice(-7), backgroundColor: color, borderRadius: 4, maxBarThickness: 22 }] },
+            options: {
+                responsive: true, maintainAspectRatio: false, animation: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return tooltipFmt(c.parsed.y); } } } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: gridColor }, border: { display: false }, ticks: { color: tickColor, precision: 0, callback: tickFmt } },
+                    x: { grid: { display: false }, ticks: { color: tickColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } }
                 }
             }
         });
-        
-        // Update export button href parameters dynamically
-        if (btnExportPdf) {
-            const baseUrl = "{{ url_for('admin.export_dashboard_pdf') }}";
-            btnExportPdf.href = baseUrl + '?range=' + range;
-        }
-        if (btnExportCsv) {
-            const baseUrl = "{{ url_for('admin.export_dashboard_csv') }}";
-            btnExportCsv.href = baseUrl + '?range=' + range;
-        }
     }
-    
-    rangeRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.checked) {
-                switchRange(this.value);
-            }
+    var chartBookings = barChart('chartBookings', ALL_BOOKINGS, isDark ? '#94a3b8' : '#475569', 'Réservations',
+        function (v) { return v + ' réservation' + (v > 1 ? 's' : ''); }, undefined);
+    var chartRevenue = barChart('chartRevenue', ALL_REVENUE, '#E20713', 'Encaissé',
+        fmtFcfa, function (v) { return v >= 1000 ? (v / 1000).toLocaleString('fr-FR') + ' k' : v; });
+
+    function setChartSpan(days) {
+        [[chartBookings, ALL_BOOKINGS], [chartRevenue, ALL_REVENUE]].forEach(function (pair) {
+            if (!pair[0]) return;
+            pair[0].data.labels = ALL_LABELS.slice(-days);
+            pair[0].data.datasets[0].data = pair[1].slice(-days);
+            pair[0].update();
+        });
+        document.querySelectorAll('.js-chart-span').forEach(function (el) { el.textContent = days + ' derniers jours'; });
+    }
+
+    // ── Period switcher: KPI values, chart span, export links ────────────
+    var exportPdfBase = "{{ url_for('admin.export_dashboard_pdf') }}";
+    var exportCsvBase = "{{ url_for('admin.export_dashboard_csv') }}";
+    document.querySelectorAll('input[name="dashboardRange"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            if (!this.checked) return;
+            var range = this.value;
+            document.querySelectorAll('.js-range').forEach(function (el) {
+                var v = el.getAttribute('data-' + range);
+                if (v !== null) el.textContent = v;
+            });
+            document.querySelectorAll('.date-filter-btn').forEach(function (l) {
+                l.classList.toggle('active', l.getAttribute('for') === radio.id);
+            });
+            setChartSpan(range === 'day' || range === 'week' ? 7 : 30);
+            document.getElementById('btnExportPdf').href = exportPdfBase + '?range=' + range;
+            document.getElementById('btnExportCsv').href = exportCsvBase + '?range=' + range;
         });
     });
-});
 
-// Dashboard Filter Logic
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('dashSearch');
-    const filterStatus = document.getElementById('dashFilterStatus');
-    const filterDate = document.getElementById('dashFilterDate');
-    const filterExactDate = document.getElementById('dashFilterExactDate');
-    const tableBody = document.getElementById('dashTableBody');
-    
-    if(!tableBody) return;
+    var nowEl = document.getElementById('dashNow');
+    if (nowEl) {
+        nowEl.textContent = new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Douala', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ── Mini calendar ────────────────────────────────────────────────────
+    var miniCalEl = document.getElementById('dashMiniCal');
+    if (miniCalEl && typeof FullCalendar !== 'undefined') {
+        new FullCalendar.Calendar(miniCalEl, {
+            initialView: 'dayGridMonth',
+            locale: 'fr',
+            timeZone: 'local',
+            headerToolbar: { left: 'prev,next', center: 'title', right: 'today' },
+            buttonText: { today: "Auj." },
+            height: 'auto',
+            nowIndicator: true,
+            eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+            events: function (info, ok, fail) {
+                fetch('/api/admin/calendar/events?start=' + encodeURIComponent(info.startStr) + '&end=' + encodeURIComponent(info.endStr))
+                    .then(function (r) { return r.json(); }).then(ok).catch(fail);
+            },
+            eventDidMount: function (arg) {
+                var p = arg.event.extendedProps || {};
+                if (p.bus) arg.el.title = arg.event.title + ' — ' + p.bus;
+            },
+            eventClick: function (info) {
+                info.jsEvent.preventDefault();
+                window.location.href = "{{ url_for('missions.mission_detail', id=0) }}".replace(/0$/, info.event.id);
+            }
+        }).render();
+    }
+
+    // ── Recent bookings filters ──────────────────────────────────────────
+    var tbody = document.getElementById('dashTableBody');
+    if (!tbody) return;
+    var search = document.getElementById('dashSearch');
+    var fStatus = document.getElementById('dashFilterStatus');
+    var fPay = document.getElementById('dashFilterPayment');
+    var fDate = document.getElementById('dashFilterExactDate');
+    var fSort = document.getElementById('dashFilterDate');
+    var noMatch = document.getElementById('dashNoMatch');
 
     function applyFilters() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = filterStatus.value.toLowerCase();
-        const sortValue = filterDate.value;
-        const exactDateValue = filterExactDate ? filterExactDate.value : "";
-        
-        let rows = Array.from(tableBody.querySelectorAll('tr.dash-row'));
-        
-        rows.forEach(row => {
-            const targetStatus = row.getAttribute('data-status');
-            const rowText = row.innerText.toLowerCase();
-            const rowExactDate = row.getAttribute('data-exact-date');
-            
-            const matchesSearch = rowText.includes(searchTerm);
-            const matchesStatus = (statusValue === "" || targetStatus === statusValue);
-            const matchesDate = (exactDateValue === "" || rowExactDate === exactDateValue);
-            
-            if (matchesSearch && matchesStatus && matchesDate) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
+        var term = search.value.trim().toLowerCase();
+        var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr.dash-row'));
+        var shown = 0;
+        rows.forEach(function (row) {
+            var ok = (!term || row.innerText.toLowerCase().indexOf(term) !== -1)
+                && (!fStatus.value || row.dataset.status === fStatus.value)
+                && (!fPay.value || row.dataset.payment === fPay.value)
+                && (!fDate.value || row.dataset.exactDate === fDate.value);
+            row.style.display = ok ? '' : 'none';
+            if (ok) shown++;
         });
-        
-        rows.sort((a, b) => {
-            const dateA = parseFloat(a.getAttribute('data-date'));
-            const dateB = parseFloat(b.getAttribute('data-date'));
-            return sortValue === 'newest' ? dateB - dateA : dateA - dateB;
+        rows.sort(function (a, b) {
+            var d = parseFloat(b.dataset.date) - parseFloat(a.dataset.date);
+            return fSort.value === 'newest' ? d : -d;
         });
-        
-        rows.forEach(row => tableBody.appendChild(row));
+        rows.forEach(function (row) { tbody.insertBefore(row, noMatch); });
+        noMatch.style.display = shown ? 'none' : '';
     }
-    
-    if(searchInput) searchInput.addEventListener('input', applyFilters);
-    if(filterStatus) filterStatus.addEventListener('change', applyFilters);
-    if(filterDate) filterDate.addEventListener('change', applyFilters);
-    if(filterExactDate) filterExactDate.addEventListener('change', applyFilters);
-    
-    window.resetDashFilters = function() {
-        if(searchInput) searchInput.value = '';
-        if(filterStatus) filterStatus.value = '';
-        if(filterDate) filterDate.value = 'newest';
-        if(filterExactDate) filterExactDate.value = '';
+    [search].forEach(function (el) { el.addEventListener('input', applyFilters); });
+    [fStatus, fPay, fDate, fSort].forEach(function (el) { el.addEventListener('change', applyFilters); });
+    document.getElementById('dashReset').addEventListener('click', function () {
+        search.value = ''; fStatus.value = ''; fPay.value = ''; fDate.value = ''; fSort.value = 'newest';
         applyFilters();
-    };
+    });
 });
 </script>
 
+<div class="dash-scope">
 <!-- ==================== QUICK ACTION MODALS (3M SERVICES) ==================== -->
 <!-- 1. Nouvelle Réservation VIP Modal (Reuses existing client to prevent duplicates) -->
 <div class="modal fade" id="qaReservationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem; overflow: hidden;">
-            <div class="modal-header text-white border-0 py-3 px-4" style="background: #D62828;">
+            <div class="modal-header text-white border-0 py-3 px-4" style="background: #E20713;">
                 <div>
                     <h5 class="modal-title fw-bold mb-0"><i class="bi bi-calendar-plus-fill me-2"></i>Nouvelle Réservation VIP</h5>
                     <small class="opacity-75">Réutilisez un client existant (zéro doublon) • Contrôle automatique des disponibilités</small>
@@ -1206,74 +938,5 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 {% endif %}
-
-<!-- 4. Ajouter un Appartement VIP Modal -->
-<div class="modal fade" id="qaApartmentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem; overflow: hidden;">
-            <div class="modal-header text-white border-0 py-3 px-4" style="background: #D62828;">
-                <div>
-                    <h5 class="modal-title fw-bold mb-0"><i class="bi bi-building-add me-2"></i>Ajouter un Appartement VIP</h5>
-                    <small class="opacity-75">Enregistrement rapide d'une résidence meublée haut standing</small>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{{ url_for('missions.qa_create_apartment') }}">
-                <div class="modal-body p-4">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Nom de l'Appartement *</label>
-                            <input type="text" name="title" class="form-control rounded-3" required placeholder="Ex: Suite Penthouse Tsinga Face FECAFOOT">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Type de Bien</label>
-                            <select name="type" class="form-select rounded-3">
-                                <option value="Appartement VIP">Appartement VIP</option>
-                                <option value="Duplex Prestige">Duplex Prestige</option>
-                                <option value="Studio Haut Standing">Studio Haut Standing</option>
-                                <option value="Villa VIP">Villa VIP</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Tarif / Nuit (FCFA) *</label>
-                            <input type="number" name="price" class="form-control rounded-3 fw-bold" required value="65000" min="5000" step="1000">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Localisation</label>
-                            <input type="text" name="location" class="form-control rounded-3" value="Yaoundé — Tsinga (Face FECAFOOT)">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Configuration Pièces</label>
-                            <input type="text" name="rooms" class="form-control rounded-3" value="2 Chambres + Salon">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Statut Disponibilité</label>
-                            <select name="status" class="form-select rounded-3">
-                                <option value="Disponible">Disponible</option>
-                                <option value="Occupé">Occupé</option>
-                                <option value="Entretien">Entretien</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Équipements Clés</label>
-                            <input type="text" name="equipments" class="form-control rounded-3" value="Wi-Fi Fibre, Climatisation, Parking, Sécurité 24/7">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Photo Principale (URL optionnelle)</label>
-                            <input type="text" name="image" class="form-control rounded-3" placeholder="https://... ou /static/images/appartement.jpg">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label small fw-bold text-uppercase text-muted">Description</label>
-                            <textarea name="description" rows="2" class="form-control rounded-3" placeholder="Standing, accès, services inclus..."></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 px-4 pb-4 pt-0">
-                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-danger rounded-3 px-4 fw-bold"><i class="bi bi-check-circle me-1"></i> Enregistrer Appartement</button>
-                </div>
-            </form>
-        </div>
-    </div>
 </div>
 {% endblock %}

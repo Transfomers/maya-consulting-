@@ -1,13 +1,14 @@
 import os
 import json
 import random
+import time
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app, session
 from werkzeug.security import generate_password_hash
 from flask_login import login_required, current_user
 from app.models import User, Agency, Bus, Route, Trip, Booking, Payment, Feedback, AuditLog, SystemNotification, Driver, CaisseSession, Parcel, TripSchedule, Apartment
 from app import db
 from datetime import datetime, date, timedelta
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, and_, case
 
 admin = Blueprint('admin', __name__)
 
@@ -1039,6 +1040,17 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
             Parcel.status != 'cancelled'
         ).scalar() or 0.0
     
+    # 1c. Collected revenue, all payment methods (cash, MoMo, OM, card, transfer),
+    #     and the amount still to collect on confirmed but unpaid bookings.
+    period_confirmed = bookings_query.filter(
+        Booking.booking_date.between(start_dt, end_dt),
+        Booking.status == 'confirmed'
+    )
+    revenue_collected = period_confirmed.filter(Booking.payment_status == 'paid') \
+        .with_entities(func.coalesce(func.sum(Booking.price_paid), 0)).scalar() or 0.0
+    revenue_outstanding = period_confirmed.filter(Booking.payment_status != 'paid') \
+        .with_entities(func.coalesce(func.sum(Booking.price_paid), 0)).scalar() or 0.0
+
     # 2. Operations / Trips
     trips_count = trips_in_period.count()
     active_trips = active_trips_query.count()
@@ -1095,6 +1107,8 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
     return {
         'revenue': float(revenue),
         'parcel_revenue': float(parcel_revenue),
+        'revenue_collected': float(revenue_collected),
+        'revenue_outstanding': float(revenue_outstanding),
         'trips_count': trips_count,
         'active_trips': active_trips,
         'upcoming_trips': upcoming_trips,
@@ -1118,242 +1132,175 @@ def get_dashboard_stats(agency_id, start_dt, end_dt):
         'promo_count': promo_count
     }
 
+# Background jobs the dashboard used to run on *every* page load. They write to
+# the database, so we run them at most once every few minutes per process.
+_DASHBOARD_JOB_LAST_RUN = {}
+_DASHBOARD_JOB_INTERVAL_SECONDS = 300
+
+
+def _run_dashboard_job_throttled(key, job):
+    now_ts = time.monotonic()
+    last = _DASHBOARD_JOB_LAST_RUN.get(key)
+    if last is not None and now_ts - last < _DASHBOARD_JOB_INTERVAL_SECONDS:
+        return
+    _DASHBOARD_JOB_LAST_RUN[key] = now_ts
+    job()
+
+
+# Trip statuses that mean the vehicle has been handed back or the mission is over.
+_TRIP_CLOSED_STATUSES = ('cancelled', 'completed', 'arrived', 'archived')
+
+
+def _trip_client_label(trip):
+    """Best available client name for a mission, without inventing one."""
+    if trip.contact_person:
+        return trip.contact_person
+    booking = trip.bookings.filter_by(is_deleted=False).first()
+    if booking:
+        if booking.passenger_name:
+            return booking.passenger_name
+        if booking.user:
+            return booking.user.real_name or booking.user.username
+    return None
+
+
 @admin.route('/admin')
 @admin.route('/admin/dashboard')
 @login_required
 @admin_required
 def dashboard():
-    check_due_vehicle_restitutions()
-    sync_visitors_and_customers_from_db_json()
-    recent_visitors = User.query.filter_by(role='client', is_deleted=False).order_by(User.created_at.desc(), User.id.desc()).limit(8).all()
-    today = date.today()
-    chart_labels = []
-    chart_data = []
-    
-    # Calculate last 7 days chart labels
-    for i in range(7):
-        day = today - timedelta(days=6-i)
-        chart_labels.append(day.strftime('%a'))
+    _run_dashboard_job_throttled('restitutions', check_due_vehicle_restitutions)
+    _run_dashboard_job_throttled('visitor_sync', sync_visitors_and_customers_from_db_json)
 
-    # Range dates for Day, Week, Month
-    day_start = datetime.combine(today, datetime.min.time())
-    day_end = datetime.combine(today, datetime.max.time())
-    week_start = datetime.combine(today - timedelta(days=6), datetime.min.time())
-    month_start = datetime.combine(today - timedelta(days=29), datetime.min.time())
-
-    if current_user.role == 'super_admin':
-        # Super Admin - Global stats (filter out soft-deleted)
-        total_agencies = Agency.query.filter_by(is_deleted=False).count()
-        total_users = User.query.filter_by(role='client', is_deleted=False).count()
-        total_buses = Bus.query.filter_by(is_deleted=False).count()
-        total_routes = Route.query.filter_by(is_deleted=False).count()
-        total_bookings = Booking.query.filter_by(is_deleted=False).count()
-        total_feedback = Feedback.query.count()
-        
-        # Recent bookings (global)
-        recent_bookings = Booking.query.filter_by(is_deleted=False).order_by(Booking.booking_date.desc().nulls_last()).limit(5).all()
-        
-        # Total revenue (global) - Only Mobile Money (MoMo/OM)
-        total_revenue = db.session.query(func.sum(Booking.price_paid)).filter(
-            Booking.status == 'confirmed',
-            Booking.payment_method.in_(['momo', 'orange']),
-            Booking.is_deleted == False
-        ).scalar() or 0
-        
-        # Total Parcel Revenue
-        total_parcel_revenue = db.session.query(func.sum(Parcel.price)).filter(
-            Parcel.payment_status == 'paid',
-            Parcel.status != 'cancelled'
-        ).scalar() or 0
-        
-        # Today's stats
-        todays_bookings = Booking.query.filter(func.date(Booking.booking_date) == today, Booking.is_deleted == False).count()
-        todays_revenue = db.session.query(func.sum(Booking.price_paid)).filter(
-            func.date(Booking.booking_date) == today,
-            Booking.status == 'confirmed',
-            Booking.payment_method.in_(['momo', 'orange']),
-            Booking.is_deleted == False
-        ).scalar() or 0
-        todays_users = User.query.filter(func.date(User.created_at) == today, User.role == 'client', User.is_deleted == False).count()
-        
-        # 7-day bookings chart data (global)
-        for i in range(7):
-            day = today - timedelta(days=6-i)
-            count = Booking.query.filter(func.date(Booking.booking_date) == day, Booking.is_deleted == False).count()
-            chart_data.append(count)
-            
-        caisse = get_current_caisse(None)
-        
-        # Grouped stats for Super Admin
-        stats_day = get_dashboard_stats(None, day_start, day_end)
-        stats_week = get_dashboard_stats(None, week_start, day_end)
-        stats_month = get_dashboard_stats(None, month_start, day_end)
-        stats_all = get_dashboard_stats(None, datetime(2000, 1, 1), datetime(2100, 1, 1))
-        
-        # 6 Overview Metrics
-        total_apartments = Apartment.query.filter_by(is_deleted=False).count()
-        available_apartments = Apartment.query.filter_by(status='Disponible', is_deleted=False).count()
-        total_promos = Bus.query.filter_by(is_promo=True, is_deleted=False).count()
-        total_missions = Trip.query.filter_by(is_deleted=False).count()
-        cars_out_count = db.session.query(Trip.bus_id).filter(
-            Trip.departure_time <= datetime.now(),
-            Trip.arrival_time >= datetime.now(),
-            Trip.status != 'cancelled',
-            Trip.is_deleted == False
-        ).distinct().count()
-
-        # Recent audit logs for Live Operations Feed
-        recent_audit_logs = AuditLog.query.order_by(AuditLog.created_at.desc()).limit(20).all()
-
-        from app.routes.missions import build_quick_actions_context
-        return render_template('admin/dashboard.html',
-                             is_super=True,
-                             total_agencies=total_agencies,
-                             total_users=total_users,
-                             total_clients=total_users,
-                             total_buses=total_buses,
-                             total_vehicles=total_buses,
-                             total_routes=total_routes,
-                             total_missions=total_missions,
-                             cars_out_count=cars_out_count,
-                             total_apartments=total_apartments,
-                             available_apartments=available_apartments,
-                             total_promos=total_promos,
-                             total_bookings=total_bookings,
-                             total_feedback=total_feedback,
-                             total_revenue=total_revenue,
-                             total_parcel_revenue=total_parcel_revenue,
-                             recent_bookings=recent_bookings,
-                             todays_bookings=todays_bookings,
-                             todays_revenue=todays_revenue,
-                             todays_users=todays_users,
-                             chart_labels=chart_labels,
-                             chart_data=chart_data,
-                             caisse=caisse,
-                             stats_day=stats_day,
-                             stats_week=stats_week,
-                             stats_month=stats_month,
-                             stats_all=stats_all,
-                             recent_audit_logs=recent_audit_logs,
-                             recent_visitors=recent_visitors,
-                             **build_quick_actions_context())
-                             
-    else:
-        # Agency Admin - Scoped stats
+    is_super = current_user.role == 'super_admin'
+    agency = None
+    agency_id = None
+    if not is_super:
         agency = current_user.agency
         if not agency:
             flash('Erreur: Aucune agence associée à votre compte.', 'danger')
             return redirect(url_for('main.index'))
-            
-        total_buses = Bus.query.filter_by(agency_id=agency.id, is_deleted=False).count()
-        total_routes = Route.query.filter_by(agency_id=agency.id, is_deleted=False).count()
-        
-        # Scoped trips
-        trip_ids_query = db.session.query(Trip.id).join(Route).filter(Route.agency_id == agency.id, Trip.is_deleted == False)
-        total_trips = trip_ids_query.count()
-        
-        # Scoped bookings
-        bookings_query = Booking.query.filter(Booking.trip_id.in_(trip_ids_query), Booking.is_deleted == False)
-        total_bookings = bookings_query.count()
-        
-        # Scoped feedback (via trips)
-        total_feedback = Feedback.query.filter(Feedback.trip_id.in_(trip_ids_query)).count()
-        
-        # Scoped recent bookings
-        recent_bookings = bookings_query.order_by(Booking.booking_date.desc().nulls_last()).limit(5).all()
-        
-        # Scoped revenue
-        total_revenue = db.session.query(func.sum(Booking.price_paid)).join(Trip).join(Route).filter(
-            Route.agency_id == agency.id,
-            Booking.status == 'confirmed',
-            Booking.is_deleted == False
-        ).scalar() or 0
-        
-        # Total Parcel Revenue (agency)
-        total_parcel_revenue = db.session.query(func.sum(Parcel.price)).filter(
-            Parcel.agency_id == agency.id,
-            Parcel.payment_status == 'paid',
-            Parcel.status != 'cancelled'
-        ).scalar() or 0
-        
-        # Scoped today's stats
-        todays_bookings = Booking.query.filter(
-            Booking.trip_id.in_(trip_ids_query),
-            func.date(Booking.booking_date) == today,
-            Booking.is_deleted == False
-        ).count()
-        
-        todays_revenue = db.session.query(func.sum(Booking.price_paid)).filter(
-            Booking.trip_id.in_(trip_ids_query),
-            func.date(Booking.booking_date) == today,
-            Booking.status == 'confirmed',
-            Booking.is_deleted == False
-        ).scalar() or 0
-        todays_users = 0 # Users are global
-        
-        # 7-day bookings chart data (scoped)
-        for i in range(7):
-            day = today - timedelta(days=6-i)
-            count = Booking.query.filter(
-                Booking.trip_id.in_(trip_ids_query),
-                func.date(Booking.booking_date) == day,
-                Booking.is_deleted == False
-            ).count()
-            chart_data.append(count)
-            
-        caisse = get_current_caisse(agency.id)
-        
-        # Grouped stats for Agency Admin
-        stats_day = get_dashboard_stats(agency.id, day_start, day_end)
-        stats_week = get_dashboard_stats(agency.id, week_start, day_end)
-        stats_month = get_dashboard_stats(agency.id, month_start, day_end)
-        stats_all = get_dashboard_stats(agency.id, datetime(2000, 1, 1), datetime(2100, 1, 1))
+        agency_id = agency.id
 
-        # 6 Overview Metrics
-        total_apartments = Apartment.query.filter_by(is_deleted=False).count()
-        available_apartments = Apartment.query.filter_by(status='Disponible', is_deleted=False).count()
-        total_promos = Bus.query.filter_by(agency_id=agency.id, is_promo=True, is_deleted=False).count()
-        total_missions = total_trips
-        total_clients = User.query.filter_by(role='client', is_deleted=False).count()
-        cars_out_count = db.session.query(Trip.bus_id).join(Route).filter(
-            Route.agency_id == agency.id,
-            Trip.departure_time <= datetime.now(),
-            Trip.arrival_time >= datetime.now(),
-            Trip.status != 'cancelled',
-            Trip.is_deleted == False
-        ).distinct().count()
+    now = datetime.now()
+    today = now.date()
+    day_start = datetime.combine(today, datetime.min.time())
+    day_end = datetime.combine(today, datetime.max.time())
+    week_start = day_start - timedelta(days=6)
+    month_start = day_start - timedelta(days=29)
 
-        from app.routes.missions import build_quick_actions_context
-        return render_template('admin/dashboard.html',
-                             is_super=False,
-                             agency=agency,
-                             total_buses=total_buses,
-                             total_vehicles=total_buses,
-                             total_routes=total_routes,
-                             total_trips=total_trips,
-                             total_missions=total_missions,
-                             total_clients=total_clients,
-                             cars_out_count=cars_out_count,
-                             total_apartments=total_apartments,
-                             available_apartments=available_apartments,
-                             total_promos=total_promos,
-                             total_bookings=total_bookings,
-                             total_feedback=total_feedback,
-                             total_revenue=total_revenue,
-                             total_parcel_revenue=total_parcel_revenue,
-                             recent_bookings=recent_bookings,
-                             todays_bookings=todays_bookings,
-                             todays_revenue=todays_revenue,
-                             todays_users=todays_users,
-                             chart_labels=chart_labels,
-                             chart_data=chart_data,
-                             caisse=caisse,
-                             stats_day=stats_day,
-                             stats_week=stats_week,
-                             stats_month=stats_month,
-                             stats_all=stats_all,
-                             recent_visitors=recent_visitors,
-                             **build_quick_actions_context())
+    # ── Period KPIs (Today / 7 days / 30 days / All) ─────────────────────
+    stats_day = get_dashboard_stats(agency_id, day_start, day_end)
+    stats_week = get_dashboard_stats(agency_id, week_start, day_end)
+    stats_month = get_dashboard_stats(agency_id, month_start, day_end)
+    stats_all = get_dashboard_stats(agency_id, datetime(2000, 1, 1), datetime(2100, 1, 1))
+
+    # ── Scoped base queries (global for super admin, agency otherwise) ───
+    trip_q = Trip.query.filter(Trip.is_deleted == False)
+    bus_q = Bus.query.filter(Bus.is_deleted == False)
+    booking_q = Booking.query.filter(Booking.is_deleted == False)
+    if agency_id:
+        agency_trip_ids = db.session.query(Trip.id).join(Route).filter(
+            Route.agency_id == agency_id, Trip.is_deleted == False)
+        trip_q = trip_q.join(Route).filter(Route.agency_id == agency_id)
+        bus_q = bus_q.filter(Bus.agency_id == agency_id)
+        booking_q = booking_q.filter(Booking.trip_id.in_(agency_trip_ids))
+
+    # ── Live fleet status ────────────────────────────────────────────────
+    rented_bus_ids = [bid for (bid,) in trip_q.filter(
+        Trip.departure_time <= now,
+        Trip.arrival_time >= now,
+        Trip.status.notin_(_TRIP_CLOSED_STATUSES)
+    ).with_entities(Trip.bus_id).distinct()]
+    fleet_total = bus_q.count()
+    fleet_maintenance = bus_q.filter(Bus.status == 'maintenance').count()
+    fleet_rented = bus_q.filter(Bus.status != 'maintenance', Bus.id.in_(rented_bus_ids)).count() if rented_bus_ids else 0
+    fleet = {
+        'total': fleet_total,
+        'available': max(0, fleet_total - fleet_maintenance - fleet_rented),
+        'rented': fleet_rented,
+        'maintenance': fleet_maintenance,
+        'promo': bus_q.filter(Bus.is_promo == True).count(),
+    }
+
+    # ── Pickups & returns in the next 48 h, plus overdue returns ─────────
+    horizon = now + timedelta(hours=48)
+    open_trips = trip_q.filter(Trip.status.notin_(_TRIP_CLOSED_STATUSES))
+    movements = []
+    for t in open_trips.filter(Trip.departure_time.between(now, horizon)).order_by(Trip.departure_time).limit(15):
+        movements.append({'kind': 'pickup', 'at': t.departure_time, 'trip': t})
+    for t in open_trips.filter(Trip.arrival_time.between(now, horizon)).order_by(Trip.arrival_time).limit(15):
+        movements.append({'kind': 'return', 'at': t.arrival_time, 'trip': t})
+    overdue_trips = open_trips.filter(Trip.arrival_time < now).order_by(Trip.arrival_time).limit(10).all()
+    for t in overdue_trips:
+        movements.append({'kind': 'overdue', 'at': t.arrival_time, 'trip': t})
+    kind_order = {'overdue': 0, 'pickup': 1, 'return': 1}
+    movements.sort(key=lambda m: (kind_order[m['kind']], m['at']))
+    for m in movements:
+        m['client'] = _trip_client_label(m['trip'])
+
+    # ── 30-day series: bookings count and collected revenue per day ──────
+    day_col = func.date(Booking.booking_date)
+    paid_amount = case(
+        (and_(Booking.status == 'confirmed', Booking.payment_status == 'paid'), Booking.price_paid),
+        else_=0)
+    series_rows = booking_q.filter(Booking.booking_date >= month_start) \
+        .with_entities(day_col, func.count(Booking.id), func.coalesce(func.sum(paid_amount), 0)) \
+        .group_by(day_col).all()
+    by_day = {str(d)[:10]: (int(c or 0), float(r or 0)) for d, c, r in series_rows}
+    chart_labels, chart_bookings, chart_revenue = [], [], []
+    for i in range(30):
+        d = today - timedelta(days=29 - i)
+        c, r = by_day.get(d.isoformat(), (0, 0.0))
+        chart_labels.append(d.strftime('%d/%m'))
+        chart_bookings.append(c)
+        chart_revenue.append(r)
+
+    # ── Top vehicles over the last 30 days (missions & mission value) ───
+    top_rows = trip_q.filter(
+        Trip.departure_time >= month_start,
+        Trip.status != 'cancelled'
+    ).with_entities(Trip.bus_id, func.count(Trip.id), func.coalesce(func.sum(Trip.price), 0)) \
+        .group_by(Trip.bus_id).order_by(func.count(Trip.id).desc()).limit(5).all()
+    top_bus_map = {b.id: b for b in Bus.query.filter(Bus.id.in_([r[0] for r in top_rows])).all()} if top_rows else {}
+    top_vehicles = [
+        {'bus': top_bus_map.get(bid), 'missions': int(cnt), 'value': float(val)}
+        for bid, cnt, val in top_rows if top_bus_map.get(bid)
+    ]
+
+    # ── Tables ───────────────────────────────────────────────────────────
+    recent_bookings = booking_q.order_by(Booking.booking_date.desc().nulls_last()).limit(50).all()
+    recent_visitors = User.query.filter_by(role='client', is_deleted=False) \
+        .order_by(User.created_at.desc(), User.id.desc()).limit(8).all()
+    recent_audit_logs = AuditLog.query.order_by(AuditLog.created_at.desc()).limit(20).all() if is_super else []
+
+    total_apartments = Apartment.query.filter_by(is_deleted=False).count()
+    available_apartments = Apartment.query.filter_by(status='Disponible', is_deleted=False).count()
+
+    from app.routes.missions import build_quick_actions_context
+    return render_template('admin/dashboard.html',
+                           is_super=is_super,
+                           agency=agency,
+                           stats_day=stats_day,
+                           stats_week=stats_week,
+                           stats_month=stats_month,
+                           stats_all=stats_all,
+                           fleet=fleet,
+                           movements=movements,
+                           overdue_count=len(overdue_trips),
+                           chart_labels=chart_labels,
+                           chart_bookings=chart_bookings,
+                           chart_revenue=chart_revenue,
+                           top_vehicles=top_vehicles,
+                           recent_bookings=recent_bookings,
+                           recent_visitors=recent_visitors,
+                           recent_audit_logs=recent_audit_logs,
+                           total_apartments=total_apartments,
+                           available_apartments=available_apartments,
+                           public_site_url=current_app.config.get('PUBLIC_SITE_URL'),
+                           today_date=today,
+                           tomorrow_date=today + timedelta(days=1),
+                           **build_quick_actions_context())
 
 
 # === EXPORTS FOR DASHBOARD GROUPED STATS ===
@@ -1940,7 +1887,6 @@ def sync_visitors_and_customers_from_db_json():
     try:
         with open(db_path, 'r', encoding='utf-8') as f:
             exp_db = json.load(f)
-        changed = False
         for entry in (exp_db.get('visitors', []) + exp_db.get('customers', [])):
             v_name = (entry.get('name') or entry.get('clientName') or '').strip()
             v_phone = (entry.get('phone') or '').strip()
@@ -1949,9 +1895,8 @@ def sync_visitors_and_customers_from_db_json():
             v_email = (entry.get('email') or '').strip()
             if v_name or v_phone:
                 _upsert_visitor_user(v_name, v_phone, v_loc, v_city, v_email)
-                changed = True
-        if changed:
-            db.session.commit()
+        # _upsert_visitor_user flushes as it goes; commit whatever it wrote.
+        db.session.commit()
     except Exception as e:
         db.session.rollback()
         current_app.logger.warning(f"Error syncing visitors from db.json: {e}")
