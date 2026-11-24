@@ -58,6 +58,19 @@ def create_app():
     # Load configuration from Config class
     app.config.from_object(Config)
 
+    # Persist errors (full tracebacks) to logs/error.log so production 500s can be diagnosed.
+    # Users still only see the friendly error page.
+    try:
+        from logging.handlers import RotatingFileHandler
+        log_dir = os.environ.get('LOG_DIR') or os.path.join(os.path.dirname(app.root_path), 'logs')
+        os.makedirs(log_dir, exist_ok=True)
+        file_handler = RotatingFileHandler(os.path.join(log_dir, 'error.log'), maxBytes=2_000_000, backupCount=5, encoding='utf-8')
+        file_handler.setLevel(logging.WARNING)
+        file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s [%(name)s] %(message)s'))
+        app.logger.addHandler(file_handler)
+    except OSError as e:
+        logger.warning(f"File logging disabled: {e}")
+
     # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
