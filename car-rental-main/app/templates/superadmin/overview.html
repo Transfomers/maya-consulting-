@@ -1,0 +1,110 @@
+{% extends "superadmin/_layout.html" %}
+{% from "superadmin/_macros.html" import initials, client_name, conv_status %}
+{% block title %}Super Admin — Vue d'ensemble{% endblock %}
+{% block content %}
+<div class="sa-head">
+    <div>
+        <h1 class="sa-title"><i class="bi bi-shield-lock text-danger"></i> Vue d'ensemble</h1>
+        <p class="sa-sub">Clients, conversations et activité des administrateurs sur toute la plateforme.</p>
+    </div>
+</div>
+
+<div class="sa-kpis">
+    <a class="sa-kpi" href="{{ url_for('superadmin.clients') }}">
+        <div class="sa-kpi__label">Clients enregistrés</div>
+        <div class="sa-kpi__value">{{ stats.clients }}</div>
+        <div class="sa-kpi__hint">+{{ stats.clients_week }} ces 7 derniers jours</div>
+    </a>
+    <a class="sa-kpi" href="{{ url_for('superadmin.conversations', status='active') }}">
+        <div class="sa-kpi__label">Conversations actives</div>
+        <div class="sa-kpi__value">{{ stats.active }}</div>
+        <div class="sa-kpi__hint">{{ stats.unassigned }} non assignée(s)</div>
+    </a>
+    <a class="sa-kpi" href="{{ url_for('superadmin.conversations', unanswered=1) }}">
+        <div class="sa-kpi__label">En attente de réponse</div>
+        <div class="sa-kpi__value {{ 'is-alert' if stats.late }}">{{ stats.unanswered }}</div>
+        <div class="sa-kpi__hint">{{ stats.late }} depuis plus de {{ stats.minutes }} min</div>
+    </a>
+    <div class="sa-kpi">
+        <div class="sa-kpi__label">1re réponse moyenne (30 j)</div>
+        <div class="sa-kpi__value">{{ stats.avg_first_response|duration }}</div>
+        <div class="sa-kpi__hint">Résolution moyenne : {{ stats.avg_resolution|duration }}</div>
+    </div>
+</div>
+
+<div class="sa-grid-2">
+    <div>
+        <section class="sa-card">
+            <h2>Sans réponse depuis plus de {{ stats.minutes }} min <a href="{{ url_for('superadmin.conversations', unanswered=1) }}">Tout voir</a></h2>
+            {% if late_list %}
+            <table class="sa-table">
+                <tbody>
+                {% for c in late_list %}
+                <tr class="is-clickable is-waiting" onclick="location.href='{{ url_for('superadmin.conversation_detail', conv_id=c.id) }}'">
+                    <td>
+                        <div class="sa-name">{{ client_name(c.client) if c.client else 'Visiteur' }}</div>
+                        <div class="sa-muted text-truncate" style="max-width: 360px;">{{ c.last_message_preview or '' }}</div>
+                    </td>
+                    <td class="sa-hide-sm">{{ (c.assigned_admin.real_name or c.assigned_admin.username) if c.assigned_admin else 'Non assignée' }}</td>
+                    <td class="text-end text-danger fw-semibold">{{ ((now - c.last_client_message_at).total_seconds())|duration }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}<div class="sa-empty"><i class="bi bi-check2-circle text-success fs-4 d-block mb-1"></i>Aucune conversation en retard.</div>{% endif %}
+        </section>
+
+        <section class="sa-card">
+            <h2>Activité récente des administrateurs <a href="{{ url_for('superadmin.activity') }}">Suivi complet</a></h2>
+            {% if recent_activity %}
+            <ul class="sa-list">
+                {% for a in recent_activity %}
+                <li>
+                    <span class="sa-dot {{ 'danger' if a.category in ('security', 'permission') else ('warning' if 'CANCEL' in a.action or 'TERMIN' in a.action else 'info') }}"></span>
+                    <div class="flex-grow-1">
+                        <strong>{{ a.actor_name or 'Système' }}</strong> · {{ action_label(a.action) }}
+                        {% if a.target_label %}<span class="sa-muted">— {{ a.target_label }}</span>{% endif %}
+                    </div>
+                    <span class="sa-muted text-nowrap">{{ a.created_at|local_dt('%d/%m %H:%M') }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}<div class="sa-empty">Aucune activité enregistrée pour le moment.</div>{% endif %}
+        </section>
+    </div>
+
+    <div>
+        <section class="sa-card">
+            <h2>Conversations par statut</h2>
+            <dl class="sa-kv">
+                {% for key, label in [('new', 'Nouvelles'), ('open', 'Ouvertes'), ('pending', 'En attente client'), ('resolved', 'Résolues'), ('closed', 'Fermées')] %}
+                <dt><a class="text-decoration-none" href="{{ url_for('superadmin.conversations', status=key) }}"><span class="sa-pill {{ key }}">{{ label }}</span></a></dt><dd class="fw-semibold">{{ by_status.get(key, 0) }}</dd>
+                {% endfor %}
+            </dl>
+        </section>
+        <section class="sa-card">
+            <h2>Équipe <a href="{{ url_for('superadmin.admins') }}">Administrateurs</a></h2>
+            <dl class="sa-kv">
+                <dt>Comptes staff</dt><dd class="fw-semibold">{{ stats.admins }}</dd>
+                <dt>Actifs (24 h)</dt><dd class="fw-semibold">{{ stats.admins_today }}</dd>
+            </dl>
+        </section>
+        <section class="sa-card">
+            <h2>Nouveaux clients <a href="{{ url_for('superadmin.clients') }}">Tous les clients</a></h2>
+            {% if new_clients %}
+            <ul class="sa-list">
+                {% for u in new_clients %}
+                <li>
+                    <a class="sa-user text-decoration-none flex-grow-1" href="{{ url_for('superadmin.client_detail', cid=u.id) }}">
+                        <span class="sa-avatar">{{ initials(client_name(u)) }}</span>
+                        <span class="min-w-0"><span class="sa-name d-block text-truncate">{{ client_name(u) }}</span><span class="sa-muted">@{{ u.username }}</span></span>
+                    </a>
+                    <span class="sa-code">{{ u.client_code or '—' }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}<div class="sa-empty">Aucun client pour le moment.</div>{% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

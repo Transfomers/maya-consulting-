@@ -1603,7 +1603,13 @@
             {% set shell = admin_shell_stats() %}
             {% set ep = request.endpoint %}
             <!-- Menu latéral groupé -->
+            {% block sidebar_nav %}
             <nav class="admin-sidebar-nav px-2 py-2" aria-label="Menu admin">
+                {% if current_user.role == 'super_admin' %}
+                <a href="{{ url_for('superadmin.overview') }}" class="sidebar-nav-item sidebar-nav-item--sa" title="Espace Super Admin">
+                    <i class="bi bi-shield-lock"></i><span class="sidebar-text">Espace Super Admin</span>
+                </a>
+                {% endif %}
                 <div class="sidebar-section-title">Opérations</div>
                 <a href="{{ url_for('admin.dashboard') }}" class="sidebar-nav-item {% if ep == 'admin.dashboard' %}active{% endif %}" title="Tableau de bord">
                     <i class="bi bi-grid"></i><span class="sidebar-text">Tableau de bord</span>
@@ -1631,6 +1637,11 @@
                 <a href="{{ url_for('admin.apartments') }}" class="sidebar-nav-item {% if ep in ['admin.apartments', 'admin.add_apartment', 'admin.edit_apartment', 'properties.property_calendar'] %}active{% endif %}" title="Résidences meublées">
                     <i class="bi bi-building"></i><span class="sidebar-text">Résidences</span>
                 </a>
+                {% if current_user.role != 'super_admin' %}
+                <a href="{{ url_for('superadmin.my_clients') }}" class="sidebar-nav-item {% if ep in ['superadmin.my_clients', 'superadmin.client_detail'] %}active{% endif %}" title="Mes clients">
+                    <i class="bi bi-person-lines-fill"></i><span class="sidebar-text">Mes clients</span>
+                </a>
+                {% endif %}
                 <a href="{{ url_for('ratings.index') }}" class="sidebar-nav-item {% if request.blueprint == 'ratings' %}active{% endif %}" title="Avis clients">
                     <i class="bi bi-star"></i><span class="sidebar-text">Avis clients</span>
                     {% if shell.ratings_open %}<span class="sidebar-badge sidebar-badge-alert">{{ shell.ratings_open }}</span>{% endif %}
@@ -1663,6 +1674,7 @@
                     <i class="bi bi-gear"></i><span class="sidebar-text">Paramètres</span>
                 </a>
             </nav>
+            {% endblock %}
 
             <!-- Utilisateur connecté -->
             <div class="admin-sidebar-footer px-3 py-3 d-flex align-items-center gap-2">
@@ -2961,6 +2973,7 @@
             return fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': token } });
         }
         function targetUrlFor(n) {
+            if (n && n.link) return n.link;
             return (n && n.category === 'chat') ? chatsUrl : notifsUrl;
         }
         function playChime() {
@@ -3022,7 +3035,7 @@
             list.innerHTML = data.items.map(function (n) {
                 var kind = icons[n.type] ? n.type : 'info';
                 var cat = esc(n.category || 'system');
-                return '<li class="notif-menu__item notif-menu__item--clickable' + (n.unread ? ' is-unread' : '') + '" data-id="' + n.id + '" data-cat="' + cat + '">' +
+                return '<li class="notif-menu__item notif-menu__item--clickable' + (n.unread ? ' is-unread' : '') + '" data-id="' + n.id + '" data-cat="' + cat + '" data-link="' + esc(n.link || '') + '">' +
                     '<span class="nt-avatar is-' + kind + '"><i class="bi ' + icons[kind] + '"></i></span>' +
                     '<div class="notif-menu__body"><strong>' + esc(n.title) + '</strong><p>' + esc(n.message) + '</p>' +
                     '<span class="notif-menu__meta"><i class="bi bi-clock"></i> ' + esc(n.ago) + '</span></div>' +
@@ -3064,7 +3077,7 @@
                 post(readUrl(li.dataset.id)).then(function () { load(false); });
                 return;
             }
-            var dest = targetUrlFor({ category: li.dataset.cat });
+            var dest = targetUrlFor({ category: li.dataset.cat, link: li.dataset.link });
             post(readUrl(li.dataset.id)).finally(function () { window.location.href = dest; });
         });
         document.getElementById('notifReadAll').addEventListener('click', function () { post(readAllUrl).then(function () { load(false); }); });

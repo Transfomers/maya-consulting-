@@ -587,7 +587,10 @@ app.post("/api/apartments/:id/book", (req, res) => {
   if (!writeDb(db)) {
     return res.status(500).json({ ok: false, error: "Réservation non enregistrée, réessayez." });
   }
-  notifyAdminOfClientMessage({ kind: "booking", name: guestName, phone: guestPhone, text: chatText, ref });
+  notifyAdminOfClientMessage({
+    kind: "apartment_booking", name: guestName, phone: guestPhone, email: guestEmail, text: chatText, ref,
+    threadId: thread.id, accountNumber: String(req.body.clientId || "")
+  });
 
   // Mirror into Flask SQLite calendar asynchronously if Flask is running locally
   try {
@@ -1948,9 +1951,12 @@ app.post("/api/contacts", (req, res) => {
   notifyAdminOfClientMessage({
     kind: "contact",
     name,
-    phone: phone || email,
+    phone,
+    email,
     text: message,
-    ref: thread.id || cleanId
+    ref: thread.id || cleanId,
+    threadId: thread.id || cleanId,
+    accountNumber: String(req.body.clientId || "")
   });
   res.status(201).json({ ...newContact, chatId: thread.id, clientId: thread.clientId });
 });
@@ -2241,10 +2247,13 @@ app.post("/api/chats/:clientId/messages", (req, res) => {
     const thread = db.chats[findChatIndex(db, rawId).index] || {};
     notifyAdminOfClientMessage({
       kind: "chat",
-      name: thread.clientName || clientName || senderName || "Client",
+      name: thread.clientName || clientName || senderName || "",
       phone: thread.clientPhone || clientPhone || "",
-      text: newMsg.text,
-      ref: thread.id || cleanId
+      email: thread.clientEmail || "",
+      text: newMsg.text || (newMsg.attachment ? "[pièce jointe]" : ""),
+      ref: thread.id || cleanId,
+      threadId: thread.id || cleanId,
+      accountNumber: thread.clientId || rawId
     });
   }
   res.status(201).json({ success: true, message: newMsg });

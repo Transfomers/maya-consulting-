@@ -1,0 +1,34 @@
+{% extends "superadmin/_layout.html" %}
+{% block title %}Super Admin — Rôles & permissions{% endblock %}
+{% block content %}
+<div class="sa-head">
+    <div>
+        <h1 class="sa-title">Rôles & permissions</h1>
+        <p class="sa-sub">Ce que chaque rôle peut faire. Vérifié côté serveur à chaque action. Le Super Admin a toujours tous les droits.</p>
+    </div>
+</div>
+<form method="post" class="sa-card p-0">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="table-responsive">
+    <table class="sa-table sa-matrix">
+        <thead><tr><th>Permission</th><th>Super Admin</th>{% for k, v in roles.items() %}<th>{{ v }}<div class="sa-muted fw-normal text-lowercase">{{ counts.get(k, 0) }} compte(s)</div></th>{% endfor %}</tr></thead>
+        <tbody>
+        {% for group, perms in permissions.items() %}
+        <tr><td colspan="{{ roles|length + 2 }}" class="fw-bold" style="background: #f9fafb;">{{ group }}</td></tr>
+        {% for key, label in perms %}
+        <tr>
+            <td>{{ label }}<div class="sa-muted"><code>{{ key }}</code></div></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            {% for role in roles %}<td><input type="checkbox" class="form-check-input" name="perm_{{ role }}" value="{{ key }}" {{ 'checked' if key in matrix[role] }}></td>{% endfor %}
+        </tr>
+        {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center p-3 flex-wrap gap-2">
+        <span class="sa-muted">Toute modification est enregistrée dans le journal d'audit et signalée.</span>
+        <button class="btn btn-danger btn-sm px-3" style="background: var(--primary-light);">Enregistrer les permissions</button>
+    </div>
+</form>
+{% endblock %}

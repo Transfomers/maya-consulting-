@@ -69,11 +69,20 @@ def draw_pdf_header(p, title_text):
 def log_audit(action, target_type=None, target_id=None, details=None):
     user_id = current_user.id if current_user and current_user.is_authenticated else None
     ip_address = request.remote_addr if request else None
+    actor = current_user if current_user and current_user.is_authenticated else None
+    prefix = (action or '').split('_')[0]
+    category = {'CONTRACT': 'contract', 'INVOICE': 'invoice', 'PAYMENT': 'payment', 'BOOKING': 'reservation',
+                'APARTMENT': 'reservation', 'TRIP': 'mission', 'MISSION': 'mission', 'BUS': 'mission',
+                'DRIVER': 'mission', 'RATING': 'client', 'USER': 'client', 'CLIENT': 'client', 'ADMIN': 'permission',
+                'NOTIFICATIONS': 'settings', 'SETTINGS': 'settings', 'AGENCY': 'settings'}.get(prefix, 'other')
     log = AuditLog(
         user_id=user_id,
+        actor_name=((actor.real_name or actor.username) if actor else None),
+        actor_role=(actor.role if actor else None),
         action=action,
+        category=category,
         target_type=target_type,
-        target_id=target_id,
+        target_id=target_id if isinstance(target_id, int) else None,
         details=details,
         ip_address=ip_address
     )
@@ -3373,8 +3382,15 @@ def export_logs_pdf():
 
 # ── Notifications : périmètre, lu/non lu, retour ──
 def scoped_notifications_query(user):
-    """Notifications visibles par l'utilisateur (non supprimées)."""
+    """Notifications visibles par l'utilisateur (non supprimées, catégories non désactivées)."""
     q = SystemNotification.query.filter_by(is_deleted=False)
+    try:
+        from app.models import NotificationPreference
+        off = [p.category for p in NotificationPreference.query.filter_by(user_id=user.id, enabled=False).all()]
+        if off:
+            q = q.filter(db.or_(SystemNotification.category.notin_(off), SystemNotification.category == None))  # noqa: E711
+    except Exception:
+        db.session.rollback()
     if user.role == 'super_admin':
         return q.filter(db.or_(
             SystemNotification.role_target == 'super_admin',
@@ -3445,6 +3461,12 @@ def _can_manage_notification(notif, user):
 def notifications_feed():
     """Dernières notifications pour le menu de la cloche."""
     limit = min(request.args.get('limit', 6, type=int) or 6, 20)
+    if current_user.role == 'super_admin':
+        try:
+            from app.services.conversations import check_unanswered
+            _run_dashboard_job_throttled('unanswered_check', check_unanswered)
+        except Exception:
+            db.session.rollback()
     read_ids = _read_ids_for(current_user)
     base = scoped_notifications_query(current_user).filter_by(is_archived=False)
     items = base.order_by(SystemNotification.created_at.desc()).limit(limit).all()
@@ -3454,7 +3476,7 @@ def notifications_feed():
         'items': [{
             'id': n.id, 'title': n.title, 'message': n.message, 'type': n.type or 'info',
             'category': n.category or 'system', 'ago': _time_ago(n.created_at),
-            'unread': _is_unread(n, read_ids),
+            'unread': _is_unread(n, read_ids), 'link': n.link,
         } for n in items],
     })
 
@@ -6515,6 +6537,15 @@ def chats():
     for th in chat_threads:
         th['messages'] = [m for m in (th.get('messages') or []) if not str(m.get('id') or '').startswith('msg-welcome')]
 
+    # Conversations centralisées : un administrateur ne voit que celles qu'il a le droit de voir
+    from app.models import Conversation as _Conv
+    conv_map = {c.thread_id: c for c in _Conv.query.filter(
+        _Conv.thread_id.in_([t.get('id') for t in chat_threads if t.get('id')])).all()} if chat_threads else {}
+    chat_threads = [t for t in chat_threads if _can_access_thread(t.get('id'), conv_map.get(t.get('id')))]
+    if selected_client_id and not any(t.get('id') == selected_client_id or t.get('clientId') == selected_client_id
+                                      for t in chat_threads):
+        selected_client_id = None
+
     active_chat = None
     if selected_client_id and chat_threads:
         active_chat = next((c for c in chat_threads if c.get('id') == selected_client_id or c.get('clientId') == selected_client_id), None)
@@ -6525,6 +6556,12 @@ def chats():
     if active_chat:
         active_chat['unreadAdmin'] = 0
         try:
+            from app.services.conversations import mark_opened
+            mark_opened(active_chat.get('id'), current_user)
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.warning(f"[conversation] ouverture non journalisée : {e}")
+        try:
             with atomic_write(db_path) as f:
                 _json.dump(exp_db, f, indent=2, ensure_ascii=False)
         except Exception:
@@ -6532,7 +6569,28 @@ def chats():
 
     available_buses = Bus.query.filter(Bus.status != 'maintenance').all()
 
-    return render_template('admin/chats.html', chat_threads=chat_threads, active_chat=active_chat, available_buses=available_buses)
+    active_conv = conv_map.get(active_chat.get('id')) if active_chat else None
+    return render_template('admin/chats.html', chat_threads=chat_threads, active_chat=active_chat,
+                           available_buses=available_buses, conv_map=conv_map, active_conv=active_conv)
+
+
+def _can_access_thread(thread_id, conv=None):
+    """Super Admin : tout. Administrateur : ses conversations (+ non assignées / toutes selon ses permissions)."""
+    from app.services.permissions import has_perm
+    if current_user.role == 'super_admin' or has_perm(current_user, 'conversations.view_all'):
+        return True
+    if conv is None and thread_id:
+        from app.models import Conversation as _Conv
+        conv = _Conv.query.filter_by(thread_id=thread_id).first()
+    if conv is None or conv.assigned_admin_id is None:
+        return has_perm(current_user, 'conversations.view_unassigned')
+    return conv.assigned_admin_id == current_user.id and has_perm(current_user, 'conversations.view_assigned')
+
+
+def _thread_forbidden(client_id):
+    if _can_access_thread(client_id):
+        return None
+    return jsonify({'error': "Cette conversation n'est pas assignée à votre compte."}), 403
 
 # ── Pièces jointes du chat (photo / position / contact) ──
 CHAT_UPLOAD_SUBDIR = os.path.join('uploads', 'chat')
@@ -6592,6 +6650,9 @@ CHAT_ATTACHMENT_PREVIEW = {'image': '📷 Photo', 'location': '📍 Position', '
 @admin_required
 @csrf_protect
 def upload_chat_attachment(client_id):
+    _deny = _thread_forbidden(client_id)
+    if _deny:
+        return _deny
     import uuid as _uuid
     f = request.files.get('file')
     if not f or not f.filename:
@@ -6625,6 +6686,9 @@ def _send_reply_email_async(app_obj, to_email, subject, html_body, text_body, se
 @login_required
 @admin_required
 def send_admin_chat_reply(client_id):
+    _deny = _thread_forbidden(client_id)
+    if _deny:
+        return _deny
     import json as _json
     data = request.get_json(silent=True) or {}
     text = (data.get('text') or request.form.get('text') or '').strip()
@@ -6738,6 +6802,13 @@ def send_admin_chat_reply(client_id):
                 except Exception:
                     current_app.logger.debug("Optional concierge reply email skipped", exc_info=True)
 
+            try:   # délais de réponse + journal (sans le contenu du message)
+                from app.services.conversations import record_admin_reply
+                record_admin_reply(chat.get('id') or client_id, current_user)
+            except Exception as e:
+                db.session.rollback()
+                current_app.logger.warning(f"[conversation] réponse non suivie : {e}")
+
             if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({'success': True, 'message': new_msg, 'unreadClient': chat.get('unreadClient', 0)})
 
@@ -6754,6 +6825,9 @@ def send_admin_chat_reply(client_id):
 @login_required
 @admin_required
 def get_admin_chat_messages(client_id):
+    _deny = _thread_forbidden(client_id)
+    if _deny:
+        return _deny
     import json as _json
     db_path = current_app.config['EXPRESS_DB_JSON']
     if os.path.exists(db_path):
@@ -6782,6 +6856,9 @@ def get_admin_chat_messages(client_id):
 @login_required
 @admin_required
 def edit_admin_chat_message(client_id, msg_id):
+    _deny = _thread_forbidden(client_id)
+    if _deny:
+        return _deny
     import json as _json
     data = request.get_json(silent=True) or {}
     text = (data.get('text') or request.form.get('text') or '').strip()
@@ -6817,6 +6894,9 @@ def edit_admin_chat_message(client_id, msg_id):
 @login_required
 @admin_required
 def delete_admin_chat_message(client_id, msg_id):
+    _deny = _thread_forbidden(client_id)
+    if _deny:
+        return _deny
     import json as _json
     db_path = current_app.config['EXPRESS_DB_JSON']
     if os.path.exists(db_path):
@@ -6846,6 +6926,9 @@ def delete_admin_chat_message(client_id, msg_id):
 @login_required
 @admin_required
 def clear_admin_chat_thread(client_id):
+    _deny = _thread_forbidden(client_id)
+    if _deny:
+        return _deny
     import json as _json
     db_path = current_app.config['EXPRESS_DB_JSON']
     if os.path.exists(db_path):

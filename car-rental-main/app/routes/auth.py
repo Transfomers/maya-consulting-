@@ -408,6 +408,8 @@ def login():
                 ).first()
                 from werkzeug.security import check_password_hash
                 if not user or not user.password_hash or not check_password_hash(user.password_hash, password):
+                    from app.services.activity import record_failed_login
+                    record_failed_login(username)
                     return _login_page("Email/nom d'utilisateur ou mot de passe incorrect.", 401)
                     
                 # Email verification check disabled for testing

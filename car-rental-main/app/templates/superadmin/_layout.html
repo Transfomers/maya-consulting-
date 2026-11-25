@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/superadmin.css') }}">{% endblock %}
+{% block sidebar_nav %}
+{% set ep = request.endpoint %}
+<nav class="admin-sidebar-nav px-2 py-2" aria-label="Menu Super Admin">
+    <div class="sidebar-section-title">Super Admin</div>
+    {% for endpoint, icon, label, extra in [
+        ('superadmin.overview', 'bi-speedometer2', "Vue d'ensemble", []),
+        ('superadmin.conversations', 'bi-chat-square-text', 'Conversations', ['superadmin.conversation_detail']),
+        ('superadmin.clients', 'bi-people', 'Clients', ['superadmin.client_detail']),
+        ('superadmin.admins', 'bi-person-badge', 'Administrateurs', []),
+        ('superadmin.activity', 'bi-activity', "Suivi d'activité", []),
+        ('superadmin.notifications', 'bi-bell', 'Notifications', []),
+        ('superadmin.audit', 'bi-journal-lock', "Journal d'audit", []),
+        ('superadmin.roles', 'bi-shield-check', 'Rôles & permissions', []),
+        ('superadmin.settings', 'bi-sliders', 'Paramètres système', []),
+    ] %}
+    <a href="{{ url_for(endpoint) }}" class="sidebar-nav-item {% if ep == endpoint or ep in extra %}active{% endif %}" title="{{ label }}">
+        <i class="bi {{ icon }}"></i><span class="sidebar-text">{{ label }}</span>
+        {% if endpoint == 'superadmin.conversations' and sa_waiting %}<span class="sidebar-badge sidebar-badge-alert">{{ sa_waiting }}</span>{% endif %}
+    </a>
+    {% endfor %}
+    <div class="sidebar-section-title">Exploitation</div>
+    <a href="{{ url_for('admin.dashboard') }}" class="sidebar-nav-item" title="Retour à l'administration">
+        <i class="bi bi-arrow-left-square"></i><span class="sidebar-text">Administration</span>
+    </a>
+    <a href="{{ url_for('admin.chats') }}" class="sidebar-nav-item" title="Messagerie">
+        <i class="bi bi-chat-dots"></i><span class="sidebar-text">Messagerie</span>
+    </a>
+</nav>
+{% endblock %}

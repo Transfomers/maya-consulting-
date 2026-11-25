@@ -1,0 +1,133 @@
+{% extends layout %}
+{% from "superadmin/_macros.html" import initials, client_name, conv_status %}
+{% block title %}{{ client.client_code }} — {{ client_name(client) }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/superadmin.css') }}">{% endblock %}
+{% block content %}
+<div class="sa-head">
+    <div class="sa-user">
+        <span class="sa-avatar is-lg">{{ initials(client_name(client)) }}</span>
+        <div>
+            <h1 class="sa-title">{{ client_name(client) }} <span class="sa-pill {{ client.client_status or 'active' }}">{{ statuses.get(client.client_status or 'active') }}</span></h1>
+            <p class="sa-sub"><span class="sa-code">{{ client.client_code }}</span> @{{ client.username }} · inscrit le {{ client.created_at|local_dt('%d/%m/%Y') }} · {{ sources.get(client.client_source, client.client_source or 'source inconnue') }}</p>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        {% if client.phone %}<a class="btn btn-sm btn-outline-secondary" href="tel:{{ client.phone|replace(' ', '') }}"><i class="bi bi-telephone"></i> Appeler</a>{% endif %}
+        {% if real_email(client.email) %}<a class="btn btn-sm btn-outline-secondary" href="mailto:{{ real_email(client.email) }}"><i class="bi bi-envelope"></i> E-mail</a>{% endif %}
+    </div>
+</div>
+
+<div class="sa-grid-2">
+    <div>
+        <section class="sa-card">
+            <h2>Profil {% if not can_edit %}<span class="sa-muted fw-normal">lecture seule</span>{% endif %}</h2>
+            <form method="post" action="{{ url_for('superadmin.client_edit', cid=client.id) }}" class="row g-3">
+                <div class="col-md-6"><label class="form-label small fw-semibold text-muted">Identifiant permanent</label><input class="form-control" value="{{ client.client_code }}" disabled></div>
+                <div class="col-md-6"><label class="form-label small fw-semibold text-muted">Nom d'utilisateur</label>
+                    <div class="input-group"><span class="input-group-text">@</span><input name="username" class="form-control" value="{{ client.username }}" pattern="[a-z0-9][a-z0-9._\-]{2,29}" {{ '' if (can_edit and can_edit_username) else 'disabled' }}></div></div>
+                <div class="col-md-6"><label class="form-label small fw-semibold text-muted">Nom affiché</label><input name="display_name" id="fDisplay" class="form-control" value="{{ client.display_name or '' }}" maxlength="120" {{ '' if can_edit else 'disabled' }}></div>
+                <div class="col-md-6"><label class="form-label small fw-semibold text-muted">Nom complet</label><input name="real_name" class="form-control" value="{{ client.real_name or '' }}" maxlength="120" {{ '' if can_edit else 'disabled' }}></div>
+                <div class="col-md-6"><label class="form-label small fw-semibold text-muted">Téléphone / WhatsApp</label><input name="phone" class="form-control" value="{{ client.phone or '' }}" {{ '' if can_edit else 'disabled' }}></div>
+                <div class="col-md-6"><label class="form-label small fw-semibold text-muted">E-mail</label><input name="email" type="email" class="form-control" value="{{ real_email(client.email) }}" {{ '' if can_edit else 'disabled' }}></div>
+                <div class="col-md-4"><label class="form-label small fw-semibold text-muted">Ville</label><input name="city" class="form-control" value="{{ client.city or '' }}" {{ '' if can_edit else 'disabled' }}></div>
+                <div class="col-md-4"><label class="form-label small fw-semibold text-muted">Adresse</label><input name="address" class="form-control" value="{{ client.address or '' }}" {{ '' if can_edit else 'disabled' }}></div>
+                <div class="col-md-4"><label class="form-label small fw-semibold text-muted">Statut</label>
+                    <select name="client_status" class="form-select" {{ '' if can_edit else 'disabled' }}>{% for k, v in statuses.items() %}<option value="{{ k }}" {{ 'selected' if (client.client_status or 'active') == k }}>{{ v }}</option>{% endfor %}</select></div>
+                {% if can_edit %}
+                <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span class="sa-muted"><i class="bi bi-info-circle"></i> Chaque modification est conservée dans l'historique. Le client est prévenu si son nom affiché change.</span>
+                    <button class="btn btn-danger btn-sm px-3" style="background: var(--primary-light);">Enregistrer</button>
+                </div>
+                {% endif %}
+            </form>
+        </section>
+
+        {% if can_edit %}
+        <section class="sa-card">
+            <h2>Suggestion de nom (facultatif)</h2>
+            <form method="post" action="{{ url_for('superadmin.client_suggest', cid=client.id) }}" class="d-flex gap-2 flex-wrap">
+                <input name="website" class="form-control form-control-sm" style="max-width: 360px;" placeholder="Site web public de l'entreprise du client" value="{{ suggestion.source if suggestion else '' }}" required>
+                <button class="btn btn-sm btn-outline-dark">Rechercher</button>
+            </form>
+            <p class="sa-muted mt-2 mb-0">Uniquement à partir d'une information publique que vous fournissez. Rien n'est appliqué sans votre confirmation ; jamais d'identification à partir du seul numéro de téléphone.</p>
+            {% if suggestion %}
+            <div class="mt-3">
+                {% if suggestion.names %}
+                {% for n in suggestion.names %}
+                <div class="d-flex justify-content-between align-items-center border rounded-3 p-2 mb-2">
+                    <div><strong>{{ n }}</strong><div class="sa-muted">Source : {{ suggestion.source }}</div></div>
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="document.getElementById('fDisplay').value = {{ n|tojson }}; document.getElementById('fDisplay').focus();">Utiliser comme nom affiché</button>
+                </div>
+                {% endfor %}
+                <p class="sa-muted mb-0">Après « Utiliser », vérifiez puis cliquez sur « Enregistrer » pour confirmer.</p>
+                {% else %}<p class="text-danger small mb-0">{{ suggestion.error }}</p>{% endif %}
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <section class="sa-card">
+            <h2>Conversations ({{ conversations|length }})</h2>
+            {% if conversations %}
+            <table class="sa-table"><tbody>
+                {% for c in conversations %}
+                <tr class="is-clickable" onclick="location.href='{{ url_for('superadmin.conversation_detail', conv_id=c.id) if current_user.role == 'super_admin' else url_for('admin.chats', client_id=c.thread_id) }}'">
+                    <td><div class="text-truncate" style="max-width: 340px;">{{ c.last_message_preview or '—' }}</div><div class="sa-muted">{{ c.department_label }} · {{ (c.assigned_admin.real_name or c.assigned_admin.username) if c.assigned_admin else 'non assignée' }}</div></td>
+                    <td>{{ conv_status(c) }}</td>
+                    <td class="text-end sa-muted text-nowrap">{{ c.last_message_at|local_dt('%d/%m/%Y %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody></table>
+            {% else %}<p class="sa-muted mb-0">Aucune conversation.</p>{% endif %}
+        </section>
+
+        <section class="sa-card">
+            <h2>Historique du profil</h2>
+            <ul class="sa-list">
+                {% for h, meta in history %}
+                <li>
+                    <div class="flex-grow-1">
+                        <strong>{{ h.actor_name or 'Système' }}</strong> · {{ action_label(h.action) }}
+                        {% if meta and meta.get('champ') %}<div class="sa-diff small">{{ meta.champ }} : <del>{{ meta.ancienne_valeur or '∅' }}</del> → <ins>{{ meta.nouvelle_valeur or '∅' }}</ins></div>{% endif %}
+                    </div>
+                    <span class="sa-muted text-nowrap">{{ h.created_at|local_dt('%d/%m/%Y %H:%M') }}</span>
+                </li>
+                {% else %}<li class="sa-muted">Aucune modification.</li>{% endfor %}
+            </ul>
+        </section>
+    </div>
+
+    <div>
+        {% if current_user.role == 'super_admin' %}
+        <section class="sa-card">
+            <h2>Administrateur assigné</h2>
+            <form method="post" action="{{ url_for('superadmin.client_assign', cid=client.id) }}" class="d-flex gap-2">
+                <select name="admin_id" class="form-select form-select-sm">
+                    <option value="">— Aucun (assignation automatique) —</option>
+                    {% for a in admins %}<option value="{{ a.id }}" {{ 'selected' if client.assigned_admin_id == a.id }}>{{ a.real_name or a.username }}</option>{% endfor %}
+                </select>
+                <button class="btn btn-sm btn-dark">OK</button>
+            </form>
+            <p class="sa-muted mt-2 mb-0">Ses prochaines conversations lui seront assignées.</p>
+        </section>
+        {% endif %}
+        <section class="sa-card">
+            <h2>Réservations véhicules</h2>
+            {% for b in bookings %}<div class="d-flex justify-content-between small py-1 border-bottom"><span>{{ b.booking_code or ('#' ~ b.id) }}</span><span class="sa-muted">{{ b.status }}</span></div>
+            {% else %}<p class="sa-muted mb-0">Aucune.</p>{% endfor %}
+        </section>
+        <section class="sa-card">
+            <h2>Séjours</h2>
+            {% for s in stays %}<div class="d-flex justify-content-between small py-1 border-bottom"><span>{{ s.booking_ref }}</span><span class="sa-muted">{{ s.check_in.strftime('%d/%m/%Y') }} → {{ s.check_out.strftime('%d/%m/%Y') }}</span></div>
+            {% else %}<p class="sa-muted mb-0">Aucun.</p>{% endfor %}
+        </section>
+        {% if rating %}
+        <section class="sa-card">
+            <h2>Avis</h2>
+            <div class="fw-semibold">{{ '★' * rating.rating }}{{ '☆' * (5 - rating.rating) }} {{ rating.rating }}/5</div>
+            {% if rating.comment %}<p class="small mt-1 mb-0">« {{ rating.comment }} »</p>{% endif %}
+        </section>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

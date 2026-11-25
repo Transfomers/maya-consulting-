@@ -1,0 +1,77 @@
+{% extends "superadmin/_layout.html" %}
+{% from "superadmin/_macros.html" import initials, client_name, pager, conv_status %}
+{% block title %}Super Admin — Conversations{% endblock %}
+{% block content %}
+<div class="sa-head">
+    <div>
+        <h1 class="sa-title">Conversations <span class="sa-badge">{{ pg.total }}</span></h1>
+        <p class="sa-sub">Boîte de réception centrale : toutes les conversations reçues, reliées à leur fiche client.</p>
+    </div>
+</div>
+
+{% set base = request.args.to_dict() %}
+<div class="sa-chips">
+    {% set _ = base.pop('status', None) %}{% set _ = base.pop('page', None) %}
+    <a class="sa-chip {{ 'is-active' if not request.args.get('status') }}" href="{{ url_for('superadmin.conversations', **base) }}">Toutes</a>
+    <a class="sa-chip {{ 'is-active' if request.args.get('status') == 'active' }}" href="{{ url_for('superadmin.conversations', status='active', **base) }}">Actives</a>
+    {% for key, label in statuses.items() %}
+    <a class="sa-chip {{ 'is-active' if request.args.get('status') == key }}" href="{{ url_for('superadmin.conversations', status=key, **base) }}">{{ label }} <b>{{ counts.get(key, 0) }}</b></a>
+    {% endfor %}
+</div>
+
+<form class="sa-filters" method="get">
+    {% if request.args.get('status') %}<input type="hidden" name="status" value="{{ request.args.get('status') }}">{% endif %}
+    <input type="search" name="q" class="form-control" value="{{ request.args.get('q', '') }}" placeholder="Nom, @utilisateur, téléphone, CLI-…">
+    <select name="admin" class="form-select">
+        <option value="">Tous les administrateurs</option>
+        <option value="none" {{ 'selected' if request.args.get('admin') == 'none' }}>Non assignées</option>
+        {% for a in admins %}<option value="{{ a.id }}" {{ 'selected' if request.args.get('admin') == a.id|string }}>{{ a.real_name or a.username }}</option>{% endfor %}
+    </select>
+    <select name="department" class="form-select">
+        <option value="">Tous les services</option>
+        {% for k, v in departments.items() %}<option value="{{ k }}" {{ 'selected' if request.args.get('department') == k }}>{{ v }}</option>{% endfor %}
+    </select>
+    <input type="date" name="date_from" class="form-control" value="{{ request.args.get('date_from', '') }}" title="Du">
+    <input type="date" name="date_to" class="form-control" value="{{ request.args.get('date_to', '') }}" title="Au">
+    <label class="d-flex align-items-center gap-1 small text-muted"><input type="checkbox" name="unanswered" value="1" {{ 'checked' if request.args.get('unanswered') == '1' }}> Sans réponse</label>
+    <button class="btn btn-dark btn-sm px-3" style="height: 38px;"><i class="bi bi-funnel"></i> Filtrer</button>
+    {% if request.args %}<a class="btn btn-link btn-sm text-muted" href="{{ url_for('superadmin.conversations') }}">Réinitialiser</a>{% endif %}
+</form>
+
+<div class="sa-card p-0">
+    {% if items %}
+    <div class="table-responsive">
+    <table class="sa-table">
+        <thead><tr><th>Client</th><th>Dernier message</th><th class="sa-hide-sm">Assignée à</th><th>Statut</th><th class="sa-hide-sm">Service</th><th class="text-end">Date</th></tr></thead>
+        <tbody>
+        {% for c in items %}
+        <tr class="is-clickable {{ 'is-waiting' if c.awaiting_reply }}" onclick="location.href='{{ url_for('superadmin.conversation_detail', conv_id=c.id) }}'">
+            <td>
+                <div class="sa-user">
+                    <span class="sa-avatar">{{ initials(client_name(c.client) if c.client else 'V') }}</span>
+                    <div class="min-w-0">
+                        <div class="sa-name text-truncate">{{ client_name(c.client) if c.client else 'Visiteur non identifié' }}</div>
+                        <div class="sa-muted">{% if c.client %}<span class="sa-code">{{ c.client.client_code }}</span> @{{ c.client.username }}{% else %}{{ c.thread_id }}{% endif %}</div>
+                    </div>
+                </div>
+            </td>
+            <td style="max-width: 320px;">
+                <div class="text-truncate">{% if c.last_sender == 'admin' %}<i class="bi bi-reply text-muted"></i> {% endif %}{{ c.last_message_preview or '—' }}</div>
+                {% if c.unread_admin %}<span class="sa-unread">{{ c.unread_admin }}</span>{% endif %}
+                {% if c.awaiting_reply %}<span class="sa-muted text-danger">en attente de réponse</span>{% endif %}
+            </td>
+            <td class="sa-hide-sm">{{ (c.assigned_admin.real_name or c.assigned_admin.username) if c.assigned_admin else '—' }}</td>
+            <td>{{ conv_status(c) }}</td>
+            <td class="sa-hide-sm">{{ c.department_label }}</td>
+            <td class="text-end text-nowrap sa-muted">{{ c.last_message_at|local_dt('%d/%m/%Y %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <div class="sa-empty">{{ 'Aucune conversation ne correspond à ces filtres.' if request.args else 'Aucune conversation reçue pour le moment. Elles apparaîtront ici dès le premier message d’un client.' }}</div>
+    {% endif %}
+</div>
+{{ pager(pg, 'superadmin.conversations') }}
+{% endblock %}

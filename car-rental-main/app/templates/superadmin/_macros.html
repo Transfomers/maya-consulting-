@@ -1,0 +1,21 @@
+{% macro initials(name) -%}
+{%- set parts = (name or '?').replace('@', '').split() -%}
+{{ (parts[0][0] ~ (parts[1][0] if parts|length > 1 else ''))|upper }}
+{%- endmacro %}
+
+{% macro client_name(u) -%}{{ u.display_name or u.real_name or ('@' ~ u.username) }}{%- endmacro %}
+
+{% macro pager(p, endpoint) -%}
+{% if p.pages > 1 %}
+<div class="sa-pager">
+    <span>Page {{ p.page }} / {{ p.pages }} · {{ p.total }} élément(s)</span>
+    <div class="d-flex gap-2">
+        {% set args = request.args.to_dict() %}{% set _ = args.update(request.view_args or {}) %}
+        {% if p.page > 1 %}{% set _ = args.update({'page': p.page - 1}) %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for(endpoint, **args) }}">← Précédent</a>{% endif %}
+        {% if p.page < p.pages %}{% set _ = args.update({'page': p.page + 1}) %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for(endpoint, **args) }}">Suivant →</a>{% endif %}
+    </div>
+</div>
+{% elif p.total %}<div class="sa-pager"><span>{{ p.total }} élément(s)</span></div>{% endif %}
+{%- endmacro %}
+
+{% macro conv_status(c) -%}<span class="sa-pill {{ c.status }}">{{ c.status_label }}</span>{%- endmacro %}

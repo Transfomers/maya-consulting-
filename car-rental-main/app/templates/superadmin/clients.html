@@ -1,0 +1,55 @@
+{% extends "superadmin/_layout.html" if current_user.role == 'super_admin' else "base.html" %}
+{% from "superadmin/_macros.html" import initials, client_name, pager %}
+{% block title %}Clients{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/superadmin.css') }}">{% endblock %}
+{% block content %}
+{% set endpoint = request.endpoint %}
+<div class="sa-head">
+    <div>
+        <h1 class="sa-title">{{ 'Clients' if current_user.role == 'super_admin' else 'Mes clients' }} <span class="sa-badge">{{ pg.total }}</span></h1>
+        <p class="sa-sub">Chaque client a un identifiant permanent (CLI-…) et un nom d'utilisateur unique, créés à son premier message.</p>
+    </div>
+</div>
+<form class="sa-filters" method="get">
+    <input type="search" name="q" class="form-control" value="{{ request.args.get('q', '') }}" placeholder="Nom, @utilisateur, téléphone, e-mail, CLI-…">
+    <select name="status" class="form-select">
+        <option value="">Tous les statuts</option>
+        {% for k, v in statuses.items() %}<option value="{{ k }}" {{ 'selected' if request.args.get('status') == k }}>{{ v }}</option>{% endfor %}
+    </select>
+    <select name="source" class="form-select">
+        <option value="">Toutes les sources</option>
+        {% for k, v in sources.items() %}<option value="{{ k }}" {{ 'selected' if request.args.get('source') == k }}>{{ v }}</option>{% endfor %}
+    </select>
+    {% if current_user.role == 'super_admin' %}
+    <select name="admin" class="form-select">
+        <option value="">Tous les administrateurs</option>
+        <option value="none" {{ 'selected' if request.args.get('admin') == 'none' }}>Sans administrateur</option>
+        {% for a in admins.values() %}<option value="{{ a.id }}" {{ 'selected' if request.args.get('admin') == a.id|string }}>{{ a.real_name or a.username }}</option>{% endfor %}
+    </select>
+    {% endif %}
+    <button class="btn btn-dark btn-sm px-3" style="height: 38px;"><i class="bi bi-search"></i> Rechercher</button>
+</form>
+<div class="sa-card p-0">
+    {% if items %}
+    <div class="table-responsive">
+    <table class="sa-table">
+        <thead><tr><th>Client</th><th>Identifiant</th><th class="sa-hide-sm">Contact</th><th class="sa-hide-sm">Source</th><th class="sa-hide-sm">Administrateur</th><th>Statut</th><th class="text-end">Inscrit le</th></tr></thead>
+        <tbody>
+        {% for u in items %}
+        <tr class="is-clickable" onclick="location.href='{{ url_for('superadmin.client_detail', cid=u.id) }}'">
+            <td><div class="sa-user"><span class="sa-avatar">{{ initials(client_name(u)) }}</span><div class="min-w-0"><div class="sa-name text-truncate">{{ client_name(u) }}</div><div class="sa-muted">@{{ u.username }} · {{ conv_counts.get(u.id, 0) }} conversation(s)</div></div></div></td>
+            <td><span class="sa-code">{{ u.client_code or '—' }}</span></td>
+            <td class="sa-hide-sm">{{ u.phone or '' }}{% if real_email(u.email) %}<div class="sa-muted">{{ real_email(u.email) }}</div>{% endif %}</td>
+            <td class="sa-hide-sm">{{ sources.get(u.client_source, u.client_source or '—') }}</td>
+            <td class="sa-hide-sm">{{ (admins[u.assigned_admin_id].real_name or admins[u.assigned_admin_id].username) if u.assigned_admin_id in admins else '—' }}</td>
+            <td><span class="sa-pill {{ u.client_status or 'active' }}">{{ statuses.get(u.client_status or 'active') }}</span></td>
+            <td class="text-end sa-muted text-nowrap">{{ u.created_at|local_dt('%d/%m/%Y') }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}<div class="sa-empty">{{ 'Aucun client ne correspond.' if request.args.get('q') else 'Aucun client pour le moment.' }}</div>{% endif %}
+</div>
+{{ pager(pg, endpoint) }}
+{% endblock %}

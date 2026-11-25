@@ -46,6 +46,16 @@ class User(UserMixin, db.Model):
     is_verified = db.Column(db.Boolean, default=False)
     verification_token_hash = db.Column(db.String(128), nullable=True)
     verification_token_expiry = db.Column(db.DateTime, nullable=True)
+
+    # Identité client permanente (module Clients / Conversations)
+    client_code = db.Column(db.String(20), unique=True, index=True, nullable=True)   # CLI-000001, jamais modifié
+    display_name = db.Column(db.String(120), nullable=True)
+    client_source = db.Column(db.String(30), nullable=True)        # web_chat, contact_form, booking, apartment_booking…
+    external_account = db.Column(db.String(60), index=True, nullable=True)  # n° de compte du site (3M-CLI-…)
+    assigned_admin_id = db.Column(db.Integer, index=True, nullable=True)
+    client_status = db.Column(db.String(20), nullable=True)        # active, vip, blocked, archived
+    phone_key = db.Column(db.String(12), index=True, nullable=True)  # 9 derniers chiffres : détection des doublons
+    last_seen_at = db.Column(db.DateTime, nullable=True)
     # New client‑specific optional fields
     real_name = db.Column(db.String(120), nullable=True)
     first_name = db.Column(db.String(60), nullable=True)
@@ -890,14 +900,19 @@ class ExperienceRating(db.Model):
 # === NEW: AUDIT TRACKING AND SYSTEM NOTIFICATIONS ===
 
 class AuditLog(db.Model):
+    """Journal d'audit IMMUABLE (triggers SQLite : ni modification ni suppression)."""
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) # Actor
-    action = db.Column(db.String(100), nullable=False) # e.g. "BUS_DELETED"
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True) # Actor
+    actor_name = db.Column(db.String(120), nullable=True)   # nom de l'acteur au moment de l'action
+    actor_role = db.Column(db.String(30), nullable=True)
+    action = db.Column(db.String(100), nullable=False, index=True) # e.g. "BUS_DELETED"
+    category = db.Column(db.String(30), nullable=True, index=True)   # auth, client, conversation, reservation…
     target_type = db.Column(db.String(50), nullable=True) # e.g. "Bus"
     target_id = db.Column(db.Integer, nullable=True) # ID of the target resource
+    target_label = db.Column(db.String(160), nullable=True)
     details = db.Column(db.Text, nullable=True) # JSON details or string explanation
     ip_address = db.Column(db.String(50), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
     user = db.relationship('User', backref='audit_logs')
 
@@ -915,6 +930,7 @@ class SystemNotification(db.Model):
     # Client:        passenger | travel | parcel_client | refund
     # Shared:        system
     category = db.Column(db.String(50), default='system')
+    link = db.Column(db.String(255), nullable=True)     # page à ouvrir au clic (fiche client, conversation…)
     # role_target: 'super_admin', 'admin_agence', 'client', or None (all admins)
     role_target = db.Column(db.String(30), nullable=True)
     is_read = db.Column(db.Boolean, default=False)
@@ -926,6 +942,106 @@ class SystemNotification(db.Model):
 
     def __repr__(self):
         return f'<SystemNotification {self.title} ({self.type})>'
+
+class Conversation(db.Model):
+    """Métadonnées d'une conversation client. Les messages restent dans le fil partagé (db.json),
+    relié par `thread_id`, et sont lus par l'admin et le widget du site."""
+    __tablename__ = 'conversation'
+    id = db.Column(db.Integer, primary_key=True)
+    thread_id = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    client_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
+    assigned_admin_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
+    status = db.Column(db.String(20), nullable=False, default='new', index=True)  # new, open, pending, resolved, closed
+    department = db.Column(db.String(30), nullable=False, default='general')     # general, vehicles, apartments, missions
+    source = db.Column(db.String(30), nullable=True)
+    unread_admin = db.Column(db.Integer, default=0)
+    message_count = db.Column(db.Integer, default=0)
+    last_message_preview = db.Column(db.String(200), nullable=True)
+    last_sender = db.Column(db.String(10), nullable=True)            # client / admin
+    last_message_at = db.Column(db.DateTime, nullable=True, index=True)
+    last_client_message_at = db.Column(db.DateTime, nullable=True)
+    last_admin_reply_at = db.Column(db.DateTime, nullable=True)
+    first_client_message_at = db.Column(db.DateTime, nullable=True)
+    first_response_at = db.Column(db.DateTime, nullable=True)
+    first_response_by_id = db.Column(db.Integer, nullable=True)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+    closed_at = db.Column(db.DateTime, nullable=True)
+    unanswered_notified_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    client = db.relationship('User', foreign_keys=[client_id])
+    assigned_admin = db.relationship('User', foreign_keys=[assigned_admin_id])
+    notes = db.relationship('ConversationNote', backref='conversation', lazy='dynamic',
+                            order_by='ConversationNote.created_at.desc()')
+
+    STATUS_LABELS = {'new': 'Nouveau', 'open': 'Ouvert', 'pending': 'En attente', 'resolved': 'Résolu', 'closed': 'Fermé'}
+    DEPARTMENTS = {'general': 'Général', 'vehicles': 'Véhicules', 'apartments': 'Appartements', 'missions': 'Missions'}
+
+    @property
+    def status_label(self):
+        return self.STATUS_LABELS.get(self.status, self.status)
+
+    @property
+    def department_label(self):
+        return self.DEPARTMENTS.get(self.department, self.department)
+
+    @property
+    def first_response_seconds(self):
+        if self.first_response_at and self.first_client_message_at:
+            return max(0, int((self.first_response_at - self.first_client_message_at).total_seconds()))
+        return None
+
+    @property
+    def resolution_seconds(self):
+        if self.resolved_at and self.first_client_message_at:
+            return max(0, int((self.resolved_at - self.first_client_message_at).total_seconds()))
+        return None
+
+    @property
+    def awaiting_reply(self):
+        """Dernier message du client sans réponse de l'équipe."""
+        return self.status not in ('resolved', 'closed') and self.last_sender == 'client'
+
+
+class ConversationNote(db.Model):
+    """Note interne du staff : JAMAIS envoyée ni visible côté client."""
+    __tablename__ = 'conversation_note'
+    id = db.Column(db.Integer, primary_key=True)
+    conversation_id = db.Column(db.Integer, db.ForeignKey('conversation.id'), nullable=False, index=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    body = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    author = db.relationship('User', foreign_keys=[author_id])
+
+
+class RolePermission(db.Model):
+    """Permission accordée à un rôle (le Super Admin a toujours toutes les permissions)."""
+    __tablename__ = 'role_permission'
+    id = db.Column(db.Integer, primary_key=True)
+    role = db.Column(db.String(30), nullable=False, index=True)
+    permission = db.Column(db.String(60), nullable=False)
+    __table_args__ = (db.UniqueConstraint('role', 'permission', name='_role_perm_uc'),)
+
+
+class NotificationPreference(db.Model):
+    """Catégories de notifications désactivées par un membre du staff."""
+    __tablename__ = 'notification_preference'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    category = db.Column(db.String(50), nullable=False)
+    enabled = db.Column(db.Boolean, default=True)
+    __table_args__ = (db.UniqueConstraint('user_id', 'category', name='_notif_pref_uc'),)
+
+
+class SystemSetting(db.Model):
+    __tablename__ = 'system_setting'
+    key = db.Column(db.String(60), primary_key=True)
+    value = db.Column(db.String(255), nullable=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_by_id = db.Column(db.Integer, nullable=True)
+
 
 class NotificationRead(db.Model):
     """Tracks which users have dismissed/read a shared notification (for non-user_id-scoped notifications)."""

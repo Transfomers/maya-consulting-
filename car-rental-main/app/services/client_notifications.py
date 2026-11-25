@@ -8,6 +8,7 @@ KINDS = {
     'chat': ('💬', 'Nouveau message de', 'chat'),
     'booking': ('📩', 'Nouveau message réservation de', 'booking'),
     'contact': ('✉️', 'Nouveau message contact de', 'chat'),
+    'apartment_booking': ('🏠', 'Nouvelle réservation de séjour de', 'chat'),
 }
 
 

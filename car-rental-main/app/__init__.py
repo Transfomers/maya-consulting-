@@ -165,6 +165,10 @@ def create_app():
     app.register_blueprint(internal_bp)
     from app.routes.ratings import ratings_bp, ensure_rating_schema
     app.register_blueprint(ratings_bp)
+    from app.routes.superadmin import superadmin_bp
+    app.register_blueprint(superadmin_bp)
+    from app.services.activity import init_activity
+    init_activity(app)
     from app.services.test_data import test_data_cli
     app.cli.add_command(test_data_cli)
 
@@ -278,6 +282,20 @@ def create_app():
             ensure_contract_schema()
             ensure_invoice_schema()
             ensure_rating_schema()
+            from app.services.identity_schema import ensure_identity_schema
+            ensure_identity_schema(db.engine)
+            try:   # identifiants permanents des clients existants + fils de discussion déjà présents
+                from app.models import User as _U
+                from app.services.identity import assign_identity
+                for _c in _U.query.filter(_U.role == 'client', _U.client_code == None).order_by(_U.id).all():  # noqa: E711
+                    assign_identity(_c)
+                    db.session.flush()
+                db.session.commit()
+                from app.services.conversations import sync_from_threads
+                sync_from_threads()
+            except Exception as _e:
+                db.session.rollback()
+                logger.error(f"Identity bootstrap failed: {_e}")
         except Exception as e:
             logger.error(f"Database connection check failed: {e}")
 
