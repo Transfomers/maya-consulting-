@@ -317,23 +317,14 @@
     btn.querySelector('.auth-btn-label').textContent = on ? 'Connexion…' : 'Se connecter';
   }
 
-  form.addEventListener('submit', async function (e) {
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
     const okUser = check(user, 'usernameHint');
     const okPass = check(pass, 'passwordHint');
     if (!okUser) { user.focus(); return; }
     if (!okPass) { pass.focus(); return; }
+    document.getElementById('id_token').value = '';
     setLoading(true);
-
-    // Les comptes admin sans email passent directement par la connexion locale
-    if (user.value.includes('@')) {
-      try {
-        const cred = await signInWithEmailAndPassword(auth, user.value.trim(), pass.value);
-        document.getElementById('id_token').value = await cred.user.getIdToken();
-      } catch (err) {
-        // Compte local uniquement : on continue avec la connexion classique
-      }
-    }
     form.submit();
   });
 

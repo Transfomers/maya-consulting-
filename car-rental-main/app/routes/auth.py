@@ -14,18 +14,26 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/auth0-login')
 def auth0_login():
+    auth0_client = oauth.create_client('auth0')
+    if not auth0_client:
+        flash("La connexion Auth0 n'est pas configurée. Utilisez votre email et mot de passe.", "warning")
+        return redirect(url_for('auth.login'))
     kwargs = {}
     if request.args.get('screen_hint') == 'signup':
         kwargs['screen_hint'] = 'signup'
-    return oauth.auth0.authorize_redirect(
+    return auth0_client.authorize_redirect(
         redirect_uri=url_for('auth.callback', _external=True),
         **kwargs
     )
 
 @auth.route('/callback', methods=['GET', 'POST'])
 def callback():
+    auth0_client = oauth.create_client('auth0')
+    if not auth0_client:
+        flash("La connexion Auth0 n'est pas configurée.", "warning")
+        return redirect(url_for('auth.login'))
     try:
-        token = oauth.auth0.authorize_access_token()
+        token = auth0_client.authorize_access_token()
         userinfo = token.get('userinfo')
     except Exception as e:
         import logging
@@ -354,46 +362,51 @@ def login():
     
     if request.method == 'POST':
         try:
-            id_token = request.form.get('id_token')
-            
+            id_token = (request.form.get('id_token') or '').strip()
+            username = request.form.get('username', '').strip()
+            password = request.form.get('password', '')
+            user = None
+
             if id_token:
-                import firebase_admin
-                from firebase_admin import auth as firebase_auth
-                
                 try:
+                    import firebase_admin
+                    from firebase_admin import auth as firebase_auth
                     decoded_token = firebase_auth.verify_id_token(id_token)
                     uid = decoded_token['uid']
                     email = decoded_token.get('email')
+
+                    user = User.query.filter_by(firebase_uid=uid).first()
+                    if not user and email:
+                        user = User.query.filter(db.func.lower(User.email) == email.lower()).first()
+                        if user:
+                            user.firebase_uid = uid
+                            db.session.commit()
+                        else:
+                            user = User(
+                                email=email,
+                                username=email.split('@')[0],
+                                firebase_uid=uid,
+                                role='client',
+                                is_verified=True,
+                                password_hash='firebase_managed'
+                            )
+                            db.session.add(user)
+                            db.session.commit()
                 except Exception as e:
                     current_app.logger.warning(f"Firebase token verification failed in login: {e}")
-                    return _login_page("La connexion via Google/Firebase a échoué. Réessayez ou utilisez votre mot de passe.", 401)
+                    if not (username and password):
+                        return _login_page("La connexion via Google/Firebase a échoué. Réessayez ou utilisez votre mot de passe.", 401)
+                    user = None
 
-                user = User.query.filter_by(firebase_uid=uid).first()
-                if not user and email:
-                    user = User.query.filter_by(email=email).first()
-                    if user:
-                        user.firebase_uid = uid
-                        db.session.commit()
-                    else:
-                        user = User(
-                            email=email,
-                            username=email.split('@')[0],
-                            firebase_uid=uid,
-                            role='client',
-                            is_verified=True,
-                            password_hash='firebase_managed'
-                        )
-                        db.session.add(user)
-                        db.session.commit()
-            else:
-                # Fallback for standard local login (Admins/Tellers without Firebase)
-                username = request.form.get('username', '').strip()
-                password = request.form.get('password', '')
-                
-                user = User.query.filter((User.username == username) | (User.email == username)).first()
-                from werkzeug.security import check_password_hash
+            if not user:
+                # Standard local login (Admins/Tellers/Clients via password)
                 if not username or not password:
                     return _login_page("Saisissez votre email (ou nom d'utilisateur) et votre mot de passe.", 400)
+                user = User.query.filter(
+                    (db.func.lower(User.username) == username.lower()) |
+                    (db.func.lower(User.email) == username.lower())
+                ).first()
+                from werkzeug.security import check_password_hash
                 if not user or not user.password_hash or not check_password_hash(user.password_hash, password):
                     return _login_page("Email/nom d'utilisateur ou mot de passe incorrect.", 401)
                     
