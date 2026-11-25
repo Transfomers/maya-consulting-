@@ -186,7 +186,7 @@ def profile():
 
         # Synchronize updated client profile with server/data/db.json
         try:
-            db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+            db_path = current_app.config['EXPRESS_DB_JSON']
             if os.path.exists(db_path):
                 with open(db_path, 'r', encoding='utf-8') as f:
                     exp_db = json.load(f)
@@ -386,7 +386,7 @@ def delete_account():
 
 def _get_client_chat_thread(user):
     """Helper to retrieve or initialize chat thread in server/data/db.json"""
-    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     if not os.path.exists(db_path):
         return None, None
     with open(db_path, 'r', encoding='utf-8') as f:
@@ -440,7 +440,7 @@ def chat():
     if chat_thread and exp_db:
         # Mark as read for client
         chat_thread['unreadClient'] = 0
-        db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+        db_path = current_app.config['EXPRESS_DB_JSON']
         try:
             with open(db_path, 'w', encoding='utf-8') as f:
                 json.dump(exp_db, f, indent=2, ensure_ascii=False)
@@ -472,7 +472,7 @@ def api_chat_messages():
         return jsonify({'success': False, 'error': 'Discussion introuvable'}), 404
         
     chat_thread['unreadClient'] = 0
-    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     try:
         with open(db_path, 'w', encoding='utf-8') as f:
             json.dump(exp_db, f, indent=2, ensure_ascii=False)
@@ -520,7 +520,7 @@ def api_chat_send():
     chat_thread['unreadAdmin'] = chat_thread.get('unreadAdmin', 0) + 1
     chat_thread['unreadClient'] = 0
 
-    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     with open(db_path, 'w', encoding='utf-8') as f:
         json.dump(exp_db, f, indent=2, ensure_ascii=False)
 
@@ -548,7 +548,7 @@ def api_chat_edit(msg_id):
     msg['editedAt'] = datetime.now().isoformat()
     chat_thread['lastMessage'] = text
 
-    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     with open(db_path, 'w', encoding='utf-8') as f:
         json.dump(exp_db, f, indent=2, ensure_ascii=False)
 
@@ -573,7 +573,7 @@ def api_chat_delete(msg_id):
     else:
         chat_thread['lastMessage'] = "Aucun message"
 
-    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     with open(db_path, 'w', encoding='utf-8') as f:
         json.dump(exp_db, f, indent=2, ensure_ascii=False)
 
@@ -593,7 +593,7 @@ def api_chat_clear():
     chat_thread['unreadAdmin'] = 0
     chat_thread['unreadClient'] = 0
 
-    db_path = os.path.join(current_app.root_path, '..', 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     with open(db_path, 'w', encoding='utf-8') as f:
         json.dump(exp_db, f, indent=2, ensure_ascii=False)
 

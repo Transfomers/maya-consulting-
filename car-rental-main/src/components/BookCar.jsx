@@ -8,7 +8,6 @@ import CarRav4 from "../images/cars/toyota-rav4-front.webp";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { useTranslation } from "../context/LanguageContext";
 import { API_BASE } from "../config/api";
-import { saveOrderAndCustomerAccount, getCurrentClient, setCurrentClient } from "../utils/customerAccounts";
 
 function BookCar() {
   const { lang, t } = useTranslation();
@@ -24,27 +23,9 @@ function BookCar() {
   const [dropTime, setDropTime] = useState("");
   const [carImg, setCarImg] = useState("");
 
-  // Modal personal details
-  const [name, setName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [age, setAge] = useState("25");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("Yaoundé");
-  const [zipcode, setZipCode] = useState("");
-  const [newsletter, setNewsletter] = useState(false);
-
-  // Inline editing in modal summary
+  // Inline editing & status
   const [isEditingSummary, setIsEditingSummary] = useState(false);
-
-  // Form submission and validation states
-  const [bookingStep, setBookingStep] = useState("form"); // "form" | "confirmed"
-  const [createdProfile, setCreatedProfile] = useState(null);
-  const [createdBooking, setCreatedBooking] = useState(null);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
   const [successStatus, setSuccessStatus] = useState("");
-  const [pdfSuccess, setPdfSuccess] = useState(false);
 
   // Backend live data
   const [carsList, setCarsList] = useState(CARS_CATALOGUE);
@@ -52,7 +33,6 @@ function BookCar() {
   const [dropoffLocations, setDropoffLocations] = useState([]);
 
   useEffect(() => {
-    // 1. Fetch live fleet from backend
     fetch(`${API_BASE}/cars`)
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
@@ -62,7 +42,6 @@ function BookCar() {
       })
       .catch((err) => console.log("Backend offline, fallback cars:", err));
 
-    // 2. Fetch live Cameroon locations from backend
     fetch(`${API_BASE}/locations`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
@@ -75,7 +54,6 @@ function BookCar() {
       })
       .catch((err) => console.log("Backend offline, fallback locations:", err));
 
-    // 3. Listen to external vehicle selections (from Catalogue, Models, or Home)
     const storedCar = sessionStorage.getItem("selected_booking_car");
     if (storedCar) {
       setCarType(storedCar);
@@ -134,24 +112,7 @@ function BookCar() {
     ) {
       if (errorMsg) errorMsg.style.display = "flex";
     } else {
-      // Auto-prefill personal details if user already has a 3M client profile
-      const existingClient = getCurrentClient();
-      if (existingClient) {
-        if (existingClient.name && !name) {
-          const parts = existingClient.name.split(" ");
-          setName(parts[0] || "");
-          if (parts.length > 1) setLastName(parts.slice(1).join(" "));
-        }
-        if (existingClient.phone && !phone) setPhone(existingClient.phone);
-        if (existingClient.email && !email) setEmail(existingClient.email);
-        if (existingClient.address && !address) setAddress(existingClient.address);
-        if (existingClient.city && !city) setCity(existingClient.city);
-      }
-
-      setBookingStep("form");
-      setHasSubmitted(false);
       setSuccessStatus("");
-      setPdfSuccess(false);
       setIsEditingSummary(false);
       setModal(true);
       const modalDiv = document.querySelector(".booking-modal");
@@ -163,20 +124,15 @@ function BookCar() {
   const closeModal = () => {
     setModal(false);
     setIsEditingSummary(false);
-    setBookingStep("form");
-    setHasSubmitted(false);
   };
 
-  // Disable page scroll when modal is displayed
   useEffect(() => {
-    if (modal) {
-      document.body.style.overflow = "hidden";
-    } else {
+    document.body.style.overflow = modal ? "hidden" : "auto";
+    return () => {
       document.body.style.overflow = "auto";
-    }
+    };
   }, [modal]);
 
-  // Calculate rental duration in days
   const calculateDays = () => {
     if (!pickTime || !dropTime) return 1;
     const p = new Date(pickTime);
@@ -185,7 +141,6 @@ function BookCar() {
     return diff > 0 ? diff : 1;
   };
 
-  // Format date helper for human-readable summary
   const formatDateReadable = (dateStr) => {
     if (!dateStr) return isFr ? "À convenir" : "To be confirmed";
     try {
@@ -200,875 +155,107 @@ function BookCar() {
     }
   };
 
-  // Determine car preview image
+  // Determine matched car & preview image
   let imgUrl = CarPrado;
   const lowerCar = (carType || "").toLowerCase();
-  const matchedBackendCar = carsList.find((c) => 
-    c.name && (c.name.toLowerCase() === lowerCar || c.name.toLowerCase().includes(lowerCar) || lowerCar.includes(c.name.toLowerCase()))
-  );
-  if (matchedBackendCar && matchedBackendCar.image) {
-    imgUrl = matchedBackendCar.image;
-  } else {
-    if (lowerCar.includes("jeep") || lowerCar.includes("cherokee") || carImg === "Jeep Grand Cherokee V6 MUPOCAM") {
-      imgUrl = CarJeep;
-    } else if (lowerCar.includes("mercedes") || lowerCar.includes("classe e") || carImg === "Mercedes-Benz Classe E VIP") {
-      imgUrl = CarMercedes;
-    } else if (lowerCar.includes("fortuner") || carImg === "Toyota Fortuner 4x4") {
-      imgUrl = CarFortuner;
-    } else if (lowerCar.includes("rav4") || carImg === "Toyota RAV4 4WD") {
-      imgUrl = CarRav4;
-    } else if (lowerCar.includes("camry") || carImg === "Toyota Camry Executive") {
-      imgUrl = CarToyota;
-    } else {
-      imgUrl = CarPrado;
-    }
+  const matchedCar =
+    carsList.find(
+      (c) =>
+        c.name &&
+        (c.name.toLowerCase() === lowerCar ||
+          c.name.toLowerCase().includes(lowerCar) ||
+          lowerCar.includes(c.name.toLowerCase()))
+    ) ||
+    CARS_CATALOGUE.find(
+      (c) =>
+        c.name &&
+        (c.name.toLowerCase() === lowerCar ||
+          c.name.toLowerCase().includes(lowerCar) ||
+          lowerCar.includes(c.name.toLowerCase()))
+    );
+
+  if (matchedCar && (matchedCar.image || matchedCar.img)) {
+    imgUrl = matchedCar.image || matchedCar.img;
+  } else if (lowerCar.includes("jeep") || lowerCar.includes("cherokee") || carImg === "Jeep Grand Cherokee V6 MUPOCAM") {
+    imgUrl = CarJeep;
+  } else if (lowerCar.includes("mercedes") || lowerCar.includes("classe e") || carImg === "Mercedes-Benz Classe E VIP") {
+    imgUrl = CarMercedes;
+  } else if (lowerCar.includes("fortuner") || carImg === "Toyota Fortuner 4x4") {
+    imgUrl = CarFortuner;
+  } else if (lowerCar.includes("rav4") || carImg === "Toyota RAV4 4WD") {
+    imgUrl = CarRav4;
+  } else if (lowerCar.includes("camry") || carImg === "Toyota Camry Executive") {
+    imgUrl = CarToyota;
   }
 
-  // Mandatory fields validation
-  const isNameValid = name.trim().length > 0;
-  const isLastNameValid = lastName.trim().length > 0;
-  const isPhoneValid = phone.trim().length >= 7;
-  const isEmailValid = !email.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const getCarKey = () => matchedCar?.id || carType || "prado";
 
-  const isFormValid = () => {
-    return isNameValid && isLastNameValid && isPhoneValid && isEmailValid;
+  const getCarCardUrl = () => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://3mservice.shop";
+    return `${origin}/models?car=${encodeURIComponent(getCarKey())}`;
   };
 
-  // Generate Official PDF Document with "PENDING CONCIERGE VALIDATION" notice
-  const generateReservationPDF = (refId) => {
-    const days = calculateDays();
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      alert(
-        isFr
-          ? "Veuillez autoriser les fenêtres pop-up pour afficher votre Bon de Réservation en PDF."
-          : "Please allow pop-ups to view your reservation voucher in PDF."
-      );
-      return;
-    }
-
-    const formattedPickDate = formatDateReadable(pickTime);
-    const formattedDropDate = formatDateReadable(dropTime);
-    const currentDate = new Date().toLocaleDateString(isFr ? "fr-FR" : "en-US", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
-    });
-
-    const shareText = isFr
-      ? `*3M SERVICES YAOUNDÉ - BON DE RÉSERVATION OFFICIEL*
-━━━━━━━━━━━━━━━━━━━━━━━━
-📄 *RÉFÉRENCE :* ${refId}
-📅 *Émis le :* ${currentDate}
-✨ *Statut :* Validé Conciergerie 24/7
-
-🚗 *VÉHICULE :* ${carType || "Véhicule de Prestige"}
-⏱️ *Durée de location :* ${days} Jour(s)
-
-📍 *DÉPART :* ${formattedPickDate}
-• *Lieu :* ${pickUp || "Yaoundé"}
-📍 *RETOUR :* ${formattedDropDate}
-• *Lieu :* ${dropOff || "Yaoundé"}
-
-👤 *LOCATAIRE :* ${name} ${lastName}
-📞 *Téléphone :* ${phone}
-📧 *Email :* ${email || "N/C"}
-📍 *Adresse / Ville :* ${address || ""}, ${city || "Yaoundé"}
-
-🛡️ *SERVICES INCLUS :*
-• Assurance tous risques & responsabilité civile
-• Véhicule propre, climatisé et révisé
-• Assistance dépannage & conciergerie active 24/7
-• Chauffeur professionnel disponible sur simple demande
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-🏢 *DIRECTION CONCIERGERIE 3M SERVICES*
-Agences : Omnisports (Rue Foe) • Bastos • Aéroport Nsimalen
-📞 +237 691 78 64 47 / +237 653 76 17 28
-🌐 https://www.3mservice.shop`
-      : `*3M SERVICES YAOUNDÉ - OFFICIAL RESERVATION VOUCHER*
-━━━━━━━━━━━━━━━━━━━━━━━━
-📄 *REFERENCE:* ${refId}
-📅 *Issued on:* ${currentDate}
-✨ *Status:* Validated by Concierge 24/7
-
-🚗 *VEHICLE:* ${carType || "Premium Vehicle"}
-⏱️ *Duration:* ${days} Day(s)
-
-📍 *PICK-UP:* ${formattedPickDate}
-• *Location:* ${pickUp || "Yaoundé"}
-📍 *DROP-OFF:* ${formattedDropDate}
-• *Location:* ${dropOff || "Yaoundé"}
-
-👤 *CUSTOMER:* ${name} ${lastName}
-📞 *Phone:* ${phone}
-📧 *Email:* ${email || "N/A"}
-📍 *Address / City:* ${address || ""}, ${city || "Yaoundé"}
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-🏢 *3M SERVICES CONCIERGE DIRECTION*
-Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
-🌐 https://www.3mservice.shop`;
-
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html lang="${isFr ? "fr" : "en"}">
-      <head>
-        <meta charset="UTF-8">
-        <title>${isFr ? "Bon de Réservation" : "Reservation Voucher"} - 3M SERVICES (${refId})</title>
-        <style>
-          * { box-sizing: border-box; margin: 0; padding: 0; }
-          body {
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            color: #171717;
-            background-color: #ffffff;
-            padding: 30px;
-            font-size: 13px;
-            line-height: 1.5;
-          }
-          @page {
-            size: A4 portrait;
-            margin: 15mm;
-          }
-          .voucher-container {
-            max-width: 800px;
-            margin: 0 auto;
-            border: 1px solid #E5E5E5;
-            border-radius: 8px;
-            padding: 28px;
-            position: relative;
-          }
-          .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #E5E5E5;
-            padding-bottom: 16px;
-            margin-bottom: 20px;
-          }
-          .logo-area h1 {
-            font-size: 24px;
-            font-weight: 900;
-            color: #D62828;
-            letter-spacing: -0.5px;
-          }
-          .logo-area span { color: #171717; }
-          .logo-area p { font-size: 11px; color: #737373; margin-top: 3px; }
-          .ref-area { text-align: right; }
-          .ref-badge {
-            background-color: #fef2f2;
-            color: #D62828;
-            border: 1px solid #fecaca;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-weight: 800;
-            font-size: 13px;
-            display: inline-block;
-            margin-bottom: 4px;
-          }
-          .ref-area p { font-size: 11px; color: #737373; }
-          .status-banner {
-            background-color: #fffbeb;
-            border: 1px solid #fde68a;
-            color: #92400e;
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          .status-banner h2 {
-            font-size: 13.5px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          .status-badge-pending {
-            background: #d97706;
-            color: #ffffff;
-            font-size: 11px;
-            font-weight: 800;
-            padding: 3px 10px;
-            border-radius: 4px;
-            letter-spacing: 0.5px;
-          }
-          .vehicle-highlight {
-            border: 1px solid #E5E5E5;
-            background: #fafafa;
-            border-radius: 6px;
-            padding: 14px 18px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-          }
-          .vehicle-name { font-size: 16px; font-weight: 800; color: #D62828; }
-          .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-            margin-bottom: 20px;
-          }
-          .card {
-            border: 1px solid #E5E5E5;
-            border-radius: 6px;
-            padding: 14px 16px;
-            background-color: #FFFFFF;
-          }
-          .card h3 {
-            font-size: 12px;
-            font-weight: 800;
-            color: #171717;
-            border-bottom: 1px solid #E5E5E5;
-            padding-bottom: 6px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          .item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px dashed #f0f0f0;
-            font-size: 12px;
-          }
-          .item:last-child { border-bottom: none; }
-          .item span.label { color: #737373; }
-          .item span.value { font-weight: 700; color: #171717; text-align: right; }
-          .disclaimer {
-            border: 1px solid #e5e5e5;
-            border-left: 4px solid #D62828;
-            border-radius: 4px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            background: #ffffff;
-            font-size: 11.5px;
-            color: #404040;
-            line-height: 1.5;
-          }
-          .disclaimer strong {
-            color: #D62828;
-            display: block;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            font-size: 11px;
-          }
-          .footer-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-top: 10px;
-            padding-top: 12px;
-            border-top: 1px solid #E5E5E5;
-          }
-          .stamp-box {
-            border: 1.5px dashed #D62828;
-            border-radius: 6px;
-            padding: 8px 14px;
-            text-align: center;
-            color: #D62828;
-            font-size: 11px;
-            font-weight: 800;
-            background: #fff5f5;
-          }
-          .stamp-box small {
-            display: block;
-            font-size: 9px;
-            color: #737373;
-            font-weight: 400;
-            margin-top: 2px;
-          }
-          .signature-box { text-align: right; font-size: 11px; color: #737373; }
-          .signature-box strong { display: block; color: #171717; font-size: 12px; margin-top: 20px; }
-          .print-actions {
-            margin: 24px auto 10px;
-            max-width: 800px;
-            background: #F8F9FA;
-            border: 1px solid #E2E8F0;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
-          }
-          .print-actions-header {
-            margin-bottom: 16px;
-            border-bottom: 1px solid #E2E8F0;
-            padding-bottom: 12px;
-          }
-          .print-actions-header h3 {
-            font-size: 15px;
-            font-weight: 800;
-            color: #0F172A;
-            margin: 0 0 4px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          }
-          .print-actions-header p {
-            font-size: 12px;
-            color: #64748B;
-            margin: 0;
-          }
-          .print-actions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 10px;
-            margin-bottom: 16px;
-          }
-          .btn-action {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 12.5px;
-            font-weight: 700;
-            cursor: pointer;
-            border: none;
-            text-decoration: none;
-            transition: all 0.2s ease;
-          }
-          .btn-print {
-            background-color: #D62828;
-            color: #ffffff;
-          }
-          .btn-print:hover { background-color: #B91C1C; }
-          .btn-whatsapp-client {
-            background-color: #25D366;
-            color: #ffffff;
-          }
-          .btn-whatsapp-client:hover { background-color: #1EBE5D; }
-          .btn-whatsapp-any {
-            background-color: #0F172A;
-            color: #ffffff;
-          }
-          .btn-whatsapp-any:hover { background-color: #1E293B; }
-          .btn-native-share {
-            background-color: #0284C7;
-            color: #ffffff;
-          }
-          .btn-native-share:hover { background-color: #0369A1; }
-          .btn-copy {
-            background-color: #FFFFFF;
-            color: #334155;
-            border: 1px solid #CBD5E1;
-          }
-          .btn-copy:hover { background-color: #F1F5F9; }
-
-          .custom-share-box {
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 8px;
-            padding: 12px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-          }
-          .custom-share-box label {
-            font-size: 11px;
-            font-weight: 700;
-            color: #475569;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-          }
-          .custom-share-input-row {
-            display: flex;
-            gap: 8px;
-          }
-          .custom-share-input-row input {
-            flex: 1;
-            padding: 9px 12px;
-            border: 1px solid #CBD5E1;
-            border-radius: 6px;
-            font-size: 13px;
-            outline: none;
-          }
-          .custom-share-input-row input:focus {
-            border-color: #25D366;
-          }
-          .custom-share-input-row button {
-            background-color: #25D366;
-            color: #ffffff;
-            border: none;
-            padding: 9px 16px;
-            border-radius: 6px;
-            font-size: 12.5px;
-            font-weight: 700;
-            cursor: pointer;
-            white-space: nowrap;
-          }
-          .custom-share-input-row button:hover {
-            background-color: #1EBE5D;
-          }
-
-          @media print {
-            body { padding: 0; }
-            .print-actions { display: none !important; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="voucher-container">
-          <div class="header">
-            <div class="logo-area">
-              <h1>3M <span>SERVICES</span></h1>
-              <p>${isFr ? "Location Automobile de Prestige • Yaoundé, Cameroun" : "Premium Car Rental & Mobility • Yaoundé, Cameroon"}</p>
-              <p>Agences : Omnisports (Rue Foe) • Tsinga (Face FECAFOOT) • Aéroport Nsimalen</p>
-            </div>
-            <div class="ref-area">
-              <span class="ref-badge">RÉF : ${refId}</span>
-              <p>${isFr ? "Émis le" : "Issued on"} : ${currentDate}</p>
-              <p>${isFr ? "Statut : En attente de validation conciergerie" : "Status: Pending Concierge Validation"}</p>
-            </div>
-          </div>
-
-          <div class="status-banner">
-            <h2>${isFr ? "Demande de Réservation Véhicule" : "Vehicle Reservation Request"}</h2>
-            <span class="status-badge-pending">${isFr ? "EN ATTENTE DE VALIDATION CONCIERGERIE" : "PENDING CONCIERGE VALIDATION"}</span>
-          </div>
-
-          <div class="vehicle-highlight">
-            <div>
-              <span style="font-size: 11px; color: #737373; font-weight: 600; text-transform: uppercase;">${isFr ? "Véhicule Sélectionné :" : "Selected Vehicle:"}</span>
-              <div class="vehicle-name">${carType || "Véhicule de Prestige"}</div>
-            </div>
-            <div style="text-align: right;">
-              <span style="font-size: 11px; color: #737373;">${isFr ? "Durée estimée :" : "Estimated duration:"}</span>
-              <div style="font-size: 14px; font-weight: 800; color: #171717;">${days} ${isFr ? "Jour(s)" : "Day(s)"}</div>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="card">
-              <h3>${isFr ? "📍 Lieux & Dates de Location" : "📍 Rental Period & Locations"}</h3>
-              <div class="item">
-                <span class="label">${isFr ? "Date de départ :" : "Pick-up date:"}</span>
-                <span class="value">${formattedPickDate}</span>
-              </div>
-              <div class="item">
-                <span class="label">${isFr ? "Lieu de prise en charge :" : "Pick-up location:"}</span>
-                <span class="value">${pickUp || "Yaoundé"}</span>
-              </div>
-              <div class="item">
-                <span class="label">${isFr ? "Date de retour :" : "Drop-off date:"}</span>
-                <span class="value">${formattedDropDate}</span>
-              </div>
-              <div class="item">
-                <span class="label">${isFr ? "Lieu de restitution :" : "Drop-off location:"}</span>
-                <span class="value">${dropOff || "Yaoundé"}</span>
-              </div>
-            </div>
-
-            <div class="card">
-              <h3>${isFr ? "👤 Coordonnées du Locataire" : "👤 Customer Information"}</h3>
-              <div class="item">
-                <span class="label">${isFr ? "Nom complet :" : "Full Name:"}</span>
-                <span class="value">${name} ${lastName}</span>
-              </div>
-              <div class="item">
-                <span class="label">${isFr ? "Téléphone / WhatsApp :" : "Phone / WhatsApp:"}</span>
-                <span class="value">${phone}</span>
-              </div>
-              <div class="item">
-                <span class="label">${isFr ? "Email :" : "Email:"}</span>
-                <span class="value">${email || (isFr ? "Non communiqué" : "N/A")}</span>
-              </div>
-              <div class="item">
-                <span class="label">${isFr ? "Adresse / Ville :" : "Address / City:"}</span>
-                <span class="value">${address || ""}, ${city || "Yaoundé"} ${zipcode ? `(${zipcode})` : ""}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="disclaimer">
-            <strong>${isFr ? "IMPORTANT : VALIDATION CONCIERGERIE OBLIGATOIRE" : "IMPORTANT: CONCIERGE VALIDATION REQUIRED"}</strong>
-            ${isFr
-              ? "Ce document officiel constitue une demande de réservation préalable en attente de validation conciergerie. La mise à disposition définitive du véhicule est soumise à la validation de disponibilité et à la signature du contrat officiel par la conciergerie 3M SERVICES."
-              : "This official document represents a reservation request pending concierge confirmation. Final vehicle availability is subject to verification and formal agreement by 3M SERVICES concierge."}
-          </div>
-
-          <div class="footer-section">
-            <div class="stamp-box">
-              DIRECTION EXPLOITATION 3M SERVICES<br>
-              CONCIERGERIE OFFICIELLE YAOUNDÉ<br>
-              <small>+237 691 78 64 47 • +237 653 76 17 28</small>
-            </div>
-            <div class="signature-box">
-              ${isFr ? "Demande émise pour le client" : "Request issued for customer"} <strong>${name} ${lastName}</strong>
-            </div>
-          </div>
-        </div>
-
-        <div class="print-actions">
-          <div class="print-actions-header">
-            <h3>⚡ ${isFr ? "Actions & Partage du Bon de Réservation" : "Actions & Document Sharing"}</h3>
-            <p>${isFr ? "Imprimez en PDF ou partagez directement ce bon de réservation officiel à différents contacts." : "Print to PDF or share this official voucher directly with different contacts."}</p>
-          </div>
-
-          <div class="print-actions-grid">
-            <button type="button" class="btn-action btn-print" onclick="window.print()">
-              <span>🖨️ ${isFr ? "Imprimer / Enregistrer en PDF" : "Print / Save as PDF"}</span>
-            </button>
-
-            ${phone ? `
-            <button type="button" class="btn-action btn-whatsapp-client" onclick="shareToClient()">
-              <span>📲 ${isFr ? `Envoyer au Client (${phone})` : `Send to Client (${phone})`}</span>
-            </button>
-            ` : ""}
-
-            <button type="button" class="btn-action btn-whatsapp-any" onclick="shareToAny()">
-              <span>💬 ${isFr ? "Partager Contact WhatsApp" : "Share via WhatsApp"}</span>
-            </button>
-
-            <button type="button" id="btnNativeShare" class="btn-action btn-native-share" onclick="shareNative()">
-              <span>↗️ ${isFr ? "Partager Document..." : "Share Document..."}</span>
-            </button>
-
-            <button type="button" id="btnCopy" class="btn-action btn-copy" onclick="copySummary()">
-              <span>📋 ${isFr ? "Copier le Récapitulatif" : "Copy Summary"}</span>
-            </button>
-          </div>
-
-          <div class="custom-share-box">
-            <label>${isFr ? "Ou envoyer ce bon à un autre contact WhatsApp :" : "Or send this voucher to another WhatsApp contact:"}</label>
-            <div class="custom-share-input-row">
-              <input type="tel" id="customPhone" placeholder="${isFr ? "Saisir un numéro (ex: +237 691 78 64 47 ou 237...)" : "Enter phone (e.g. +237 691 78 64 47)"}" />
-              <button type="button" onclick="shareToCustom()">🚀 ${isFr ? "Envoyer" : "Send"}</button>
-            </div>
-          </div>
-        </div>
-
-        <script>
-          const shareText = ${JSON.stringify(shareText)};
-          const clientPhone = ${JSON.stringify((phone || "").replace(/[^0-9]/g, ""))};
-
-          function shareToClient() {
-            if (!clientPhone) {
-              alert("${isFr ? "Numéro WhatsApp du client non renseigné." : "No client phone number available."}");
-              return;
-            }
-            const url = 'https://wa.me/' + clientPhone + '?text=' + encodeURIComponent(shareText);
-            window.open(url, '_blank');
-          }
-
-          function shareToAny() {
-            const url = 'https://wa.me/?text=' + encodeURIComponent(shareText);
-            window.open(url, '_blank');
-          }
-
-          function shareToCustom() {
-            const input = document.getElementById('customPhone');
-            if (!input || !input.value.trim()) {
-              alert("${isFr ? "Veuillez saisir un numéro de téléphone valide." : "Please enter a valid phone number."}");
-              return;
-            }
-            const clean = input.value.replace(/[^0-9]/g, "");
-            const url = 'https://wa.me/' + clean + '?text=' + encodeURIComponent(shareText);
-            window.open(url, '_blank');
-          }
-
-          function shareNative() {
-            if (navigator.share) {
-              navigator.share({
-                title: '${isFr ? "Bon de Réservation 3M SERVICES" : "3M SERVICES Voucher"} (${refId})',
-                text: shareText
-              }).catch(function(e) { console.log('Share canceled', e); });
-            } else {
-              shareToAny();
-            }
-          }
-
-          function copySummary() {
-            if (navigator.clipboard) {
-              navigator.clipboard.writeText(shareText).then(function() {
-                const btn = document.getElementById('btnCopy');
-                if (btn) {
-                  const oldHtml = btn.innerHTML;
-                  btn.innerHTML = '<span>✅ ${isFr ? "Copié avec succès !" : "Copied successfully!"}</span>';
-                  btn.style.backgroundColor = '#DCFCE7';
-                  btn.style.color = '#16A34A';
-                  setTimeout(function() {
-                    btn.innerHTML = oldHtml;
-                    btn.style.backgroundColor = '';
-                    btn.style.color = '';
-                  }, 2500);
-                }
-              }).catch(function() {
-                alert("${isFr ? "Récapitulatif copié !" : "Summary copied!"}");
-              });
-            } else {
-              alert("${isFr ? "Récapitulatif copié !" : "Summary copied!"}");
-            }
-          }
-
-          window.onload = function() {
-            if (!navigator.share) {
-              const nb = document.getElementById('btnNativeShare');
-              if (nb) nb.style.display = 'none';
-            }
-            setTimeout(function() {
-              window.print();
-            }, 300);
-          };
-        </script>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.open();
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-  };
-
-  // Handle PDF Download Only
-  const handleDownloadPDF = (e) => {
-    if (e) e.preventDefault();
-    setHasSubmitted(true);
-    if (!isFormValid()) {
-      return;
-    }
-    const refId = "3M-RES-" + Date.now().toString().slice(-4);
-    generateReservationPDF(refId);
-    setPdfSuccess(true);
-  };
-
-  // Handle WhatsApp Confirmation + Background Backend Sync
-  const handleConfirmWhatsApp = (e) => {
-    if (e) e.preventDefault();
-    setHasSubmitted(true);
-    if (!isFormValid()) {
-      return;
-    }
-
-    const fullName = `${name} ${lastName}`.trim();
+  const buildDirectBookingMessage = () => {
     const days = calculateDays();
     const formattedPick = formatDateReadable(pickTime);
     const formattedDrop = formatDateReadable(dropTime);
+    const carCardUrl = getCarCardUrl();
 
-    // Synchronize CRM order and customer account
-    const { customer, booking } = saveOrderAndCustomerAccount({
-      clientName: fullName,
-      phone,
-      email: email || "",
-      address: address || "Yaoundé",
-      city: city || "Yaoundé",
-      itemName: carType,
-      itemCategory: "Véhicule VIP",
-      itemPrice: 120000,
-      days,
-      totalPrice: 120000 * (days || 1),
-      pickTime,
-      dropTime,
-      pickUp,
-      dropOff,
-      notes: `Âge: ${age || "25"} • Newsletter: ${newsletter ? "Oui" : "Non"}`,
-      source: "Site Web (WhatsApp)"
-    });
+    return isFr
+      ? `Bonjour 3M SERVICES,\n\nJe souhaite réserver ce véhicule :\n\n` +
+          `🚗 Véhicule : ${carType}\n` +
+          `📅 Prise en charge : ${pickUp} — ${formattedPick}\n` +
+          `🏁 Restitution : ${dropOff} — ${formattedDrop}\n` +
+          `⏱️ Durée estimée : ${days} jour(s)\n` +
+          `🔗 Fiche du véhicule : ${carCardUrl}\n\n` +
+          `Merci de me confirmer la disponibilité et les modalités.`
+      : `Hello 3M SERVICES,\n\nI would like to book this vehicle:\n\n` +
+          `🚗 Vehicle: ${carType}\n` +
+          `📅 Pick-up: ${pickUp} — ${formattedPick}\n` +
+          `🏁 Drop-off: ${dropOff} — ${formattedDrop}\n` +
+          `⏱️ Estimated duration: ${days} Day(s)\n` +
+          `🔗 Vehicle card link: ${carCardUrl}\n\n` +
+          `Please confirm availability and rental details.`;
+  };
 
-    setCreatedProfile(customer);
-    setCreatedBooking(booking);
-    setCurrentClient(customer);
-
-    const refId = booking.id;
-
-    // 2. Build formatted WhatsApp message
-    const msg = encodeURIComponent(
-      `Bonjour 3M SERVICES,\n\n` +
-      `Je souhaite confirmer ma demande de réservation [Réf : ${refId}] :\n\n` +
-      `🚗 Véhicule : ${carType}\n` +
-      `📅 Prise en charge : ${pickUp} le ${formattedPick}\n` +
-      `🏁 Restitution : ${dropOff} le ${formattedDrop}\n` +
-      `⏱️ Durée estimée : ${days} jour(s)\n\n` +
-      `👤 Client : ${fullName}\n` +
-      `💳 Compte Client 3M : ${customer.accountNumber}\n` +
-      `📞 Téléphone / WhatsApp : ${phone}\n` +
-      (email ? `✉️ Email : ${email}\n` : "") +
-      (address ? `📍 Adresse / Quartier : ${address}, ${city || "Yaoundé"}\n` : `📍 Ville : ${city || "Yaoundé"}\n`) +
-      (zipcode ? `📍 Repère : ${zipcode}\n\n` : `\n`) +
-      `Statut : En attente de validation conciergerie.\n` +
-      `Merci de me confirmer la disponibilité du véhicule et la préparation du contrat.`
-    );
-
-    // 3. Open WhatsApp directly
-    window.open(`https://wa.me/237691786447?text=${msg}`, "_blank");
-
-    // 4. Set validation success message in green
+  const handleSendViaWhatsApp = () => {
+    const msg = buildDirectBookingMessage();
+    window.open(`https://wa.me/237691786447?text=${encodeURIComponent(msg)}`, "_blank");
     setSuccessStatus(
       isFr
-        ? `Votre réservation (${refId}) a été enregistrée avec succès ! Votre Compte Client N° ${customer.accountNumber} est désormais actif.`
-        : `Your reservation (${refId}) has been successfully saved! Your Client Account N° ${customer.accountNumber} is now active.`
+        ? "Votre demande avec le lien vers le véhicule a été préparée dans WhatsApp !"
+        : "Your booking details and vehicle link have been opened in WhatsApp!"
     );
   };
 
-  // Handle Email Confirmation to contact@3mservice.shop + Backend Sync
-  const handleConfirmEmail = (e) => {
-    if (e) e.preventDefault();
-    setHasSubmitted(true);
-    if (!isFormValid()) {
-      return;
-    }
+  const handleSendViaAppChat = () => {
+    const msg = buildDirectBookingMessage();
+    const carCardUrl = getCarCardUrl();
+    const dailyPrice = matchedCar?.promoPrice || matchedCar?.pricePerDay || matchedCar?.price || 120000;
 
-    const fullName = `${name} ${lastName}`.trim();
-    const days = calculateDays();
-    const formattedPick = formatDateReadable(pickTime);
-    const formattedDrop = formatDateReadable(dropTime);
+    setModal(false);
+    setIsEditingSummary(false);
+    setSuccessStatus(
+      isFr
+        ? "Votre demande et la fiche véhicule ont été envoyées dans le Chat Privé 3M !"
+        : "Your booking details and vehicle card were sent to 3M In-App Chat!"
+    );
 
-    // Synchronize CRM order and customer account
-    const { customer, booking } = saveOrderAndCustomerAccount({
-      clientName: fullName,
-      phone,
-      email: email || "",
-      address: address || "Yaoundé",
-      city: city || "Yaoundé",
-      itemName: carType,
-      itemCategory: "Véhicule VIP",
-      itemPrice: 120000,
-      days,
-      totalPrice: 120000 * (days || 1),
-      pickTime,
-      dropTime,
-      pickUp,
-      dropOff,
-      notes: `Demande Email • Âge: ${age || "25"} • Newsletter: ${newsletter ? "Oui" : "Non"}`,
-      source: "Site Web (Email)"
-    });
-
-    setCreatedProfile(customer);
-    setCreatedBooking(booking);
-    setCurrentClient(customer);
-
-    const refId = booking.id;
-
-    // Also register message in contacts endpoint
-    fetch(`${API_BASE}/contacts`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: fullName,
-        phone,
-        email: email || "contact@3Mservice.shop",
-        message: `Nouvelle réservation [${refId}] : ${carType} du ${formattedPick} au ${formattedDrop} (${days} j) par ${fullName} (${phone}).`
+    window.dispatchEvent(
+      new CustomEvent("3m-open-chat", {
+        detail: {
+          message: msg,
+          autoSend: true,
+          car: {
+            id: getCarKey(),
+            name: carType,
+            price: typeof dailyPrice === "number" ? dailyPrice : parseInt(String(dailyPrice).replace(/\D/g, ""), 10) || 120000,
+            image: imgUrl,
+            url: carCardUrl
+          }
+        }
       })
-    }).catch((err) => console.warn("Contacts sync err:", err));
-
-    // 2. Build formatted Email subject & body
-    const emailSubject = encodeURIComponent(
-      `Demande de Réservation 3M SERVICES [Réf : ${refId}] - ${carType} - ${fullName}`
     );
-
-    const emailBody = encodeURIComponent(
-      `Bonjour 3M SERVICES,\n\n` +
-      `Je souhaite confirmer ma demande de réservation pour le véhicule suivant :\n\n` +
-      `========================================\n` +
-      `DÉTAILS DU VÉHICULE & LOCATION\n` +
-      `========================================\n` +
-      `• Référence Réservation : ${refId}\n` +
-      `• Véhicule choisi : ${carType}\n` +
-      `• Lieu de prise en charge : ${pickUp}\n` +
-      `• Date de prise en charge : ${formattedPick}\n` +
-      `• Lieu de restitution : ${dropOff}\n` +
-      `• Date de restitution : ${formattedDrop}\n` +
-      `• Durée estimée : ${days} jour(s)\n\n` +
-      `========================================\n` +
-      `COORDONNÉES DU CLIENT\n` +
-      `========================================\n` +
-      `• Nom & Prénom : ${fullName}\n` +
-      `• Compte Client 3M : ${customer.accountNumber}\n` +
-      `• Téléphone / WhatsApp : ${phone}\n` +
-      `• Adresse Email : ${email || "Non renseigné"}\n` +
-      `• Âge : ${age || "25"}\n` +
-      `• Quartier / Adresse : ${address || "Yaoundé"}, ${city || "Yaoundé"}\n` +
-      `• Repère / Code postal : ${zipcode || "N/A"}\n` +
-      `• Offres exclusives : ${newsletter ? "Oui" : "Non"}\n\n` +
-      `========================================\n` +
-      `Merci de m'adresser la confirmation de réservation et la préparation du contrat à cette adresse.\n\n` +
-      `Cordialement,\n` +
-      `${fullName}\n` +
-      `${phone}\n` +
-      (email ? `${email}\n` : "")
-    );
-
-    // 3. Open mail client with prefilled mailto to contact@3Mservice.shop
-    window.location.href = `mailto:contact@3Mservice.shop?subject=${emailSubject}&body=${emailBody}`;
-
-    // 4. Set validation success message
-    setSuccessStatus(
-      isFr
-        ? `Votre demande de réservation (${refId}) a été validée et transmise par email à contact@3Mservice.shop ! Compte Client N° ${customer.accountNumber} actif.`
-        : `Your reservation request (${refId}) has been validated and sent via email to contact@3Mservice.shop! Client Account N° ${customer.accountNumber} active.`
-    );
-  };
-
-  // Handle Continue Booking (creates/syncs customer profile & attaches this vehicle)
-  const handleContinueBooking = (e) => {
-    if (e) e.preventDefault();
-    setHasSubmitted(true);
-    if (!isFormValid()) {
-      return;
-    }
-
-    const fullName = `${name} ${lastName}`.trim();
-    const days = calculateDays();
-
-    // 1. Create or update Customer Profile in CRM with personal info + this car
-    const { customer, booking } = saveOrderAndCustomerAccount({
-      clientName: fullName,
-      phone,
-      email: email || "",
-      address: address || "Yaoundé",
-      city: city || "Yaoundé",
-      itemName: carType,
-      itemCategory: "Véhicule VIP",
-      itemPrice: 120000,
-      days,
-      totalPrice: 120000 * (days || 1),
-      pickTime,
-      dropTime,
-      pickUp,
-      dropOff,
-      notes: `Âge: ${age || "25"} • Newsletter: ${newsletter ? "Oui" : "Non"} • Profil Client 3M synchronisé`,
-      source: "Site Web (Profil & Réservation)"
-    });
-
-    setCreatedProfile(customer);
-    setCreatedBooking(booking);
-    setCurrentClient(customer);
-    setBookingStep("confirmed");
-
-    const modalDiv = document.querySelector(".booking-modal");
-    if (modalDiv) modalDiv.scroll(0, 0);
-  };
-
-  const handleOpenProfilePortal = () => {
-    closeModal();
-    window.dispatchEvent(new CustomEvent("3m-open-client-portal"));
-  };
-
-  const handleSendConfirmedWhatsApp = () => {
-    if (!createdProfile || !createdBooking) return;
-    const formattedPick = formatDateReadable(pickTime);
-    const formattedDrop = formatDateReadable(dropTime);
-    const days = calculateDays();
-    const msg = encodeURIComponent(
-      `*3M SERVICES — CONFIRMATION RÉSERVATION & PROFIL CLIENT*\n\n` +
-      `Bonjour 3M SERVICES,\n\n` +
-      `Je viens d'enregistrer ma réservation avec mon Profil Client 3M :\n\n` +
-      `👤 *Client :* ${createdProfile.name}\n` +
-      `💳 *N° Compte Client 3M :* ${createdProfile.accountNumber}\n` +
-      `📄 *Réf Réservation :* ${createdBooking.id}\n` +
-      `🚗 *Véhicule :* ${createdBooking.carName}\n` +
-      `📅 *Prise en charge :* ${createdBooking.pickUp} le ${formattedPick}\n` +
-      `🏁 *Restitution :* ${createdBooking.dropOff} le ${formattedDrop}\n` +
-      `⏱️ *Durée estimée :* ${days} jour(s)\n` +
-      `💰 *Montant Total :* ${(Number(createdBooking.totalPrice) || 0).toLocaleString("fr-FR")} FCFA\n` +
-      `📞 *Téléphone / WhatsApp :* ${createdProfile.phone}\n` +
-      (createdProfile.email ? `✉️ *Email :* ${createdProfile.email}\n` : "") +
-      (createdProfile.address ? `📍 *Adresse :* ${createdProfile.address}, ${createdProfile.city}\n\n` : `\n`) +
-      `Statut : Profil client créé, en attente de validation conciergerie.\n` +
-      `Merci de me confirmer la disponibilité du véhicule et la remise des clés !`
-    );
-    window.open(`https://wa.me/237691786447?text=${msg}`, "_blank");
   };
 
   return (
@@ -1235,7 +422,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
       )}
 
       {/* ==================================================================
-          PREMIUM REDESIGNED BOOKING MODAL
+          STREAMLINED DIRECT BOOKING MODAL (NO PERSONAL INFO REQUIRED)
           ================================================================== */}
       <div className={`booking-modal ${modal ? "active-modal" : ""}`}>
         {/* Modal Header */}
@@ -1249,19 +436,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
           </button>
         </div>
 
-        {/* Global validation error alert if submit was attempted with missing info */}
-        {hasSubmitted && !isFormValid() && (
-          <div className="booking-modal__alert-error">
-            <i className="fa-solid fa-circle-exclamation"></i>
-            <span>
-              {isFr
-                ? "Veuillez renseigner correctement tous les champs obligatoires (*) ci-dessous."
-                : "Please correctly fill all mandatory fields (*) below."}
-            </span>
-          </div>
-        )}
-
-        {/* Green Success Alert */}
+        {/* Success Alert */}
         {successStatus && (
           <div className="booking-modal__alert-success">
             <i className="fa-solid fa-circle-check"></i>
@@ -1269,158 +444,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
           </div>
         )}
 
-        {/* PDF Generated Indicator */}
-        {pdfSuccess && !successStatus && (
-          <div className="booking-modal__alert-success">
-            <i className="fa-solid fa-circle-check"></i>
-            <span>
-              {isFr
-                ? "Le Bon de Réservation officiel (PDF) a été généré avec succès !"
-                : "The official Reservation Form (PDF) was successfully generated!"}
-            </span>
-          </div>
-        )}
-
-        {bookingStep === "confirmed" && createdProfile && createdBooking ? (
-          <div className="booking-modal__confirmed-step">
-            {/* Success Banner */}
-            <div className="confirmed-success-banner">
-              <div className="confirmed-success-icon">
-                <i className="fa-solid fa-circle-check"></i>
-              </div>
-              <div>
-                <h3>{t("modal_profile_activated_title") || (isFr ? "Profil Client Activé & Véhicule Enregistré !" : "Client Profile Activated & Vehicle Attached!")}</h3>
-                <p>{t("modal_profile_activated_desc") || (isFr ? "Votre compte client est désormais actif. Votre réservation y est automatiquement rattachée." : "Your client account is now active. Your booking is automatically linked to your profile.")}</p>
-              </div>
-            </div>
-
-            {/* Profile Card Summary */}
-            <div className="confirmed-profile-card">
-              <div className="confirmed-profile-header">
-                <div className="confirmed-profile-avatar">
-                  <i className="fa-solid fa-user-tie"></i>
-                </div>
-                <div className="confirmed-profile-meta">
-                  <span className="profile-badge-tier">{createdProfile.tier || "Client VIP 3M"}</span>
-                  <h4>{createdProfile.name}</h4>
-                  <span className="profile-account-num">
-                    <i className="fa-solid fa-id-badge"></i> {isFr ? "N° Compte :" : "Account N°:"} <strong>{createdProfile.accountNumber}</strong>
-                  </span>
-                </div>
-              </div>
-              <div className="confirmed-profile-details">
-                <div className="detail-row">
-                  <span className="detail-label"><i className="fa-solid fa-phone"></i> {isFr ? "Téléphone :" : "Phone:"}</span>
-                  <span className="detail-val">{createdProfile.phone}</span>
-                </div>
-                {createdProfile.email && (
-                  <div className="detail-row">
-                    <span className="detail-label"><i className="fa-solid fa-envelope"></i> Email :</span>
-                    <span className="detail-val">{createdProfile.email}</span>
-                  </div>
-                )}
-                <div className="detail-row">
-                  <span className="detail-label"><i className="fa-solid fa-location-dot"></i> {isFr ? "Ville / Quartier :" : "City / Area:"}</span>
-                  <span className="detail-val">{createdProfile.address ? `${createdProfile.address}, ` : ""}{createdProfile.city || "Yaoundé"}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Vehicle Attached to Profile */}
-            <div className="confirmed-vehicle-card">
-              <div className="confirmed-vehicle-badge">
-                <i className="fa-solid fa-car-side"></i> {isFr ? "Véhicule Rattaché à votre Profil" : "Vehicle Attached to Profile"}
-              </div>
-              <div className="confirmed-vehicle-content">
-                {imgUrl && (
-                  <div className="confirmed-vehicle-img">
-                    <img src={imgUrl} alt={createdBooking.carName} />
-                  </div>
-                )}
-                <div className="confirmed-vehicle-info">
-                  <h5>{createdBooking.carName}</h5>
-                  <div className="confirmed-booking-ref">
-                    <span className="ref-label">{isFr ? "Réf. Réservation :" : "Booking Ref:"}</span>
-                    <span className="ref-code">{createdBooking.id}</span>
-                  </div>
-                  <div className="confirmed-booking-grid">
-                    <div>
-                      <span className="b-label">{isFr ? "Prise en charge :" : "Pick-up:"}</span>
-                      <strong>{createdBooking.pickUp}</strong>
-                      <small>{formatDateReadable(createdBooking.pickTime)}</small>
-                    </div>
-                    <div>
-                      <span className="b-label">{isFr ? "Restitution :" : "Drop-off:"}</span>
-                      <strong>{createdBooking.dropOff}</strong>
-                      <small>{formatDateReadable(createdBooking.dropTime)}</small>
-                    </div>
-                  </div>
-                  <div className="confirmed-pricing-row">
-                    <span>{isFr ? "Durée estimée :" : "Duration:"} <strong>{calculateDays()} {isFr ? "Jour(s)" : "Day(s)"}</strong></span>
-                    <span className="confirmed-total-tag">
-                      {isFr ? "Total estimé :" : "Estimated total:"} <strong>{(Number(createdBooking.totalPrice) || 0).toLocaleString("fr-FR")} FCFA</strong>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions Cluster in Confirmed State */}
-            <div className="confirmed-actions-cluster">
-              {/* 1. Transmit to WhatsApp Concierge */}
-              <button
-                type="button"
-                onClick={handleSendConfirmedWhatsApp}
-                className="btn-confirm-whatsapp btn-large"
-              >
-                <i className="fa-brands fa-whatsapp"></i>
-                <div className="btn-confirm-whatsapp__content">
-                  <strong>{isFr ? "Transmettre à la Conciergerie sur WhatsApp (+237 691 78 64 47)" : "Send to Concierge on WhatsApp (+237 691 78 64 47)"}</strong>
-                  <small>{isFr ? "Activez la préparation immédiate du véhicule et remise des clés" : "Activate vehicle dispatch and key handover"}</small>
-                </div>
-              </button>
-
-              {/* 2. View in Client Portal */}
-              <button
-                type="button"
-                onClick={handleOpenProfilePortal}
-                className="btn-open-client-portal"
-              >
-                <i className="fa-solid fa-user-gear"></i>
-                <div className="btn-open-client-portal__content">
-                  <strong>{t("modal_view_profile_btn") || (isFr ? "Consulter mon Profil & Mes Commandes dans l'Espace Client" : "View my Profile & Orders in Client Portal")}</strong>
-                  <small>{isFr ? "Accédez à votre historique, factures et suivi en direct" : "Access your booking history, vouchers & direct tracking"}</small>
-                </div>
-                <i className="fa-solid fa-arrow-up-right-from-square"></i>
-              </button>
-
-              {/* 3. Secondary Row: Download PDF voucher + Edit */}
-              <div className="confirmed-secondary-actions">
-                <button
-                  type="button"
-                  onClick={() => generateReservationPDF(createdBooking.id)}
-                  className="btn-download-pdf"
-                >
-                  <i className="fa-solid fa-file-pdf"></i>
-                  <span>{isFr ? "Télécharger le Bon de Réservation (PDF)" : "Download Reservation Form (PDF)"}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setBookingStep("form")}
-                  className="btn-back-to-edit"
-                >
-                  <i className="fa-solid fa-pen-to-square"></i>
-                  <span>{t("modal_back_to_edit") || (isFr ? "Modifier les informations de la réservation" : "Edit booking details")}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <>
-        {/* ==================================================================
-            A. BOOKING SUMMARY (WITH INLINE EDIT TOGGLE)
-            ================================================================== */}
+        {/* A. BOOKING SUMMARY (WITH INLINE EDIT TOGGLE & VEHICLE CARD LINK) */}
         <div className="booking-modal__summary-card">
           <div className="booking-modal__summary-header">
             <div className="booking-modal__summary-header-left">
@@ -1441,7 +465,6 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
             </button>
           </div>
 
-          {/* Inline Edit Panel */}
           {isEditingSummary ? (
             <div className="booking-modal__inline-edit-panel">
               <div className="inline-edit-grid">
@@ -1465,7 +488,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
                 <div className="inline-edit-field">
                   <label>{t("modal_pickup_loc")}</label>
                   <select value={pickUp} onChange={(e) => setPickUp(e.target.value)}>
-                    {(pickupLocations.length > 0 ? pickupLocations.map(l => l.name) : defaultPickups).map((loc, i) => (
+                    {(pickupLocations.length > 0 ? pickupLocations.map((l) => l.name) : defaultPickups).map((loc, i) => (
                       <option key={i} value={loc}>
                         {loc}
                       </option>
@@ -1476,7 +499,7 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
                 <div className="inline-edit-field">
                   <label>{t("modal_dropoff_loc")}</label>
                   <select value={dropOff} onChange={(e) => setDropOff(e.target.value)}>
-                    {(dropoffLocations.length > 0 ? dropoffLocations.map(l => l.name) : defaultDropoffs).map((loc, i) => (
+                    {(dropoffLocations.length > 0 ? dropoffLocations.map((l) => l.name) : defaultDropoffs).map((loc, i) => (
                       <option key={i} value={loc}>
                         {loc}
                       </option>
@@ -1516,7 +539,6 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
               </div>
             </div>
           ) : (
-            /* Read-only Structured Summary View */
             <div className="booking-modal__summary-content">
               <div className="summary-info-grid">
                 <div className="summary-item summary-item--vehicle">
@@ -1555,265 +577,82 @@ Yaoundé • +237 691 78 64 47 • +237 653 76 17 28
               {imgUrl && (
                 <div className="summary-vehicle-preview">
                   <img src={imgUrl} alt={carType} />
+                  <a
+                    href={getCarCardUrl()}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.5rem",
+                      marginTop: "0.8rem",
+                      fontSize: "1.25rem",
+                      fontWeight: 700,
+                      color: "#D62828",
+                      textDecoration: "underline",
+                      width: "100%"
+                    }}
+                  >
+                    <i className="fa-solid fa-arrow-up-right-from-square"></i>
+                    <span>{isFr ? "Voir la fiche du véhicule" : "View vehicle card"}</span>
+                  </a>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* ==================================================================
-            B. PERSONAL INFORMATION FORM
-            ================================================================== */}
+        {/* B. DIRECT SEND CHANNEL CHOICE (WHATSAPP OR IN-APP CHAT) */}
         <div className="booking-modal__person-info">
           <h4 className="personal-section-title">
-            <i className="fa-solid fa-user-check" style={{ color: "#D62828" }}></i>
-            <span>{t("modal_personal")}</span>
+            <i className="fa-solid fa-paper-plane" style={{ color: "#D62828" }}></i>
+            <span>{isFr ? "Choisissez comment envoyer votre demande" : "Choose how to send your booking"}</span>
           </h4>
+          <p style={{ fontSize: "1.35rem", color: "#475569", marginBottom: "1.6rem", lineHeight: 1.5 }}>
+            {isFr
+              ? "Aucune saisie personnelle requise : envoyez directement les détails de cette réservation avec le lien vers la fiche du véhicule sur WhatsApp ou dans les messages de l'application."
+              : "No personal form required: send these booking details with the vehicle card link directly via WhatsApp or in-app messages."}
+          </p>
 
-          <form className="info-form" onSubmit={(e) => e.preventDefault()}>
-            {/* Row 1: First Name * & Last Name * */}
-            <div className="info-form__2col">
-              <div className={`form-field ${hasSubmitted && !isNameValid ? "has-error" : isNameValid ? "is-valid" : ""}`}>
-                <label>
-                  <span>{t("modal_fname")} <b className="req-star">*</b></span>
-                  {isNameValid && <i className="fa-solid fa-circle-check valid-icon"></i>}
-                </label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  type="text"
-                  placeholder="Ex: Arnaud"
-                  required
-                />
-                {hasSubmitted && !isNameValid && (
-                  <p className="field-error-text">
-                    <i className="fa-solid fa-circle-exclamation"></i>
-                    {isFr ? "Le prénom est obligatoire." : "First name is required."}
-                  </p>
-                )}
+          <div className="booking-modal__action-cluster">
+            {/* Option 1: WhatsApp Direct */}
+            <button
+              type="button"
+              onClick={handleSendViaWhatsApp}
+              className="btn-confirm-whatsapp"
+              style={{ backgroundColor: "#16A34A" }}
+              title={isFr ? "Envoyer sur WhatsApp (+237 691 78 64 47)" : "Send via WhatsApp (+237 691 78 64 47)"}
+            >
+              <i className="fa-brands fa-whatsapp"></i>
+              <div className="btn-confirm-whatsapp__content">
+                <strong>{isFr ? "Envoyer sur WhatsApp (+237 691 78 64 47)" : "Send via WhatsApp (+237 691 78 64 47)"}</strong>
+                <small>
+                  {isFr
+                    ? "Transmet les dates, trajets et le lien vers la fiche du véhicule"
+                    : "Sends dates, locations, and direct vehicle card link"}
+                </small>
               </div>
+            </button>
 
-              <div className={`form-field ${hasSubmitted && !isLastNameValid ? "has-error" : isLastNameValid ? "is-valid" : ""}`}>
-                <label>
-                  <span>{t("modal_lname")} <b className="req-star">*</b></span>
-                  {isLastNameValid && <i className="fa-solid fa-circle-check valid-icon"></i>}
-                </label>
-                <input
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  type="text"
-                  placeholder="Ex: Mbarga"
-                  required
-                />
-                {hasSubmitted && !isLastNameValid && (
-                  <p className="field-error-text">
-                    <i className="fa-solid fa-circle-exclamation"></i>
-                    {isFr ? "Le nom est obligatoire." : "Last name is required."}
-                  </p>
-                )}
+            {/* Option 2: In-App Messages (Chat Privé 3M) */}
+            <button
+              type="button"
+              onClick={handleSendViaAppChat}
+              className="btn-confirm-whatsapp"
+              style={{ backgroundColor: "#D62828" }}
+              title={isFr ? "Envoyer dans le Chat Privé 3M (Messages de l'application)" : "Send via In-App Chat (Messages)"}
+            >
+              <i className="fa-solid fa-comments"></i>
+              <div className="btn-confirm-whatsapp__content">
+                <strong>{isFr ? "Envoyer dans les Messages de l'Application (Chat Privé 3M)" : "Send via In-App Messages (3M Private Chat)"}</strong>
+                <small>
+                  {isFr
+                    ? "Ouvre le chat et envoie automatiquement les détails + lien véhicule"
+                    : "Opens chat and immediately sends booking details + vehicle card link"}
+                </small>
               </div>
-            </div>
-
-            {/* Row 2: Phone / WhatsApp * & Age */}
-            <div className="info-form__2col">
-              <div className={`form-field ${hasSubmitted && !isPhoneValid ? "has-error" : isPhoneValid ? "is-valid" : ""}`}>
-                <label>
-                  <span>{t("modal_phone")} <b className="req-star">*</b></span>
-                  {isPhoneValid && <i className="fa-solid fa-circle-check valid-icon"></i>}
-                </label>
-                <input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  type="tel"
-                  placeholder="+237 6XX XX XX XX"
-                  required
-                />
-                {hasSubmitted && !isPhoneValid && (
-                  <p className="field-error-text">
-                    <i className="fa-solid fa-circle-exclamation"></i>
-                    {isFr
-                      ? "Numéro de téléphone / WhatsApp requis (au moins 7 chiffres)."
-                      : "Valid phone / WhatsApp number required."}
-                  </p>
-                )}
-              </div>
-
-              <div className="form-field">
-                <label>
-                  <span>{t("modal_age")}</span>
-                </label>
-                <input
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  type="number"
-                  min="21"
-                  max="99"
-                  placeholder="25"
-                />
-              </div>
-            </div>
-
-            {/* Row 3: Email Address & Address / Neighborhood */}
-            <div className="info-form__2col">
-              <div className={`form-field ${hasSubmitted && !isEmailValid ? "has-error" : email.trim() && isEmailValid ? "is-valid" : ""}`}>
-                <label>
-                  <span>{t("modal_email")}</span>
-                  {email.trim() && isEmailValid && <i className="fa-solid fa-circle-check valid-icon"></i>}
-                </label>
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  placeholder="votre@email.com"
-                />
-                {hasSubmitted && !isEmailValid && (
-                  <p className="field-error-text">
-                    <i className="fa-solid fa-circle-exclamation"></i>
-                    {isFr ? "Veuillez entrer une adresse email valide." : "Please enter a valid email address."}
-                  </p>
-                )}
-              </div>
-
-              <div className="form-field">
-                <label>
-                  <span>{t("modal_address")}</span>
-                </label>
-                <input
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  type="text"
-                  placeholder="Ex: Bastos, Tsinga, ou Hôtel"
-                />
-              </div>
-            </div>
-
-            {/* Row 4: City & Postal Code / Landmark */}
-            <div className="info-form__2col">
-              <div className="form-field">
-                <label>
-                  <span>{t("modal_city")}</span>
-                </label>
-                <input
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  type="text"
-                  placeholder="Yaoundé"
-                />
-              </div>
-
-              <div className="form-field">
-                <label>
-                  <span>{t("modal_postal")}</span>
-                </label>
-                <input
-                  value={zipcode}
-                  onChange={(e) => setZipCode(e.target.value)}
-                  type="text"
-                  placeholder="Ex: Face FECAFOOT, Carrefour Bastos..."
-                />
-              </div>
-            </div>
-
-            {/* ==================================================================
-                C. ADDITIONAL OPTIONS
-                ================================================================== */}
-            <div className="booking-modal__checkbox-row">
-              <input
-                id="modal-offers-check"
-                type="checkbox"
-                checked={newsletter}
-                onChange={(e) => setNewsletter(e.target.checked)}
-              />
-              <label htmlFor="modal-offers-check">
-                {t("modal_newsletter") || (isFr
-                  ? "Je souhaite recevoir les offres exclusives de 3M SERVICES."
-                  : "I would like to receive exclusive offers from 3M SERVICES.")}
-              </label>
-            </div>
-
-            {/* Profile Auto-Sync Notice Box */}
-            <div className="booking-modal__profile-sync-box">
-              <div className="profile-sync-icon">
-                <i className="fa-solid fa-address-card"></i>
-              </div>
-              <div className="profile-sync-info">
-                <h4>
-                  {t("modal_profile_sync_title") ||
-                    (isFr
-                      ? "Création automatique de votre Compte & Profil Client 3M"
-                      : "Automatic 3M Customer Profile Creation")}
-                </h4>
-                <p>
-                  {t("modal_profile_sync_desc") ||
-                    (isFr
-                      ? "Vos coordonnées et les détails de ce véhicule seront enregistrés dans votre profil pour suivre votre réservation."
-                      : "Your details and this vehicle will be saved into your personal profile to track your booking.")}
-                </p>
-              </div>
-            </div>
-
-            {/* ==================================================================
-                D. CONFIRMATION & ACTIONS
-                ================================================================== */}
-            <div className="booking-modal__action-cluster">
-              {/* PRIMARY ACTION: Continuer votre réservation (Creates Profile & Attaches Vehicle) */}
-              <button
-                type="button"
-                onClick={handleContinueBooking}
-                className="btn-continue-booking"
-                title={isFr ? "Enregistrer votre profil et continuer votre réservation" : "Save your profile and continue booking"}
-              >
-                <i className="fa-solid fa-id-card-clip"></i>
-                <div className="btn-continue-booking__content">
-                  <strong>{t("modal_continue_btn") || (isFr ? "Continuer votre réservation" : "Continue your booking")}</strong>
-                  <small>{t("modal_continue_sub") || (isFr ? "Crée votre Profil Client 3M et enregistre ce véhicule" : "Creates your 3M Client Profile and attaches this vehicle")}</small>
-                </div>
-                <i className="fa-solid fa-arrow-right continue-arrow"></i>
-              </button>
-
-              {/* Direct WhatsApp Confirmation */}
-              <button
-                type="button"
-                onClick={handleConfirmWhatsApp}
-                className="btn-confirm-whatsapp"
-                title="Valider et ouvrir la discussion WhatsApp avec la conciergerie 3M SERVICES"
-              >
-                <i className="fa-brands fa-whatsapp"></i>
-                <div className="btn-confirm-whatsapp__content">
-                  <strong>{t("modal_confirm_btn") || (isFr ? "Confirmer sur WhatsApp (+237 691 78 64 47)" : "Confirm via WhatsApp (+237 691 78 64 47)")}</strong>
-                  <small>{isFr ? "Validation immédiate et préparation du contrat" : "Immediate validation & contract preparation"}</small>
-                </div>
-              </button>
-
-              {/* Email Action: Send form through Email to contact@3Mservice.shop */}
-              <button
-                type="button"
-                onClick={handleConfirmEmail}
-                className="btn-confirm-email"
-                title="Envoyer la demande de réservation par Email à contact@3Mservice.shop"
-              >
-                <i className="fa-solid fa-envelope"></i>
-                <div className="btn-confirm-email__content">
-                  <strong>{t("modal_confirm_email_btn") || (isFr ? "Envoyer par Email (contact@3Mservice.shop)" : "Send via Email (contact@3Mservice.shop)")}</strong>
-                  <small>{t("modal_confirm_email_sub") || (isFr ? "Transmission directe au service commercial" : "Direct delivery to 3M sales desk")}</small>
-                </div>
-              </button>
-
-              {/* Secondary Action: Download Reservation Form (PDF) */}
-              <button
-                type="button"
-                onClick={handleDownloadPDF}
-                className="btn-download-pdf"
-                title="Générer et télécharger votre Bon de Réservation en PDF"
-              >
-                <i className="fa-solid fa-file-pdf"></i>
-                <span>{isFr ? "Télécharger le Bon de Réservation (PDF)" : "Download Reservation Form (PDF)"}</span>
-              </button>
-            </div>
-          </form>
+            </button>
+          </div>
         </div>
-          </>
-        )}
       </div>
     </>
   );

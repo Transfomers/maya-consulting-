@@ -1,249 +1,173 @@
 {% extends "base.html" %}
 
-{% block title %}Centre de Notifications - 3M SERVICES{% endblock %}
+{% block title %}Notifications - 3M SERVICES{% endblock %}
 
 {% block content %}
 <style>
-.notif-center-wrap { max-width: 1300px; margin: 0 auto; padding: 2rem 1rem; }
-.tab-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 1rem;
-    border-radius: 999px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    border: 2px solid transparent;
-    text-decoration: none;
-    transition: all 0.2s;
-    color: #6b7280;
-    background: #f3f4f6;
+.nt-wrap { max-width: 1100px; }
+.nt-card { background: #fff; border: 1px solid #eaecf0; border-radius: 14px; }
+.nt-card__head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 18px 22px; border-bottom: 1px solid #eaecf0;
 }
-.tab-pill:hover { background: #e5e7eb; color: #111; }
-.tab-pill.active {
-    background: linear-gradient(135deg, #6e0c28, #9b1c3e);
-    color: #fff;
-    border-color: transparent;
-    box-shadow: 0 2px 8px rgba(110,12,40,0.25);
+.nt-total { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: #101828; margin: 0; }
+.nt-total__count { background: var(--primary-light); color: #fff; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+.nt-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.nt-actions form { margin: 0; }
+
+.nt-filters { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 22px; border-bottom: 1px solid #f2f4f7; }
+.nt-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.nt-chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+    font-size: 13px; font-weight: 500; color: #475467; background: #f2f4f7; text-decoration: none;
 }
-.tab-pill .badge-count {
-    background: rgba(255,255,255,0.25);
-    border-radius: 999px;
-    padding: 0 0.45rem;
-    font-size: 0.72rem;
-    min-width: 1.3rem;
-    text-align: center;
+.nt-chip:hover { background: #eaecf0; color: #101828; }
+.nt-chip.is-active { background: #101828; color: #fff; }
+.nt-chip .nt-chip__n { font-size: 11px; font-weight: 700; padding: 0 6px; border-radius: 999px; background: rgba(255,255,255,.2); }
+.nt-chip:not(.is-active) .nt-chip__n { background: #fff; color: var(--primary-light); }
+.nt-filter-form { display: flex; gap: 8px; align-items: center; }
+.nt-filter-form .form-select, .nt-filter-form .form-control { height: 34px; font-size: 13px; padding-top: 4px; padding-bottom: 4px; }
+
+.nt-list { list-style: none; margin: 0; padding: 18px 22px; display: grid; gap: 12px; }
+.nt-item {
+    position: relative; display: flex; gap: 14px; align-items: flex-start;
+    padding: 16px 18px; border: 1px solid #eaecf0; border-radius: 12px; background: #fff;
+    transition: box-shadow .15s, background .15s;
 }
-.tab-pill:not(.active) .badge-count { background: rgba(0,0,0,0.08); color: #111; }
-.notif-card {
-    border-radius: 1rem;
-    border: 1px solid #f0f0f0;
-    background: #fff;
-    transition: transform 0.18s, box-shadow 0.18s;
+.nt-item:hover { box-shadow: 0 6px 18px rgba(16, 24, 40, .06); }
+.nt-item.is-unread { background: #fffbfa; border-color: #fee4e2; }
+.nt-avatar {
+    width: 44px; height: 44px; flex: 0 0 44px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 18px;
 }
-.notif-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.07); }
-.notif-card.unread { border-left: 4px solid; }
-.notif-card.unread.type-success { border-left-color: #22c55e; }
-.notif-card.unread.type-warning { border-left-color: #f59e0b; }
-.notif-card.unread.type-danger  { border-left-color: #ef4444; }
-.notif-card.unread.type-info    { border-left-color: #3b82f6; }
-.cat-badge {
-    font-size: 0.68rem;
-    font-weight: 700;
-    padding: 0.25rem 0.6rem;
-    border-radius: 999px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+.nt-avatar i { color: inherit !important; }
+.nt-avatar.is-info { background: #eff8ff; color: #1570ef; }
+.nt-avatar.is-success { background: #ecfdf3; color: #039855; }
+.nt-avatar.is-warning { background: #fffaeb; color: #dc6803; }
+.nt-avatar.is-danger { background: #fef3f2; color: #d92d20; }
+.nt-body { flex: 1; min-width: 0; }
+.nt-title { font-size: 14px; color: #101828; margin: 0 0 2px; }
+.nt-title strong { font-weight: 700; }
+.nt-msg { font-size: 14px; color: #667085; margin: 0; line-height: 1.55; overflow-wrap: anywhere; }
+.nt-meta { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 12.5px; color: #667085; }
+.nt-meta i { color: #98a2b3 !important; }
+.nt-dot { width: 8px; height: 8px; border-radius: 50%; background: #f04438; display: inline-block; }
+.nt-cat { padding: 1px 8px; border-radius: 999px; background: #f2f4f7; color: #475467; font-size: 11.5px; }
+.nt-item__actions { display: flex; gap: 4px; flex: 0 0 auto; opacity: .55; transition: opacity .15s; }
+.nt-item:hover .nt-item__actions, .nt-item:focus-within .nt-item__actions { opacity: 1; }
+.nt-item__actions form { margin: 0; }
+.nt-icon-btn {
+    width: 32px; height: 32px; border-radius: 8px; border: 0; background: transparent;
+    color: #667085; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
 }
-.filter-glass {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(8px);
-    border: 1px solid #e5e7eb;
-    border-radius: 1rem;
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.25rem;
+.nt-icon-btn i { color: inherit !important; }
+.nt-icon-btn:hover { background: #f2f4f7; color: #101828; }
+.nt-icon-btn.is-danger:hover { background: #fef3f2; color: #d92d20; }
+.nt-empty { text-align: center; padding: 56px 20px; color: #667085; }
+.nt-empty i { font-size: 34px; color: #d0d5dd !important; display: block; margin-bottom: 10px; }
+@media (max-width: 575.98px) {
+    .nt-card__head, .nt-filters, .nt-list { padding-left: 14px; padding-right: 14px; }
+    .nt-item { padding: 14px; gap: 10px; }
+    .nt-avatar { width: 38px; height: 38px; flex-basis: 38px; font-size: 16px; }
+    .nt-item__actions { opacity: 1; }
+    .nt-filter-form { width: 100%; }
 }
 </style>
 
-<div class="notif-center-wrap">
+{% set type_icon = {'info': 'bi-info-circle', 'success': 'bi-check-circle', 'warning': 'bi-exclamation-triangle', 'danger': 'bi-exclamation-octagon'} %}
+{% set cat_icon = {'booking': 'bi-calendar-check', 'payment': 'bi-credit-card', 'financial': 'bi-cash-coin', 'security': 'bi-shield-lock', 'operations': 'bi-car-front', 'ops_agency': 'bi-car-front', 'shift': 'bi-clock-history', 'shift_admin': 'bi-clock-history', 'agency_mgmt': 'bi-shop', 'parcel': 'bi-box-seam', 'wallet': 'bi-wallet2', 'system': 'bi-gear', 'chat': 'bi-chat-dots'} %}
+{% set cat_labels = {} %}
+{% for key, label, _cls in category_groups %}{% set _ = cat_labels.update({key: label}) %}{% endfor %}
 
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+<div class="nt-wrap">
+    <div class="page-header">
         <div>
-            <h1 class="fw-bold mb-1" style="font-size:1.7rem;">
-                <i class="bi bi-bell-fill me-2 text-danger"></i>Centre de Notifications
-            </h1>
-            <p class="text-muted mb-0 small">
-                {% if current_user.role == 'super_admin' %}
-                    Alertes plateforme — Finances, Agences, Sécurité, Opérations & Shifts.
-                {% else %}
-                    Activités de votre agence — Réservations, Paiements, Colis, Shifts & Opérations.
-                {% endif %}
-            </p>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <form action="{{ url_for('admin.read_all_notifications') }}" method="POST"
-                  onsubmit="return confirm('Marquer toutes les notifications comme lues ?');">
-                <button class="btn btn-outline-secondary rounded-pill px-4 fw-semibold" type="submit">
-                    <i class="bi bi-check-all me-1"></i> Tout marquer lu
-                </button>
-            </form>
+            <h1>Notifications</h1>
+            <p>Alertes de l'activité : réservations, paiements, opérations et sécurité.</p>
         </div>
     </div>
 
-    <!-- Category Tabs -->
-    <div class="d-flex flex-wrap gap-2 mb-4">
-        {# "All" tab #}
-        <a href="{{ url_for('admin.notifications') }}?status={{ selected_status }}"
-           class="tab-pill {% if not selected_category %}active{% endif %}">
-            <i class="bi bi-grid-3x3-gap-fill"></i> Toutes
-            <span class="badge-count">{{ notifications|length }}</span>
-        </a>
-        {% for cat_key, cat_label, cat_color in category_groups %}
-        {% set cat_count = notifications | selectattr('category', 'equalto', cat_key) | list | length %}
-        <a href="{{ url_for('admin.notifications') }}?status={{ selected_status }}&category={{ cat_key }}"
-           class="tab-pill {% if selected_category == cat_key %}active{% endif %}">
-            {{ cat_label }}
-            {% if cat_count > 0 %}
-                <span class="badge-count">{{ cat_count }}</span>
-            {% endif %}
-        </a>
-        {% endfor %}
-    </div>
-
-    <!-- Filter Bar -->
-    <div class="filter-glass">
-        <form method="GET" action="{{ url_for('admin.notifications') }}" class="row g-2 align-items-end">
-            <input type="hidden" name="category" value="{{ selected_category or '' }}">
-
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold text-muted mb-1">Statut</label>
-                <select name="status" class="form-select form-select-sm border-2">
-                    <option value="unread" {% if selected_status=='unread' %}selected{% endif %}>Non lues</option>
-                    <option value="read"   {% if selected_status=='read'   %}selected{% endif %}>Lues</option>
-                    <option value="archived" {% if selected_status=='archived' %}selected{% endif %}>Archivées</option>
-                    <option value="all"    {% if selected_status=='all'    %}selected{% endif %}>Toutes</option>
-                </select>
+    <section class="nt-card">
+        <div class="nt-card__head">
+            <h2 class="nt-total">Total des notifications <span class="nt-total__count">{{ notifications|length }}</span></h2>
+            <div class="nt-actions">
+                <form method="POST" action="{{ url_for('admin.read_all_notifications') }}">
+                    <button type="submit" class="btn btn-light border" {% if not unread_total %}disabled{% endif %}>
+                        <i class="bi bi-check2-all me-1"></i> Tout marquer comme lu
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('admin.delete_all_notifications') }}"
+                      onsubmit="return confirm('Supprimer toutes les notifications ? Elles ne seront plus affichées.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-brand" {% if not notifications %}disabled{% endif %}>
+                        <i class="bi bi-trash3 me-1"></i> Tout supprimer
+                    </button>
+                </form>
             </div>
+        </div>
 
-            <div class="col-md-2">
-                <label class="form-label small fw-semibold text-muted mb-1">Priorité</label>
-                <select name="type" class="form-select form-select-sm border-2">
-                    <option value="">-- Toutes --</option>
-                    <option value="info"    {% if selected_type=='info'    %}selected{% endif %}>ℹ️ Info</option>
-                    <option value="success" {% if selected_type=='success' %}selected{% endif %}>✅ Succès</option>
-                    <option value="warning" {% if selected_type=='warning' %}selected{% endif %}>⚠️ Attention</option>
-                    <option value="danger"  {% if selected_type=='danger'  %}selected{% endif %}>🔴 Urgent</option>
-                </select>
+        <!-- Filtres -->
+        <div class="nt-filters">
+            <div class="nt-chips" role="tablist" aria-label="Filtrer par statut">
+                {% set st = selected_status or 'all' %}
+                {% for key, label in [('all', 'Toutes'), ('unread', 'Non lues'), ('read', 'Lues'), ('archived', 'Archivées')] %}
+                <a href="{{ url_for('admin.notifications', status=key, category=selected_category, date=selected_date) }}"
+                   class="nt-chip {% if st == key %}is-active{% endif %}" role="tab" aria-selected="{{ 'true' if st == key else 'false' }}">
+                    {{ label }}{% if key == 'unread' and unread_total %}<span class="nt-chip__n">{{ unread_total }}</span>{% endif %}
+                </a>
+                {% endfor %}
             </div>
-
-            <div class="col-md-3">
-                <label class="form-label small fw-semibold text-muted mb-1">Date</label>
-                <input type="date" name="date" class="form-control form-control-sm border-2"
-                       value="{{ selected_date or '' }}">
-            </div>
-
-            {% if current_user.role == 'super_admin' %}
-            <div class="col-md-3">
-                <label class="form-label small fw-semibold text-muted mb-1">Agence</label>
-                <select name="agency_id" class="form-select form-select-sm border-2">
-                    <option value="">-- Toutes les agences --</option>
-                    {% for agency in agencies %}
-                    <option value="{{ agency.id }}" {% if selected_agency == agency.id %}selected{% endif %}>
-                        {{ agency.name }}
-                    </option>
+            <form class="nt-filter-form" method="GET" action="{{ url_for('admin.notifications') }}">
+                <input type="hidden" name="status" value="{{ selected_status or 'all' }}">
+                <select name="category" class="form-select" aria-label="Catégorie" onchange="this.form.submit()">
+                    <option value="">Toutes catégories</option>
+                    {% for key, label, _cls in category_groups %}
+                    <option value="{{ key }}" {% if selected_category == key %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
-            </div>
-            {% endif %}
-
-            <div class="col-md-2 d-flex gap-1">
-                <button type="submit" class="btn btn-sm btn-primary fw-bold w-100">
-                    <i class="bi bi-funnel-fill me-1"></i> Filtrer
-                </button>
-                <a href="{{ url_for('admin.notifications') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="bi bi-x-lg"></i>
-                </a>
-            </div>
-        </form>
-    </div>
-
-    <!-- Notifications List -->
-    <div class="d-flex flex-column gap-3">
-        {% for notif in notifications %}
-        {% set type_map = {'success': 'type-success', 'warning': 'type-warning', 'danger': 'type-danger', 'info': 'type-info'} %}
-        {% set icon_map = {'success': 'bi-check-circle-fill text-success', 'warning': 'bi-exclamation-triangle-fill text-warning', 'danger': 'bi-x-circle-fill text-danger', 'info': 'bi-info-circle-fill text-primary'} %}
-        {% set bg_map   = {'financial':'#dcfce7','agency_mgmt':'#dbeafe','shift_admin':'#fef9c3','operations':'#cffafe','security':'#fee2e2','booking':'#dcfce7','parcel':'#dbeafe','payment':'#fef9c3','wallet':'#e0f2fe','shift':'#f3f4f6','ops_agency':'#fee2e2','system':'#f3f4f6','passenger':'#dcfce7','travel':'#cffafe','parcel_client':'#dbeafe','refund':'#fef9c3'} %}
-
-        <div class="notif-card p-3 {% if not notif.is_read %}unread {{ type_map.get(notif.type, 'type-info') }}{% endif %}">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                <div class="d-flex align-items-start gap-3">
-                    <!-- Type Icon -->
-                    <div class="fs-2 mt-1">
-                        <i class="bi {{ icon_map.get(notif.type, 'bi-bell-fill text-secondary') }}"></i>
-                    </div>
-                    <div>
-                        <!-- Category badge -->
-                        <span class="cat-badge me-1" style="background:{{ bg_map.get(notif.category, '#f3f4f6') }}; color:#111;">
-                            {{ notif.category | upper | replace('_', ' ') }}
-                        </span>
-                        {% if not notif.is_read %}
-                        <span class="badge bg-danger rounded-pill" style="font-size:0.65rem;">NOUVEAU</span>
-                        {% endif %}
-                        <h6 class="fw-bold mt-1 mb-1 {% if notif.is_read %}text-muted{% endif %}" style="font-size:0.97rem;">
-                            {{ notif.title }}
-                        </h6>
-                        <p class="mb-1 text-dark" style="font-size:0.9rem;">{{ notif.message }}</p>
-                        <div class="d-flex align-items-center gap-3">
-                            <small class="text-muted">
-                                <i class="bi bi-clock me-1"></i>{{ notif.created_at.strftime('%d/%m/%Y %H:%M') }}
-                            </small>
-                            {% if notif.agency %}
-                            <small class="text-muted">
-                                <i class="bi bi-building me-1"></i>{{ notif.agency.name }}
-                            </small>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="d-flex gap-1 flex-shrink-0 mt-1">
-                    {% if not notif.is_read %}
-                    <a href="{{ url_for('admin.read_notification', id=notif.id) }}"
-                       class="btn btn-sm btn-outline-success rounded-pill px-3"
-                       title="Marquer comme lu">
-                        <i class="bi bi-check-lg"></i>
-                    </a>
-                    {% endif %}
-                    {% if not notif.is_archived %}
-                    <form action="{{ url_for('admin.archive_notification', id=notif.id) }}" method="POST" class="d-inline">
-                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" title="Archiver">
-                            <i class="bi bi-archive"></i>
-                        </button>
-                    </form>
-                    {% endif %}
-                    <form action="{{ url_for('admin.delete_notification', id=notif.id) }}" method="POST"
-                          class="d-inline" onsubmit="return confirm('Supprimer cette notification ?');">
-                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Supprimer">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
+                <input type="date" name="date" class="form-control" value="{{ selected_date or '' }}" aria-label="Date" onchange="this.form.submit()">
+            </form>
         </div>
+
+        {% if notifications %}
+        <ul class="nt-list">
+            {% for n in notifications %}
+            {% set kind = n.type if n.type in type_icon else 'info' %}
+            <li class="nt-item {% if n.unread_for_me %}is-unread{% endif %}">
+                <span class="nt-avatar is-{{ kind }}"><i class="bi {{ cat_icon.get(n.category, type_icon[kind]) }}"></i></span>
+                <div class="nt-body">
+                    <p class="nt-title"><strong>{{ n.title }}</strong></p>
+                    <p class="nt-msg">{{ n.message }}</p>
+                    <div class="nt-meta">
+                        <span><i class="bi bi-clock"></i> {{ n.ago }}</span>
+                        {% if n.category and cat_labels.get(n.category) %}<span class="nt-cat">{{ cat_labels[n.category] }}</span>{% endif %}
+                        {% if n.unread_for_me %}<span class="nt-dot" title="Non lue" aria-label="Non lue"></span>{% endif %}
+                    </div>
+                </div>
+                <div class="nt-item__actions">
+                    {% if n.unread_for_me %}
+                    <form method="POST" action="{{ url_for('admin.read_notification', id=n.id) }}">
+                        <button type="submit" class="nt-icon-btn" title="Marquer comme lue" aria-label="Marquer comme lue"><i class="bi bi-check2"></i></button>
+                    </form>
+                    {% endif %}
+                    {% if not n.is_archived %}
+                    <form method="POST" action="{{ url_for('admin.archive_notification', id=n.id) }}">
+                        <button type="submit" class="nt-icon-btn" title="Archiver" aria-label="Archiver"><i class="bi bi-archive"></i></button>
+                    </form>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('admin.delete_notification', id=n.id) }}" onsubmit="return confirm('Supprimer cette notification ?');">
+                        <button type="submit" class="nt-icon-btn is-danger" title="Supprimer" aria-label="Supprimer"><i class="bi bi-x-lg"></i></button>
+                    </form>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
         {% else %}
-        <div class="text-center py-5 bg-white rounded-3 border">
-            <i class="bi bi-bell-slash fs-1 text-muted d-block mb-3"></i>
-            <h5 class="fw-bold text-dark">Aucune notification</h5>
-            <p class="text-muted small mb-0">
-                Aucune alerte dans cette catégorie pour le moment.
-                {% if selected_category %}
-                <a href="{{ url_for('admin.notifications') }}?status={{ selected_status }}" class="ms-1">Voir toutes</a>
-                {% endif %}
-            </p>
+        <div class="nt-empty">
+            <i class="bi bi-bell-slash"></i>
+            {% if selected_status == 'unread' %}Aucune notification non lue.{% elif selected_status == 'archived' %}Aucune notification archivée.{% else %}Aucune notification pour le moment.{% endif %}
         </div>
-        {% endfor %}
-    </div>
+        {% endif %}
+    </section>
 </div>
 {% endblock %}

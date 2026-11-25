@@ -1269,7 +1269,7 @@ def mission_detail(id):
     # Check if an in-app chat exists for this client
     chat_url = None
     if booking:
-        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+        db_path = current_app.config['EXPRESS_DB_JSON']
         if os.path.exists(db_path):
             try:
                 with open(db_path, 'r', encoding='utf-8') as f:

@@ -1,8 +1,10 @@
 import os
+import re
 import json
 import random
 import time
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app, session
+from app.utils.security import csrf_protect
 from werkzeug.security import generate_password_hash
 from flask_login import login_required, current_user
 from app.models import User, Agency, Bus, Route, Trip, Booking, Payment, Feedback, AuditLog, SystemNotification, Driver, CaisseSession, Parcel, TripSchedule, Apartment
@@ -212,16 +214,6 @@ def get_current_caisse(agency_id):
         return None
     return CaisseSession.query.filter_by(agency_id=agency_id, status='open').first()
 
-
-@admin.route('/admin/notifications/<int:notif_id>/read', methods=['POST'])
-@login_required
-@admin_required
-def mark_notification_read(notif_id):
-    notif = SystemNotification.query.get_or_404(notif_id)
-    if not notif.is_read:
-        notif.is_read = True
-        db.session.commit()
-    return jsonify({"success": True})
 
 # === SETTINGS (Paramètres) ===
 @admin.route('/admin/settings', methods=['GET', 'POST'])
@@ -823,9 +815,10 @@ def search_client():
         
     return jsonify({'found': False})
 
-@admin.route('/admin/teller/trip/<int:trip_id>/status/<string:status>')
+@admin.route('/admin/teller/trip/<int:trip_id>/status/<string:status>', methods=['POST'])
 @login_required
 @teller_required
+@csrf_protect
 def update_trip_status(trip_id, status):
     trip = Trip.query.get_or_404(trip_id)
     
@@ -1164,7 +1157,7 @@ def _trip_client_label(trip):
     return None
 
 
-@admin.route('/admin')
+@admin.route('/admin', strict_slashes=False)
 @admin.route('/admin/dashboard')
 @login_required
 @admin_required
@@ -1546,9 +1539,10 @@ def edit_agency(id):
         
     return render_template('admin/edit_agency.html', agency=agency)
 
-@admin.route('/admin/agency/toggle_status/<int:id>')
+@admin.route('/admin/agency/toggle_status/<int:id>', methods=['POST'])
 @login_required
 @super_admin_required
+@csrf_protect
 def toggle_agency_status(id):
     agency = Agency.query.filter_by(id=id, is_deleted=False).first_or_404()
     agency.is_suspended = not agency.is_suspended
@@ -1566,9 +1560,10 @@ def toggle_agency_status(id):
     flash(f"L'agence a été {status_str.lower()} avec succès !", 'success')
     return redirect(url_for('admin.agencies'))
 
-@admin.route('/admin/agency/delete/<int:id>')
+@admin.route('/admin/agency/delete/<int:id>', methods=['POST'])
 @login_required
 @super_admin_required
+@csrf_protect
 def delete_agency(id):
     agency = Agency.query.filter_by(id=id, is_deleted=False).first_or_404()
     
@@ -1708,9 +1703,10 @@ def edit_admin(id):
     agencies = Agency.query.filter_by(is_deleted=False).all()
     return render_template('admin/edit_admin.html', admin=admin_user, agencies=agencies)
 
-@admin.route('/admin/admin/toggle_status/<int:id>')
+@admin.route('/admin/admin/toggle_status/<int:id>', methods=['POST'])
 @login_required
 @super_admin_required
+@csrf_protect
 def toggle_admin_status(id):
     admin_user = User.query.filter(User.id == id, User.role != 'client', User.is_deleted == False).first_or_404()
     admin_user.is_suspended = not admin_user.is_suspended
@@ -1722,9 +1718,10 @@ def toggle_admin_status(id):
     flash(f"Compte administrateur {status_str.lower()} avec succès !", 'success')
     return redirect(url_for('admin.admins'))
 
-@admin.route('/admin/admin/delete/<int:id>')
+@admin.route('/admin/admin/delete/<int:id>', methods=['POST'])
 @login_required
 @super_admin_required
+@csrf_protect
 def delete_admin(id):
     admin_user = User.query.filter(User.id == id, User.role != 'client', User.is_deleted == False).first_or_404()
     admin_user.is_deleted = True
@@ -1807,7 +1804,7 @@ def _upsert_visitor_user(name, phone='', location='', city='', email='', ip_addr
 
 def _sync_visitor_to_db_json(name, phone, location, city='', email='', page='/', ip_addr=None):
     """Persist visitor entry into Express server/data/db.json (`visitors` and `customers`)."""
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     try:
         exp_db = {}
         if os.path.exists(db_path):
@@ -1881,7 +1878,7 @@ def _sync_visitor_to_db_json(name, phone, location, city='', email='', page='/',
 
 def sync_visitors_and_customers_from_db_json():
     """Ensure visitors and customers recorded on the React portal appear in Flask User table."""
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     if not os.path.exists(db_path):
         return
     try:
@@ -2033,7 +2030,7 @@ def edit_user(id):
     chat = None
     try:
         import json as _json
-        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+        db_path = current_app.config['EXPRESS_DB_JSON']
         if os.path.exists(db_path):
             with open(db_path, 'r', encoding='utf-8') as f:
                 exp_db = _json.load(f)
@@ -2045,9 +2042,10 @@ def edit_user(id):
 
     return render_template('admin/edit_user.html', user=user, chat=chat)
 
-@admin.route('/admin/user/toggle_status/<int:id>')
+@admin.route('/admin/user/toggle_status/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def toggle_user_status(id):
     user = User.query.filter_by(id=id, role='client', is_deleted=False).first_or_404()
     user.is_suspended = not user.is_suspended
@@ -2059,9 +2057,10 @@ def toggle_user_status(id):
     flash(f"Compte client {status_str.lower()} avec succès !", 'success')
     return redirect(url_for('admin.users'))
 
-@admin.route('/admin/user/delete/<int:id>')
+@admin.route('/admin/user/delete/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def delete_user(id):
     user = User.query.filter_by(id=id, role='client', is_deleted=False).first_or_404()
     
@@ -2212,9 +2211,10 @@ def edit_driver(id):
     agencies = Agency.query.filter_by(is_deleted=False).all() if current_user.role == 'super_admin' else []
     return render_template('admin/edit_driver.html', driver=driver, agencies=agencies)
 
-@admin.route('/admin/delete_driver/<int:id>')
+@admin.route('/admin/delete_driver/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def delete_driver(id):
     driver = Driver.query.get_or_404(id)
     if current_user.role != 'super_admin' and driver.agency_id != current_user.agency_id:
@@ -2361,7 +2361,7 @@ def edit_bus(id):
         # Synchronize with Express backend server/data/db.json
         try:
             import json as _json
-            db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+            db_path = current_app.config['EXPRESS_DB_JSON']
             if os.path.exists(db_path):
                 with open(db_path, 'r', encoding='utf-8') as f:
                     exp_db = _json.load(f)
@@ -2395,9 +2395,10 @@ def edit_bus(id):
         agencies = []
     return render_template('admin/edit_bus.html', bus=bus, agencies=agencies, drivers=drivers)
 
-@admin.route('/admin/bus/toggle_maintenance/<int:id>')
+@admin.route('/admin/bus/toggle_maintenance/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def toggle_bus_maintenance(id):
     bus = Bus.query.filter_by(id=id, is_deleted=False).first_or_404()
     if current_user.role != 'super_admin' and bus.agency_id != current_user.agency_id:
@@ -2411,9 +2412,10 @@ def toggle_bus_maintenance(id):
     flash(f"Le bus {bus.bus_number} est désormais en status '{bus.status}'.", 'success')
     return redirect(url_for('admin.buses'))
 
-@admin.route('/admin/bus/delete/<int:id>')
+@admin.route('/admin/bus/delete/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def delete_bus(id):
     bus = Bus.query.filter_by(id=id, is_deleted=False).first_or_404()
     if current_user.role != 'super_admin' and bus.agency_id != current_user.agency_id:
@@ -2564,9 +2566,10 @@ def edit_route(id):
     agencies = Agency.query.filter_by(is_deleted=False).all() if current_user.role == 'super_admin' else []
     return render_template('admin/edit_route.html', route=route, agencies=agencies)
 
-@admin.route('/admin/route/delete/<int:id>')
+@admin.route('/admin/route/delete/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def delete_route(id):
     route = Route.query.filter_by(id=id, is_deleted=False).first_or_404()
     if current_user.role != 'super_admin' and route.agency_id != current_user.agency_id:
@@ -2689,7 +2692,7 @@ DEFAULT_APARTMENT_GALLERY = [
 def sync_apartment_to_express_db(apt_dict, action='upsert'):
     """Synchronize apartment records into server/data/db.json for real-time frontend parity."""
     try:
-        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+        db_path = current_app.config['EXPRESS_DB_JSON']
         if not os.path.exists(db_path):
             return
         with open(db_path, 'r', encoding='utf-8') as f:
@@ -2712,7 +2715,7 @@ def sync_apartment_to_express_db(apt_dict, action='upsert'):
 def sync_booking_to_express_db(booking_dict):
     """Synchronize counter VIP booking into server/data/db.json."""
     try:
-        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+        db_path = current_app.config['EXPRESS_DB_JSON']
         if not os.path.exists(db_path):
             return
         with open(db_path, 'r', encoding='utf-8') as f:
@@ -3092,9 +3095,10 @@ def edit_trip(id):
     existing_booking = trip.bookings.filter_by(is_deleted=False).first()
     return render_template('admin/edit_trip.html', trip=trip, routes=routes, buses=buses, drivers=drivers, clients=clients, existing_booking=existing_booking)
 
-@admin.route('/admin/trip/toggle_status/<int:id>')
+@admin.route('/admin/trip/toggle_status/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def toggle_trip_status(id):
     trip = Trip.query.filter_by(id=id, is_deleted=False).first_or_404()
     if current_user.role != 'super_admin' and trip.route.agency_id != current_user.agency_id:
@@ -3140,9 +3144,10 @@ def toggle_trip_status(id):
         
     return redirect(url_for('admin.trips'))
 
-@admin.route('/admin/trip/delete/<int:id>')
+@admin.route('/admin/trip/delete/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def delete_trip(id):
     trip = Trip.query.filter_by(id=id, is_deleted=False).first_or_404()
     if current_user.role != 'super_admin' and trip.route.agency_id != current_user.agency_id:
@@ -3163,9 +3168,10 @@ def delete_trip(id):
     flash('Voyage supprimé avec succès (Soft Delete) !', 'success')
     return redirect(url_for('admin.trips'))
 
-@admin.route('/admin/trip/archive/<int:id>')
+@admin.route('/admin/trip/archive/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def archive_trip(id):
     trip = Trip.query.filter_by(id=id, is_deleted=False).first_or_404()
     if current_user.role != 'super_admin' and trip.route.agency_id != current_user.agency_id:
@@ -3178,9 +3184,10 @@ def archive_trip(id):
     flash('Voyage archivé avec succès !', 'success')
     return redirect(url_for('admin.trips'))
 
-@admin.route('/admin/trip/restore/<int:id>')
+@admin.route('/admin/trip/restore/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def restore_trip(id):
     trip = Trip.query.filter_by(id=id, is_deleted=False).first_or_404()
     if current_user.role != 'super_admin' and trip.route.agency_id != current_user.agency_id:
@@ -3244,9 +3251,10 @@ def edit_booking(id):
         
     return render_template('admin/edit_booking.html', booking=booking)
 
-@admin.route('/admin/booking/cancel/<int:id>')
+@admin.route('/admin/booking/cancel/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def cancel_booking(id):
     booking = Booking.query.filter_by(id=id, is_deleted=False).first_or_404()
     if current_user.role != 'super_admin' and booking.trip.route.agency_id != current_user.agency_id:
@@ -3408,43 +3416,123 @@ def export_logs_pdf():
     buffer.seek(0)
     return send_file(buffer, as_attachment=True, download_name="system_audit_logs.pdf", mimetype='application/pdf')
 
+# ── Notifications : périmètre, lu/non lu, retour ──
+def scoped_notifications_query(user):
+    """Notifications visibles par l'utilisateur (non supprimées)."""
+    q = SystemNotification.query.filter_by(is_deleted=False)
+    if user.role == 'super_admin':
+        return q.filter(db.or_(
+            SystemNotification.role_target == 'super_admin',
+            SystemNotification.role_target == None,  # noqa: E711
+            SystemNotification.user_id == user.id,
+        ))
+    return q.filter(db.or_(
+        db.and_(
+            db.or_(SystemNotification.role_target == user.role, SystemNotification.role_target == None),  # noqa: E711
+            db.or_(SystemNotification.agency_id == user.agency_id, SystemNotification.agency_id == None),  # noqa: E711
+        ),
+        SystemNotification.user_id == user.id,
+    ))
+
+
+def _read_ids_for(user):
+    from app.models import NotificationRead
+    return {r.notification_id for r in NotificationRead.query.filter_by(user_id=user.id).all()}
+
+
+def _is_unread(notif, read_ids):
+    return not notif.is_read and notif.id not in read_ids
+
+
+def _mark_read(notif, user, read_ids=None):
+    from app.models import NotificationRead
+    read_ids = read_ids if read_ids is not None else _read_ids_for(user)
+    if notif.id not in read_ids:
+        db.session.add(NotificationRead(notification_id=notif.id, user_id=user.id))
+        read_ids.add(notif.id)
+    # Notification personnelle (ou globale pour le super admin) : drapeau partagé
+    if notif.user_id == user.id or (user.role == 'super_admin' and not notif.user_id):
+        notif.is_read = True
+
+
+def _time_ago(dt):
+    if not dt:
+        return ''
+    secs = max(0, int((datetime.utcnow() - dt).total_seconds()))
+    if secs < 60:
+        return "à l'instant"
+    if secs < 3600:
+        return f"il y a {secs // 60} min"
+    if secs < 86400:
+        return f"il y a {secs // 3600} h"
+    days = secs // 86400
+    if days < 7:
+        return f"il y a {days} j"
+    return (dt + timedelta(hours=1)).strftime('%d/%m/%Y')
+
+
+def _back_to_notifications():
+    ref = request.referrer or ''
+    if ref.startswith(request.host_url) and '/admin/' in ref:
+        return redirect(ref)
+    return redirect(url_for('admin.notifications'))
+
+
+def _can_manage_notification(notif, user):
+    if user.role == 'super_admin':
+        return True
+    return notif.user_id == user.id or (notif.agency_id and notif.agency_id == user.agency_id)
+
+
+@admin.route('/admin/notifications/feed')
+@login_required
+@admin_required
+def notifications_feed():
+    """Dernières notifications pour le menu de la cloche."""
+    limit = min(request.args.get('limit', 6, type=int) or 6, 20)
+    read_ids = _read_ids_for(current_user)
+    base = scoped_notifications_query(current_user).filter_by(is_archived=False)
+    items = base.order_by(SystemNotification.created_at.desc()).limit(limit).all()
+    unread = sum(1 for n in base.all() if _is_unread(n, read_ids))
+    return jsonify({
+        'unread': unread,
+        'items': [{
+            'id': n.id, 'title': n.title, 'message': n.message, 'type': n.type or 'info',
+            'category': n.category or 'system', 'ago': _time_ago(n.created_at),
+            'unread': _is_unread(n, read_ids),
+        } for n in items],
+    })
+
+
+@admin.route('/admin/notifications/delete-all', methods=['POST'])
+@login_required
+@admin_required
+@csrf_protect
+def delete_all_notifications():
+    """Suppression (douce) de toutes les notifications que l'utilisateur peut gérer."""
+    count = 0
+    for n in scoped_notifications_query(current_user).all():
+        if _can_manage_notification(n, current_user):
+            n.is_deleted = True
+            count += 1
+    db.session.commit()
+    log_audit("NOTIFICATIONS_DELETED_ALL", "SystemNotification", None, f"{count} notification(s) supprimée(s)")
+    flash(f"{count} notification(s) supprimée(s).", "success")
+    return redirect(url_for('admin.notifications'))
+
+
 @admin.route('/admin/notifications')
 @login_required
 @admin_required
 def notifications():
-    query = SystemNotification.query.filter_by(is_deleted=False)
-
-    # Role-based scoping using role_target
-    if current_user.role == 'super_admin':
-        # Super admin sees: global (role_target=None) + explicitly targeted at super_admin or their user_id
-        query = query.filter(
-            db.or_(
-                SystemNotification.role_target == 'super_admin',
-                SystemNotification.role_target == None,
-                SystemNotification.user_id == current_user.id
-            )
-        )
-    else:
-        # Agency staff (admin_agence, teller, finance_officer, manager, etc.)
-        query = query.filter(
-            db.or_(
-                db.and_(
-                    db.or_(SystemNotification.role_target == current_user.role, SystemNotification.role_target == None),
-                    db.or_(SystemNotification.agency_id == current_user.agency_id, SystemNotification.agency_id == None)
-                ),
-                SystemNotification.user_id == current_user.id
-            )
-        )
+    query = scoped_notifications_query(current_user)
+    read_ids = _read_ids_for(current_user)
 
     # Status filter
-    status_param = request.args.get('status', 'unread')
-    if status_param == 'unread':
-        query = query.filter_by(is_read=False, is_archived=False)
-    elif status_param == 'read':
-        query = query.filter_by(is_read=True, is_archived=False)
-    elif status_param == 'archived':
+    status_param = request.args.get('status', 'all')
+    if status_param == 'archived':
         query = query.filter_by(is_archived=True)
-    elif status_param == 'all':
+    else:
         query = query.filter_by(is_archived=False)
 
     # Category filter
@@ -3472,6 +3560,15 @@ def notifications():
         query = query.filter_by(agency_id=agency_param)
 
     notifs = query.order_by(SystemNotification.created_at.desc()).all()
+    # Lu / non lu par utilisateur (drapeau partagé + lectures individuelles)
+    for n in notifs:
+        n.unread_for_me = _is_unread(n, read_ids)
+        n.ago = _time_ago(n.created_at)
+    unread_total = sum(1 for n in notifs if n.unread_for_me)
+    if status_param == 'unread':
+        notifs = [n for n in notifs if n.unread_for_me]
+    elif status_param == 'read':
+        notifs = [n for n in notifs if not n.unread_for_me]
     agencies = Agency.query.filter_by(is_deleted=False).all() if current_user.role == 'super_admin' else []
 
     # Role-specific category groups for tabbed UI
@@ -3497,6 +3594,7 @@ def notifications():
     return render_template(
         'admin/notifications.html',
         notifications=notifs,
+        unread_total=unread_total,
         agencies=agencies,
         category_groups=category_groups,
         selected_status=status_param,
@@ -3510,78 +3608,57 @@ def notifications():
 @login_required
 @admin_required
 def read_notification(id):
-    from app.models import NotificationRead
-    notif = SystemNotification.query.get_or_404(id)
-    if current_user.role != 'super_admin' and notif.agency_id and notif.agency_id != current_user.agency_id:
+    notif = SystemNotification.query.filter_by(id=id, is_deleted=False).first_or_404()
+    wants_json = request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if not _can_manage_notification(notif, current_user) and not scoped_notifications_query(current_user).filter_by(id=id).first():
+        if wants_json:
+            return jsonify({'error': 'Accès refusé.'}), 403
         flash("Accès refusé.", "danger")
-        return redirect(url_for('admin.profile') + '#tab-notifications')
-        
-    existing = NotificationRead.query.filter_by(notification_id=id, user_id=current_user.id).first()
-    if not existing:
-        record = NotificationRead(notification_id=id, user_id=current_user.id)
-        db.session.add(record)
-        if current_user.role == 'super_admin' and not notif.user_id:
-            notif.is_read = True
-        db.session.commit()
-        
-    flash("Notification marquée comme lue.", "success")
-    return redirect(url_for('admin.profile') + '#tab-notifications')
+        return _back_to_notifications()
+    _mark_read(notif, current_user)
+    db.session.commit()
+    if wants_json:
+        return jsonify({'success': True})
+    return _back_to_notifications()
 
 @admin.route('/admin/notifications/read-all', methods=['POST'])
 @login_required
 @admin_required
 def read_all_notifications():
-    from app.models import NotificationRead
-    
-    dismissed_records = NotificationRead.query.filter_by(user_id=current_user.id).all()
-    dismissed_ids = [r.notification_id for r in dismissed_records]
-    
-    query = SystemNotification.query.filter_by(is_deleted=False)
-    if dismissed_ids:
-        query = query.filter(SystemNotification.id.notin_(dismissed_ids))
-        
-    if current_user.role == 'super_admin':
-        query = query.filter(db.or_(SystemNotification.role_target == 'super_admin', SystemNotification.role_target == None, SystemNotification.user_id == current_user.id))
-    elif current_user.role == 'admin_agence':
-        query = query.filter(db.or_(db.and_(db.or_(SystemNotification.role_target == current_user.role, SystemNotification.role_target == None), db.or_(SystemNotification.agency_id == current_user.agency_id, SystemNotification.agency_id == None)), SystemNotification.user_id == current_user.id))
-    else:
-        query = query.filter(SystemNotification.user_id == current_user.id)
-        
-    for notif in query.all():
-        record = NotificationRead(notification_id=notif.id, user_id=current_user.id)
-        db.session.add(record)
-        if current_user.role == 'super_admin' and not notif.user_id:
-            notif.is_read = True
-            
+    read_ids = _read_ids_for(current_user)
+    for notif in scoped_notifications_query(current_user).filter_by(is_archived=False).all():
+        _mark_read(notif, current_user, read_ids)
     db.session.commit()
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'success': True})
     flash("Toutes les notifications ont été marquées comme lues.", "success")
-    return redirect(url_for('admin.profile') + '#tab-notifications')
+    return _back_to_notifications()
 
 @admin.route('/admin/notifications/<int:id>/archive', methods=['POST'])
 @login_required
 @admin_required
 def archive_notification(id):
     notif = SystemNotification.query.get_or_404(id)
-    if current_user.role != 'super_admin' and notif.agency_id and notif.agency_id != current_user.agency_id:
+    if not _can_manage_notification(notif, current_user):
         flash("Accès refusé.", "danger")
-        return redirect(url_for('admin.profile') + '#tab-notifications')
+        return _back_to_notifications()
     notif.is_archived = True
     db.session.commit()
     flash("Notification archivée.", "success")
-    return redirect(url_for('admin.profile') + '#tab-notifications')
+    return _back_to_notifications()
 
 @admin.route('/admin/notifications/<int:id>/delete', methods=['POST'])
 @login_required
 @admin_required
 def delete_notification(id):
     notif = SystemNotification.query.get_or_404(id)
-    if current_user.role != 'super_admin' and notif.agency_id and notif.agency_id != current_user.agency_id:
+    if not _can_manage_notification(notif, current_user):
         flash("Accès refusé.", "danger")
-        return redirect(url_for('admin.profile') + '#tab-notifications')
+        return _back_to_notifications()
     notif.is_deleted = True
     db.session.commit()
     flash("Notification supprimée.", "success")
-    return redirect(url_for('admin.profile') + '#tab-notifications')
+    return _back_to_notifications()
 
 
 # ============================================================
@@ -3767,7 +3844,7 @@ def get_trip_detail(trip_id):
 
     # Load active chat threads from server/data/db.json to match existing in-app client chats
     chat_threads = []
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     if os.path.exists(db_path):
         try:
             with open(db_path, 'r', encoding='utf-8') as f:
@@ -4261,9 +4338,10 @@ def change_seat(booking_id):
     from flask import jsonify
     return jsonify({'success': True})
 
-@admin.route('/admin/caisse/toggle', methods=['GET', 'POST'])
+@admin.route('/admin/caisse/toggle', methods=['POST'])
 @login_required
 @teller_required
+@csrf_protect
 def toggle_caisse():
     # Determine agency – for super_admin allow passing via query string or form
     if request.method == 'POST':
@@ -4666,7 +4744,7 @@ def shifts():
 
     # ── PILLAR 2: Messages & Chat Privé 3M ──
     import json as _json
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     chat_threads = []
     if os.path.exists(db_path):
         try:
@@ -5983,9 +6061,10 @@ def add_trip_schedule():
     
     return render_template('admin/add_trip_schedule.html', routes=routes, buses=buses, drivers=drivers)
 
-@admin.route('/admin/trip_schedule/toggle/<int:id>')
+@admin.route('/admin/trip_schedule/toggle/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def toggle_schedule(id):
     schedule = TripSchedule.query.get_or_404(id)
     if current_user.role != 'super_admin' and schedule.agency_id != current_user.agency_id:
@@ -6000,9 +6079,10 @@ def toggle_schedule(id):
     flash(f'Programme {status_msg} avec succ\u00e8s !', 'success')
     return redirect(url_for('admin.trip_schedules'))
 
-@admin.route('/admin/trip_schedule/delete/<int:id>')
+@admin.route('/admin/trip_schedule/delete/<int:id>', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def delete_schedule(id):
     schedule = TripSchedule.query.get_or_404(id)
     if current_user.role != 'super_admin' and schedule.agency_id != current_user.agency_id:
@@ -6342,9 +6422,10 @@ def profile():
 # 3M SERVICES PROMO VEHICLES MANAGEMENT & 3M PERSONAL PRIVATE CHAT
 # =========================================================================
 
-@admin.route('/admin/buses/<int:id>/toggle_promo', methods=['POST', 'GET'])
+@admin.route('/admin/buses/<int:id>/toggle_promo', methods=['POST'])
 @login_required
 @admin_required
+@csrf_protect
 def toggle_bus_promo(id):
     bus = Bus.query.filter_by(id=id, is_deleted=False).first_or_404()
     
@@ -6372,7 +6453,7 @@ def toggle_bus_promo(id):
     # Synchronize with Express backend server/data/db.json
     try:
         import json as _json
-        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+        db_path = current_app.config['EXPRESS_DB_JSON']
         if os.path.exists(db_path):
             with open(db_path, 'r', encoding='utf-8') as f:
                 exp_db = _json.load(f)
@@ -6448,7 +6529,7 @@ def toggle_bus_promo(id):
 @admin_required
 def chats():
     import json as _json
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     chat_threads = []
     if os.path.exists(db_path):
         try:
@@ -6478,6 +6559,85 @@ def chats():
 
     return render_template('admin/chats.html', chat_threads=chat_threads, active_chat=active_chat, available_buses=available_buses)
 
+# ── Pièces jointes du chat (photo / position / contact) ──
+CHAT_UPLOAD_SUBDIR = os.path.join('uploads', 'chat')
+CHAT_IMAGE_EXTS = {'jpg', 'jpeg', 'png', 'webp'}
+CHAT_IMAGE_MAX_BYTES = 8 * 1024 * 1024
+
+
+def _chat_image_signature_ok(head, ext):
+    """Vérifie les octets réels du fichier (pas seulement l'extension)."""
+    if ext in ('jpg', 'jpeg'):
+        return head.startswith(b'\xff\xd8\xff')
+    if ext == 'png':
+        return head.startswith(b'\x89PNG\r\n\x1a\n')
+    if ext == 'webp':
+        return len(head) >= 12 and head[:4] == b'RIFF' and head[8:12] == b'WEBP'
+    return False
+
+
+def _clean_chat_attachment(raw):
+    """Ne garde qu'une pièce jointe valide ; renvoie None sinon."""
+    if not isinstance(raw, dict):
+        return None
+    kind = raw.get('type')
+    if kind == 'image':
+        url = str(raw.get('url') or '')
+        # Seuls les fichiers déposés via notre endpoint d'upload sont acceptés
+        marker = '/static/uploads/chat/'
+        if marker not in url:
+            return None
+        filename = url.rsplit('/', 1)[-1]
+        if not re.fullmatch(r'[a-f0-9]{32}\.(jpg|jpeg|png|webp)', filename):
+            return None
+        return {'type': 'image', 'url': current_app.config['APP_BASE_URL'] + '/static/uploads/chat/' + filename}
+    if kind == 'location':
+        try:
+            lat, lng = float(raw.get('lat')), float(raw.get('lng'))
+        except (TypeError, ValueError):
+            return None
+        if not (-90 <= lat <= 90 and -180 <= lng <= 180):
+            return None
+        return {'type': 'location', 'lat': round(lat, 6), 'lng': round(lng, 6),
+                'label': str(raw.get('label') or 'Position partagée')[:80]}
+    if kind == 'contact':
+        name = str(raw.get('name') or '').strip()[:80]
+        phone = re.sub(r'[^0-9+ ]', '', str(raw.get('phone') or ''))[:25].strip()
+        if not name or len(re.sub(r'\D', '', phone)) < 6:
+            return None
+        return {'type': 'contact', 'name': name, 'phone': phone}
+    return None
+
+
+CHAT_ATTACHMENT_PREVIEW = {'image': '📷 Photo', 'location': '📍 Position', 'contact': '👤 Contact'}
+
+
+@admin.route('/admin/chats/<client_id>/upload', methods=['POST'])
+@login_required
+@admin_required
+@csrf_protect
+def upload_chat_attachment(client_id):
+    import uuid as _uuid
+    f = request.files.get('file')
+    if not f or not f.filename:
+        return jsonify({'error': 'Aucun fichier reçu.'}), 400
+    ext = f.filename.rsplit('.', 1)[-1].lower() if '.' in f.filename else ''
+    if ext not in CHAT_IMAGE_EXTS:
+        return jsonify({'error': 'Format non accepté (JPG, PNG ou WebP).'}), 400
+    data = f.read(CHAT_IMAGE_MAX_BYTES + 1)
+    if len(data) > CHAT_IMAGE_MAX_BYTES:
+        return jsonify({'error': 'Image trop lourde (8 Mo maximum).'}), 400
+    if not _chat_image_signature_ok(data[:16], ext):
+        return jsonify({'error': "Le fichier n'est pas une image valide."}), 400
+    folder = os.path.join(current_app.static_folder, CHAT_UPLOAD_SUBDIR)
+    os.makedirs(folder, exist_ok=True)
+    name = f"{_uuid.uuid4().hex}.{'jpg' if ext == 'jpeg' else ext}"
+    with open(os.path.join(folder, name), 'wb') as out:
+        out.write(data)
+    log_audit("CHAT_ATTACHMENT_UPLOADED", "Chat", None, f"Image {name} pour la discussion {client_id}")
+    return jsonify({'success': True, 'url': current_app.config['APP_BASE_URL'] + '/static/uploads/chat/' + name})
+
+
 @admin.route('/admin/chats/<client_id>/send', methods=['POST'])
 @login_required
 @admin_required
@@ -6485,7 +6645,10 @@ def send_admin_chat_reply(client_id):
     import json as _json
     data = request.get_json(silent=True) or {}
     text = (data.get('text') or request.form.get('text') or '').strip()
-    if not text:
+    attachment = _clean_chat_attachment(data.get('attachment'))
+    if data.get('attachment') and not attachment:
+        return jsonify({'error': 'Pièce jointe invalide.'}), 400
+    if not text and not attachment:
         if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({'error': 'Message vide'}), 400
         flash('Le message ne peut pas être vide.', 'danger')
@@ -6500,7 +6663,7 @@ def send_admin_chat_reply(client_id):
             'badge': request.form.get('car_badge') or 'VIP FLOTTE'
         }
 
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     if os.path.exists(db_path):
         try:
             with open(db_path, 'r', encoding='utf-8') as f:
@@ -6516,10 +6679,13 @@ def send_admin_chat_reply(client_id):
                 'timestamp': now,
                 'carInfo': car_info
             }
+            if attachment:
+                new_msg['attachment'] = attachment
+            preview = text or CHAT_ATTACHMENT_PREVIEW.get(attachment['type'] if attachment else '', '')
             if chat:
                 chat['messages'] = chat.get('messages', [])
                 chat['messages'].append(new_msg)
-                chat['lastMessage'] = text
+                chat['lastMessage'] = preview
                 chat['lastMessageAt'] = now
                 chat['unreadClient'] = chat.get('unreadClient', 0) + 1
                 chat['unreadAdmin'] = 0
@@ -6531,7 +6697,7 @@ def send_admin_chat_reply(client_id):
                     'clientPhone': data.get('client_phone') or request.form.get('client_phone') or '',
                     'unreadAdmin': 0,
                     'unreadClient': 1,
-                    'lastMessage': text,
+                    'lastMessage': preview,
                     'lastMessageAt': now,
                     'messages': [new_msg]
                 }
@@ -6558,7 +6724,7 @@ def send_admin_chat_reply(client_id):
 @admin_required
 def get_admin_chat_messages(client_id):
     import json as _json
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     if os.path.exists(db_path):
         try:
             with open(db_path, 'r', encoding='utf-8') as f:
@@ -6586,7 +6752,7 @@ def edit_admin_chat_message(client_id, msg_id):
     if not text:
         return jsonify({'error': 'Texte requis'}), 400
 
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     if os.path.exists(db_path):
         try:
             with open(db_path, 'r', encoding='utf-8') as f:
@@ -6616,7 +6782,7 @@ def edit_admin_chat_message(client_id, msg_id):
 @admin_required
 def delete_admin_chat_message(client_id, msg_id):
     import json as _json
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     if os.path.exists(db_path):
         try:
             with open(db_path, 'r', encoding='utf-8') as f:
@@ -6645,7 +6811,7 @@ def delete_admin_chat_message(client_id, msg_id):
 @admin_required
 def clear_admin_chat_thread(client_id):
     import json as _json
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'server', 'data', 'db.json')
+    db_path = current_app.config['EXPRESS_DB_JSON']
     if os.path.exists(db_path):
         try:
             with open(db_path, 'r', encoding='utf-8') as f:

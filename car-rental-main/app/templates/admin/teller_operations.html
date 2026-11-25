@@ -81,12 +81,12 @@
                                                 Gérer
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                                <li><a class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='boarding') }}"><i class="bi bi-box-arrow-in-right me-2 text-warning"></i> Mise à disposition Véhicule</a></li>
-                                                <li><a class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='departed') }}"><i class="bi bi-car-front-fill me-2 text-primary"></i> Départ en Mission VIP</a></li>
-                                                <li><a class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='delayed') }}"><i class="bi bi-clock-history me-2 text-danger"></i> Signaler un Retard</a></li>
+                                                <li><a data-method="post" class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='boarding') }}"><i class="bi bi-box-arrow-in-right me-2 text-warning"></i> Mise à disposition Véhicule</a></li>
+                                                <li><a data-method="post" class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='departed') }}"><i class="bi bi-car-front-fill me-2 text-primary"></i> Départ en Mission VIP</a></li>
+                                                <li><a data-method="post" class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='delayed') }}"><i class="bi bi-clock-history me-2 text-danger"></i> Signaler un Retard</a></li>
                                                 <li><hr class="dropdown-divider"></li>
-                                                <li><a class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='arrived') }}"><i class="bi bi-geo-alt me-2 text-success"></i> Mission Terminée / Retour Flotte</a></li>
-                                                <li><a class="dropdown-item text-danger" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='cancelled') }}"><i class="bi bi-x-circle me-2"></i> Annuler la Mission</a></li>
+                                                <li><a data-method="post" class="dropdown-item" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='arrived') }}"><i class="bi bi-geo-alt me-2 text-success"></i> Mission Terminée / Retour Flotte</a></li>
+                                                <li><a data-method="post" class="dropdown-item text-danger" href="{{ url_for('admin.update_trip_status', trip_id=trip.id, status='cancelled') }}"><i class="bi bi-x-circle me-2"></i> Annuler la Mission</a></li>
                                             </ul>
                                         </div>
                                     </td>

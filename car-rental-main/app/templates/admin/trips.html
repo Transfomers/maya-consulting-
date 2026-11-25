@@ -97,19 +97,19 @@
                             <a href="{{ url_for('admin.edit_trip', id=trip.id) }}" class="btn btn-sm btn-outline-primary rounded-circle me-1" title="Modifier" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
                                 <i class="bi bi-pencil" style="font-size: 0.85rem;"></i>
                             </a>
-                            <a href="{{ url_for('admin.toggle_trip_status', id=trip.id) }}" class="btn btn-sm btn-outline-{{ 'success' if trip.status == 'cancelled' else 'warning' }} rounded-circle me-1" title="{{ 'Replanifier' if trip.status == 'cancelled' else 'Annuler' }}" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
+                            <a data-method="post" href="{{ url_for('admin.toggle_trip_status', id=trip.id) }}" class="btn btn-sm btn-outline-{{ 'success' if trip.status == 'cancelled' else 'warning' }} rounded-circle me-1" title="{{ 'Replanifier' if trip.status == 'cancelled' else 'Annuler' }}" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
                                 <i class="bi bi-{{ 'arrow-repeat' if trip.status == 'cancelled' else 'x-octagon' }}" style="font-size: 0.85rem;"></i>
                             </a>
                             {% if not trip.is_archived %}
-                                <a href="{{ url_for('admin.archive_trip', id=trip.id) }}" class="btn btn-sm btn-outline-secondary rounded-circle me-1" title="Archiver" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
+                                <a data-method="post" href="{{ url_for('admin.archive_trip', id=trip.id) }}" class="btn btn-sm btn-outline-secondary rounded-circle me-1" title="Archiver" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
                                     <i class="bi bi-archive" style="font-size: 0.85rem;"></i>
                                 </a>
                             {% else %}
-                                <a href="{{ url_for('admin.restore_trip', id=trip.id) }}" class="btn btn-sm btn-outline-secondary rounded-circle me-1" title="Désarchiver" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
+                                <a data-method="post" href="{{ url_for('admin.restore_trip', id=trip.id) }}" class="btn btn-sm btn-outline-secondary rounded-circle me-1" title="Désarchiver" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
                                     <i class="bi bi-arrow-up-circle" style="font-size: 0.85rem;"></i>
                                 </a>
                             {% endif %}
-                            <a href="{{ url_for('admin.delete_trip', id=trip.id) }}" class="btn btn-sm btn-outline-danger rounded-circle" title="Supprimer" onclick="return confirm('Supprimer définitivement cette mission VIP ?');" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
+                            <a data-method="post" href="{{ url_for('admin.delete_trip', id=trip.id) }}" class="btn btn-sm btn-outline-danger rounded-circle" title="Supprimer" onclick="return confirm('Supprimer définitivement cette mission VIP ?');" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">
                                 <i class="bi bi-trash" style="font-size: 0.85rem;"></i>
                             </a>
                         </td>

@@ -1,0 +1,305 @@
+/* Cartes catalogue partagées : véhicules (Models) et appartements */
+.listing-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #d5d5d5;
+  border-radius: 0.3rem;
+  overflow: hidden;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.listing-card:hover {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.listing-card__img {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  flex: 0 0 auto;
+  background: #f1f5f9;
+}
+
+.listing-card__img img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.listing-card__status {
+  position: absolute;
+  top: 1.2rem;
+  left: 1.2rem;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.listing-card__status.is-free { color: #027a48; }
+.listing-card__status.is-busy { color: #b54708; }
+
+.listing-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 2rem 2rem 2.4rem;
+  color: #010103;
+}
+
+.listing-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.2rem;
+}
+
+.listing-card__name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.listing-card__name h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.listing-card__place {
+  font-size: 1.3rem;
+  color: #777;
+}
+
+.listing-card__place i { color: #D62828; }
+
+.listing-card__price {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.listing-card__price strong {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.listing-card__price span {
+  font-size: 1.3rem;
+  color: #010103;
+}
+
+.listing-card__specs {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem 1.6rem;
+  margin: 2rem 0 0;
+  padding: 0 0 2rem;
+  border-bottom: 1px solid #e5e5e5;
+  flex: 1;
+  align-content: start;
+}
+
+.listing-card__specs li {
+  font-size: 1.4rem;
+  color: #777;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.listing-card__specs i {
+  color: #010103;
+  width: 1.6rem;
+  text-align: center;
+}
+
+.listing-card__footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 2rem;
+}
+
+.listing-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: #D62828;
+  border: 1px solid #D62828;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 1.2rem 2.4rem;
+  border-radius: 0.3rem;
+  box-shadow: 0 6px 16px rgba(214, 40, 40, 0.3);
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.listing-card__btn:hover {
+  background: #B91C1C;
+  box-shadow: 0 8px 20px rgba(214, 40, 40, 0.38);
+}
+
+.listing-card__btn:focus-visible {
+  outline: 3px solid rgba(214, 40, 40, 0.35);
+  outline-offset: 2px;
+}
+
+/* Grille catalogue (s'adapte à la largeur disponible) */
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2.4rem;
+  width: 100%;
+}
+
+@media (max-width: 992px) {
+  .listing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.8rem; }
+}
+
+@media (max-width: 600px) {
+  .listing-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Bouton favori & compteur de photos sur l'image */
+.listing-card__img { cursor: pointer; }
+.listing-card__fav {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 255, 255, 0.95);
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+}
+.listing-card__fav.is-on { color: #D62828; }
+.listing-card__fav i { color: inherit !important; }
+.listing-card__photos {
+  position: absolute;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(11, 15, 25, 0.8);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+.listing-card__photos i { color: #fff !important; }
+.listing-card__price del {
+  font-size: 1.3rem;
+  color: #98a2b3;
+  font-weight: 500;
+}
+.listing-card__price strong.is-promo { color: #D62828; }
+
+/* Bandeau d'appel à l'action */
+.listing-cta {
+  background: #2d2d2d;
+  color: #fff;
+  margin-top: 6rem;
+}
+.listing-cta__inner {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 5.6rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+.listing-cta h2 {
+  font-size: 3.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 1rem;
+  color: #fff;
+  max-width: 52rem;
+}
+.listing-cta p {
+  font-size: 1.6rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+.listing-cta .listing-card__btn { text-decoration: none; }
+.listing-cta .listing-card__btn i { color: #fff !important; }
+.listing-card__btn i { color: #fff !important; }
+
+@media (max-width: 600px) {
+  .listing-cta h2 { font-size: 2.6rem; }
+  .listing-cta__inner { padding: 4rem 2rem; }
+}
+
+/* Nos engagements : icône rouge, titre, texte — 3 colonnes centrées */
+.service-pillars {
+  background: #fff;
+  padding: 8rem 2rem;
+}
+.service-pillars__grid {
+  max-width: 112rem;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5.6rem 4rem;
+}
+.service-pillars__item {
+  text-align: center;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+.service-pillars__item > i {
+  font-size: 4.4rem;
+  color: #D62828 !important;
+  margin-bottom: 2.4rem;
+  display: inline-block;
+}
+.service-pillars__item h3 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #0b0f19;
+  margin: 0 0 1.6rem;
+}
+.service-pillars__item h3 a { color: inherit; text-decoration: none; }
+.service-pillars__item h3 a:hover { color: #D62828; }
+.service-pillars__item p {
+  font-size: 1.6rem;
+  line-height: 1.7;
+  color: #475467;
+  margin: 0;
+}
+@media (max-width: 992px) {
+  .service-pillars__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .service-pillars { padding: 5.6rem 2rem; }
+  .service-pillars__grid { grid-template-columns: minmax(0, 1fr); gap: 4rem; }
+}

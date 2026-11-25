@@ -119,7 +119,11 @@ def create_app():
         return en_translations.get(text, text)
         
     app.jinja_env.globals.update(_t=translate)
-    
+    from app.utils.security import get_csrf_token
+    app.jinja_env.globals.update(csrf_token=get_csrf_token)
+    from app.services.admin_shell import get_shell_stats
+    app.jinja_env.globals.update(admin_shell_stats=get_shell_stats)
+
     # Add date utilities for templates (trip cards need these)
     from datetime import timedelta as _timedelta
     
@@ -131,6 +135,9 @@ def create_app():
             'now_wat': now_wat,
             'timedelta': _td,
             'alerts': {'dashboard': 0},
+            'public_site_url': app.config.get('PUBLIC_SITE_URL', '').rstrip('/'),
+            'node_api_url': app.config.get('NODE_API_URL'),
+            'app_base_url': app.config.get('APP_BASE_URL'),
             'contact_messages': []
         }
 

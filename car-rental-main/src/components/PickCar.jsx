@@ -34,11 +34,13 @@ function PickCar() {
     const activeBtn = buttonRefs.current[activeCarIndex];
     if (activeBtn && trackRef.current) {
       const track = trackRef.current;
-      const btnLeft = activeBtn.offsetLeft;
-      const btnWidth = activeBtn.offsetWidth;
-      const trackWidth = track.offsetWidth;
-      const targetScroll = btnLeft - trackWidth / 2 + btnWidth / 2;
-      track.scrollTo({ left: Math.max(0, targetScroll), behavior: "smooth" });
+      // Position du bouton relative à la piste (offsetLeft dépend du parent positionné)
+      const btnRect = activeBtn.getBoundingClientRect();
+      const trackRect = track.getBoundingClientRect();
+      const btnLeft = btnRect.left - trackRect.left + track.scrollLeft;
+      const targetScroll = btnLeft - trackRect.width / 2 + btnRect.width / 2;
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      track.scrollTo({ left: Math.min(Math.max(0, targetScroll), Math.max(0, maxScroll)), behavior: "smooth" });
     }
   }, [activeCarIndex]);
 

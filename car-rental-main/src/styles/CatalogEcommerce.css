@@ -551,7 +551,7 @@
   margin: 0 auto 5rem;
   padding: 0 2rem;
   display: grid;
-  grid-template-columns: 340px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 3rem;
   align-items: start;
   width: 100%;

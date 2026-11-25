@@ -22,7 +22,7 @@
             <a href="{{ url_for('properties.property_calendar') }}" class="btn btn-sm btn-outline-dark shadow-xs fw-semibold">
                 <i class="bi bi-calendar-check me-1"></i> Calendrier Disponibilités
             </a>
-            <a href="http://127.0.0.1:3001/apartments" target="_blank" class="btn btn-sm btn-outline-secondary shadow-xs">
+            <a href="{{ public_site_url }}/apartments" target="_blank" class="btn btn-sm btn-outline-secondary shadow-xs">
                 <i class="bi bi-box-arrow-up-right me-1"></i> Voir Vitrine Client
             </a>
             <a href="{{ url_for('admin.add_apartment') }}" class="btn btn-sm btn-danger shadow-xs fw-bold" style="background: #E20713; border-color: #E20713;">

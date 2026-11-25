@@ -3,22 +3,25 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>3M SERVICES - {% block title %}{% endblock %}</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icon-192.png') }}">
+    <!-- Favicon (3M SERVICES) -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}?v=3m">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}?v=3m">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}?v=3m">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icon-192.png') }}?v=3m">
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
 
     <!-- PWA Settings -->
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#D62828">
     <!-- iOS PWA Support -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="3M SERVICES">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}?v=3m">
     <!-- Leaflet CSS for GPS maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Leaflet JS -->
@@ -1568,6 +1571,7 @@
         }
     </style>
     {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-shell.css') }}?v=1">
 </head>
 
 <body>
@@ -1596,228 +1600,163 @@
                 </button>
             </div>
 
-            <!-- Sidebar Navigation Menu (Static Non-scrolling) -->
-            <div class="admin-sidebar-nav px-2 py-2">
-                <!-- Main -->
-                <div class="sidebar-section-title">Main</div>
-                <a href="{{ url_for('admin.dashboard') }}"
-                    class="sidebar-nav-item {% if request.endpoint == 'admin.dashboard' %}active{% endif %}"
-                    title="Dashboard">
-                    <i class="bi bi-house"></i>
-                    <span class="sidebar-text">Dashboard</span>
+            {% set shell = admin_shell_stats() %}
+            {% set ep = request.endpoint %}
+            <!-- Menu latéral groupé -->
+            <nav class="admin-sidebar-nav px-2 py-2" aria-label="Menu admin">
+                <div class="sidebar-section-title">Opérations</div>
+                <a href="{{ url_for('admin.dashboard') }}" class="sidebar-nav-item {% if ep == 'admin.dashboard' %}active{% endif %}" title="Tableau de bord">
+                    <i class="bi bi-grid"></i><span class="sidebar-text">Tableau de bord</span>
                 </a>
-                <a href="{{ url_for('admin.bookings') }}"
-                    class="sidebar-nav-item {% if request.endpoint in ['admin.bookings', 'admin.edit_booking', 'missions.missions_hub', 'missions.mission_detail'] %}active{% endif %}"
-                    title="Sorties & Missions de Flotte VIP">
-                    <i class="bi bi-calendar3"></i>
-                    <span class="sidebar-text">Sorties & Missions VIP</span>
+                <a href="{{ url_for('admin.bookings') }}" class="sidebar-nav-item {% if ep in ['admin.bookings', 'admin.edit_booking', 'missions.missions_hub', 'missions.mission_detail'] %}active{% endif %}" title="Sorties & Missions VIP">
+                    <i class="bi bi-calendar3"></i><span class="sidebar-text">Sorties & Missions VIP</span>
+                    {% if shell.missions_open %}<span class="sidebar-badge">{{ shell.missions_open }}</span>{% endif %}
                 </a>
-                <a href="{{ url_for('admin.buses') }}"
-                    class="sidebar-nav-item {% if request.endpoint in ['admin.buses', 'admin.add_bus', 'admin.edit_bus'] %}active{% endif %}"
-                    title="Vehicles">
-                    <i class="bi bi-car-front"></i>
-                    <span class="sidebar-text">Vehicles</span>
+                <a href="{{ url_for('admin.buses') }}" class="sidebar-nav-item {% if ep in ['admin.buses', 'admin.add_bus', 'admin.edit_bus'] %}active{% endif %}" title="Véhicules">
+                    <i class="bi bi-car-front"></i><span class="sidebar-text">Véhicules</span>
+                    {% if shell.vehicles %}<span class="sidebar-badge">{{ shell.vehicles }}</span>{% endif %}
                 </a>
-                <a href="{{ url_for('admin.users') }}"
-                    class="sidebar-nav-item {% if request.endpoint in ['admin.users', 'admin.edit_user'] %}active{% endif %}"
-                    title="Customers">
-                    <i class="bi bi-person"></i>
-                    <span class="sidebar-text">Customers</span>
+                <a href="{{ url_for('admin.drivers') }}" class="sidebar-nav-item {% if ep in ['admin.drivers', 'admin.add_driver', 'admin.edit_driver'] %}active{% endif %}" title="Chauffeurs">
+                    <i class="bi bi-person-badge"></i><span class="sidebar-text">Chauffeurs</span>
                 </a>
-                <a href="{{ url_for('admin.chats') }}"
-                    class="sidebar-nav-item {% if request.endpoint in ['admin.chats'] %}active{% endif %}"
-                    title="Messagerie & Chat Privé 3M">
-                    <i class="bi bi-chat-dots-fill text-danger"></i>
-                    <span class="sidebar-text">Messagerie & Chat</span>
-                    <span class="badge bg-danger rounded-pill ms-auto" id="sidebarChatBadge" style="font-size: 0.62rem; display: none;">0</span>
+                <a href="{{ url_for('admin.chats') }}" class="sidebar-nav-item {% if ep == 'admin.chats' %}active{% endif %}" title="Messagerie & Chat">
+                    <i class="bi bi-chat-dots"></i><span class="sidebar-text">Messagerie & Chat</span>
+                    <span class="sidebar-badge sidebar-badge-alert" id="sidebarChatBadge" hidden>0</span>
                 </a>
 
-                <!-- Management -->
-                <div class="sidebar-section-title">Management</div>
-                <a href="{{ url_for('admin.apartments') }}"
-                    class="sidebar-nav-item {% if request.endpoint in ['admin.apartments', 'admin.add_apartment', 'admin.edit_apartment'] %}active{% endif %}"
-                    title="Locations Appartements VIP">
-                    <i class="bi bi-building"></i>
-                    <span class="sidebar-text">Locations</span>
+                <div class="sidebar-section-title">Gestion</div>
+                <a href="{{ url_for('admin.users') }}" class="sidebar-nav-item {% if ep in ['admin.users', 'admin.edit_user'] %}active{% endif %}" title="Clients">
+                    <i class="bi bi-people"></i><span class="sidebar-text">Clients</span>
                 </a>
-                <a href="{{ url_for('admin.finance') }}"
-                    class="sidebar-nav-item {% if request.endpoint == 'admin.finance' %}active{% endif %}"
-                    title="Payments">
-                    <i class="bi bi-credit-card"></i>
-                    <span class="sidebar-text">Payments</span>
+                <a href="{{ url_for('admin.apartments') }}" class="sidebar-nav-item {% if ep in ['admin.apartments', 'admin.add_apartment', 'admin.edit_apartment'] %}active{% endif %}" title="Locations Appartements VIP">
+                    <i class="bi bi-building"></i><span class="sidebar-text">Locations</span>
                 </a>
-                <a href="{{ url_for('admin.shifts') }}"
-                    class="sidebar-nav-item {% if request.endpoint in ['admin.shifts', 'admin.calendar_view'] %}active{% endif %}"
-                    title="Reports & Shifts">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span class="sidebar-text">Reports</span>
+                <a href="{{ url_for('admin.finance') }}" class="sidebar-nav-item {% if ep == 'admin.finance' %}active{% endif %}" title="Paiements">
+                    <i class="bi bi-credit-card"></i><span class="sidebar-text">Paiements</span>
                 </a>
-                <a href="{{ url_for('admin.drivers') }}"
-                    class="sidebar-nav-item {% if request.endpoint in ['admin.drivers', 'admin.add_driver', 'admin.edit_driver'] %}active{% endif %}"
-                    title="Drivers VIP">
-                    <i class="bi bi-person-badge"></i>
-                    <span class="sidebar-text">Drivers</span>
+                <a href="{{ url_for('admin.shifts') }}" class="sidebar-nav-item {% if ep in ['admin.shifts', 'admin.calendar_view'] %}active{% endif %}" title="Rapports">
+                    <i class="bi bi-bar-chart"></i><span class="sidebar-text">Rapports</span>
                 </a>
-
                 {% if current_user.role == 'super_admin' %}
-                <a href="{{ url_for('admin.agencies') }}"
-                    class="sidebar-nav-item {% if request.endpoint in ['admin.agencies', 'admin.add_agency', 'admin.edit_agency'] %}active{% endif %}"
-                    title="Agencies">
-                    <i class="bi bi-building"></i>
-                    <span class="sidebar-text">Agencies</span>
+                <a href="{{ url_for('admin.agencies') }}" class="sidebar-nav-item {% if ep in ['admin.agencies', 'admin.add_agency', 'admin.edit_agency'] %}active{% endif %}" title="Agences">
+                    <i class="bi bi-shop"></i><span class="sidebar-text">Agences</span>
                 </a>
                 {% endif %}
 
-                <!-- Support -->
-                <div class="sidebar-section-title">Support</div>
-                <a href="{{ url_for('admin.notifications') }}"
-                    class="sidebar-nav-item {% if request.endpoint == 'admin.notifications' %}active{% endif %}"
-                    title="Help Center">
-                    <i class="bi bi-question-circle"></i>
-                    <span class="sidebar-text">Help Center</span>
+                <div class="sidebar-section-title">Compte</div>
+                <a href="{{ url_for('admin.notifications') }}" class="sidebar-nav-item {% if ep == 'admin.notifications' %}active{% endif %}" title="Notifications">
+                    <i class="bi bi-bell"></i><span class="sidebar-text">Notifications</span>
+                    {% if shell.notifications %}<span class="sidebar-badge sidebar-badge-alert">{{ shell.notifications }}</span>{% endif %}
                 </a>
-                <a href="{{ url_for('admin.profile') }}"
-                    class="sidebar-nav-item {% if request.endpoint in ['admin.profile', 'admin.settings'] %}active{% endif %}"
-                    title="Settings">
-                    <i class="bi bi-gear"></i>
-                    <span class="sidebar-text">Settings</span>
+                <a href="{{ url_for('admin.profile') }}" class="sidebar-nav-item {% if ep in ['admin.profile', 'admin.settings'] %}active{% endif %}" title="Paramètres">
+                    <i class="bi bi-gear"></i><span class="sidebar-text">Paramètres</span>
                 </a>
+            </nav>
 
-                <!-- Others -->
-                <div class="sidebar-section-title">Others</div>
-                <a href="{{ url_for('auth.logout') }}" class="sidebar-nav-item" title="Logout">
-                    <i class="bi bi-box-arrow-left"></i>
-                    <span class="sidebar-text">Logout</span>
-                </a>
+            <!-- État de la flotte (données réelles) -->
+            <div class="fleet-status-card mx-2 mb-2">
+                <div class="d-flex justify-content-between align-items-baseline mb-2">
+                    <span class="fleet-status-title">État de la flotte</span>
+                    <span class="fleet-status-total">{{ shell.vehicles }} véhicule{{ 's' if shell.vehicles != 1 }}</span>
+                </div>
+                {% set tot = shell.vehicles or 1 %}
+                <div class="fleet-status-bar" role="img" aria-label="Répartition de la flotte">
+                    <span class="seg-road" style="width: {{ (shell.on_road * 100 / tot)|round(1) }}%"></span>
+                    <span class="seg-idle" style="width: {{ (shell.available * 100 / tot)|round(1) }}%"></span>
+                    <span class="seg-maint" style="width: {{ (shell.maintenance * 100 / tot)|round(1) }}%"></span>
+                </div>
+                <ul class="fleet-status-list">
+                    <li><span class="dot dot-road"></span>En mission<b>{{ shell.on_road }}</b></li>
+                    <li><span class="dot dot-idle"></span>Disponibles<b>{{ shell.available }}</b></li>
+                    <li><span class="dot dot-maint"></span>En maintenance<b>{{ shell.maintenance }}</b></li>
+                </ul>
             </div>
 
-            <!-- Bottom Language Switcher [文A] & User Profile -->
-            <div class="admin-sidebar-footer px-3 py-3 d-flex align-items-center justify-content-between"
-                style="border-top: 1px solid #eaecf0 !important; background: #ffffff;">
-                <button type="button"
-                    class="btn btn-sm border rounded-2 d-inline-flex align-items-center justify-content-center text-muted"
-                    style="width: 38px; height: 38px; border-color: #eaecf0 !important; background: #ffffff;"
-                    title="Language / Langue">
-                    <span style="font-weight: 600; font-size: 0.88rem; color: #344054;">文A</span>
-                </button>
-                <div class="d-flex align-items-center gap-2 user-details">
-                    <span class="badge bg-light text-dark border small"
-                        style="font-size: 0.72rem; border-color: #eaecf0 !important;">{{ 'Super Admin' if
-                        current_user.role == 'super_admin' else 'Admin' }}</span>
+            <!-- Utilisateur connecté -->
+            <div class="admin-sidebar-footer px-3 py-3 d-flex align-items-center gap-2">
+                <div class="sidebar-user-avatar">{{ ((current_user.real_name or current_user.username or 'A').split()|map('first')|join)[:2]|upper }}</div>
+                <div class="user-details flex-grow-1 text-truncate">
+                    <div class="sidebar-user-name text-truncate">{{ current_user.real_name or current_user.username }}</div>
+                    <div class="sidebar-user-role">{{ 'Super admin' if current_user.role == 'super_admin' else 'Admin agence' if current_user.role == 'admin_agence' else current_user.role|capitalize }}</div>
                 </div>
-                <a href="{{ url_for('auth.logout') }}"
-                    class="btn btn-sm btn-link text-muted p-1 text-decoration-none btn-logout" title="Déconnexion"
-                    style="color: #64748b;">
-                    <i class="bi bi-box-arrow-right fs-5"></i>
+                <a href="{{ url_for('auth.logout') }}" class="btn-logout" title="Déconnexion" aria-label="Déconnexion">
+                    <i class="bi bi-box-arrow-right"></i>
                 </a>
             </div>
         </aside>
 
         <!-- Right Side: Content Area (RentQ Light Gray) -->
         <div class="admin-content-area" id="adminContentArea">
-            <!-- Floating Topbar Card (RentQ Clean Style for 3M SERVICES) -->
-            <header
-                class="admin-topbar-card d-flex align-items-center justify-content-between px-3 px-md-4 py-2 mb-4 bg-white rounded-3 shadow-xs border flex-nowrap"
-                style="border-color: #eaecf0 !important;">
-                <!-- Left: Search Bar & Toggle -->
-                <div class="admin-topbar-search d-flex align-items-center gap-2 flex-grow-1" style="max-width: 320px;">
-                    <!-- Universal Toggle Hamburger Button (Desktop & Mobile) -->
-                    <button type="button"
-                        class="btn btn-sm btn-light border rounded-3 p-2 me-2 d-inline-flex align-items-center justify-content-center"
-                        onclick="toggleAdminSidebar()" title="Afficher/Masquer le menu"
-                        style="width: 38px; height: 38px; background: #ffffff; border-color: #eaecf0 !important; color: #344054;">
-                        <i class="bi bi-list fs-5"></i>
+            <!-- Barre supérieure -->
+            {% set page_label = self.title()|replace(' — 3M SERVICES', '')|replace(' - 3M SERVICES', '')|trim %}
+            <header class="admin-topbar-card d-flex align-items-center justify-content-between gap-3 flex-nowrap">
+                <div class="d-flex align-items-center gap-2 min-w-0">
+                    <button type="button" class="topbar-icon-btn" onclick="toggleAdminSidebar()" title="Afficher/Masquer le menu" aria-label="Afficher/Masquer le menu">
+                        <i class="bi bi-list"></i>
                     </button>
-                    <div class="position-relative w-100">
-                        <input type="text" class="form-control form-control-sm ps-3 pe-5 py-2 border rounded-3"
-                            placeholder="Search..."
-                            style="border-color: #eaecf0; font-size: 0.88rem; background: #ffffff; height: 40px; box-shadow: none;"
-                            id="adminSearchInput">
-                        <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3 text-muted"
-                            style="pointer-events: none; font-size: 0.9rem;"></i>
-                    </div>
+                    <nav aria-label="Fil d'Ariane" class="admin-breadcrumb d-none d-md-flex">
+                        <a href="{{ url_for('admin.dashboard') }}">3M SERVICES</a>
+                        {% if ep != 'admin.dashboard' and page_label %}
+                        <i class="bi bi-chevron-right"></i><span>{{ page_label }}</span>
+                        {% endif %}
+                    </nav>
                 </div>
 
-                <!-- Right: Action Icons (Sun, Bell with 1, Mail with 0, User Avatar) -->
-                <div class="admin-topbar-actions d-flex align-items-center flex-shrink-0 ms-3 gap-3">
-                    <!-- Quick Action Button -->
-                    <div class="dropdown d-none d-md-block">
-                        <button
-                            class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-semibold dropdown-toggle d-flex align-items-center gap-1.5"
-                            type="button" data-bs-toggle="dropdown"
-                            style="border-color: #eaecf0 !important; font-size: 0.85rem; color: #344054; background: #ffffff;">
-                            <i class="bi bi-plus-circle text-danger"></i>
-                            <span>Action Rapide</span>
+                <div class="admin-topbar-actions d-flex align-items-center flex-shrink-0 gap-2">
+                    <div class="admin-topbar-search d-none d-lg-block">
+                        <i class="bi bi-search"></i>
+                        <input type="search" id="adminSearchInput" placeholder="Filtrer cette page…" aria-label="Filtrer les lignes de cette page">
+                    </div>
+                    <a href="{{ url_for('admin.chats') }}" class="topbar-icon-btn position-relative" title="Messagerie & Chat" aria-label="Messagerie & Chat">
+                        <i class="bi bi-chat-square-text"></i>
+                        <span class="topbar-dot" id="topbarChatBadge" hidden></span>
+                    </a>
+                    <div class="dropdown">
+                        <button type="button" class="topbar-icon-btn position-relative" id="notifBellBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Notifications" aria-label="Notifications{% if shell.notifications %} ({{ shell.notifications }} non lues){% endif %}">
+                            <i class="bi bi-bell"></i>
+                            <span class="topbar-dot" id="notifBellDot" {% if not shell.notifications %}hidden{% endif %}></span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
-                            <li><a class="dropdown-item py-2" href="{{ url_for('admin.add_bus') }}"><i
-                                        class="bi bi-car-front-fill text-danger me-2"></i> Ajouter un Véhicule VIP</a>
-                            </li>
-                            <li><a class="dropdown-item py-2" href="{{ url_for('admin.teller_book') }}"><i
-                                        class="bi bi-journal-plus text-primary me-2"></i> Nouveau Contrat Location</a>
-                            </li>
-                            <li><a class="dropdown-item py-2" href="{{ url_for('admin.add_trip') }}"><i
-                                        class="bi bi-calendar-plus text-success me-2"></i> Nouvelle Mission Flotte</a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item py-2" href="{{ url_for('admin.add_driver') }}"><i
-                                        class="bi bi-person-plus text-info me-2"></i> Enregistrer Chauffeur VIP</a></li>
+                        <div class="dropdown-menu dropdown-menu-end notif-menu p-0" aria-labelledby="notifBellBtn">
+                            <div class="notif-menu__head">
+                                <strong>Notifications</strong>
+                                <button type="button" class="notif-menu__readall" id="notifReadAll">Tout marquer comme lu</button>
+                            </div>
+                            <ul class="notif-menu__list" id="notifMenuList">
+                                <li class="notif-menu__empty">Chargement…</li>
+                            </ul>
+                            <a class="notif-menu__all" href="{{ url_for('admin.notifications') }}">Voir toutes les notifications</a>
+                        </div>
+                    </div>
+                    <button type="button" class="topbar-icon-btn" onclick="toggleTheme()" title="Basculer Mode Sombre/Clair" aria-label="Mode sombre">
+                        <i class="bi bi-moon"></i>
+                    </button>
+
+                    <!-- Action principale + actions rapides -->
+                    <div class="btn-group">
+                        <a href="{{ url_for('admin.add_trip') }}" class="btn btn-brand"><i class="bi bi-plus-lg me-1"></i><span class="d-none d-sm-inline">Nouvelle Mission</span></a>
+                        <button type="button" class="btn btn-brand dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Actions rapides"></button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                            <li><h6 class="dropdown-header">Action Rapide</h6></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.add_trip') }}"><i class="bi bi-calendar-plus me-2"></i>Nouvelle Mission Flotte</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.teller_book') }}"><i class="bi bi-journal-plus me-2"></i>Nouveau Contrat Location</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.add_bus') }}"><i class="bi bi-car-front me-2"></i>Ajouter un Véhicule VIP</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.add_driver') }}"><i class="bi bi-person-plus me-2"></i>Enregistrer Chauffeur VIP</a></li>
                         </ul>
                     </div>
 
-                    <!-- Theme Toggle (Sun icon) -->
-                    <button type="button" class="btn btn-link p-0 text-decoration-none border-0" onclick="toggleTheme()"
-                        title="Basculer Mode Sombre/Clair">
-                        <i class="bi bi-brightness-high fs-5" style="color: #f59e0b !important;"></i>
-                    </button>
-
-                    <!-- Notifications Bell with Red Badge 1 -->
-                    <a href="{{ url_for('admin.notifications') }}"
-                        class="position-relative text-dark text-decoration-none" title="Notifications">
-                        <i class="bi bi-bell fs-5 text-dark"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle"
-                            style="font-size: 0.58rem; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; background-color: #ef4444 !important; color: #fff;">1</span>
-                    </a>
-
-                    <!-- Messages/Mail with Chat Badge -->
-                    <a href="{{ url_for('admin.chats') }}"
-                        class="position-relative text-dark text-decoration-none" title="Messagerie & Chat Privé 3M">
-                        <i class="bi bi-chat-dots fs-5 text-dark"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle"
-                            id="topbarChatBadge"
-                            style="font-size: 0.58rem; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; background-color: #ef4444 !important; color: #fff;">1</span>
-                    </a>
-
-                    <!-- User Avatar Dropdown -->
                     <div class="dropdown">
-                        <button class="btn btn-link p-0 border-0" type="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            <div class="user-avatar rounded-circle overflow-hidden border border-1 border-light bg-danger text-white d-flex align-items-center justify-content-center fw-bold shadow-xs"
-                                style="width: 38px; height: 38px; font-size: 0.9rem;">
-                                {{ current_user.username[:1].upper() if current_user.username else 'A' }}
-                            </div>
+                        <button class="btn p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mon compte">
+                            <span class="sidebar-user-avatar">{{ ((current_user.real_name or current_user.username or 'A').split()|map('first')|join)[:2]|upper }}</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
                             <li class="px-3 py-2 border-bottom">
-                                <div class="fw-bold text-dark">{{ current_user.real_name or current_user.username }}
-                                </div>
+                                <div class="fw-semibold">{{ current_user.real_name or current_user.username }}</div>
                                 <div class="text-muted small">{{ current_user.email }}</div>
                             </li>
-                            <li><a class="dropdown-item py-2" href="{{ url_for('admin.profile') }}"><i
-                                        class="bi bi-person-gear me-2"></i> Mon Profil & Paramètres</a></li>
-                            <li><a class="dropdown-item py-2" href="http://localhost:3001" target="_blank"><i
-                                        class="bi bi-box-arrow-up-right me-2 text-danger"></i> Portail Client (Port
-                                    3001)</a></li>
-                            <li><a class="dropdown-item py-2" href="/"><i class="bi bi-house me-2"></i> Site Vitrine
-                                    Public</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item py-2 text-danger fw-semibold"
-                                    href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>
-                                    Déconnexion</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.profile') }}"><i class="bi bi-person-gear me-2"></i>Mon Profil & Paramètres</a></li>
+                            <li><a class="dropdown-item" href="{{ public_site_url }}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right me-2"></i>Voir le site client</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
                         </ul>
                     </div>
                 </div>
@@ -2249,7 +2188,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="http://localhost:3001/models" target="_blank"
+                            <a href="{{ public_site_url }}/models" target="_blank"
                                 class="text-muted text-decoration-none hover-link">
                                 <i class="bi bi-box-arrow-up-right me-1 text-primary"></i> Catalogue E-commerce
                             </a>
@@ -2759,7 +2698,8 @@
         </div>
     </div>
 
-    <!-- PWA Install Popup -->
+    <!-- Popup d'installation : site public uniquement (pas dans l'admin) -->
+    {% if not is_admin_page %}
     <div id="pwaInstallPopup" class="pwa-popup shadow-lg rounded-4 p-3 d-none align-items-center gap-3">
         <div class="pwa-icon rounded-3 bg-primary text-white d-flex justify-content-center align-items-center"
             style="width: 50px; height: 50px;">
@@ -2773,6 +2713,7 @@
         <button id="pwaPopupInstallBtn" class="btn btn-sm btn-primary rounded-pill px-3">{{ _t('Installer') }}</button>
         <button id="pwaCloseBtn" class="btn btn-sm btn-link text-muted p-0"><i class="bi bi-x-lg fs-5"></i></button>
     </div>
+    {% endif %}
 
     <style>
         .pwa-popup {
@@ -2817,7 +2758,6 @@
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const installBtn = document.getElementById('pwaInstallBtn');
             const installBtnMobile = document.getElementById('pwaInstallBtnMobile');
-            const installFab = document.getElementById('pwaInstallFab');
             const pwaPopup = document.getElementById('pwaInstallPopup');
             const pwaPopupInstallBtn = document.getElementById('pwaPopupInstallBtn');
             const pwaCloseBtn = document.getElementById('pwaCloseBtn');
@@ -2825,13 +2765,11 @@
             function showInstallTriggers() {
                 if (installBtn) { installBtn.classList.remove('d-none'); installBtn.classList.add('d-flex'); }
                 if (installBtnMobile) { installBtnMobile.classList.remove('d-none'); installBtnMobile.classList.add('d-flex'); }
-                if (installFab) { installFab.classList.remove('d-none'); installFab.classList.add('d-flex'); }
             }
 
             function hideInstallTriggers() {
                 if (installBtn) { installBtn.classList.remove('d-flex'); installBtn.classList.add('d-none'); }
                 if (installBtnMobile) { installBtnMobile.classList.remove('d-flex'); installBtnMobile.classList.add('d-none'); }
-                if (installFab) { installFab.classList.remove('d-flex'); installFab.classList.add('d-none'); }
             }
 
             function closePwaPopup() {
@@ -2868,11 +2806,9 @@
                     alert({{ _t("Pour installer l'application, ouvrez le menu de votre navigateur et sélectionnez « Installer l'application » ou « Ajouter à l'écran d'accueil ».") | tojson }});
                 }
             }
-        }
 
         if (installBtn) installBtn.addEventListener('click', handleInstallAction);
         if (installBtnMobile) installBtnMobile.addEventListener('click', handleInstallAction);
-        if (installFab) installFab.addEventListener('click', handleInstallAction);
         if (pwaPopupInstallBtn) pwaPopupInstallBtn.addEventListener('click', handleInstallAction);
 
         if (pwaCloseBtn) {
@@ -2969,13 +2905,109 @@
         });
     </script>
 
-    <!-- Floating Action Button for PWA Install -->
-    <button id="pwaInstallFab"
-        class="btn btn-primary rounded-circle shadow-lg d-none align-items-center justify-content-center"
-        style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; z-index: 9999; background: linear-gradient(135deg, var(--primary-light), #a02a4f); border: none; transition: transform 0.2s;">
-        <i class="bi bi-download fs-4 text-white"></i>
-    </button>
 
+    <script>
+    // Actions sensibles : les liens data-method="post" sont envoyés en POST avec jeton CSRF,
+    // et tout formulaire POST reçoit automatiquement le jeton.
+    (function () {
+        var token = document.querySelector('meta[name="csrf-token"]').content;
+        function addToken(form) {
+            if (!form.querySelector('input[name="csrf_token"]')) {
+                var i = document.createElement('input');
+                i.type = 'hidden'; i.name = 'csrf_token'; i.value = token;
+                form.appendChild(i);
+            }
+        }
+        document.addEventListener('submit', function (e) {
+            if ((e.target.method || '').toLowerCase() === 'post') addToken(e.target);
+        }, true);
+        document.addEventListener('click', function (e) {
+            var a = e.target.closest('a[data-method="post"]');
+            if (!a || e.defaultPrevented) return;
+            e.preventDefault();
+            var f = document.createElement('form');
+            f.method = 'post'; f.action = a.href; f.style.display = 'none';
+            addToken(f);
+            document.body.appendChild(f);
+            f.submit();
+        });
+    })();
+    </script>
+    {% if is_admin_page %}
+    <script>
+    // Filtre des lignes de tableau de la page courante
+    (function () {
+        var input = document.getElementById('adminSearchInput');
+        if (!input) return;
+        input.addEventListener('input', function () {
+            var q = input.value.trim().toLowerCase();
+            document.querySelectorAll('.admin-main-body table tbody tr').forEach(function (tr) {
+                tr.classList.toggle('shell-filtered', q !== '' && tr.textContent.toLowerCase().indexOf(q) === -1);
+            });
+        });
+    })();
+    // Menu de la cloche : dernières notifications
+    (function () {
+        var btn = document.getElementById('notifBellBtn');
+        if (!btn) return;
+        var list = document.getElementById('notifMenuList');
+        var dot = document.getElementById('notifBellDot');
+        var feedUrl = {{ url_for('admin.notifications_feed')|tojson }};
+        var readAllUrl = {{ url_for('admin.read_all_notifications')|tojson }};
+        var readUrl = function (id) { return {{ url_for('admin.read_notification', id=0)|tojson }}.replace('/0/', '/' + id + '/'); };
+        var icons = { info: 'bi-info-circle', success: 'bi-check-circle', warning: 'bi-exclamation-triangle', danger: 'bi-exclamation-octagon' };
+        var token = document.querySelector('meta[name="csrf-token"]').content;
+        function esc(v) { var d = document.createElement('div'); d.textContent = v == null ? '' : String(v); return d.innerHTML; }
+        function post(url) {
+            return fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': token } });
+        }
+        function render(data) {
+            dot.hidden = !data.unread;
+            if (!data.items.length) { list.innerHTML = '<li class="notif-menu__empty">Aucune notification.</li>'; return; }
+            list.innerHTML = data.items.map(function (n) {
+                var kind = icons[n.type] ? n.type : 'info';
+                return '<li class="notif-menu__item' + (n.unread ? ' is-unread' : '') + '" data-id="' + n.id + '">' +
+                    '<span class="nt-avatar is-' + kind + '"><i class="bi ' + icons[kind] + '"></i></span>' +
+                    '<div class="notif-menu__body"><strong>' + esc(n.title) + '</strong><p>' + esc(n.message) + '</p>' +
+                    '<span class="notif-menu__meta"><i class="bi bi-clock"></i> ' + esc(n.ago) + '</span></div>' +
+                    (n.unread ? '<span class="nt-dot" aria-label="Non lue"></span>' +
+                        '<button type="button" class="notif-menu__x" aria-label="Marquer comme lue" title="Marquer comme lue"><i class="bi bi-x-lg"></i></button>' : '') +
+                    '</li>';
+            }).join('');
+        }
+        function load() {
+            fetch(feedUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (d) { if (d) render(d); })
+                .catch(function () { list.innerHTML = '<li class="notif-menu__empty">Impossible de charger les notifications.</li>'; });
+        }
+        btn.addEventListener('show.bs.dropdown', load);
+        list.addEventListener('click', function (e) {
+            var x = e.target.closest('.notif-menu__x');
+            if (!x) return;
+            var li = x.closest('.notif-menu__item');
+            post(readUrl(li.dataset.id)).then(load);
+        });
+        document.getElementById('notifReadAll').addEventListener('click', function () { post(readAllUrl).then(load); });
+    })();
+    // Messages non lus (API chat)
+    (function () {
+        var url = {{ node_api_url|tojson }} + '/chats/active-count';
+        function refresh() {
+            fetch(url).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+                if (!d) return;
+                var n = d.unreadAdmin || 0;
+                var side = document.getElementById('sidebarChatBadge');
+                var top = document.getElementById('topbarChatBadge');
+                if (side) { side.textContent = n; side.hidden = n === 0; }
+                if (top) { top.hidden = n === 0; }
+            }).catch(function () {});
+        }
+        refresh();
+        setInterval(refresh, 30000);
+    })();
+    </script>
+    {% endif %}
 </body>
 
 </html>

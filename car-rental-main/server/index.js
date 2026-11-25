@@ -5,6 +5,8 @@ const crypto = require("crypto");
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+// URL interne du backend Flask (en Docker : nom du service, ex. http://flask:5002)
+const FLASK_URL = new URL(process.env.FLASK_INTERNAL_URL || "http://127.0.0.1:5002");
 const DB_PATH = path.join(__dirname, "data", "db.json");
 const SALT = "3M_SERVICES_SALT_2026";
 
@@ -508,10 +510,10 @@ app.post("/api/apartments/:id/book", (req, res) => {
     const http = require("http");
     const payload = JSON.stringify({ apartmentId: apt.id, checkIn, checkOut, guestName, guestPhone });
     const fReq = http.request(
-      { hostname: "127.0.0.1", port: 5002, path: "/api/public/apartment-bookings", method: "POST", headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) } },
+      { hostname: FLASK_URL.hostname, port: FLASK_URL.port || 80, path: "/api/public/apartment-bookings", method: "POST", headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) } },
       () => {}
     );
-    fReq.on("error", () => {});
+    fReq.on("error", (err) => console.error(`[sync Flask] réservation appartement non synchronisée (${FLASK_URL.origin}): ${err.message}`));
     fReq.write(payload);
     fReq.end();
   } catch (e) {
@@ -738,8 +740,8 @@ const handleCarPromoToggle = (req, res) => {
   res.json({ success: true, car: db.cars[index] });
 };
 
-app.patch("/api/cars/:id/promo", handleCarPromoToggle);
-app.post("/api/cars/:id/promo", handleCarPromoToggle);
+app.patch("/api/cars/:id/promo", authenticateToken, handleCarPromoToggle);
+app.post("/api/cars/:id/promo", authenticateToken, handleCarPromoToggle);
 
 app.delete("/api/cars/:id", authenticateToken, (req, res) => {
   const db = readDb();
@@ -2236,7 +2238,6 @@ app.listen(PORT, () => {
   console.log(`=======================================================`);
   console.log(` 🚀 3M SERVICES Backend Server running on port ${PORT}`);
   console.log(` 🌐 Health: http://localhost:${PORT}/api/health`);
-  console.log(` 🔑 Default Admin: admin@3mservices.cm / admin3m2026`);
   console.log(`=======================================================`);
 });
 

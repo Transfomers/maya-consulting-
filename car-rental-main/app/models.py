@@ -193,7 +193,8 @@ class Driver(db.Model):
     deleted_at = db.Column(db.DateTime, nullable=True)
     
     trips = db.relationship('Trip', foreign_keys='Trip.driver_id', backref='driver', lazy='dynamic')
-    
+    current_bus = db.relationship('Bus', foreign_keys=[current_bus_id])
+
     def __repr__(self):
         return f'<Driver {self.name}>'
 

@@ -1,0 +1,296 @@
+/* ═══ Fenêtre détail appartement ═══ */
+.apt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.4rem;
+  animation: apt-fade 0.2s ease;
+}
+@keyframes apt-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.apt-modal__dialog {
+  width: 100%;
+  max-width: 108rem;
+  max-height: calc(100vh - 4.8rem);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 1.6rem;
+  overflow: hidden;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.3);
+}
+
+.apt-modal i { color: inherit !important; }
+
+/* En-tête */
+.apt-modal__head {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 2rem 2.4rem;
+  border-bottom: 1px solid #eaecf0;
+}
+.apt-modal__titles { flex: 1; min-width: 0; }
+.apt-modal__eyebrow { font-size: 1.3rem; font-weight: 600; color: #D62828; }
+.apt-modal__head h2 { font-size: 2.2rem; font-weight: 700; color: #101828; margin: 0.2rem 0 0; line-height: 1.25; }
+.apt-modal__status { flex: 0 0 auto; padding: 0.4rem 1.2rem; border-radius: 999px; font-size: 1.25rem; font-weight: 600; }
+.apt-modal__status.is-free { background: #ecfdf3; color: #027a48; }
+.apt-modal__status.is-busy { background: #fffaeb; color: #b54708; }
+.apt-modal__close {
+  flex: 0 0 4rem;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  border: 0;
+  background: #f2f4f7;
+  color: #344054;
+  font-size: 1.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.apt-modal__close:hover { background: #e4e7ec; }
+
+/* Corps 2 colonnes */
+.apt-modal__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 2.8rem;
+  padding: 2.4rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Photos */
+.apt-modal__photo {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 1.2rem;
+  overflow: hidden;
+  background: #f2f4f7;
+}
+.apt-modal__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.apt-modal__photo-tag,
+.apt-modal__photo-count {
+  position: absolute;
+  bottom: 1.2rem;
+  padding: 0.4rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+.apt-modal__photo-tag { left: 1.2rem; }
+.apt-modal__photo-count { right: 1.2rem; }
+
+.apt-modal__thumbs { display: flex; gap: 0.8rem; overflow-x: auto; padding: 1rem 0 0.2rem; }
+.apt-modal__thumbs button {
+  flex: 0 0 8.4rem;
+  height: 6rem;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 0.8rem;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.7;
+  background: none;
+}
+.apt-modal__thumbs button.is-active { border-color: #D62828; opacity: 1; }
+.apt-modal__thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Caractéristiques */
+.apt-modal__facts {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 2rem;
+  margin: 2rem 0 0;
+  padding: 1.6rem 0;
+  border-top: 1px solid #eaecf0;
+  border-bottom: 1px solid #eaecf0;
+}
+.apt-modal__facts li { display: flex; align-items: center; gap: 0.8rem; font-size: 1.45rem; color: #344054; }
+.apt-modal__facts i { color: #101828 !important; }
+
+.apt-modal__section { margin-top: 2.2rem; }
+.apt-modal__section h3 { font-size: 1.6rem; font-weight: 700; color: #101828; margin: 0 0 1rem; }
+.apt-modal__section p { font-size: 1.45rem; line-height: 1.7; color: #475467; margin: 0; }
+
+.apt-modal__chips { list-style: none; display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 0; padding: 0; }
+.apt-modal__chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  background: #f9fafb;
+  border: 1px solid #eaecf0;
+  font-size: 1.3rem;
+  color: #344054;
+}
+.apt-modal__chips i { color: #12b76a !important; }
+
+.apt-modal__services {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.6rem;
+  margin: 0;
+  padding: 0;
+}
+.apt-modal__services li { display: flex; gap: 0.8rem; align-items: flex-start; font-size: 1.4rem; color: #344054; }
+.apt-modal__services i { color: #D62828 !important; margin-top: 0.3rem; }
+
+/* Carte de réservation */
+.apt-modal__booking {
+  align-self: start;
+  position: sticky;
+  top: 0;
+  border: 1px solid #eaecf0;
+  border-radius: 1.4rem;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+}
+.apt-modal__price { display: flex; align-items: baseline; gap: 0.8rem; }
+.apt-modal__price strong { font-size: 2.8rem; font-weight: 800; color: #101828; }
+.apt-modal__price span { font-size: 1.4rem; color: #667085; }
+
+.apt-modal__rates {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.6rem 1.6rem;
+  margin: 1.4rem 0 0;
+  font-size: 1.35rem;
+}
+.apt-modal__rates dt { color: #667085; }
+.apt-modal__rates dd { margin: 0; text-align: right; color: #101828; font-weight: 600; }
+.apt-modal__discount { margin: 1.2rem 0 0; font-size: 1.3rem; color: #027a48; font-weight: 600; }
+
+.apt-modal__form { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #eaecf0; }
+.apt-modal__form h3 { font-size: 1.6rem; font-weight: 700; color: #101828; margin: 0 0 1.2rem; }
+.apt-modal__booked { font-size: 1.25rem; color: #b42318; margin: -0.4rem 0 1.2rem; }
+.apt-modal__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; }
+.apt-modal__grid label { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; min-width: 0; }
+.apt-modal__grid label.is-full { grid-column: 1 / -1; }
+.apt-modal__grid span { font-size: 1.25rem; font-weight: 600; color: #344054; }
+.apt-modal__grid input {
+  width: 100%;
+  height: 4.4rem;
+  padding: 0 1.2rem;
+  border: 1px solid #d0d5dd;
+  border-radius: 0.8rem;
+  font-size: 1.45rem;
+  color: #101828;
+  background: #fff;
+  font-family: inherit;
+}
+.apt-modal__grid input:focus { outline: none; border-color: #D62828; box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.14); }
+
+.apt-modal__submit {
+  width: 100%;
+  margin-top: 1.6rem;
+  height: 4.8rem;
+  border: 0;
+  border-radius: 0.8rem;
+  background: #D62828;
+  color: #fff;
+  font-size: 1.55rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(214, 40, 40, 0.28);
+}
+.apt-modal__submit:hover:not(:disabled) { background: #B91C1C; }
+.apt-modal__submit:disabled { opacity: 0.65; cursor: progress; }
+
+.apt-modal__feedback { margin-top: 1.2rem; padding: 1rem 1.2rem; border-radius: 0.8rem; font-size: 1.35rem; font-weight: 600; }
+.apt-modal__feedback.is-ok { background: #ecfdf3; color: #027a48; }
+.apt-modal__feedback.is-error { background: #fef3f2; color: #b42318; }
+
+.apt-modal__unavailable {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 2rem;
+  padding: 1.4rem;
+  border-radius: 1rem;
+  background: #fffaeb;
+  border: 1px solid #fedf89;
+  color: #93370d;
+  font-size: 1.35rem;
+  line-height: 1.5;
+}
+.apt-modal__unavailable i { font-size: 1.8rem; margin-top: 0.2rem; }
+.apt-modal__unavailable strong { display: block; font-size: 1.45rem; }
+
+.apt-modal__contact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid #eaecf0;
+  font-size: 1.35rem;
+  color: #667085;
+}
+.apt-modal__contact > div { display: flex; gap: 0.8rem; }
+.apt-modal__contact a {
+  height: 4rem;
+  min-width: 4rem;
+  padding: 0 1.2rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.apt-modal__contact .is-wa { background: #25D366; color: #fff; }
+.apt-modal__contact .is-mail,
+.apt-modal__contact .is-tel { background: #f2f4f7; color: #101828; padding: 0; }
+.apt-modal__contact a:hover { filter: brightness(0.95); }
+
+.apt-modal button:focus-visible,
+.apt-modal a:focus-visible,
+.apt-modal input:focus-visible { outline: 3px solid rgba(214, 40, 40, 0.35); outline-offset: 2px; }
+
+/* Tablette */
+@media (max-width: 900px) {
+  .apt-modal__body { grid-template-columns: minmax(0, 1fr); }
+  .apt-modal__booking { position: static; }
+  /* Photos d'abord, puis réservation, puis détails */
+  .apt-modal__body { display: flex; flex-direction: column; }
+  .apt-modal__main { display: contents; }
+  .apt-modal__photo { order: 1; }
+  .apt-modal__thumbs { order: 2; }
+  .apt-modal__booking { order: 3; }
+  .apt-modal__facts { order: 4; margin-top: 0; }
+  .apt-modal__section { order: 5; margin-top: 0; }
+  /* Dans la colonne qui défile, aucun bloc ne doit être écrasé */
+  .apt-modal__body > *,
+  .apt-modal__main > * { flex-shrink: 0; }
+}
+
+/* Téléphone : plein écran */
+@media (max-width: 600px) {
+  .apt-modal { padding: 0; }
+  .apt-modal__dialog { max-height: 100vh; height: 100%; height: 100dvh; border-radius: 0; }
+  .apt-modal__head { padding: 1.4rem 1.6rem; gap: 1rem; flex-wrap: wrap; }
+  .apt-modal__head h2 { font-size: 1.9rem; }
+  .apt-modal__titles { flex: 1 1 calc(100% - 5.2rem); }
+  .apt-modal__close { order: 2; }
+  .apt-modal__status { order: 3; }
+  .apt-modal__body { padding: 1.6rem; gap: 1.8rem; }
+  .apt-modal__booking { padding: 1.6rem; }
+  .apt-modal__price strong { font-size: 2.4rem; }
+  .apt-modal__grid input { font-size: 16px; }
+  .apt-modal__services { grid-template-columns: minmax(0, 1fr); }
+}

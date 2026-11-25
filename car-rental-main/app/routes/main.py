@@ -34,7 +34,7 @@ def index():
     # React app on port 3001 is the single customer homepage
     if current_user.is_authenticated and current_user.role in ['admin', 'super_admin']:
         return redirect(url_for('admin.dashboard'))
-    return redirect('http://localhost:3001/')
+    return redirect(current_app.config['PUBLIC_SITE_URL'])
 
 @bp.route('/chat')
 def chat_redirect():
@@ -1117,7 +1117,7 @@ def favicon():
     from flask import current_app, send_from_directory
     import os
     return send_from_directory(os.path.join(current_app.root_path, 'static'),
-                               'logorv.png', mimetype='image/png')
+                               'favicon.ico', mimetype='image/x-icon')
 
 # In-memory store for live bus tracking locations
 TRIP_LOCATIONS = {}

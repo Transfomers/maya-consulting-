@@ -1,6 +1,6 @@
 import "./dist/styles.css";
 import "./styles/Animations.css";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import About from "./Pages/About";
 import Home from "./Pages/Home";
 import Navbar from "./components/Navbar";
@@ -17,11 +17,23 @@ import PrivateChatWidget from "./components/PrivateChatWidget";
 import VisitorCheckInModal from "./components/VisitorCheckInModal";
 import { LanguageProvider } from "./context/LanguageContext";
 import ChatPage from "./Pages/ChatPage";
+import AccountPage from "./Pages/AccountPage";
+import "./styles/Responsive.css"; // correctifs mobile, chargé en dernier
 
-// Forward any administrative access directly to the official 3M SERVICES Admin Control Center (Port 5002)
+// URL de l'admin Flask : REACT_APP_ADMIN_URL au build, sinon port 5002 en local.
+const ADMIN_URL =
+  process.env.REACT_APP_ADMIN_URL ||
+  (["localhost", "127.0.0.1"].includes(window.location.hostname)
+    ? "http://127.0.0.1:5002/admin/dashboard"
+    : null);
+
 const AdminRedirect = () => {
-  window.location.replace("http://127.0.0.1:5002/admin/dashboard");
-  return null;
+  if (ADMIN_URL) {
+    window.location.replace(ADMIN_URL);
+    return null;
+  }
+  console.error("REACT_APP_ADMIN_URL n'est pas défini pour ce build.");
+  return <Navigate to="/" replace />;
 };
 
 function App() {
@@ -48,6 +60,8 @@ function App() {
         <Route path="contact" element={<Contact />} />
         <Route path="chat" element={<ChatPage />} />
         <Route path="messages" element={<ChatPage />} />
+        <Route path="account" element={<AccountPage />} />
+        <Route path="account/:tab" element={<AccountPage />} />
         {/* Admin RQ route removed; automatically forwards to the main Flask Admin */}
         <Route path="admin" element={<AdminRedirect />} />
         <Route path="admin/*" element={<AdminRedirect />} />

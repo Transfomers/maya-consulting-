@@ -192,7 +192,7 @@
                                 <a href="{{ url_for('admin.edit_driver', id=driver.id) }}" class="action-icon-link action-edit" title="Modifier le chauffeur">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{{ url_for('admin.delete_driver', id=driver.id) }}" class="action-icon-link action-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce chauffeur ?');">
+                                <a data-method="post" href="{{ url_for('admin.delete_driver', id=driver.id) }}" class="action-icon-link action-delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce chauffeur ?');">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>

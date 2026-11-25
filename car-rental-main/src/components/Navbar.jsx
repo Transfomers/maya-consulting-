@@ -1,21 +1,86 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "../images/logo/logo.png";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "../context/LanguageContext";
+import { getCurrentClient, setCurrentClient } from "../utils/customerAccounts";
 import "../styles/MobileNav.css";
 
 function Navbar() {
   const [nav, setNav] = useState(false);
+  const [chatUnread, setChatUnread] = useState(0);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [currentClient, setClientState] = useState(() => getCurrentClient());
+  const accountMenuRef = useRef(null);
   const { lang, setLang, t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const closeNav = () => {
     setNav(false);
   };
 
-  // Close mobile drawer on route change
+  const handleOpenChat = () => {
+    closeNav();
+    setAccountMenuOpen(false);
+    window.dispatchEvent(new CustomEvent("3m-open-chat"));
+  };
+
+  const handleAccountNavigate = (path) => {
+    setAccountMenuOpen(false);
+    closeNav();
+    navigate(path);
+    window.scrollTo(0, 0);
+  };
+
+  const handleSignOut = () => {
+    setCurrentClient(null);
+    setClientState(null);
+    setAccountMenuOpen(false);
+    closeNav();
+    if (location.pathname.startsWith("/account")) {
+      navigate("/account/dashboard");
+    }
+  };
+
+  useEffect(() => {
+    const handleUnread = (e) => {
+      setChatUnread(Number(e?.detail || 0));
+    };
+    const handleAuthChange = (e) => {
+      setClientState(e?.detail !== undefined ? e.detail : getCurrentClient());
+    };
+    window.addEventListener("3m-chat-unread", handleUnread);
+    window.addEventListener("3m-client-auth-changed", handleAuthChange);
+    return () => {
+      window.removeEventListener("3m-chat-unread", handleUnread);
+      window.removeEventListener("3m-client-auth-changed", handleAuthChange);
+    };
+  }, []);
+
+  // Close account dropdown on outside click or Escape
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target)) {
+        setAccountMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setAccountMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  // Close mobile drawer & dropdown on route change
   useEffect(() => {
     closeNav();
+    setAccountMenuOpen(false);
   }, [location.pathname]);
 
   // Lock body scroll when mobile menu is open
@@ -180,6 +245,25 @@ function Navbar() {
                   <i className="fa-solid fa-chevron-right mobile-nav-drawer__link-chevron"></i>
                 </Link>
               </li>
+
+              {/* 7. Mon Compte VIP */}
+              <li>
+                <Link
+                  to="/account/dashboard"
+                  className="mobile-nav-drawer__link-item"
+                  onClick={() => { closeNav(); window.scrollTo(0, 0); }}
+                >
+                  <div className="mobile-nav-drawer__link-left">
+                    <span className="mobile-nav-drawer__link-icon">
+                      <i className="fa-solid fa-user"></i>
+                    </span>
+                    <span className="mobile-nav-drawer__link-title">
+                      {lang === "fr" ? "Mon Compte" : "My Account"}
+                    </span>
+                  </div>
+                  <i className="fa-solid fa-chevron-right mobile-nav-drawer__link-chevron"></i>
+                </Link>
+              </li>
             </ul>
 
             {/* Language Switcher Segmented Bar */}
@@ -215,6 +299,19 @@ function Navbar() {
                   <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
                 </svg>
               </a>
+
+              {/* Chat Privé 3M */}
+              <button
+                type="button"
+                onClick={handleOpenChat}
+                className="mobile-nav-drawer__circle-btn"
+                title={lang === "fr" ? "Chat Privé 3M" : "3M Private Chat"}
+                aria-label="Chat Privé 3M"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#000000">
+                  <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zM7 9h2v2H7V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9z"/>
+                </svg>
+              </button>
 
               {/* 2. Call 1 (+237 691 78 64 47) */}
               <a
@@ -393,6 +490,114 @@ function Navbar() {
             >
               <i className="fa-brands fa-whatsapp"></i>
             </a>
+
+            {/* Direct In-App Private Chat Icon Button (next to WhatsApp) */}
+            <button
+              type="button"
+              className="navbar__icon-btn navbar__icon-btn--chat"
+              onClick={handleOpenChat}
+              title={lang === "fr" ? "Chat Privé 3M — Conciergerie en ligne" : "3M Private Chat — Live Concierge"}
+              aria-label="Chat Privé 3M"
+            >
+              <i className="fa-regular fa-comment-dots"></i>
+              {chatUnread > 0 && <span className="navbar__chat-badge">{chatUnread}</span>}
+            </button>
+
+            {/* User Account ("Bonhomme") Icon Button + Dropdown Menu */}
+            <div className="navbar__account-wrap" ref={accountMenuRef}>
+              <button
+                type="button"
+                className="navbar__icon-btn navbar__icon-btn--account"
+                onClick={() => setAccountMenuOpen((prev) => !prev)}
+                title={lang === "fr" ? "Mon Compte Client 3M" : "My 3M Client Account"}
+                aria-label="Mon compte"
+                aria-expanded={accountMenuOpen}
+              >
+                <i className={currentClient ? "fa-solid fa-user" : "fa-regular fa-user"}></i>
+                {currentClient && <span className="navbar__account-dot" aria-hidden="true"></span>}
+              </button>
+
+              {accountMenuOpen && (
+                <div className="navbar__account-menu" role="menu" aria-label="Menu compte client">
+                  <div className="navbar__account-header">
+                    <div className="navbar__account-name">
+                      {currentClient?.name || (lang === "fr" ? "Mon Compte 3M" : "My 3M Account")}
+                    </div>
+                    <div className="navbar__account-email">
+                      {currentClient?.email ||
+                        currentClient?.phone ||
+                        (lang === "fr" ? "Accès Espace Client VIP" : "VIP Client Portal")}
+                    </div>
+                  </div>
+
+                  <div className="navbar__account-divider"></div>
+
+                  <div className="navbar__account-items">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="navbar__account-item"
+                      onClick={() => handleAccountNavigate("/account/dashboard")}
+                    >
+                      <i className="fa-solid fa-house"></i>
+                      <span>{lang === "fr" ? "Tableau de bord" : "Dashboard"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="navbar__account-item"
+                      onClick={() => handleAccountNavigate("/account/profile")}
+                    >
+                      <i className="fa-solid fa-user"></i>
+                      <span>{lang === "fr" ? "Mon Profil" : "My Profile"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="navbar__account-item"
+                      onClick={() => handleAccountNavigate("/account/orders")}
+                    >
+                      <i className="fa-regular fa-calendar-days"></i>
+                      <span>{lang === "fr" ? "Mes Réservations" : "My Orders"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="navbar__account-item"
+                      onClick={() => handleAccountNavigate("/account/favorites")}
+                    >
+                      <i className="fa-solid fa-car"></i>
+                      <span>{lang === "fr" ? "Mes Véhicules Favoris" : "My Favorite Cars"}</span>
+                    </button>
+
+                    {currentClient ? (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="navbar__account-item"
+                        onClick={handleSignOut}
+                      >
+                        <i className="fa-solid fa-right-from-bracket"></i>
+                        <span>{lang === "fr" ? "Déconnexion" : "Sign Out"}</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="navbar__account-item"
+                        onClick={() => handleAccountNavigate("/account/signin")}
+                      >
+                        <i className="fa-solid fa-right-to-bracket"></i>
+                        <span>{lang === "fr" ? "Se connecter" : "Sign In"}</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Hamburger Menu Button (Mobile & Tablet) */}
             <button

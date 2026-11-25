@@ -1,4 +1,5 @@
 from flask import render_template, redirect, url_for, flash, request, jsonify, abort
+from app.utils.security import csrf_protect
 from flask_login import login_required, current_user
 from app.models import User, Agency, Bus, Route, Trip, Booking, Feedback, AuditLog, SystemNotification, Parcel, Payment, db
 from app import db
@@ -303,9 +304,10 @@ def process_parcel_payment(parcel_id):
     flash(f"Paiement enregistré pour le colis #{parcel.tracking_number}. Code de retrait généré : {parcel.otp_code}.", "success")
     return redirect(url_for('admin.teller_parcel_payments'))
 
-@admin.route('/admin/parcel/ops/assign')
+@admin.route('/admin/parcel/ops/assign', methods=['POST'])
 @login_required
 @teller_required
+@csrf_protect
 def teller_parcel_assign():
     agency = get_agency_scope()
     if not agency:

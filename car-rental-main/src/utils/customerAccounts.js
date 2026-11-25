@@ -74,7 +74,7 @@ export const setCurrentClient = (client) => {
 };
 
 /**
- * Login client by phone or email
+ * Login client by phone, email, username or accountNumber (backward compatible)
  */
 export const loginClient = (identifier) => {
   if (!identifier) return null;
@@ -85,10 +85,12 @@ export const loginClient = (identifier) => {
   const customer = store.customers.find((c) => {
     const cPhoneClean = (c.phone || "").replace(/[^0-9]/g, "");
     const cEmailClean = (c.email || "").trim().toLowerCase();
+    const cUserClean = (c.username || c.name || "").trim().toLowerCase();
     return (
       (cleanPhone && cPhoneClean.includes(cleanPhone)) ||
       (cleanId && cEmailClean === cleanId) ||
-      (cleanId && (c.accountNumber || "").toLowerCase() === cleanId)
+      (cleanId && (c.accountNumber || "").toLowerCase() === cleanId) ||
+      (cleanId && cUserClean === cleanId)
     );
   });
 
@@ -97,6 +99,46 @@ export const loginClient = (identifier) => {
     return customer;
   }
   return null;
+};
+
+/**
+ * Authenticate client with optional password verification
+ */
+export const authenticateClient = (identifier, password = "") => {
+  if (!identifier || !identifier.trim()) {
+    return { client: null, error: "NOT_FOUND" };
+  }
+  const store = getCrmStore();
+  const cleanId = identifier.trim().toLowerCase();
+  const cleanPhone = identifier.replace(/[^0-9]/g, "");
+
+  const customer = store.customers.find((c) => {
+    const cPhoneClean = (c.phone || "").replace(/[^0-9]/g, "");
+    const cEmailClean = (c.email || "").trim().toLowerCase();
+    const cUserClean = (c.username || "").trim().toLowerCase();
+    const cNameClean = (c.name || "").trim().toLowerCase();
+    return (
+      (cleanPhone && cPhoneClean.includes(cleanPhone)) ||
+      (cleanId && cEmailClean === cleanId) ||
+      (cleanId && (c.accountNumber || "").toLowerCase() === cleanId) ||
+      (cleanId && cUserClean && cUserClean === cleanId) ||
+      (cleanId && cNameClean === cleanId)
+    );
+  });
+
+  if (!customer) {
+    return { client: null, error: "NOT_FOUND" };
+  }
+
+  if (customer.password && password !== customer.password) {
+    return { client: null, error: "INVALID_PASSWORD" };
+  }
+
+  setCurrentClient(customer);
+  try {
+    localStorage.setItem("3m_vip_account", JSON.stringify(customer));
+  } catch (e) {}
+  return { client: customer, error: null };
 };
 
 /**
@@ -389,4 +431,257 @@ export const getBookingVoucher = (bookingId) => {
     emergencyConcierge: "+237 690 00 00 00",
     terms: "Présenter une pièce d'identité valide (CNI ou Passeport) et ce voucher lors de la prise en charge du véhicule."
   };
+};
+
+const FAVORITE_CARS_KEY = "3m_favorite_cars_v1";
+
+const getFavoriteScopeKey = (client = getCurrentClient()) => {
+  return client?.accountNumber || client?.id || "guest";
+};
+
+/**
+ * Register or log in a VIP client profile
+ */
+export const registerClientAccount = ({
+  name,
+  username = "",
+  email = "",
+  phone = "",
+  password = "",
+  city = "Yaoundé",
+  address = "",
+  language = "fr",
+  hourFormat = "24-hour"
+}) => {
+  const store = getCrmStore();
+  const safeName = (name || username || "Client 3M VIP").trim();
+  const safeUsername = (username || safeName).trim();
+  const safeEmail = (email || "").trim();
+  const safePhone = (phone || "").trim();
+  const phoneDigits = safePhone.replace(/[^0-9]/g, "");
+  const now = new Date().toISOString();
+  const defaultNotifications = {
+    bookingUpdates: true,
+    promoOffers: true,
+    chatMessages: true,
+    smsWhatsapp: true
+  };
+
+  const existingIndex = (store.customers || []).findIndex((c) => {
+    const cDigits = (c.phone || "").replace(/[^0-9]/g, "");
+    const cEmail = (c.email || "").trim().toLowerCase();
+    return (
+      (phoneDigits && cDigits && (cDigits === phoneDigits || cDigits.endsWith(phoneDigits.slice(-8)))) ||
+      (safeEmail && cEmail && cEmail === safeEmail.toLowerCase())
+    );
+  });
+
+  let customer;
+  if (existingIndex >= 0) {
+    customer = {
+      ...store.customers[existingIndex],
+      name: safeName || store.customers[existingIndex].name,
+      username: safeUsername || store.customers[existingIndex].username || safeName,
+      email: safeEmail || store.customers[existingIndex].email || "",
+      phone: safePhone || store.customers[existingIndex].phone || "",
+      city: city || store.customers[existingIndex].city || "Yaoundé",
+      address: address || store.customers[existingIndex].address || "",
+      language: language || store.customers[existingIndex].language || "fr",
+      hourFormat: hourFormat || store.customers[existingIndex].hourFormat || "24-hour",
+      notifications: store.customers[existingIndex].notifications || defaultNotifications,
+      ...(password ? { password } : {})
+    };
+    store.customers[existingIndex] = customer;
+  } else {
+    customer = {
+      id: `CUST-${Date.now().toString().slice(-6)}`,
+      accountNumber: `3M-CLI-${Math.floor(1000 + Math.random() * 9000)}`,
+      name: safeName,
+      username: safeUsername,
+      phone: safePhone,
+      email: safeEmail,
+      ...(password ? { password } : {}),
+      city: city || "Yaoundé",
+      address: address || "",
+      language: language || "fr",
+      hourFormat: hourFormat || "24-hour",
+      notifications: defaultNotifications,
+      type: "Particulier VIP",
+      tier: "Bronze VIP",
+      totalBookings: 0,
+      totalSpent: 0,
+      status: "Actif VIP",
+      createdAt: now,
+      lastOrderAt: now
+    };
+    store.customers.unshift(customer);
+  }
+
+  saveCrmStore(store);
+  setCurrentClient(customer);
+  try {
+    localStorage.setItem("3m_vip_account", JSON.stringify(customer));
+  } catch (e) {}
+  return customer;
+};
+
+/**
+ * Update the currently logged-in client's profile
+ */
+export const updateClientProfile = (updates = {}) => {
+  const current = getCurrentClient();
+  if (!current) return null;
+
+  const cleanUpdates = { ...updates };
+  if (!cleanUpdates.password) {
+    delete cleanUpdates.password;
+  }
+
+  const updated = {
+    ...current,
+    ...cleanUpdates
+  };
+
+  const store = getCrmStore();
+  const idx = (store.customers || []).findIndex(
+    (c) =>
+      (current.accountNumber && c.accountNumber === current.accountNumber) ||
+      (current.id && c.id === current.id) ||
+      (current.email && c.email && c.email.toLowerCase() === current.email.toLowerCase())
+  );
+
+  if (idx >= 0) {
+    store.customers[idx] = { ...store.customers[idx], ...cleanUpdates };
+    saveCrmStore(store);
+  }
+
+  setCurrentClient(updated);
+  try {
+    localStorage.setItem("3m_vip_account", JSON.stringify(updated));
+  } catch (e) {}
+  return updated;
+};
+
+/**
+ * Ensure demo account has scheduled, completed, and cancelled orders in local CRM store
+ */
+export const ensureDemoClientBookings = (demoClient) => {
+  if (!demoClient) return;
+  const store = getCrmStore();
+  const bookings = Array.isArray(store.bookings) ? [...store.bookings] : [];
+  let changed = false;
+
+  DEFAULT_BOOKINGS.forEach((seedBooking) => {
+    const exists = bookings.some((b) => b.id === seedBooking.id);
+    if (!exists) {
+      bookings.push(seedBooking);
+      changed = true;
+    }
+  });
+
+  if (changed) {
+    store.bookings = bookings;
+    saveCrmStore(store);
+  }
+};
+
+/**
+ * Cancel an order belonging to the client in the CRM store
+ */
+export const cancelClientOrder = (orderId) => {
+  if (!orderId) return null;
+  const store = getCrmStore();
+  const idx = (store.bookings || []).findIndex((b) => b.id === orderId);
+  if (idx === -1) return null;
+
+  const updatedBooking = {
+    ...store.bookings[idx],
+    status: "Annulée",
+    cancelledAt: new Date().toISOString()
+  };
+  store.bookings[idx] = updatedBooking;
+  saveCrmStore(store);
+  return updatedBooking;
+};
+
+/**
+ * Read favorite car IDs for the current client (or guest)
+ */
+export const getFavoriteCarIds = (client = getCurrentClient()) => {
+  try {
+    const raw = localStorage.getItem(FAVORITE_CARS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    const scope = getFavoriteScopeKey(client);
+    const list = parsed?.[scope];
+    return Array.isArray(list) ? list.map(String) : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+export const isCarFavorited = (carId, client = getCurrentClient()) => {
+  if (!carId) return false;
+  return getFavoriteCarIds(client).includes(String(carId));
+};
+
+export const toggleFavoriteCar = (carId, client = getCurrentClient()) => {
+  if (!carId) return [];
+  const strId = String(carId);
+  const scope = getFavoriteScopeKey(client);
+  let storeMap = {};
+  try {
+    const raw = localStorage.getItem(FAVORITE_CARS_KEY);
+    if (raw) storeMap = JSON.parse(raw) || {};
+  } catch (e) {
+    storeMap = {};
+  }
+
+  const currentList = Array.isArray(storeMap[scope]) ? storeMap[scope].map(String) : [];
+  const exists = currentList.includes(strId);
+  const nextList = exists
+    ? currentList.filter((id) => id !== strId)
+    : [strId, ...currentList];
+
+  storeMap[scope] = nextList;
+  try {
+    localStorage.setItem(FAVORITE_CARS_KEY, JSON.stringify(storeMap));
+    window.dispatchEvent(new CustomEvent("3m-favorites-changed", { detail: nextList }));
+  } catch (e) {}
+  return nextList;
+};
+
+/**
+ * Active VIP coupons available for 3M Services clients
+ */
+export const getClientCoupons = (client = getCurrentClient()) => {
+  const baseCoupons = [
+    {
+      code: "3M-VIP15",
+      title: "Offre Flash Land Cruiser V8",
+      discount: "-15%",
+      desc: "Valable sur Toyota Land Cruiser V8 (LC200) avec chauffeur VIP"
+    },
+    {
+      code: "3M-PRADO17",
+      title: "Privilège Prado TXL Blanc",
+      discount: "-17%",
+      desc: "Tarif promo mensuel dès 100 000 FCFA / jour"
+    },
+    {
+      code: "3M-NSIMALEN",
+      title: "Accueil Aéroport VIP Offert",
+      discount: "OFFERT",
+      desc: "Transfert & accueil protocolaire Aéroport Yaoundé-Nsimalen"
+    }
+  ];
+  if (client?.tier === "Gold VIP") {
+    baseCoupons.push({
+      code: "3M-GOLD20",
+      title: "Avantage Membre Gold VIP",
+      discount: "-20%",
+      desc: "Priorité flotte & surclassement selon disponibilité"
+    });
+  }
+  return baseCoupons;
 };

@@ -1,6 +1,63 @@
 {
   "admin": {},
-  "cars": [],
+  "cars": [
+    {
+      "id": "bus-1",
+      "name": "Toyota Land Cruiser V8 LC200 Prestige",
+      "model": "Land Cruiser V8 LC200 Prestige",
+      "mark": "Toyota",
+      "brand": "Toyota",
+      "category": "4x4 & SUV VIP",
+      "year": "2023",
+      "condition": "Prestige VIP",
+      "mileage": "Certifié Faible Km",
+      "price": "130 000 FCFA / jour",
+      "pricePerDay": 130000,
+      "doors": "5",
+      "seats": "7 places cuir VIP",
+      "transmission": "Automatique 4x4",
+      "fuel": "Diesel",
+      "air": "Oui (Intégrale bi-zone)",
+      "status": "Disponible",
+      "plate": "CE-982-LT",
+      "img": "/images/cars/toyota-landcruiser-v8-black.webp",
+      "image": "/images/cars/toyota-landcruiser-v8-black.webp",
+      "description": "V8 Prestige grand luxe • 7 places cuir VIP • Chauffeur dédié inclus",
+      "isPromo": true,
+      "regularPrice": 150000,
+      "promoPrice": 130000,
+      "promoBadge": "OFFRE VIP EXCLUSIVE",
+      "promoDescription": "V8 Prestige grand luxe • 7 places cuir VIP • Chauffeur dédié inclus"
+    },
+    {
+      "id": "bus-2",
+      "name": "Toyota Land Cruiser V8 LC300 VIP",
+      "model": "Land Cruiser V8 LC300 VIP",
+      "mark": "Toyota",
+      "brand": "Toyota",
+      "category": "4x4 & SUV VIP",
+      "year": "2023",
+      "condition": "Prestige VIP",
+      "mileage": "Certifié Faible Km",
+      "price": "100 000 FCFA / jour",
+      "pricePerDay": 80000,
+      "doors": "5",
+      "seats": "7 places cuir VIP",
+      "transmission": "Automatique 4x4",
+      "fuel": "Diesel",
+      "air": "Oui (Intégrale bi-zone)",
+      "status": "Disponible",
+      "plate": "LT-104-AB",
+      "img": "/images/cars/toyota-landcruiser-v8-black.webp",
+      "image": "/images/cars/toyota-landcruiser-v8-black.webp",
+      "description": "Toyota Land Cruiser V8 LC300 VIP avec chauffeur dédié inclus.",
+      "isPromo": true,
+      "regularPrice": 130000,
+      "promoPrice": 80000,
+      "promoBadge": "OFFRE VIP EXCLUSIVE",
+      "promoDescription": "Land Cruiser V8 LC300 VIP • 7 places cuir VIP • Chauffeur dédié inclus"
+    }
+  ],
   "bookings": [
     {
       "id": "3M-POS-202611-2187",
@@ -27,6 +84,207 @@
   "subscribers": [],
   "chats": [
     {
+      "id": "client-1795562698503",
+      "clientId": "client-1795562698503",
+      "clientName": "safoura",
+      "clientPhone": "690567654",
+      "unreadAdmin": 0,
+      "unreadClient": 1,
+      "lastMessage": "teste. test",
+      "lastMessageAt": "2026-11-24T23:24:58.522912Z",
+      "messages": [
+        {
+          "id": "msg-admin-1795559098522",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "teste. test",
+          "timestamp": "2026-11-24T23:24:58.522912Z",
+          "carInfo": null,
+          "isEdited": true,
+          "editedAt": "2026-11-24T23:38:49.527603Z"
+        }
+      ]
+    },
+    {
+      "id": "TEST-1",
+      "clientId": "TEST-1",
+      "clientName": "Client VIP 3M",
+      "clientPhone": "",
+      "clientEmail": "",
+      "unreadAdmin": 0,
+      "unreadClient": 0,
+      "createdAt": "2026-11-24T23:20:32.793Z",
+      "lastMessageAt": "2026-11-24T23:20:32.793Z",
+      "lastMessage": "Bienvenue sur le Chat Privé 3M SERVICES !",
+      "messages": [
+        {
+          "id": "msg-welcome-1795562432794",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M",
+          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
+          "timestamp": "2026-11-24T23:20:32.794Z"
+        }
+      ]
+    },
+    {
+      "id": "GUEST-135175",
+      "clientId": "GUEST-135175",
+      "clientName": "Client VIP 3M",
+      "clientPhone": "",
+      "clientEmail": "",
+      "unreadAdmin": 0,
+      "unreadClient": 3,
+      "createdAt": "2026-11-24T22:16:05.876Z",
+      "lastMessageAt": "2026-11-24T23:59:51.676499Z",
+      "lastMessage": "⏰📩",
+      "messages": [
+        {
+          "id": "msg-welcome-1795558565876",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M",
+          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
+          "timestamp": "2026-11-24T22:16:05.876Z"
+        },
+        {
+          "id": "msg-admin-1795560147332",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "📅",
+          "timestamp": "2026-11-24T23:42:27.332143Z",
+          "carInfo": null
+        },
+        {
+          "id": "msg-admin-1795560187123",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "Le forfait VIP comprend le carburant initial, le chauffeur professionnel et l'assurance tous risques.",
+          "timestamp": "2026-11-24T23:43:07.123238Z",
+          "carInfo": null
+        },
+        {
+          "id": "msg-admin-1795561191676",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "⏰📩",
+          "timestamp": "2026-11-24T23:59:51.676499Z",
+          "carInfo": null
+        }
+      ]
+    },
+    {
+      "id": "GUEST-543252",
+      "clientId": "GUEST-543252",
+      "clientName": "Client VIP 3M",
+      "clientPhone": "",
+      "clientEmail": "",
+      "unreadAdmin": 0,
+      "unreadClient": 0,
+      "createdAt": "2026-11-24T21:50:18.465Z",
+      "lastMessageAt": "2026-11-24T21:50:18.465Z",
+      "lastMessage": "Bienvenue sur le Chat Privé 3M SERVICES !",
+      "messages": [
+        {
+          "id": "msg-welcome-1795557018465",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M",
+          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
+          "timestamp": "2026-11-24T21:50:18.466Z"
+        }
+      ]
+    },
+    {
+      "id": "GUEST-658553",
+      "clientId": "GUEST-658553",
+      "clientName": "Client VIP 3M",
+      "clientPhone": "",
+      "clientEmail": "",
+      "unreadAdmin": 0,
+      "unreadClient": 0,
+      "createdAt": "2026-11-24T21:49:16.168Z",
+      "lastMessageAt": "2026-11-24T21:49:16.168Z",
+      "lastMessage": "Bienvenue sur le Chat Privé 3M SERVICES !",
+      "messages": [
+        {
+          "id": "msg-welcome-1795556956168",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M",
+          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
+          "timestamp": "2026-11-24T21:49:16.168Z"
+        }
+      ]
+    },
+    {
+      "id": "GUEST-149802",
+      "clientId": "GUEST-149802",
+      "clientName": "Client VIP 3M",
+      "clientPhone": "",
+      "clientEmail": "",
+      "unreadAdmin": 0,
+      "unreadClient": 0,
+      "createdAt": "2026-11-24T15:12:14.301Z",
+      "lastMessageAt": "2026-11-24T21:27:50.436541Z",
+      "lastMessage": "695266214",
+      "messages": [
+        {
+          "id": "msg-welcome-1795533134301",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M",
+          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
+          "timestamp": "2026-11-24T15:12:14.302Z"
+        },
+        {
+          "id": "msg-admin-1795552070436",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "695266214",
+          "timestamp": "2026-11-24T21:27:50.436541Z",
+          "carInfo": null
+        }
+      ]
+    },
+    {
+      "id": "GUEST-449383",
+      "clientId": "GUEST-449383",
+      "clientName": "Client VIP 3M",
+      "clientPhone": "",
+      "clientEmail": "",
+      "unreadAdmin": 0,
+      "unreadClient": 0,
+      "createdAt": "2026-11-24T14:57:49.133Z",
+      "lastMessageAt": "2026-11-24T14:57:49.133Z",
+      "lastMessage": "Bienvenue sur le Chat Privé 3M SERVICES !",
+      "messages": [
+        {
+          "id": "msg-welcome-1795532269133",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M",
+          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
+          "timestamp": "2026-11-24T14:57:49.133Z"
+        }
+      ]
+    },
+    {
+      "id": "3M-CLI-2232",
+      "clientId": "3M-CLI-2232",
+      "clientName": "Client VIP 3M",
+      "clientPhone": "",
+      "clientEmail": "",
+      "unreadAdmin": 0,
+      "unreadClient": 0,
+      "createdAt": "2026-11-24T14:37:56.405Z",
+      "lastMessageAt": "2026-11-24T14:37:56.405Z",
+      "lastMessage": "Bienvenue sur le Chat Privé 3M SERVICES !",
+      "messages": [
+        {
+          "id": "msg-welcome-1795531076405",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M",
+          "text": "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
+          "timestamp": "2026-11-24T14:37:56.405Z"
+        }
+      ]
+    },
+    {
       "id": "GUEST-906312",
       "clientId": "GUEST-906312",
       "clientName": "Client VIP 3M",
@@ -42,15 +300,68 @@
     {
       "id": "GUEST-431524",
       "clientId": "GUEST-431524",
-      "clientName": "Client VIP 3M",
-      "clientPhone": "",
-      "clientEmail": "",
+      "clientName": "Arnaud Mbarga",
+      "clientPhone": "+237 698 66 87 61",
+      "clientEmail": "arnaud.mbarga@gmail.com",
       "unreadAdmin": 0,
-      "unreadClient": 0,
+      "unreadClient": 1,
       "createdAt": "2026-11-23T20:34:49.445Z",
-      "lastMessageAt": "2026-11-23T20:34:49.445Z",
-      "lastMessage": "Discussion réinitialisée",
-      "messages": []
+      "lastMessageAt": "2026-11-25T00:47:59.655284Z",
+      "lastMessage": "Bonjour 3M SERVICES, je souhaite réserver ou me renseigner sur le véhicule VIP : Toyota Land Cruiser V8 LC300 VIP. Est-il disponible ?",
+      "messages": [
+        {
+          "id": "msg-1795556352753-501",
+          "sender": "client",
+          "senderName": "Client Invité VIP",
+          "text": "Bonjour 3M SERVICES,\n\nJe souhaite réserver ce véhicule :\n\n🚗 Véhicule : Toyota Land Cruiser V8 LC200 Prestige\n📅 Prise en charge : Aéroport International de Yaoundé-Nsimalen (NSI) — 24 novembre 2026\n🏁 Restitution : Yaoundé - Agence Omnisports (Rue Foe) — 25 novembre 2026\n⏱️ Durée estimée : 1 jour(s)\n🔗 Fiche du véhicule : http://localhost:3001/models?car=bus-1\n\nMerci de me confirmer la disponibilité et les modalités.",
+          "carInfo": {
+            "id": "bus-1",
+            "name": "Toyota Land Cruiser V8 LC200 Prestige",
+            "price": 130000,
+            "image": "/images/cars/toyota-landcruiser-v8-black.webp",
+            "url": "http://localhost:3001/models?car=bus-1"
+          },
+          "timestamp": "2026-11-24T21:39:12.753Z"
+        },
+        {
+          "id": "msg-1795566496163-0",
+          "sender": "client",
+          "senderName": "Arnaud Mbarga",
+          "text": "Bonjour, vos chauffeurs VIP sont-ils bien inclus dans les forfaits promotionnels ?",
+          "carInfo": null,
+          "timestamp": "2026-11-25T00:28:16.162Z"
+        },
+        {
+          "id": "msg-1795566498172-390",
+          "sender": "client",
+          "senderName": "Arnaud Mbarga",
+          "text": "Je souhaite réserver un Toyota Land Cruiser Prado TXL pour un cortège officiel.",
+          "carInfo": null,
+          "timestamp": "2026-11-25T00:28:18.172Z"
+        },
+        {
+          "id": "msg-1795567126011-8",
+          "sender": "client",
+          "senderName": "Arnaud Mbarga",
+          "text": "Bonjour 3M SERVICES, je souhaite réserver ou me renseigner sur le véhicule VIP : Toyota Land Cruiser V8 LC300 VIP. Est-il disponible ?",
+          "carInfo": {
+            "id": "bus-1",
+            "name": "Toyota Land Cruiser V8 LC200 Prestige",
+            "price": 130000,
+            "image": "/images/cars/toyota-landcruiser-v8-black.webp",
+            "url": null
+          },
+          "timestamp": "2026-11-25T00:38:46.011Z"
+        },
+        {
+          "id": "msg-admin-1795564079655",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "Bonjour 3M SERVICES, je souhaite réserver ou me renseigner sur le véhicule VIP : Toyota Land Cruiser V8 LC300 VIP. Est-il disponible ?",
+          "timestamp": "2026-11-25T00:47:59.655284Z",
+          "carInfo": null
+        }
+      ]
     }
   ],
   "apartments": [
@@ -58,34 +369,34 @@
       "id": "apt-02",
       "reference": "3M-BIEN-001",
       "title": "Résidence Cosy Tsinga (Face FECAFOOT)",
-      "type": "T2 Meublé Contemporain",
-      "propertyType": "T3",
-      "standing": "Haut Standing",
+      "type": "Studio Meublé Luxe",
+      "propertyType": "Studio",
+      "standing": "Luxe",
       "location": "Tsinga (Face FECAFOOT), Yaoundé",
       "city": "Yaoundé",
       "neighborhood": "Tsinga",
-      "exactAddress": "",
-      "landmark": "",
+      "exactAddress": "Tsinga (Face FECAFOOT), Yaoundé",
+      "landmark": "Face FECAFOOT",
       "gpsCoordinates": "",
-      "rooms": "1 Chambre • 1 Grand Salon • 1 Salle de bain",
+      "rooms": "2 Chambres • 1 Salon • 2 Salles de bain",
       "bedrooms": 2,
       "livingRooms": 1,
       "bathrooms": 2,
       "kitchens": 1,
       "balconies": 1,
       "maxGuests": 4,
-      "beddingDetails": "",
+      "beddingDetails": "2 Lits King Size orthopédiques",
       "surfaceSqm": null,
-      "price": "40 000 FCFA / nuitée (Tarif spécial long séjour)",
-      "nightlyRate": 65000.0,
+      "price": "65 000 FCFA / nuitée",
+      "nightlyRate": 65000,
       "weeklyRate": null,
       "monthlyRate": null,
-      "securityDeposit": 100000.0,
-      "cleaningFee": 0.0,
+      "securityDeposit": 100000,
+      "cleaningFee": 0,
       "minStayNights": 1,
-      "paymentTerms": "",
-      "longStayDiscount": "",
-      "photosCount": 1,
+      "paymentTerms": "50% acompte à la réservation, solde à la remise des clés (MoMo / OM / Espèces / Virement)",
+      "longStayDiscount": "-10% dès 7 nuits • -20% dès 30 nuits",
+      "photosCount": 3,
       "image": "/Asset/appartements/appartement-meuble-chambre-bleue.webp",
       "gallery": [
         {
@@ -96,6 +407,24 @@
           "caption": "Résidence Cosy Tsinga (Face FECAFOOT)",
           "order": 0,
           "isCover": true
+        },
+        {
+          "id": 3,
+          "url": "/uploads/apartments/apt-02/apt-02-261124153719-91bf6a.jpeg",
+          "filename": "apt-02-261124153719-91bf6a.jpeg",
+          "category": "Façade / Vue principale",
+          "caption": "Résidence Cosy Tsinga (Face FECAFOOT)",
+          "order": 1,
+          "isCover": false
+        },
+        {
+          "id": 4,
+          "url": "/uploads/apartments/apt-02/apt-02-261124153719-746c15.jpeg",
+          "filename": "apt-02-261124153719-746c15.jpeg",
+          "category": "Façade / Vue principale",
+          "caption": "Résidence Cosy Tsinga (Face FECAFOOT)",
+          "order": 2,
+          "isCover": false
         }
       ],
       "status": "Disponible",
@@ -103,16 +432,9 @@
       "description": "Élégant et chaleureux avec salon contemporain, cuisine américaine laquée, smart TV 55 pouces et connexion fibre optique haut débit.",
       "equipments": [
         "Climatisation intégrale",
-        "WiFi Fibre Optique illimité",
-        "Smart TV 55 pouces HD",
-        "Cuisine équipée",
-        "Literie King Size Grand Confort",
-        "Groupe électrogène automatique"
+        "Cuisine équipée"
       ],
       "vipServices": [
-        "Groupe électrogène automatique 24/7 (Zéro coupure)",
-        "Gardiennage & vigiles 24/7",
-        "Ménage régulier & conciergerie 3M",
         "Parking privé sécurisé"
       ],
       "isPublished": true,
@@ -144,11 +466,11 @@
       "beddingDetails": "",
       "surfaceSqm": null,
       "price": "90 000 FCFA / nuitée",
-      "nightlyRate": 65000.0,
+      "nightlyRate": 65000,
       "weeklyRate": null,
       "monthlyRate": null,
-      "securityDeposit": 100000.0,
-      "cleaningFee": 0.0,
+      "securityDeposit": 100000,
+      "cleaningFee": 0,
       "minStayNights": 1,
       "paymentTerms": "",
       "longStayDiscount": "",
@@ -165,7 +487,7 @@
           "isCover": true
         }
       ],
-      "status": "Réservé",
+      "status": "Disponible",
       "shortDescription": "",
       "description": "Spacieux appartement de grand standing pour familles, délégations d affaires ou séjours officiels avec vue dégagée.",
       "equipments": [
@@ -189,6 +511,33 @@
       "bookedDates": []
     }
   ],
-  "visitors": [],
-  "customers": []
+  "visitors": [
+    {
+      "id": "VIS-075529",
+      "name": "ajana",
+      "phone": "695266214",
+      "location": "Yaoundé —Nsileyon",
+      "city": "Yaoundé",
+      "email": "",
+      "lastPage": "/",
+      "visitCount": 2,
+      "createdAt": "2026-11-24T14:37:55.529Z",
+      "lastVisitedAt": "2026-11-24T14:37:56.020099Z"
+    }
+  ],
+  "customers": [
+    {
+      "id": "CUST-075529",
+      "accountNumber": "3M-CLI-3335",
+      "name": "ajana",
+      "phone": "695266214",
+      "email": "",
+      "city": "Yaoundé",
+      "address": "Yaoundé —Nsileyon",
+      "type": "Visiteur Site VIP",
+      "tier": "Bronze VIP",
+      "status": "Actif VIP",
+      "createdAt": "2026-11-24T14:37:55.529Z"
+    }
+  ]
 }

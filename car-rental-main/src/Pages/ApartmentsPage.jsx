@@ -5,6 +5,33 @@ import { useTranslation } from "../context/LanguageContext";
 import { API_BASE } from "../config/api";
 import { saveOrderAndCustomerAccount, getCurrentClient } from "../utils/customerAccounts";
 import "../styles/CatalogEcommerce.css";
+import "../styles/ListingCards.css";
+import "../styles/ApartmentModal.css";
+
+// Prix par nuit formaté (FCFA) depuis nightlyRate, sinon depuis le libellé price
+const formatNightly = (apt) => {
+  const n = Number(apt.nightlyRate) || Number(String(apt.price || "").split("/")[0].replace(/[^0-9]/g, ""));
+  return n ? `${n.toLocaleString("fr-FR")} FCFA` : apt.price || "Sur demande";
+};
+
+const plural = (n, one, many) => `${n} ${Number(n) > 1 ? many : one}`;
+
+// Caractéristiques réelles de l'appartement (champs vides ignorés)
+const getApartmentSpecs = (apt) => {
+  const firstNum = (str) => (String(str || "").match(/\d+/) || [])[0];
+  const parts = String(apt.rooms || "").split("•");
+  const bedrooms = apt.bedrooms || firstNum(parts[0]);
+  const bathrooms = apt.bathrooms || firstNum(parts.find((x) => /bain/i.test(x)));
+  const specs = [
+    { icon: "fa-building", label: apt.propertyType || (apt.type || "").split(" ")[0] || "Appartement" },
+    apt.maxGuests && { icon: "fa-user-group", label: plural(apt.maxGuests, "personne", "personnes") },
+    bedrooms && { icon: "fa-bed", label: plural(bedrooms, "chambre", "chambres") },
+    bathrooms && { icon: "fa-bath", label: plural(bathrooms, "salle de bain", "salles de bain") },
+    apt.livingRooms && { icon: "fa-couch", label: plural(apt.livingRooms, "salon", "salons") },
+    apt.surfaceSqm && { icon: "fa-ruler-combined", label: `${apt.surfaceSqm} m²` },
+  ];
+  return specs.filter(Boolean).slice(0, 6);
+};
 
 const DEFAULT_APARTMENTS = [
   {
@@ -67,6 +94,19 @@ function ApartmentsPage() {
   const [stayForm, setStayForm] = useState({ checkIn: "", checkOut: "", guestName: "", guestPhone: "" });
   const [stayFeedback, setStayFeedback] = useState(null);
   const [staySubmitting, setStaySubmitting] = useState(false);
+
+  // Fenêtre détail : Échap pour fermer + page figée derrière
+  useEffect(() => {
+    if (!activeModalApartment) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setActiveModalApartment(null); };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [activeModalApartment]);
 
   const openApartmentModal = (apt) => {
     setActiveModalApartment(apt);
@@ -314,14 +354,8 @@ function ApartmentsPage() {
                 apt.image || "/Asset/appartements/appartement-meuble-suite-parentale.webp";
 
               return (
-                <div key={apt.id} className="ecom-card">
-                  {/* Badge */}
-                  <span className="ecom-card__badge ecom-card__badge--green">
-                    {apt.status || "Disponible"}
-                  </span>
-
-                  {/* Centered Image Container */}
-                  <div className="ecom-card__img-container">
+                <div key={apt.id} className="listing-card">
+                  <div className="listing-card__img">
                     <img
                       src={displayImg}
                       alt={apt.title}
@@ -329,71 +363,48 @@ function ApartmentsPage() {
                       onError={(e) => {
                         e.target.src = "/Asset/appartements/appartement-meuble-suite-parentale.webp";
                       }}
-                      className="ecom-card__img"
-                      style={{ objectFit: "cover", width: "100%", height: "100%", borderRadius: "4px" }}
                     />
-                  </div>
-
-                  {/* Eyebrow / Location */}
-                  <span className="ecom-card__category">
-                    {apt.type} • {apt.location?.split(",")[0] || "Yaoundé"}
-                  </span>
-
-                  {/* Title */}
-                  <h3 className="ecom-card__title" title={apt.title}>
-                    {apt.title}
-                  </h3>
-
-                  {/* Price */}
-                  <div className="ecom-card__price">
-                    {apt.price}
-                  </div>
-
-                  {/* Details specs */}
-                  <div className="ecom-card__details">
-                    <span>
-                      <i className="fa-solid fa-bed"></i> {apt.rooms?.split("•")[0] || "2 Chambres"}
-                    </span>
-                    <span>
-                      <i className="fa-solid fa-bolt"></i> Groupe 24/7
-                    </span>
-                    <span>
-                      <i className="fa-solid fa-wifi"></i> Fibre Optique
-                    </span>
-                    <span>
-                      <i className="fa-solid fa-snowflake"></i> Climatisé
+                    <span
+                      className={`listing-card__status ${
+                        (apt.status || "Disponible") === "Disponible" ? "is-free" : "is-busy"
+                      }`}
+                    >
+                      {apt.status || "Disponible"}
                     </span>
                   </div>
 
-                  {/* Action Buttons: Details + WhatsApp Icon + Email Icon */}
-                  <div className="ecom-card__actions">
-                    <button
-                      type="button"
-                      onClick={() => openApartmentModal(apt)}
-                      className="ecom-card__btn-book"
-                    >
-                      Détails & Photos ({Array.isArray(apt.gallery) && apt.gallery.length > 0 ? apt.gallery.length : apt.photosCount || 1})
-                    </button>
-                    <a
-                      href={getWhatsAppLink(apt)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="ecom-card__btn-wa"
-                      title="Réserver sur WhatsApp (+237 691 78 64 47)"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
-                      </svg>
-                    </a>
-                    <a
-                      href={getEmailLink(apt)}
-                      className="ecom-card__btn-email"
-                      title="Envoyer la demande par Email (contact@3mservice.shop)"
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                      </svg>
-                    </a>
+                  <div className="listing-card__body">
+                    <div className="listing-card__head">
+                      <div className="listing-card__name">
+                        <h3 title={apt.title}>{apt.title}</h3>
+                        <span className="listing-card__place">
+                          <i className="fa-solid fa-location-dot"></i>{" "}
+                          {apt.neighborhood || apt.location?.split(",")[0] || "Yaoundé"}
+                        </span>
+                      </div>
+                      <div className="listing-card__price">
+                        <strong>{formatNightly(apt)}</strong>
+                        <span>par nuit</span>
+                      </div>
+                    </div>
+
+                    <ul className="listing-card__specs">
+                      {getApartmentSpecs(apt).map((spec) => (
+                        <li key={spec.label}>
+                          <i className={`fa-solid ${spec.icon}`}></i> {spec.label}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="listing-card__footer">
+                      <button
+                        type="button"
+                        onClick={() => openApartmentModal(apt)}
+                        className="listing-card__btn"
+                      >
+                        Réserver <i className="fa-solid fa-circle-check"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -426,322 +437,204 @@ function ApartmentsPage() {
           )}
         </div>
 
-        {/* Modal for Detailed View */}
-        {activeModalApartment && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(15, 23, 42, 0.75)",
-              backdropFilter: "blur(5px)",
-              zIndex: 999999,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "2rem"
-            }}
-            onClick={() => setActiveModalApartment(null)}
-          >
-            <div
-              style={{
-                backgroundColor: "#ffffff",
-                borderRadius: "14px",
-                maxWidth: "700px",
-                width: "100%",
-                maxHeight: "90vh",
-                overflowY: "auto",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-                padding: "3rem"
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
-                <div>
-                  <span style={{ fontSize: "1.3rem", color: "#E20713", fontWeight: 700 }}>
-                    {activeModalApartment.type}
-                  </span>
-                  <h2 style={{ fontSize: "2.4rem", color: "#0f172a", marginTop: "0.4rem" }}>
-                    {activeModalApartment.title}
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveModalApartment(null)}
-                  style={{
-                    border: "none",
-                    background: "#f1f5f9",
-                    borderRadius: "50%",
-                    width: "36px",
-                    height: "36px",
-                    cursor: "pointer",
-                    fontSize: "1.6rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
+        {/* Fenêtre détail d'un appartement */}
+        {activeModalApartment && (() => {
+          const apt = activeModalApartment;
+          const galleryList =
+            Array.isArray(apt.gallery) && apt.gallery.length > 0
+              ? apt.gallery
+              : [{ url: apt.image || "/Asset/appartements/appartement-meuble-suite-parentale.webp", category: "Vue principale" }];
+          const safeIdx = activePhotoIdx < galleryList.length ? activePhotoIdx : 0;
+          const curPhoto = galleryList[safeIdx];
+          const isAvailable = (apt.status || "Disponible") === "Disponible";
+          const money = (v) => `${Number(v).toLocaleString("fr-FR")} FCFA`;
+          const vipServices =
+            Array.isArray(apt.vipServices) && apt.vipServices.length > 0
+              ? apt.vipServices
+              : [
+                  "Groupe électrogène 24/7",
+                  "WiFi fibre optique illimité",
+                  "Climatisation intégrale",
+                  "Gardiennage & sécurité 24/7",
+                  "Ménage & conciergerie 3M",
+                  "Cuisine équipée moderne",
+                ];
 
-              {(() => {
-                const galleryList =
-                  Array.isArray(activeModalApartment.gallery) && activeModalApartment.gallery.length > 0
-                    ? activeModalApartment.gallery
-                    : [{ url: activeModalApartment.image || "/Asset/appartements/appartement-meuble-suite-parentale.webp", category: "Vue principale", caption: activeModalApartment.title }];
-                const safeIdx = activePhotoIdx < galleryList.length ? activePhotoIdx : 0;
-                const curPhoto = galleryList[safeIdx];
-                return (
-                  <div style={{ marginBottom: "2rem" }}>
-                    <div style={{ position: "relative" }}>
+          return (
+            <div className="apt-modal" onClick={() => setActiveModalApartment(null)}>
+              <div
+                className="apt-modal__dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="apt-modal-title"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <header className="apt-modal__head">
+                  <div className="apt-modal__titles">
+                    <span className="apt-modal__eyebrow">
+                      {apt.type}
+                      {apt.neighborhood || apt.location ? ` · ${apt.neighborhood || apt.location.split(",")[0]}` : ""}
+                    </span>
+                    <h2 id="apt-modal-title">{apt.title}</h2>
+                  </div>
+                  <span className={`apt-modal__status ${isAvailable ? "is-free" : "is-busy"}`}>{apt.status || "Disponible"}</span>
+                  <button type="button" className="apt-modal__close" onClick={() => setActiveModalApartment(null)} aria-label="Fermer">
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                </header>
+
+                <div className="apt-modal__body">
+                  {/* Colonne gauche : photos & détails */}
+                  <div className="apt-modal__main">
+                    <div className="apt-modal__photo">
                       <img
                         src={curPhoto.url}
-                        alt={curPhoto.caption || activeModalApartment.title}
+                        alt={curPhoto.caption || apt.title}
                         onError={(e) => {
                           e.target.src = "/Asset/appartements/appartement-meuble-suite-parentale.webp";
                         }}
-                        style={{ width: "100%", height: "310px", objectFit: "cover", borderRadius: "10px" }}
                       />
-                      {curPhoto.category && (
-                        <span style={{ position: "absolute", bottom: "12px", left: "12px", background: "rgba(15,23,42,0.8)", color: "#fff", padding: "0.4rem 1rem", borderRadius: "99px", fontSize: "1.2rem", fontWeight: 600 }}>
-                          {curPhoto.category}{curPhoto.caption ? ` — ${curPhoto.caption}` : ""}
+                      {curPhoto.category && <span className="apt-modal__photo-tag">{curPhoto.category}</span>}
+                      {galleryList.length > 1 && (
+                        <span className="apt-modal__photo-count">
+                          {safeIdx + 1} / {galleryList.length}
                         </span>
                       )}
                     </div>
                     {galleryList.length > 1 && (
-                      <div style={{ display: "flex", gap: "0.8rem", overflowX: "auto", marginTop: "1rem", paddingBottom: "0.4rem" }}>
+                      <div className="apt-modal__thumbs">
                         {galleryList.map((ph, gIdx) => (
-                          <img
+                          <button
                             key={gIdx}
-                            src={ph.url}
-                            alt={ph.caption || `Photo ${gIdx + 1}`}
+                            type="button"
+                            className={gIdx === safeIdx ? "is-active" : ""}
                             onClick={() => setActivePhotoIdx(gIdx)}
-                            style={{
-                              width: "84px",
-                              height: "60px",
-                              objectFit: "cover",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              border: gIdx === safeIdx ? "2.5px solid #E20713" : "1px solid #cbd5e1",
-                              opacity: gIdx === safeIdx ? 1 : 0.72,
-                              flexShrink: 0
-                            }}
-                          />
+                            aria-label={`Photo ${gIdx + 1}${ph.category ? ` — ${ph.category}` : ""}`}
+                          >
+                            <img src={ph.url} alt="" />
+                          </button>
                         ))}
                       </div>
                     )}
-                  </div>
-                );
-              })()}
 
-              {/* Multi-tier rates & layout summary */}
-              {(activeModalApartment.weeklyRate || activeModalApartment.monthlyRate || activeModalApartment.surfaceSqm) && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginBottom: "1.8rem", padding: "1.2rem", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1.3rem" }}>
-                  <span><strong>Nuitée :</strong> {activeModalApartment.price}</span>
-                  {activeModalApartment.weeklyRate && (
-                    <span>• <strong>Semaine :</strong> {Number(activeModalApartment.weeklyRate).toLocaleString("fr-FR")} FCFA</span>
-                  )}
-                  {activeModalApartment.monthlyRate && (
-                    <span>• <strong>Mois :</strong> {Number(activeModalApartment.monthlyRate).toLocaleString("fr-FR")} FCFA</span>
-                  )}
-                  {activeModalApartment.surfaceSqm && (
-                    <span>• <strong>Surface :</strong> {activeModalApartment.surfaceSqm} m²</span>
-                  )}
-                  {activeModalApartment.maxGuests && (
-                    <span>• <strong>Capacité :</strong> {activeModalApartment.maxGuests} pers. max</span>
-                  )}
-                </div>
-              )}
+                    <ul className="apt-modal__facts">
+                      {getApartmentSpecs(apt).map((spec) => (
+                        <li key={spec.label}>
+                          <i className={`fa-solid ${spec.icon}`}></i> {spec.label}
+                        </li>
+                      ))}
+                    </ul>
 
-              {/* Live Availability & Direct Date-Blocking Reservation */}
-              <div style={{ marginBottom: "2rem", padding: "1.6rem", background: "#fffafa", border: "1px solid #fecaca", borderRadius: "10px" }}>
-                <h4 style={{ fontSize: "1.55rem", color: "#0f172a", marginBottom: "0.8rem", fontWeight: 700 }}>
-                  <i className="fa-solid fa-calendar-check" style={{ color: "#E20713", marginRight: "0.6rem" }}></i>
-                  Vérifier la disponibilité & Réserver ce séjour
-                </h4>
-                {Array.isArray(activeModalApartment.bookedDates) && activeModalApartment.bookedDates.length > 0 && (
-                  <div style={{ fontSize: "1.2rem", color: "#b91c1c", marginBottom: "1rem" }}>
-                    <strong>Périodes déjà réservées :</strong>{" "}
-                    {activeModalApartment.bookedDates.map((b) => `${b.checkIn} → ${b.checkOut}`).join(" | ")}
-                  </div>
-                )}
-                <form onSubmit={handleDirectStaySubmit} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
-                  <div>
-                    <label style={{ fontSize: "1.15rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: "0.3rem" }}>Arrivée *</label>
-                    <input type="date" required value={stayForm.checkIn} onChange={(e) => setStayForm({ ...stayForm, checkIn: e.target.value })} style={{ width: "100%", padding: "0.8rem", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "1.15rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: "0.3rem" }}>Départ *</label>
-                    <input type="date" required value={stayForm.checkOut} onChange={(e) => setStayForm({ ...stayForm, checkOut: e.target.value })} style={{ width: "100%", padding: "0.8rem", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "1.15rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: "0.3rem" }}>Nom & Prénom *</label>
-                    <input type="text" required placeholder="Votre nom" value={stayForm.guestName} onChange={(e) => setStayForm({ ...stayForm, guestName: e.target.value })} style={{ width: "100%", padding: "0.8rem", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "1.15rem", fontWeight: 700, color: "#475569", display: "block", marginBottom: "0.3rem" }}>Téléphone / WhatsApp *</label>
-                    <input type="text" required placeholder="+237 6XX..." value={stayForm.guestPhone} onChange={(e) => setStayForm({ ...stayForm, guestPhone: e.target.value })} style={{ width: "100%", padding: "0.8rem", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }} />
-                  </div>
-                  <div style={{ gridColumn: "1 / -1" }}>
-                    <button type="submit" disabled={staySubmitting} style={{ width: "100%", padding: "1.1rem", backgroundColor: "#E20713", color: "#fff", border: "none", borderRadius: "6px", fontWeight: 700, fontSize: "1.4rem", cursor: "pointer" }}>
-                      {staySubmitting ? "Vérification..." : "Bloquer mes dates & Réserver en direct"}
-                    </button>
-                  </div>
-                </form>
-                {stayFeedback && (
-                  <div style={{ marginTop: "1rem", padding: "1rem", borderRadius: "6px", fontSize: "1.3rem", fontWeight: 600, background: stayFeedback.ok ? "#dcfce7" : "#fee2e2", color: stayFeedback.ok ? "#166534" : "#991b1b" }}>
-                    {stayFeedback.msg}
-                  </div>
-                )}
-              </div>
+                    {apt.description && (
+                      <section className="apt-modal__section">
+                        <h3>Description</h3>
+                        <p>{apt.description}</p>
+                      </section>
+                    )}
 
-              <div style={{ marginBottom: "2rem" }}>
-                <h4 style={{ fontSize: "1.6rem", color: "#0f172a", marginBottom: "0.8rem", fontWeight: 700 }}>
-                  <i className="fa-solid fa-list-check" style={{ color: "#E20713", marginRight: "0.6rem" }}></i>
-                  Description & Équipements
-                </h4>
-                <p style={{ fontSize: "1.45rem", color: "#475569", lineHeight: 1.6, marginBottom: "1rem" }}>
-                  {activeModalApartment.description}
-                </p>
-                {Array.isArray(activeModalApartment.equipments) && activeModalApartment.equipments.length > 0 && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.8rem", marginTop: "1rem" }}>
-                    {activeModalApartment.equipments.map((eq, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "0.5rem",
-                          background: "#F1F5F9",
-                          color: "#1E293B",
-                          padding: "0.5rem 1rem",
-                          borderRadius: "20px",
-                          fontSize: "1.25rem",
-                          fontWeight: 600,
-                          border: "1px solid #E2E8F0"
-                        }}
-                      >
-                        <i className="fa-solid fa-check" style={{ color: "#16A34A" }}></i> {eq}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    {Array.isArray(apt.equipments) && apt.equipments.length > 0 && (
+                      <section className="apt-modal__section">
+                        <h3>Équipements</h3>
+                        <ul className="apt-modal__chips">
+                          {apt.equipments.map((eq) => (
+                            <li key={eq}><i className="fa-solid fa-check"></i> {eq}</li>
+                          ))}
+                        </ul>
+                      </section>
+                    )}
 
-              <div style={{ marginBottom: "2.5rem" }}>
-                <h4 style={{ fontSize: "1.6rem", color: "#0f172a", marginBottom: "1rem", fontWeight: 700 }}>
-                  <i className="fa-solid fa-crown" style={{ color: "#D97706", marginRight: "0.6rem" }}></i>
-                  Services VIP Inclus
-                </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
-                  {((Array.isArray(activeModalApartment.vipServices) && activeModalApartment.vipServices.length > 0)
-                    ? activeModalApartment.vipServices
-                    : [
-                        "⚡ Groupe électrogène 24/7 (Zéro coupure)",
-                        "📶 WiFi Fibre Optique Illimité",
-                        "❄️ Climatisation intégrale",
-                        "🛡️ Gardiennage & Sécurité 24/7",
-                        "🧹 Ménage & Conciergerie 3M",
-                        "🍳 Cuisine équipée moderne"
-                      ]
-                  ).map((vip, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        padding: "1rem 1.2rem",
-                        background: "#FFFBEB",
-                        border: "1px solid #FDE68A",
-                        borderRadius: "8px",
-                        fontSize: "1.3rem",
-                        fontWeight: 600,
-                        color: "#92400E",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.8rem"
-                      }}
-                    >
-                      <span>✨</span>
-                      <span>{vip}</span>
+                    <section className="apt-modal__section">
+                      <h3>Services inclus</h3>
+                      <ul className="apt-modal__services">
+                        {vipServices.map((vip) => (
+                          <li key={vip}><i className="fa-solid fa-circle-check"></i> {vip}</li>
+                        ))}
+                      </ul>
+                    </section>
+                  </div>
+
+                  {/* Colonne droite : réservation */}
+                  <aside className="apt-modal__booking">
+                    <div className="apt-modal__price">
+                      <strong>{formatNightly(apt)}</strong>
+                      <span>par nuit</span>
                     </div>
-                  ))}
+                    {(apt.weeklyRate || apt.monthlyRate || Number(apt.securityDeposit) > 0 || apt.minStayNights) && (
+                      <dl className="apt-modal__rates">
+                        {apt.weeklyRate && (<><dt>Semaine</dt><dd>{money(apt.weeklyRate)}</dd></>)}
+                        {apt.monthlyRate && (<><dt>Mois</dt><dd>{money(apt.monthlyRate)}</dd></>)}
+                        {Number(apt.securityDeposit) > 0 && (<><dt>Caution</dt><dd>{money(apt.securityDeposit)}</dd></>)}
+                        {Number(apt.minStayNights) > 1 && (<><dt>Séjour minimum</dt><dd>{apt.minStayNights} nuits</dd></>)}
+                      </dl>
+                    )}
+                    {apt.longStayDiscount && <p className="apt-modal__discount"><i className="fa-solid fa-tag"></i> {apt.longStayDiscount}</p>}
+
+                    {isAvailable ? (
+                      <form onSubmit={handleDirectStaySubmit} className="apt-modal__form">
+                        <h3>Réserver ce séjour</h3>
+                        {Array.isArray(apt.bookedDates) && apt.bookedDates.length > 0 && (
+                          <p className="apt-modal__booked">
+                            <i className="fa-solid fa-calendar-xmark"></i> Déjà réservé :{" "}
+                            {apt.bookedDates.map((b) => `${b.checkIn} → ${b.checkOut}`).join(" · ")}
+                          </p>
+                        )}
+                        <div className="apt-modal__grid">
+                          <label>
+                            <span>Arrivée *</span>
+                            <input type="date" required value={stayForm.checkIn} onChange={(e) => setStayForm({ ...stayForm, checkIn: e.target.value })} />
+                          </label>
+                          <label>
+                            <span>Départ *</span>
+                            <input type="date" required min={stayForm.checkIn || undefined} value={stayForm.checkOut} onChange={(e) => setStayForm({ ...stayForm, checkOut: e.target.value })} />
+                          </label>
+                          <label className="is-full">
+                            <span>Nom & prénom *</span>
+                            <input type="text" required autoComplete="name" placeholder="Votre nom" value={stayForm.guestName} onChange={(e) => setStayForm({ ...stayForm, guestName: e.target.value })} />
+                          </label>
+                          <label className="is-full">
+                            <span>Téléphone / WhatsApp *</span>
+                            <input type="tel" required autoComplete="tel" placeholder="+237 6XX XX XX XX" value={stayForm.guestPhone} onChange={(e) => setStayForm({ ...stayForm, guestPhone: e.target.value })} />
+                          </label>
+                        </div>
+                        <button type="submit" className="apt-modal__submit" disabled={staySubmitting}>
+                          {staySubmitting ? "Vérification…" : "Réserver mes dates"}
+                        </button>
+                        {stayFeedback && (
+                          <div className={`apt-modal__feedback ${stayFeedback.ok ? "is-ok" : "is-error"}`} role="status">
+                            {stayFeedback.msg}
+                          </div>
+                        )}
+                      </form>
+                    ) : (
+                      <div className="apt-modal__unavailable" role="status">
+                        <i className="fa-solid fa-circle-info"></i>
+                        <div>
+                          <strong>Indisponible pour le moment</strong>
+                          <span>Cette résidence est en « {apt.status} ». Contactez-nous pour connaître la prochaine date libre.</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="apt-modal__contact">
+                      <span>Une question ?</span>
+                      <div>
+                        <a className="is-wa" href={getWhatsAppLink(apt)} target="_blank" rel="noreferrer" onClick={() => handleApartmentBookClick(apt)}>
+                          <i className="fa-brands fa-whatsapp"></i> WhatsApp
+                        </a>
+                        <a className="is-mail" href={getEmailLink(apt)} onClick={() => handleApartmentBookClick(apt)} aria-label="Envoyer un email">
+                          <i className="fa-solid fa-envelope"></i>
+                        </a>
+                        <a className="is-tel" href="tel:+237691786447" aria-label="Appeler le +237 691 78 64 47">
+                          <i className="fa-solid fa-phone"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </aside>
                 </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "1.2rem", flexWrap: "wrap" }}>
-                <a
-                  href={getWhatsAppLink(activeModalApartment)}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => handleApartmentBookClick(activeModalApartment)}
-                  style={{
-                    flex: 1,
-                    minWidth: "180px",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                    backgroundColor: "#25D366",
-                    color: "#ffffff",
-                    padding: "1.3rem 2rem",
-                    borderRadius: "6px",
-                    fontWeight: 700,
-                    fontSize: "1.5rem",
-                    textDecoration: "none"
-                  }}
-                >
-                  <i className="fa-brands fa-whatsapp" style={{ fontSize: "2rem" }}></i>
-                  <span>WhatsApp</span>
-                </a>
-
-                <a
-                  href={getEmailLink(activeModalApartment)}
-                  onClick={() => handleApartmentBookClick(activeModalApartment)}
-                  style={{
-                    flex: 1,
-                    minWidth: "180px",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                    backgroundColor: "#C92A2A",
-                    color: "#ffffff",
-                    padding: "1.3rem 2rem",
-                    borderRadius: "6px",
-                    fontWeight: 700,
-                    fontSize: "1.5rem",
-                    textDecoration: "none"
-                  }}
-                >
-                  <i className="fa-solid fa-envelope" style={{ fontSize: "1.8rem" }}></i>
-                  <span>Envoyer par Email</span>
-                </a>
-
-                <a
-                  href="tel:+237691786447"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                    backgroundColor: "#0f172a",
-                    color: "#ffffff",
-                    padding: "1.3rem 2rem",
-                    borderRadius: "6px",
-                    fontWeight: 700,
-                    fontSize: "1.5rem",
-                    textDecoration: "none"
-                  }}
-                >
-                  <i className="fa-solid fa-phone"></i>
-                  <span>Appeler</span>
-                </a>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <Footer />
       </section>

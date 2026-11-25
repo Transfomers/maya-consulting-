@@ -1,0 +1,62 @@
+/* ═══ Correctifs responsive mobile (chargé en dernier) ═══ */
+
+/* Bandeau sombre « Réservez / Contactez notre conciergerie » : hauteur libre sur mobile */
+@media (max-width: 750px) {
+  .book-banner {
+    height: auto;
+    margin-top: 4rem;
+    padding: 0;
+  }
+  .book-banner .text-content {
+    height: auto;
+    min-height: 0;
+    padding: 4rem 2rem;
+  }
+  .book-banner .text-content h2 {
+    font-size: 2.4rem;
+    line-height: 1.3;
+  }
+  .book-banner .text-content span {
+    font-size: 2rem;
+    white-space: normal;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* Étapes « Réservation simple & rapide » : une étape par ligne sur téléphone */
+@media (max-width: 600px) {
+  .plan-container__boxes {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.8rem;
+    padding: 0 2rem;
+  }
+  .plan-container__boxes__box {
+    max-width: 34rem;
+    margin: 0 auto;
+  }
+  .plan-container__boxes__box h3 { font-size: 2rem; }
+  .plan-container__boxes__box p { font-size: 1.5rem; line-height: 1.6; }
+}
+
+/* Champs de formulaire : 16px minimum pour éviter le zoom automatique sur iPhone */
+@media (max-width: 600px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Médias jamais plus larges que leur conteneur */
+img,
+video,
+iframe {
+  max-width: 100%;
+}
+
+/* En-têtes vitrine (À propos, Appartements…) : les cartes glissent depuis la droite
+   à l'ouverture — on contient l'animation pour éviter le défilement horizontal */
+.showcase-hero {
+  overflow-x: clip;
+}

@@ -159,7 +159,7 @@ def ensure_property_schema():
 def sync_published_properties_to_express():
     """Sync all published, non-deleted properties (with galleries & booked dates) to server/data/db.json."""
     try:
-        db_path = os.path.join(_project_root(), 'server', 'data', 'db.json')
+        db_path = current_app.config['EXPRESS_DB_JSON']
         if not os.path.exists(db_path):
             return
         with open(db_path, 'r', encoding='utf-8') as f:

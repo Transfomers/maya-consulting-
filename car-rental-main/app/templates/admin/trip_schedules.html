@@ -85,7 +85,7 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="btn-group btn-group-sm">
-                                    <a href="{{ url_for('admin.toggle_schedule', id=schedule.id) }}" 
+                                    <a data-method="post" href="{{ url_for('admin.toggle_schedule', id=schedule.id) }}" 
                                        class="btn btn-outline-{{ 'warning' if schedule.is_active else 'success' }} rounded-start-pill"
                                        title="{{ 'Mettre en pause' if schedule.is_active else 'Activer' }}">
                                         <i class="bi bi-{{ 'pause' if schedule.is_active else 'play' }}-fill"></i>
@@ -95,7 +95,7 @@
                                        title="Générer les voyages maintenant">
                                         <i class="bi bi-arrow-repeat"></i>
                                     </a>
-                                    <a href="{{ url_for('admin.delete_schedule', id=schedule.id) }}" 
+                                    <a data-method="post" href="{{ url_for('admin.delete_schedule', id=schedule.id) }}" 
                                        class="btn btn-outline-danger rounded-end-pill"
                                        title="Supprimer"
                                        onclick="return confirm('Supprimer ce programme ?')">

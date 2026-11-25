@@ -79,7 +79,7 @@ const translations = {
 
     // Promo cars
     promo_badge: "OFFRES PROMOTIONNELLES DU MOMENT",
-    promo_title: "Nos Véhicules en Promotion — Forfaits VIP 3M SERVICES",
+    promo_title: "Nos Véhicules en Promotion",
     promo_desc: "Bénéficiez de tarifs préférentiels exclusifs sur notre flotte VIP avec chauffeur professionnel inclus. Réservez et échangez directement avec nos conseillers.",
     promo_start_convo: "Démarrer une conversation",
     promo_convo_whatsapp: "WhatsApp Direct",
@@ -253,7 +253,7 @@ const translations = {
 
     // Promo cars
     promo_badge: "FEATURED PROMOTIONAL DEALS",
-    promo_title: "Special Promo Vehicles — All-Inclusive 3M SERVICES Packages",
+    promo_title: "Special Promo Vehicles",
     promo_desc: "Take advantage of our exclusive promotional rates on our VIP fleet with professional driver included. Inquire and chat directly with our team.",
     promo_start_convo: "Start a conversation",
     promo_convo_whatsapp: "Direct WhatsApp",

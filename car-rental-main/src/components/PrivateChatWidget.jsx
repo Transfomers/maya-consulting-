@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { getCurrentClient } from "../utils/customerAccounts";
 import "./PrivateChatWidget.css";
+import ChatAttachment from "./ChatAttachment";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:5001/api";
 
@@ -40,6 +41,8 @@ function PrivateChatWidget() {
   const messagesEndRef = useRef(null);
   const knownMsgIdsRef = useRef(new Set());
   const typingTimeoutRef = useRef(null);
+  const sendMessageRef = useRef(null);
+  const [pendingAutoSend, setPendingAutoSend] = useState(null);
 
   // Retrieve current client or guest session
   const client = getCurrentClient();
@@ -124,25 +127,44 @@ function PrivateChatWidget() {
     }
   }, [messages.length, isOpen, scrollToBottom]);
 
-  // Global open listener from promo cards
+  // Sync unread count to navbar chat icon
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("3m-chat-unread", { detail: unreadCount }));
+  }, [unreadCount]);
+
+  // Global open listener from navbar, promo cards, or booking modal
   useEffect(() => {
     const handleOpenChat = (e) => {
       setIsOpen(true);
-      if (e?.detail?.car) {
-        setAttachedCar(e.detail.car);
-        if (!inputText) {
-          setInputText(
-            `Bonjour 3M SERVICES, je souhaite réserver ou me renseigner sur le véhicule VIP en promotion : ${e.detail.car.name || e.detail.car.model}. Est-il disponible ?`
-          );
-        }
+      const detail = e?.detail || {};
+      if (detail.name) setGuestName(detail.name);
+      if (detail.phone) setGuestPhone(detail.phone);
+      if (detail.car) {
+        setAttachedCar(detail.car);
       }
-      if (e?.detail?.name) setGuestName(e.detail.name);
-      if (e?.detail?.phone) setGuestPhone(e.detail.phone);
+      if (detail.autoSend && detail.message) {
+        setPendingAutoSend({ text: detail.message, car: detail.car || null });
+      } else if (detail.message) {
+        setInputText(detail.message);
+      } else if (detail.car && !inputText) {
+        setInputText(
+          `Bonjour 3M SERVICES, je souhaite réserver ou me renseigner sur le véhicule VIP : ${detail.car.name || detail.car.model}. Est-il disponible ?`
+        );
+      }
     };
 
     window.addEventListener("3m-open-chat", handleOpenChat);
     return () => window.removeEventListener("3m-open-chat", handleOpenChat);
   }, [inputText]);
+
+  // Execute auto-send once triggered by booking modal
+  useEffect(() => {
+    if (isOpen && pendingAutoSend && sendMessageRef.current) {
+      const { text, car } = pendingAutoSend;
+      setPendingAutoSend(null);
+      sendMessageRef.current(text, car);
+    }
+  }, [isOpen, pendingAutoSend]);
 
   // Client typing emitter
   const handleInputChange = (e) => {
@@ -184,7 +206,8 @@ function PrivateChatWidget() {
         id: carToSend.id,
         name: carToSend.name || carToSend.model,
         price: carToSend.promoPrice || carToSend.pricePerDay || carToSend.price,
-        image: carToSend.img || carToSend.image
+        image: carToSend.img || carToSend.image,
+        url: carToSend.url || null
       } : null
     };
 
@@ -223,6 +246,8 @@ function PrivateChatWidget() {
       setTimeout(() => scrollToBottom(true), 60);
     }
   };
+
+  sendMessageRef.current = handleSendMessage;
 
   // CRUD: Edit Client Message
   const handleStartEdit = (msg) => {
@@ -284,39 +309,38 @@ function PrivateChatWidget() {
     }
   };
 
+  const renderMessageText = (text) => {
+    if (!text) return null;
+    const parts = String(text).split(/(https?:\/\/[^\s]+)/g);
+    return parts.map((part, i) =>
+      /^https?:\/\//.test(part) ? (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: "inherit", textDecoration: "underline", wordBreak: "break-all", fontWeight: 700 }}
+        >
+          {part}
+        </a>
+      ) : (
+        <React.Fragment key={i}>{part}</React.Fragment>
+      )
+    );
+  };
+
+  if (!isOpen) return null;
+
   return (
     <div className="private-chat-wrapper">
-      {/* ── 1. Floating Launch Button ── */}
-      {!isOpen && (
-        <button
-          type="button"
-          className="private-chat-floating-btn"
-          onClick={() => setIsOpen(true)}
-          title="Ouvrir le Chat Privé 3M SERVICES"
-        >
-          <div className="chat-btn-pulse"></div>
-          <div className="chat-btn-icon-wrapper">
-            <i className="fa-solid fa-comments"></i>
-          </div>
-          <div className="chat-btn-text">
-            <span className="chat-btn-title">Chat Privé 3M</span>
-            <span className="chat-btn-sub">Conciergerie VIP En Ligne</span>
-          </div>
-          {unreadCount > 0 && (
-            <span className="chat-btn-badge">{unreadCount}</span>
-          )}
-        </button>
-      )}
-
-      {/* ── 2. Chat Window Box ── */}
-      {isOpen && (
-        <div className="private-chat-box">
+      {/* ── Fenêtre de chat ── */}
+      <div className="private-chat-box" role="dialog" aria-label="Conciergerie 3M SERVICES">
           {/* Header */}
           <div className="chat-box-header">
             <div className="chat-header-identity">
               <div className="chat-avatar-wrapper">
                 <img
-                  src="/logorv.png"
+                  src="/apple-touch-icon.png"
                   alt="3M"
                   className="chat-avatar-img"
                   onError={(e) => { e.target.style.display = "none"; }}
@@ -324,11 +348,8 @@ function PrivateChatWidget() {
                 <span className="chat-online-indicator"></span>
               </div>
               <div className="chat-header-titles">
-                <h5>Conciergerie Privée 3M</h5>
-                <span className="chat-status-text">
-                  <i className="fa-solid fa-circle text-success" style={{ fontSize: "7px", marginRight: "4px" }}></i>
-                  Conseiller VIP en direct • 24/7
-                </span>
+                <h5>Conciergerie 3M SERVICES</h5>
+                <span className="chat-status-text">Conseiller VIP • 24/7</span>
               </div>
             </div>
 
@@ -338,7 +359,8 @@ function PrivateChatWidget() {
                 target="_blank"
                 rel="noreferrer"
                 className="chat-header-wa-btn"
-                title="Bascule vers WhatsApp Direct"
+                title="Continuer sur WhatsApp"
+                aria-label="Continuer sur WhatsApp"
               >
                 <i className="fa-brands fa-whatsapp"></i>
               </a>
@@ -346,9 +368,10 @@ function PrivateChatWidget() {
                 type="button"
                 className="chat-header-close-btn"
                 onClick={() => setIsOpen(false)}
-                title="Réduire le chat"
+                title="Fermer"
+                aria-label="Fermer le chat"
               >
-                &times;
+                <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
           </div>
@@ -356,14 +379,14 @@ function PrivateChatWidget() {
           {/* Client Profile Sub-bar */}
           <div className="chat-client-bar">
             <div className="chat-client-info">
-              <i className="fa-solid fa-user-shield me-1 text-danger"></i>
-              <span className="fw-semibold text-truncate">{displayName}</span>
-              <span className="chat-client-id-badge">ID: {clientId}</span>
+              <i className="fa-solid fa-circle-user"></i>
+              <span className="text-truncate">{displayName}</span>
+              <span className="chat-client-id-badge" title="Référence à communiquer au support">{clientId}</span>
             </div>
             {client ? (
               <span className="chat-badge-vip">Compte {client.tier || "VIP"}</span>
             ) : (
-              <span className="chat-badge-guest">Session Sécurisée</span>
+              <span className="chat-badge-guest">Invité</span>
             )}
           </div>
 
@@ -378,7 +401,7 @@ function PrivateChatWidget() {
                 />
               </div>
               <div className="attached-car-info">
-                <span className="attached-car-badge">OFFRE VIP SÉLECTIONNÉE</span>
+                <span className="attached-car-badge">Véhicule sélectionné</span>
                 <h6>{attachedCar.name || attachedCar.model}</h6>
                 <div className="attached-car-price">
                   <strong>
@@ -392,16 +415,17 @@ function PrivateChatWidget() {
                 className="attached-car-remove"
                 onClick={() => setAttachedCar(null)}
                 title="Retirer"
+                aria-label="Retirer le véhicule"
               >
-                &times;
+                <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
           )}
 
           {/* Message Stream */}
-          <div className="chat-messages-container">
+          <div className="chat-messages-container" aria-live="polite">
             <div className="chat-timestamp-divider">
-              <span>Aujourd'hui • Échanges Sécurisés & Chiffrés 3M</span>
+              <span>Aujourd'hui</span>
             </div>
 
             {messages.map((msg, idx) => {
@@ -414,8 +438,11 @@ function PrivateChatWidget() {
                   className={`chat-message-bubble-wrapper ${isClient ? "is-client" : "is-admin"}`}
                 >
                   {!isClient && (
+                    <span className="chat-agent-avatar" aria-hidden="true">3M</span>
+                  )}
+                  {!isClient && (
                     <div className="chat-bubble-author">
-                      <span className="badge-3m-staff">3M Conciergerie VIP</span>
+                      <span className="badge-3m-staff">Conciergerie 3M</span>
                     </div>
                   )}
 
@@ -431,6 +458,14 @@ function PrivateChatWidget() {
                         <div className="msg-embedded-car-details">
                           <strong>{msg.car.name}</strong>
                           <span>{msg.car.price ? `${Number(msg.car.price).toLocaleString("fr-FR")} FCFA/j` : "Tarif VIP"}</span>
+                          {msg.car.url && (
+                            <a
+                              href={msg.car.url}
+                              style={{ display: "inline-block", marginTop: "3px", fontSize: "1.1rem", color: "#D62828", fontWeight: 700, textDecoration: "underline" }}
+                            >
+                              Voir la fiche →
+                            </a>
+                          )}
                         </div>
                       </div>
                     )}
@@ -459,11 +494,12 @@ function PrivateChatWidget() {
                         </div>
                       </div>
                     ) : (
-                      <div className="bubble-text">
-                        {msg.text}
+                      <div className="bubble-text" style={{ whiteSpace: "pre-line" }}>
+                        {renderMessageText(msg.text)}
                         {msg.isEdited && <span className="bubble-edited-tag"> (modifié)</span>}
                       </div>
                     )}
+                    <ChatAttachment attachment={msg.attachment} />
 
                     <div className="bubble-time">
                       {formatTime(msg.timestamp || msg.time)}
@@ -504,7 +540,7 @@ function PrivateChatWidget() {
             {adminIsTyping && (
               <div className="chat-message-bubble-wrapper is-admin">
                 <div className="chat-bubble bubble-admin chat-typing-bubble">
-                  <span className="small text-muted me-2">Conseiller 3M en train d'écrire</span>
+                  <span className="chat-typing-label">Un conseiller écrit</span>
                   <div className="typing-dots">
                     <span></span>
                     <span></span>
@@ -517,7 +553,7 @@ function PrivateChatWidget() {
             {loading && (
               <div className="chat-message-bubble-wrapper is-client">
                 <div className="chat-bubble bubble-client sending">
-                  <span className="small">Envoi sécurisé...</span>
+                  <span className="small">Envoi…</span>
                 </div>
               </div>
             )}
@@ -532,21 +568,21 @@ function PrivateChatWidget() {
               className="quick-chip"
               onClick={() => handleSendMessage("Bonjour, quel est le tarif et la disponibilité pour une mission de 3 jours à Yaoundé ?")}
             >
-              Tarif 3 jours Yaoundé
+              <i className="fa-solid fa-tag"></i> Tarif 3 jours Yaoundé
             </button>
             <button
               type="button"
               className="quick-chip"
               onClick={() => handleSendMessage("Bonjour, vos chauffeurs VIP sont-ils bien inclus dans les forfaits promotionnels ?")}
             >
-              Chauffeur VIP inclus ?
+              <i className="fa-solid fa-user-tie"></i> Chauffeur VIP inclus ?
             </button>
             <button
               type="button"
               className="quick-chip"
               onClick={() => handleSendMessage("Je souhaite réserver un Toyota Land Cruiser Prado TXL pour un cortège officiel.")}
             >
-              Réserver Prado TXL
+              <i className="fa-solid fa-car"></i> Réserver Prado TXL
             </button>
           </div>
 
@@ -555,7 +591,8 @@ function PrivateChatWidget() {
             <textarea
               className="chat-textarea"
               rows="1"
-              placeholder="Écrivez votre message à notre conciergerie..."
+              placeholder="Écrivez votre message…"
+              aria-label="Votre message"
               value={inputText}
               onChange={handleInputChange}
               onKeyDown={handleKeyPress}
@@ -565,13 +602,13 @@ function PrivateChatWidget() {
               className="chat-send-btn"
               disabled={!inputText.trim()}
               onClick={() => handleSendMessage()}
-              title="Envoyer le message"
+              title="Envoyer"
+              aria-label="Envoyer le message"
             >
               <i className="fa-solid fa-paper-plane"></i>
             </button>
           </div>
         </div>
-      )}
     </div>
   );
 }

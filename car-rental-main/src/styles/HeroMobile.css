@@ -1,0 +1,106 @@
+/* ═══ Accueil — en-tête mobile : texte aligné à gauche, 2 boutons pleins,
+   voiture bien visible sur une forme rose douce (comme la maquette) ═══ */
+@media (max-width: 800px) {
+  #home.hero-section {
+    background: #f8f8f8;
+    padding: 3.2rem 2rem 4rem;
+    display: block;
+  }
+
+  #home .hero-content {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+  }
+
+  /* Le bloc texte « s'efface » pour pouvoir placer la voiture entre la description et les boutons */
+  #home .hero-content__text {
+    display: contents;
+    text-align: left;
+  }
+  #home .hero-subtitle { order: 1; text-align: left; }
+  #home .hero-title { order: 2; text-align: left; }
+  #home .hero-description { order: 3; text-align: left; }
+  #home .hero-content__car-img { order: 4; }
+  #home .hero-content__text__btns { order: 5; }
+
+  #home .hero-subtitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #010103;
+    margin-bottom: 0.6rem;
+  }
+
+  #home .hero-title {
+    font-size: 3.4rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    margin: 0 0 1.4rem;
+  }
+
+  #home .hero-description {
+    font-size: 1.45rem;
+    line-height: 1.6;
+    color: #706f7b;
+    font-weight: 400;
+    max-width: 100%;
+    margin: 0 0 2.4rem;
+  }
+
+  #home .hero-content__text__btns {
+    display: flex;
+    gap: 1.2rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  #home .hero-btn-reserve,
+  #home .hero-btn-fleet {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 1.3rem 2rem;
+    border-radius: 0.3rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  #home .hero-btn-reserve {
+    box-shadow: 0 10px 20px rgba(201, 42, 42, 0.32);
+  }
+
+  /* « Flotte » en noir plein */
+  #home .hero-btn-fleet {
+    background: #010103 !important;
+    border: 2px solid #010103 !important;
+    color: #fff !important;
+  }
+  #home .hero-btn-fleet .hero-btn-badge--chevron svg { stroke: #010103; }
+
+  /* Voiture : au-dessus des boutons, nette, sur une forme rose */
+  #home .hero-content__car-img {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    opacity: 1 !important;
+    width: calc(100% + 2rem) !important;
+    max-width: 52rem !important;
+    margin: 0.4rem -2rem 2.4rem auto !important;
+    padding: 1.6rem 0 0;
+    align-self: flex-end;
+    background: radial-gradient(ellipse 46% 44% at 64% 56%, #fde8e8 0 97%, transparent 100%);
+    pointer-events: auto !important;
+    z-index: 2 !important;
+    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.22)) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  #home .hero-title { font-size: 3rem; }
+  #home .hero-btn-reserve,
+  #home .hero-btn-fleet { padding: 1.2rem 1.6rem; font-size: 1.4rem; }
+}

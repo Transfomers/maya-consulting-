@@ -218,7 +218,7 @@
                                     class="action-icon-link action-edit" title="Modifier le compte">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{{ url_for('admin.delete_user', id=user.id) }}"
+                                <a data-method="post" href="{{ url_for('admin.delete_user', id=user.id) }}"
                                     class="action-icon-link action-delete" title="Supprimer"
                                     onclick="return confirm('Supprimer ce compte client ?');">
                                     <i class="bi bi-trash"></i>

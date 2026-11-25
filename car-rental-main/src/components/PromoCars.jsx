@@ -2,19 +2,18 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "../context/LanguageContext";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { API_BASE } from "../config/api";
+import { getFavoriteCarIds, toggleFavoriteCar } from "../utils/customerAccounts";
 import "./PromoCars.css";
 
 function PromoCars() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
+  const isFr = lang !== "en";
+  const [favoriteIds, setFavoriteIds] = useState(() => getFavoriteCarIds());
   const [promoCars, setPromoCars] = useState(() => {
     const defaultPromos = CARS_CATALOGUE.filter((c) => c.isPromo);
     return defaultPromos.length >= 3 ? defaultPromos.slice(0, 3) : CARS_CATALOGUE.slice(0, 3);
   });
-  const [activeModalCar, setActiveModalCar] = useState(null);
-  const [inquiryName, setInquiryName] = useState("");
-  const [inquiryPhone, setInquiryPhone] = useState("");
-  const [inquiryDates, setInquiryDates] = useState("");
-  const [inquirySent, setInquirySent] = useState(false);
+  const [activeId, setActiveId] = useState(null);
 
   const fetchPromoCars = () => {
     fetch(`${API_BASE}/promo-cars`)
@@ -36,63 +35,28 @@ function PromoCars() {
     fetchPromoCars();
     const interval = setInterval(fetchPromoCars, 5000);
     window.addEventListener("focus", fetchPromoCars);
+    const syncFavs = () => setFavoriteIds(getFavoriteCarIds());
+    window.addEventListener("3m-favorites-changed", syncFavs);
+    window.addEventListener("3m-client-auth-changed", syncFavs);
     return () => {
       clearInterval(interval);
       window.removeEventListener("focus", fetchPromoCars);
+      window.removeEventListener("3m-favorites-changed", syncFavs);
+      window.removeEventListener("3m-client-auth-changed", syncFavs);
     };
   }, []);
 
-  const buildWhatsAppMessage = (car, clientName = "", dates = "") => {
-    const promoPriceStr = (car.promoPrice || car.pricePerDay || 0).toLocaleString("fr-FR");
-    const regPriceStr = (car.regularPrice || (car.promoPrice ? car.promoPrice * 1.18 : 0)).toLocaleString("fr-FR");
-
-    let message =
-      `*3M SERVICES — DEMANDE OFFRE PROMO VIP*\n\n` +
-      `Bonjour l'équipe 3M SERVICES,\n\n` +
-      `Je souhaite démarrer une conversation et profiter de l'offre promotionnelle sur le véhicule :\n` +
-      `🚗 *${car.name}*\n` +
-      `💰 *Tarif Promo Exceptionnel :* ${promoPriceStr} FCFA / jour` +
-      (car.regularPrice ? ` _(au lieu de ${regPriceStr} FCFA)_\n` : `\n`) +
-      `🛡️ *Inclus :* Chauffeur VIP dédié, Climatisation intégrale, Entretien certifié\n` +
-      (dates ? `📅 *Période souhaitée :* ${dates}\n` : `📅 *Période :* À convenir ensemble\n`) +
-      (clientName ? `👤 *Nom / Contact :* ${clientName}\n\n` : `\n`) +
-      `Ce véhicule est-il disponible pour ces dates ? Merci pour votre prise en charge rapide !`;
-
-    return encodeURIComponent(message);
-  };
-
   const handleOpenPrivateChat = (car) => {
-    window.dispatchEvent(
-      new CustomEvent("3m-open-chat", {
-        detail: {
-          car,
-          name: inquiryName,
-          phone: inquiryPhone
-        }
-      })
-    );
+    window.dispatchEvent(new CustomEvent("3m-open-chat", { detail: { car } }));
   };
 
-  const handleStartConversation = (car) => {
-    // 1. Prepare message and open WhatsApp direct conciergerie
-    const msg = buildWhatsAppMessage(car);
-    const waUrl = `https://wa.me/237691786447?text=${msg}`;
-    window.open(waUrl, "_blank");
+  const whatsappLink = (car) =>
+    `https://wa.me/237691786447?text=${encodeURIComponent(
+      `Bonjour 3M SERVICES, je souhaite profiter de l'offre promo sur le véhicule : ${car.name}. Est-il disponible ?`
+    )}`;
 
-    // 2. Open quick feedback modal on page
-    setActiveModalCar(car);
-    setInquirySent(false);
-  };
-
-  const handleSubmitInquiry = (e) => {
-    e.preventDefault();
-    if (!activeModalCar) return;
-
-    const msg = buildWhatsAppMessage(activeModalCar, inquiryName, inquiryDates);
-    const waUrl = `https://wa.me/237691786447?text=${msg}`;
-    window.open(waUrl, "_blank");
-    setInquirySent(true);
-  };
+  // Véhicule affiché : celui de l'onglet actif, sinon le premier
+  const active = promoCars.find((c) => String(c.id) === String(activeId)) || promoCars[0];
 
   return (
     <section className="promo-cars-section" id="offres-promo">
@@ -112,125 +76,108 @@ function PromoCars() {
           </p>
         </div>
 
-        {/* 3 Promo Cards Grid */}
-        <div className="promo-cars-grid">
-          {promoCars.map((car, idx) => {
-            const promoPrice = car.promoPrice || car.pricePerDay || 70000;
-            const regularPrice = car.regularPrice || Math.round(promoPrice * 1.18);
-            const savings = Math.max(0, regularPrice - promoPrice);
-            const badgeText = car.promoBadge || (idx === 0 ? "OFFRE FLASH -15%" : idx === 1 ? "PROMO DU MOIS -17%" : "TARIF PRIVILÈGE -18%");
-            const carImg = car.img || car.image || "/images/cars/toyota-landcruiser-v8-black.webp";
+        {promoCars.length > 0 && active && (() => {
+          const price = Number(active.promoPrice || active.pricePerDay) || 0;
+          const regular = Number(active.regularPrice) || 0;
+          const isFav = favoriteIds.includes(String(active.id));
+          const specs = [
+            { icon: "fa-car", label: isFr ? "Catégorie" : "Category", value: active.category },
+            { icon: "fa-door-open", label: isFr ? "Portes" : "Doors", value: active.doors },
+            { icon: "fa-user-group", label: isFr ? "Places" : "Seats", value: active.seats },
+            { icon: "fa-gear", label: "Transmission", value: active.transmission },
+            { icon: "fa-gas-pump", label: isFr ? "Carburant" : "Fuel", value: active.fuel },
+            { icon: "fa-snowflake", label: isFr ? "Climatisation" : "Air conditioning", value: active.air },
+          ].filter((x) => x.value);
 
-            return (
-              <div className="promo-card" key={car.id || idx}>
-                {/* Top Promo Ribbon */}
-                <div className="promo-card__top-ribbon">
-                  <span className="promo-card__badge">
-                    <i className="fa-solid fa-bolt"></i> {badgeText}
-                  </span>
-                  <span className="promo-card__chauffeur-badge">
-                    <i className="fa-solid fa-user-tie"></i> {t("promo_driver_included") || "Chauffeur inclus"}
-                  </span>
-                </div>
+          return (
+            <>
+              {/* Onglets : un par véhicule en promo */}
+              <div className="promo-tabs" role="tablist" aria-label={isFr ? "Véhicules en promotion" : "Promo vehicles"}>
+                {promoCars.map((car) => (
+                  <button
+                    key={car.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={String(car.id) === String(active.id)}
+                    className={`promo-tab ${String(car.id) === String(active.id) ? "is-active" : ""}`}
+                    onClick={() => setActiveId(car.id)}
+                  >
+                    {(car.name || car.model || "").replace(/\s*\(.*\)\s*/g, " ").trim()}
+                  </button>
+                ))}
+              </div>
 
-                {/* Car Image Preview */}
-                <div className="promo-card__image-wrap">
+              {/* Détail du véhicule sélectionné */}
+              <div className="promo-panel" role="tabpanel">
+                <div className="promo-panel__media">
+                  {active.promoBadge && (
+                    <span className="promo-panel__badge">
+                      <i className="fa-solid fa-bolt"></i> {active.promoBadge}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    className={`promo-panel__fav ${isFav ? "is-on" : ""}`}
+                    onClick={() => setFavoriteIds(toggleFavoriteCar(active.id))}
+                    aria-pressed={isFav}
+                    aria-label={isFav ? (isFr ? "Retirer des favoris" : "Remove from favorites") : (isFr ? "Ajouter aux favoris" : "Add to favorites")}
+                  >
+                    <i className={isFav ? "fa-solid fa-heart" : "fa-regular fa-heart"}></i>
+                  </button>
                   <img
-                    src={carImg}
-                    alt={car.name}
-                    className="promo-card__img"
+                    key={active.id}
+                    src={active.img || active.image || "/images/cars/toyota-landcruiser-v8-black.webp"}
+                    alt={active.name}
                     onError={(e) => {
                       e.currentTarget.src = "/images/cars/toyota-prado-txl-front.webp";
                     }}
                   />
-                  <div className="promo-card__category-tag">
-                    {car.mark || "Toyota"} • {car.category || "VIP 4x4"}
-                  </div>
                 </div>
 
-                {/* Car Details */}
-                <div className="promo-card__body">
-                  <h3 className="promo-card__title" title={car.name}>
-                    {car.name}
-                  </h3>
-
-                  {/* Quick Specs Chips */}
-                  <div className="promo-card__specs">
-                    <span className="spec-chip">
-                      <i className="fa-solid fa-users"></i> {car.seats || "7 places VIP"}
-                    </span>
-                    <span className="spec-chip">
-                      <i className="fa-solid fa-gear"></i> {car.transmission || "Automatique 4x4"}
-                    </span>
-                    <span className="spec-chip">
-                      <i className="fa-solid fa-snowflake"></i> {car.air ? "Clim auto" : "Clim bi-zone"}
-                    </span>
+                <div className="promo-panel__info">
+                  <h3 className="promo-panel__name">{active.name}</h3>
+                  {regular > price && price > 0 && (
+                    <del className="promo-panel__old">{regular.toLocaleString("fr-FR")} FCFA</del>
+                  )}
+                  <div className="promo-panel__price">
+                    {price ? `${price.toLocaleString("fr-FR")} FCFA` : active.price}
                   </div>
+                  <span className="promo-panel__per">{isFr ? "location par jour" : "rent per day"}</span>
 
-                  {/* Highlights description */}
-                  <p className="promo-card__description">
-                    {car.promoDescription ||
-                      car.description ||
-                      "Véhicule de grand standing, intérieur cuir prestigieux, chauffeur VIP et service conciergerie 24/7 inclus."}
-                  </p>
+                  <ul className="promo-panel__specs">
+                    {specs.map((sp) => (
+                      <li key={sp.icon}>
+                        <i className={`fa-solid ${sp.icon}`}></i>
+                        <span>{sp.label} : {sp.value}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-                  {/* Price Block */}
-                  <div className="promo-card__price-box">
-                    <div className="price-box__prices">
-                      <div className="price-box__old-price">
-                        <span>{t("promo_standard_price") || "Tarif standard"} :</span>
-                        <s>{regularPrice.toLocaleString("fr-FR")} FCFA</s>
-                      </div>
-                      <div className="price-box__new-price">
-                        <span className="price-amount">{promoPrice.toLocaleString("fr-FR")}</span>
-                        <span className="price-currency">FCFA</span>
-                        <span className="price-period">{t("promo_per_day") || "/ jour"}</span>
-                      </div>
-                    </div>
-                    {savings > 0 && (
-                      <div className="price-box__savings-badge">
-                        <i className="fa-solid fa-arrow-trend-down"></i>
-                        <span>
-                          {t("promo_save_badge") || "Économisez"} {savings.toLocaleString("fr-FR")} F
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  {active.promoDescription && <p className="promo-panel__desc">{active.promoDescription}</p>}
 
-                  {/* Uniform Call to Action Buttons: Private Chat 3M & WhatsApp Direct */}
-                  <div className="promo-card__actions-group">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenPrivateChat(car)}
-                      className="promo-card__btn-private-chat"
-                      title="Échanger directement dans le Chat Privé 3M SERVICES"
-                    >
-                      <i className="fa-solid fa-comments"></i>
-                      <span>Chat Privé 3M</span>
-                      <i className="fa-solid fa-arrow-right arrow-icon"></i>
+                  <div className="promo-panel__actions">
+                    <button type="button" className="promo-panel__btn" onClick={() => handleOpenPrivateChat(active)}>
+                      {isFr ? "Réserver" : "Book now"} <i className="fa-solid fa-circle-check"></i>
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => handleStartConversation(car)}
-                      className="promo-card__btn-convo"
-                      title="Démarrer une conversation WhatsApp avec un conseiller 3M SERVICES"
+                    <a className="promo-panel__phone" href="tel:+237691786447">
+                      <i className="fa-solid fa-phone"></i> +237 691 78 64 47
+                    </a>
+                    <a
+                      className="promo-panel__wa"
+                      href={whatsappLink(active)}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="WhatsApp"
+                      title="WhatsApp"
                     >
                       <i className="fa-brands fa-whatsapp"></i>
-                      <span>WhatsApp Direct</span>
-                      <i className="fa-solid fa-arrow-right arrow-icon"></i>
-                    </button>
-                  </div>
-
-                  {/* Micro subtext info */}
-                  <div className="promo-card__micro-info">
-                    <i className="fa-solid fa-shield-halved text-success"></i>
-                    <span>Disponibilité vérifiée • Réponse en moins de 15 min</span>
+                    </a>
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </>
+          );
+        })()}
 
         {/* Global Conciergerie Banner footer */}
         <div className="promo-cars-footer-cta">
@@ -253,118 +200,6 @@ function PromoCars() {
         </div>
       </div>
 
-      {/* Quick Interactive Inquiry Modal */}
-      {activeModalCar && (
-        <div className="promo-modal-backdrop" onClick={() => setActiveModalCar(null)}>
-          <div className="promo-modal-card" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="promo-modal-close"
-              onClick={() => setActiveModalCar(null)}
-              aria-label="Fermer"
-            >
-              &times;
-            </button>
-
-            <div className="promo-modal-header">
-              <span className="promo-modal-badge">
-                <i className="fa-solid fa-fire text-danger"></i> OFFRE PROMO SÉLECTIONNÉE
-              </span>
-              <h3>{activeModalCar.name}</h3>
-              <div className="promo-modal-price">
-                <span className="promo-val">
-                  {(activeModalCar.promoPrice || activeModalCar.pricePerDay || 70000).toLocaleString("fr-FR")} FCFA / jour
-                </span>
-                {activeModalCar.regularPrice && (
-                  <s className="regular-val">{activeModalCar.regularPrice.toLocaleString("fr-FR")} FCFA</s>
-                )}
-              </div>
-            </div>
-
-            {inquirySent ? (
-              <div className="promo-modal-success">
-                <i className="fa-solid fa-circle-check text-success fs-1"></i>
-                <h4>Discussion WhatsApp Ouverte !</h4>
-                <p>
-                  Votre message a été transmis à notre service conciergerie. Un conseiller VIP 3M prend en charge votre demande sans délai.
-                </p>
-                <button
-                  type="button"
-                  className="promo-modal-btn-confirm"
-                  onClick={() => setActiveModalCar(null)}
-                >
-                  Fermer cette fenêtre
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmitInquiry} className="promo-modal-form">
-                <p className="promo-modal-intro">
-                  Précisez vos informations ci-dessous pour ouvrir directement la discussion avec les détails pré-remplis :
-                </p>
-
-                <div className="promo-form-group">
-                  <label htmlFor="inquiry-name">Votre Nom & Prénom *</label>
-                  <input
-                    type="text"
-                    id="inquiry-name"
-                    required
-                    placeholder="Ex: Paul Biya, Jean Dupont..."
-                    value={inquiryName}
-                    onChange={(e) => setInquiryName(e.target.value)}
-                  />
-                </div>
-
-                <div className="promo-form-group">
-                  <label htmlFor="inquiry-phone">Téléphone / WhatsApp *</label>
-                  <input
-                    type="tel"
-                    id="inquiry-phone"
-                    required
-                    placeholder="Ex: +237 691 78 64 47"
-                    value={inquiryPhone}
-                    onChange={(e) => setInquiryPhone(e.target.value)}
-                  />
-                </div>
-
-                <div className="promo-form-group">
-                  <label htmlFor="inquiry-dates">Dates ou Période Souhaitée</label>
-                  <input
-                    type="text"
-                    id="inquiry-dates"
-                    placeholder="Ex: Du 25 au 28 Novembre (4 jours)"
-                    value={inquiryDates}
-                    onChange={(e) => setInquiryDates(e.target.value)}
-                  />
-                </div>
-
-                <div className="promo-modal-actions">
-                  <button
-                    type="button"
-                    className="promo-modal-btn-chat"
-                    onClick={() => {
-                      handleOpenPrivateChat(activeModalCar);
-                      setActiveModalCar(null);
-                    }}
-                    title="Ouvrir la discussion dans l'environnement 3M"
-                  >
-                    <i className="fa-solid fa-comments"></i> Ouvrir le Chat Privé 3M (En direct)
-                  </button>
-                  <button type="submit" className="promo-modal-btn-wa">
-                    <i className="fa-brands fa-whatsapp"></i> Démarrer la conversation WhatsApp
-                  </button>
-                  <a
-                    href="tel:+237691786447"
-                    className="promo-modal-btn-tel"
-                    title="Appeler directement le standard 3M SERVICES"
-                  >
-                    <i className="fa-solid fa-phone"></i> Appeler (+237 691 78 64 47)
-                  </a>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
     </section>
   );
 }

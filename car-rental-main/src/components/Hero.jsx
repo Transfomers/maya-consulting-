@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import BgShape from "../images/hero/hero-bg.png";
 import HeroCar from "../images/hero/main-car.png";
 import { useTranslation } from "../context/LanguageContext";
+import "../styles/HeroMobile.css";
 
 function Hero() {
   const { t } = useTranslation();

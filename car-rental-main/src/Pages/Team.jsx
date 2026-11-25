@@ -1,22 +1,21 @@
 import Footer from "../components/Footer";
 import HeroPages from "../components/HeroPages";
 import { useTranslation } from "../context/LanguageContext";
-import MichelAvatar from "../images/team/avatar-michel-talla.svg";
-import MarcAvatar from "../images/team/avatar-marc-ndongo.svg";
-import BrigitteAvatar from "../images/team/avatar-brigitte-manga.svg";
-import LaurentineAvatar from "../images/team/avatar-laurentine-bella.svg";
-import MartinAvatar from "../images/team/avatar-martin-essomba.svg";
-import CarineAvatar from "../images/team/avatar-carine-onana.svg";
+import HumanAvatar3D from "../components/HumanAvatar3D";
+import "../styles/Team.css";
 
 function Team() {
   const { lang } = useTranslation();
 
   const isFr = lang === "fr";
 
+  // photo : vraie photo (ex. "/images/team/abena.jpg" dans public/) — sinon avatar 3D réglé par « look »
+  // look  : skin, hair (short | fade | curly | bun | long | bald), hairColor, outfit, shirt, tie, glasses, beard
   const teamPpl = [
     {
-      img: MichelAvatar,
+      photo: null,
       name: "M. Monroi Maya Michael",
+      look: { skin: "#7a4a2a", hair: "fade", hairColor: "#1b1210", outfit: "#111827", shirt: "#ffffff", tie: "#E20713", beard: true },
       role: isFr ? "PDG & Fondateur" : "CEO & Founder",
       dept: isFr ? "Direction Générale" : "Executive Leadership",
       badgeColor: "#E20713",
@@ -25,62 +24,44 @@ function Team() {
         : "Omnisports Showroom Headquarters, Yaoundé",
     },
     {
-      img: MarcAvatar,
-      name: "Marc Ndongo",
-      role: isFr
-        ? "Responsable Flotte Automobile"
-        : "Fleet Operations Manager",
-      dept: isFr ? "Gestion de Parc & Ateliers" : "Fleet Management",
+      photo: null,
+      name: "Martin Roger ABENA",
+      look: { skin: "#8d5524", hair: "short", hairColor: "#1b1210", outfit: "#1e3a8a", shirt: "#e0e7ff" },
+      role: isFr ? "Responsable Logistique" : "Logistics Manager",
+      dept: isFr ? "Logistique" : "Logistics",
       badgeColor: "#1e3a8a",
-      contact: isFr
-        ? "Supervision 42 Véhicules & Ateliers"
-        : "Supervision of 42 Vehicles & Garages",
     },
     {
-      img: BrigitteAvatar,
-      name: "Brigitte Manga",
-      role: isFr
-        ? "Responsable Conciergerie 24/7"
-        : "Head of 24/7 Concierge",
-      dept: isFr ? "Support Client & Réservations" : "Client Support & Bookings",
-      badgeColor: "#991b1b",
-      contact: "+237 691 78 64 47 (WhatsApp Direct)",
-    },
-    {
-      img: LaurentineAvatar,
-      name: "Laurentine Bella",
-      role: isFr
-        ? "Gestionnaire Résidences Meublées"
-        : "Luxury Apartments Manager",
-      dept: isFr ? "Immobilier & Standing Tsinga" : "Luxury Real Estate",
+      photo: null,
+      name: "Augustine GUIDAMA",
+      look: { skin: "#9a6237", hair: "bun", hairColor: "#2a1a14", outfit: "#0f766e", shirt: "#f0fdfa" },
+      role: isFr ? "Concierge des Meublés" : "Furnished Apartments Concierge",
+      dept: isFr ? "Gestion des Meublés" : "Apartments Management",
       badgeColor: "#0f766e",
-      contact: isFr
-        ? "Résidences Prestige Face FECAFOOT"
-        : "Prestige Residences Opposite FECAFOOT",
     },
     {
-      img: MartinAvatar,
-      name: "Martin Essomba",
-      role: isFr
-        ? "Chef Chauffeur VIP & Sécurité"
-        : "Chief VIP Chauffeur & Security",
-      dept: isFr ? "Escorte & Sécurité" : "VIP Escort & Security",
-      badgeColor: "#18181b",
-      contact: isFr
-        ? "Cortèges Diplomatiques & Déplacements"
-        : "Diplomatic Convoys & Travel",
+      photo: null,
+      name: "Mme NKOUNOU ONANA Augustine Alice",
+      look: { skin: "#7f4b2b", hair: "long", hairColor: "#1b1210", outfit: "#7c2d12", shirt: "#fff7ed", glasses: true },
+      role: isFr ? "Secrétaire Particulière du PDG" : "Executive Assistant to the CEO",
+      dept: isFr ? "Direction Générale" : "Executive Office",
+      badgeColor: "#7c2d12",
     },
     {
-      img: CarineAvatar,
-      name: "Carine Onana",
-      role: isFr
-        ? "Relations Partenariats & Leasing"
-        : "Corporate Partnerships & Leasing",
-      dept: isFr ? "Pôle Leasing & Partenariats" : "Corporate Leasing & Partnerships",
+      photo: null,
+      name: "M. François N. PEMPEME",
+      look: { skin: "#86502c", hair: "curly", hairColor: "#1b1210", outfit: "#c2410c", shirt: "#ffffff" },
+      role: isFr ? "Responsable Marketing et Commercial" : "Marketing & Sales Manager",
+      dept: isFr ? "Marketing & Ventes" : "Marketing & Sales",
       badgeColor: "#c2410c",
-      contact: isFr
-        ? "Formules Leasing & Accords Entreprises"
-        : "Corporate Leasing & Enterprise Agreements",
+    },
+    {
+      photo: null,
+      name: "M. MISSÉ Guy Roger",
+      look: { skin: "#6e4024", hair: "short", hairColor: "#141010", outfit: "#27272a", shirt: "#f4f4f5", glasses: true, beard: true },
+      role: isFr ? "Responsable BTP" : "Construction (BTP) Manager",
+      dept: isFr ? "Pôle BTP" : "Construction",
+      badgeColor: "#18181b",
     },
   ];
 
@@ -116,9 +97,9 @@ function Team() {
           </div>
 
           <div className="team-container">
-            {teamPpl.map((ppl, id) => (
+            {teamPpl.map((ppl) => (
               <div
-                key={id}
+                key={ppl.name}
                 className="team-container__box"
                 style={{
                   borderRadius: "8px",
@@ -137,11 +118,17 @@ function Team() {
                     justifyContent: "center",
                   }}
                 >
-                  <img
-                    src={ppl.img}
-                    alt={ppl.name}
-                    style={{ width: "100%", height: "28rem", objectFit: "cover" }}
-                  />
+                  {ppl.photo ? (
+                    <img
+                      src={ppl.photo}
+                      alt={ppl.name}
+                      style={{ width: "100%", height: "28rem", objectFit: "cover", objectPosition: "center top" }}
+                    />
+                  ) : (
+                    <div className="team-avatar" style={{ "--tone": ppl.badgeColor }}>
+                      <HumanAvatar3D {...ppl.look} title={ppl.name} />
+                    </div>
+                  )}
                   {/* Department Badge */}
                   <span
                     style={{
@@ -185,20 +172,22 @@ function Team() {
                   >
                     {ppl.role}
                   </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.8rem",
-                      fontSize: "1.3rem",
-                      color: "#64748b",
-                      borderTop: "1px solid #f1f5f9",
-                      paddingTop: "1.2rem",
-                    }}
-                  >
-                    <i className="fa-solid fa-location-dot" style={{ color: "#E20713" }}></i>
-                    <span>{ppl.contact}</span>
-                  </div>
+                  {ppl.contact && (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.8rem",
+                        fontSize: "1.3rem",
+                        color: "#64748b",
+                        borderTop: "1px solid #f1f5f9",
+                        paddingTop: "1.2rem",
+                      }}
+                    >
+                      <i className="fa-solid fa-location-dot" style={{ color: "#E20713" }}></i>
+                      <span>{ppl.contact}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

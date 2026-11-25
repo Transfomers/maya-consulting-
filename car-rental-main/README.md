@@ -116,7 +116,8 @@ source venv/bin/activate
 pip install -r requirements.txt
 PORT=5002 python3 run.py
 # La WebApp démarre sur http://127.0.0.1:5002
-# Identifiants Super Admin : admin@3mservice.shop / admin3m2026
+# Super Admin créé au 1er lancement : admin@3mservice.shop
+# Mot de passe = ADMIN_INITIAL_PASSWORD (.env), sinon affiché une fois dans la console
 ```
 
 ---

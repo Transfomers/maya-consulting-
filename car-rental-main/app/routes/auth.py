@@ -323,6 +323,23 @@ def verify_otp():
     return render_template('auth/verify_otp.html', email=email, masked_email=masked_email)
 
 
+def _safe_next(target):
+    """N'accepte qu'un chemin relatif interne (évite les redirections ouvertes)."""
+    if not target or not target.startswith('/') or target.startswith('//') or '\\' in target:
+        return None
+    return target
+
+
+def _login_page(error=None, status=200):
+    return render_template(
+        'auth/login.html',
+        error=error,
+        username=request.form.get('username', '').strip(),
+        remember=bool(request.form.get('remember')),
+        next_url=_safe_next(request.form.get('next') or request.args.get('next')) or '',
+    ), status
+
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -348,10 +365,8 @@ def login():
                     uid = decoded_token['uid']
                     email = decoded_token.get('email')
                 except Exception as e:
-                    import logging
-                    logging.error(f"Firebase token verification failed in login: {e}")
-                    flash(f"Échec de la validation Firebase: {e}", 'danger')
-                    return redirect(url_for('auth.login'))
+                    current_app.logger.warning(f"Firebase token verification failed in login: {e}")
+                    return _login_page("La connexion via Google/Firebase a échoué. Réessayez ou utilisez votre mot de passe.", 401)
 
                 user = User.query.filter_by(firebase_uid=uid).first()
                 if not user and email:
@@ -377,9 +392,10 @@ def login():
                 
                 user = User.query.filter((User.username == username) | (User.email == username)).first()
                 from werkzeug.security import check_password_hash
+                if not username or not password:
+                    return _login_page("Saisissez votre email (ou nom d'utilisateur) et votre mot de passe.", 400)
                 if not user or not user.password_hash or not check_password_hash(user.password_hash, password):
-                    flash("Nom d'utilisateur/email ou mot de passe incorrect.", 'danger')
-                    return redirect(url_for('auth.login'))
+                    return _login_page("Email/nom d'utilisateur ou mot de passe incorrect.", 401)
                     
                 # Email verification check disabled for testing
                 # if not getattr(user, 'is_verified', False):
@@ -392,14 +408,12 @@ def login():
                 #     return redirect(url_for('auth.verify_otp', email=user.email))
                     
             if getattr(user, 'is_deleted', False):
-                flash('Ce compte a été supprimé.', 'danger')
-                return redirect(url_for('auth.login'))
-                
-            if getattr(user, 'is_suspended', False):
-                flash('Ce compte a été suspendu. Veuillez contacter le support.', 'danger')
-                return redirect(url_for('auth.login'))
+                return _login_page('Ce compte a été supprimé.', 403)
 
-            login_user(user, remember=True)
+            if getattr(user, 'is_suspended', False):
+                return _login_page('Ce compte a été suspendu. Veuillez contacter le support.', 403)
+
+            login_user(user, remember=bool(request.form.get('remember')))
             session['lang'] = user.language if user.language else 'fr'
         
             # Record device log (user agent + IP)
@@ -421,12 +435,9 @@ def login():
             flash(f'Bon retour, {user.username} ! Vous êtes connecté. 👋', 'success')
 
             # Role-based redirection
-            next_page = request.args.get('next')
+            next_page = _safe_next(request.form.get('next') or request.args.get('next'))
             if next_page:
-                from urllib.parse import urlparse
-                # Ensure next_page is a relative path
-                if not urlparse(next_page).netloc:
-                    return redirect(next_page)
+                return redirect(next_page)
             
             if user.role == 'teller':
                 return redirect(url_for('auth.login_success', next=url_for('admin.teller_dashboard')))
@@ -436,11 +447,12 @@ def login():
                 return redirect(url_for('auth.login_success', next=url_for('admin.dashboard')))
             return redirect(url_for('auth.login_success', next=next_page if next_page else url_for('main.index')))
             
-        except Exception as e:
-            import traceback
-            return f"<h3>Erreur Critique :</h3><pre>{str(e)}</pre><h3>Traceback :</h3><pre>{traceback.format_exc()}</pre>", 500
+        except Exception:
+            db.session.rollback()
+            current_app.logger.exception("Erreur lors de la connexion")
+            return _login_page("Une erreur est survenue pendant la connexion. Réessayez dans un instant.", 500)
 
-    return render_template('auth/login.html')
+    return _login_page()
 
 @auth.route('/logout')
 @login_required

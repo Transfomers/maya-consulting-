@@ -273,7 +273,7 @@
                                         title="Modifier l'offre promotionnelle">
                                         <i class="bi bi-pencil-square"></i> Modifier
                                     </button>
-                                    <a href="{{ url_for('admin.toggle_bus_promo', id=bus.id, remove='true') }}"
+                                    <a data-method="post" href="{{ url_for('admin.toggle_bus_promo', id=bus.id, remove='true') }}"
                                         class="btn btn-sm btn-outline-danger py-0 px-1"
                                         style="font-size: 0.68rem !important; border-radius: 4px !important;"
                                         onclick="return confirm('Retirer ce véhicule des promotions VIP affichées sur le site client ?');"
@@ -297,12 +297,12 @@
                                     class="action-icon-link action-edit" title="Modifier le véhicule">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{{ url_for('admin.toggle_bus_maintenance', id=bus.id) }}"
+                                <a data-method="post" href="{{ url_for('admin.toggle_bus_maintenance', id=bus.id) }}"
                                     class="action-icon-link action-maint"
                                     title="{{ 'Activer' if bus.status == 'maintenance' else 'Mettre en Maintenance' }}">
                                     <i class="bi bi-wrench-adjustable"></i>
                                 </a>
-                                <a href="{{ url_for('admin.delete_bus', id=bus.id) }}"
+                                <a data-method="post" href="{{ url_for('admin.delete_bus', id=bus.id) }}"
                                     class="action-icon-link action-delete" title="Supprimer"
                                     onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?');">
                                     <i class="bi bi-trash"></i>
@@ -449,6 +449,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
             <form id="promoForm" method="POST" action="">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="action" value="set">
                 <div class="modal-header border-bottom py-3 px-4" style="background: #0f172a; color: #ffffff;">
                     <div class="d-flex align-items-center gap-2">

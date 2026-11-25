@@ -5,6 +5,7 @@ Lanceur officiel de l'application Flask
 """
 
 import os
+import secrets
 import sys
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
@@ -36,10 +37,12 @@ def seed_initial_3m_data():
         # 2. Super Administrateur 3M
         admin = User.query.filter_by(email="admin@3mservice.shop").first()
         if not admin:
+            # Mot de passe initial : ADMIN_INITIAL_PASSWORD, sinon aléatoire (affiché une seule fois)
+            initial_pw = os.environ.get('ADMIN_INITIAL_PASSWORD') or secrets.token_urlsafe(12)
             admin = User(
                 username="admin3m",
                 email="admin@3mservice.shop",
-                password_hash=generate_password_hash("admin3m2026", method='pbkdf2:sha256'),
+                password_hash=generate_password_hash(initial_pw, method='pbkdf2:sha256'),
                 role="super_admin",
                 phone="+237 691 78 64 47",
                 is_verified=True,
@@ -48,7 +51,10 @@ def seed_initial_3m_data():
             )
             db.session.add(admin)
             db.session.commit()
-            print(" Super Admin 3M SERVICES créé : admin@3mservice.shop / admin3m2026")
+            if os.environ.get('ADMIN_INITIAL_PASSWORD'):
+                print(" Super Admin 3M SERVICES créé : admin@3mservice.shop (mot de passe = ADMIN_INITIAL_PASSWORD)")
+            else:
+                print(f" Super Admin 3M SERVICES créé : admin@3mservice.shop / {initial_pw}  (à changer dès la 1re connexion)")
 
         # 3. Flotte Officielle des 7 Véhicules VIP 3M
         fleet_data = [
@@ -122,7 +128,7 @@ def seed_initial_3m_data():
             client_user = User(
                 username="client_vip",
                 email="client@3mservice.shop",
-                password_hash=generate_password_hash("client3m2026", method='pbkdf2:sha256'),
+                password_hash=generate_password_hash(secrets.token_urlsafe(16), method='pbkdf2:sha256'),
                 role="client",
                 phone="+237 691 78 64 47",
                 is_verified=True,
@@ -191,6 +197,5 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5002))
     print(f"=======================================================")
     print(f" 🚀 3M SERVICES WebApp running on http://127.0.0.1:{port}")
-    print(f" 🔑 Admin : admin@3mservice.shop / admin3m2026")
     print(f"=======================================================")
     app.run(host='0.0.0.0', port=port, debug=False)

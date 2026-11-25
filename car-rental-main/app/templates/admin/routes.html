@@ -93,7 +93,7 @@
                             <a href="{{ url_for('admin.edit_route', id=route.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 me-1">
                                 <i class="bi bi-pencil me-1"></i> Modifier
                             </a>
-                            <a href="{{ url_for('admin.delete_route', id=route.id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette ligne de transport ?');">
+                            <a data-method="post" href="{{ url_for('admin.delete_route', id=route.id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette ligne de transport ?');">
                                 <i class="bi bi-trash me-1"></i> Supprimer
                             </a>
                         </td>

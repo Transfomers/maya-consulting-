@@ -20,14 +20,14 @@
 
 .showcase-hero__grid {
   display: grid;
-  grid-template-columns: 1.75fr 1.25fr;
+  grid-template-columns: minmax(0, 1.75fr) minmax(0, 1.25fr);
   gap: 1.6rem;
   align-items: stretch;
 }
 
 @media (max-width: 980px) {
   .showcase-hero__grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.6rem;
   }
 }
@@ -244,14 +244,14 @@
 @media (max-width: 980px) {
   .showcase-side-column {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.2rem;
   }
 }
 
 @media (max-width: 640px) {
   .showcase-side-column {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -382,3 +382,9 @@
   transform: scale(1.05);
 }
 
+
+/* Les cartes et colonnes peuvent rétrécir sous la largeur de leur contenu (évite le défilement horizontal sur mobile) */
+.showcase-main-banner,
+.showcase-side-column,
+.showcase-side-card,
+.showcase-side-card__content { min-width: 0; }

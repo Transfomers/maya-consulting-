@@ -132,6 +132,116 @@
     justify-content: center;
     flex-shrink: 0;
 }
+
+/* ═══ Vue d'ensemble des missions (refonte) ═══ */
+.mh-tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    border-bottom: 1px solid #eaecf0;
+    margin: 0 0 24px;
+    scrollbar-width: thin;
+}
+.mh-tab {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #667085;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    white-space: nowrap;
+}
+.mh-tab i { color: inherit !important; }
+.mh-tab:hover { color: #101828; }
+.mh-tab.is-active { color: var(--primary-light); border-bottom-color: var(--primary-light); font-weight: 600; }
+.mh-tab.is-active .tab-count { background: #fef3f2; color: var(--primary-light); }
+
+.mh-section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #98a2b3; margin: 0 0 10px; }
+.mh-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+.mh-kpi {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 18px;
+    background: #fff;
+    border: 1px solid #eaecf0;
+    border-radius: 12px;
+    color: inherit;
+    text-decoration: none;
+    transition: box-shadow .15s, border-color .15s;
+}
+a.mh-kpi:hover { border-color: #d0d5dd; box-shadow: 0 6px 18px rgba(16, 24, 40, .06); }
+.mh-kpi.is-warning { border-color: #fedf89; background: #fffcf5; }
+.mh-kpi__icon {
+    position: absolute; top: 16px; right: 16px;
+    width: 34px; height: 34px; border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.mh-kpi__icon i { color: inherit !important; }
+.mh-kpi__icon.is-blue { background: #eff8ff; color: #175cd3; }
+.mh-kpi__icon.is-green { background: #ecfdf3; color: #027a48; }
+.mh-kpi__icon.is-grey { background: #f2f4f7; color: #475467; }
+.mh-kpi__icon.is-orange { background: #fffaeb; color: #b54708; }
+.mh-kpi__label { font-size: 13px; color: #667085; font-weight: 500; }
+.mh-kpi__value { font-size: 26px; font-weight: 700; color: #101828; line-height: 1.15; }
+.mh-kpi__value--money { font-size: 21px; white-space: nowrap; }
+.mh-kpi__value small { font-size: 12px; color: #667085; font-weight: 600; }
+.mh-kpi__hint { font-size: 12px; color: #667085; }
+.mh-kpi__hint.is-danger { color: #b42318; font-weight: 600; }
+.mh-kpi__bar { height: 6px; border-radius: 999px; background: #f2f4f7; overflow: hidden; margin: 4px 0 2px; }
+.mh-kpi__bar span { display: block; height: 100%; background: #2e90fa; border-radius: 999px; }
+.mh-kpi__bar.is-green span { background: #12b76a; }
+
+.mh-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.mh-card-head h3 { font-size: 15px; font-weight: 700; color: #101828; margin: 0; display: flex; align-items: center; gap: 8px; }
+.mh-card-head h3 i { color: #98a2b3 !important; }
+.mh-link { font-size: 13px; font-weight: 600; color: var(--primary-light); text-decoration: none; white-space: nowrap; }
+.mh-link i { color: inherit !important; }
+.mh-pill { min-width: 26px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; text-align: center; }
+.mh-pill.is-danger { background: #fef3f2; color: #b42318; }
+.mh-pill.is-ok { background: #ecfdf3; color: #027a48; }
+
+.mh-alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.mh-alert {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 10px;
+    border: 1px solid #eaecf0; border-left-width: 4px;
+    color: inherit; text-decoration: none; background: #fff;
+}
+.mh-alert:hover { background: #fcfcfd; }
+.mh-alert > i { font-size: 16px; }
+.mh-alert.is-danger { border-left-color: #f04438; } .mh-alert.is-danger > i { color: #d92d20 !important; }
+.mh-alert.is-warning { border-left-color: #f79009; } .mh-alert.is-warning > i { color: #dc6803 !important; }
+.mh-alert.is-info { border-left-color: #2e90fa; } .mh-alert.is-info > i { color: #1570ef !important; }
+.mh-alert__text { flex: 1; min-width: 0; }
+.mh-alert__text strong { display: block; font-size: 13px; color: #101828; }
+.mh-alert__text small { display: block; font-size: 12px; color: #667085; }
+.mh-alert__count { font-size: 15px; font-weight: 700; color: #101828; }
+.mh-empty.is-ok { padding: 12px; border-radius: 10px; background: #ecfdf3; color: #027a48; font-size: 13px; font-weight: 600; }
+.mh-categories { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #f2f4f7; }
+.mh-categories__title { font-size: 12px; color: #98a2b3; font-weight: 600; margin-right: 4px; }
+.mh-chip { display: inline-flex; gap: 4px; padding: 2px 9px; border-radius: 999px; background: #f2f4f7; font-size: 12px; color: #344054; }
+
+.mh-table thead th { font-size: 12px !important; }
+.mh-ref { font-weight: 700; font-size: 13px; color: #101828; }
+.mh-sub { font-size: 12px; color: #667085; }
+.mh-strong { font-weight: 600; font-size: 13px; color: #101828; }
+.mh-missing { color: #b54708 !important; font-weight: 600; }
+.mh-manage { font-size: 12px; font-weight: 600; padding: 4px 12px; }
+
+@media (max-width: 1199.98px) { .mh-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575.98px) {
+    .mh-kpis { gap: 10px; }
+    .mh-kpi { padding: 14px; }
+    .mh-kpi__value { font-size: 22px; }
+    .mh-kpi__icon { width: 28px; height: 28px; font-size: 14px; top: 12px; right: 12px; }
+}
 </style>
 
 {% set cur_tab = active_tab or 'overview' %}
@@ -155,164 +265,152 @@
 } %}
 
 <div class="container-fluid py-3 px-3 px-lg-4">
-    <!-- TOP HEADER -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <!-- En-tête -->
+    <div class="page-header">
         <div>
-            <h4 class="fw-bold mb-0 text-dark">
-                <i class="fas fa-car-side text-danger me-2"></i>Sorties & Missions de Flotte VIP
-            </h4>
-            <div class="text-muted small">Système complet de gestion opérationnelle, dispatch convoi, tarification & clôture 3M SERVICES</div>
+            <h1>Sorties & Missions VIP</h1>
+            <p>Planifier, affecter et suivre les missions de la flotte, du devis à la clôture.</p>
         </div>
-        <div class="d-flex flex-wrap gap-2">
-            <a href="{{ url_for('admin.bookings', tab='missions') }}#newMissionFormCard" class="fm-btn-red text-decoration-none d-inline-flex align-items-center gap-2">
-                <i class="fas fa-plus-circle"></i> Nouvelle Mission VIP
+        <div class="page-actions">
+            <a href="{{ url_for('admin.bookings', tab='missions') }}#newMissionFormCard" class="btn btn-brand">
+                <i class="bi bi-plus-lg me-1"></i> Nouvelle mission
             </a>
-            <a href="{{ url_for('admin.bookings', tab='missions') }}#convertBookingCard" class="btn btn-outline-danger btn-sm fw-bold rounded-3 d-inline-flex align-items-center gap-2 px-3">
-                <i class="fas fa-exchange-alt"></i> Convertir Réservation
+            <a href="{{ url_for('admin.bookings', tab='missions') }}#convertBookingCard" class="btn btn-light border">
+                <i class="bi bi-arrow-left-right me-1"></i> Convertir une réservation
             </a>
         </div>
     </div>
 
-    <!-- 10-SECTION MODULE NAVIGATION -->
-    <div class="fm-tabbar">
-        <a href="{{ url_for('admin.bookings', tab='overview') }}" class="fm-tab-btn {% if cur_tab == 'overview' %}active{% endif %}">
-            <i class="fas fa-chart-pie"></i> Dashboard
+    <!-- Onglets (ordre du flux de travail) -->
+    <nav class="mh-tabs" aria-label="Sections des missions">
+        {% set tabs = [
+            ('overview', 'bi-speedometer2', "Vue d'ensemble", None),
+            ('planning', 'bi-calendar3', 'Planning', None),
+            ('missions', 'bi-list-check', 'Missions', kpis.total_missions),
+            ('tracking', 'bi-broadcast', 'Suivi en direct', tracking_trips|length),
+            ('fleet', 'bi-car-front', 'Flotte', None),
+            ('drivers', 'bi-person-badge', 'Chauffeurs', None),
+            ('packages', 'bi-tags', 'Forfaits & tarifs', None),
+            ('routes', 'bi-signpost-split', 'Itinéraires', None),
+            ('documents', 'bi-folder2-open', 'Documents', None),
+            ('reports', 'bi-graph-up', 'Rapports', None),
+        ] %}
+        {% for key, icon, label, count in tabs %}
+        {% set is_active = (cur_tab == key) or (key == 'fleet' and cur_tab == 'assignments') %}
+        <a href="{{ url_for('admin.bookings', tab=key) }}" class="mh-tab {% if is_active %}is-active{% endif %}" {% if is_active %}aria-current="page"{% endif %}>
+            <i class="bi {{ icon }}"></i> {{ label }}{% if count is not none %}<span class="tab-count">{{ count }}</span>{% endif %}
         </a>
-        <a href="{{ url_for('admin.bookings', tab='planning') }}" class="fm-tab-btn {% if cur_tab == 'planning' %}active{% endif %}">
-            <i class="fas fa-calendar-alt"></i> Planning
-        </a>
-        <a href="{{ url_for('admin.bookings', tab='missions') }}" class="fm-tab-btn {% if cur_tab == 'missions' %}active{% endif %}">
-            <i class="fas fa-list-check"></i> Missions & Sorties <span class="badge bg-dark bg-opacity-25 rounded-pill">{{ kpis.total_missions }}</span>
-        </a>
-        <a href="{{ url_for('admin.bookings', tab='packages') }}" class="fm-tab-btn {% if cur_tab == 'packages' %}active{% endif %}">
-            <i class="fas fa-tags"></i> Forfaits & Tarifs
-        </a>
-        <a href="{{ url_for('admin.bookings', tab='fleet') }}" class="fm-tab-btn {% if cur_tab in ['fleet', 'assignments'] %}active{% endif %}">
-            <i class="fas fa-car"></i> Affectation Flotte
-        </a>
-        <a href="{{ url_for('admin.bookings', tab='drivers') }}" class="fm-tab-btn {% if cur_tab == 'drivers' %}active{% endif %}">
-            <i class="fas fa-id-badge"></i> Chauffeurs VIP
-        </a>
-        <a href="{{ url_for('admin.bookings', tab='routes') }}" class="fm-tab-btn {% if cur_tab == 'routes' %}active{% endif %}">
-            <i class="fas fa-map-marked-alt"></i> Routes & Stops
-        </a>
-        <a href="{{ url_for('admin.bookings', tab='tracking') }}" class="fm-tab-btn {% if cur_tab == 'tracking' %}active{% endif %}">
-            <i class="fas fa-satellite-dish"></i> Suivi Opérationnel <span class="badge bg-warning text-dark rounded-pill">{{ tracking_trips|length }}</span>
-        </a>
-        <a href="{{ url_for('admin.bookings', tab='documents') }}" class="fm-tab-btn {% if cur_tab == 'documents' %}active{% endif %}">
-            <i class="fas fa-folder-open"></i> Documents
-        </a>
-        <a href="{{ url_for('admin.bookings', tab='reports') }}" class="fm-tab-btn {% if cur_tab == 'reports' %}active{% endif %}">
-            <i class="fas fa-chart-line"></i> Historique & Rapports
-        </a>
-    </div>
+        {% endfor %}
+    </nav>
 
-    <!-- ================================================================== -->
-    <!-- TAB 1: MISSIONS DASHBOARD (OVERVIEW)                               -->
-    <!-- ================================================================== -->
     {% if cur_tab == 'overview' %}
-    <div class="row g-3 mb-3">
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="fm-kpi">
-                <div class="fm-kpi-lbl">Total Missions</div>
-                <div class="fm-kpi-val">{{ kpis.total_missions }}</div>
-                <div class="small text-muted">Aujourd'hui : <strong>{{ kpis.missions_today }}</strong></div>
-            </div>
+    <!-- À traiter maintenant -->
+    <h2 class="mh-section-title">À traiter maintenant</h2>
+    <div class="mh-kpis">
+        <a class="mh-kpi" href="{{ url_for('admin.bookings', tab='planning') }}">
+            <span class="mh-kpi__icon is-blue"><i class="bi bi-calendar-day"></i></span>
+            <span class="mh-kpi__label">Aujourd'hui</span>
+            <strong class="mh-kpi__value">{{ kpis.missions_today }}</strong>
+            <span class="mh-kpi__hint">missions sur la journée</span>
+        </a>
+        <a class="mh-kpi" href="{{ url_for('admin.bookings', tab='tracking') }}">
+            <span class="mh-kpi__icon is-green"><i class="bi bi-broadcast"></i></span>
+            <span class="mh-kpi__label">En cours</span>
+            <strong class="mh-kpi__value">{{ kpis.missions_in_progress }}</strong>
+            <span class="mh-kpi__hint">{{ kpis.vehicles_on_mission }} véhicule(s) sur la route</span>
+        </a>
+        <a class="mh-kpi" href="{{ url_for('admin.bookings', tab='missions') }}">
+            <span class="mh-kpi__icon is-grey"><i class="bi bi-hourglass-split"></i></span>
+            <span class="mh-kpi__label">À venir</span>
+            <strong class="mh-kpi__value">{{ kpis.missions_upcoming }}</strong>
+            <span class="mh-kpi__hint">départs planifiés</span>
+        </a>
+        <a class="mh-kpi {% if kpis.missions_awaiting_assignment %}is-warning{% endif %}" href="{{ url_for('admin.bookings', tab='fleet') }}">
+            <span class="mh-kpi__icon is-orange"><i class="bi bi-person-exclamation"></i></span>
+            <span class="mh-kpi__label">À affecter</span>
+            <strong class="mh-kpi__value">{{ kpis.missions_awaiting_assignment }}</strong>
+            <span class="mh-kpi__hint">sans véhicule ou chauffeur</span>
+        </a>
+    </div>
+
+    <!-- Performance -->
+    <h2 class="mh-section-title">Performance</h2>
+    <div class="mh-kpis">
+        <div class="mh-kpi">
+            <span class="mh-kpi__label">Terminées</span>
+            <strong class="mh-kpi__value">{{ kpis.missions_completed }}</strong>
+            <span class="mh-kpi__hint">{{ kpis.missions_cancelled }} annulée(s) · {{ kpis.cancellation_rate_pct }} %</span>
         </div>
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="fm-kpi">
-                <div class="fm-kpi-lbl">En Cours</div>
-                <div class="fm-kpi-val text-danger">{{ kpis.missions_in_progress }}</div>
-                <div class="small text-muted">À venir : <strong>{{ kpis.missions_upcoming }}</strong></div>
-            </div>
+        <div class="mh-kpi">
+            <span class="mh-kpi__label">Utilisation flotte</span>
+            <strong class="mh-kpi__value">{{ kpis.vehicle_utilization_pct }} %</strong>
+            <span class="mh-kpi__bar"><span style="width: {{ [kpis.vehicle_utilization_pct, 100]|min }}%"></span></span>
+            <span class="mh-kpi__hint">chauffeurs : {{ kpis.driver_utilization_pct }} %</span>
         </div>
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="fm-kpi">
-                <div class="fm-kpi-lbl">Terminées / Clôturées</div>
-                <div class="fm-kpi-val text-success">{{ kpis.missions_completed }}</div>
-                <div class="small text-muted">Annulées : <strong>{{ kpis.missions_cancelled }}</strong> ({{ kpis.cancellation_rate_pct }}%)</div>
-            </div>
+        <div class="mh-kpi">
+            <span class="mh-kpi__label">Ponctualité au départ</span>
+            <strong class="mh-kpi__value">{{ kpis.on_time_rate_pct }} %</strong>
+            <span class="mh-kpi__bar is-green"><span style="width: {{ [kpis.on_time_rate_pct, 100]|min }}%"></span></span>
+            <span class="mh-kpi__hint">départs à 15 min près</span>
         </div>
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="fm-kpi">
-                <div class="fm-kpi-lbl">Utilisation Flotte</div>
-                <div class="fm-kpi-val text-primary">{{ kpis.vehicle_utilization_pct }}%</div>
-                <div class="small text-muted">{{ kpis.vehicles_on_mission }} véh. / {{ kpis.drivers_assigned }} chauff.</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="fm-kpi">
-                <div class="fm-kpi-lbl">Ponctualité Départ</div>
-                <div class="fm-kpi-val text-success">{{ kpis.on_time_rate_pct }}%</div>
-                <div class="small text-muted">Utilisation chauff. : <strong>{{ kpis.driver_utilization_pct }}%</strong></div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="fm-kpi">
-                <div class="fm-kpi-lbl">CA Missions VIP</div>
-                <div class="fm-kpi-val text-danger" style="font-size: 1.15rem;">{{ "{:,.0f}".format(kpis.missions_revenue).replace(',', ' ') }} F</div>
-                <div class="small text-muted">Impayés : <strong>{{ "{:,.0f}".format(kpis.outstanding_payments).replace(',', ' ') }} F</strong></div>
-            </div>
+        <div class="mh-kpi">
+            <span class="mh-kpi__label">Chiffre d'affaires</span>
+            <strong class="mh-kpi__value mh-kpi__value--money">{{ "{:,.0f}".format(kpis.missions_revenue).replace(",", " ") }} <small>FCFA</small></strong>
+            <span class="mh-kpi__hint {% if kpis.outstanding_payments %}is-danger{% endif %}">Impayés : {{ "{:,.0f}".format(kpis.outstanding_payments).replace(",", " ") }} FCFA</span>
         </div>
     </div>
 
-    <div class="row g-3">
-        <!-- Operational Alerts -->
-        <div class="col-lg-5">
-            <div class="fm-card h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold mb-0"><i class="fas fa-bell text-danger me-2"></i>Alertes Opérationnelles</h6>
-                    <span class="badge {% if alerts %}bg-danger{% else %}bg-success{% endif %} rounded-pill">{{ alerts|length }}</span>
+    <div class="row g-3 mt-1">
+        <!-- Alertes -->
+        <div class="col-xl-4">
+            <section class="fm-card h-100">
+                <div class="mh-card-head">
+                    <h3><i class="bi bi-bell"></i> Alertes</h3>
+                    <span class="mh-pill {% if alerts %}is-danger{% else %}is-ok{% endif %}">{{ alerts|length }}</span>
                 </div>
                 {% if alerts %}
-                <div class="d-flex flex-column gap-2">
+                <ul class="mh-alerts">
                     {% for a in alerts %}
-                    <div class="p-2 px-3 rounded-3 border border-{{ a.severity }} bg-{{ a.severity }} bg-opacity-10 d-flex justify-content-between align-items-center gap-2">
-                        <div>
-                            <div class="fw-bold small text-dark">{{ a.title }}</div>
-                            <div class="small text-muted">{{ a.detail }}</div>
-                        </div>
-                        <span class="badge bg-{{ a.severity }} rounded-pill fs-6">{{ a.count }}</span>
-                    </div>
+                    <li>
+                        <a class="mh-alert is-{{ a.severity }}" href="{{ url_for('admin.bookings', tab='tracking') }}">
+                            <i class="bi {{ a.icon }}"></i>
+                            <span class="mh-alert__text"><strong>{{ a.title }}</strong><small>{{ a.detail }}</small></span>
+                            <span class="mh-alert__count">{{ a.count }}</span>
+                        </a>
+                    </li>
                     {% endfor %}
-                </div>
+                </ul>
                 {% else %}
-                <div class="p-3 rounded-3 bg-success bg-opacity-10 text-success small fw-semibold">
-                    <i class="fas fa-check-circle me-1"></i> Aucune anomalie détectée. Flotte, chauffeurs et restitutions 100% conformes.
-                </div>
+                <div class="mh-empty is-ok"><i class="bi bi-check-circle"></i> Aucune anomalie : flotte, chauffeurs et restitutions conformes.</div>
                 {% endif %}
 
                 {% if category_breakdown %}
-                <div class="mt-4 pt-3 border-top">
-                    <div class="fm-lbl mb-2">Répartition par Catégorie de Mission</div>
-                    <div class="d-flex flex-wrap gap-2">
-                        {% for cb in category_breakdown %}
-                        <span class="badge bg-light text-dark border px-3 py-2">
-                            {{ cb.label }} : <strong class="text-danger">{{ cb.count }}</strong>
-                        </span>
-                        {% endfor %}
-                    </div>
+                <div class="mh-categories">
+                    <span class="mh-categories__title">Par catégorie</span>
+                    {% for cb in category_breakdown %}
+                    <span class="mh-chip">{{ cb.label }} <strong>{{ cb.count }}</strong></span>
+                    {% endfor %}
                 </div>
                 {% endif %}
-            </div>
+            </section>
         </div>
 
-        <!-- Upcoming & Active Missions -->
-        <div class="col-lg-7">
-            <div class="fm-card h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold mb-0"><i class="fas fa-clock text-danger me-2"></i>Missions Actives & Prochains Départs</h6>
-                    <a href="{{ url_for('admin.bookings', tab='tracking') }}" class="small fw-bold text-danger text-decoration-none">Voir Suivi Opérationnel →</a>
+        <!-- Missions actives & prochains départs -->
+        <div class="col-xl-8">
+            <section class="fm-card h-100">
+                <div class="mh-card-head">
+                    <h3><i class="bi bi-clock"></i> Missions actives & prochains départs</h3>
+                    <a href="{{ url_for('admin.bookings', tab='tracking') }}" class="mh-link">Suivi en direct <i class="bi bi-arrow-right"></i></a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-sm align-middle mb-0">
-                        <thead class="table-light small">
+                    <table class="table align-middle mb-0 mh-table">
+                        <thead>
                             <tr>
-                                <th>Réf & Mission</th>
-                                <th>Véhicule & Chauffeur</th>
-                                <th>Départ / Retour</th>
+                                <th>Mission</th>
+                                <th>Véhicule & chauffeur</th>
+                                <th>Départ → retour</th>
                                 <th>Statut</th>
-                                <th class="text-end">Action</th>
+                                <th class="text-end"><span class="visually-hidden">Action</span></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -320,20 +418,23 @@
                             {% set sl, sb = status_labels.get(t.status, (t.status, 'bg-secondary')) %}
                             <tr>
                                 <td>
-                                    <div class="fw-bold small text-dark">{{ t.mission_ref or ('#' ~ t.id) }}</div>
-                                    <div class="text-muted" style="font-size: 0.74rem;">{{ t.mission_title or (t.route.origin ~ ' → ' ~ t.route.destination if t.route else '') }}</div>
+                                    <div class="mh-ref">{{ t.mission_ref or ('#' ~ t.id) }}</div>
+                                    <div class="mh-sub">{{ t.mission_title or (t.route.origin ~ ' → ' ~ t.route.destination if t.route else '') }}</div>
                                 </td>
-                                <td class="small">
-                                    <div><strong>{{ (t.bus.brand ~ ' ' ~ t.bus.model) if t.bus else 'Sans véhicule' }}</strong> {% if t.extra_vehicle_ids %}<span class="badge bg-dark">+{{ t.extra_vehicle_ids|length }}</span>{% endif %}</div>
-                                    <div class="text-muted" style="font-size: 0.74rem;">{{ t.driver.name if t.driver else 'Sans chauffeur' }}</div>
+                                <td>
+                                    <div class="{% if not t.bus %}mh-missing{% else %}mh-strong{% endif %}">
+                                        {{ (t.bus.brand ~ ' ' ~ t.bus.model) if t.bus else 'Véhicule à affecter' }}
+                                        {% if t.extra_vehicle_ids %}<span class="mh-chip">+{{ t.extra_vehicle_ids|length }}</span>{% endif %}
+                                    </div>
+                                    <div class="mh-sub {% if not t.driver %}mh-missing{% endif %}">{{ t.driver.name if t.driver else 'Chauffeur à affecter' }}</div>
                                 </td>
-                                <td class="small">
-                                    <div>{{ t.departure_time.strftime('%d/%m %H:%M') if t.departure_time else '—' }}</div>
-                                    <div class="text-muted" style="font-size: 0.72rem;">→ {{ t.arrival_time.strftime('%d/%m %H:%M') if t.arrival_time else '—' }}</div>
+                                <td class="text-nowrap">
+                                    <div class="mh-strong">{{ t.departure_time.strftime('%d/%m %H:%M') if t.departure_time else '—' }}</div>
+                                    <div class="mh-sub">→ {{ t.arrival_time.strftime('%d/%m %H:%M') if t.arrival_time else '—' }}</div>
                                 </td>
                                 <td><span class="badge {{ sb }} rounded-pill">{{ sl }}</span></td>
                                 <td class="text-end">
-                                    <a href="{{ url_for('missions.mission_detail', id=t.id) }}" class="btn btn-sm btn-outline-danger rounded-3 py-0 px-2 fw-bold">Gérer</a>
+                                    <a href="{{ url_for('missions.mission_detail', id=t.id) }}" class="btn btn-sm btn-light border mh-manage">Gérer</a>
                                 </td>
                             </tr>
                             {% else %}
@@ -342,7 +443,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 

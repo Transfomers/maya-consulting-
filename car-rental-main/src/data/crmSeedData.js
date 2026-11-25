@@ -109,6 +109,46 @@ export const DEFAULT_BOOKINGS = [
         createdAt: "2026-11-12T18:00:00Z"
       }
     ]
+  },
+  {
+    id: "3M-RES-1076",
+    clientName: "Arnaud Mbarga",
+    phone: "+237 698 66 87 61",
+    email: "arnaud.mbarga@gmail.com",
+    carName: "Toyota Land Cruiser V8 (LC200 Prestige)",
+    pickUp: "Aéroport International de Yaoundé-Nsimalen",
+    dropOff: "Hôtel Hilton Yaoundé",
+    pickTime: "2026-10-18",
+    dropTime: "2026-10-21",
+    days: 3,
+    pricePerDay: 130000,
+    totalPrice: 390000,
+    paidAmount: 390000,
+    balance: 0,
+    status: "Terminée",
+    driverAssigned: "Martin Essomba (Chauffeur VIP 4x4)",
+    createdAt: "2026-10-16T09:15:00Z",
+    internalNotes: []
+  },
+  {
+    id: "3M-RES-1072",
+    clientName: "Arnaud Mbarga",
+    phone: "+237 698 66 87 61",
+    email: "arnaud.mbarga@gmail.com",
+    carName: "Toyota Camry Berline Prestige",
+    pickUp: "Agence Omnisports (Face Pharmacie Le Bon Berger)",
+    dropOff: "Kribi - Station Balnéaire",
+    pickTime: "2026-10-05",
+    dropTime: "2026-10-08",
+    days: 3,
+    pricePerDay: 60000,
+    totalPrice: 180000,
+    paidAmount: 0,
+    balance: 0,
+    status: "Annulée",
+    driverAssigned: "Michel Talla (Chauffeur Berline)",
+    createdAt: "2026-10-02T14:20:00Z",
+    internalNotes: []
   }
 ];
 

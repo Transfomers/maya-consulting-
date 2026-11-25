@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
+import ChatAttachment from "../components/ChatAttachment";
 
 const API_BASE = "http://127.0.0.1:5001/api";
 
@@ -415,7 +416,10 @@ function ChatPage() {
                         </div>
                       </div>
                     ) : (
-                      <div>{msg.text}</div>
+                      <>
+                        {msg.text && <div>{msg.text}</div>}
+                        <ChatAttachment attachment={msg.attachment} />
+                      </>
                     )}
 
                     <div

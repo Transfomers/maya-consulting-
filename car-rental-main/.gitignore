@@ -28,3 +28,9 @@ __pycache__/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# secrets
+.env
+
+# photos envoyées dans le chat (données clients)
+/app/static/uploads/chat/
