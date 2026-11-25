@@ -1657,7 +1657,7 @@
                 <div class="sidebar-section-title">Compte</div>
                 <a href="{{ url_for('admin.notifications') }}" class="sidebar-nav-item {% if ep == 'admin.notifications' %}active{% endif %}" title="Notifications">
                     <i class="bi bi-bell"></i><span class="sidebar-text">Notifications</span>
-                    {% if shell.notifications %}<span class="sidebar-badge sidebar-badge-alert">{{ shell.notifications }}</span>{% endif %}
+                    <span class="sidebar-badge sidebar-badge-alert" id="sidebarNotifBadge" {% if not shell.notifications %}hidden{% endif %}>{{ shell.notifications or 0 }}</span>
                 </a>
                 <a href="{{ url_for('admin.profile') }}" class="sidebar-nav-item {% if ep in ['admin.profile', 'admin.settings'] %}active{% endif %}" title="Paramètres">
                     <i class="bi bi-gear"></i><span class="sidebar-text">Paramètres</span>
@@ -2938,27 +2938,91 @@
             });
         });
     })();
-    // Menu de la cloche : dernières notifications
+    // Menu de la cloche : dernières notifications + alerte temps réel
     (function () {
         var btn = document.getElementById('notifBellBtn');
         if (!btn) return;
         var list = document.getElementById('notifMenuList');
         var dot = document.getElementById('notifBellDot');
+        var sideNotifBadge = document.getElementById('sidebarNotifBadge');
         var feedUrl = {{ url_for('admin.notifications_feed')|tojson }};
         var readAllUrl = {{ url_for('admin.read_all_notifications')|tojson }};
+        var chatsUrl = {{ url_for('admin.chats')|tojson }};
+        var notifsUrl = {{ url_for('admin.notifications')|tojson }};
         var readUrl = function (id) { return {{ url_for('admin.read_notification', id=0)|tojson }}.replace('/0/', '/' + id + '/'); };
         var icons = { info: 'bi-info-circle', success: 'bi-check-circle', warning: 'bi-exclamation-triangle', danger: 'bi-exclamation-octagon' };
         var token = document.querySelector('meta[name="csrf-token"]').content;
+        var lastSeenKey = '3m_admin_last_notif_id';
+        var lastSeenId = parseInt(sessionStorage.getItem(lastSeenKey) || '', 10);
+        if (isNaN(lastSeenId)) lastSeenId = null;
+
         function esc(v) { var d = document.createElement('div'); d.textContent = v == null ? '' : String(v); return d.innerHTML; }
         function post(url) {
             return fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': token } });
         }
+        function targetUrlFor(n) {
+            return (n && n.category === 'chat') ? chatsUrl : notifsUrl;
+        }
+        function playChime() {
+            try {
+                var Ctx = window.AudioContext || window.webkitAudioContext;
+                if (!Ctx) return;
+                var ctx = new Ctx();
+                var osc = ctx.createOscillator();
+                var gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(660, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.14);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.32);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.32);
+            } catch (_) {}
+        }
+        var toastEl = null;
+        var toastTimer = null;
+        function showAdminToast(n) {
+            if (!n) return;
+            if (toastTimer) clearTimeout(toastTimer);
+            if (!toastEl) {
+                toastEl = document.createElement('div');
+                toastEl.className = 'admin-notif-toast';
+                document.body.appendChild(toastEl);
+            }
+            var dest = targetUrlFor(n);
+            toastEl.innerHTML =
+                '<a href="' + esc(dest) + '" class="admin-notif-toast__main">' +
+                    '<span class="admin-notif-toast__icon"><i class="bi bi-bell-fill"></i></span>' +
+                    '<span class="admin-notif-toast__body">' +
+                        '<span class="admin-notif-toast__pill">Nouvelle notification</span>' +
+                        '<strong>' + esc(n.title) + '</strong>' +
+                        '<p>' + esc(n.message) + '</p>' +
+                    '</span>' +
+                '</a>' +
+                '<button type="button" class="admin-notif-toast__close" aria-label="Fermer"><i class="bi bi-x-lg"></i></button>';
+            toastEl.querySelector('.admin-notif-toast__close').onclick = function () {
+                toastEl.remove();
+                toastEl = null;
+            };
+            toastTimer = setTimeout(function () {
+                if (toastEl) { toastEl.remove(); toastEl = null; }
+            }, 9000);
+        }
         function render(data) {
-            dot.hidden = !data.unread;
+            var unread = Number(data.unread || 0);
+            dot.hidden = unread === 0;
+            btn.setAttribute('aria-label', unread ? 'Notifications (' + unread + ' non lues)' : 'Notifications');
+            if (sideNotifBadge) {
+                sideNotifBadge.textContent = unread;
+                sideNotifBadge.hidden = unread === 0;
+            }
             if (!data.items.length) { list.innerHTML = '<li class="notif-menu__empty">Aucune notification.</li>'; return; }
             list.innerHTML = data.items.map(function (n) {
                 var kind = icons[n.type] ? n.type : 'info';
-                return '<li class="notif-menu__item' + (n.unread ? ' is-unread' : '') + '" data-id="' + n.id + '">' +
+                var cat = esc(n.category || 'system');
+                return '<li class="notif-menu__item notif-menu__item--clickable' + (n.unread ? ' is-unread' : '') + '" data-id="' + n.id + '" data-cat="' + cat + '">' +
                     '<span class="nt-avatar is-' + kind + '"><i class="bi ' + icons[kind] + '"></i></span>' +
                     '<div class="notif-menu__body"><strong>' + esc(n.title) + '</strong><p>' + esc(n.message) + '</p>' +
                     '<span class="notif-menu__meta"><i class="bi bi-clock"></i> ' + esc(n.ago) + '</span></div>' +
@@ -2967,20 +3031,45 @@
                     '</li>';
             }).join('');
         }
-        function load() {
-            fetch(feedUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        function load(isPoll) {
+            fetch(feedUrl + '?limit=8', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(function (r) { return r.ok ? r.json() : null; })
-                .then(function (d) { if (d) render(d); })
-                .catch(function () { list.innerHTML = '<li class="notif-menu__empty">Impossible de charger les notifications.</li>'; });
+                .then(function (d) {
+                    if (!d) return;
+                    var items = Array.isArray(d.items) ? d.items : [];
+                    var maxId = items.reduce(function (mx, it) { return Math.max(mx, Number(it.id || 0)); }, 0);
+                    if (lastSeenId === null) {
+                        lastSeenId = maxId;
+                        sessionStorage.setItem(lastSeenKey, String(lastSeenId));
+                    } else if (isPoll && maxId > lastSeenId) {
+                        var freshUnread = items.filter(function (it) { return Number(it.id || 0) > lastSeenId && it.unread; });
+                        lastSeenId = maxId;
+                        sessionStorage.setItem(lastSeenKey, String(lastSeenId));
+                        if (freshUnread.length) {
+                            playChime();
+                            showAdminToast(freshUnread[0]);
+                        }
+                    }
+                    render(d);
+                })
+                .catch(function () { if (!isPoll) list.innerHTML = '<li class="notif-menu__empty">Impossible de charger les notifications.</li>'; });
         }
-        btn.addEventListener('show.bs.dropdown', load);
+        btn.addEventListener('show.bs.dropdown', function () { load(false); });
         list.addEventListener('click', function (e) {
             var x = e.target.closest('.notif-menu__x');
-            if (!x) return;
-            var li = x.closest('.notif-menu__item');
-            post(readUrl(li.dataset.id)).then(load);
+            var li = e.target.closest('.notif-menu__item');
+            if (!li) return;
+            if (x) {
+                e.stopPropagation();
+                post(readUrl(li.dataset.id)).then(function () { load(false); });
+                return;
+            }
+            var dest = targetUrlFor({ category: li.dataset.cat });
+            post(readUrl(li.dataset.id)).finally(function () { window.location.href = dest; });
         });
-        document.getElementById('notifReadAll').addEventListener('click', function () { post(readAllUrl).then(load); });
+        document.getElementById('notifReadAll').addEventListener('click', function () { post(readAllUrl).then(function () { load(false); }); });
+        load(false);
+        setInterval(function () { load(true); }, 5000);
     })();
     // Messages non lus (API chat)
     (function () {
@@ -2996,7 +3085,7 @@
             }).catch(function () {});
         }
         refresh();
-        setInterval(refresh, 30000);
+        setInterval(refresh, 5000);
     })();
     </script>
     {% endif %}

@@ -89,6 +89,12 @@ function ChatPage() {
             body: JSON.stringify({ reader: "client" })
           }).catch(() => {});
         }
+        window.dispatchEvent(new CustomEvent("3m-chat-unread", { detail: 0 }));
+        window.dispatchEvent(
+          new CustomEvent("3m-client-notifications", {
+            detail: { unreadCount: 0, items: (data.clientNotifications || []).map((n) => ({ ...n, read: true })), clientId }
+          })
+        );
       }
     } catch (err) {
       console.warn("Erreur fetch chat standalone:", err);

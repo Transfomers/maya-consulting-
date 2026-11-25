@@ -6679,6 +6679,17 @@ def send_admin_chat_reply(client_id):
                 chats.insert(0, chat)
                 exp_db['chats'] = chats
 
+            from app.services.client_notifications import push_client_notification
+            push_client_notification(
+                chat,
+                new_msg['id'],
+                "Nouveau message — Conciergerie 3M",
+                preview,
+                new_msg['senderName'],
+                notif_type='chat',
+                created_at=now,
+            )
+
             with atomic_write(db_path) as f:
                 _json.dump(exp_db, f, indent=2, ensure_ascii=False)
 

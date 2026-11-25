@@ -30,6 +30,24 @@ function notifyAdminOfClientMessage(payload) {
     console.error("[notif admin]", e.message);
   }
 }
+
+function appendClientNotification(chat, { msgId, title, message, senderName, type, createdAt }) {
+  if (!chat) return null;
+  chat.clientNotifications = Array.isArray(chat.clientNotifications) ? chat.clientNotifications : [];
+  const entry = {
+    id: `cnotif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    msgId: msgId || null,
+    title: String(title || "Nouveau message — Conciergerie 3M").slice(0, 140),
+    message: String(message || "").replace(/\s+/g, " ").trim().slice(0, 220),
+    senderName: senderName || "Conciergerie VIP 3M",
+    type: type || "chat",
+    createdAt: createdAt || new Date().toISOString(),
+    read: false
+  };
+  chat.clientNotifications.unshift(entry);
+  chat.clientNotifications = chat.clientNotifications.slice(0, 50);
+  return entry;
+}
 // Même variable que Flask (EXPRESS_DB_JSON) pour partager le fichier ; défaut inchangé
 const DB_PATH = process.env.EXPRESS_DB_JSON || path.join(__dirname, "data", "db.json");
 const SALT = "3M_SERVICES_SALT_2026";
@@ -1940,7 +1958,8 @@ app.post("/api/contacts", (req, res) => {
     kind: "contact",
     name,
     phone: phone || email,
-    text: message
+    text: message,
+    ref: thread.id || cleanId
   });
   res.status(201).json({ ...newContact, chatId: thread.id, clientId: thread.clientId });
 });
@@ -2132,8 +2151,11 @@ app.get("/api/chats/:clientId", (req, res) => {
 
   const typingState = chatTypingState[cleanId] || { clientTypingUntil: 0, adminTypingUntil: 0 };
   const now = Date.now();
+  const clientNotifications = Array.isArray(chat.clientNotifications) ? chat.clientNotifications : [];
   const chatResponse = {
     ...chat,
+    clientNotifications,
+    unreadNotifications: clientNotifications.filter((n) => !n.read).length,
     clientTyping: typingState.clientTypingUntil > now,
     adminTyping: typingState.adminTypingUntil > now
   };
@@ -2190,6 +2212,16 @@ app.post("/api/chats/:clientId/messages", (req, res) => {
         newMsg
       ]
     };
+    if (!isClient) {
+      appendClientNotification(newChat, {
+        msgId: newMsg.id,
+        title: "Nouveau message — Conciergerie 3M",
+        message: newMsg.text,
+        senderName: newMsg.senderName,
+        type: "chat",
+        createdAt: now
+      });
+    }
     db.chats.unshift(newChat);
   } else {
     const chat = db.chats[chatIndex];
@@ -2205,6 +2237,14 @@ app.post("/api/chats/:clientId/messages", (req, res) => {
       chat.unreadAdmin = (chat.unreadAdmin || 0) + 1;
     } else {
       chat.unreadClient = (chat.unreadClient || 0) + 1;
+      appendClientNotification(chat, {
+        msgId: newMsg.id,
+        title: "Nouveau message — Conciergerie 3M",
+        message: newMsg.text,
+        senderName: newMsg.senderName,
+        type: "chat",
+        createdAt: now
+      });
     }
     db.chats[chatIndex] = chat;
   }
@@ -2217,6 +2257,7 @@ app.post("/api/chats/:clientId/messages", (req, res) => {
       name: thread.clientName || clientName || senderName || "Client",
       phone: thread.clientPhone || clientPhone || "",
       text: newMsg.text,
+      ref: thread.id || cleanId
     });
   }
   res.status(201).json({ success: true, message: newMsg });
@@ -2228,7 +2269,6 @@ app.post("/api/chats/:clientId/read", (req, res) => {
   const db = readDb();
   db.chats = db.chats || [];
   const rawId = req.params.clientId;
-  const cleanId = normalizeChatId(rawId);
 
   const chat = db.chats[findChatIndex(db, rawId).index];
   if (chat) {
@@ -2236,10 +2276,35 @@ app.post("/api/chats/:clientId/read", (req, res) => {
       chat.unreadAdmin = 0;
     } else {
       chat.unreadClient = 0;
+      if (Array.isArray(chat.clientNotifications)) {
+        chat.clientNotifications = chat.clientNotifications.map((n) => ({ ...n, read: true }));
+      }
     }
     writeDb(db);
   }
   res.json({ success: true });
+});
+
+// 5b. Mark client notifications as read
+app.post("/api/chats/:clientId/notifications/read", (req, res) => {
+  const { notificationId } = req.body || {};
+  const db = readDb();
+  db.chats = db.chats || [];
+  const rawId = req.params.clientId;
+  const chat = db.chats[findChatIndex(db, rawId).index];
+  if (chat) {
+    chat.clientNotifications = Array.isArray(chat.clientNotifications) ? chat.clientNotifications : [];
+    chat.clientNotifications = chat.clientNotifications.map((n) =>
+      !notificationId || n.id === notificationId ? { ...n, read: true } : n
+    );
+    const remaining = chat.clientNotifications.filter((n) => !n.read).length;
+    if (!notificationId || remaining === 0) {
+      chat.unreadClient = 0;
+    }
+    writeDb(db);
+    return res.json({ success: true, unreadClient: chat.unreadClient || 0, unreadNotifications: remaining });
+  }
+  res.json({ success: true, unreadClient: 0, unreadNotifications: 0 });
 });
 
 // 6. Update typing status

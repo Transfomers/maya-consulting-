@@ -39,6 +39,48 @@ function readSavedGuestContact() {
   }
 }
 
+function getNotifiedStorageKey(cid) {
+  return `3m_notified_admin_msgs_${cid || "guest"}`;
+}
+
+function readNotifiedAdminIds(cid) {
+  try {
+    const raw = localStorage.getItem(getNotifiedStorageKey(cid));
+    return raw ? new Set(JSON.parse(raw)) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function persistNotifiedAdminIds(cid, idSet) {
+  try {
+    localStorage.setItem(getNotifiedStorageKey(cid), JSON.stringify(Array.from(idSet).slice(-120)));
+  } catch (_) {}
+}
+
+function buildClientNotificationItems(data) {
+  if (Array.isArray(data?.clientNotifications) && data.clientNotifications.length > 0) {
+    return data.clientNotifications;
+  }
+  const unreadCap = Number(data?.unreadClient || 0);
+  const adminMsgs = (data?.messages || [])
+    .filter((m) => m && m.sender === "admin" && !String(m.id || "").startsWith("msg-welcome"))
+    .slice(-15)
+    .reverse();
+  return adminMsgs.map((m, idx) => ({
+    id: `cnotif-msg-${m.id}`,
+    msgId: m.id,
+    title: m.attachment?.type === "invoice"
+      ? `Facture ${m.attachment.reference || ""} reçue`.trim()
+      : "Nouveau message — Conciergerie 3M",
+    message: m.text || "Nouveau message reçu",
+    senderName: m.senderName || "Conciergerie VIP 3M",
+    type: m.attachment?.type === "invoice" ? "invoice" : "chat",
+    createdAt: m.timestamp,
+    read: idx >= unreadCap
+  }));
+}
+
 function PrivateChatWidget() {
   const savedGuest = readSavedGuestContact();
   const [isOpen, setIsOpen] = useState(false);
@@ -129,22 +171,34 @@ function PrivateChatWidget() {
       if (res.ok) {
         const data = await res.json();
         if (data && data.messages) {
+          const persisted = readNotifiedAdminIds(clientId);
+          const notifiedSet = persisted || new Set();
+          const serverUnread = Number(data.unreadClient || 0);
           const newlyArrivedAdminMsgs = [];
+
           data.messages.forEach((m) => {
-            if (!knownMsgIdsRef.current.has(m.id)) {
-              knownMsgIdsRef.current.add(m.id);
-              if (hasInitializedRef.current && m.sender === "admin") {
-                newlyArrivedAdminMsgs.push(m);
-              }
+            if (!m || !m.id) return;
+            knownMsgIdsRef.current.add(m.id);
+            const isRealAdminMsg = m.sender === "admin" && !String(m.id).startsWith("msg-welcome");
+            if (!isRealAdminMsg) return;
+
+            if (persisted === null && !hasInitializedRef.current && serverUnread === 0) {
+              notifiedSet.add(m.id);
+            } else if (!notifiedSet.has(m.id)) {
+              notifiedSet.add(m.id);
+              newlyArrivedAdminMsgs.push(m);
             }
           });
           hasInitializedRef.current = true;
+          persistNotifiedAdminIds(clientId, notifiedSet);
+
+          const onChatPage = typeof window !== "undefined" && /^\/(chat|messages)(\/|$)/.test(window.location.pathname);
 
           if (newlyArrivedAdminMsgs.length > 0) {
             const latestAdminMsg = newlyArrivedAdminMsgs[newlyArrivedAdminMsgs.length - 1];
-            if (!isOpen) {
+            if (!isOpen && !onChatPage) {
               showClientReplyAlert(latestAdminMsg);
-            } else {
+            } else if (isOpen) {
               if (notifEnabled) playChime();
               fetch(`${API_BASE}/chats/${encodeURIComponent(clientId)}/read`, {
                 method: "POST",
@@ -157,11 +211,22 @@ function PrivateChatWidget() {
           setMessages(data.messages);
           setAdminIsTyping(Boolean(data.adminTyping));
 
-          if (!isOpen) {
-            setUnreadCount(Number(data.unreadClient || 0));
-          } else {
-            setUnreadCount(0);
-          }
+          const notifItems = buildClientNotificationItems(data);
+          const notifUnread = Array.isArray(data.clientNotifications) && data.clientNotifications.length > 0
+            ? data.clientNotifications.filter((n) => !n.read).length
+            : serverUnread;
+          const effectiveUnread = isOpen ? 0 : Math.max(serverUnread, notifUnread);
+
+          setUnreadCount(isOpen ? 0 : serverUnread);
+          window.dispatchEvent(
+            new CustomEvent("3m-client-notifications", {
+              detail: {
+                unreadCount: effectiveUnread,
+                items: isOpen ? notifItems.map((n) => ({ ...n, read: true })) : notifItems,
+                clientId
+              }
+            })
+          );
         }
       }
     } catch (err) {
@@ -175,6 +240,27 @@ function PrivateChatWidget() {
     const interval = setInterval(fetchMessages, 1500);
     return () => clearInterval(interval);
   }, [fetchMessages]);
+
+  // Mark notifications read from Navbar bell dropdown
+  useEffect(() => {
+    const handleMarkRead = async (e) => {
+      const notificationId = e?.detail?.notificationId || null;
+      if (!notificationId) {
+        setUnreadCount(0);
+        setToastNotif(null);
+      }
+      try {
+        await fetch(`${API_BASE}/chats/${encodeURIComponent(clientId)}/notifications/read`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ notificationId })
+        });
+        fetchMessages();
+      } catch (_) {}
+    };
+    window.addEventListener("3m-mark-client-notifs-read", handleMarkRead);
+    return () => window.removeEventListener("3m-mark-client-notifs-read", handleMarkRead);
+  }, [clientId, fetchMessages]);
 
   // Handle open state change
   useEffect(() => {

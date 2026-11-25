@@ -5,12 +5,29 @@ import { useTranslation } from "../context/LanguageContext";
 import { getCurrentClient, setCurrentClient } from "../utils/customerAccounts";
 import "../styles/MobileNav.css";
 
+function formatNotifAgo(iso) {
+  if (!iso) return "";
+  const ts = new Date(iso).getTime();
+  if (!ts) return "";
+  const sec = Math.max(1, Math.floor((Date.now() - ts) / 1000));
+  if (sec < 60) return "À l'instant";
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `Il y a ${min} min`;
+  const hrs = Math.floor(min / 60);
+  if (hrs < 24) return `Il y a ${hrs} h`;
+  return `Il y a ${Math.floor(hrs / 24)} j`;
+}
+
 function Navbar() {
   const [nav, setNav] = useState(false);
   const [chatUnread, setChatUnread] = useState(0);
+  const [notifUnread, setNotifUnread] = useState(0);
+  const [clientNotifs, setClientNotifs] = useState([]);
+  const [notifMenuOpen, setNotifMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [currentClient, setClientState] = useState(() => getCurrentClient());
   const accountMenuRef = useRef(null);
+  const notifMenuRef = useRef(null);
   const { lang, setLang, t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,7 +39,20 @@ function Navbar() {
   const handleOpenChat = () => {
     closeNav();
     setAccountMenuOpen(false);
+    setNotifMenuOpen(false);
     window.dispatchEvent(new CustomEvent("3m-open-chat"));
+  };
+
+  const handleMarkNotifsRead = (notificationId = null) => {
+    setClientNotifs((prev) =>
+      prev.map((n) => (!notificationId || n.id === notificationId ? { ...n, read: true } : n))
+    );
+    if (!notificationId) {
+      setNotifUnread(0);
+    } else {
+      setNotifUnread((prev) => Math.max(0, prev - 1));
+    }
+    window.dispatchEvent(new CustomEvent("3m-mark-client-notifs-read", { detail: { notificationId } }));
   };
 
   const handleAccountNavigate = (path) => {
@@ -46,27 +76,42 @@ function Navbar() {
     const handleUnread = (e) => {
       setChatUnread(Number(e?.detail || 0));
     };
+    const handleClientNotifs = (e) => {
+      const detail = e?.detail || {};
+      if (typeof detail.unreadCount === "number") {
+        setNotifUnread(detail.unreadCount);
+      }
+      if (Array.isArray(detail.items)) {
+        setClientNotifs(detail.items);
+      }
+    };
     const handleAuthChange = (e) => {
       setClientState(e?.detail !== undefined ? e.detail : getCurrentClient());
     };
     window.addEventListener("3m-chat-unread", handleUnread);
+    window.addEventListener("3m-client-notifications", handleClientNotifs);
     window.addEventListener("3m-client-auth-changed", handleAuthChange);
     return () => {
       window.removeEventListener("3m-chat-unread", handleUnread);
+      window.removeEventListener("3m-client-notifications", handleClientNotifs);
       window.removeEventListener("3m-client-auth-changed", handleAuthChange);
     };
   }, []);
 
-  // Close account dropdown on outside click or Escape
+  // Close account & notif dropdowns on outside click or Escape
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (accountMenuRef.current && !accountMenuRef.current.contains(e.target)) {
         setAccountMenuOpen(false);
       }
+      if (notifMenuRef.current && !notifMenuRef.current.contains(e.target)) {
+        setNotifMenuOpen(false);
+      }
     };
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setAccountMenuOpen(false);
+        setNotifMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -77,10 +122,11 @@ function Navbar() {
     };
   }, []);
 
-  // Close mobile drawer & dropdown on route change
+  // Close mobile drawer & dropdowns on route change
   useEffect(() => {
     closeNav();
     setAccountMenuOpen(false);
+    setNotifMenuOpen(false);
   }, [location.pathname]);
 
   // Lock body scroll when mobile menu is open
@@ -504,6 +550,72 @@ function Navbar() {
               <i className="fa-regular fa-comment-dots"></i>
               {chatUnread > 0 && <span className="navbar__chat-badge">{chatUnread}</span>}
             </button>
+
+            {/* Client Notification Bell & Dropdown */}
+            <div className="navbar__notif-wrap" ref={notifMenuRef}>
+              <button
+                type="button"
+                className="navbar__icon-btn navbar__icon-btn--notif"
+                onClick={() => {
+                  setAccountMenuOpen(false);
+                  setNotifMenuOpen((prev) => !prev);
+                }}
+                title={lang === "fr" ? "Notifications Conciergerie" : "Concierge Notifications"}
+                aria-label="Notifications"
+                aria-expanded={notifMenuOpen}
+              >
+                <i className={notifUnread > 0 ? "fa-solid fa-bell" : "fa-regular fa-bell"}></i>
+                {notifUnread > 0 && <span className="navbar__chat-badge">{notifUnread}</span>}
+              </button>
+
+              {notifMenuOpen && (
+                <div className="navbar__notif-menu" role="menu" aria-label="Centre de notifications">
+                  <div className="navbar__notif-head">
+                    <strong>{lang === "fr" ? "Notifications" : "Notifications"}</strong>
+                    {notifUnread > 0 && (
+                      <button
+                        type="button"
+                        className="navbar__notif-readall"
+                        onClick={() => handleMarkNotifsRead(null)}
+                      >
+                        {lang === "fr" ? "Tout marquer comme lu" : "Mark all read"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="navbar__notif-list">
+                    {clientNotifs.length === 0 ? (
+                      <div className="navbar__notif-empty">
+                        <i className="fa-regular fa-bell-slash"></i>
+                        <p>{lang === "fr" ? "Aucune notification pour le moment." : "No notifications yet."}</p>
+                      </div>
+                    ) : (
+                      clientNotifs.slice(0, 12).map((n) => (
+                        <button
+                          key={n.id}
+                          type="button"
+                          className={`navbar__notif-item ${!n.read ? "is-unread" : ""}`}
+                          onClick={() => {
+                            if (!n.read) handleMarkNotifsRead(n.id);
+                            setNotifMenuOpen(false);
+                            window.dispatchEvent(new CustomEvent("3m-open-chat"));
+                          }}
+                        >
+                          <span className="navbar__notif-icon">
+                            <i className={n.type === "invoice" ? "fa-solid fa-file-invoice" : "fa-solid fa-comment-dots"}></i>
+                          </span>
+                          <span className="navbar__notif-body">
+                            <strong>{n.title}</strong>
+                            <span className="navbar__notif-msg">{n.message}</span>
+                            <span className="navbar__notif-time">{formatNotifAgo(n.createdAt)}</span>
+                          </span>
+                          {!n.read && <span className="navbar__notif-dot" aria-label="Non lu"></span>}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* User Account ("Bonhomme") Icon Button + Dropdown Menu */}
             <div className="navbar__account-wrap" ref={accountMenuRef}>

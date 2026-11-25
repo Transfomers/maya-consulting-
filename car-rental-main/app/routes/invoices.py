@@ -901,6 +901,17 @@ def send_to_chat(invoice_id):
     chat['unreadClient'] = chat.get('unreadClient', 0) + 1
     chat['unreadAdmin'] = 0
 
+    from app.services.client_notifications import push_client_notification
+    push_client_notification(
+        chat,
+        new_msg['id'],
+        f"Facture {inv.reference} reçue",
+        f"Montant : {total_str} • Échéance : {due_str}",
+        new_msg['senderName'],
+        notif_type='invoice',
+        created_at=now_iso,
+    )
+
     all_chats = exp_db.get('chats') or []
     exp_db['chats'] = [chat] + [c for c in all_chats if c is not chat]
     db_path = current_app.config.get('EXPRESS_DB_JSON')
