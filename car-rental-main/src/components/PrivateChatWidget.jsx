@@ -660,6 +660,20 @@ function PrivateChatWidget() {
               <span>Aujourd'hui</span>
             </div>
 
+            {messages.length === 0 && (
+              <div className="chat-message-bubble-wrapper is-admin">
+                <span className="chat-agent-avatar" aria-hidden="true">3M</span>
+                <div className="chat-bubble-author">
+                  <span className="badge-3m-staff">Conciergerie 3M</span>
+                </div>
+                <div className="chat-bubble bubble-admin">
+                  <p className="msg-text-body">
+                    Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {messages.map((msg, idx) => {
               const isClient = msg.sender === "client";
               const isEditing = editingMsgId === msg.id;

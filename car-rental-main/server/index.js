@@ -1924,16 +1924,7 @@ app.post("/api/contacts", (req, res) => {
       createdAt: now,
       lastMessageAt: now,
       lastMessage: formattedText,
-      messages: [
-        {
-          id: `msg-welcome-${Date.now()}`,
-          sender: "admin",
-          senderName: "Conciergerie VIP 3M",
-          text: "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7.",
-          timestamp: now
-        },
-        chatMsg
-      ]
+      messages: [chatMsg]
     };
     db.chats.unshift(thread);
   } else {
@@ -2072,22 +2063,33 @@ function findChatIndex(db, rawId, hints = {}) {
   return { index: primary, changed };
 }
 
+function hasRealClientMessage(chat) {
+  return Array.isArray(chat?.messages) && chat.messages.some((m) => m && m.sender === "client");
+}
+
+function stripWelcomeMessages(messages) {
+  return (Array.isArray(messages) ? messages : []).filter((m) => !String(m?.id || "").startsWith("msg-welcome"));
+}
+
 // 1. Get all chat threads (for Admin overview)
 app.get("/api/chats", (req, res) => {
   const db = readDb();
-  const chats = (db.chats || []).filter((c) => !c.mergedInto);
-  const summaries = chats.map((c) => ({
-    id: c.id,
-    clientId: c.clientId,
-    clientName: c.clientName || "Client 3M",
-    clientPhone: c.clientPhone || "",
-    clientEmail: c.clientEmail || "",
-    unreadAdmin: c.unreadAdmin || 0,
-    unreadClient: c.unreadClient || 0,
-    lastMessage: c.lastMessage || "",
-    lastMessageAt: c.lastMessageAt || c.createdAt,
-    messagesCount: (c.messages || []).length
-  }));
+  const chats = (db.chats || []).filter((c) => !c.mergedInto && hasRealClientMessage(c));
+  const summaries = chats.map((c) => {
+    const cleanMsgs = stripWelcomeMessages(c.messages);
+    return {
+      id: c.id,
+      clientId: c.clientId,
+      clientName: c.clientName || "Client 3M",
+      clientPhone: c.clientPhone || "",
+      clientEmail: c.clientEmail || "",
+      unreadAdmin: c.unreadAdmin || 0,
+      unreadClient: c.unreadClient || 0,
+      lastMessage: c.lastMessage || "",
+      lastMessageAt: c.lastMessageAt || c.createdAt,
+      messagesCount: cleanMsgs.length
+    };
+  });
   summaries.sort((a, b) => new Date(b.lastMessageAt || 0) - new Date(a.lastMessageAt || 0));
   res.json(summaries);
 });
@@ -2095,7 +2097,7 @@ app.get("/api/chats", (req, res) => {
 // 2. Active unread count badge
 app.get("/api/chats/active-count", (req, res) => {
   const db = readDb();
-  const chats = (db.chats || []).filter((c) => !c.mergedInto);
+  const chats = (db.chats || []).filter((c) => !c.mergedInto && hasRealClientMessage(c));
   const totalUnreadAdmin = chats.reduce((sum, c) => sum + (c.unreadAdmin || 0), 0);
   res.json({ unreadAdmin: totalUnreadAdmin, activeThreads: chats.length });
 });
@@ -2124,7 +2126,9 @@ app.get("/api/chats/:clientId", (req, res) => {
     const clientPhone = customer ? customer.phone : (req.query.phone || "");
     const clientEmail = customer ? customer.email : (req.query.email || "");
 
-    chat = {
+    const typingState = chatTypingState[cleanId] || { clientTypingUntil: 0, adminTypingUntil: 0 };
+    const now = Date.now();
+    return res.json({
       id: cleanId,
       clientId: rawId,
       clientName,
@@ -2132,21 +2136,12 @@ app.get("/api/chats/:clientId", (req, res) => {
       clientEmail,
       unreadAdmin: 0,
       unreadClient: 0,
-      createdAt: new Date().toISOString(),
-      lastMessageAt: new Date().toISOString(),
-      lastMessage: "Bienvenue sur le Chat Privé 3M SERVICES !",
-      messages: [
-        {
-          id: `msg-welcome-${Date.now()}`,
-          sender: "admin",
-          senderName: "Conciergerie VIP 3M",
-          text: "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.",
-          timestamp: new Date().toISOString()
-        }
-      ]
-    };
-    db.chats.unshift(chat);
-    writeDb(db);
+      messages: [],
+      clientNotifications: [],
+      unreadNotifications: 0,
+      clientTyping: typingState.clientTypingUntil > now,
+      adminTyping: typingState.adminTypingUntil > now
+    });
   }
 
   const typingState = chatTypingState[cleanId] || { clientTypingUntil: 0, adminTypingUntil: 0 };
@@ -2154,6 +2149,7 @@ app.get("/api/chats/:clientId", (req, res) => {
   const clientNotifications = Array.isArray(chat.clientNotifications) ? chat.clientNotifications : [];
   const chatResponse = {
     ...chat,
+    messages: stripWelcomeMessages(chat.messages),
     clientNotifications,
     unreadNotifications: clientNotifications.filter((n) => !n.read).length,
     clientTyping: typingState.clientTypingUntil > now,
@@ -2201,16 +2197,7 @@ app.post("/api/chats/:clientId/messages", (req, res) => {
       createdAt: now,
       lastMessageAt: now,
       lastMessage: newMsg.text,
-      messages: [
-        {
-          id: `msg-welcome`,
-          sender: "admin",
-          senderName: "Conciergerie VIP 3M",
-          text: "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7.",
-          timestamp: now
-        },
-        newMsg
-      ]
+      messages: [newMsg]
     };
     if (!isClient) {
       appendClientNotification(newChat, {

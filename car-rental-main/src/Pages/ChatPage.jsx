@@ -20,7 +20,7 @@ function playPageChime() {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.3);
-  } catch (_) {}
+  } catch (_) { }
 }
 
 function ChatPage() {
@@ -47,7 +47,7 @@ function ChatPage() {
       if (raw) savedClient = JSON.parse(raw);
       const rawGuest = localStorage.getItem("3m_guest_contact_info");
       if (rawGuest) savedGuest = JSON.parse(rawGuest);
-    } catch (e) {}
+    } catch (e) { }
 
     let gid = localStorage.getItem("3m_guest_chat_id");
     if (!gid) {
@@ -87,7 +87,7 @@ function ChatPage() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ reader: "client" })
-          }).catch(() => {});
+          }).catch(() => { });
         }
         window.dispatchEvent(new CustomEvent("3m-chat-unread", { detail: 0 }));
         window.dispatchEvent(
@@ -185,7 +185,7 @@ function ChatPage() {
   return (
     <div style={{ backgroundColor: "#f8fafc", minHeight: "100vh", paddingTop: "90px" }}>
       <div style={{ maxWidth: "1050px", margin: "0 auto", padding: "1.5rem 1rem" }}>
-        
+
         {/* Navigation Breadcrumb Bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
@@ -349,6 +349,17 @@ function ChatPage() {
                 Aujourd'hui • Ligne VIP Privée
               </span>
             </div>
+
+            {messages.length === 0 && (
+              <div style={{ display: "flex", alignItems: "flex-end", gap: "8px", alignSelf: "flex-start", maxWidth: "80%" }}>
+                <div style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#0f172a", color: "#fbbf24", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", fontWeight: 700, flexShrink: 0, border: "1.5px solid #fbbf24" }}>
+                  3M
+                </div>
+                <div style={{ backgroundColor: "#ffffff", color: "#0f172a", padding: "0.9rem 1.3rem", borderRadius: "18px 18px 18px 4px", boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)", border: "1px solid #e2e8f0", fontSize: "1.35rem", lineHeight: "1.5" }}>
+                  Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7 pour toute demande de réservation, devis personnalisé ou question sur nos véhicules VIP.
+                </div>
+              </div>
+            )}
 
             {messages.map((msg) => {
               const isClient = msg.sender === "client";

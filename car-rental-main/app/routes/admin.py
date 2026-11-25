@@ -6497,13 +6497,24 @@ def chats():
             chat_threads = exp_db.get('chats', [])
         except Exception as e:
             current_app.logger.warning(f"Error reading chats from db.json: {e}")
-    # Conversations fusionnées (invité devenu client connecté) : on suit la conversation cible
+    # Conversations fusionnées ou sans message client réel : on garde uniquement les vrais échanges clients
     merged_into = {c.get('id'): c.get('mergedInto') for c in chat_threads if c.get('mergedInto')}
-    chat_threads = [c for c in chat_threads if not c.get('mergedInto')]
-
     selected_client_id = request.args.get('client_id')
     if selected_client_id in merged_into:
         selected_client_id = merged_into[selected_client_id]
+
+    def _is_real_thread(th):
+        if th.get('mergedInto'):
+            return False
+        msgs = [m for m in (th.get('messages') or []) if not str(m.get('id') or '').startswith('msg-welcome')]
+        if any(m.get('sender') == 'client' for m in msgs):
+            return True
+        return bool(selected_client_id and (th.get('id') == selected_client_id or th.get('clientId') == selected_client_id))
+
+    chat_threads = [c for c in chat_threads if _is_real_thread(c)]
+    for th in chat_threads:
+        th['messages'] = [m for m in (th.get('messages') or []) if not str(m.get('id') or '').startswith('msg-welcome')]
+
     active_chat = None
     if selected_client_id and chat_threads:
         active_chat = next((c for c in chat_threads if c.get('id') == selected_client_id or c.get('clientId') == selected_client_id), None)
@@ -6752,11 +6763,16 @@ def get_admin_chat_messages(client_id):
             chats = exp_db.get('chats', [])
             chat = next((c for c in chats if c.get('id') == client_id or c.get('clientId') == client_id), None)
             if chat:
-                # Mark as read
+                # Mark as read and hide legacy synthetic welcome bubbles
                 chat['unreadAdmin'] = 0
                 with atomic_write(db_path) as f:
                     _json.dump(exp_db, f, indent=2, ensure_ascii=False)
-                return jsonify({'success': True, 'chat': chat})
+                clean_chat = dict(chat)
+                clean_chat['messages'] = [
+                    m for m in (chat.get('messages') or [])
+                    if not str(m.get('id') or '').startswith('msg-welcome')
+                ]
+                return jsonify({'success': True, 'chat': clean_chat})
             return jsonify({'success': False, 'error': 'Conversation introuvable'}), 404
         except Exception as e:
             return jsonify({'success': False, 'error': str(e)}), 500
