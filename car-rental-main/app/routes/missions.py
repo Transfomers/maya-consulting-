@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import uuid
 from datetime import datetime, date, timedelta
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, current_app
 from flask_login import login_required, current_user
@@ -9,6 +10,7 @@ from app.models import (
     User, Agency, Bus, Driver, Route, Trip, Booking, Payment,
     AuditLog, SystemNotification, MissionPackage, MissionExpense, MissionIncident
 )
+from app.utils.security import csrf_protect
 
 missions_bp = Blueprint('missions', __name__)
 
@@ -128,6 +130,7 @@ TRIP_EXTRA_COLUMNS = [
     ("customer_deposit", "FLOAT DEFAULT 0.0"),
     ("price_snapshot_json", "TEXT"),
     ("pre_departure_checklist_json", "TEXT"),
+    ("handover_photos_json", "TEXT"),
     ("mileage_start", "INTEGER"),
     ("mileage_end", "INTEGER"),
     ("fuel_start", "VARCHAR(30)"),
@@ -372,21 +375,22 @@ def build_mission_hub_context(filter_val='all'):
     now_dt = datetime.now()
     today = date.today()
 
+    from app.services.dashboard_kpis import real
     if current_user.role == 'super_admin':
-        trips_all = Trip.query.filter_by(is_deleted=False).order_by(Trip.departure_time.desc()).all()
+        trips_all = Trip.query.filter_by(is_deleted=False).filter(real(Trip)).order_by(Trip.departure_time.desc()).all()
         buses_all = Bus.query.filter_by(is_deleted=False).order_by(Bus.bus_number).all()
         drivers_all = Driver.query.filter_by(is_deleted=False).order_by(Driver.name).all()
         routes_all = Route.query.filter_by(is_deleted=False).order_by(Route.origin).all()
         agencies_all = Agency.query.filter_by(is_deleted=False).order_by(Agency.name).all()
-        b_query = Booking.query.filter_by(is_deleted=False)
+        b_query = Booking.query.filter_by(is_deleted=False).filter(real(Booking))
     else:
-        trips_all = Trip.query.join(Route).filter(Route.agency_id == current_user.agency_id, Trip.is_deleted == False).order_by(Trip.departure_time.desc()).all()
+        trips_all = Trip.query.join(Route).filter(Route.agency_id == current_user.agency_id, Trip.is_deleted == False, real(Trip)).order_by(Trip.departure_time.desc()).all()
         buses_all = Bus.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).order_by(Bus.bus_number).all()
         drivers_all = Driver.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).order_by(Driver.name).all()
         routes_all = Route.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).order_by(Route.origin).all()
         agencies_all = Agency.query.filter_by(id=current_user.agency_id, is_deleted=False).all()
         trip_ids_q = db.session.query(Trip.id).join(Route).filter(Route.agency_id == current_user.agency_id, Trip.is_deleted == False)
-        b_query = Booking.query.filter(Booking.trip_id.in_(trip_ids_q), Booking.is_deleted == False)
+        b_query = Booking.query.filter(Booking.trip_id.in_(trip_ids_q), Booking.is_deleted == False, real(Booking))
 
     all_recent_bookings = b_query.order_by(Booking.booking_date.desc().nulls_last()).limit(60).all()
 
@@ -605,6 +609,63 @@ def build_mission_hub_context(filter_val='all'):
     category_breakdown.sort(key=lambda x: x['count'], reverse=True)
 
     tracking_trips = [t for t in trips_all if t.status in active_states]
+    tracking_items = []
+    op_counts = {'all': 0, 'departures': 0, 'in_progress': 0, 'returns': 0}
+    for t in tracking_trips:
+        bk = _trip_linked_booking(t)
+        client_name = (
+            (bk.passenger_name if bk and bk.passenger_name else None)
+            or ((bk.user.real_name or bk.user.username) if bk and bk.user else None)
+            or 'Client VIP 3M'
+        )
+        ref = t.mission_ref or (bk.booking_code if bk and bk.booking_code else None) or f"#{t.id}"
+        origin = t.pickup_location or (t.route.origin if t.route else 'Yaoundé')
+        dest = t.destination_location or (t.route.destination if t.route else 'À définir')
+        route_label = f"{origin} → {dest}" if dest and dest != origin else origin
+        is_overdue = bool(t.status in in_progress_states and t.arrival_time and t.arrival_time < now_dt)
+
+        if t.status in planning_states:
+            op_bucket = 'departures'
+            op_action = 'departure'
+            op_action_label = 'Préparer le départ'
+            op_status_label = 'Prêt au départ' if t.status == 'ready_for_departure' else 'À préparer'
+            op_status_tone = 'info' if t.status == 'ready_for_departure' else 'warn'
+        elif t.arrival_time and t.arrival_time <= now_dt + timedelta(hours=24):
+            op_bucket = 'returns'
+            op_action = 'return'
+            op_action_label = 'Enregistrer le retour'
+            op_status_label = 'Retour en retard' if is_overdue else 'Retour attendu'
+            op_status_tone = 'danger' if is_overdue else 'warn'
+        else:
+            op_bucket = 'in_progress'
+            op_action = 'track'
+            op_action_label = 'Suivre la location'
+            op_status_label = 'En cours'
+            op_status_tone = 'ok'
+
+        op_counts['all'] += 1
+        op_counts[op_bucket] += 1
+        tracking_items.append({
+            'trip': t,
+            'ref': ref,
+            'booking_code': bk.booking_code if bk else None,
+            'client_name': client_name,
+            'vehicle_name': f"{t.bus.brand or ''} {t.bus.model}".strip() if t.bus else 'Véhicule à assigner',
+            'vehicle_plate': t.bus.bus_number if t.bus else '',
+            'driver_name': t.driver.name if t.driver else None,
+            'route_label': route_label,
+            'op_bucket': op_bucket,
+            'op_action': op_action,
+            'op_action_label': op_action_label,
+            'op_status_label': op_status_label,
+            'op_status_tone': op_status_tone,
+            'is_overdue': is_overdue,
+        })
+
+    op_filter = request.args.get('op_filter', 'all')
+    if op_filter not in ('all', 'departures', 'in_progress', 'returns'):
+        op_filter = 'all'
+
     history_trips = [t for t in trips_all if t.status in (completed_states | terminal_set)]
     open_incidents_count = MissionIncident.query.filter(MissionIncident.status != 'resolved').count()
 
@@ -613,6 +674,9 @@ def build_mission_hub_context(filter_val='all'):
         'convertible_bookings': all_recent_bookings,
         'trips_all': trips_all,
         'tracking_trips': tracking_trips,
+        'tracking_items': tracking_items,
+        'op_counts': op_counts,
+        'op_filter': op_filter,
         'history_trips': history_trips,
         'current_filter': filter_val,
         'routes': routes_all,
@@ -1266,6 +1330,17 @@ def mission_detail(id):
     normalized_status = legacy_map.get(trip.status, trip.status)
     current_stage_idx = stage_keys.index(normalized_status) if normalized_status in stage_keys else 2
 
+    req_action = (request.args.get('action') or '').strip()
+    if req_action not in ('departure', 'track', 'return'):
+        if trip.status in ('draft', 'pending_approval', 'scheduled', 'confirmed', 'assigned', 'ready_for_departure'):
+            req_action = 'departure'
+        elif trip.status in ('departed', 'in_progress', 'arrived') and trip.arrival_time and trip.arrival_time <= datetime.now() + timedelta(hours=24):
+            req_action = 'return'
+        elif trip.status in ('completed', 'closed', 'returned'):
+            req_action = 'return'
+        else:
+            req_action = 'track'
+
     # Check if an in-app chat exists for this client
     chat_url = None
     if booking:
@@ -1310,7 +1385,180 @@ def mission_detail(id):
         expense_categories=EXPENSE_CATEGORIES,
         incident_categories=INCIDENT_CATEGORIES,
         chat_url=chat_url,
+        active_action=req_action,
     )
+
+
+def _save_mission_photos(files, phase):
+    """Enregistre les photos d'état des lieux (JPG/PNG/WEBP <= 8 Mo) et renvoie les métadonnées."""
+    saved = []
+    if not files:
+        return saved
+    folder = os.path.join(current_app.static_folder, 'uploads', 'missions')
+    os.makedirs(folder, exist_ok=True)
+    for f in files:
+        if not f or not f.filename:
+            continue
+        ext = f.filename.rsplit('.', 1)[-1].lower() if '.' in f.filename else ''
+        if ext not in ('jpg', 'jpeg', 'png', 'webp'):
+            continue
+        data = f.read(8 * 1024 * 1024 + 1)
+        if not data or len(data) > 8 * 1024 * 1024:
+            continue
+        head = data[:16]
+        sig_ok = (
+            (ext in ('jpg', 'jpeg') and head.startswith(b'\xff\xd8\xff'))
+            or (ext == 'png' and head.startswith(b'\x89PNG\r\n\x1a\n'))
+            or (ext == 'webp' and len(head) >= 12 and head[:4] == b'RIFF' and head[8:12] == b'WEBP')
+        )
+        if not sig_ok:
+            continue
+        fname = f"{phase}_{uuid.uuid4().hex[:16]}.{'jpg' if ext == 'jpeg' else ext}"
+        with open(os.path.join(folder, fname), 'wb') as out:
+            out.write(data)
+        saved.append({
+            'url': f'/static/uploads/missions/{fname}',
+            'phase': phase,
+            'uploaded_at': datetime.utcnow().isoformat() + 'Z',
+        })
+    return saved
+
+
+@missions_bp.route('/admin/mission/<int:id>/handover', methods=['POST'])
+@login_required
+@csrf_protect
+def confirm_handover(id):
+    if not _admin_only():
+        flash("Accès non autorisé.", "danger")
+        return redirect(url_for('main.index'))
+
+    from app.routes.admin import log_audit
+    trip = Trip.query.filter_by(id=id, is_deleted=False).first_or_404()
+    if current_user.role != 'super_admin' and trip.route and trip.route.agency_id != current_user.agency_id:
+        flash("Accès non autorisé.", "danger")
+        return redirect(url_for('admin.bookings', tab='tracking'))
+
+    if not trip.bus_id:
+        flash("Aucun véhicule assigné à cette mission. Assignez d'abord un véhicule.", "danger")
+        return redirect(url_for('missions.mission_detail', id=trip.id, action='departure'))
+
+    ok_bus, err_bus = check_vehicle_availability(trip.bus_id, trip.departure_time, trip.arrival_time, exclude_trip_id=trip.id)
+    if not ok_bus:
+        flash(err_bus, "danger")
+        return redirect(url_for('missions.mission_detail', id=trip.id, action='departure'))
+
+    mileage_start = request.form.get('mileage_start', type=int)
+    if mileage_start is None or mileage_start < 0:
+        flash("Veuillez saisir un kilométrage de départ valide.", "danger")
+        return redirect(url_for('missions.mission_detail', id=trip.id, action='departure'))
+
+    checklist = {}
+    for key, _ in PRE_DEPARTURE_ITEMS:
+        checklist[key] = request.form.get(key) == 'on'
+    checklist['mileage_logged'] = True
+    checklist['departure_authorized'] = True
+    fuel_start = (request.form.get('fuel_start') or '').strip()
+    if fuel_start:
+        checklist['fuel_checked'] = True
+
+    new_photos = _save_mission_photos(request.files.getlist('handover_photos'), 'departure')
+    if new_photos:
+        checklist['photos_taken'] = True
+        trip.handover_photos = list(trip.handover_photos) + new_photos
+
+    trip.pre_departure_checklist = checklist
+    trip.mileage_start = mileage_start
+    if fuel_start:
+        trip.fuel_start = fuel_start
+    cond = (request.form.get('vehicle_condition') or '').strip()
+    if cond:
+        trip.vehicle_condition = cond
+
+    trip.actual_departure = trip.actual_departure or datetime.now()
+    trip.status = 'in_progress'
+    db.session.commit()
+
+    log_audit(
+        "MISSION_HANDOVER_CONFIRMED",
+        "Trip",
+        trip.id,
+        f"Départ confirmé par {current_user.username} (Km départ: {mileage_start}, Carburant: {fuel_start or 'N/D'})",
+    )
+    flash(f"Départ confirmé pour {trip.mission_ref or '#' + str(trip.id)} — location en cours.", "success")
+    return redirect(request.form.get('next_url') or url_for('admin.bookings', tab='tracking'))
+
+
+@missions_bp.route('/admin/mission/<int:id>/return', methods=['POST'])
+@login_required
+@csrf_protect
+def confirm_return(id):
+    if not _admin_only():
+        flash("Accès non autorisé.", "danger")
+        return redirect(url_for('main.index'))
+
+    from app.routes.admin import log_audit, trigger_notification
+    trip = Trip.query.filter_by(id=id, is_deleted=False).first_or_404()
+    if current_user.role != 'super_admin' and trip.route and trip.route.agency_id != current_user.agency_id:
+        flash("Accès non autorisé.", "danger")
+        return redirect(url_for('admin.bookings', tab='tracking'))
+
+    mileage_end = request.form.get('mileage_end', type=int)
+    if mileage_end is None or mileage_end < 0:
+        flash("Veuillez saisir un kilométrage de retour valide.", "danger")
+        return redirect(url_for('missions.mission_detail', id=trip.id, action='return'))
+
+    if trip.mileage_start is not None and mileage_end < trip.mileage_start:
+        flash(f"Le kilométrage retour ({mileage_end} km) ne peut pas être inférieur au départ ({trip.mileage_start} km).", "danger")
+        return redirect(url_for('missions.mission_detail', id=trip.id, action='return'))
+
+    fuel_end = (request.form.get('fuel_end') or '').strip()
+    cond_state = (request.form.get('condition_state') or '').strip()
+    cond_notes = (request.form.get('vehicle_condition') or '').strip()
+    combined_cond = " — ".join(p for p in [cond_state, cond_notes] if p)
+
+    new_photos = _save_mission_photos(request.files.getlist('return_photos'), 'return')
+    if new_photos:
+        trip.handover_photos = list(trip.handover_photos) + new_photos
+
+    trip.mileage_end = mileage_end
+    if fuel_end:
+        trip.fuel_end = fuel_end
+    if combined_cond:
+        trip.vehicle_condition = combined_cond
+    comp_notes = (request.form.get('completion_notes') or '').strip()
+    if comp_notes:
+        trip.completion_notes = comp_notes
+
+    trip.actual_arrival = datetime.now()
+    trip.status = 'completed'
+
+    availability = (request.form.get('vehicle_availability') or 'active').strip()
+    if trip.bus:
+        trip.bus.status = 'maintenance' if availability == 'maintenance' else 'active'
+
+    db.session.commit()
+
+    dist_km = trip.mileage_distance
+    dist_txt = f" ({dist_km} km parcourus)" if dist_km is not None else ""
+    bus_state_lbl = "En maintenance" if (trip.bus and trip.bus.status == 'maintenance') else "Disponible"
+    log_audit(
+        "MISSION_RETURN_CONFIRMED",
+        "Trip",
+        trip.id,
+        f"Retour confirmé par {current_user.username}: Km retour {mileage_end}{dist_txt}, Véhicule → {bus_state_lbl}",
+    )
+    booking = _trip_linked_booking(trip)
+    car_label = f"{trip.bus.brand or ''} {trip.bus.model} ({trip.bus.bus_number})".strip() if trip.bus else "Véhicule VIP"
+    c_label = booking.passenger_name if booking else "Client VIP 3M"
+    trigger_notification(
+        title=f"✅ Retour enregistré : {car_label}",
+        message=f"Mission {trip.mission_ref or '#' + str(trip.id)} ({c_label}) clôturée.\nKm retour : {mileage_end}{dist_txt} | Statut flotte : {bus_state_lbl}",
+        type="success",
+        category="operations",
+        role_target="super_admin",
+    )
+    flash(f"Retour enregistré{dist_txt}. Véhicule marqué « {bus_state_lbl} ».", "success")
+    return redirect(request.form.get('next_url') or url_for('admin.bookings', tab='tracking'))
 
 
 @missions_bp.route('/admin/mission/<int:id>/lifecycle', methods=['POST'])
@@ -1331,10 +1579,23 @@ def update_mission_lifecycle(id):
         flash("Un motif explicite est obligatoire pour annuler, rejeter ou interrompre une mission.", "danger")
         return redirect(request.form.get('next_url') or url_for('missions.mission_detail', id=trip.id))
 
-    # Business Rule: Confirmation requires assigned vehicle & customer
+    # Business Rule: Confirmation or departure requires assigned & non-overlapping vehicle
     booking = _trip_linked_booking(trip)
     if new_status == 'confirmed' and (not trip.bus_id or not booking):
         flash("Impossible de confirmer : un véhicule VIP et un client doivent être associés.", "danger")
+        return redirect(request.form.get('next_url') or url_for('missions.mission_detail', id=trip.id))
+
+    if new_status in ('ready_for_departure', 'departed', 'in_progress') and trip.bus_id:
+        ok_bus, err_bus = check_vehicle_availability(trip.bus_id, trip.departure_time, trip.arrival_time, exclude_trip_id=trip.id)
+        if not ok_bus:
+            flash(err_bus, "danger")
+            return redirect(request.form.get('next_url') or url_for('missions.mission_detail', id=trip.id))
+
+    ms_in = request.form.get('mileage_start', type=int)
+    me_in = request.form.get('mileage_end', type=int)
+    eff_start = ms_in if ms_in is not None else trip.mileage_start
+    if me_in is not None and eff_start is not None and me_in < eff_start:
+        flash(f"Le kilométrage retour ({me_in} km) ne peut pas être inférieur au départ ({eff_start} km).", "danger")
         return redirect(request.form.get('next_url') or url_for('missions.mission_detail', id=trip.id))
 
     prev_status = trip.status
@@ -1491,17 +1752,20 @@ def add_mission_incident(id):
         flash("Veuillez décrire l'incident.", "danger")
         return redirect(url_for('missions.mission_detail', id=trip.id))
 
+    inc_category = (request.form.get('category') or 'delay').strip()
     inc_ref = f"INC-{datetime.now().strftime('%y%m%d')}-{random.randint(100, 999)}"
     inc = MissionIncident(
         incident_ref=inc_ref,
         trip_id=trip.id,
-        category=(request.form.get('category') or 'delay').strip(),
+        category=inc_category,
         severity=(request.form.get('severity') or 'medium').strip(),
         description=description,
         responsible_person=(request.form.get('responsible_person') or current_user.username).strip(),
         resolution=(request.form.get('resolution') or '').strip(),
         status='open',
     )
+    if inc_category == 'delay' or request.form.get('delay_reason'):
+        trip.delay_reason = (request.form.get('delay_reason') or description)[:255]
     db.session.add(inc)
     db.session.commit()
 
@@ -1512,7 +1776,7 @@ def add_mission_incident(id):
         type="warning", category="operations", role_target="super_admin"
     )
     flash(f"Incident {inc_ref} enregistré.", "warning")
-    return redirect(url_for('missions.mission_detail', id=trip.id))
+    return redirect(request.form.get('next_url') or url_for('missions.mission_detail', id=trip.id, action='track'))
 
 
 @missions_bp.route('/admin/mission/<int:id>/incident/<int:inc_id>/resolve', methods=['POST'])
@@ -1710,15 +1974,18 @@ def build_quick_actions_context():
         qa_buses = Bus.query.filter_by(status='active', is_deleted=False).order_by(Bus.brand, Bus.model).all()
         qa_drivers = Driver.query.filter_by(is_deleted=False).order_by(Driver.name).all()
         qa_routes = Route.query.filter_by(is_deleted=False).order_by(Route.origin).all()
-        qa_bookings = Booking.query.filter(Booking.is_deleted == False, Booking.status != 'cancelled').order_by(Booking.booking_date.desc().nulls_last()).limit(40).all()
+        from app.services.dashboard_kpis import real
+        qa_bookings = Booking.query.filter(Booking.is_deleted == False, Booking.status != 'cancelled', real(Booking)).order_by(Booking.booking_date.desc().nulls_last()).limit(40).all()
     else:
         qa_buses = Bus.query.filter_by(agency_id=current_user.agency_id, status='active', is_deleted=False).order_by(Bus.brand, Bus.model).all()
         qa_drivers = Driver.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).order_by(Driver.name).all()
         qa_routes = Route.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).order_by(Route.origin).all()
         t_ids = db.session.query(Trip.id).join(Route).filter(Route.agency_id == current_user.agency_id, Trip.is_deleted == False)
-        qa_bookings = Booking.query.filter(Booking.trip_id.in_(t_ids), Booking.is_deleted == False, Booking.status != 'cancelled').order_by(Booking.booking_date.desc().nulls_last()).limit(40).all()
+        from app.services.dashboard_kpis import real
+        qa_bookings = Booking.query.filter(Booking.trip_id.in_(t_ids), Booking.is_deleted == False, Booking.status != 'cancelled', real(Booking)).order_by(Booking.booking_date.desc().nulls_last()).limit(40).all()
 
-    qa_clients = User.query.filter_by(role='client', is_deleted=False).order_by(User.real_name, User.username).limit(80).all()
+    from app.services.dashboard_kpis import real as _real
+    qa_clients = User.query.filter_by(role='client', is_deleted=False).filter(_real(User)).order_by(User.real_name, User.username).limit(80).all()
     qa_packages = MissionPackage.query.filter_by(status='active').order_by(MissionPackage.base_price.asc()).all()
     qa_apartments = Apartment.query.filter_by(is_deleted=False).order_by(Apartment.title).all()
 

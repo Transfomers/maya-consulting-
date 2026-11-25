@@ -1,5 +1,6 @@
 import "./dist/styles.css";
 import "./styles/Animations.css";
+import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import About from "./Pages/About";
 import Home from "./Pages/Home";
@@ -14,8 +15,9 @@ import ScrollReveal from "./components/ScrollReveal";
 import ScrollToTop from "./components/ScrollToTop";
 import ClientPortalModal from "./components/ClientPortalModal";
 import PrivateChatWidget from "./components/PrivateChatWidget";
-import VisitorCheckInModal from "./components/VisitorCheckInModal";
+import VisitorLocation from "./components/VisitorLocation";
 import { LanguageProvider } from "./context/LanguageContext";
+import { startPendingContactsSync } from "./utils/pendingContacts";
 import ChatPage from "./Pages/ChatPage";
 import AccountPage from "./Pages/AccountPage";
 import "./styles/Responsive.css"; // correctifs mobile, chargé en dernier
@@ -37,6 +39,9 @@ const AdminRedirect = () => {
 };
 
 function App() {
+  // Renvoie automatiquement les messages de contact restés en attente (connexion coupée)
+  useEffect(() => startPendingContactsSync(), []);
+
   return (
     <LanguageProvider>
       <ScrollToTop />
@@ -45,7 +50,7 @@ function App() {
       <Navbar />
       <ClientPortalModal />
       <PrivateChatWidget />
-      <VisitorCheckInModal />
+      <VisitorLocation />
       <Routes>
         <Route index path="/" element={<Home />} />
         <Route path="about" element={<About />} />

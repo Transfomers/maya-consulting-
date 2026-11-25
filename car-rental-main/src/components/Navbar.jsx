@@ -305,12 +305,14 @@ function Navbar() {
                 type="button"
                 onClick={handleOpenChat}
                 className="mobile-nav-drawer__circle-btn"
+                style={{ position: "relative" }}
                 title={lang === "fr" ? "Chat Privé 3M" : "3M Private Chat"}
                 aria-label="Chat Privé 3M"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#000000">
                   <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12zM7 9h2v2H7V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9z"/>
                 </svg>
+                {chatUnread > 0 && <span className="navbar__chat-badge">{chatUnread}</span>}
               </button>
 
               {/* 2. Call 1 (+237 691 78 64 47) */}

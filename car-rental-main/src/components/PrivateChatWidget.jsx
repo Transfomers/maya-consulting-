@@ -1,52 +1,73 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { getCurrentClient } from "../utils/customerAccounts";
+import { API_BASE } from "../config/api";
 import "./PrivateChatWidget.css";
 import ChatAttachment from "./ChatAttachment";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:5001/api";
-
-// Web Audio Synthetic Notification Chime
+// Web Audio Synthetic Two-Tone Notification Bell Chime
 function playChime() {
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
-    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.12); // A5
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.35);
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const audioCtx = new AudioCtx();
+    const playTone = (freq, startOffset, duration) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime + startOffset);
+      gain.gain.setValueAtTime(0.001, audioCtx.currentTime + startOffset);
+      gain.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + startOffset + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + startOffset + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(audioCtx.currentTime + startOffset);
+      osc.stop(audioCtx.currentTime + startOffset + duration);
+    };
+    playTone(659.25, 0, 0.22); // E5
+    playTone(880, 0.14, 0.3);   // A5
   } catch (e) {
     // AudioContext blocked or not supported
   }
 }
 
+function readSavedGuestContact() {
+  try {
+    const raw = localStorage.getItem("3m_guest_contact_info");
+    return raw ? JSON.parse(raw) : {};
+  } catch (_) {
+    return {};
+  }
+}
+
 function PrivateChatWidget() {
+  const savedGuest = readSavedGuestContact();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
-  const [guestName, setGuestName] = useState("");
-  const [guestPhone, setGuestPhone] = useState("");
+  const [guestName, setGuestName] = useState(savedGuest.name || "");
+  const [guestPhone, setGuestPhone] = useState(savedGuest.phone || "");
+  const [guestEmail, setGuestEmail] = useState(savedGuest.email || "");
   const [attachedCar, setAttachedCar] = useState(null);
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [toastNotif, setToastNotif] = useState(null);
   const [adminIsTyping, setAdminIsTyping] = useState(false);
   const [editingMsgId, setEditingMsgId] = useState(null);
   const [editText, setEditText] = useState("");
 
   const messagesEndRef = useRef(null);
   const knownMsgIdsRef = useRef(new Set());
+  const hasInitializedRef = useRef(false);
+  const toastTimerRef = useRef(null);
+  const originalTitleRef = useRef(typeof document !== "undefined" ? document.title : "3M SERVICES");
   const typingTimeoutRef = useRef(null);
   const sendMessageRef = useRef(null);
   const [pendingAutoSend, setPendingAutoSend] = useState(null);
 
   // Retrieve current client or guest session
   const client = getCurrentClient();
-  const clientId = client?.accountNumber || (function () {
+  // Identifiant invité propre à cet appareil (conservé après connexion pour relier la conversation)
+  const guestId = (function () {
     let gid = localStorage.getItem("3m_guest_chat_id");
     if (!gid) {
       gid = "GUEST-" + Math.floor(100000 + Math.random() * 900000);
@@ -54,50 +75,99 @@ function PrivateChatWidget() {
     }
     return gid;
   })();
+  // Client connecté : son n° de compte (même conversation sur tous ses appareils) ; sinon l'invité
+  const clientId = client?.accountNumber || guestId;
 
   const displayName = client?.name || guestName || "Client Invité VIP";
   const displayPhone = client?.phone || guestPhone || "";
-  const displayEmail = client?.email || "";
+  const displayEmail = client?.email || guestEmail || "";
+  const notifEnabled = client?.notifications?.chatMessages !== false;
 
   // Smooth scroll
   const scrollToBottom = useCallback((smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
   }, []);
 
+  const showClientReplyAlert = useCallback(
+    (msg) => {
+      if (!notifEnabled) return;
+      playChime();
+      setToastNotif({
+        id: msg.id,
+        senderName: msg.senderName || "Conciergerie 3M SERVICES",
+        text: msg.text || "Vous avez reçu un nouveau message de la conciergerie.",
+        timestamp: msg.timestamp
+      });
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = setTimeout(() => {
+        setToastNotif(null);
+      }, 12000);
+
+      try {
+        if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+          const n = new Notification("Conciergerie 3M SERVICES", {
+            body: (msg.text || "Nouveau message reçu").slice(0, 140),
+            icon: "/apple-touch-icon.png",
+            tag: "3m-concierge-reply"
+          });
+          n.onclick = () => {
+            try { window.focus(); } catch (_) {}
+            setIsOpen(true);
+            setToastNotif(null);
+            n.close();
+          };
+        }
+      } catch (_) {}
+    },
+    [notifEnabled]
+  );
+
   // Fetch thread messages from server
   const fetchMessages = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/chats/${encodeURIComponent(clientId)}`);
+      const res = await fetch(`${API_BASE}/chats/${encodeURIComponent(clientId)}?guestId=${encodeURIComponent(guestId)}`);
       if (res.ok) {
         const data = await res.json();
         if (data && data.messages) {
-          // Check for newly received admin message
-          let hasNewAdminMsg = false;
+          const newlyArrivedAdminMsgs = [];
           data.messages.forEach((m) => {
             if (!knownMsgIdsRef.current.has(m.id)) {
               knownMsgIdsRef.current.add(m.id);
-              if (m.sender === "admin") {
-                hasNewAdminMsg = true;
+              if (hasInitializedRef.current && m.sender === "admin") {
+                newlyArrivedAdminMsgs.push(m);
               }
             }
           });
+          hasInitializedRef.current = true;
 
-          if (hasNewAdminMsg) {
-            playChime();
+          if (newlyArrivedAdminMsgs.length > 0) {
+            const latestAdminMsg = newlyArrivedAdminMsgs[newlyArrivedAdminMsgs.length - 1];
+            if (!isOpen) {
+              showClientReplyAlert(latestAdminMsg);
+            } else {
+              if (notifEnabled) playChime();
+              fetch(`${API_BASE}/chats/${encodeURIComponent(clientId)}/read`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ reader: "client" })
+              }).catch(() => {});
+            }
           }
 
           setMessages(data.messages);
           setAdminIsTyping(Boolean(data.adminTyping));
 
-          if (!isOpen && data.unreadClient) {
-            setUnreadCount(data.unreadClient);
+          if (!isOpen) {
+            setUnreadCount(Number(data.unreadClient || 0));
+          } else {
+            setUnreadCount(0);
           }
         }
       }
     } catch (err) {
       console.warn("3M Chat fetch error:", err);
     }
-  }, [clientId, isOpen]);
+  }, [clientId, guestId, isOpen, notifEnabled, showClientReplyAlert]);
 
   // Real-Time Polling every 1.5 seconds
   useEffect(() => {
@@ -111,6 +181,7 @@ function PrivateChatWidget() {
     if (isOpen) {
       setTimeout(() => scrollToBottom(false), 80);
       setUnreadCount(0);
+      setToastNotif(null);
       // Mark as read
       fetch(`${API_BASE}/chats/${encodeURIComponent(clientId)}/read`, {
         method: "POST",
@@ -119,6 +190,20 @@ function PrivateChatWidget() {
       }).catch(() => {});
     }
   }, [isOpen, clientId, scrollToBottom]);
+
+  // Update browser tab title when unread concierge messages exist
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const baseTitle = originalTitleRef.current;
+    if (unreadCount > 0 && !isOpen) {
+      document.title = `(${unreadCount}) Nouveau message — 3M SERVICES`;
+    } else {
+      document.title = baseTitle;
+    }
+    return () => {
+      document.title = baseTitle;
+    };
+  }, [unreadCount, isOpen]);
 
   // Auto-scroll on new messages
   useEffect(() => {
@@ -132,13 +217,15 @@ function PrivateChatWidget() {
     window.dispatchEvent(new CustomEvent("3m-chat-unread", { detail: unreadCount }));
   }, [unreadCount]);
 
-  // Global open listener from navbar, promo cards, or booking modal
+  // Global open listener from navbar, contact page, promo cards, or booking modal
   useEffect(() => {
     const handleOpenChat = (e) => {
       setIsOpen(true);
+      setToastNotif(null);
       const detail = e?.detail || {};
       if (detail.name) setGuestName(detail.name);
       if (detail.phone) setGuestPhone(detail.phone);
+      if (detail.email) setGuestEmail(detail.email);
       if (detail.car) {
         setAttachedCar(detail.car);
       }
@@ -151,11 +238,14 @@ function PrivateChatWidget() {
           `Bonjour 3M SERVICES, je souhaite réserver ou me renseigner sur le véhicule VIP : ${detail.car.name || detail.car.model}. Est-il disponible ?`
         );
       }
+      if (detail.refresh) {
+        setTimeout(() => fetchMessages(), 120);
+      }
     };
 
     window.addEventListener("3m-open-chat", handleOpenChat);
     return () => window.removeEventListener("3m-open-chat", handleOpenChat);
-  }, [inputText]);
+  }, [inputText, fetchMessages]);
 
   // Execute auto-send once triggered by booking modal
   useEffect(() => {
@@ -228,6 +318,7 @@ function PrivateChatWidget() {
           clientName: displayName,
           clientPhone: displayPhone,
           clientEmail: displayEmail,
+          guestId,
           carInfo: optimisticMsg.car
         })
       });
@@ -329,7 +420,62 @@ function PrivateChatWidget() {
     );
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    if (!toastNotif && unreadCount === 0) return null;
+    return (
+      <div className="private-chat-notify-anchor">
+        {toastNotif && (
+          <div className="chat-notif-toast" role="status" aria-live="polite">
+            <button
+              type="button"
+              className="chat-notif-toast__main"
+              onClick={() => {
+                setToastNotif(null);
+                setIsOpen(true);
+              }}
+            >
+              <span className="chat-notif-toast__bell" aria-hidden="true">
+                <i className="fa-solid fa-bell"></i>
+              </span>
+              <div className="chat-notif-toast__body">
+                <div className="chat-notif-toast__title">
+                  <span>{toastNotif.senderName}</span>
+                  <span className="chat-notif-toast__pill">Nouveau message</span>
+                </div>
+                <p className="chat-notif-toast__text">{toastNotif.text}</p>
+                <span className="chat-notif-toast__cta">
+                  Cliquez pour répondre <i className="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+            </button>
+            <button
+              type="button"
+              className="chat-notif-toast__close"
+              onClick={() => setToastNotif(null)}
+              aria-label="Fermer la notification"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        )}
+
+        {!toastNotif && unreadCount > 0 && (
+          <button
+            type="button"
+            className="chat-unread-fab"
+            onClick={() => setIsOpen(true)}
+            aria-label={`${unreadCount} message(s) non lu(s) de la conciergerie`}
+          >
+            <span className="chat-unread-fab__icon" aria-hidden="true">
+              <i className="fa-solid fa-comment-dots"></i>
+            </span>
+            <span>Conciergerie 3M</span>
+            <span className="chat-unread-fab__badge">{unreadCount}</span>
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="private-chat-wrapper">

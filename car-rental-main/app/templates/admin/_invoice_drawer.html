@@ -1,0 +1,664 @@
+{# Formulaire Facture 3M SERVICES (tiroir latéral sur la liste ou page complète en édition) #}
+{% set inv = edit_invoice if edit_invoice is defined and edit_invoice else none %}
+{% set is_drawer = drawer_mode if drawer_mode is defined else true %}
+{% set cur_currency = inv.currency if inv else 'XAF' %}
+{% set cur_pm = inv.payment_method if inv else 'mtn_momo' %}
+{% set cur_status = inv.status if inv else 'draft' %}
+{% set form_action = url_for('invoices.edit', invoice_id=inv.id) if inv else url_for('invoices.create') %}
+
+<style>
+.inv-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(16, 24, 40, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 1050;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+}
+.inv-backdrop.is-open { opacity: 1; pointer-events: auto; }
+.inv-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(640px, 100vw);
+    background: #fff;
+    z-index: 1055;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -12px 0 40px rgba(16, 24, 40, 0.18);
+    transform: translateX(100%);
+    transition: transform .24s cubic-bezier(.16, 1, .3, 1);
+}
+.inv-drawer.is-open { transform: translateX(0); }
+.inv-drawer i, .inv-form-wrap i { color: inherit !important; }
+.inv-drawer__head {
+    padding: 18px 22px;
+    border-bottom: 1px solid #eaecf0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+}
+.inv-drawer__head h2 { margin: 0; font-size: 18px; font-weight: 700; color: #101828; }
+.inv-drawer__close {
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid #fecdca;
+    background: #fff; color: #d92d20; display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; line-height: 1;
+}
+.inv-drawer__close:hover { background: #fef3f2; }
+.inv-drawer__body { flex: 1; overflow-y: auto; padding: 20px 22px; }
+.inv-drawer__foot {
+    padding: 14px 22px;
+    border-top: 1px solid #eaecf0;
+    background: #fff;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.inv-lbl { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; color: #344054; margin-bottom: 6px; }
+.inv-lbl .req { color: #d92d20; margin-left: 2px; }
+.inv-add-link { border: 0; background: transparent; padding: 0; color: var(--primary-light); font-size: 12.5px; font-weight: 600; text-decoration: none; cursor: pointer; }
+.inv-add-link:hover { text-decoration: underline; }
+.inv-ctrl { height: 42px; font-size: 14px; border: 1px solid #d0d5dd; border-radius: 10px; color: #101828; }
+.inv-ctrl:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.12); }
+
+.inv-quick-client {
+    background: #f9fafb;
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 8px;
+}
+
+/* Éditeur riche */
+.inv-rte { border: 1px solid #d0d5dd; border-radius: 10px; overflow: hidden; background: #fff; }
+.inv-rte__bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+    padding: 6px 8px; border-bottom: 1px solid #eaecf0; background: #f9fafb;
+}
+.inv-rte__bar select { height: 28px; font-size: 12px; border: 1px solid #d0d5dd; border-radius: 6px; padding: 0 6px; background: #fff; color: #344054; }
+.inv-rte__btn {
+    width: 28px; height: 28px; border: 0; border-radius: 6px; background: transparent; color: #475467;
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px;
+}
+.inv-rte__btn:hover { background: #eaecf0; color: #101828; }
+.inv-rte__ed {
+    min-height: 92px; max-height: 180px; overflow-y: auto; padding: 10px 12px;
+    font-size: 13.5px; color: #101828; outline: none; line-height: 1.5;
+}
+.inv-rte__ed:empty::before { content: attr(data-placeholder); color: #98a2b3; }
+
+/* Table lignes de facturation */
+.inv-items-wrap { border: 1px solid #eaecf0; border-radius: 10px; overflow-x: auto; margin-top: 14px; }
+.inv-items-tbl { width: 100%; border-collapse: collapse; min-width: 520px; }
+.inv-items-tbl th {
+    background: #f9fafb; color: #344054; font-size: 12px; font-weight: 600;
+    padding: 9px 10px; border-bottom: 1px solid #eaecf0; text-align: left;
+}
+.inv-items-tbl td { padding: 8px 6px; border-bottom: 1px solid #f2f4f7; vertical-align: middle; }
+.inv-items-tbl tr:last-child td { border-bottom: 0; }
+.inv-items-tbl .form-control, .inv-items-tbl .form-select { height: 36px; font-size: 13px; border-radius: 8px; }
+.inv-rm-row { border: 0; background: transparent; color: #98a2b3; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; }
+.inv-rm-row:hover { background: #fee4e2; color: #b42318; }
+
+/* Bloc totaux */
+.inv-summary {
+    background: #f9fafb;
+    border: 1px solid #eaecf0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 14px;
+    display: grid;
+    gap: 8px;
+}
+.inv-sum-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    color: #344054;
+}
+.inv-sum-row--ctrl { display: inline-flex; align-items: center; gap: 6px; }
+.inv-sum-row--ctrl select, .inv-sum-row--ctrl input { height: 30px; font-size: 12.5px; border-radius: 6px; width: 92px; }
+.inv-sum-total {
+    border-top: 1px solid #eaecf0;
+    padding-top: 10px;
+    margin-top: 2px;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #101828;
+}
+</style>
+
+{% if is_drawer %}<div class="inv-backdrop {% if open_new %}is-open{% endif %}" id="invBackdrop"></div>{% endif %}
+
+<div class="{{ 'inv-drawer' if is_drawer else 'inv-form-wrap' }} {% if is_drawer and open_new %}is-open{% endif %}" id="invDrawer" {% if is_drawer %}role="dialog" aria-modal="true" aria-label="Nouvelle facture"{% endif %}>
+    {% if is_drawer %}
+    <div class="inv-drawer__head">
+        <h2>Nouvelle facture</h2>
+        <button type="button" class="inv-drawer__close" id="btnCloseInvDrawer" aria-label="Fermer">&times;</button>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ form_action }}" id="invoiceForm" class="{{ 'd-flex flex-column flex-grow-1 overflow-hidden' if is_drawer else '' }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="{{ 'inv-drawer__body' if is_drawer else '' }}">
+            <!-- Client -->
+            <div class="mb-3">
+                <div class="inv-lbl">
+                    <label for="invClientSelect" class="mb-0">Client</label>
+                    <button type="button" class="inv-add-link" id="btnToggleQuickClient">+ Nouveau</button>
+                </div>
+                <select name="client_id" id="invClientSelect" class="form-select inv-ctrl">
+                    <option value="">Sélectionner un client…</option>
+                    {% for u in clients %}
+                    {% set u_label = (u.real_name or u.username) ~ (' · ' ~ u.phone if u.phone else '') %}
+                    <option value="{{ u.id }}"
+                            data-bill="{{ u_label }}"
+                            data-address="{{ u.address or u.city or 'Yaoundé, Cameroun' }}"
+                            {% if inv and inv.client_id == u.id %}selected{% endif %}>
+                        {{ u_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <!-- Quick create client inline panel -->
+                <div class="inv-quick-client" id="quickClientPanel" hidden>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong style="font-size: 12.5px; color: #101828;">Créer un client rapidement</strong>
+                        <button type="button" class="btn-close btn-sm" id="btnCloseQuickClient" aria-label="Fermer"></button>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-6"><input type="text" id="qcName" class="form-control form-control-sm" placeholder="Nom complet *"></div>
+                        <div class="col-md-6"><input type="tel" id="qcPhone" class="form-control form-control-sm" placeholder="Téléphone * (+237...)"></div>
+                        <div class="col-md-6"><input type="email" id="qcEmail" class="form-control form-control-sm" placeholder="E-mail (optionnel)"></div>
+                        <div class="col-md-6"><input type="text" id="qcAddr" class="form-control form-control-sm" placeholder="Adresse / Quartier"></div>
+                        <div class="col-12 d-flex justify-content-between align-items-center mt-2">
+                            <small id="qcFeedback" class="text-danger"></small>
+                            <button type="button" class="btn btn-sm btn-brand" id="btnSaveQuickClient">Ajouter ce client</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Facturer à / Lieu de prestation -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="inv-lbl" for="invBillTo"><span>Facturer à <span class="req">*</span></span></label>
+                    <input type="text" name="bill_to" id="invBillTo" class="form-control inv-ctrl" required
+                           value="{{ inv.bill_to if inv else '' }}" placeholder="Nom / Entreprise & téléphone">
+                </div>
+                <div class="col-md-6">
+                    <label class="inv-lbl" for="invShipTo"><span>Lieu de prestation / Livraison <span class="req">*</span></span></label>
+                    <input type="text" name="ship_to" id="invShipTo" class="form-control inv-ctrl" required
+                           value="{{ inv.ship_to if inv else 'Agence Omnisports, Yaoundé' }}" placeholder="Adresse ou lieu de mise à disposition">
+                </div>
+            </div>
+
+            <!-- Prestation / Contrat lié -->
+            <div class="mb-3">
+                <div class="inv-lbl">
+                    <label for="invProjectSelect" class="mb-0">Prestation / Contrat lié</label>
+                    <a href="{{ url_for('contracts.create') }}" class="inv-add-link">+ Nouveau contrat</a>
+                </div>
+                <select name="project_ref" id="invProjectSelect" class="form-select inv-ctrl">
+                    <option value="">Sélectionner un contrat, mission VIP ou résidence…</option>
+                    {% if contracts %}
+                    <optgroup label="Contrats 3M SERVICES">
+                        {% for c in contracts %}
+                        {% set c_client = (c.client.real_name or c.client.username) if c.client else '' %}
+                        {% set c_phone = c.client.phone if c.client and c.client.phone else '' %}
+                        <option value="contract:{{ c.id }}"
+                                data-client-id="{{ c.client_id or '' }}"
+                                data-bill="{{ (c_client ~ (' · ' ~ c_phone if c_phone else '')) }}"
+                                data-ship="{{ c.pickup_location or 'Agence Omnisports, Yaoundé' }}"
+                                data-item="{{ c.reference ~ ' — ' ~ c.subject }}"
+                                data-price="{{ (c.total_value or 0)|int }}"
+                                {% if inv and inv.contract_id == c.id %}selected{% endif %}>
+                            {{ c.reference }} · {{ c.subject }}{% if c_client %} ({{ c_client }}){% endif %}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endif %}
+                    {% if trips %}
+                    <optgroup label="Missions VIP">
+                        {% for t in trips %}
+                        {% set t_title = (t.route.origin ~ ' → ' ~ t.route.destination) if t.route else 'Mission VIP #' ~ t.id %}
+                        <option value="trip:{{ t.id }}"
+                                data-ship="{{ t.pickup_location or 'Yaoundé' }}"
+                                data-item="Mission VIP #{{ t.id }} — {{ t_title }}"
+                                data-price="{{ (t.price or 0)|int }}"
+                                {% if inv and inv.trip_id == t.id %}selected{% endif %}>
+                            Mission #{{ t.id }} · {{ t_title }} ({{ t.departure_time.strftime('%d/%m/%Y') if t.departure_time else '' }})
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endif %}
+                    {% if apartments %}
+                    <optgroup label="Résidences meublées">
+                        {% for a in apartments %}
+                        <option value="apt:{{ a.id }}"
+                                data-ship="{{ a.location or a.neighborhood or 'Yaoundé' }}"
+                                data-item="Séjour {{ a.title }}"
+                                data-price="{{ (a.nightly_rate or 0)|int }}"
+                                {% if inv and inv.apartment_id == a.id %}selected{% endif %}>
+                            {{ a.title }} · {{ a.location or a.city or 'Yaoundé' }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endif %}
+                </select>
+            </div>
+
+            <!-- Montant / Devise -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="inv-lbl" for="invAmountInput"><span>Montant <span class="req">*</span></span></label>
+                    <input type="number" name="amount" id="invAmountInput" class="form-control inv-ctrl fw-semibold" min="0" step="100"
+                           value="{{ (inv.total_amount|int) if inv else 0 }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="inv-lbl" for="invCurrencySelect"><span>Devise <span class="req">*</span></span></label>
+                    <select name="currency" id="invCurrencySelect" class="form-select inv-ctrl" required>
+                        {% for code, pair in currencies.items() %}
+                        <option value="{{ code }}" data-symbol="{{ pair[1] }}" {% if cur_currency == code %}selected{% endif %}>{{ pair[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Date / Échéance -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="inv-lbl" for="invIssueDate"><span>Date d'émission</span></label>
+                    <input type="date" name="issue_date" id="invIssueDate" class="form-control inv-ctrl"
+                           value="{{ inv.issue_date.isoformat() if inv and inv.issue_date else today_iso }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="inv-lbl" for="invDueDate"><span>Valable jusqu'au <span class="req">*</span></span></label>
+                    <input type="date" name="due_date" id="invDueDate" class="form-control inv-ctrl" required
+                           value="{{ inv.due_date.isoformat() if inv and inv.due_date else due_default_iso }}">
+                </div>
+            </div>
+
+            <!-- Mode de paiement / Statut -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="inv-lbl" for="invPayMethod"><span>Mode de paiement</span></label>
+                    <select name="payment_method" id="invPayMethod" class="form-select inv-ctrl">
+                        {% for k, lbl in payment_methods.items() %}
+                        <option value="{{ k }}" {% if cur_pm == k %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="inv-lbl" for="invStatusSelect"><span>Statut</span></label>
+                    <select name="status" id="invStatusSelect" class="form-select inv-ctrl">
+                        {% for k, pair in status_labels.items() %}
+                        <option value="{{ k }}" {% if cur_status == k %}selected{% endif %}>{{ pair[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Description riche -->
+            <div class="mb-3">
+                <label class="inv-lbl"><span>Description <span class="req">*</span></span></label>
+                <div class="inv-rte">
+                    <div class="inv-rte__bar">
+                        <select id="rteBlockFmt" aria-label="Format de paragraphe">
+                            <option value="P">Normal</option>
+                            <option value="H3">Titre</option>
+                            <option value="H4">Sous-titre</option>
+                        </select>
+                        <button type="button" class="inv-rte__btn" data-cmd="bold" title="Gras"><b>B</b></button>
+                        <button type="button" class="inv-rte__btn" data-cmd="italic" title="Italique"><i>I</i></button>
+                        <button type="button" class="inv-rte__btn" data-cmd="underline" title="Souligné"><u>U</u></button>
+                        <button type="button" class="inv-rte__btn" id="rteLinkBtn" title="Lien"><i class="bi bi-link-45deg"></i></button>
+                        <button type="button" class="inv-rte__btn" data-cmd="insertUnorderedList" title="Liste à puces"><i class="bi bi-list-ul"></i></button>
+                        <button type="button" class="inv-rte__btn" data-cmd="insertOrderedList" title="Liste numérotée"><i class="bi bi-list-ol"></i></button>
+                        <button type="button" class="inv-rte__btn" data-cmd="removeFormat" title="Effacer le format"><i class="bi bi-eraser"></i></button>
+                    </div>
+                    <div class="inv-rte__ed" id="invDescEditor" contenteditable="true" data-placeholder="Détail de la prestation 3M SERVICES (véhicule, chauffeur VIP, durée, résidence…)">{{ (inv.description or '')|safe }}</div>
+                </div>
+                <textarea name="description" id="invDescHidden" hidden>{{ inv.description if inv else '' }}</textarea>
+            </div>
+
+            <!-- Lignes de facturation -->
+            <datalist id="invCatalogList">
+                {% for ci in catalog_items %}
+                <option value="{{ ci.label }}" data-price="{{ ci.price }}">
+                {% endfor %}
+            </datalist>
+            <div class="inv-items-wrap">
+                <table class="inv-items-tbl">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 170px;">Désignation</th>
+                            <th style="width: 72px;">Qté</th>
+                            <th style="width: 108px;">Prix unit.</th>
+                            <th style="width: 82px;">Remise</th>
+                            <th style="width: 112px;">Montant</th>
+                            <th style="width: 34px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="invItemsBody">
+                        {% if inv and inv.items %}
+                            {% for it in inv.items %}
+                            <tr class="inv-item-row">
+                                <td><input type="text" name="item_name[]" class="form-control inv-it-name" list="invCatalogList" value="{{ it.item_name }}" placeholder="Prestation 3M..."></td>
+                                <td><input type="number" name="item_qty[]" class="form-control inv-it-qty" min="0" step="1" value="{{ it.quantity|int if it.quantity == it.quantity|int else it.quantity }}"></td>
+                                <td><input type="number" name="item_price[]" class="form-control inv-it-price" min="0" step="500" value="{{ it.unit_price|int }}"></td>
+                                <td>
+                                    <select name="item_discount[]" class="form-select inv-it-disc">
+                                        {% for d in [0, 2, 5, 10, 15, 20, 25] %}
+                                        <option value="{{ d }}" {% if (it.discount_percent|int) == d %}selected{% endif %}>{{ d }}%</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td><input type="text" class="form-control bg-light inv-it-amt fw-semibold" value="{{ format_money(it.amount, cur_currency) }}" readonly></td>
+                                <td><button type="button" class="inv-rm-row" title="Supprimer"><i class="bi bi-x-lg"></i></button></td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr class="inv-item-row">
+                            <td><input type="text" name="item_name[]" class="form-control inv-it-name" list="invCatalogList" placeholder="Location véhicule / Résidence..."></td>
+                            <td><input type="number" name="item_qty[]" class="form-control inv-it-qty" min="0" step="1" value="1"></td>
+                            <td><input type="number" name="item_price[]" class="form-control inv-it-price" min="0" step="500" value="0"></td>
+                            <td>
+                                <select name="item_discount[]" class="form-select inv-it-disc">
+                                    <option value="0" selected>0%</option>
+                                    <option value="2">2%</option>
+                                    <option value="5">5%</option>
+                                    <option value="10">10%</option>
+                                    <option value="15">15%</option>
+                                    <option value="20">20%</option>
+                                    <option value="25">25%</option>
+                                </select>
+                            </td>
+                            <td><input type="text" class="form-control bg-light inv-it-amt fw-semibold" value="0 FCFA" readonly></td>
+                            <td><button type="button" class="inv-rm-row" title="Supprimer"><i class="bi bi-x-lg"></i></button></td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-2">
+                <button type="button" class="inv-add-link" id="btnAddInvoiceRow">+ Ajouter une ligne</button>
+            </div>
+
+            <!-- Bloc totaux -->
+            <div class="inv-summary">
+                <div class="inv-sum-row">
+                    <span>Sous-total</span>
+                    <strong id="sumSubtotal">0 FCFA</strong>
+                </div>
+                <div class="inv-sum-row">
+                    <span class="inv-sum-row--ctrl">
+                        Remise
+                        <input type="number" name="discount_percent" id="sumDiscPct" class="form-control form-control-sm" min="0" max="100" step="0.5"
+                               value="{{ '%g'|format(inv.discount_percent or 0) if inv else 0 }}"> %
+                    </span>
+                    <span id="sumDiscAmt">0 FCFA</span>
+                </div>
+                <div class="inv-sum-row">
+                    <span class="inv-sum-row--ctrl">
+                        Remise supplémentaire
+                        <input type="number" name="extra_discount_percent" id="sumExtraPct" class="form-control form-control-sm" min="0" max="100" step="0.5"
+                               value="{{ '%g'|format(inv.extra_discount_percent or 0) if inv else 0 }}"> %
+                    </span>
+                    <span id="sumExtraAmt">0 FCFA</span>
+                </div>
+                <div class="inv-sum-row">
+                    <span class="inv-sum-row--ctrl">
+                        TVA
+                        <select name="tax_percent" id="sumTaxPct" class="form-select form-select-sm">
+                            <option value="0" {% if not inv or (inv.tax_percent or 0) == 0 %}selected{% endif %}>0%</option>
+                            <option value="19.25" {% if inv and inv.tax_percent == 19.25 %}selected{% endif %}>19,25% (TVA Cameroun)</option>
+                            <option value="10" {% if inv and inv.tax_percent == 10 %}selected{% endif %}>10%</option>
+                        </select>
+                    </span>
+                    <span id="sumTaxAmt">0 FCFA</span>
+                </div>
+                <div class="inv-sum-row inv-sum-total">
+                    <span>Total</span>
+                    <span id="sumTotal">0 FCFA</span>
+                </div>
+            </div>
+
+            <!-- Notes & Conditions générales -->
+            <div class="mt-3">
+                <label class="inv-lbl" for="invNotes"><span>Notes</span></label>
+                <textarea name="notes" id="invNotes" rows="2" class="form-control" placeholder="Informations complémentaires pour le client...">{{ inv.notes if inv else '' }}</textarea>
+            </div>
+            <div class="mt-3">
+                <label class="inv-lbl" for="invTerms"><span>Conditions générales</span></label>
+                <textarea name="terms" id="invTerms" rows="3" class="form-control">{{ inv.terms if inv and inv.terms else default_terms }}</textarea>
+            </div>
+        </div>
+
+        <div class="{{ 'inv-drawer__foot' if is_drawer else 'd-flex justify-content-end gap-2 mt-4 pt-3 border-top' }}">
+            {% if is_drawer %}
+            <button type="button" class="btn btn-light border" id="btnCancelInvDrawer">Annuler</button>
+            {% else %}
+            <a href="{{ url_for('invoices.detail', invoice_id=inv.id) }}" class="btn btn-light border">Annuler</a>
+            {% endif %}
+            <button type="submit" class="btn btn-brand">{{ 'Enregistrer' if inv else 'Créer la facture' }}</button>
+        </div>
+    </form>
+</div>
+
+<script>
+(function () {
+    const drawer = document.getElementById('invDrawer');
+    const backdrop = document.getElementById('invBackdrop');
+    const isDrawer = {{ 'true' if is_drawer else 'false' }};
+    const CATALOG = {{ catalog_items|tojson }};
+
+    function setDrawerOpen(open) {
+        if (!isDrawer || !drawer || !backdrop) return;
+        drawer.classList.toggle('is-open', open);
+        backdrop.classList.toggle('is-open', open);
+        document.body.style.overflow = open ? 'hidden' : '';
+    }
+    window.openInvoiceDrawer = () => setDrawerOpen(true);
+    document.querySelectorAll('[data-open-invoice-drawer]').forEach(btn => btn.addEventListener('click', () => setDrawerOpen(true)));
+    [document.getElementById('btnCloseInvDrawer'), document.getElementById('btnCancelInvDrawer'), backdrop].forEach(el => {
+        if (el) el.addEventListener('click', () => setDrawerOpen(false));
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isDrawer) setDrawerOpen(false); });
+
+    // Currency symbol formatting
+    const currSel = document.getElementById('invCurrencySelect');
+    function fmtMoney(val) {
+        const opt = currSel.options[currSel.selectedIndex];
+        const sym = opt ? (opt.dataset.symbol || 'FCFA') : 'FCFA';
+        const code = currSel.value;
+        const n = Number(val || 0);
+        if (code === 'EUR' || code === 'USD') {
+            return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/\u202f|\u00a0/g, ' ') + ' ' + sym;
+        }
+        return Math.round(n).toLocaleString('fr-FR').replace(/\u202f|\u00a0/g, ' ') + ' ' + sym;
+    }
+
+    // Recalculate line items + summary
+    const itemsBody = document.getElementById('invItemsBody');
+    const amtInput = document.getElementById('invAmountInput');
+    function recalc() {
+        let subtotal = 0;
+        itemsBody.querySelectorAll('.inv-item-row').forEach(row => {
+            const qty = Math.max(0, parseFloat(row.querySelector('.inv-it-qty').value) || 0);
+            const price = Math.max(0, parseFloat(row.querySelector('.inv-it-price').value) || 0);
+            const disc = Math.min(100, Math.max(0, parseFloat(row.querySelector('.inv-it-disc').value) || 0));
+            const line = qty * price * (1 - disc / 100);
+            subtotal += line;
+            row.querySelector('.inv-it-amt').value = fmtMoney(line);
+        });
+        const d1 = Math.min(100, Math.max(0, parseFloat(document.getElementById('sumDiscPct').value) || 0));
+        const d2 = Math.min(100, Math.max(0, parseFloat(document.getElementById('sumExtraPct').value) || 0));
+        const taxPct = Math.min(100, Math.max(0, parseFloat(document.getElementById('sumTaxPct').value) || 0));
+        const d1Amt = subtotal * d1 / 100;
+        const after1 = Math.max(0, subtotal - d1Amt);
+        const d2Amt = after1 * d2 / 100;
+        const taxable = Math.max(0, after1 - d2Amt);
+        const taxAmt = taxable * taxPct / 100;
+        const total = taxable + taxAmt;
+
+        document.getElementById('sumSubtotal').textContent = fmtMoney(subtotal);
+        document.getElementById('sumDiscAmt').textContent = (d1Amt > 0 ? '-' : '') + fmtMoney(d1Amt);
+        document.getElementById('sumExtraAmt').textContent = (d2Amt > 0 ? '-' : '') + fmtMoney(d2Amt);
+        document.getElementById('sumTaxAmt').textContent = fmtMoney(taxAmt);
+        document.getElementById('sumTotal').textContent = fmtMoney(total);
+        if (subtotal > 0) amtInput.value = Math.round(total);
+    }
+
+    function bindRow(row) {
+        const nameIn = row.querySelector('.inv-it-name');
+        const priceIn = row.querySelector('.inv-it-price');
+        nameIn.addEventListener('change', () => {
+            const match = CATALOG.find(c => c.label === nameIn.value);
+            if (match && (!parseFloat(priceIn.value))) { priceIn.value = match.price; recalc(); }
+        });
+        row.querySelectorAll('.inv-it-qty, .inv-it-price, .inv-it-disc').forEach(el => {
+            el.addEventListener('input', recalc);
+            el.addEventListener('change', recalc);
+        });
+        row.querySelector('.inv-rm-row').addEventListener('click', () => {
+            if (itemsBody.querySelectorAll('.inv-item-row').length > 1) {
+                row.remove();
+                recalc();
+            } else {
+                nameIn.value = '';
+                row.querySelector('.inv-it-qty').value = 1;
+                priceIn.value = 0;
+                row.querySelector('.inv-it-disc').value = '0';
+                recalc();
+            }
+        });
+    }
+    itemsBody.querySelectorAll('.inv-item-row').forEach(bindRow);
+
+    document.getElementById('btnAddInvoiceRow').addEventListener('click', () => {
+        const tr = document.createElement('tr');
+        tr.className = 'inv-item-row';
+        tr.innerHTML = `
+            <td><input type="text" name="item_name[]" class="form-control inv-it-name" list="invCatalogList" placeholder="Prestation 3M..."></td>
+            <td><input type="number" name="item_qty[]" class="form-control inv-it-qty" min="0" step="1" value="1"></td>
+            <td><input type="number" name="item_price[]" class="form-control inv-it-price" min="0" step="500" value="0"></td>
+            <td><select name="item_discount[]" class="form-select inv-it-disc"><option value="0" selected>0%</option><option value="2">2%</option><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20">20%</option><option value="25">25%</option></select></td>
+            <td><input type="text" class="form-control bg-light inv-it-amt fw-semibold" value="0 FCFA" readonly></td>
+            <td><button type="button" class="inv-rm-row" title="Supprimer"><i class="bi bi-x-lg"></i></button></td>
+        `;
+        itemsBody.appendChild(tr);
+        bindRow(tr);
+        recalc();
+    });
+
+    ['sumDiscPct', 'sumExtraPct', 'sumTaxPct', 'invCurrencySelect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.addEventListener('input', recalc); el.addEventListener('change', recalc); }
+    });
+
+    // Auto-fill from Client select
+    const clientSel = document.getElementById('invClientSelect');
+    const billToIn = document.getElementById('invBillTo');
+    const shipToIn = document.getElementById('invShipTo');
+    clientSel.addEventListener('change', () => {
+        const opt = clientSel.options[clientSel.selectedIndex];
+        if (!opt || !opt.value) return;
+        if (opt.dataset.bill) billToIn.value = opt.dataset.bill;
+        if (opt.dataset.address && (!shipToIn.value || shipToIn.value === 'Agence Omnisports, Yaoundé')) {
+            shipToIn.value = opt.dataset.address;
+        }
+    });
+
+    // Auto-fill from Project / Contract select
+    const projSel = document.getElementById('invProjectSelect');
+    projSel.addEventListener('change', () => {
+        const opt = projSel.options[projSel.selectedIndex];
+        if (!opt || !opt.value) return;
+        if (opt.dataset.clientId) clientSel.value = opt.dataset.clientId;
+        if (opt.dataset.bill && !billToIn.value) billToIn.value = opt.dataset.bill;
+        if (opt.dataset.ship) shipToIn.value = opt.dataset.ship;
+        const firstRow = itemsBody.querySelector('.inv-item-row');
+        if (firstRow && opt.dataset.item) {
+            const n = firstRow.querySelector('.inv-it-name');
+            const p = firstRow.querySelector('.inv-it-price');
+            if (!n.value) n.value = opt.dataset.item;
+            if (!parseFloat(p.value) && opt.dataset.price) p.value = opt.dataset.price;
+            recalc();
+        }
+    });
+
+    // Inline Quick Client creation
+    const qcPanel = document.getElementById('quickClientPanel');
+    document.getElementById('btnToggleQuickClient').addEventListener('click', () => {
+        qcPanel.hidden = !qcPanel.hidden;
+        if (!qcPanel.hidden) document.getElementById('qcName').focus();
+    });
+    document.getElementById('btnCloseQuickClient').addEventListener('click', () => { qcPanel.hidden = true; });
+    document.getElementById('btnSaveQuickClient').addEventListener('click', async () => {
+        const fb = document.getElementById('qcFeedback');
+        fb.textContent = '';
+        const payload = {
+            name: document.getElementById('qcName').value.trim(),
+            phone: document.getElementById('qcPhone').value.trim(),
+            email: document.getElementById('qcEmail').value.trim(),
+            address: document.getElementById('qcAddr').value.trim(),
+        };
+        const csrf = document.querySelector('#invoiceForm input[name="csrf_token"]').value;
+        try {
+            const res = await fetch("{{ url_for('invoices.quick_client') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                fb.textContent = data.error || 'Erreur lors de la création.';
+                return;
+            }
+            let opt = Array.from(clientSel.options).find(o => String(o.value) === String(data.client.id));
+            if (!opt) {
+                opt = new Option(data.client.label, data.client.id, true, true);
+                opt.dataset.bill = data.client.bill_to;
+                opt.dataset.address = data.client.address || '';
+                clientSel.add(opt);
+            }
+            clientSel.value = String(data.client.id);
+            billToIn.value = data.client.bill_to;
+            if (data.client.address) shipToIn.value = data.client.address;
+            qcPanel.hidden = true;
+            ['qcName', 'qcPhone', 'qcEmail', 'qcAddr'].forEach(id => { document.getElementById(id).value = ''; });
+        } catch (err) {
+            fb.textContent = 'Erreur réseau.';
+        }
+    });
+
+    // Rich text toolbar
+    const rteEd = document.getElementById('invDescEditor');
+    const rteHidden = document.getElementById('invDescHidden');
+    document.querySelectorAll('.inv-rte__btn[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', () => { rteEd.focus(); document.execCommand(btn.dataset.cmd, false, null); });
+    });
+    document.getElementById('rteBlockFmt').addEventListener('change', function () {
+        rteEd.focus();
+        document.execCommand('formatBlock', false, this.value);
+    });
+    document.getElementById('rteLinkBtn').addEventListener('click', () => {
+        const u = prompt('URL du lien :');
+        if (u) { rteEd.focus(); document.execCommand('createLink', false, u); }
+    });
+    document.getElementById('invoiceForm').addEventListener('submit', () => {
+        rteHidden.value = rteEd.innerHTML.trim();
+    });
+
+    recalc();
+})();
+</script>

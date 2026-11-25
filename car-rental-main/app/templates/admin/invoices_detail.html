@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block title %}Facture {{ invoice.reference }} — 3M SERVICES{% endblock %}
+
+{% block content %}
+<style>
+.inv-doc-wrap { max-width: 960px; }
+.inv-doc-wrap i { color: inherit !important; }
+.inv-doc {
+    background: #fff;
+    border: 1px solid #eaecf0;
+    border-radius: 14px;
+    padding: 32px 34px;
+}
+.inv-doc__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eaecf0;
+    margin-bottom: 22px;
+}
+.inv-doc__brand h2 { font-size: 18px; font-weight: 800; color: #101828; margin: 0 0 4px; }
+.inv-doc__brand p { margin: 0; font-size: 13px; color: #667085; line-height: 1.5; }
+.inv-doc__meta { text-align: right; }
+.inv-doc__ref { font-size: 20px; font-weight: 800; color: #101828; }
+.inv-doc__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-bottom: 24px; }
+.inv-doc__box small { display: block; font-size: 11.5px; font-weight: 700; color: #667085; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+.inv-doc__box strong { display: block; font-size: 14px; color: #101828; }
+.inv-doc__box span { font-size: 13px; color: #475467; }
+.inv-doc__tbl th { background: #f9fafb; font-size: 12px; color: #475467; font-weight: 600; }
+.inv-doc__totals { max-width: 340px; margin-left: auto; display: grid; gap: 8px; background: #f9fafb; border: 1px solid #eaecf0; border-radius: 12px; padding: 14px 16px; }
+.inv-doc__trow { display: flex; justify-content: space-between; font-size: 13.5px; color: #344054; }
+.inv-doc__trow.is-total { border-top: 1px solid #eaecf0; padding-top: 8px; font-size: 16px; font-weight: 800; color: #101828; }
+@media (max-width: 767.98px) {
+    .inv-doc { padding: 18px; }
+    .inv-doc__head, .inv-doc__grid { grid-template-columns: 1fr; flex-direction: column; }
+    .inv-doc__meta { text-align: left; }
+}
+@media print {
+    .admin-sidebar, .admin-topbar-card, .page-actions, .inv-pay-bar { display: none !important; }
+    .inv-doc { border: 0; padding: 0; }
+}
+</style>
+
+{% set lbl, tone = status_labels.get(invoice.status, (invoice.status, 'neutral')) %}
+
+<div class="inv-doc-wrap">
+    <div class="page-header">
+        <div>
+            <h1>Facture {{ invoice.reference }} <span class="status-pill status-{{ tone }} ms-2">{{ lbl }}</span></h1>
+            <p>{{ invoice.project_label or 'Prestation 3M SERVICES' }} · Créée le {{ invoice.created_at.strftime('%d/%m/%Y') if invoice.created_at else '—' }}</p>
+        </div>
+        <div class="page-actions">
+            <a href="{{ url_for('invoices.index') }}" class="btn btn-light border"><i class="bi bi-arrow-left me-1"></i> Factures</a>
+            <a href="{{ url_for('invoices.edit', invoice_id=invoice.id) }}" class="btn btn-light border"><i class="bi bi-pencil me-1"></i> Modifier</a>
+            <button type="button" class="btn btn-light border" onclick="window.print()"><i class="bi bi-printer me-1"></i> Imprimer</button>
+            <a href="{{ url_for('invoices.download_pdf', invoice_id=invoice.id) }}" class="btn btn-brand"><i class="bi bi-file-earmark-pdf me-1"></i> Télécharger PDF</a>
+        </div>
+    </div>
+
+    <!-- Barre d'actions statut & encaissement -->
+    <div class="card border mb-3 inv-pay-bar" style="border-radius: 12px; border-color: #eaecf0 !important;">
+        <div class="card-body py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex flex-wrap gap-2">
+                {% if invoice.status != 'sent' and invoice.status != 'paid' %}
+                <form method="POST" action="{{ url_for('invoices.update_status', invoice_id=invoice.id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="status" value="sent">
+                    <button type="submit" class="btn btn-sm btn-light border"><i class="bi bi-send me-1"></i> Marquer envoyée</button>
+                </form>
+                {% endif %}
+                {% if invoice.status != 'paid' %}
+                <form method="POST" action="{{ url_for('invoices.update_status', invoice_id=invoice.id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="status" value="paid">
+                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check2-circle me-1"></i> Solder / Marquer payée</button>
+                </form>
+                {% endif %}
+                {% if matched_chat %}
+                <form method="POST" action="{{ url_for('invoices.send_to_chat', invoice_id=invoice.id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-sm btn-light border fw-semibold">
+                        <i class="bi bi-chat-dots me-1"></i> Transférer dans le chat ({{ matched_chat.clientName or matched_chat.id }})
+                    </button>
+                </form>
+                <a href="{{ url_for('admin.chats', client_id=matched_chat.id) }}" class="btn btn-sm btn-light border">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Ouvrir le chat
+                </a>
+                {% else %}
+                <span class="badge bg-light text-muted border d-inline-flex align-items-center fw-normal px-2">
+                    <i class="bi bi-chat-dots me-1"></i> Aucun chat client existant
+                </span>
+                {% endif %}
+            </div>
+            {% if invoice.balance > 0 %}
+            <form method="POST" action="{{ url_for('invoices.update_status', invoice_id=invoice.id) }}" class="d-flex align-items-center gap-2">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="number" name="amount_paid" class="form-control form-control-sm" style="width: 150px;" min="100" max="{{ invoice.balance|int }}" step="500" placeholder="Acompte ({{ invoice.currency }})">
+                <button type="submit" class="btn btn-sm btn-light border fw-semibold">Encaisser</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Document officiel -->
+    <div class="inv-doc">
+        <div class="inv-doc__head">
+            <div class="inv-doc__brand d-flex align-items-start gap-3">
+                <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES" style="width: 48px; height: 48px; object-fit: contain;">
+                <div>
+                    <h2>3M SERVICES</h2>
+                    <p>Location de véhicules VIP · Conciergerie · Résidences meublées<br>Yaoundé — Omnisports &amp; Tsinga (Face FECAFOOT) · +237 691 78 64 47</p>
+                </div>
+            </div>
+            <div class="inv-doc__meta">
+                <div class="inv-doc__ref">{{ invoice.reference }}</div>
+                <div class="small text-muted mt-1">Émise le {{ invoice.issue_date.strftime('%d/%m/%Y') if invoice.issue_date else '—' }}</div>
+                <div class="small text-muted">Échéance : <strong>{{ invoice.due_date.strftime('%d/%m/%Y') if invoice.due_date else '—' }}</strong></div>
+            </div>
+        </div>
+
+        <div class="inv-doc__grid">
+            <div class="inv-doc__box">
+                <small>Facturer à</small>
+                <strong>{{ invoice.bill_to }}</strong>
+                {% if invoice.client and invoice.client.email %}<span>{{ invoice.client.email }}</span>{% endif %}
+            </div>
+            <div class="inv-doc__box">
+                <small>Lieu de prestation / Livraison</small>
+                <strong>{{ invoice.ship_to }}</strong>
+            </div>
+            <div class="inv-doc__box">
+                <small>Règlement</small>
+                <strong>{{ payment_methods.get(invoice.payment_method, invoice.payment_method) }}</strong>
+                <span>Devise : {{ currencies.get(invoice.currency, (invoice.currency,))[0] }}</span>
+            </div>
+        </div>
+
+        {% if invoice.description %}
+        <div class="mb-4 p-3 rounded-3" style="background: #f9fafb; border: 1px solid #f2f4f7; font-size: 13.5px;">
+            {{ invoice.description|safe }}
+        </div>
+        {% endif %}
+
+        <div class="table-responsive mb-4">
+            <table class="table inv-doc__tbl align-middle">
+                <thead>
+                    <tr>
+                        <th>Désignation</th>
+                        <th class="text-end">Quantité</th>
+                        <th class="text-end">Prix unitaire</th>
+                        <th class="text-end">Remise</th>
+                        <th class="text-end">Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for it in invoice.items %}
+                    <tr>
+                        <td class="fw-semibold text-dark">{{ it.item_name }}</td>
+                        <td class="text-end">{{ it.quantity|int if it.quantity == it.quantity|int else it.quantity }}</td>
+                        <td class="text-end">{{ format_money(it.unit_price, invoice.currency) }}</td>
+                        <td class="text-end">{{ it.discount_percent|int }}%</td>
+                        <td class="text-end fw-bold">{{ format_money(it.amount, invoice.currency) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="inv-doc__totals mb-4">
+            <div class="inv-doc__trow"><span>Sous-total</span><strong>{{ format_money(invoice.subtotal, invoice.currency) }}</strong></div>
+            {% if invoice.discount_percent %}<div class="inv-doc__trow"><span>Remise ({{ '%g'|format(invoice.discount_percent) }}%)</span><span>-{{ format_money(invoice.discount_amount, invoice.currency) }}</span></div>{% endif %}
+            {% if invoice.extra_discount_percent %}<div class="inv-doc__trow"><span>Remise suppl. ({{ '%g'|format(invoice.extra_discount_percent) }}%)</span><span>-{{ format_money(invoice.extra_discount_amount, invoice.currency) }}</span></div>{% endif %}
+            {% if invoice.tax_percent %}<div class="inv-doc__trow"><span>TVA ({{ '%g'|format(invoice.tax_percent) }}%)</span><span>{{ format_money(invoice.tax_amount, invoice.currency) }}</span></div>{% endif %}
+            <div class="inv-doc__trow is-total"><span>Total</span><span style="color: var(--primary-light);">{{ format_money(invoice.total_amount, invoice.currency) }}</span></div>
+            <div class="inv-doc__trow text-success"><span>Déjà réglé</span><strong>{{ format_money(invoice.amount_paid, invoice.currency) }}</strong></div>
+            <div class="inv-doc__trow"><span>Reste à payer</span><strong>{{ format_money(invoice.balance, invoice.currency) }}</strong></div>
+        </div>
+
+        {% if invoice.notes %}
+        <div class="mb-3">
+            <div class="fw-semibold text-dark small mb-1">Notes</div>
+            <div class="small text-muted">{{ invoice.notes }}</div>
+        </div>
+        {% endif %}
+        {% if invoice.terms %}
+        <div class="pt-3 border-top">
+            <div class="fw-semibold text-dark small mb-1">Conditions générales</div>
+            <div class="small text-muted">{{ invoice.terms }}</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

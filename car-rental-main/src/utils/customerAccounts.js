@@ -152,9 +152,9 @@ export const saveOrderAndCustomerAccount = ({
   city = "Yaoundé",
   itemName,
   itemCategory = "Véhicule VIP",
-  itemPrice = 120000,
+  itemPrice = 0,
   days = 1,
-  totalPrice = 120000,
+  totalPrice = 0,
   pickTime = "",
   dropTime = "",
   pickUp = "Agence Omnisports, Yaoundé",
@@ -164,9 +164,9 @@ export const saveOrderAndCustomerAccount = ({
 }) => {
   const store = getCrmStore();
   const safeName = (clientName || "Client 3M Services").trim();
-  const safePhone = (phone || "+237 691 78 64 47").trim();
+  const safePhone = (phone || "").trim(); // jamais le numéro de 3M SERVICES à la place du client
   const safeEmail = (email || "").trim();
-  const safePrice = Number(totalPrice) || (Number(itemPrice) * (Number(days) || 1)) || 120000;
+  const safePrice = Number(totalPrice) || (Number(itemPrice) * (Number(days) || 1)) || 0; // 0 = à confirmer
 
   const phoneDigits = safePhone.replace(/[^0-9]/g, "");
   const orderRef = "3M-RES-" + Math.floor(1000 + Math.random() * 9000);
@@ -563,27 +563,9 @@ export const updateClientProfile = (updates = {}) => {
 };
 
 /**
- * Ensure demo account has scheduled, completed, and cancelled orders in local CRM store
+ * Demo booking seeder disabled for production
  */
-export const ensureDemoClientBookings = (demoClient) => {
-  if (!demoClient) return;
-  const store = getCrmStore();
-  const bookings = Array.isArray(store.bookings) ? [...store.bookings] : [];
-  let changed = false;
-
-  DEFAULT_BOOKINGS.forEach((seedBooking) => {
-    const exists = bookings.some((b) => b.id === seedBooking.id);
-    if (!exists) {
-      bookings.push(seedBooking);
-      changed = true;
-    }
-  });
-
-  if (changed) {
-    store.bookings = bookings;
-    saveCrmStore(store);
-  }
-};
+export const ensureDemoClientBookings = () => {};
 
 /**
  * Cancel an order belonging to the client in the CRM store

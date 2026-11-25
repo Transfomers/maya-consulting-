@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Nouveau contrat' if is_new else 'Modifier ' ~ contract.reference }} - 3M SERVICES{% endblock %}
+
+{% block content %}
+<style>
+.cf-wrap { max-width: 980px; }
+.cf-card { background: #fff; border: 1px solid #eaecf0; border-radius: 14px; margin-bottom: 16px; }
+.cf-card__head { padding: 16px 22px; border-bottom: 1px solid #f2f4f7; }
+.cf-card__head h2 { font-size: 15px; font-weight: 700; color: #101828; margin: 0; }
+.cf-card__head p { font-size: 12.5px; color: #667085; margin: 2px 0 0; }
+.cf-card__body { padding: 18px 22px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 18px; }
+.cf-full { grid-column: 1 / -1; }
+.cf-field label { display: block; font-size: 13px; font-weight: 600; color: #344054; margin-bottom: 6px; }
+.cf-field label .req { color: #d92d20; }
+.cf-field .form-control, .cf-field .form-select { height: 42px; font-size: 14px; }
+.cf-field textarea.form-control { height: auto; min-height: 96px; }
+.cf-hint { font-size: 12px; color: #667085; margin-top: 4px; }
+.cf-toggle { display: inline-flex; border: 1px solid #eaecf0; border-radius: 10px; overflow: hidden; }
+.cf-toggle label { margin: 0; padding: 8px 14px; font-size: 13px; font-weight: 600; color: #475467; cursor: pointer; }
+.cf-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.cf-toggle label:has(input:checked) { background: #101828; color: #fff; }
+.cf-total { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 10px; background: #f9fafb; border: 1px solid #eaecf0; font-size: 13px; color: #667085; }
+.cf-total strong { font-size: 16px; color: #101828; }
+.cf-drop { display: block; border: 2px dashed #d0d5dd; border-radius: 12px; padding: 26px 18px; text-align: center; background: #f9fafb; color: #344054; font-size: 14px; cursor: pointer; transition: border-color .15s, background .15s; margin: 0; }
+.cf-drop.is-over { border-color: var(--primary-light); background: #fef3f2; }
+.cf-drop > i { font-size: 26px; color: var(--primary-light) !important; display: block; margin-bottom: 6px; }
+.cf-drop u { color: var(--primary-light); }
+.cf-drop small { display: block; margin-top: 4px; color: #667085; }
+.cf-files { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+.cf-files li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid #eaecf0; border-radius: 8px; font-size: 13px; background: #fff; }
+.cf-files li.is-error { border-color: #fecdca; background: #fef3f2; color: #b42318; }
+.cf-files small { color: #667085; white-space: nowrap; }
+.cf-file-rm { border: 0; background: transparent; color: #667085; padding: 2px 6px; border-radius: 6px; cursor: pointer; font-weight: 700; line-height: 1; }
+.cf-file-rm:hover { background: #fee4e2; color: #b42318; }
+.cf-avail { padding: 10px 14px; border-radius: 10px; font-size: 13px; display: flex; align-items: flex-start; gap: 8px; }
+.cf-avail.is-ok { background: #ecfdf3; border: 1px solid #abefc6; color: #027a48; }
+.cf-avail.is-busy { background: #fef3f2; border: 1px solid #fecdca; color: #b42318; }
+.cf-avail.is-wait { background: #f8fafc; border: 1px solid #eaecf0; color: #667085; }
+.cf-avail i { color: inherit !important; margin-top: 2px; }
+.cf-actions { position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: flex-end; gap: 8px; padding: 14px 0; background: linear-gradient(to top, var(--canvas, #f8fafc) 70%, transparent); }
+.cf-actions .btn[disabled] { cursor: progress; }
+@media (max-width: 767.98px) { .cf-card__body { grid-template-columns: minmax(0, 1fr); } .cf-actions { flex-wrap: wrap; } .cf-actions .btn { flex: 1 1 auto; } }
+</style>
+
+{% set f = form if form else {} %}
+{% macro val(name, default='') %}{{ f.get(name) if f.get(name) is not none else default }}{% endmacro %}
+{% macro dt(value) %}{{ value.strftime('%Y-%m-%dT%H:%M') if value else '' }}{% endmacro %}
+{% macro num(v) %}{{ (v|int) if v else '' }}{% endmacro %}
+{% set cur_type = val('contract_type', contract.contract_type or 'vehicle_rental') %}
+
+<div class="cf-wrap">
+    <div class="page-header">
+        <div>
+            <h1>{{ 'Nouveau contrat' if is_new else 'Modifier le contrat ' ~ contract.reference }}</h1>
+            <p>Champs <span class="text-danger">*</span> obligatoires. Dates et disponibilité de l'actif sont vérifiées à l'enregistrement.{% if contract.previous_contract %} Renouvellement de <strong>{{ contract.previous_contract.reference }}</strong>.{% endif %}</p>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="contractForm" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <!-- Contrat -->
+        <section class="cf-card">
+            <div class="cf-card__head"><h2>Contrat</h2></div>
+            <div class="cf-card__body">
+                <div class="cf-field cf-full"><label for="subject">Objet <span class="req">*</span></label><input id="subject" name="subject" class="form-control" maxlength="150" required value="{{ val('subject', contract.subject or '') }}" placeholder="Ex. Location Land Cruiser V8 — séminaire Kribi"></div>
+                <div class="cf-field">
+                    <label for="contract_type">Type de contrat <span class="req">*</span></label>
+                    <select id="contract_type" name="contract_type" class="form-select" required>
+                        {% for k, label in type_labels.items() %}<option value="{{ k }}" {% if cur_type == k %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="cf-field">
+                    <label for="booking_id">Réservation liée</label>
+                    <select id="booking_id" name="booking_id" class="form-select">
+                        <option value="">Aucune</option>
+                        {% set cur_booking = (f.get('booking_id')|int if f.get('booking_id') else contract.booking_id) %}
+                        {% for b in bookings %}<option value="{{ b.id }}" {% if cur_booking == b.id %}selected{% endif %}>#{{ b.id }}{% if b.booking_code %} · {{ b.booking_code }}{% endif %}{% if b.booking_date %} · {{ b.booking_date.strftime('%d/%m/%Y') }}{% endif %}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Client -->
+        <section class="cf-card">
+            <div class="cf-card__head"><h2>Client</h2><p>Client existant ou nouveau client (doublons téléphone / e-mail détectés automatiquement).</p></div>
+            <div class="cf-card__body">
+                {% set mode = f.get('client_mode', 'existing') %}
+                <div class="cf-full">
+                    <div class="cf-toggle" role="radiogroup" aria-label="Type de client">
+                        <label><input type="radio" name="client_mode" value="existing" {% if mode != 'new' %}checked{% endif %}>Client existant</label>
+                        <label><input type="radio" name="client_mode" value="new" {% if mode == 'new' %}checked{% endif %}>Nouveau client</label>
+                    </div>
+                </div>
+                <div class="cf-field cf-full" data-client="existing">
+                    <label for="client_id">Client <span class="req">*</span></label>
+                    <select id="client_id" name="client_id" class="form-select">
+                        <option value="">Sélectionner…</option>
+                        {% set cur_client = (f.get('client_id')|int if f.get('client_id') else contract.client_id) %}
+                        {% for u in clients %}<option value="{{ u.id }}" {% if cur_client == u.id %}selected{% endif %}>{{ u.real_name or u.username }}{% if u.phone %} · {{ u.phone }}{% endif %}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="cf-field" data-client="new"><label for="new_client_name">Nom complet <span class="req">*</span></label><input id="new_client_name" name="new_client_name" class="form-control" value="{{ val('new_client_name') }}" maxlength="100" autocomplete="name"></div>
+                <div class="cf-field" data-client="new"><label for="new_client_phone">Téléphone <span class="req">*</span></label><input id="new_client_phone" name="new_client_phone" type="tel" class="form-control" value="{{ val('new_client_phone') }}" placeholder="+237 6XX XX XX XX" autocomplete="tel"></div>
+                <div class="cf-field cf-full" data-client="new"><label for="new_client_email">E-mail</label><input id="new_client_email" name="new_client_email" type="email" class="form-control" value="{{ val('new_client_email') }}" autocomplete="email"></div>
+            </div>
+        </section>
+
+        <!-- Actif & période -->
+        <section class="cf-card">
+            <div class="cf-card__head"><h2>Actif & période</h2><p>Les actifs proposés dépendent du type de contrat. Les biens en maintenance sont exclus.</p></div>
+            <div class="cf-card__body">
+                <div class="cf-field" data-asset="vehicle_rental">
+                    <label for="vehicle_id">Véhicule <span class="req">*</span></label>
+                    <select id="vehicle_id" name="vehicle_id" class="form-select">
+                        <option value="">Sélectionner…</option>
+                        {% set cur_vehicle = (f.get('vehicle_id')|int if f.get('vehicle_id') else contract.vehicle_id) %}
+                        {% for v in vehicles %}<option value="{{ v.id }}" {% if cur_vehicle == v.id %}selected{% endif %} {% if v.status == 'maintenance' %}disabled{% endif %}>{{ v.brand or '' }} {{ v.model }} · {{ v.bus_number }}{% if v.status == 'maintenance' %} (maintenance){% endif %}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="cf-field" data-asset="vehicle_rental">
+                    <label for="trip_id">Mission VIP liée</label>
+                    <select id="trip_id" name="trip_id" class="form-select">
+                        <option value="">Aucune</option>
+                        {% set cur_trip = (f.get('trip_id')|int if f.get('trip_id') else contract.trip_id) %}
+                        {% for t in trips %}<option value="{{ t.id }}" {% if cur_trip == t.id %}selected{% endif %}>#{{ t.id }} · {{ t.departure_time.strftime('%d/%m/%Y') }}{% if t.route %} · {{ t.route.origin }} → {{ t.route.destination }}{% endif %}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="cf-field cf-full" data-asset="apartment_rental">
+                    <label for="apartment_id">Appartement <span class="req">*</span></label>
+                    <select id="apartment_id" name="apartment_id" class="form-select">
+                        <option value="">Sélectionner…</option>
+                        {% set cur_apt = val('apartment_id', contract.apartment_id or '') %}
+                        {% for a in apartments %}{% set off = (a.status or '')|lower in ['maintenance', 'non publié'] %}<option value="{{ a.id }}" {% if cur_apt == a.id %}selected{% endif %} {% if off %}disabled{% endif %}>{{ a.title }} · {{ a.location }}{% if off %} ({{ a.status }}){% endif %}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="cf-field cf-full" data-asset="none"><div class="cf-hint mt-0">Ce type de contrat n'engage pas de véhicule ni d'appartement.</div></div>
+
+                <div class="cf-field"><label for="start_date">Date de début <span class="req">*</span></label><input id="start_date" name="start_date" type="datetime-local" class="form-control" required value="{{ val('start_date', dt(contract.start_date)) }}"></div>
+                <div class="cf-field"><label for="end_date">Date de fin <span class="req">*</span></label><input id="end_date" name="end_date" type="datetime-local" class="form-control" required value="{{ val('end_date', dt(contract.end_date)) }}"><div class="cf-hint" id="dateError" role="alert" hidden></div></div>
+                <div class="cf-field" data-asset="vehicle_rental"><label for="pickup_location">Lieu de prise en charge</label><input id="pickup_location" name="pickup_location" class="form-control" maxlength="200" value="{{ val('pickup_location', contract.pickup_location or 'Agence Omnisports, Yaoundé') }}"></div>
+                <div class="cf-field" data-asset="vehicle_rental"><label for="return_location">Lieu de restitution</label><input id="return_location" name="return_location" class="form-control" maxlength="200" value="{{ val('return_location', contract.return_location or 'Agence Omnisports, Yaoundé') }}"></div>
+                <div class="cf-full" id="availabilityBanner" hidden aria-live="polite"></div>
+            </div>
+        </section>
+
+        <!-- Montants -->
+        <section class="cf-card">
+            <div class="cf-card__head"><h2>Montants (FCFA)</h2><p>Indiquez la valeur du contrat, ou laissez-la vide pour la calculer : tarif × durée + frais.</p></div>
+            <div class="cf-card__body">
+                <div class="cf-field"><label for="daily_rate" id="rateLabel">Tarif journalier</label><input id="daily_rate" name="daily_rate" type="number" min="0" step="500" inputmode="numeric" class="form-control" value="{{ val('daily_rate', num(contract.daily_rate)) }}"></div>
+                <div class="cf-field"><label for="extra_charges">Frais supplémentaires</label><input id="extra_charges" name="extra_charges" type="number" min="0" step="500" inputmode="numeric" class="form-control" value="{{ val('extra_charges', num(contract.extra_charges)) }}"><div class="cf-hint">Chauffeur, carburant, ménage, livraison…</div></div>
+                <div class="cf-field"><label for="total_value">Valeur du contrat <span class="req">*</span></label><input id="total_value" name="total_value" type="number" min="0" step="500" inputmode="numeric" class="form-control" value="{{ val('total_value', num(contract.total_value)) }}" placeholder="Calcul automatique"><div class="cf-total mt-2" aria-live="polite"><span id="calcLabel">Calcul (tarif × durée + frais)</span><strong id="calcValue">0 FCFA</strong></div></div>
+                <div class="cf-field"><label for="deposit">Caution</label><input id="deposit" name="deposit" type="number" min="0" step="1000" inputmode="numeric" class="form-control" value="{{ val('deposit', num(contract.deposit)) }}"><div class="cf-hint">Suivie séparément de la valeur du contrat.</div></div>
+                <div class="cf-field cf-full"><label for="payment_terms">Modalités de paiement</label><textarea id="payment_terms" name="payment_terms" class="form-control" rows="2" placeholder="Ex. 50 % à la signature, solde à la remise (Espèces, MTN MoMo, Orange Money, virement).">{{ val('payment_terms', contract.payment_terms or '') }}</textarea></div>
+            </div>
+        </section>
+
+        <!-- Documents -->
+        <section class="cf-card">
+            <div class="cf-card__head"><h2>Documents</h2><p>Au moins un document est requis avant l'activation (contrat signé, pièce d'identité…).</p></div>
+            <div class="cf-card__body">
+                <div class="cf-field">
+                    <label for="doc_type">Type de document</label>
+                    <select id="doc_type" name="doc_type" class="form-select">
+                        {% for k, label in doc_type_labels.items() %}<option value="{{ k }}" {% if val('doc_type', 'signed_contract') == k %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="cf-field cf-full">
+                    <label class="cf-drop" id="dropZone" for="documents">
+                        <i class="bi bi-folder2-open"></i>
+                        Déposez vos fichiers ici ou <u>parcourez</u>
+                        <small>PDF, DOCX, JPG, PNG ou WebP · 50 Mo maximum par fichier</small>
+                    </label>
+                    <input id="documents" name="documents" type="file" multiple accept=".pdf,.docx,.jpg,.jpeg,.png,.webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,image/webp" hidden>
+                    <ul class="cf-files" id="fileList" aria-live="polite"></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conditions -->
+        <section class="cf-card">
+            <div class="cf-card__head"><h2>Conditions & notes</h2></div>
+            <div class="cf-card__body">
+                <div class="cf-field cf-full"><label for="terms">Conditions générales</label><textarea id="terms" name="terms" class="form-control" rows="6">{{ val('terms', contract.terms or default_terms) }}</textarea></div>
+                <div class="cf-field cf-full"><label for="notes">Notes internes</label><textarea id="notes" name="notes" class="form-control" rows="3">{{ val('notes', contract.notes or '') }}</textarea></div>
+            </div>
+        </section>
+
+        <div class="cf-actions">
+            <a href="{{ url_for('contracts.detail', contract_id=contract.id) if not is_new else url_for('contracts.index') }}" class="btn btn-light border">Annuler</a>
+            {% if is_new %}
+            <button type="submit" name="submit_mode" value="draft" class="btn btn-light border" data-loading="Enregistrement…"><i class="bi bi-save me-1"></i> Enregistrer en brouillon</button>
+            <button type="submit" name="submit_mode" value="submit" class="btn btn-brand" data-loading="Envoi…"><i class="bi bi-send-check me-1"></i> Créer et soumettre pour approbation</button>
+            {% else %}
+            <button type="submit" class="btn btn-brand" data-loading="Enregistrement…"><i class="bi bi-check2 me-1"></i> Enregistrer</button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<script>
+(function () {
+    const form = document.getElementById('contractForm');
+    const $ = id => document.getElementById(id);
+
+    // Client existant / nouveau
+    function syncClient() {
+        const mode = form.querySelector('input[name="client_mode"]:checked').value;
+        form.querySelectorAll('[data-client]').forEach(el => { el.hidden = el.dataset.client !== mode; });
+    }
+    form.querySelectorAll('input[name="client_mode"]').forEach(r => r.addEventListener('change', syncClient));
+    syncClient();
+
+    // Actifs selon le type
+    const typeSel = $('contract_type');
+    function syncType() {
+        const t = typeSel.value;
+        const kind = t === 'vehicle_rental' || t === 'apartment_rental' ? t : 'none';
+        form.querySelectorAll('[data-asset]').forEach(el => { el.hidden = el.dataset.asset !== kind; });
+        $('rateLabel').textContent = t === 'apartment_rental' ? 'Tarif par nuit' : (kind === 'none' ? 'Tarif unitaire (par jour)' : 'Tarif journalier');
+        calc();
+    }
+    typeSel.addEventListener('change', syncType);
+
+    // Calcul indicatif + contrôle des dates
+    const fmt = n => Math.round(n).toLocaleString('fr-FR') + ' FCFA';
+    function calc() {
+        const s = new Date($('start_date').value), e = new Date($('end_date').value);
+        const rate = parseFloat($('daily_rate').value) || 0, extra = parseFloat($('extra_charges').value) || 0;
+        let days = 0;
+        const err = $('dateError');
+        if (!isNaN(s) && !isNaN(e)) {
+            if (e <= s) { err.textContent = 'La date de fin doit être postérieure à la date de début.'; err.hidden = false; err.style.color = '#b42318'; }
+            else { err.hidden = true; days = Math.max(1, Math.ceil((e - s) / 86400000)); }
+        }
+        $('calcLabel').textContent = days ? `Calcul (${days} j × tarif + frais)` : 'Calcul (tarif × durée + frais)';
+        $('calcValue').textContent = fmt(rate * days + extra);
+    }
+    ['start_date', 'end_date', 'daily_rate', 'extra_charges'].forEach(id => $(id).addEventListener('input', calc));
+    syncType();
+
+    // Vérification en direct de la disponibilité et tarif suggéré
+    const availEl = $('availabilityBanner');
+    let availTimer = null;
+    async function checkAvailability() {
+        const t = typeSel.value;
+        const vid = $('vehicle_id')?.value || '';
+        const aid = $('apartment_id')?.value || '';
+        const s = $('start_date').value, en = $('end_date').value;
+        if (!availEl) return;
+        if ((t === 'vehicle_rental' && !vid) || (t === 'apartment_rental' && !aid) || (t !== 'vehicle_rental' && t !== 'apartment_rental') || !s || !en) {
+            availEl.hidden = true;
+            return;
+        }
+        availEl.hidden = false;
+        availEl.className = 'cf-full cf-avail is-wait';
+        availEl.innerHTML = '<i class="bi bi-hourglass-split"></i><span>Vérification de la disponibilité…</span>';
+        const params = new URLSearchParams({
+            contract_type: t,
+            vehicle_id: vid,
+            apartment_id: aid,
+            start_date: s,
+            end_date: en,
+            exclude_id: '{{ contract.id or "" }}',
+            trip_id: $('trip_id')?.value || ''
+        });
+        try {
+            const res = await fetch("{{ url_for('contracts.api_availability') }}?" + params.toString());
+            const data = await res.json();
+            if (!data.ok) { availEl.hidden = true; return; }
+            if (data.available) {
+                availEl.className = 'cf-full cf-avail is-ok';
+                const rateHint = data.suggested_rate ? ` · Tarif suggéré : ${Math.round(data.suggested_rate).toLocaleString('fr-FR')} FCFA/j` : '';
+                availEl.innerHTML = `<i class="bi bi-check-circle-fill"></i><span>Disponible sur ${data.days} jour(s)${rateHint}.</span>`;
+                if (data.suggested_rate && !$('daily_rate').value) {
+                    $('daily_rate').value = Math.round(data.suggested_rate);
+                    calc();
+                }
+            } else {
+                availEl.className = 'cf-full cf-avail is-busy';
+                availEl.innerHTML = '<i class="bi bi-exclamation-octagon-fill"></i><div>' +
+                    data.conflicts.map(c => `<div>${c.replace(/</g, '&lt;')}</div>`).join('') + '</div>';
+            }
+        } catch (err) {
+            availEl.hidden = true;
+        }
+    }
+    function queueAvailability() {
+        clearTimeout(availTimer);
+        availTimer = setTimeout(checkAvailability, 200);
+    }
+    ['vehicle_id', 'apartment_id', 'trip_id', 'start_date', 'end_date', 'contract_type'].forEach(id => {
+        const el = $(id);
+        if (el) el.addEventListener('change', queueAvailability);
+    });
+
+    // Documents : glisser-déposer + file persistante + suppression unitaire
+    const MAX = 50 * 1024 * 1024, OK = /\.(pdf|docx|jpe?g|png|webp)$/i;
+    const drop = $('dropZone'), input = $('documents'), list = $('fileList');
+    let dtBuffer = new DataTransfer();
+    function renderFiles() {
+        list.innerHTML = '';
+        [...dtBuffer.files].forEach((file, idx) => {
+            const li = document.createElement('li');
+            const bad = !OK.test(file.name) ? 'format non accepté' : (file.size > MAX ? 'dépasse 50 Mo' : '');
+            li.className = bad ? 'is-error' : '';
+            const left = document.createElement('span');
+            left.textContent = file.name;
+            const right = document.createElement('div');
+            right.className = 'd-flex align-items-center gap-2';
+            const sz = document.createElement('small');
+            sz.textContent = bad || (file.size / 1048576).toFixed(1) + ' Mo';
+            const rm = document.createElement('button');
+            rm.type = 'button';
+            rm.className = 'cf-file-rm';
+            rm.setAttribute('aria-label', 'Retirer ' + file.name);
+            rm.innerHTML = '&times;';
+            rm.addEventListener('click', () => {
+                const nextDt = new DataTransfer();
+                [...dtBuffer.files].forEach((f, i) => { if (i !== idx) nextDt.items.add(f); });
+                dtBuffer = nextDt;
+                input.files = dtBuffer.files;
+                renderFiles();
+            });
+            right.appendChild(sz);
+            right.appendChild(rm);
+            li.appendChild(left);
+            li.appendChild(right);
+            list.appendChild(li);
+        });
+    }
+    function appendFiles(fileList) {
+        [...fileList].forEach(f => dtBuffer.items.add(f));
+        input.files = dtBuffer.files;
+        renderFiles();
+    }
+    input.addEventListener('change', () => { appendFiles(input.files); });
+    ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('is-over'); }));
+    ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('is-over'); }));
+    drop.addEventListener('drop', e => { if (e.dataTransfer.files.length) appendFiles(e.dataTransfer.files); });
+
+    // Envoi : validation rapide + état de chargement
+    let clicked = null;
+    form.querySelectorAll('button[type="submit"]').forEach(b => b.addEventListener('click', () => { clicked = b; }));
+    form.addEventListener('submit', e => {
+        const s = $('start_date').value, en = $('end_date').value;
+        if (s && en && new Date(en) <= new Date(s)) { e.preventDefault(); $('end_date').focus(); return; }
+        if (list.querySelector('.is-error')) { e.preventDefault(); alert('Retirez les fichiers invalides avant d\'enregistrer.'); return; }
+        if (clicked && clicked.name) {
+            const h = document.createElement('input'); h.type = 'hidden'; h.name = clicked.name; h.value = clicked.value; form.appendChild(h);
+        }
+        form.querySelectorAll('button[type="submit"]').forEach(b => { b.disabled = true; });
+        if (clicked) clicked.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>' + (clicked.dataset.loading || 'Envoi…');
+    });
+})();
+</script>
+{% endblock %}

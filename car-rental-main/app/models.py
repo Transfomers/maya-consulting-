@@ -139,6 +139,7 @@ class User(UserMixin, db.Model):
     
     # New Audit/Status Fields
     is_deleted = db.Column(db.Boolean, default=False)
+    is_test = db.Column(db.Boolean, default=False, nullable=True)  # donnée de démonstration / test : exclue des indicateurs
     deleted_at = db.Column(db.DateTime, nullable=True)
     is_suspended = db.Column(db.Boolean, default=False)
     is_archived = db.Column(db.Boolean, default=False)
@@ -452,6 +453,7 @@ class ApartmentBooking(db.Model):
     status = db.Column(db.String(30), default='confirmed') # confirmed, checked_in, checked_out, cancelled, maintenance_block
     notes = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_test = db.Column(db.Boolean, default=False, nullable=True)  # donnée de démonstration / test : exclue des indicateurs
 
     def __repr__(self):
         return f'<ApartmentBooking {self.booking_ref}: {self.apartment_id} ({self.check_in} -> {self.check_out})>'
@@ -609,6 +611,7 @@ class Trip(db.Model): # Representing Trajets (scheduled trips)
 
     # Execution, Pre-Departure Checklist, Telemetry, Mileage & Condition
     pre_departure_checklist_json = db.Column(db.Text, nullable=True)
+    handover_photos_json = db.Column(db.Text, nullable=True)
     mileage_start = db.Column(db.Integer, nullable=True)
     mileage_end = db.Column(db.Integer, nullable=True)
     fuel_start = db.Column(db.String(30), nullable=True)
@@ -622,6 +625,7 @@ class Trip(db.Model): # Representing Trajets (scheduled trips)
 
     # New Audit/Status Fields
     is_deleted = db.Column(db.Boolean, default=False)
+    is_test = db.Column(db.Boolean, default=False, nullable=True)  # donnée de démonstration / test : exclue des indicateurs
     deleted_at = db.Column(db.DateTime, nullable=True)
     is_archived = db.Column(db.Boolean, default=False)
     
@@ -693,6 +697,29 @@ class Trip(db.Model): # Representing Trajets (scheduled trips)
             self.pre_departure_checklist_json = _json.dumps(val, ensure_ascii=False)
         else:
             self.pre_departure_checklist_json = None
+
+    @property
+    def handover_photos(self):
+        if not self.handover_photos_json:
+            return []
+        try:
+            parsed = _json.loads(self.handover_photos_json)
+            return parsed if isinstance(parsed, list) else []
+        except Exception:
+            return []
+
+    @handover_photos.setter
+    def handover_photos(self, val):
+        if isinstance(val, list):
+            self.handover_photos_json = _json.dumps(val, ensure_ascii=False)
+        else:
+            self.handover_photos_json = None
+
+    @property
+    def mileage_distance(self):
+        if self.mileage_start is not None and self.mileage_end is not None and self.mileage_end >= self.mileage_start:
+            return int(self.mileage_end - self.mileage_start)
+        return None
 
     @property
     def total_expenses_amount(self):
@@ -784,6 +811,7 @@ class Booking(db.Model):
     
     # New Audit/Status Fields
     is_deleted = db.Column(db.Boolean, default=False)
+    is_test = db.Column(db.Boolean, default=False, nullable=True)  # donnée de démonstration / test : exclue des indicateurs
     deleted_at = db.Column(db.DateTime, nullable=True)
     is_archived = db.Column(db.Boolean, default=False)
     
@@ -817,6 +845,47 @@ class Feedback(db.Model):
 
     def __repr__(self):
         return f'<Feedback {self.id}>'
+
+class ExperienceRating(db.Model):
+    """Note globale de l'expérience 3M SERVICES laissée par un client depuis son espace (une par compte)."""
+    __tablename__ = 'experience_rating'
+    id = db.Column(db.Integer, primary_key=True)
+    account_number = db.Column(db.String(60), nullable=False, unique=True, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    client_name = db.Column(db.String(120), nullable=False)
+    client_phone = db.Column(db.String(40), nullable=True)
+    client_email = db.Column(db.String(120), nullable=True)
+    rating = db.Column(db.Integer, nullable=False)                 # 1 à 5
+    comment = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), nullable=False, default='new')   # new, in_progress, resolved
+    admin_reply = db.Column(db.Text, nullable=True)
+    replied_at = db.Column(db.DateTime, nullable=True)
+    replied_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+    is_hidden = db.Column(db.Boolean, default=False)
+    is_test = db.Column(db.Boolean, default=False, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    replied_by = db.relationship('User', foreign_keys=[replied_by_id])
+
+    STATUS_LABELS = {'new': 'Nouveau', 'in_progress': 'En cours', 'resolved': 'Traité'}
+
+    @property
+    def status_label(self):
+        return self.STATUS_LABELS.get(self.status, self.status)
+
+    def to_public_dict(self):
+        return {
+            'rating': self.rating,
+            'comment': self.comment or '',
+            'status': self.status,
+            'statusLabel': self.status_label,
+            'adminReply': self.admin_reply or '',
+            'repliedAt': self.replied_at.isoformat() + 'Z' if self.replied_at else None,
+            'updatedAt': (self.updated_at or self.created_at).isoformat() + 'Z',
+        }
+
 
 # === NEW: AUDIT TRACKING AND SYSTEM NOTIFICATIONS ===
 
@@ -1169,3 +1238,202 @@ class MissionIncident(db.Model):
 
     def __repr__(self):
         return f'<MissionIncident {self.incident_ref}: {self.category}>'
+
+
+class Contract(db.Model):
+    """Contrat (location véhicule / appartement, service, entreprise, partenariat)."""
+    __tablename__ = 'contract'
+
+    STATUSES = ('draft', 'pending_approval', 'active', 'completed', 'terminated', 'expired')
+    TYPES = ('vehicle_rental', 'apartment_rental', 'service_agreement', 'corporate_agreement', 'partnership')
+
+    id = db.Column(db.Integer, primary_key=True)
+    reference = db.Column(db.String(20), unique=True, nullable=False, index=True)  # CTR-2026-0001
+    subject = db.Column(db.String(150), nullable=False)
+    contract_type = db.Column(db.String(30), nullable=False, default='vehicle_rental')
+    status = db.Column(db.String(20), nullable=False, default='draft', index=True)
+
+    client_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    vehicle_id = db.Column(db.Integer, db.ForeignKey('bus.id'), nullable=True)
+    apartment_id = db.Column(db.String(50), db.ForeignKey('apartment.id'), nullable=True)
+    trip_id = db.Column(db.Integer, db.ForeignKey('trip.id'), nullable=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=True)
+    agency_id = db.Column(db.Integer, db.ForeignKey('agency.id'), nullable=True)
+    previous_contract_id = db.Column(db.Integer, db.ForeignKey('contract.id'), nullable=True)  # renouvellement
+
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime, nullable=False)
+    pickup_location = db.Column(db.String(200), nullable=True)
+    return_location = db.Column(db.String(200), nullable=True)
+
+    daily_rate = db.Column(db.Float, nullable=False, default=0.0)
+    extra_charges = db.Column(db.Float, nullable=False, default=0.0)
+    deposit = db.Column(db.Float, nullable=False, default=0.0)
+    total_value = db.Column(db.Float, nullable=False, default=0.0)
+    payment_terms = db.Column(db.Text, nullable=True)
+    terms = db.Column(db.Text, nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+    attachment_path = db.Column(db.String(255), nullable=True)  # ancien champ (repris en documents)
+
+    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    approved_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    approved_at = db.Column(db.DateTime, nullable=True)
+    signed_at = db.Column(db.DateTime, nullable=True)
+    cancelled_at = db.Column(db.DateTime, nullable=True)
+    terminated_at = db.Column(db.DateTime, nullable=True)
+    termination_reason = db.Column(db.Text, nullable=True)
+    expiry_notified_at = db.Column(db.DateTime, nullable=True)
+    is_archived = db.Column(db.Boolean, default=False)
+    archived_at = db.Column(db.DateTime, nullable=True)
+    is_deleted = db.Column(db.Boolean, default=False)
+    is_test = db.Column(db.Boolean, default=False, nullable=True)  # donnée de démonstration / test : exclue des indicateurs
+
+    client = db.relationship('User', foreign_keys=[client_id])
+    created_by = db.relationship('User', foreign_keys=[created_by_id])
+    approved_by = db.relationship('User', foreign_keys=[approved_by_id])
+    vehicle = db.relationship('Bus', foreign_keys=[vehicle_id])
+    apartment = db.relationship('Apartment', foreign_keys=[apartment_id])
+    trip = db.relationship('Trip', foreign_keys=[trip_id])
+    booking = db.relationship('Booking', foreign_keys=[booking_id])
+    previous_contract = db.relationship('Contract', remote_side=[id], foreign_keys=[previous_contract_id], backref='renewals')
+    payments = db.relationship('ContractPayment', backref='contract', lazy='dynamic', order_by='ContractPayment.paid_at.desc()')
+    documents = db.relationship('ContractDocument', backref='contract', lazy='dynamic', order_by='ContractDocument.uploaded_at.desc()')
+
+    @property
+    def days(self):
+        if not self.start_date or not self.end_date:
+            return 0
+        secs = (self.end_date - self.start_date).total_seconds()
+        return max(1, int(-(-secs // 86400)))  # jours entamés
+
+    @property
+    def amount_paid(self):
+        """Encaissé sur la valeur du contrat (hors caution, hors paiements annulés)."""
+        return sum(p.amount or 0 for p in self.payments.filter_by(is_void=False, is_deposit=False).all())
+
+    @property
+    def deposit_received(self):
+        return sum(p.amount or 0 for p in self.payments.filter_by(is_void=False, is_deposit=True).all())
+
+    @property
+    def balance(self):
+        return max(0.0, (self.total_value or 0) - self.amount_paid)
+
+    def __repr__(self):
+        return f'<Contract {self.reference}>'
+
+
+class ContractPayment(db.Model):
+    """Encaissement enregistré sur un contrat (historique, jamais supprimé : annulation = is_void)."""
+    __tablename__ = 'contract_payment'
+    METHODS = ('cash', 'mtn_momo', 'orange_money', 'card', 'bank_transfer')
+
+    id = db.Column(db.Integer, primary_key=True)
+    contract_id = db.Column(db.Integer, db.ForeignKey('contract.id'), nullable=False, index=True)
+    amount = db.Column(db.Float, nullable=False)
+    method = db.Column(db.String(30), nullable=False, default='cash')
+    reference = db.Column(db.String(80), nullable=True)
+    note = db.Column(db.String(255), nullable=True)
+    is_deposit = db.Column(db.Boolean, default=False)
+    paid_at = db.Column(db.DateTime, default=datetime.utcnow)
+    recorded_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    is_void = db.Column(db.Boolean, default=False)
+    voided_at = db.Column(db.DateTime, nullable=True)
+    void_reason = db.Column(db.String(255), nullable=True)
+
+    recorded_by = db.relationship('User', foreign_keys=[recorded_by_id])
+
+
+class ContractDocument(db.Model):
+    """Document joint à un contrat (stocké hors du dossier public)."""
+    __tablename__ = 'contract_document'
+
+    id = db.Column(db.Integer, primary_key=True)
+    contract_id = db.Column(db.Integer, db.ForeignKey('contract.id'), nullable=False, index=True)
+    stored_name = db.Column(db.String(64), nullable=False)       # nom aléatoire sur disque
+    original_name = db.Column(db.String(200), nullable=False)
+    mime_type = db.Column(db.String(100), nullable=False)
+    size_bytes = db.Column(db.Integer, nullable=False, default=0)
+    doc_type = db.Column(db.String(40), nullable=False, default='signed_contract')
+    uploaded_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_deleted = db.Column(db.Boolean, default=False)
+
+    uploaded_by = db.relationship('User', foreign_keys=[uploaded_by_id])
+
+
+class Invoice(db.Model):
+    """Facture client 3M SERVICES (locations véhicules, missions VIP, résidences meublées, contrats)."""
+    __tablename__ = 'invoice'
+
+    id = db.Column(db.Integer, primary_key=True)
+    reference = db.Column(db.String(40), unique=True, nullable=False, index=True)
+    client_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    bill_to = db.Column(db.String(255), nullable=False)
+    ship_to = db.Column(db.String(255), nullable=False)
+    contract_id = db.Column(db.Integer, db.ForeignKey('contract.id'), nullable=True)
+    trip_id = db.Column(db.Integer, db.ForeignKey('trip.id'), nullable=True)
+    apartment_id = db.Column(db.String(50), db.ForeignKey('apartment.id'), nullable=True)
+    project_label = db.Column(db.String(200), nullable=True)
+    agency_id = db.Column(db.Integer, db.ForeignKey('agency.id'), nullable=True)
+
+    currency = db.Column(db.String(10), nullable=False, default='XAF')
+    issue_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    due_date = db.Column(db.Date, nullable=False)
+    payment_method = db.Column(db.String(30), nullable=False, default='mtn_momo')
+    status = db.Column(db.String(30), nullable=False, default='draft')
+    description = db.Column(db.Text, nullable=True)
+
+    subtotal = db.Column(db.Float, nullable=False, default=0.0)
+    discount_percent = db.Column(db.Float, nullable=False, default=0.0)
+    discount_amount = db.Column(db.Float, nullable=False, default=0.0)
+    extra_discount_percent = db.Column(db.Float, nullable=False, default=0.0)
+    extra_discount_amount = db.Column(db.Float, nullable=False, default=0.0)
+    tax_percent = db.Column(db.Float, nullable=False, default=0.0)
+    tax_amount = db.Column(db.Float, nullable=False, default=0.0)
+    total_amount = db.Column(db.Float, nullable=False, default=0.0)
+    amount_paid = db.Column(db.Float, nullable=False, default=0.0)
+
+    notes = db.Column(db.Text, nullable=True)
+    terms = db.Column(db.Text, nullable=True)
+
+    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_deleted = db.Column(db.Boolean, default=False)
+
+    client = db.relationship('User', foreign_keys=[client_id])
+    created_by = db.relationship('User', foreign_keys=[created_by_id])
+    contract = db.relationship('Contract', foreign_keys=[contract_id])
+    trip = db.relationship('Trip', foreign_keys=[trip_id])
+    apartment = db.relationship('Apartment', foreign_keys=[apartment_id])
+    items = db.relationship(
+        'InvoiceItem',
+        backref='invoice',
+        cascade='all, delete-orphan',
+        order_by='InvoiceItem.sort_order',
+    )
+
+    @property
+    def balance(self):
+        return max(0.0, (self.total_amount or 0.0) - (self.amount_paid or 0.0))
+
+    def __repr__(self):
+        return f'<Invoice {self.reference}>'
+
+
+class InvoiceItem(db.Model):
+    """Ligne de facturation d'une facture 3M SERVICES."""
+    __tablename__ = 'invoice_item'
+
+    id = db.Column(db.Integer, primary_key=True)
+    invoice_id = db.Column(db.Integer, db.ForeignKey('invoice.id'), nullable=False, index=True)
+    item_name = db.Column(db.String(200), nullable=False)
+    quantity = db.Column(db.Float, nullable=False, default=1.0)
+    unit_price = db.Column(db.Float, nullable=False, default=0.0)
+    discount_percent = db.Column(db.Float, nullable=False, default=0.0)
+    amount = db.Column(db.Float, nullable=False, default=0.0)
+    sort_order = db.Column(db.Integer, nullable=False, default=0)
+

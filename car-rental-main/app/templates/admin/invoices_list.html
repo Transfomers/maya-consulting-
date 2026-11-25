@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+{% block title %}Factures — 3M SERVICES{% endblock %}
+
+{% block content %}
+<style>
+.inv-page i { color: inherit !important; }
+
+/* Header matching screenshot & contracts_list.html */
+.inv-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.inv-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 22px; font-weight: 700; color: #101828; }
+.inv-count { font-size: 12px; font-weight: 700; color: var(--primary-light); background: #fef3f2; border: 1px solid #fecdca; padding: 1px 8px; border-radius: 6px; }
+.inv-crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #667085; margin-top: 4px; }
+.inv-crumb a { color: #667085; text-decoration: none; }
+.inv-crumb a:hover { color: #101828; }
+.inv-crumb span { color: #101828; font-weight: 600; }
+.inv-crumb i { font-size: 10px; color: #98a2b3 !important; }
+.inv-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.inv-icon-btn { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #eaecf0; border-radius: 8px; background: #fff; color: #344054; text-decoration: none; }
+.inv-icon-btn:hover { background: #f9fafb; color: #101828; }
+
+/* Toolbar row */
+.inv-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.inv-bar__left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.inv-bar__right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.inv-filter-btn { position: relative; height: 38px; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px; }
+.inv-filter-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--primary-light); }
+.inv-filter-menu { width: 290px; }
+.inv-flabel { display: block; font-size: 12px; font-weight: 600; color: #344054; margin: 10px 0 4px; }
+.inv-flabel:first-of-type { margin-top: 0; }
+.inv-search { position: relative; width: 240px; }
+.inv-search i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #98a2b3 !important; }
+.inv-search input { padding-left: 34px; height: 38px; font-size: 13.5px; border-radius: 8px; border: 1px solid #d0d5dd; }
+.inv-view { display: inline-flex; border: 1px solid #eaecf0; border-radius: 8px; overflow: hidden; background: #fff; }
+.inv-view a { width: 38px; height: 36px; display: inline-flex; align-items: center; justify-content: center; color: #667085; text-decoration: none; }
+.inv-view a.is-active { background: #101828; color: #fff; }
+
+.inv-active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -6px 0 16px; font-size: 13px; color: #667085; }
+.inv-af { padding: 2px 10px; border-radius: 999px; background: #f2f4f7; color: #344054; }
+.inv-active-filters a { color: var(--primary-light); font-weight: 600; text-decoration: none; }
+
+/* 4-column Invoices card grid matching screenshot */
+.inv-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.inv-card-tile {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #eaecf0;
+    border-radius: 12px;
+    padding: 16px 18px;
+    transition: box-shadow .15s ease, border-color .15s ease;
+}
+.inv-card-tile:hover { box-shadow: 0 8px 22px rgba(16, 24, 40, .07); border-color: #d0d5dd; }
+.inv-tile-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.inv-ref-pill {
+    font-size: 12px;
+    font-weight: 600;
+    color: #175cd3;
+    background: #eff8ff;
+    padding: 3px 9px;
+    border-radius: 6px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.inv-ref-pill:hover { background: #dbeafe; color: #1d4ed8; }
+.inv-kebab-btn { width: 30px; height: 30px; border: 1px solid #eaecf0; border-radius: 8px; background: #fff; color: #475467; display: inline-flex; align-items: center; justify-content: center; }
+.inv-kebab-btn:hover { background: #f9fafb; color: #101828; }
+
+.inv-proj-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.inv-proj-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.inv-proj-ico {
+    width: 34px; height: 34px; flex: 0 0 34px; border-radius: 50%;
+    background: #f2f4f7; border: 1px solid #eaecf0; color: #344054;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.inv-proj-ico.is-car { background: #fef3f2; border-color: #fecdca; color: #D62828; }
+.inv-proj-ico.is-apt { background: #ecfdf3; border-color: #abefc6; color: #027a48; }
+.inv-proj-ico.is-ctr { background: #eff8ff; border-color: #b2ddff; color: #175cd3; }
+.inv-proj-name {
+    font-size: 14px; font-weight: 700; color: #101828;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.inv-proj-name a { color: inherit; text-decoration: none; }
+.inv-proj-name a:hover { color: var(--primary-light); }
+
+/* Crisp solid status badge matching screenshot */
+.inv-status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+    color: #fff;
+}
+.inv-st-paid { background: #16a34a; }
+.inv-st-partially_paid { background: #f59e0b; }
+.inv-st-sent { background: #2563eb; }
+.inv-st-overdue { background: #dc2626; }
+.inv-st-draft { background: #64748b; }
+.inv-st-cancelled { background: #94a3b8; }
+
+.inv-meta-lines { display: grid; gap: 6px; font-size: 12px; color: #475467; margin-bottom: 14px; }
+.inv-meta-line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.inv-meta-item { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.inv-meta-item i { color: #98a2b3 !important; font-size: 12px; }
+.inv-meta-item strong { color: #101828; font-weight: 700; }
+
+.inv-client-foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #f2f4f7;
+}
+.inv-avatar {
+    width: 34px; height: 34px; flex: 0 0 34px; border-radius: 50%;
+    background: #101828; color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+}
+.inv-client-info { min-width: 0; }
+.inv-client-info strong {
+    display: block; font-size: 13px; font-weight: 700; color: #101828;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.inv-client-info small {
+    display: block; font-size: 11.5px; color: #667085;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* List table card */
+.inv-table-card { background: #fff; border: 1px solid #eaecf0; border-radius: 12px; overflow: hidden; }
+.inv-table { margin: 0; font-size: 13.5px; }
+.inv-table thead th { background: #f9fafb; color: #475467; font-size: 12px; font-weight: 600; padding: 11px 16px; border-bottom: 1px solid #eaecf0; }
+.inv-table tbody td { padding: 12px 16px; vertical-align: middle; border-bottom: 1px solid #f2f4f7; }
+
+.inv-empty { text-align: center; padding: 64px 20px; background: #fff; border: 1px dashed #d0d5dd; border-radius: 12px; color: #667085; }
+.inv-empty i { font-size: 36px; color: #d0d5dd !important; display: block; margin-bottom: 10px; }
+
+@media (max-width: 1399.98px) { .inv-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 991.98px) { .inv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575.98px) { .inv-grid { grid-template-columns: minmax(0, 1fr); } .inv-search { width: 100%; } }
+@media print { .inv-tools, .inv-bar, .inv-kebab-btn, .admin-sidebar, .admin-topbar-card { display: none !important; } .inv-grid { grid-template-columns: repeat(3, 1fr) !important; } }
+</style>
+
+{% macro initials(txt) %}{% set parts = (txt or '3M').split() %}{{ ((parts[0][:1] if parts|length > 0 else '3') ~ (parts[1][:1] if parts|length > 1 else ''))|upper }}{% endmacro %}
+{% macro fdate(d) %}{% if d %}{% set mois = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."] %}{{ d.day }} {{ mois[d.month - 1] }} {{ d.year }}{% else %}—{% endif %}{% endmacro %}
+
+<div class="inv-page">
+    <!-- Top Header -->
+    <div class="inv-head">
+        <div>
+            <h1 class="inv-title">
+                Factures
+                <span class="inv-count">{{ kpis.total_count }}</span>
+            </h1>
+            <nav class="inv-crumb" aria-label="Fil d'Ariane">
+                <a href="{{ url_for('admin.dashboard') }}">Accueil</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Factures</span>
+            </nav>
+        </div>
+
+        <div class="inv-tools">
+            <div class="dropdown">
+                <button type="button" class="btn btn-light border dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Export
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="{{ url_for('invoices.export_csv', status=status_filter, currency=currency_filter, payment_method=payment_filter, q=q_text) }}">
+                            <i class="bi bi-filetype-csv me-2"></i> Exporter en CSV
+                        </a>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item" onclick="window.print()">
+                            <i class="bi bi-printer me-2"></i> Imprimer la page
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <a href="{{ url_for('invoices.index', view=view_mode) }}" class="inv-icon-btn" title="Actualiser" aria-label="Actualiser">
+                <i class="bi bi-arrow-clockwise"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Toolbar Row -->
+    <div class="inv-bar">
+        <div class="inv-bar__left">
+            <div class="dropdown">
+                <button type="button" class="btn btn-light border inv-filter-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <i class="bi bi-funnel"></i> Filtre
+                    {% if has_active_filters %}<span class="inv-filter-dot" aria-label="Filtres actifs"></span>{% endif %}
+                </button>
+                <form class="dropdown-menu p-3 inv-filter-menu" method="GET" action="{{ url_for('invoices.index') }}">
+                    <input type="hidden" name="view" value="{{ view_mode }}">
+                    <input type="hidden" name="q" value="{{ q_text }}">
+                    <label class="inv-flabel" for="fltStatus">Statut</label>
+                    <select name="status" id="fltStatus" class="form-select form-select-sm">
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Tous les statuts</option>
+                        {% for k, pair in status_labels.items() %}
+                        <option value="{{ k }}" {% if status_filter == k %}selected{% endif %}>{{ pair[0] }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label class="inv-flabel" for="fltCurrency">Devise</label>
+                    <select name="currency" id="fltCurrency" class="form-select form-select-sm">
+                        <option value="all" {% if currency_filter == 'all' %}selected{% endif %}>Toutes les devises</option>
+                        {% for code, pair in currencies.items() %}
+                        <option value="{{ code }}" {% if currency_filter == code %}selected{% endif %}>{{ pair[0] }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label class="inv-flabel" for="fltPm">Mode de paiement</label>
+                    <select name="payment_method" id="fltPm" class="form-select form-select-sm">
+                        <option value="all" {% if payment_filter == 'all' %}selected{% endif %}>Tous les modes</option>
+                        {% for k, lbl in payment_methods.items() %}
+                        <option value="{{ k }}" {% if payment_filter == k %}selected{% endif %}>{{ lbl }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div class="d-flex justify-content-between gap-2 mt-3">
+                        <a href="{{ url_for('invoices.index', view=view_mode) }}" class="btn btn-sm btn-light border">Réinitialiser</a>
+                        <button type="submit" class="btn btn-sm btn-brand">Appliquer</button>
+                    </div>
+                </form>
+            </div>
+
+            <form method="GET" action="{{ url_for('invoices.index') }}" class="inv-search">
+                <input type="hidden" name="view" value="{{ view_mode }}">
+                <input type="hidden" name="status" value="{{ status_filter }}">
+                <input type="hidden" name="currency" value="{{ currency_filter }}">
+                <input type="hidden" name="payment_method" value="{{ payment_filter }}">
+                <i class="bi bi-search"></i>
+                <input type="search" name="q" value="{{ q_text }}" class="form-control" placeholder="Rechercher…">
+            </form>
+        </div>
+
+        <div class="inv-bar__right">
+            <div class="inv-view" role="group" aria-label="Mode d'affichage">
+                <a href="{{ url_for('invoices.index', view='list', status=status_filter, currency=currency_filter, payment_method=payment_filter, q=q_text) }}"
+                   class="{% if view_mode == 'list' %}is-active{% endif %}" title="Vue liste" aria-label="Vue liste">
+                    <i class="bi bi-list-ul"></i>
+                </a>
+                <a href="{{ url_for('invoices.index', view='grid', status=status_filter, currency=currency_filter, payment_method=payment_filter, q=q_text) }}"
+                   class="{% if view_mode != 'list' %}is-active{% endif %}" title="Vue cartes" aria-label="Vue cartes">
+                    <i class="bi bi-grid"></i>
+                </a>
+            </div>
+            <button type="button" class="btn btn-brand" data-open-invoice-drawer>
+                <i class="bi bi-plus-circle me-1"></i> Nouvelle facture
+            </button>
+        </div>
+    </div>
+
+    {% if has_active_filters %}
+    <div class="inv-active-filters">
+        <span>Filtres actifs :</span>
+        {% if status_filter != 'all' %}<span class="inv-af">{{ status_labels.get(status_filter, (status_filter,))[0] }}</span>{% endif %}
+        {% if currency_filter != 'all' %}<span class="inv-af">{{ currency_filter }}</span>{% endif %}
+        {% if payment_filter != 'all' %}<span class="inv-af">{{ payment_methods.get(payment_filter, payment_filter) }}</span>{% endif %}
+        {% if q_text %}<span class="inv-af">« {{ q_text }} »</span>{% endif %}
+        <a href="{{ url_for('invoices.index', view=view_mode) }}">Effacer</a>
+    </div>
+    {% endif %}
+
+    {% if invoices %}
+        {% if view_mode == 'list' %}
+        <div class="inv-table-card">
+            <div class="table-responsive">
+                <table class="table table-hover inv-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Prestation</th>
+                            <th>Client</th>
+                            <th>Échéance</th>
+                            <th>Total</th>
+                            <th>Payé</th>
+                            <th>Solde dû</th>
+                            <th>Statut</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inv in invoices %}
+                        <tr>
+                            <td><a href="{{ url_for('invoices.detail', invoice_id=inv.id) }}" class="inv-ref-pill">#{{ inv.reference }}</a></td>
+                            <td class="fw-semibold text-dark">{{ inv.project_label or 'Prestation 3M SERVICES' }}</td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ inv.bill_to }}</div>
+                                <div class="small text-muted">{{ inv.ship_to }}</div>
+                            </td>
+                            <td class="text-muted">{{ fdate(inv.due_date) }}</td>
+                            <td class="fw-bold text-dark">{{ format_money(inv.total_amount, inv.currency) }}</td>
+                            <td class="text-success fw-semibold">{{ format_money(inv.amount_paid, inv.currency) }}</td>
+                            <td class="{{ 'text-danger fw-semibold' if inv.balance > 0 and inv.status != 'cancelled' else 'text-muted' }}">{{ format_money(inv.balance, inv.currency) }}</td>
+                            <td><span class="inv-status-badge inv-st-{{ inv.status }}">{{ status_labels.get(inv.status, (inv.status,))[0] }}</span></td>
+                            <td class="text-end text-nowrap">
+                                {% set mc = chat_matches.get(inv.id) %}
+                                {% if mc %}
+                                <form method="POST" action="{{ url_for('invoices.send_to_chat', invoice_id=inv.id) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-light border" title="Transférer au chat ({{ mc.clientName or mc.id }})"><i class="bi bi-chat-dots"></i></button>
+                                </form>
+                                {% endif %}
+                                <a href="{{ url_for('invoices.detail', invoice_id=inv.id) }}" class="btn btn-sm btn-light border" title="Voir"><i class="bi bi-eye"></i></a>
+                                <a href="{{ url_for('invoices.download_pdf', invoice_id=inv.id) }}" class="btn btn-sm btn-light border" title="PDF"><i class="bi bi-file-earmark-pdf"></i></a>
+                                <a href="{{ url_for('invoices.edit', invoice_id=inv.id) }}" class="btn btn-sm btn-light border" title="Modifier"><i class="bi bi-pencil"></i></a>
+                                <form method="POST" action="{{ url_for('invoices.delete', invoice_id=inv.id) }}" class="d-inline" onsubmit="return confirm('Supprimer la facture {{ inv.reference }} ?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-light border text-danger" title="Supprimer"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="inv-grid">
+            {% for inv in invoices %}
+            {% set st_lbl = status_labels.get(inv.status, (inv.status,))[0] %}
+            <article class="inv-card-tile">
+                <!-- Card Top: Ref Pill + 3-dot menu -->
+                <div class="inv-tile-top">
+                    <a href="{{ url_for('invoices.detail', invoice_id=inv.id) }}" class="inv-ref-pill">#{{ inv.reference }}</a>
+                    <div class="dropdown">
+                        <button type="button" class="inv-kebab-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Actions facture {{ inv.reference }}">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('invoices.detail', invoice_id=inv.id) }}"><i class="bi bi-eye me-2"></i> Voir la facture</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('invoices.download_pdf', invoice_id=inv.id) }}"><i class="bi bi-file-earmark-pdf me-2"></i> Télécharger PDF</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('invoices.edit', invoice_id=inv.id) }}"><i class="bi bi-pencil me-2"></i> Modifier</a></li>
+                            {% set mc = chat_matches.get(inv.id) %}
+                            {% if mc %}
+                            <li>
+                                <form method="POST" action="{{ url_for('invoices.send_to_chat', invoice_id=inv.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="dropdown-item text-primary"><i class="bi bi-chat-dots me-2"></i> Transférer au chat ({{ mc.clientName or mc.id }})</button>
+                                </form>
+                            </li>
+                            {% else %}
+                            <li><span class="dropdown-item-text text-muted small"><i class="bi bi-chat-dots me-2"></i> Aucun chat client</span></li>
+                            {% endif %}
+                            {% if inv.status != 'paid' %}
+                            <li>
+                                <form method="POST" action="{{ url_for('invoices.update_status', invoice_id=inv.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="status" value="paid">
+                                    <button type="submit" class="dropdown-item text-success"><i class="bi bi-check2-circle me-2"></i> Marquer payée</button>
+                                </form>
+                            </li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ url_for('invoices.delete', invoice_id=inv.id) }}" onsubmit="return confirm('Supprimer la facture {{ inv.reference }} ?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i> Supprimer</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Project / Service Row + Status Badge -->
+                <div class="inv-proj-row">
+                    <div class="inv-proj-left">
+                        {% if inv.apartment_id %}
+                        <span class="inv-proj-ico is-apt"><i class="bi bi-building"></i></span>
+                        {% elif inv.contract_id %}
+                        <span class="inv-proj-ico is-ctr"><i class="bi bi-file-earmark-text"></i></span>
+                        {% elif inv.trip_id %}
+                        <span class="inv-proj-ico is-car"><i class="bi bi-car-front"></i></span>
+                        {% else %}
+                        <span class="inv-proj-ico is-car"><i class="bi bi-receipt"></i></span>
+                        {% endif %}
+                        <div class="inv-proj-name">
+                            <a href="{{ url_for('invoices.detail', invoice_id=inv.id) }}">{{ inv.project_label or 'Prestation 3M SERVICES' }}</a>
+                        </div>
+                    </div>
+                    <span class="inv-status-badge inv-st-{{ inv.status }}">{{ st_lbl }}</span>
+                </div>
+
+                <!-- 2-line Financial Summary -->
+                <div class="inv-meta-lines">
+                    <div class="inv-meta-line">
+                        <span class="inv-meta-item"><i class="bi bi-cash-coin"></i> Total : <strong>{{ format_money(inv.total_amount, inv.currency) }}</strong></span>
+                        <span class="inv-meta-item"><i class="bi bi-calendar3"></i> Échéance : <strong>{{ fdate(inv.due_date) }}</strong></span>
+                        <span class="inv-meta-item"><i class="bi bi-wallet2"></i> Payé : <strong>{{ format_money(inv.amount_paid, inv.currency) }}</strong></span>
+                    </div>
+                    <div class="inv-meta-line">
+                        <span class="inv-meta-item"><i class="bi bi-calculator"></i> Solde dû : <strong>{{ format_money(inv.balance, inv.currency) }}</strong></span>
+                    </div>
+                </div>
+
+                <!-- Client Footer ("Envoyée à") -->
+                <div class="inv-client-foot">
+                    <span class="inv-avatar">{{ initials(inv.bill_to) }}</span>
+                    <div class="inv-client-info">
+                        <strong>{{ inv.bill_to }}</strong>
+                        <small>Envoyée à · {{ inv.ship_to }}</small>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% else %}
+    <div class="inv-empty">
+        <i class="bi bi-receipt"></i>
+        <h5 class="fw-bold text-dark mb-1">Aucune facture trouvée</h5>
+        <p class="mb-3">Créez votre première facture 3M SERVICES pour vos locations de véhicules, missions VIP ou résidences meublées.</p>
+        <button type="button" class="btn btn-brand" data-open-invoice-drawer>
+            <i class="bi bi-plus-circle me-1"></i> Nouvelle facture
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+{% set drawer_mode = true %}
+{% include 'admin/_invoice_drawer.html' %}
+{% endblock %}

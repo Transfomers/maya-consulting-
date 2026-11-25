@@ -41,7 +41,7 @@ const translations = {
     price_unit: "/ jour",
 
     // Modal
-    modal_title: "Confirmer votre Réservation 3M SERVICES",
+    modal_title: "Confirmer votre réservation",
     modal_summary_title: "Récapitulatif de la Réservation",
     modal_edit_booking: "Modifier",
     modal_save_changes: "Valider les modifications",
@@ -215,7 +215,7 @@ const translations = {
     price_unit: "/ rent per day",
 
     // Modal
-    modal_title: "Confirm Your Reservation (3M SERVICES)",
+    modal_title: "Confirm your reservation",
     modal_summary_title: "Booking Summary",
     modal_edit_booking: "Edit",
     modal_save_changes: "Save Changes",

@@ -240,7 +240,8 @@
   color: #667085;
 }
 .apt-modal__contact > div { display: flex; gap: 0.8rem; }
-.apt-modal__contact a {
+.apt-modal__contact a,
+.apt-modal__contact button {
   height: 4rem;
   min-width: 4rem;
   padding: 0 1.2rem;
@@ -253,10 +254,15 @@
   font-weight: 600;
   text-decoration: none;
 }
+.apt-modal__contact .is-chat { background: #D62828; color: #fff; border: 0; cursor: pointer; font-family: inherit; }
+.apt-modal__contact .is-chat i { color: #fff; }
 .apt-modal__contact .is-wa { background: #25D366; color: #fff; }
 .apt-modal__contact .is-mail,
 .apt-modal__contact .is-tel { background: #f2f4f7; color: #101828; padding: 0; }
-.apt-modal__contact a:hover { filter: brightness(0.95); }
+.apt-modal__contact a:hover,
+.apt-modal__contact button:hover { filter: brightness(0.95); }
+.apt-modal__feedback-link { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.8rem; background: #fff; border: 1px solid currentColor; color: inherit; border-radius: 999px; padding: 0.5rem 1.2rem; font: inherit; font-weight: 600; cursor: pointer; }
+@media (max-width: 420px) { .apt-modal__contact { flex-direction: column; align-items: stretch; } .apt-modal__contact > div { justify-content: space-between; } }
 
 .apt-modal button:focus-visible,
 .apt-modal a:focus-visible,

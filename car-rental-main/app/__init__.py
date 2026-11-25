@@ -157,6 +157,16 @@ def create_app():
     app.register_blueprint(trips_bp)
     app.register_blueprint(missions_bp)
     app.register_blueprint(properties_bp)
+    from app.routes.contracts import contracts_bp, ensure_contract_schema
+    app.register_blueprint(contracts_bp)
+    from app.routes.invoices import invoices_bp, ensure_invoice_schema
+    app.register_blueprint(invoices_bp)
+    from app.routes.internal import internal_bp
+    app.register_blueprint(internal_bp)
+    from app.routes.ratings import ratings_bp, ensure_rating_schema
+    app.register_blueprint(ratings_bp)
+    from app.services.test_data import test_data_cli
+    app.cli.add_command(test_data_cli)
 
     # ── Error handlers ────────────────────────────────────────
     from flask import render_template
@@ -186,6 +196,11 @@ def create_app():
             'icon': '⏳',
             'title': 'Trop de requêtes',
             'description': "Vous avez effectué trop de requêtes en peu de temps. Veuillez patienter quelques instants avant de réessayer.",
+        },
+        413: {
+            'icon': '📦',
+            'title': 'Fichier trop volumineux',
+            'description': "Le fichier envoyé dépasse la taille maximale autorisée (50 Mo par document).",
         },
         500: {
             'icon': '🔧',
@@ -228,6 +243,9 @@ def create_app():
     @app.errorhandler(429)
     def too_many_requests(e): return _render_error(429)
 
+    @app.errorhandler(413)
+    def payload_too_large(e): return _render_error(413)
+
     @app.errorhandler(500)
     def internal_error(e):
         # Roll back any failed DB transaction so the DB isn't left in a broken state
@@ -253,8 +271,13 @@ def create_app():
             # Check database connectivity
             db.session.execute(db.text('SELECT 1'))
             logger.info("Database connection verified successfully.")
+            from app.services.test_data import ensure_test_flag_columns
+            ensure_test_flag_columns()   # avant toute requête sur ces tables
             ensure_mission_schema()
             ensure_property_schema()
+            ensure_contract_schema()
+            ensure_invoice_schema()
+            ensure_rating_schema()
         except Exception as e:
             logger.error(f"Database connection check failed: {e}")
 

@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import re
 import uuid
 from datetime import datetime, date, timedelta
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, send_from_directory, current_app
@@ -8,6 +9,7 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app import db
 from app.models import Apartment, ApartmentPhoto, ApartmentBooking, User, Agency
+from app.utils.atomic_file import atomic_write
 
 properties_bp = Blueprint('properties', __name__)
 
@@ -172,7 +174,7 @@ def sync_published_properties_to_express():
         ).order_by(Apartment.is_featured.desc(), Apartment.id.asc()).all()
 
         exp_db['apartments'] = [a.to_dict() for a in published_apts]
-        with open(db_path, 'w', encoding='utf-8') as f:
+        with atomic_write(db_path) as f:
             json.dump(exp_db, f, indent=2, ensure_ascii=False)
     except Exception as e:
         try:
@@ -329,18 +331,30 @@ def save_property_from_request(apt=None):
     title = (request.form.get('title') or '').strip()
     property_type = (request.form.get('property_type') or 'T3').strip()
     standing = (request.form.get('standing') or 'Haut Standing').strip()
-    city = (request.form.get('city') or 'Yaoundé').strip()
-    neighborhood = (request.form.get('neighborhood') or 'Tsinga').strip()
+    city = (request.form.get('city') or '').strip()
+    neighborhood = (request.form.get('neighborhood') or '').strip()
     exact_address = (request.form.get('exact_address') or '').strip()
     nightly_rate = request.form.get('nightly_rate', type=float)
 
     # Backward compatibility if legacy 'price' string or 'location' was posted
     if nightly_rate is None:
         raw_p = "".join(c for c in (request.form.get('price') or '') if c.isdigit())
-        nightly_rate = float(raw_p) if raw_p else 65000.0
+        nightly_rate = float(raw_p) if raw_p else None
 
+    # Mêmes champs obligatoires que le formulaire (pas de valeur inventée par défaut)
+    errors = []
     if not title:
-        return None, ["Le titre du bien meublé est obligatoire."]
+        errors.append("Le titre du bien meublé est obligatoire.")
+    if not city:
+        errors.append("La ville est obligatoire.")
+    if not neighborhood:
+        errors.append("Le quartier est obligatoire.")
+    if not exact_address:
+        errors.append("L'adresse précise est obligatoire.")
+    if not nightly_rate or nightly_rate <= 0:
+        errors.append("Le tarif par nuit est obligatoire et doit être supérieur à 0.")
+    if errors:
+        return None, errors
 
     if is_new:
         existing_ids = {a.id for a in Apartment.query.all()}
@@ -533,7 +547,7 @@ def add_property():
     if request.method == 'POST':
         apt, errs = save_property_from_request(apt=None)
         for err in errs:
-            flash(err, 'warning')
+            flash(err, 'warning' if apt else 'danger')
         if apt:
             flash(f"Bien meublé « {apt.title} » ({apt.reference}) enregistré avec succès ({apt.photos_count} photo(s)) !", 'success')
             return redirect(url_for('admin.apartments'))
@@ -547,10 +561,13 @@ def edit_property(id):
         return redirect(url_for('main.index'))
     apt = Apartment.query.filter_by(id=id, is_deleted=False).first_or_404()
     if request.method == 'POST':
-        apt, errs = save_property_from_request(apt=apt)
+        saved, errs = save_property_from_request(apt=apt)
         for err in errs:
-            flash(err, 'warning')
-        flash(f"Bien meublé « {apt.title} » mis à jour et synchronisé avec le site client !", 'success')
+            flash(err, 'warning' if saved else 'danger')
+        if not saved:  # validation refusée : on reste sur le formulaire, rien n'est modifié
+            db.session.rollback()
+            return render_property_form(apt=Apartment.query.get(id))
+        flash(f"Bien meublé « {saved.title} » mis à jour et synchronisé avec le site client !", 'success')
         return redirect(url_for('admin.apartments'))
     return render_property_form(apt=apt)
 
@@ -562,8 +579,11 @@ def property_calendar():
     if not _admin_only():
         return redirect(url_for('main.index'))
     apts = Apartment.query.filter_by(is_deleted=False).order_by(Apartment.title).all()
-    stays = ApartmentBooking.query.order_by(ApartmentBooking.check_in.desc()).limit(50).all()
-    clients = User.query.filter_by(role='client', is_deleted=False).order_by(User.real_name, User.username).limit(80).all()
+    real_stay = db.or_(ApartmentBooking.is_test == False, ApartmentBooking.is_test == None)  # noqa: E711,E712
+    stays = ApartmentBooking.query.filter(real_stay).order_by(ApartmentBooking.check_in.desc()).limit(100).all()
+    clients = (User.query.filter_by(role='client', is_deleted=False)
+               .filter(db.or_(User.is_test == False, User.is_test == None))  # noqa: E711,E712
+               .order_by(User.real_name, User.username).all())
     return render_template(
         'admin/property_calendar.html',
         apartments=apts,
@@ -579,7 +599,8 @@ def property_calendar_events():
     if not _admin_only():
         return jsonify([]), 403
     apt_id = (request.args.get('apartment_id') or '').strip()
-    q = ApartmentBooking.query.filter(ApartmentBooking.status != 'cancelled')
+    q = ApartmentBooking.query.filter(ApartmentBooking.status != 'cancelled',
+                                      db.or_(ApartmentBooking.is_test == False, ApartmentBooking.is_test == None))  # noqa: E711,E712
     if apt_id:
         q = q.filter_by(apartment_id=apt_id)
     events = []
@@ -626,18 +647,30 @@ def create_property_booking():
         flash("Dates d'arrivée et de départ invalides.", "danger")
         return redirect(url_for('properties.property_calendar'))
 
+    if check_out <= check_in:
+        flash("La date de départ doit être après la date d'arrivée.", "danger")
+        return redirect(url_for('properties.property_calendar'))
+
     ok, err = check_apartment_availability(apt_id, check_in, check_out)
     if not ok:
         flash(err, "danger")
         return redirect(url_for('properties.property_calendar'))
 
-    apt = Apartment.query.get_or_404(apt_id)
-    client_u = User.query.get(client_id) if client_id else None
+    apt = Apartment.query.filter_by(id=apt_id, is_deleted=False).first()
+    if not apt:
+        flash("Choisissez un bien meublé.", "danger")
+        return redirect(url_for('properties.property_calendar'))
+    client_u = db.session.get(User, client_id) if client_id else None
     if client_u and not guest_name:
         guest_name = client_u.real_name or client_u.username
     if client_u and not guest_phone:
-        guest_phone = client_u.phone or '+237'
-    if not client_u and (guest_name and guest_phone):
+        guest_phone = client_u.phone or ''
+    if client_u and not guest_email:
+        guest_email = client_u.email or ''
+    if not guest_name or not guest_phone:
+        flash("Choisissez un client existant ou saisissez le nom et le téléphone de l'occupant.", "danger")
+        return redirect(url_for('properties.property_calendar'))
+    if not client_u:
         client_u = _upsert_visitor_user(guest_name, guest_phone, apt.location, apt.city or 'Yaoundé', guest_email)
 
     nights = max(1, (check_out - check_in).days)
@@ -646,24 +679,33 @@ def create_property_booking():
         computed = round((apt.monthly_rate / 30.0) * nights)
     elif formula == 'weekly' and apt.weekly_rate:
         computed = round((apt.weekly_rate / 7.0) * nights)
+    elif apt.nightly_rate:
+        computed = round(apt.nightly_rate * nights)
     else:
-        computed = round((apt.nightly_rate or 65000.0) * nights)
-    computed += float(apt.cleaning_fee or 0.0)
+        computed = 0
+    if computed:
+        computed += float(apt.cleaning_fee or 0.0)
 
     total_amount = request.form.get('total_amount', type=float) or computed
+    if not total_amount or total_amount <= 0:
+        flash(f"Aucun tarif défini pour « {apt.title} » : saisissez le montant total du séjour.", "danger")
+        return redirect(url_for('properties.property_calendar'))
     deposit_paid = request.form.get('deposit_paid', 0.0, type=float) or 0.0
+    if deposit_paid < 0 or deposit_paid > total_amount:
+        flash("L'acompte doit être compris entre 0 et le montant total.", "danger")
+        return redirect(url_for('properties.property_calendar'))
     ref = f"3M-STAY-{datetime.now().strftime('%y%m%d')}-{random.randint(100, 999)}"
 
     stay = ApartmentBooking(
         booking_ref=ref,
         apartment_id=apt.id,
         user_id=client_u.id if client_u else None,
-        guest_name=guest_name or "Client Résidence VIP",
-        guest_phone=guest_phone or "+237",
+        guest_name=guest_name,
+        guest_phone=guest_phone,
         guest_email=guest_email,
         check_in=check_in,
         check_out=check_out,
-        guests_count=request.form.get('guests_count', 2, type=int) or 1,
+        guests_count=max(1, request.form.get('guests_count', 1, type=int) or 1),
         rate_formula=formula,
         total_amount=total_amount,
         deposit_paid=deposit_paid,
@@ -678,7 +720,7 @@ def create_property_booking():
 
     recompute_apartment_live_status(apt)
     log_audit("APARTMENT_STAY_BOOKED", "ApartmentBooking", stay.id, f"Séjour {ref} réservé sur {apt.title} ({check_in} → {check_out}) — {total_amount:.0f} FCFA")
-    flash(f"Séjour {ref} confirmé pour « {apt.title} » ({nights} nuit(s) — {total_amount:,.0f} FCFA). Dates bloquées sur le calendrier & site client !", "success")
+    flash(f"Séjour {ref} confirmé pour « {apt.title} » ({nights} nuit(s) — {total_amount:,.0f} FCFA).".replace(',', ' ') + " Dates bloquées sur le calendrier et le site.", "success")
     return redirect(url_for('properties.property_calendar'))
 
 
@@ -694,7 +736,8 @@ def update_property_booking_status(bid):
         db.session.commit()
         if stay.apartment:
             recompute_apartment_live_status(stay.apartment)
-        flash(f"Séjour {stay.booking_ref} passé à : {new_st}", "success")
+        labels = {'confirmed': 'Confirmé', 'checked_in': 'En séjour', 'checked_out': 'Terminé', 'cancelled': 'Annulé'}
+        flash(f"Séjour {stay.booking_ref} : {labels[new_st]}.", "success")
     return redirect(url_for('properties.property_calendar'))
 
 
@@ -712,8 +755,12 @@ def api_public_apartment_booking():
     apt_id = (data.get('apartmentId') or '').strip()
     ci_str = (data.get('checkIn') or '')[:10]
     co_str = (data.get('checkOut') or '')[:10]
-    guest_name = (data.get('guestName') or 'Client Site Web').strip()
-    guest_phone = (data.get('guestPhone') or '').strip()
+    guest_name = (data.get('guestName') or '').strip()[:120]
+    guest_phone = (data.get('guestPhone') or '').strip()[:40]
+    if not guest_name or len(re.sub(r'\D', '', guest_phone)) < 8:
+        resp = jsonify({'ok': False, 'error': 'Indiquez votre nom et un numéro de téléphone / WhatsApp valide.'})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp, 400
 
     try:
         check_in = datetime.strptime(ci_str, '%Y-%m-%d').date()
@@ -729,16 +776,21 @@ def api_public_apartment_booking():
         resp.headers['Access-Control-Allow-Origin'] = '*'
         return resp, 409
 
+    if check_out <= check_in or check_in < date.today():
+        resp = jsonify({'ok': False, 'error': 'Choisissez une arrivée à partir d’aujourd’hui et un départ après l’arrivée.'})
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp, 400
     apt = Apartment.query.get(apt_id)
     nights = max(1, (check_out - check_in).days)
-    total = round((apt.nightly_rate or 65000.0) * nights) + float(apt.cleaning_fee or 0.0)
+    # Tarif inconnu : la demande est enregistrée, le montant sera confirmé par la conciergerie (aucun prix inventé)
+    total = (round(apt.nightly_rate * nights) + float(apt.cleaning_fee or 0.0)) if apt.nightly_rate else 0.0
     ref = f"3M-WEB-{datetime.now().strftime('%y%m%d')}-{random.randint(100, 999)}"
 
     stay = ApartmentBooking(
         booking_ref=ref,
         apartment_id=apt.id,
         guest_name=guest_name,
-        guest_phone=guest_phone or '+237',
+        guest_phone=guest_phone,
         guest_email=(data.get('guestEmail') or '').strip(),
         check_in=check_in,
         check_out=check_out,

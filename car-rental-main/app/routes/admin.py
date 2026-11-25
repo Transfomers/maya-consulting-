@@ -11,6 +11,7 @@ from app.models import User, Agency, Bus, Route, Trip, Booking, Payment, Feedbac
 from app import db
 from datetime import datetime, date, timedelta
 from sqlalchemy import func, or_, and_, case
+from app.utils.atomic_file import atomic_write
 
 admin = Blueprint('admin', __name__)
 
@@ -238,70 +239,12 @@ def privacy_records():
     records = PrivacyAcceptance.query.order_by(PrivacyAcceptance.accepted_at.desc()).limit(100).all()
     return render_template('admin/privacy_records.html', records=records)
 
-# === FINANCE & PAYMENTS ===
+# === FINANCE -> INVOICES REDIRECT ===
 @admin.route('/admin/finance')
 @login_required
 @admin_required
 def finance():
-    filter_val = request.args.get('filter', 'all')
-    today = date.today()
-    if current_user.role == 'super_admin':
-        query = Booking.query.filter_by(is_deleted=False)
-    else:
-        # Agency specific
-        trips_query = Trip.query.join(Route).filter(Route.agency_id == current_user.agency_id, Trip.is_deleted == False)
-        trip_ids = [t.id for t in trips_query.all()]
-        query = Booking.query.filter(Booking.trip_id.in_(trip_ids), Booking.is_deleted == False) if trip_ids else None
-
-    if query:
-        if filter_val in ['day', 'week', 'month']:
-            if filter_val == 'day':
-                start_dt = datetime.combine(today, datetime.min.time())
-                end_dt = datetime.combine(today, datetime.max.time())
-            elif filter_val == 'week':
-                start_dt = datetime.combine(today - timedelta(days=6), datetime.min.time())
-                end_dt = datetime.combine(today, datetime.max.time())
-            elif filter_val == 'month':
-                start_dt = datetime.combine(today - timedelta(days=29), datetime.min.time())
-                end_dt = datetime.combine(today, datetime.max.time())
-                
-            bookings = query.filter(Booking.booking_date.between(start_dt, end_dt)).all()
-        else:
-            bookings = query.all()
-    else:
-        bookings = []
-
-    # Calculate stats over the selected period
-    if filter_val == 'day':
-        sales_label = "Ventes du Jour"
-    elif filter_val == 'week':
-        sales_label = "Ventes (Cette Semaine)"
-    elif filter_val == 'month':
-        sales_label = "Ventes (Ce Mois)"
-    else:
-        sales_label = "Ventes Totales"
-
-    momo_payments = sum((b.price_paid or 0.0) for b in bookings if b.payment_method and 'momo' in b.payment_method.lower() and b.payment_status == 'paid')
-    orange_payments = sum((b.price_paid or 0.0) for b in bookings if b.payment_method and ('orange' in b.payment_method.lower() or 'om' in b.payment_method.lower()) and b.payment_status == 'paid')
-    period_sales = momo_payments + orange_payments
-    daily_sales = period_sales
-    pending_transactions = sum((b.price_paid or 0.0) for b in bookings if b.payment_status == 'pending')
-    refund_history = sum(b.refund_amount for b in bookings if b.refund_amount > 0)
-    
-    # Get recent transactions
-    recent_transactions = sorted([b for b in bookings if b.payment_status in ['paid', 'refunded', 'pending']], key=lambda x: x.booking_date or datetime.min, reverse=True)[:50]
-
-    return render_template(
-        'admin/finance.html', 
-        daily_sales=daily_sales, 
-        sales_label=sales_label,
-        momo_payments=momo_payments, 
-        orange_payments=orange_payments,
-        pending_transactions=pending_transactions, 
-        refund_history=refund_history,
-        recent_transactions=recent_transactions,
-        current_filter=filter_val
-    )
+    return redirect(url_for('invoices.index'))
 
 @admin.route('/admin/finance/export/pdf')
 @login_required
@@ -1270,8 +1213,20 @@ def dashboard():
     total_apartments = Apartment.query.filter_by(is_deleted=False).count()
     available_apartments = Apartment.query.filter_by(status='Disponible', is_deleted=False).count()
 
+    # ── Indicateurs métier par période (réservations, clients, appartements, CA encaissé) ──
+    from app.services.dashboard_kpis import build_dashboard_kpis, resolve_period, PERIODS
+    try:
+        kp = build_dashboard_kpis(agency_id, request.args)
+        kp_error = None
+    except Exception as exc:  # état d'erreur explicite plutôt qu'une page 500
+        db.session.rollback()
+        current_app.logger.exception("Calcul des indicateurs du tableau de bord impossible")
+        kp, kp_error = {'period': resolve_period(request.args), 'periods': PERIODS}, str(exc)
+    export_range = {'today': 'day', '7d': 'week', '30d': 'month'}.get(kp['period']['key'], 'all')
+
     from app.routes.missions import build_quick_actions_context
     return render_template('admin/dashboard.html',
+                           kp=kp, kp_error=kp_error, export_range=export_range,
                            is_super=is_super,
                            agency=agency,
                            stats_day=stats_day,
@@ -1870,7 +1825,7 @@ def _sync_visitor_to_db_json(name, phone, location, city='', email='', page='/',
             })
 
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        with open(db_path, 'w', encoding='utf-8') as f:
+        with atomic_write(db_path) as f:
             json.dump(exp_db, f, indent=2, ensure_ascii=False)
     except Exception as e:
         current_app.logger.warning(f"Error syncing visitor to db.json: {e}")
@@ -2379,7 +2334,7 @@ def edit_bus(id):
                             car['regularPrice'] = bus.regular_price
                         if bus.promo_badge:
                             car['promoBadge'] = bus.promo_badge
-                with open(db_path, 'w', encoding='utf-8') as f:
+                with atomic_write(db_path) as f:
                     _json.dump(exp_db, f, indent=2, ensure_ascii=False)
         except Exception as _e:
             current_app.logger.warning(f"Error syncing promo car to db.json: {_e}")
@@ -2707,7 +2662,7 @@ def sync_apartment_to_express_db(apt_dict, action='upsert'):
                 apts[idx].update(apt_dict)
             else:
                 apts.insert(0, apt_dict)
-        with open(db_path, 'w', encoding='utf-8') as f:
+        with atomic_write(db_path) as f:
             json.dump(exp_db, f, indent=2, ensure_ascii=False)
     except Exception as e:
         logger.warning(f"Error syncing apartment to express db.json: {e}")
@@ -2726,7 +2681,7 @@ def sync_booking_to_express_db(booking_dict):
             bookings[idx].update(booking_dict)
         else:
             bookings.insert(0, booking_dict)
-        with open(db_path, 'w', encoding='utf-8') as f:
+        with atomic_write(db_path) as f:
             json.dump(exp_db, f, indent=2, ensure_ascii=False)
     except Exception as e:
         logger.warning(f"Error syncing booking to express db.json: {e}")
@@ -3578,6 +3533,8 @@ def notifications():
             ('agency_mgmt', '🏢 Agences',           'text-primary'),
             ('shift_admin', '📋 Shifts',            'text-warning'),
             ('operations',  '🚌 Opérations',        'text-info'),
+            ('contract',    '📄 Contrats',          'text-danger'),
+            ('feedback',    '⭐ Avis clients',      'text-warning'),
             ('security',    '🔐 Sécurité',          'text-danger'),
             ('system',      '⚙️ Système',            'text-muted'),
         ]
@@ -3589,6 +3546,8 @@ def notifications():
             ('wallet',     '👛 Portefeuille',       'text-info'),
             ('shift',      '📋 Shifts',             'text-secondary'),
             ('ops_agency', '🚌 Opérations',         'text-danger'),
+            ('contract',   '📄 Contrats',           'text-danger'),
+            ('feedback',   '⭐ Avis clients',       'text-warning'),
         ]
 
     return render_template(
@@ -3849,7 +3808,7 @@ def get_trip_detail(trip_id):
         try:
             with open(db_path, 'r', encoding='utf-8') as f:
                 exp_db = json.load(f)
-            chat_threads = exp_db.get('chats', [])
+            chat_threads = [c for c in exp_db.get('chats', []) if not c.get('mergedInto')]
         except Exception as e:
             current_app.logger.warning(f"Error loading chats for trip detail: {e}")
 
@@ -4750,7 +4709,7 @@ def shifts():
         try:
             with open(db_path, 'r', encoding='utf-8') as f:
                 exp_db = _json.load(f)
-            chat_threads = exp_db.get('chats', [])
+            chat_threads = [c for c in exp_db.get('chats', []) if not c.get('mergedInto')]
         except Exception as e:
             current_app.logger.warning(f"Error reading chats in reports: {e}")
 
@@ -6511,7 +6470,7 @@ def toggle_bus_promo(id):
                 }
                 cars.append(new_car)
 
-            with open(db_path, 'w', encoding='utf-8') as f:
+            with atomic_write(db_path) as f:
                 _json.dump(exp_db, f, indent=2, ensure_ascii=False)
     except Exception as e:
         logger.warning(f"Error syncing promo to db.json: {e}")
@@ -6537,9 +6496,14 @@ def chats():
                 exp_db = _json.load(f)
             chat_threads = exp_db.get('chats', [])
         except Exception as e:
-            logger.warning(f"Error reading chats from db.json: {e}")
+            current_app.logger.warning(f"Error reading chats from db.json: {e}")
+    # Conversations fusionnées (invité devenu client connecté) : on suit la conversation cible
+    merged_into = {c.get('id'): c.get('mergedInto') for c in chat_threads if c.get('mergedInto')}
+    chat_threads = [c for c in chat_threads if not c.get('mergedInto')]
 
     selected_client_id = request.args.get('client_id')
+    if selected_client_id in merged_into:
+        selected_client_id = merged_into[selected_client_id]
     active_chat = None
     if selected_client_id and chat_threads:
         active_chat = next((c for c in chat_threads if c.get('id') == selected_client_id or c.get('clientId') == selected_client_id), None)
@@ -6550,7 +6514,7 @@ def chats():
     if active_chat:
         active_chat['unreadAdmin'] = 0
         try:
-            with open(db_path, 'w', encoding='utf-8') as f:
+            with atomic_write(db_path) as f:
                 _json.dump(exp_db, f, indent=2, ensure_ascii=False)
         except Exception:
             pass
@@ -6638,6 +6602,14 @@ def upload_chat_attachment(client_id):
     return jsonify({'success': True, 'url': current_app.config['APP_BASE_URL'] + '/static/uploads/chat/' + name})
 
 
+def _send_reply_email_async(app_obj, to_email, subject, html_body, text_body, send_fn):
+    with app_obj.app_context():
+        try:
+            send_fn(to_email=to_email, subject=subject, html_content=html_body, text_content=text_body)
+        except Exception:
+            app_obj.logger.debug("Async concierge reply email failed", exc_info=True)
+
+
 @admin.route('/admin/chats/<client_id>/send', methods=['POST'])
 @login_required
 @admin_required
@@ -6689,6 +6661,9 @@ def send_admin_chat_reply(client_id):
                 chat['lastMessageAt'] = now
                 chat['unreadClient'] = chat.get('unreadClient', 0) + 1
                 chat['unreadAdmin'] = 0
+                chats = [c for c in chats if c is not chat]
+                chats.insert(0, chat)
+                exp_db['chats'] = chats
             else:
                 chat = {
                     'id': client_id,
@@ -6704,16 +6679,50 @@ def send_admin_chat_reply(client_id):
                 chats.insert(0, chat)
                 exp_db['chats'] = chats
 
-            with open(db_path, 'w', encoding='utf-8') as f:
+            with atomic_write(db_path) as f:
                 _json.dump(exp_db, f, indent=2, ensure_ascii=False)
 
+            # Optional non-blocking email notification when SMTP is configured and client has a real email
+            client_email = (chat.get('clientEmail') or '').strip()
+            if (
+                client_email
+                and '@' in client_email
+                and not client_email.lower().endswith('.local')
+                and not client_email.lower().endswith('@visiteur.3mservices.cm')
+                and current_app.config.get('MAIL_SERVER')
+                and current_app.config.get('MAIL_USERNAME')
+                and current_app.config.get('MAIL_PASSWORD')
+            ):
+                try:
+                    import threading
+                    from html import escape as _html_escape
+                    from app.services.email_service import send_email
+                    app_obj = current_app._get_current_object()
+                    public_url = (current_app.config.get('PUBLIC_SITE_URL') or '').rstrip('/')
+                    chat_link = f"{public_url}/chat" if public_url else ''
+                    safe_name = _html_escape(chat.get('clientName') or 'Client')
+                    safe_preview = _html_escape(preview[:400])
+                    html_body = (
+                        f"<p>Bonjour {safe_name},</p>"
+                        f"<p>La conciergerie <strong>3M SERVICES</strong> vient de vous répondre :</p>"
+                        f"<blockquote style='border-left:3px solid #D62828;padding:8px 12px;background:#f8fafc;'>{safe_preview}</blockquote>"
+                        + (f"<p><a href='{_html_escape(chat_link)}'>Ouvrir la discussion Conciergerie</a></p>" if chat_link else "")
+                    )
+                    text_body = f"Bonjour {chat.get('clientName') or 'Client'},\n\nRéponse 3M SERVICES : {preview}\n" + (f"\nOuvrir la discussion : {chat_link}" if chat_link else "")
+                    threading.Thread(
+                        target=lambda: _send_reply_email_async(app_obj, client_email, "Nouvelle réponse de la conciergerie 3M SERVICES", html_body, text_body, send_email),
+                        daemon=True,
+                    ).start()
+                except Exception:
+                    current_app.logger.debug("Optional concierge reply email skipped", exc_info=True)
+
             if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({'success': True, 'message': new_msg})
+                return jsonify({'success': True, 'message': new_msg, 'unreadClient': chat.get('unreadClient', 0)})
 
             flash('Réponse transmise avec succès au client !', 'success')
             return redirect(url_for('admin.chats', client_id=client_id))
         except Exception as e:
-            logger.error(f"Error saving chat reply: {e}")
+            current_app.logger.error(f"Error saving chat reply: {e}")
             if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return jsonify({'error': str(e)}), 500
 
@@ -6734,7 +6743,7 @@ def get_admin_chat_messages(client_id):
             if chat:
                 # Mark as read
                 chat['unreadAdmin'] = 0
-                with open(db_path, 'w', encoding='utf-8') as f:
+                with atomic_write(db_path) as f:
                     _json.dump(exp_db, f, indent=2, ensure_ascii=False)
                 return jsonify({'success': True, 'chat': chat})
             return jsonify({'success': False, 'error': 'Conversation introuvable'}), 404
@@ -6770,7 +6779,7 @@ def edit_admin_chat_message(client_id, msg_id):
             msg['editedAt'] = datetime.utcnow().isoformat() + "Z"
             chat['lastMessage'] = text
 
-            with open(db_path, 'w', encoding='utf-8') as f:
+            with atomic_write(db_path) as f:
                 _json.dump(exp_db, f, indent=2, ensure_ascii=False)
             return jsonify({'success': True, 'message': msg})
         except Exception as e:
@@ -6799,7 +6808,7 @@ def delete_admin_chat_message(client_id, msg_id):
             msg['text'] = "Ce message a été supprimé par l'administration."
             msg['deletedAt'] = datetime.utcnow().isoformat() + "Z"
 
-            with open(db_path, 'w', encoding='utf-8') as f:
+            with atomic_write(db_path) as f:
                 _json.dump(exp_db, f, indent=2, ensure_ascii=False)
             return jsonify({'success': True, 'message': msg})
         except Exception as e:
@@ -6821,7 +6830,7 @@ def clear_admin_chat_thread(client_id):
             if chat:
                 chat['messages'] = []
                 chat['lastMessage'] = "Discussion réinitialisée"
-                with open(db_path, 'w', encoding='utf-8') as f:
+                with atomic_write(db_path) as f:
                     _json.dump(exp_db, f, indent=2, ensure_ascii=False)
                 return jsonify({'success': True})
             return jsonify({'error': 'Conversation introuvable'}), 404

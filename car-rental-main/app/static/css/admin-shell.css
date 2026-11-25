@@ -82,34 +82,6 @@
 .admin-layout-wrapper .sidebar-nav-item.active .sidebar-badge { background: var(--brand); color: #fff; }
 .admin-layout-wrapper .sidebar-badge-alert { background: var(--brand); color: #fff; }
 
-/* Carte état de la flotte */
-.fleet-status-card {
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--canvas);
-    padding: 12px;
-    font-size: 11.5px;
-    color: var(--muted);
-}
-.fleet-status-title { font-weight: 600; color: var(--ink); font-size: 12.5px; }
-.fleet-status-bar {
-    display: flex;
-    height: 6px;
-    border-radius: 999px;
-    overflow: hidden;
-    background: var(--line);
-    gap: 2px;
-    margin-bottom: 8px;
-}
-.fleet-status-bar span { display: block; height: 100%; }
-.fleet-status-list { list-style: none; margin: 0; padding: 0; }
-.fleet-status-list li { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
-.fleet-status-list b { margin-left: auto; color: var(--ink); font-weight: 600; }
-.fleet-status-list .dot { width: 7px; height: 7px; border-radius: 50%; }
-.seg-road, .dot-road { background: var(--info); }
-.seg-idle, .dot-idle { background: #98a2b3; }
-.seg-maint, .dot-maint { background: var(--warn); }
-
 /* Utilisateur */
 .admin-layout-wrapper .admin-sidebar-footer {
     border-top: 1px solid var(--line) !important;
@@ -135,7 +107,6 @@
 
 /* Menu replié (desktop) */
 @media (min-width: 992px) {
-    .admin-sidebar.collapsed .fleet-status-card { display: none; }
     .admin-sidebar.collapsed .sidebar-nav-item { justify-content: center !important; }
 }
 
@@ -381,3 +352,22 @@ body.dark-mode .tab-count { background: #1f2937; color: var(--ink-2); }
 .notif-menu .nt-avatar.is-success { background: #ecfdf3; color: #039855; }
 .notif-menu .nt-avatar.is-warning { background: #fffaeb; color: #dc6803; }
 .notif-menu .nt-avatar.is-danger { background: #fef3f2; color: #d92d20; }
+
+/* Élément actif du menu : icône blanche dans une tuile rouge */
+.admin-layout-wrapper .sidebar-nav-item i {
+    width: 30px !important;
+    height: 30px;
+    flex: 0 0 30px;
+    border-radius: 8px;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: #f2f4f7;
+    font-size: 0.95rem !important;
+}
+.admin-layout-wrapper .sidebar-nav-item.active i {
+    background: var(--brand) !important;
+    color: #fff !important;
+}
+.admin-layout-wrapper .sidebar-nav-item { padding: 6px 10px !important; }
+body.dark-mode .admin-layout-wrapper .sidebar-nav-item i { background: #1f2937; }

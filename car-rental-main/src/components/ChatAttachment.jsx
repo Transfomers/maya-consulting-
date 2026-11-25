@@ -43,5 +43,21 @@ export default function ChatAttachment({ attachment }) {
       </a>
     );
   }
+  if (attachment.type === "invoice" && /^(\/|https?:\/\/)/.test(attachment.url || "")) {
+    return (
+      <a href={attachment.url} target="_blank" rel="noreferrer" style={card}>
+        <span style={ico("#D62828")}><i className="fa-solid fa-file-invoice-dollar" style={{ color: "#fff" }}></i></span>
+        <span style={{ minWidth: 0 }}>
+          <strong style={{ display: "block", fontSize: 13 }}>Facture {attachment.reference}</strong>
+          <small style={{ color: "#667085", fontSize: 11.5, display: "block" }}>
+            {attachment.project ? `${attachment.project} · ` : ""}{attachment.total}
+          </small>
+          <small style={{ color: "#D62828", fontSize: 11.5, fontWeight: 700 }}>
+            Télécharger PDF →
+          </small>
+        </span>
+      </a>
+    );
+  }
   return null;
 }

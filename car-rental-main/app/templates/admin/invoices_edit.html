@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Modifier {{ edit_invoice.reference }} — 3M SERVICES{% endblock %}
+
+{% block content %}
+<div style="max-width: 820px;">
+    <div class="page-header">
+        <div>
+            <h1>Modifier {{ edit_invoice.reference }}</h1>
+            <p>Mettez à jour les lignes, taxes, montants et conditions de la facture.</p>
+        </div>
+        <div class="page-actions">
+            <a href="{{ url_for('invoices.detail', invoice_id=edit_invoice.id) }}" class="btn btn-light border">
+                <i class="bi bi-arrow-left me-1"></i> Retour à la facture
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white border rounded-4 p-4" style="border-color: #eaecf0 !important;">
+        {% set drawer_mode = false %}
+        {% include 'admin/_invoice_drawer.html' %}
+    </div>
+</div>
+{% endblock %}

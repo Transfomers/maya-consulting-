@@ -1,549 +1,822 @@
 {% extends "base.html" %}
 {% set is_edit = apt is not none %}
-{% block title %}{% if is_edit %}Modifier le bien meublé — {{ apt.title }}{% else %}Ajouter un bien meublé — 3M SERVICES{% endif %}{% endblock %}
+{% block title %}{% if is_edit %}Modifier le bien — {{ apt.title }}{% else %}Ajouter un bien meublé — 3M SERVICES{% endif %}{% endblock %}
 
 {% block content %}
 <style>
-.prop-shell {
-    max-width: 1080px;
-    margin: 0 auto;
+.pf-wrap {
+    max-width: 1120px;
 }
-.prop-card {
+.pf-wrap i {
+    color: inherit !important;
+}
+.pf-ref-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    border: 1px solid #eaecf0;
+    color: #344054;
+    font-size: 12px;
+    font-weight: 600;
+    vertical-align: middle;
+    margin-left: 8px;
+}
+
+/* Horizontal underline step tabs matching .mh-tabs in bookings.html */
+.pf-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-bottom: 1px solid #eaecf0;
+    margin: 0 0 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.pf-tabs::-webkit-scrollbar { display: none; }
+.pf-tab {
+    border: 0;
+    background: transparent;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #667085;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease;
+}
+.pf-tab:hover {
+    color: #101828;
+}
+.pf-tab.active {
+    color: var(--primary-light);
+    border-bottom-color: var(--primary-light);
+    font-weight: 600;
+}
+.pf-tab__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    color: #475467;
+    line-height: 1.4;
+}
+.pf-tab.active .pf-tab__num {
+    background: #fef3f2;
+    color: var(--primary-light);
+}
+.pf-tab.completed:not(.active) {
+    color: #344054;
+}
+.pf-tab.completed:not(.active) .pf-tab__num {
+    background: #ecfdf3;
+    color: #027a48;
+}
+
+/* Panes & clean white cards matching .cf-card / .mh-card */
+.prop-pane { display: none; }
+.prop-pane.active {
+    display: block;
+    animation: pfFadeIn .16s ease;
+}
+@keyframes pfFadeIn {
+    from { opacity: 0; transform: translateY(3px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pf-card {
     background: #ffffff;
     border: 1px solid #eaecf0;
-    border-radius: 1.5rem;
-    padding: 1.75rem 2rem;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+    border-radius: 14px;
+    margin-bottom: 16px;
 }
-.prop-stepper {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(120px, 1fr));
-    gap: 0.5rem;
-    overflow-x: auto;
-    margin-bottom: 1.75rem;
-    padding-bottom: 0.35rem;
+.pf-card__head {
+    padding: 16px 22px;
+    border-bottom: 1px solid #f2f4f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
 }
-.prop-step-tab {
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    border-radius: 0.9rem;
-    padding: 0.65rem 0.7rem;
-    text-align: left;
-    cursor: pointer;
-    transition: all .15s;
-}
-.prop-step-tab.active {
-    background: #D62828;
-    border-color: #D62828;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(214, 40, 40, 0.24);
-}
-.prop-step-tab.completed:not(.active) {
-    background: #ecfdf3;
-    border-color: #abefc6;
-    color: #067647;
-}
-.prop-step-num {
-    font-size: 0.68rem;
-    font-weight: 800;
-    opacity: 0.8;
-    display: block;
-}
-.prop-step-lbl {
-    font-size: 0.78rem;
+.pf-card__head h2 {
+    font-size: 15px;
     font-weight: 700;
-    display: block;
-    line-height: 1.2;
+    color: #101828;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
-.prop-pane { display: none; }
-.prop-pane.active { display: block; animation: fadeInStep .18s ease; }
-@keyframes fadeInStep { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.pf-card__head h2 i {
+    color: #98a2b3 !important;
+    font-size: 15px;
+}
+.pf-card__head p {
+    font-size: 12.5px;
+    color: #667085;
+    margin: 3px 0 0;
+}
+.pf-step-pill {
+    font-size: 12px;
+    font-weight: 600;
+    color: #667085;
+    background: #f9fafb;
+    border: 1px solid #eaecf0;
+    border-radius: 999px;
+    padding: 3px 10px;
+    white-space: nowrap;
+}
+.pf-card__body {
+    padding: 20px 22px;
+}
+.pf-divider-head {
+    border-top: 1px solid #f2f4f7;
+    margin-top: 22px;
+    padding-top: 18px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #101828;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pf-divider-head i {
+    color: #98a2b3 !important;
+}
 
-.prop-lbl {
-    font-size: 0.73rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #475569;
-    margin-bottom: 0.35rem;
+/* Normal-case labels & clean inputs matching contracts_form.html */
+.pf-lbl {
     display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #344054;
+    margin-bottom: 6px;
 }
-.prop-input, .prop-select, .prop-textarea {
+.pf-lbl .req {
+    color: #d92d20;
+}
+.pf-input,
+.pf-select {
+    height: 42px;
+    font-size: 14px;
+    color: #101828;
     border: 1px solid #d0d5dd;
-    border-radius: 0.75rem;
-    padding: 0.58rem 0.85rem;
-    font-size: 0.88rem;
-    color: #0f172a;
+    border-radius: 10px;
 }
-.prop-input:focus, .prop-select:focus, .prop-textarea:focus {
-    border-color: #D62828;
-    box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.12);
+.pf-textarea {
+    min-height: 96px;
+    font-size: 14px;
+    color: #101828;
+    border: 1px solid #d0d5dd;
+    border-radius: 10px;
+}
+.pf-input:focus,
+.pf-select:focus,
+.pf-textarea:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.12);
     outline: none;
 }
-.dropzone-box {
-    border: 2px dashed #cbd5e1;
-    border-radius: 1.15rem;
-    padding: 2rem 1.5rem;
+
+/* Drag & Drop upload matching .cf-drop */
+.pf-drop {
+    border: 2px dashed #d0d5dd;
+    border-radius: 12px;
+    padding: 26px 18px;
     text-align: center;
-    background: #f8fafc;
+    background: #f9fafb;
+    color: #344054;
     cursor: pointer;
-    transition: all .18s;
+    transition: border-color .15s ease, background .15s ease;
 }
-.dropzone-box:hover, .dropzone-box.dragover {
-    border-color: #D62828;
-    background: #fff5f5;
+.pf-drop:hover,
+.pf-drop.dragover {
+    border-color: var(--primary-light);
+    background: #fef3f2;
 }
+.pf-drop > i {
+    font-size: 26px;
+    color: var(--primary-light) !important;
+    display: block;
+    margin-bottom: 6px;
+}
+.pf-drop__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #101828;
+    margin: 0 0 4px;
+}
+.pf-drop__hint {
+    font-size: 12.5px;
+    color: #667085;
+}
+
+.pf-section-sub {
+    font-size: 13px;
+    font-weight: 600;
+    color: #344054;
+    margin-bottom: 10px;
+}
+
 .photo-tile {
-    border: 1px solid #e2e8f0;
-    border-radius: 1rem;
-    padding: 0.75rem;
+    border: 1px solid #eaecf0;
+    border-radius: 12px;
+    padding: 10px;
     background: #ffffff;
     position: relative;
 }
 .photo-tile.is-cover {
-    border: 2px solid #D62828;
-    background: #fffafa;
+    border: 2px solid var(--primary-light);
+    background: #fffbfa;
 }
 .photo-tile img {
     width: 100%;
     height: 145px;
     object-fit: cover;
-    border-radius: 0.65rem;
+    border-radius: 8px;
 }
+
+/* Equipments & VIP chips */
 .check-chip {
     display: flex;
     align-items: center;
-    gap: 0.55rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    padding: 0.55rem 0.8rem;
-    background: #f8fafc;
-    font-size: 0.83rem;
-    font-weight: 600;
+    gap: 8px;
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    color: #344054;
     cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+}
+.check-chip:hover {
+    border-color: #d0d5dd;
+    background: #f9fafb;
 }
 .check-chip:has(input:checked) {
-    border-color: #D62828;
-    background: #fff5f5;
+    border-color: var(--primary-light);
+    background: #fef3f2;
     color: #991b1b;
+    font-weight: 600;
+}
+
+/* Live preview card */
+.pf-preview-card {
+    border: 1px solid #eaecf0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+}
+.pf-preview-card__media {
+    position: relative;
+    height: 205px;
+    background: #0f172a;
+}
+.pf-preview-card__body {
+    padding: 14px 16px;
+}
+.pf-preview-card__loc {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #667085;
+}
+.pf-preview-card__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #101828;
+    margin: 4px 0 6px;
+}
+.pf-preview-card__price {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-light);
+    margin-bottom: 6px;
+}
+.pf-preview-card__rooms {
+    font-size: 12.5px;
+    color: #667085;
+}
+
+/* Sticky footer matching .cf-actions */
+.pf-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    margin-top: 8px;
+    background: linear-gradient(to top, var(--canvas, #f8fafc) 72%, transparent);
+}
+.pf-actions__meta {
+    font-size: 12.5px;
+    color: #667085;
+}
+.pf-actions__meta strong {
+    color: #101828;
+}
+@media (max-width: 767.98px) {
+    .pf-card__head { padding: 14px 16px; }
+    .pf-card__head h2 { font-size: 16px !important; line-height: 1.3; }
+    .pf-card__body { padding: 16px; }
+    .pf-card__body .row { --bs-gutter-y: 12px; }
+    .pf-actions { flex-wrap: wrap; gap: 8px; }
+    .pf-actions__meta { order: -1; width: 100%; text-align: center; }
+    .pf-actions > .btn, .pf-actions > .d-flex { flex: 1 1 100%; }
+    .pf-actions > .d-flex .btn { flex: 1 1 0; justify-content: center; white-space: normal; }
+    #btnPrevStep[style*="hidden"] { display: none !important; }
 }
 </style>
 
-<div class="container-fluid py-3 px-2 px-lg-4 prop-shell">
-    <!-- HEADER -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+<div class="pf-wrap">
+    <!-- PAGE HEADER (matching Mission page & admin-shell.css) -->
+    <div class="page-header">
         <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="badge bg-danger text-white fw-bold px-2.5 py-1">PROPERTY MANAGEMENT</span>
-                <span class="badge bg-light text-dark border fw-bold">{{ preview_ref }}</span>
-            </div>
-            <h3 class="fw-bold text-dark mb-0">
-                {% if is_edit %}Modifier le bien meublé : {{ apt.title }}{% else %}3M SERVICES — Ajouter un bien meublé{% endif %}
-            </h3>
-            <p class="text-muted small mb-0">Enregistrez un bien immobilier meublé (studio, appartement, villa, penthouse) avec galerie photos réelle et synchronisation site client.</p>
+            <h1>
+                {% if is_edit %}Modifier le bien — {{ apt.title }}{% else %}Ajouter un bien meublé{% endif %}
+                <span class="pf-ref-pill">{{ preview_ref }}</span>
+            </h1>
+            <p>Enregistrez un bien meublé (studio, appartement, villa, penthouse) avec galerie photos et synchronisation catalogue.</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ url_for('properties.property_calendar') }}" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold">
-                <i class="bi bi-calendar-check me-1"></i> Calendrier Disponibilités
+        <div class="page-actions">
+            <a href="{{ url_for('properties.property_calendar') }}" class="btn btn-light border">
+                <i class="bi bi-calendar-check me-1"></i> Calendrier disponibilités
             </a>
-            <a href="{{ url_for('admin.apartments') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold">
-                <i class="bi bi-arrow-left me-1"></i> Retour aux Biens
+            <a href="{{ url_for('admin.apartments') }}" class="btn btn-light border">
+                <i class="bi bi-arrow-left me-1"></i> Retour aux biens
             </a>
         </div>
     </div>
 
-    <div class="prop-card">
-        <!-- 6-STEP PROGRESS NAVIGATION -->
-        <div class="prop-stepper" id="propStepper">
-            <button type="button" class="prop-step-tab active" data-step="1" onclick="goPropStep(1)">
-                <span class="prop-step-num">ÉTAPE 01</span>
-                <span class="prop-step-lbl">Informations générales</span>
-            </button>
-            <button type="button" class="prop-step-tab" data-step="2" onclick="goPropStep(2)">
-                <span class="prop-step-num">ÉTAPE 02</span>
-                <span class="prop-step-lbl">Localisation &amp; config</span>
-            </button>
-            <button type="button" class="prop-step-tab" data-step="3" onclick="goPropStep(3)">
-                <span class="prop-step-num">ÉTAPE 03</span>
-                <span class="prop-step-lbl">Tarification</span>
-            </button>
-            <button type="button" class="prop-step-tab" data-step="4" onclick="goPropStep(4)">
-                <span class="prop-step-num">ÉTAPE 04</span>
-                <span class="prop-step-lbl">Photos &amp; galerie</span>
-            </button>
-            <button type="button" class="prop-step-tab" data-step="5" onclick="goPropStep(5)">
-                <span class="prop-step-num">ÉTAPE 05</span>
-                <span class="prop-step-lbl">Équipements &amp; VIP</span>
-            </button>
-            <button type="button" class="prop-step-tab" data-step="6" onclick="goPropStep(6)">
-                <span class="prop-step-num">ÉTAPE 06</span>
-                <span class="prop-step-lbl">Vérification &amp; publier</span>
-            </button>
-        </div>
+    <!-- HORIZONTAL UNDERLINE TABS (matching .mh-tabs in bookings.html) -->
+    <div class="pf-tabs" id="propStepper" role="tablist" aria-label="Étapes de création du bien">
+        <button type="button" class="pf-tab prop-step-tab active" data-step="1" onclick="goPropStep(1)">
+            <span class="pf-tab__num">01</span>
+            <span>Informations générales</span>
+        </button>
+        <button type="button" class="pf-tab prop-step-tab" data-step="2" onclick="goPropStep(2)">
+            <span class="pf-tab__num">02</span>
+            <span>Localisation &amp; config</span>
+        </button>
+        <button type="button" class="pf-tab prop-step-tab" data-step="3" onclick="goPropStep(3)">
+            <span class="pf-tab__num">03</span>
+            <span>Tarification</span>
+        </button>
+        <button type="button" class="pf-tab prop-step-tab" data-step="4" onclick="goPropStep(4)">
+            <span class="pf-tab__num">04</span>
+            <span>Photos &amp; galerie</span>
+        </button>
+        <button type="button" class="pf-tab prop-step-tab" data-step="5" onclick="goPropStep(5)">
+            <span class="pf-tab__num">05</span>
+            <span>Équipements &amp; VIP</span>
+        </button>
+        <button type="button" class="pf-tab prop-step-tab" data-step="6" onclick="goPropStep(6)">
+            <span class="pf-tab__num">06</span>
+            <span>Vérification &amp; publier</span>
+        </button>
+    </div>
 
-        <form method="POST" enctype="multipart/form-data" id="propertyWizardForm">
-            <!-- ========================================================== -->
-            <!-- STEP 1: 01. INFORMATIONS GÉNÉRALES                         -->
-            <!-- ========================================================== -->
-            <div class="prop-pane active" id="propStep1">
-                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-info-circle-fill text-danger me-2"></i>01. Informations générales du bien</h5>
-                <div class="row g-3">
-                    <div class="col-md-8">
-                        <label class="prop-lbl">Titre de l'appartement / du bien *</label>
-                        <input type="text" name="title" id="fTitle" class="form-control prop-input" required
-                               value="{{ apt.title if is_edit else '' }}"
-                               placeholder="Ex: Appartement Prestige Tsinga (Face FECAFOOT)">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Référence du bien (Auto)</label>
-                        <input type="text" class="form-control prop-input bg-light fw-bold" value="{{ preview_ref }}" readonly>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Type de logement *</label>
-                        <select name="property_type" id="fPropType" class="form-select prop-select">
-                            {% set cur_pt = apt.property_type if (is_edit and apt.property_type) else 'T3' %}
-                            {% for pt in property_types %}
-                            <option value="{{ pt }}" {% if cur_pt == pt %}selected{% endif %}>{{ pt }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Standing *</label>
-                        <select name="standing" id="fStanding" class="form-select prop-select">
-                            {% set cur_st = apt.standing if (is_edit and apt.standing) else 'Haut Standing' %}
-                            {% for st in property_standings %}
-                            <option value="{{ st }}" {% if cur_st == st %}selected{% endif %}>{{ st }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Statut *</label>
-                        <select name="status" id="fStatus" class="form-select prop-select">
-                            {% set cur_stat = apt.status if is_edit else 'Disponible' %}
-                            {% for s in property_statuses %}
-                            <option value="{{ s }}" {% if cur_stat == s %}selected{% endif %}>{{ s }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <label class="prop-lbl">Description courte (Accroche catalogue)</label>
-                        <input type="text" name="short_description" id="fShortDesc" class="form-control prop-input" maxlength="300"
-                               value="{{ apt.short_description if (is_edit and apt.short_description) else '' }}"
-                               placeholder="Ex: Résidence haut standing climatisée avec groupe électrogène 24/7 et fibre optique face FECAFOOT.">
-                    </div>
-                    <div class="col-12">
-                        <label class="prop-lbl">Description détaillée &amp; atouts</label>
-                        <textarea name="description" id="fDesc" rows="4" class="form-control prop-textarea"
-                                  placeholder="Décrivez l'ambiance, l'agencement, la sécurité et l'environnement du bien...">{{ apt.description if (is_edit and apt.description) else '' }}</textarea>
-                    </div>
-                </div>
-            </div>
+    <form method="POST" enctype="multipart/form-data" id="propertyWizardForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <!-- ========================================================== -->
-            <!-- STEP 2: 02. LOCALISATION & 03. CONFIGURATION               -->
-            <!-- ========================================================== -->
-            <div class="prop-pane" id="propStep2">
-                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-geo-alt-fill text-danger me-2"></i>02. Localisation &amp; Configuration du logement</h5>
-                <div class="row g-3 mb-4 pb-3 border-bottom">
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Ville *</label>
-                        <input type="text" name="city" id="fCity" class="form-control prop-input" required
-                               value="{{ apt.city if (is_edit and apt.city) else 'Yaoundé' }}">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Quartier *</label>
-                        <input type="text" name="neighborhood" id="fNeighborhood" class="form-control prop-input" required
-                               value="{{ apt.neighborhood if (is_edit and apt.neighborhood) else 'Tsinga' }}"
-                               placeholder="Tsinga, Bastos, Omnisports...">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Point de repère</label>
-                        <input type="text" name="landmark" id="fLandmark" class="form-control prop-input"
-                               value="{{ apt.landmark if (is_edit and apt.landmark) else 'Face FECAFOOT' }}"
-                               placeholder="Ex: Face siège FECAFOOT">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="prop-lbl">Adresse précise *</label>
-                        <input type="text" name="exact_address" class="form-control prop-input"
-                               value="{{ apt.exact_address if (is_edit and apt.exact_address) else (apt.location if is_edit else 'Rue Principale Tsinga, Face FECAFOOT') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="prop-lbl">Localisation GPS (facultative)</label>
-                        <input type="text" name="gps_coordinates" class="form-control prop-input"
-                               value="{{ apt.gps_coordinates if (is_edit and apt.gps_coordinates) else '' }}"
-                               placeholder="3.8821, 11.5014">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="prop-lbl">Instructions d'accès</label>
-                        <input type="text" name="access_instructions" class="form-control prop-input"
-                               value="{{ apt.access_instructions if (is_edit and apt.access_instructions) else '' }}"
-                               placeholder="Portail sécurisé, digicode...">
-                    </div>
-                </div>
-
-                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-door-open-fill text-danger me-2"></i>Configuration des pièces &amp; capacité</h6>
-                <div class="row g-3">
-                    <div class="col-6 col-md-2">
-                        <label class="prop-lbl">Chambres</label>
-                        <input type="number" name="bedrooms_count" id="fBedrooms" class="form-control prop-input" min="0" value="{{ apt.bedrooms_count if (is_edit and apt.bedrooms_count is not none) else 2 }}">
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <label class="prop-lbl">Salons</label>
-                        <input type="number" name="living_rooms_count" id="fLiving" class="form-control prop-input" min="0" value="{{ apt.living_rooms_count if (is_edit and apt.living_rooms_count is not none) else 1 }}">
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <label class="prop-lbl">Salles de bain</label>
-                        <input type="number" name="bathrooms_count" id="fBaths" class="form-control prop-input" min="0" value="{{ apt.bathrooms_count if (is_edit and apt.bathrooms_count is not none) else 2 }}">
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <label class="prop-lbl">Cuisines</label>
-                        <input type="number" name="kitchens_count" class="form-control prop-input" min="0" value="{{ apt.kitchens_count if (is_edit and apt.kitchens_count is not none) else 1 }}">
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <label class="prop-lbl">Balcons</label>
-                        <input type="number" name="balconies_count" class="form-control prop-input" min="0" value="{{ apt.balconies_count if (is_edit and apt.balconies_count is not none) else 1 }}">
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <label class="prop-lbl">Capacité max (pers.)</label>
-                        <input type="number" name="max_guests" id="fGuests" class="form-control prop-input" min="1" value="{{ apt.max_guests if (is_edit and apt.max_guests) else 4 }}">
-                    </div>
-                    <div class="col-md-8">
-                        <label class="prop-lbl">Nombre de lits et types de literie</label>
-                        <input type="text" name="bedding_details" class="form-control prop-input"
-                               value="{{ apt.bedding_details if (is_edit and apt.bedding_details) else '2 Lits King Size orthopédiques' }}"
-                               placeholder="Ex: 1 Lit King Size (180x200) + 1 Lit Queen Size">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Surface habitable (m²)</label>
-                        <input type="number" name="surface_sqm" id="fSurface" class="form-control prop-input" step="1" min="10"
-                               value="{{ apt.surface_sqm|int if (is_edit and apt.surface_sqm) else '' }}" placeholder="Ex: 120">
-                    </div>
-                </div>
-            </div>
-
-            <!-- ========================================================== -->
-            <!-- STEP 3: 04. TARIFICATION & CONDITIONS                      -->
-            <!-- ========================================================== -->
-            <div class="prop-pane" id="propStep3">
-                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-cash-stack text-danger me-2"></i>03. Tarification &amp; Conditions (FCFA)</h5>
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Tarif par nuit (FCFA) *</label>
-                        <input type="number" name="nightly_rate" id="fNightly" class="form-control prop-input fw-bold" required min="5000" step="1000"
-                               value="{{ apt.nightly_rate|int if (is_edit and apt.nightly_rate) else 65000 }}">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Tarif par semaine (FCFA)</label>
-                        <input type="number" name="weekly_rate" id="fWeekly" class="form-control prop-input" min="0" step="5000"
-                               value="{{ apt.weekly_rate|int if (is_edit and apt.weekly_rate) else '' }}" placeholder="Ex: 420000">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Tarif par mois (FCFA)</label>
-                        <input type="number" name="monthly_rate" id="fMonthly" class="form-control prop-input" min="0" step="10000"
-                               value="{{ apt.monthly_rate|int if (is_edit and apt.monthly_rate) else '' }}" placeholder="Ex: 1500000">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Caution remboursable (FCFA)</label>
-                        <input type="number" name="security_deposit" class="form-control prop-input" min="0" step="5000"
-                               value="{{ apt.security_deposit|int if (is_edit and apt.security_deposit is not none) else 100000 }}">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Frais de ménage (FCFA)</label>
-                        <input type="number" name="cleaning_fee" class="form-control prop-input" min="0" step="1000"
-                               value="{{ apt.cleaning_fee|int if (is_edit and apt.cleaning_fee is not none) else 0 }}">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="prop-lbl">Durée minimale de séjour (nuits)</label>
-                        <input type="number" name="min_stay_nights" class="form-control prop-input" min="1"
-                               value="{{ apt.min_stay_nights if (is_edit and apt.min_stay_nights) else 1 }}">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="prop-lbl">Conditions de paiement</label>
-                        <input type="text" name="payment_terms" class="form-control prop-input"
-                               value="{{ apt.payment_terms if (is_edit and apt.payment_terms) else '50% acompte à la réservation, solde à la remise des clés (MoMo / OM / Espèces / Virement)' }}">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="prop-lbl">Réduction pour long séjour</label>
-                        <input type="text" name="long_stay_discount" class="form-control prop-input"
-                               value="{{ apt.long_stay_discount if (is_edit and apt.long_stay_discount) else '-10% dès 7 nuits • -20% dès 30 nuits' }}">
-                    </div>
-                </div>
-            </div>
-
-            <!-- ========================================================== -->
-            <!-- STEP 4: 05. GALERIE PHOTOS & MÉDIAS (REAL MULTI-UPLOAD)    -->
-            <!-- ========================================================== -->
-            <div class="prop-pane" id="propStep4">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <!-- ========================================================== -->
+        <!-- STEP 1: 01. INFORMATIONS GÉNÉRALES                         -->
+        <!-- ========================================================== -->
+        <div class="prop-pane active" id="propStep1">
+            <section class="pf-card">
+                <div class="pf-card__head">
                     <div>
-                        <h5 class="fw-bold text-dark mb-0"><i class="bi bi-images text-danger me-2"></i>04. Galerie Photos &amp; Médias</h5>
-                        <small class="text-muted">Téléchargez plusieurs photos depuis votre ordinateur ou téléphone (JPG, PNG, WEBP — max 10 Mo/photo). Choisissez la photo de couverture, classez par pièce et ajoutez des légendes.</small>
+                        <h2><i class="bi bi-info-circle"></i> Informations générales du bien</h2>
+                        <p>Identifiez le bien, sa catégorie, son standing et sa présentation catalogue.</p>
                     </div>
+                    <span class="pf-step-pill">Étape 1 / 6</span>
                 </div>
-
-                <input type="hidden" name="cover_selection" id="coverSelectionInput"
-                       value="{% if is_edit and apt.ordered_photos() %}existing:{{ apt.ordered_photos()[0].id }}{% else %}new:0{% endif %}">
-
-                <!-- Real Drag & Drop Upload Zone -->
-                <div class="dropzone-box mb-4" id="photoDropzone" onclick="document.getElementById('photoFileInput').click()">
-                    <i class="bi bi-cloud-arrow-up-fill text-danger" style="font-size: 2.5rem;"></i>
-                    <h6 class="fw-bold text-dark mt-2 mb-1">Glissez-déposez vos images ici ou cliquez pour parcourir votre appareil</h6>
-                    <div class="small text-muted">Formats acceptés : <strong>JPG · PNG · WEBP</strong> (Sélection multiple autorisée depuis PC ou mobile)</div>
-                    <input type="file" id="photoFileInput" name="property_photos" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple class="d-none">
-                </div>
-
-                {% if is_edit and apt.ordered_photos() %}
-                <h6 class="fw-bold small text-uppercase text-muted mb-2">Photos enregistrées ({{ apt.ordered_photos()|length }})</h6>
-                <div class="row g-3 mb-4" id="existingPhotosGrid">
-                    {% for p in apt.ordered_photos() %}
-                    <div class="col-md-4 col-sm-6 existing-photo-wrap" id="exWrap_{{ p.id }}">
-                        <div class="photo-tile {% if p.is_cover %}is-cover{% endif %}" data-cover-token="existing:{{ p.id }}">
-                            <img src="{{ p.url }}" alt="{{ p.caption or apt.title }}">
-                            <div class="d-flex justify-content-between align-items-center mt-2 mb-2">
-                                <button type="button" class="btn btn-sm {% if p.is_cover %}btn-danger{% else %}btn-outline-secondary{% endif %} rounded-pill py-0 px-2 cover-btn"
-                                        onclick="setCoverPhoto('existing:{{ p.id }}', '{{ p.url }}')">
-                                    <i class="bi bi-star-fill me-1"></i> Couverture
-                                </button>
-                                <div class="d-flex align-items-center gap-1">
-                                    <input type="number" name="existing_order_{{ p.id }}" value="{{ loop.index0 }}" class="form-control form-control-sm text-center" style="width:52px;" title="Ordre d'affichage">
-                                    <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="markExistingPhotoDeleted({{ p.id }})" title="Supprimer">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <select name="existing_category_{{ p.id }}" class="form-select form-select-sm mb-1">
-                                {% for cat in photo_categories %}
-                                <option value="{{ cat }}" {% if p.room_category == cat %}selected{% endif %}>{{ cat }}</option>
+                <div class="pf-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="pf-lbl" for="fTitle">Titre de l'appartement / du bien <span class="req">*</span></label>
+                            <input type="text" name="title" id="fTitle" class="form-control pf-input" required
+                                   value="{{ apt.title if is_edit else '' }}"
+                                   placeholder="Ex: Appartement Prestige Tsinga (Face FECAFOOT)">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl">Référence du bien (Auto)</label>
+                            <input type="text" class="form-control pf-input bg-light fw-semibold" value="{{ preview_ref }}" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl" for="fPropType">Type de logement <span class="req">*</span></label>
+                            <select name="property_type" id="fPropType" class="form-select pf-select">
+                                {% set cur_pt = apt.property_type if (is_edit and apt.property_type) else 'T3' %}
+                                {% for pt in property_types %}
+                                <option value="{{ pt }}" {% if cur_pt == pt %}selected{% endif %}>{{ pt }}</option>
                                 {% endfor %}
                             </select>
-                            <input type="text" name="existing_caption_{{ p.id }}" value="{{ p.caption or '' }}" class="form-control form-control-sm" placeholder="Légende de la photo...">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl" for="fStanding">Standing <span class="req">*</span></label>
+                            <select name="standing" id="fStanding" class="form-select pf-select">
+                                {% set cur_st = apt.standing if (is_edit and apt.standing) else 'Haut Standing' %}
+                                {% for st in property_standings %}
+                                <option value="{{ st }}" {% if cur_st == st %}selected{% endif %}>{{ st }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl" for="fStatus">Statut <span class="req">*</span></label>
+                            <select name="status" id="fStatus" class="form-select pf-select">
+                                {% set cur_stat = apt.status if is_edit else 'Disponible' %}
+                                {% for s in property_statuses %}
+                                <option value="{{ s }}" {% if cur_stat == s %}selected{% endif %}>{{ s }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="pf-lbl" for="fShortDesc">Description courte (Accroche catalogue)</label>
+                            <input type="text" name="short_description" id="fShortDesc" class="form-control pf-input" maxlength="300"
+                                   value="{{ apt.short_description if (is_edit and apt.short_description) else '' }}"
+                                   placeholder="Ex: Résidence haut standing climatisée avec groupe électrogène 24/7 et fibre optique face FECAFOOT.">
+                        </div>
+                        <div class="col-12">
+                            <label class="pf-lbl" for="fDesc">Description détaillée &amp; atouts</label>
+                            <textarea name="description" id="fDesc" rows="4" class="form-control pf-textarea"
+                                      placeholder="Décrivez l'ambiance, l'agencement, la sécurité et l'environnement du bien...">{{ apt.description if (is_edit and apt.description) else '' }}</textarea>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
-                <div id="deletedPhotoInputs"></div>
-                {% endif %}
+            </section>
+        </div>
 
-                <h6 class="fw-bold small text-uppercase text-muted mb-2">Nouvelles photos prêtes à être téléchargées (<span id="newPhotosCount">0</span>)</h6>
-                <div class="row g-3" id="newPhotosPreviewGrid"></div>
-            </div>
-
-            <!-- ========================================================== -->
-            <!-- STEP 5: 06. ÉQUIPEMENTS & 07. CONCIERGERIE VIP             -->
-            <!-- ========================================================== -->
-            <div class="prop-pane" id="propStep5">
-                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-stars text-danger me-2"></i>05. Équipements &amp; Conciergerie VIP</h5>
-                {% set cur_eqs = apt.equipments if is_edit else default_equipments %}
-                <label class="prop-lbl mb-2">Équipements &amp; commodités du logement</label>
-                <div class="row g-2 mb-3">
-                    {% for eq in default_equipments %}
-                    <div class="col-md-4 col-sm-6">
-                        <label class="check-chip">
-                            <input type="checkbox" class="form-check-input mt-0" name="equipments" value="{{ eq }}" {% if eq in cur_eqs %}checked{% endif %}>
-                            <span>{{ eq }}</span>
-                        </label>
+        <!-- ========================================================== -->
+        <!-- STEP 2: 02. LOCALISATION & CONFIGURATION                   -->
+        <!-- ========================================================== -->
+        <div class="prop-pane" id="propStep2">
+            <section class="pf-card">
+                <div class="pf-card__head">
+                    <div>
+                        <h2><i class="bi bi-geo-alt"></i> Localisation &amp; configuration du logement</h2>
+                        <p>Précisez l'adresse d'accès, les repères de proximité et la composition des pièces.</p>
                     </div>
-                    {% endfor %}
+                    <span class="pf-step-pill">Étape 2 / 6</span>
                 </div>
-                <div class="mb-4">
-                    <input type="text" name="custom_equipment" class="form-control prop-input" placeholder="+ Ajouter d'autres équipements (séparés par une virgule)...">
-                </div>
-
-                {% set cur_vips = apt.vip_services if is_edit else default_vip_services %}
-                <label class="prop-lbl mb-2">Services &amp; Conciergerie VIP 3M Services</label>
-                <div class="row g-2 mb-3">
-                    {% for vs in default_vip_services %}
-                    <div class="col-md-4 col-sm-6">
-                        <label class="check-chip">
-                            <input type="checkbox" class="form-check-input mt-0" name="vip_services" value="{{ vs }}" {% if vs in cur_vips %}checked{% endif %}>
-                            <span>{{ vs }}</span>
-                        </label>
+                <div class="pf-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="pf-lbl" for="fCity">Ville <span class="req">*</span></label>
+                            <input type="text" name="city" id="fCity" class="form-control pf-input" required
+                                   value="{{ apt.city if (is_edit and apt.city) else 'Yaoundé' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl" for="fNeighborhood">Quartier <span class="req">*</span></label>
+                            <input type="text" name="neighborhood" id="fNeighborhood" class="form-control pf-input" required
+                                   value="{{ apt.neighborhood if (is_edit and apt.neighborhood) else 'Tsinga' }}"
+                                   placeholder="Tsinga, Bastos, Omnisports...">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl" for="fLandmark">Point de repère</label>
+                            <input type="text" name="landmark" id="fLandmark" class="form-control pf-input"
+                                   value="{{ apt.landmark if (is_edit and apt.landmark) else 'Face FECAFOOT' }}"
+                                   placeholder="Ex: Face siège FECAFOOT">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="pf-lbl" for="fAddress">Adresse précise <span class="req">*</span></label>
+                            <input type="text" name="exact_address" id="fAddress" class="form-control pf-input" required
+                                   placeholder="Ex: Rue 1.234, face siège FECAFOOT, Tsinga"
+                                   value="{{ apt.exact_address if (is_edit and apt.exact_address) else (apt.location if is_edit else '') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="pf-lbl">Localisation GPS (facultative)</label>
+                            <input type="text" name="gps_coordinates" class="form-control pf-input"
+                                   value="{{ apt.gps_coordinates if (is_edit and apt.gps_coordinates) else '' }}"
+                                   placeholder="3.8821, 11.5014">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="pf-lbl">Instructions d'accès</label>
+                            <input type="text" name="access_instructions" class="form-control pf-input"
+                                   value="{{ apt.access_instructions if (is_edit and apt.access_instructions) else '' }}"
+                                   placeholder="Portail sécurisé, digicode...">
+                        </div>
                     </div>
-                    {% endfor %}
-                </div>
-                <div>
-                    <input type="text" name="custom_vip_service" class="form-control prop-input" placeholder="+ Ajouter d'autres prestations VIP (séparées par une virgule)...">
-                </div>
-            </div>
 
-            <!-- ========================================================== -->
-            <!-- STEP 6: 08. PUBLICATION & APERÇU AVANT PUBLICATION         -->
-            <!-- ========================================================== -->
-            <div class="prop-pane" id="propStep6">
-                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-globe text-danger me-2"></i>06. Vérification, Publication &amp; Aperçu Site Client</h5>
-                <div class="row g-4">
-                    <div class="col-lg-6">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="prop-lbl">Publier sur le site client *</label>
-                                <select name="is_published" class="form-select prop-select">
-                                    {% set pub_now = apt.is_published if (is_edit and apt.is_published is not none) else True %}
-                                    <option value="1" {% if pub_now %}selected{% endif %}>Oui — Visible sur 3mservice.shop</option>
-                                    <option value="0" {% if not pub_now %}selected{% endif %}>Non — Brouillon interne</option>
+                    <div class="pf-divider-head">
+                        <i class="bi bi-door-open"></i> Configuration des pièces &amp; capacité
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6 col-md-2">
+                            <label class="pf-lbl" for="fBedrooms">Chambres</label>
+                            <input type="number" name="bedrooms_count" id="fBedrooms" class="form-control pf-input" min="0" value="{{ apt.bedrooms_count if (is_edit and apt.bedrooms_count is not none) else 2 }}">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="pf-lbl" for="fLiving">Salons</label>
+                            <input type="number" name="living_rooms_count" id="fLiving" class="form-control pf-input" min="0" value="{{ apt.living_rooms_count if (is_edit and apt.living_rooms_count is not none) else 1 }}">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="pf-lbl" for="fBaths">Salles de bain</label>
+                            <input type="number" name="bathrooms_count" id="fBaths" class="form-control pf-input" min="0" value="{{ apt.bathrooms_count if (is_edit and apt.bathrooms_count is not none) else 2 }}">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="pf-lbl">Cuisines</label>
+                            <input type="number" name="kitchens_count" class="form-control pf-input" min="0" value="{{ apt.kitchens_count if (is_edit and apt.kitchens_count is not none) else 1 }}">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="pf-lbl">Balcons</label>
+                            <input type="number" name="balconies_count" class="form-control pf-input" min="0" value="{{ apt.balconies_count if (is_edit and apt.balconies_count is not none) else 1 }}">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="pf-lbl" for="fGuests">Capacité max (pers.)</label>
+                            <input type="number" name="max_guests" id="fGuests" class="form-control pf-input" min="1" value="{{ apt.max_guests if (is_edit and apt.max_guests) else 4 }}">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="pf-lbl">Nombre de lits et types de literie</label>
+                            <input type="text" name="bedding_details" class="form-control pf-input"
+                                   value="{{ apt.bedding_details if (is_edit and apt.bedding_details) else '2 Lits King Size orthopédiques' }}"
+                                   placeholder="Ex: 1 Lit King Size (180x200) + 1 Lit Queen Size">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl" for="fSurface">Surface habitable (m²)</label>
+                            <input type="number" name="surface_sqm" id="fSurface" class="form-control pf-input" step="1" min="10"
+                                   value="{{ apt.surface_sqm|int if (is_edit and apt.surface_sqm) else '' }}" placeholder="Ex: 120">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- STEP 3: 03. TARIFICATION & CONDITIONS                      -->
+        <!-- ========================================================== -->
+        <div class="prop-pane" id="propStep3">
+            <section class="pf-card">
+                <div class="pf-card__head">
+                    <div>
+                        <h2><i class="bi bi-cash-stack"></i> Tarification &amp; conditions (FCFA)</h2>
+                        <p>Définissez les tarifs par nuitée, semaine ou mois ainsi que la caution et les modalités.</p>
+                    </div>
+                    <span class="pf-step-pill">Étape 3 / 6</span>
+                </div>
+                <div class="pf-card__body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="pf-lbl" for="fNightly">Tarif par nuit (FCFA) <span class="req">*</span></label>
+                            <input type="number" name="nightly_rate" id="fNightly" class="form-control pf-input fw-semibold" required min="5000" step="1000"
+                                   value="{{ apt.nightly_rate|int if (is_edit and apt.nightly_rate) else 65000 }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl" for="fWeekly">Tarif par semaine (FCFA)</label>
+                            <input type="number" name="weekly_rate" id="fWeekly" class="form-control pf-input" min="0" step="5000"
+                                   value="{{ apt.weekly_rate|int if (is_edit and apt.weekly_rate) else '' }}" placeholder="Ex: 420000">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl" for="fMonthly">Tarif par mois (FCFA)</label>
+                            <input type="number" name="monthly_rate" id="fMonthly" class="form-control pf-input" min="0" step="10000"
+                                   value="{{ apt.monthly_rate|int if (is_edit and apt.monthly_rate) else '' }}" placeholder="Ex: 1500000">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl">Caution remboursable (FCFA)</label>
+                            <input type="number" name="security_deposit" class="form-control pf-input" min="0" step="5000"
+                                   value="{{ apt.security_deposit|int if (is_edit and apt.security_deposit is not none) else 100000 }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl">Frais de ménage (FCFA)</label>
+                            <input type="number" name="cleaning_fee" class="form-control pf-input" min="0" step="1000"
+                                   value="{{ apt.cleaning_fee|int if (is_edit and apt.cleaning_fee is not none) else 0 }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="pf-lbl">Durée minimale de séjour (nuits)</label>
+                            <input type="number" name="min_stay_nights" class="form-control pf-input" min="1"
+                                   value="{{ apt.min_stay_nights if (is_edit and apt.min_stay_nights) else 1 }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="pf-lbl">Conditions de paiement</label>
+                            <input type="text" name="payment_terms" class="form-control pf-input"
+                                   value="{{ apt.payment_terms if (is_edit and apt.payment_terms) else '50% acompte à la réservation, solde à la remise des clés (MoMo / OM / Espèces / Virement)' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="pf-lbl">Réduction pour long séjour</label>
+                            <input type="text" name="long_stay_discount" class="form-control pf-input"
+                                   value="{{ apt.long_stay_discount if (is_edit and apt.long_stay_discount) else '-10% dès 7 nuits • -20% dès 30 nuits' }}">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- STEP 4: 04. GALERIE PHOTOS & MÉDIAS (REAL MULTI-UPLOAD)    -->
+        <!-- ========================================================== -->
+        <div class="prop-pane" id="propStep4">
+            <section class="pf-card">
+                <div class="pf-card__head">
+                    <div>
+                        <h2><i class="bi bi-images"></i> Galerie photos &amp; médias</h2>
+                        <p>Téléchargez plusieurs photos (JPG, PNG, WEBP — max 10 Mo/photo), choisissez la couverture et classez par pièce.</p>
+                    </div>
+                    <span class="pf-step-pill">Étape 4 / 6</span>
+                </div>
+                <div class="pf-card__body">
+                    <input type="hidden" name="cover_selection" id="coverSelectionInput"
+                           value="{% if is_edit and apt.ordered_photos() %}existing:{{ apt.ordered_photos()[0].id }}{% else %}new:0{% endif %}">
+
+                    <!-- Real Drag & Drop Upload Zone -->
+                    <div class="pf-drop mb-4" id="photoDropzone" onclick="document.getElementById('photoFileInput').click()">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        <div class="pf-drop__title">Glissez-déposez vos images ici ou cliquez pour parcourir</div>
+                        <div class="pf-drop__hint">Formats acceptés : <strong>JPG · PNG · WEBP</strong> (Sélection multiple depuis PC ou mobile)</div>
+                        <input type="file" id="photoFileInput" name="property_photos" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple class="d-none">
+                    </div>
+
+                    {% if is_edit and apt.ordered_photos() %}
+                    <div class="pf-section-sub">Photos enregistrées ({{ apt.ordered_photos()|length }})</div>
+                    <div class="row g-3 mb-4" id="existingPhotosGrid">
+                        {% for p in apt.ordered_photos() %}
+                        <div class="col-md-4 col-sm-6 existing-photo-wrap" id="exWrap_{{ p.id }}">
+                            <div class="photo-tile {% if p.is_cover %}is-cover{% endif %}" data-cover-token="existing:{{ p.id }}">
+                                <img src="{{ p.url }}" alt="{{ p.caption or apt.title }}">
+                                <div class="d-flex justify-content-between align-items-center mt-2 mb-2">
+                                    <button type="button" class="btn btn-sm {% if p.is_cover %}btn-brand{% else %}btn-light border{% endif %} py-1 px-2 cover-btn"
+                                            onclick="setCoverPhoto('existing:{{ p.id }}', '{{ p.url }}')">
+                                        <i class="bi bi-star-fill me-1"></i> Couverture
+                                    </button>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <input type="number" name="existing_order_{{ p.id }}" value="{{ loop.index0 }}" class="form-control form-control-sm text-center" style="width:52px;" title="Ordre d'affichage">
+                                        <button type="button" class="btn btn-sm btn-light border text-danger py-1 px-2" onclick="markExistingPhotoDeleted({{ p.id }})" title="Supprimer">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <select name="existing_category_{{ p.id }}" class="form-select form-select-sm mb-1">
+                                    {% for cat in photo_categories %}
+                                    <option value="{{ cat }}" {% if p.room_category == cat %}selected{% endif %}>{{ cat }}</option>
+                                    {% endfor %}
                                 </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="prop-lbl">Mise en avant (Vedette)</label>
-                                <select name="is_featured" class="form-select prop-select">
-                                    <option value="0" {% if not (is_edit and apt.is_featured) %}selected{% endif %}>Standard</option>
-                                    <option value="1" {% if is_edit and apt.is_featured %}selected{% endif %}>Oui — Bien en vedette ★</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="prop-lbl">Gestionnaire responsable</label>
-                                <input type="text" name="manager_name" class="form-control prop-input"
-                                       value="{{ apt.manager_name if (is_edit and apt.manager_name) else 'Conciergerie 3M SERVICES' }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="prop-lbl">Date de disponibilité</label>
-                                <input type="date" name="available_from" class="form-control prop-input"
-                                       value="{{ apt.available_from.isoformat() if (is_edit and apt.available_from) else '' }}">
-                            </div>
-                            <div class="col-12">
-                                <label class="prop-lbl">Notes internes d'exploitation (non visibles par les clients)</label>
-                                <textarea name="internal_notes" rows="3" class="form-control prop-textarea"
-                                          placeholder="Code coffre clés, compteur ENEO, contact syndic...">{{ apt.internal_notes if (is_edit and apt.internal_notes) else '' }}</textarea>
+                                <input type="text" name="existing_caption_{{ p.id }}" value="{{ p.caption or '' }}" class="form-control form-control-sm" placeholder="Légende de la photo...">
                             </div>
                         </div>
+                        {% endfor %}
+                    </div>
+                    <div id="deletedPhotoInputs"></div>
+                    {% endif %}
+
+                    <div class="pf-section-sub">Nouvelles photos prêtes à être téléchargées (<span id="newPhotosCount">0</span>)</div>
+                    <div class="row g-3" id="newPhotosPreviewGrid"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- STEP 5: 05. ÉQUIPEMENTS & CONCIERGERIE VIP                 -->
+        <!-- ========================================================== -->
+        <div class="prop-pane" id="propStep5">
+            <section class="pf-card">
+                <div class="pf-card__head">
+                    <div>
+                        <h2><i class="bi bi-stars"></i> Équipements &amp; conciergerie VIP</h2>
+                        <p>Sélectionnez les commodités incluses dans le logement et les prestations VIP disponibles.</p>
+                    </div>
+                    <span class="pf-step-pill">Étape 5 / 6</span>
+                </div>
+                <div class="pf-card__body">
+                    {% set cur_eqs = apt.equipments if is_edit else default_equipments %}
+                    <label class="pf-lbl mb-2">Équipements &amp; commodités du logement</label>
+                    <div class="row g-2 mb-3">
+                        {% for eq in default_equipments %}
+                        <div class="col-md-4 col-sm-6">
+                            <label class="check-chip">
+                                <input type="checkbox" class="form-check-input mt-0" name="equipments" value="{{ eq }}" {% if eq in cur_eqs %}checked{% endif %}>
+                                <span>{{ eq }}</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" name="custom_equipment" class="form-control pf-input" placeholder="+ Ajouter d'autres équipements (séparés par une virgule)...">
                     </div>
 
-                    <!-- LIVE LISTING PREVIEW CARD -->
-                    <div class="col-lg-6">
-                        <label class="prop-lbl mb-2">Aperçu en direct de la fiche sur le site client</label>
-                        <div class="border rounded-4 overflow-hidden shadow-sm bg-white">
-                            <div class="position-relative" style="height: 205px; background: #0f172a;">
-                                <img id="prevImg" src="{{ apt.image if (is_edit and apt.image) else '/Asset/appartements/appartement-meuble-suite-parentale.webp' }}"
-                                     class="w-100 h-100 object-fit-cover" alt="Aperçu couverture">
-                                <span class="badge bg-success position-absolute top-0 start-0 m-3 px-3 py-1.5 rounded-pill" id="prevStatus">Disponible</span>
-                                <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 end-0 m-3 px-2.5 py-1 rounded-pill" id="prevStanding">T3 • Haut Standing</span>
+                    <div class="pf-divider-head">
+                        <i class="bi bi-gem"></i> Services &amp; conciergerie VIP 3M Services
+                    </div>
+                    {% set cur_vips = apt.vip_services if is_edit else default_vip_services %}
+                    <div class="row g-2 mb-3">
+                        {% for vs in default_vip_services %}
+                        <div class="col-md-4 col-sm-6">
+                            <label class="check-chip">
+                                <input type="checkbox" class="form-check-input mt-0" name="vip_services" value="{{ vs }}" {% if vs in cur_vips %}checked{% endif %}>
+                                <span>{{ vs }}</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div>
+                        <input type="text" name="custom_vip_service" class="form-control pf-input" placeholder="+ Ajouter d'autres prestations VIP (séparées par une virgule)...">
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- STEP 6: 06. VÉRIFICATION, PUBLICATION & APERÇU SITE CLIENT -->
+        <!-- ========================================================== -->
+        <div class="prop-pane" id="propStep6">
+            <section class="pf-card">
+                <div class="pf-card__head">
+                    <div>
+                        <h2><i class="bi bi-globe"></i> Vérification, publication &amp; aperçu site client</h2>
+                        <p>Contrôlez les paramètres de visibilité publique et vérifiez l'aperçu avant enregistrement.</p>
+                    </div>
+                    <span class="pf-step-pill">Étape 6 / 6</span>
+                </div>
+                <div class="pf-card__body">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="pf-lbl">Publier sur le site client <span class="req">*</span></label>
+                                    <select name="is_published" class="form-select pf-select">
+                                        {% set pub_now = apt.is_published if (is_edit and apt.is_published is not none) else True %}
+                                        <option value="1" {% if pub_now %}selected{% endif %}>Oui — Visible sur 3mservice.shop</option>
+                                        <option value="0" {% if not pub_now %}selected{% endif %}>Non — Brouillon interne</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="pf-lbl">Mise en avant (Vedette)</label>
+                                    <select name="is_featured" class="form-select pf-select">
+                                        <option value="0" {% if not (is_edit and apt.is_featured) %}selected{% endif %}>Standard</option>
+                                        <option value="1" {% if is_edit and apt.is_featured %}selected{% endif %}>Oui — Bien en vedette ★</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="pf-lbl">Gestionnaire responsable</label>
+                                    <input type="text" name="manager_name" class="form-control pf-input"
+                                           value="{{ apt.manager_name if (is_edit and apt.manager_name) else 'Conciergerie 3M SERVICES' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="pf-lbl">Date de disponibilité</label>
+                                    <input type="date" name="available_from" class="form-control pf-input"
+                                           value="{{ apt.available_from.isoformat() if (is_edit and apt.available_from) else '' }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="pf-lbl">Notes internes d'exploitation (non visibles par les clients)</label>
+                                    <textarea name="internal_notes" rows="3" class="form-control pf-textarea"
+                                              placeholder="Code coffre clés, compteur ENEO, contact syndic...">{{ apt.internal_notes if (is_edit and apt.internal_notes) else '' }}</textarea>
+                                </div>
                             </div>
-                            <div class="p-3">
-                                <div class="small text-danger fw-bold" id="prevLoc">Tsinga (Face FECAFOOT), Yaoundé</div>
-                                <h5 class="fw-bold text-dark mt-1 mb-1" id="prevTitle">Titre du bien meublé</h5>
-                                <div class="fw-bold fs-5 text-danger mb-2" id="prevPrice">65 000 FCFA / nuitée</div>
-                                <div class="small text-muted" id="prevRooms">2 Chambres • 1 Salon • 2 Salles de bain • 4 pers. max</div>
+                        </div>
+
+                        <!-- LIVE LISTING PREVIEW CARD -->
+                        <div class="col-lg-6">
+                            <label class="pf-lbl">Aperçu en direct de la fiche sur le site client</label>
+                            <div class="pf-preview-card">
+                                <div class="pf-preview-card__media">
+                                    <img id="prevImg" src="{{ apt.image if (is_edit and apt.image) else '/Asset/appartements/appartement-meuble-suite-parentale.webp' }}"
+                                         class="w-100 h-100 object-fit-cover" alt="Aperçu couverture">
+                                    <span class="badge bg-success position-absolute top-0 start-0 m-3 px-2 py-1" id="prevStatus">Disponible</span>
+                                    <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 end-0 m-3 px-2 py-1" id="prevStanding">T3 • Haut Standing</span>
+                                </div>
+                                <div class="pf-preview-card__body">
+                                    <div class="pf-preview-card__loc" id="prevLoc">Tsinga (Face FECAFOOT), Yaoundé</div>
+                                    <div class="pf-preview-card__title" id="prevTitle">Titre du bien meublé</div>
+                                    <div class="pf-preview-card__price" id="prevPrice">65 000 FCFA / nuitée</div>
+                                    <div class="pf-preview-card__rooms" id="prevRooms">2 Chambres • 1 Salon • 2 Salles de bain • 4 pers. max</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
+        </div>
 
-            <!-- WIZARD FOOTER NAVIGATION -->
-            <div class="d-flex justify-content-between align-items-center pt-4 mt-4 border-top">
-                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold" id="btnPrevStep" onclick="stepDelta(-1)" style="visibility: hidden;">
-                    <i class="bi bi-arrow-left me-1"></i> Étape précédente
+        <!-- STICKY WIZARD FOOTER NAVIGATION (matching contracts_form.html) -->
+        <div class="pf-actions">
+            <button type="button" class="btn btn-light border" id="btnPrevStep" onclick="stepDelta(-1)" style="visibility: hidden;">
+                <i class="bi bi-arrow-left me-1"></i> Étape précédente
+            </button>
+            <div class="pf-actions__meta">
+                Étape <strong id="pfStepIndex">1</strong> sur 6
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-light border" id="btnNextStep" onclick="stepDelta(1)">
+                    Étape suivante <i class="bi bi-arrow-right ms-1"></i>
                 </button>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-dark rounded-pill px-4 fw-bold" id="btnNextStep" onclick="stepDelta(1)">
-                        Étape suivante <i class="bi bi-arrow-right ms-1"></i>
-                    </button>
-                    <button type="submit" class="btn btn-danger rounded-pill px-5 fw-bold shadow-sm" style="background:#D62828; border-color:#D62828;">
-                        <i class="bi bi-check-circle-fill me-1"></i> {% if is_edit %}Enregistrer les modifications{% else %}Publier &amp; Enregistrer le bien{% endif %}
-                    </button>
-                </div>
+                <button type="submit" class="btn btn-brand" id="btnSubmitProp" data-always="{{ '1' if is_edit else '0' }}" {% if not is_edit %}style="display: none;"{% endif %}>
+                    <i class="bi bi-check-lg me-1"></i> {% if is_edit %}Enregistrer les modifications{% else %}Publier &amp; enregistrer le bien{% endif %}
+                </button>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 
 <script>
@@ -563,13 +836,47 @@ function goPropStep(n) {
         btn.classList.toggle('completed', s < curPropStep);
     });
     document.getElementById('btnPrevStep').style.visibility = curPropStep > 1 ? 'visible' : 'hidden';
-    document.getElementById('btnNextStep').style.display = curPropStep < 6 ? 'inline-block' : 'none';
+    document.getElementById('btnNextStep').style.display = curPropStep < 6 ? 'inline-flex' : 'none';
+    const submitBtn = document.getElementById('btnSubmitProp');
+    if (submitBtn && submitBtn.dataset.always !== '1') submitBtn.style.display = curPropStep === 6 ? 'inline-flex' : 'none';
+    const stepIdxEl = document.getElementById('pfStepIndex');
+    if (stepIdxEl) stepIdxEl.textContent = String(curPropStep);
     if (curPropStep === 6) refreshLivePreview();
 }
 
-function stepDelta(d) {
-    goPropStep(curPropStep + d);
+// Champs obligatoires invalides d'une étape (validation native du navigateur)
+function invalidFieldsOf(step) {
+    const pane = document.getElementById('propStep' + step);
+    return pane ? [...pane.querySelectorAll('input, select, textarea')].filter(el => !el.disabled && !el.checkValidity()) : [];
 }
+
+function stepDelta(d) {
+    if (d > 0) {
+        const bad = invalidFieldsOf(curPropStep);
+        if (bad.length) { bad[0].reportValidity(); bad[0].focus(); return; }
+    }
+    goPropStep(curPropStep + d);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('propertyWizardForm');
+    if (!form) return;
+    form.setAttribute('novalidate', '');   // on gère l'affichage étape par étape
+    form.addEventListener('submit', (e) => {
+        for (let step = 1; step <= 6; step++) {
+            const bad = invalidFieldsOf(step);
+            if (bad.length) {
+                e.preventDefault();
+                goPropStep(step);
+                setTimeout(() => { bad[0].reportValidity(); bad[0].focus(); }, 50);
+                return;
+            }
+        }
+        const btn = document.getElementById('btnSubmitProp');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Enregistrement…'; }
+    });
+});
 
 function syncInputFiles() {
     const dt = new DataTransfer();
@@ -592,14 +899,14 @@ function renderQueuedPhotos() {
             <div class="photo-tile ${isCov ? 'is-cover' : ''}" data-cover-token="${token}">
                 <img src="${item.dataUrl}" alt="Aperçu">
                 <div class="d-flex justify-content-between align-items-center mt-2 mb-2">
-                    <button type="button" class="btn btn-sm ${isCov ? 'btn-danger' : 'btn-outline-secondary'} rounded-pill py-0 px-2"
+                    <button type="button" class="btn btn-sm ${isCov ? 'btn-brand' : 'btn-light border'} py-1 px-2 cover-btn"
                             onclick="setCoverPhoto('${token}', '${item.dataUrl}')">
                         <i class="bi bi-star-fill me-1"></i> Couverture
                     </button>
                     <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-outline-secondary py-0 px-2" onclick="moveQueuedPhoto(${idx}, -1)" title="Monter">↑</button>
-                        <button type="button" class="btn btn-outline-secondary py-0 px-2" onclick="moveQueuedPhoto(${idx}, 1)" title="Descendre">↓</button>
-                        <button type="button" class="btn btn-outline-danger py-0 px-2" onclick="removeQueuedPhoto(${idx})" title="Retirer">✕</button>
+                        <button type="button" class="btn btn-light border py-1 px-2" onclick="moveQueuedPhoto(${idx}, -1)" title="Monter">↑</button>
+                        <button type="button" class="btn btn-light border py-1 px-2" onclick="moveQueuedPhoto(${idx}, 1)" title="Descendre">↓</button>
+                        <button type="button" class="btn btn-light border text-danger py-1 px-2" onclick="removeQueuedPhoto(${idx})" title="Retirer">✕</button>
                     </div>
                 </div>
                 <select name="new_photo_categories" class="form-select form-select-sm mb-1" onchange="queuedFiles[${idx}].category=this.value">${opts}</select>
@@ -661,8 +968,9 @@ function setCoverPhoto(token, imgUrl) {
         tile.classList.toggle('is-cover', match);
         const btn = tile.querySelector('.cover-btn');
         if (btn) {
-            btn.classList.toggle('btn-danger', match);
-            btn.classList.toggle('btn-outline-secondary', !match);
+            btn.classList.toggle('btn-brand', match);
+            btn.classList.toggle('btn-light', !match);
+            btn.classList.toggle('border', !match);
         }
     });
     renderQueuedPhotos();

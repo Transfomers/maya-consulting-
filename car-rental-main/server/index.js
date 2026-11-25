@@ -7,7 +7,31 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 // URL interne du backend Flask (en Docker : nom du service, ex. http://flask:5002)
 const FLASK_URL = new URL(process.env.FLASK_INTERNAL_URL || "http://127.0.0.1:5002");
-const DB_PATH = path.join(__dirname, "data", "db.json");
+
+// Notifie l'admin (Flask) de chaque message envoyé par un client. Échec = journalisé, jamais bloquant.
+function notifyAdminOfClientMessage(payload) {
+  try {
+    const http = require(FLASK_URL.protocol === "https:" ? "https" : "http");
+    const body = JSON.stringify(payload);
+    const headers = { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) };
+    if (process.env.INTERNAL_API_TOKEN) headers["X-Internal-Token"] = process.env.INTERNAL_API_TOKEN;
+    const r = http.request(
+      { hostname: FLASK_URL.hostname, port: FLASK_URL.port || (FLASK_URL.protocol === "https:" ? 443 : 80), path: "/api/internal/client-message", method: "POST", headers, timeout: 5000 },
+      (resp) => {
+        if (resp.statusCode >= 300) console.error(`[notif admin] refusée par Flask (${resp.statusCode})`);
+        resp.resume();
+      }
+    );
+    r.on("error", (err) => console.error(`[notif admin] Flask injoignable (${FLASK_URL.origin}): ${err.message}`));
+    r.on("timeout", () => r.destroy(new Error("délai dépassé")));
+    r.write(body);
+    r.end();
+  } catch (e) {
+    console.error("[notif admin]", e.message);
+  }
+}
+// Même variable que Flask (EXPRESS_DB_JSON) pour partager le fichier ; défaut inchangé
+const DB_PATH = process.env.EXPRESS_DB_JSON || path.join(__dirname, "data", "db.json");
 const SALT = "3M_SERVICES_SALT_2026";
 
 // Built-in JSON body parser with 50mb limit for uploads and base64 images
@@ -45,25 +69,38 @@ app.use((req, res, next) => {
 });
 
 // Database Helpers
+// Lecture sûre : si le fichier existe mais est illisible (écriture concurrente), on réessaie,
+// puis on lève une erreur. JAMAIS de base vide renvoyée à la place : la prochaine écriture
+// effacerait toutes les données (conversations, réservations, clients).
 function readDb() {
-  try {
-    if (!fs.existsSync(DB_PATH)) {
-      return { admin: {}, cars: [], bookings: [], contacts: [], subscribers: [] };
-    }
-    const data = fs.readFileSync(DB_PATH, "utf8");
-    return JSON.parse(data);
-  } catch (err) {
-    console.error("Erreur lecture db.json:", err);
+  if (!fs.existsSync(DB_PATH)) {
     return { admin: {}, cars: [], bookings: [], contacts: [], subscribers: [] };
   }
+  let lastErr;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      return JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
+    } catch (err) {
+      lastErr = err;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 40); // pause 40 ms
+    }
+  }
+  console.error("Erreur lecture db.json (données conservées, opération annulée):", lastErr);
+  const e = new Error("Base de données temporairement indisponible, réessayez.");
+  e.status = 503;
+  throw e;
 }
 
+// Écriture atomique : fichier temporaire puis renommage (jamais de fichier à moitié écrit).
 function writeDb(data) {
+  const tmp = `${DB_PATH}.${process.pid}.${Date.now()}.tmp`;
   try {
     fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf8");
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), "utf8");
+    fs.renameSync(tmp, DB_PATH);
     return true;
   } catch (err) {
+    try { fs.unlinkSync(tmp); } catch (_) {}
     console.error("Erreur écriture db.json:", err);
     return false;
   }
@@ -456,8 +493,15 @@ app.post("/api/apartments/:id/book", (req, res) => {
 
   const checkIn = String(req.body.checkIn || "").slice(0, 10);
   const checkOut = String(req.body.checkOut || "").slice(0, 10);
-  const guestName = String(req.body.guestName || "Client Résidence VIP").trim();
-  const guestPhone = String(req.body.guestPhone || "").trim();
+  const guestName = String(req.body.guestName || "").trim().slice(0, 120);
+  const guestPhone = String(req.body.guestPhone || "").trim().slice(0, 40);
+  const guestEmail = String(req.body.guestEmail || "").trim().slice(0, 120);
+  if (!guestName || guestPhone.replace(/\D/g, "").length < 8) {
+    return res.status(400).json({ ok: false, error: "Indiquez votre nom et un numéro de téléphone / WhatsApp valide." });
+  }
+  if (checkIn && checkIn < new Date().toISOString().slice(0, 10)) {
+    return res.status(400).json({ ok: false, error: "La date d'arrivée est déjà passée." });
+  }
 
   if (!checkIn || !checkOut || checkOut <= checkIn) {
     return res.status(400).json({ ok: false, error: "La date de départ doit être postérieure à la date d'arrivée." });
@@ -480,8 +524,9 @@ app.post("/api/apartments/:id/book", (req, res) => {
     return res.status(400).json({ ok: false, error: `Séjour minimum requis : ${minStay} nuit(s).` });
   }
 
-  const nightly = Number(apt.nightlyRate) || Number(String(apt.price || "65000").replace(/[^0-9]/g, "")) || 65000;
-  const totalAmount = nightly * nights + Number(apt.cleaningFee || 0);
+  // Tarif réel du bien ; inconnu => montant à confirmer par la conciergerie (aucun prix inventé)
+  const nightly = Number(apt.nightlyRate) || Number(String(apt.price || "").split("/")[0].replace(/[^0-9]/g, "")) || 0;
+  const totalAmount = nightly ? nightly * nights + Number(apt.cleaningFee || 0) : 0;
   const ref = `3M-STAY-${Date.now().toString().slice(-6)}`;
 
   booked.push({ ref, checkIn, checkOut, status: "confirmed", guestName });
@@ -503,7 +548,28 @@ app.post("/api/apartments/:id/book", (req, res) => {
     status: "Confirmée",
     createdAt: new Date().toISOString()
   });
-  writeDb(db);
+
+  // La réservation arrive dans la conversation du client : la conciergerie continue l'échange là
+  const fr = (d) => d.split("-").reverse().join("/");
+  const chatText =
+    `🏠 Réservation de séjour ${ref}\n` +
+    `• Logement : ${apt.title}\n` +
+    `• Dates : du ${fr(checkIn)} au ${fr(checkOut)} (${nights} nuit${nights > 1 ? "s" : ""})\n` +
+    `• Montant : ${totalAmount ? `${totalAmount.toLocaleString("fr-FR")} FCFA` : "à confirmer par la conciergerie"}\n` +
+    `• Client : ${guestName} — ${guestPhone}`;
+  const thread = appendClientChatMessage(db, {
+    clientId: req.body.clientId,
+    guestId: req.body.guestId,
+    name: guestName,
+    phone: guestPhone,
+    email: guestEmail,
+    text: chatText,
+    source: "apartment_booking"
+  });
+  if (!writeDb(db)) {
+    return res.status(500).json({ ok: false, error: "Réservation non enregistrée, réessayez." });
+  }
+  notifyAdminOfClientMessage({ kind: "booking", name: guestName, phone: guestPhone, text: chatText, ref });
 
   // Mirror into Flask SQLite calendar asynchronously if Flask is running locally
   try {
@@ -520,7 +586,7 @@ app.post("/api/apartments/:id/book", (req, res) => {
     // ignore optional mirror error
   }
 
-  return res.status(201).json({ ok: true, bookingRef: ref, nights, totalAmount });
+  return res.status(201).json({ ok: true, bookingRef: ref, nights, totalAmount, chatId: thread.id });
 });
 
 app.get("/api/apartments/:id", (req, res) => {
@@ -1116,6 +1182,15 @@ app.post("/api/bookings/:id/messages", (req, res) => {
 
   db.bookings[index] = booking;
   writeDb(db);
+  if (newMsg.role === "client") {
+    notifyAdminOfClientMessage({
+      kind: "booking",
+      name: booking.clientName || newMsg.sender || "Client",
+      phone: booking.phone || booking.clientPhone || "",
+      text: newMsg.text,
+      ref: booking.id,
+    });
+  }
 
   logActivity(
     "CHAT_MESSAGE",
@@ -1576,6 +1651,65 @@ app.delete("/api/drivers/:id", authenticateToken, (req, res) => {
 });
 
 /* ==========================================================================
+   AVIS CLIENTS : note globale de l'expérience (stockée côté Flask / SQLite)
+   ========================================================================== */
+
+function callFlaskInternal(method, pathWithQuery, payload) {
+  return new Promise((resolve) => {
+    const http = require(FLASK_URL.protocol === "https:" ? "https" : "http");
+    const body = payload ? JSON.stringify(payload) : null;
+    const headers = { Accept: "application/json" };
+    if (body) {
+      headers["Content-Type"] = "application/json";
+      headers["Content-Length"] = Buffer.byteLength(body);
+    }
+    if (process.env.INTERNAL_API_TOKEN) headers["X-Internal-Token"] = process.env.INTERNAL_API_TOKEN;
+    const r = http.request(
+      { hostname: FLASK_URL.hostname, port: FLASK_URL.port || (FLASK_URL.protocol === "https:" ? 443 : 80), path: pathWithQuery, method, headers, timeout: 8000 },
+      (resp) => {
+        let data = "";
+        resp.on("data", (c) => (data += c));
+        resp.on("end", () => {
+          let json = {};
+          try { json = JSON.parse(data || "{}"); } catch (_) { json = { error: "Réponse invalide du serveur." }; }
+          resolve({ status: resp.statusCode, json });
+        });
+      }
+    );
+    r.on("error", (err) => {
+      console.error(`[avis] Flask injoignable (${FLASK_URL.origin}): ${err.message}`);
+      resolve({ status: 503, json: { error: "Service momentanément indisponible, réessayez dans un instant." } });
+    });
+    r.on("timeout", () => r.destroy(new Error("délai dépassé")));
+    if (body) r.write(body);
+    r.end();
+  });
+}
+
+app.get("/api/experience-rating", async (req, res) => {
+  const qs = new URLSearchParams({
+    account: String(req.query.account || ""),
+    phone: String(req.query.phone || ""),
+    email: String(req.query.email || "")
+  }).toString();
+  const { status, json } = await callFlaskInternal("GET", `/api/internal/experience-rating?${qs}`);
+  res.status(status).json(json);
+});
+
+app.post("/api/experience-rating", async (req, res) => {
+  const b = req.body || {};
+  const { status, json } = await callFlaskInternal("POST", "/api/internal/experience-rating", {
+    accountNumber: b.accountNumber,
+    name: b.name,
+    phone: b.phone,
+    email: b.email,
+    rating: b.rating,
+    comment: b.comment
+  });
+  res.status(status).json(json);
+});
+
+/* ==========================================================================
    REVIEWS & TESTIMONIALS MODULE
    ========================================================================== */
 
@@ -1702,21 +1836,113 @@ app.get("/api/contacts", authenticateToken, (req, res) => {
 });
 
 app.post("/api/contacts", (req, res) => {
+  const name = String(req.body.name || "").trim();
+  const rawContact = String(req.body.contact || req.body.phone || req.body.email || "").trim();
+  const message = String(req.body.message || "").trim();
+
+  if (!name || !rawContact || !message) {
+    return res.status(400).json({ error: "Veuillez renseigner votre nom, votre contact et votre demande." });
+  }
+
+  const isEmailContact = rawContact.includes("@");
+  const phone = String(req.body.phone || (!isEmailContact ? rawContact : "")).trim();
+  const email = String(req.body.email || (isEmailContact ? rawContact : "")).trim();
+  const now = new Date().toISOString();
+
   const db = readDb();
+  // Renvoi automatique depuis le navigateur : même requestId = déjà reçu, pas de doublon
+  const requestId = String(req.body.requestId || "").slice(0, 64);
+  if (requestId) {
+    const already = (db.contacts || []).find((c) => c.requestId === requestId);
+    if (already) return res.status(200).json({ ...already, duplicate: true });
+  }
   const newContact = {
     id: `msg-${Date.now()}`,
-    name: req.body.name || "Client Anonyme",
-    contact: req.body.contact || req.body.phone || "",
-    email: req.body.email || "",
-    message: req.body.message || "",
+    requestId: requestId || undefined,
+    name,
+    contact: rawContact,
+    phone,
+    email,
+    message,
     status: "Nouveau",
-    createdAt: new Date().toISOString()
+    createdAt: now
   };
 
   db.contacts = db.contacts || [];
   db.contacts.unshift(newContact);
-  writeDb(db);
-  res.status(201).json(newContact);
+
+  // Route the contact form submission directly into the Concierge Chat inbox (/admin/chats)
+  db.chats = db.chats || [];
+  const rawClientId = String(
+    req.body.clientId || req.body.guestId || normalizeChatId(email || phone || `CONTACT-${Date.now()}`)
+  ).trim();
+  const cleanId = normalizeChatId(rawClientId);
+  const formattedText =
+    `📩 Demande via le formulaire de contact\n` +
+    `• Nom : ${name}\n` +
+    `• Contact : ${rawContact}\n` +
+    `• Demande : ${message}`;
+
+  const chatMsg = {
+    id: `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    sender: "client",
+    senderName: name,
+    source: "contact_form",
+    text: formattedText,
+    timestamp: now
+  };
+
+  let chatIndex = findChatIndex(db, rawClientId, { guestId: req.body.guestId }).index;
+  let thread;
+  if (chatIndex === -1) {
+    thread = {
+      id: cleanId,
+      clientId: rawClientId,
+      clientName: name,
+      clientPhone: phone,
+      clientEmail: email,
+      unreadAdmin: 1,
+      unreadClient: 0,
+      createdAt: now,
+      lastMessageAt: now,
+      lastMessage: formattedText,
+      messages: [
+        {
+          id: `msg-welcome-${Date.now()}`,
+          sender: "admin",
+          senderName: "Conciergerie VIP 3M",
+          text: "Bonjour et bienvenue sur le Chat Privé 3M SERVICES ! Notre équipe de conciergerie est à votre écoute 24/7.",
+          timestamp: now
+        },
+        chatMsg
+      ]
+    };
+    db.chats.unshift(thread);
+  } else {
+    thread = db.chats[chatIndex];
+    thread.messages = thread.messages || [];
+    thread.messages.push(chatMsg);
+    thread.clientName = name || thread.clientName;
+    if (phone) thread.clientPhone = phone;
+    if (email) thread.clientEmail = email;
+    thread.lastMessage = formattedText;
+    thread.lastMessageAt = now;
+    thread.unreadAdmin = (thread.unreadAdmin || 0) + 1;
+    // Move active thread to top of Concierge list
+    db.chats.splice(chatIndex, 1);
+    db.chats.unshift(thread);
+  }
+
+  if (!writeDb(db)) {
+    return res.status(500).json({ error: "Message non enregistré, réessayez." });
+  }
+  notifyAdminOfClientMessage({
+    kind: "contact",
+    name,
+    phone: phone || email,
+    text: message
+  });
+  res.status(201).json({ ...newContact, chatId: thread.id, clientId: thread.clientId });
 });
 
 app.delete("/api/contacts/:id", authenticateToken, (req, res) => {
@@ -1737,10 +1963,100 @@ function normalizeChatId(id) {
   return String(id).trim().replace(/[^a-zA-Z0-9_\-+@.]/g, "_");
 }
 
+/*
+ * Retrouve LA conversation d'un client, quel que soit l'identifiant utilisé.
+ * Identifiants acceptés : ceux que le navigateur possède réellement (n° de compte du client
+ * connecté, identifiant invité de l'appareil). Jamais le téléphone seul : il permettrait de lire
+ * la conversation d'un autre.
+ * - L'invité qui se connecte poursuit la même conversation (alias ajouté).
+ * - S'il existait déjà une conversation « compte », les messages invités y sont fusionnés
+ *   (ordre chronologique), la conversation invitée est marquée mergedInto (rien n'est perdu).
+ */
+// Ajoute un message client dans SA conversation (créée si besoin) et la remonte en tête de la messagerie admin.
+function appendClientChatMessage(db, { clientId, guestId, name, phone, email, text, source }) {
+  db.chats = db.chats || [];
+  const now = new Date().toISOString();
+  const rawId = String(clientId || guestId || normalizeChatId(email || phone || `CLIENT-${Date.now()}`)).trim();
+  const msg = {
+    id: `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    sender: "client",
+    senderName: name,
+    source,
+    text,
+    timestamp: now
+  };
+  const idx = findChatIndex(db, rawId, { guestId }).index;
+  let thread;
+  if (idx === -1) {
+    thread = {
+      id: normalizeChatId(rawId),
+      clientId: rawId,
+      clientName: name,
+      clientPhone: phone || "",
+      clientEmail: email || "",
+      unreadAdmin: 0,
+      unreadClient: 0,
+      createdAt: now,
+      messages: []
+    };
+  } else {
+    thread = db.chats.splice(idx, 1)[0];
+  }
+  thread.messages = thread.messages || [];
+  thread.messages.push(msg);
+  if (name) thread.clientName = name;
+  if (phone) thread.clientPhone = phone;
+  if (email) thread.clientEmail = email;
+  thread.lastMessage = text;
+  thread.lastMessageAt = now;
+  thread.unreadAdmin = (thread.unreadAdmin || 0) + 1;
+  db.chats.unshift(thread);
+  return thread;
+}
+
+function findChatIndex(db, rawId, hints = {}) {
+  db.chats = db.chats || [];
+  const chats = db.chats;
+  const ids = [rawId, normalizeChatId(rawId), hints.guestId, normalizeChatId(hints.guestId || "")]
+    .filter((x) => x && x !== "guest").map(String);
+  const owns = (c) => !c.mergedInto && (ids.includes(c.id) || ids.includes(c.clientId) || (c.aliases || []).some((a) => ids.includes(a)));
+  const matches = chats.map((c, i) => (owns(c) ? i : -1)).filter((i) => i !== -1);
+  if (!matches.length) return { index: -1, changed: false };
+
+  // Conversation principale : celle de l'identifiant demandé, sinon la plus ancienne
+  const primaryId = normalizeChatId(rawId);
+  let primary = matches.find((i) => chats[i].id === primaryId || chats[i].clientId === rawId);
+  if (primary === undefined) primary = matches[0];
+  const target = chats[primary];
+  let changed = false;
+
+  for (const i of matches) {
+    if (i === primary) continue;
+    const other = chats[i];
+    target.messages = [...(target.messages || []), ...(other.messages || []).filter((m) => m.id !== "msg-welcome")]
+      .sort((x, y) => String(x.timestamp || "").localeCompare(String(y.timestamp || "")));
+    target.unreadAdmin = (target.unreadAdmin || 0) + (other.unreadAdmin || 0);
+    target.aliases = [...(target.aliases || []), other.id, other.clientId, ...(other.aliases || [])];
+    other.unreadAdmin = 0;
+    other.unreadClient = 0;
+    other.mergedInto = target.id;
+    other.mergedAt = new Date().toISOString();
+    other.messages = [];
+    changed = true;
+  }
+  const knownIds = new Set([target.id, target.clientId, ...(target.aliases || [])]);
+  const newAliases = ids.filter((x) => !knownIds.has(x));
+  if (newAliases.length) changed = true;
+  target.aliases = Array.from(new Set([...(target.aliases || []), ...newAliases].filter((x) => x && x !== target.id && x !== target.clientId))).slice(-30);
+  const last = (target.messages || [])[target.messages.length - 1];
+  if (last && changed) { target.lastMessage = last.text; target.lastMessageAt = last.timestamp; }
+  return { index: primary, changed };
+}
+
 // 1. Get all chat threads (for Admin overview)
 app.get("/api/chats", (req, res) => {
   const db = readDb();
-  const chats = db.chats || [];
+  const chats = (db.chats || []).filter((c) => !c.mergedInto);
   const summaries = chats.map((c) => ({
     id: c.id,
     clientId: c.clientId,
@@ -1760,7 +2076,7 @@ app.get("/api/chats", (req, res) => {
 // 2. Active unread count badge
 app.get("/api/chats/active-count", (req, res) => {
   const db = readDb();
-  const chats = db.chats || [];
+  const chats = (db.chats || []).filter((c) => !c.mergedInto);
   const totalUnreadAdmin = chats.reduce((sum, c) => sum + (c.unreadAdmin || 0), 0);
   res.json({ unreadAdmin: totalUnreadAdmin, activeThreads: chats.length });
 });
@@ -1772,13 +2088,9 @@ app.get("/api/chats/:clientId", (req, res) => {
   const rawId = req.params.clientId;
   const cleanId = normalizeChatId(rawId);
 
-  let chat = db.chats.find(
-    (c) =>
-      c.id === cleanId ||
-      c.clientId === rawId ||
-      (c.clientPhone && rawId.includes(c.clientPhone)) ||
-      (c.clientEmail && c.clientEmail.toLowerCase() === rawId.toLowerCase())
-  );
+  const found = findChatIndex(db, rawId, { guestId: req.query.guestId });
+  let chat = found.index !== -1 ? db.chats[found.index] : undefined;
+  if (found.changed) writeDb(db);
 
   if (!chat) {
     const customer = (db.customers || []).find(
@@ -1841,13 +2153,7 @@ app.post("/api/chats/:clientId/messages", (req, res) => {
   const rawId = req.params.clientId;
   const cleanId = normalizeChatId(rawId);
 
-  let chatIndex = db.chats.findIndex(
-    (c) =>
-      c.id === cleanId ||
-      c.clientId === rawId ||
-      (c.clientPhone && rawId.includes(c.clientPhone)) ||
-      (c.clientEmail && c.clientEmail.toLowerCase() === rawId.toLowerCase())
-  );
+  let chatIndex = findChatIndex(db, rawId, { guestId: req.body.guestId }).index;
 
   const isClient = sender !== "admin";
   const now = new Date().toISOString();
@@ -1904,6 +2210,15 @@ app.post("/api/chats/:clientId/messages", (req, res) => {
   }
 
   writeDb(db);
+  if (isClient) {
+    const thread = db.chats[findChatIndex(db, rawId).index] || {};
+    notifyAdminOfClientMessage({
+      kind: "chat",
+      name: thread.clientName || clientName || senderName || "Client",
+      phone: thread.clientPhone || clientPhone || "",
+      text: newMsg.text,
+    });
+  }
   res.status(201).json({ success: true, message: newMsg });
 });
 
@@ -1915,7 +2230,7 @@ app.post("/api/chats/:clientId/read", (req, res) => {
   const rawId = req.params.clientId;
   const cleanId = normalizeChatId(rawId);
 
-  const chat = db.chats.find((c) => c.id === cleanId || c.clientId === rawId);
+  const chat = db.chats[findChatIndex(db, rawId).index];
   if (chat) {
     if (reader === "admin") {
       chat.unreadAdmin = 0;
@@ -1966,7 +2281,7 @@ app.patch("/api/chats/:clientId/messages/:msgId", (req, res) => {
 
   const db = readDb();
   db.chats = db.chats || [];
-  const chat = db.chats.find((c) => c.id === cleanId || c.clientId === rawId);
+  const chat = db.chats[findChatIndex(db, rawId).index];
   if (!chat || !chat.messages) {
     return res.status(404).json({ error: "Conversation introuvable." });
   }
@@ -1992,7 +2307,7 @@ app.delete("/api/chats/:clientId/messages/:msgId", (req, res) => {
 
   const db = readDb();
   db.chats = db.chats || [];
-  const chat = db.chats.find((c) => c.id === cleanId || c.clientId === rawId);
+  const chat = db.chats[findChatIndex(db, rawId).index];
   if (!chat || !chat.messages) {
     return res.status(404).json({ error: "Conversation introuvable." });
   }
@@ -2016,7 +2331,7 @@ app.delete("/api/chats/:clientId", (req, res) => {
   const db = readDb();
   db.chats = db.chats || [];
 
-  const chatIndex = db.chats.findIndex((c) => c.id === cleanId || c.clientId === rawId);
+  const chatIndex = findChatIndex(db, rawId).index;
   if (chatIndex !== -1) {
     db.chats.splice(chatIndex, 1);
     writeDb(db);
@@ -2233,6 +2548,13 @@ if (fs.existsSync(buildPath)) {
 /* ==========================================================================
    START SERVER
    ========================================================================== */
+
+// Erreurs non gérées : réponse JSON propre (ex. 503 si db.json est momentanément illisible)
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error(`[${req.method} ${req.originalUrl}]`, err.message);
+  res.status(err.status || 500).json({ error: err.status ? err.message : "Erreur serveur, réessayez." });
+});
 
 app.listen(PORT, () => {
   console.log(`=======================================================`);

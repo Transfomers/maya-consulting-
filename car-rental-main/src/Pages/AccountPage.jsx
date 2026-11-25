@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import { useTranslation } from "../context/LanguageContext";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
-import { DEFAULT_CUSTOMERS } from "../data/crmSeedData";
 import { API_BASE } from "../config/api";
 import {
   getCurrentClient,
@@ -14,12 +13,10 @@ import {
   getClientOrders,
   cancelClientOrder,
   getFavoriteCarIds,
-  toggleFavoriteCar,
-  ensureDemoClientBookings,
-  getCrmStore,
-  saveCrmStore
+  toggleFavoriteCar
 } from "../utils/customerAccounts";
 import "../styles/AccountPage.css";
+import ExperienceRatingCard from "../components/ExperienceRatingCard";
 
 const VALID_TABS = ["dashboard", "profile", "orders", "favorites", "signin"];
 
@@ -236,19 +233,6 @@ function AccountPage() {
     setRegPhone("");
     setRegPassword("");
     setRegConfirmPassword("");
-    navigate("/account/dashboard");
-  };
-
-  const handleDemoAccess = () => {
-    const store = getCrmStore();
-    if (!store.customers || store.customers.length === 0) {
-      store.customers = DEFAULT_CUSTOMERS;
-      saveCrmStore(store);
-    }
-    const demoUser = store.customers[0] || DEFAULT_CUSTOMERS[0];
-    ensureDemoClientBookings(demoUser);
-    setCurrentClient(demoUser);
-    setClient(demoUser);
     navigate("/account/dashboard");
   };
 
@@ -658,15 +642,6 @@ function AccountPage() {
                   </button>
                 </form>
               )}
-
-              <button type="button" className="account-btn-demo" onClick={handleDemoAccess}>
-                <i className="fa-solid fa-bolt"></i>
-                <span>
-                  {isFr
-                    ? "Accès Démo VIP (Arnaud Mbarga)"
-                    : "Instant VIP Demo Access (Arnaud Mbarga)"}
-                </span>
-              </button>
             </div>
           ) : (
             <div className="account-layout">
@@ -822,6 +797,8 @@ function AccountPage() {
                         renderOrderCards(orders.slice(0, 4), { showActions: false })
                       )}
                     </section>
+
+                    <ExperienceRatingCard client={client} isFr={isFr} />
                   </>
                 )}
 

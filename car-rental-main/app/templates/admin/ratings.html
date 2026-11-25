@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}Avis clients{% endblock %}
+
+{% block content %}
+<style>
+.rv-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.rv-title { margin: 0; font-size: 22px; font-weight: 700; color: #101828; display: flex; align-items: center; gap: 10px; }
+.rv-count { font-size: 12px; font-weight: 700; color: var(--primary-light); background: #fef3f2; border: 1px solid #fecdca; padding: 1px 8px; border-radius: 6px; }
+.rv-sub { color: #667085; font-size: 13.5px; margin: 4px 0 0; }
+
+.rv-kpis { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.rv-card { background: #fff; border: 1px solid #eaecf0; border-radius: 12px; padding: 18px; }
+.rv-label { font-size: 12.5px; color: #667085; font-weight: 500; margin-bottom: 6px; }
+.rv-big { font-size: 28px; font-weight: 700; color: #101828; line-height: 1.1; }
+.rv-big small { font-size: 14px; color: #98a2b3; font-weight: 500; }
+.rv-stars { color: #f79009; letter-spacing: 1px; white-space: nowrap; }
+.rv-stars .off { color: #d0d5dd; }
+.rv-dist { display: grid; gap: 5px; margin-top: 4px; }
+.rv-dist-row { display: grid; grid-template-columns: 28px 1fr 28px; gap: 8px; align-items: center; font-size: 12.5px; color: #475467; }
+.rv-bar { height: 7px; background: #f2f4f7; border-radius: 99px; overflow: hidden; }
+.rv-bar span { display: block; height: 100%; background: #f79009; border-radius: 99px; }
+
+.rv-bar-tools { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.rv-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.rv-chip { padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 500; background: #f2f4f7; color: #475467; text-decoration: none; }
+.rv-chip.is-active { background: #101828; color: #fff; }
+.rv-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.rv-filters .form-select, .rv-filters .form-control { height: 38px; font-size: 13.5px; }
+
+.rv-list { display: grid; gap: 14px; }
+.rv-item { background: #fff; border: 1px solid #eaecf0; border-radius: 12px; padding: 18px; }
+.rv-item.is-low { border-left: 4px solid var(--primary-light); }
+.rv-item.is-hidden { opacity: .6; }
+.rv-item__top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.rv-client { font-weight: 600; color: #101828; }
+.rv-meta { font-size: 12.5px; color: #667085; display: flex; gap: 10px; flex-wrap: wrap; margin-top: 2px; }
+.rv-meta a { color: #475467; text-decoration: none; }
+.rv-meta a:hover { color: var(--primary-light); }
+.rv-comment { margin: 12px 0 0; color: #344054; font-size: 14px; white-space: pre-line; }
+.rv-comment.is-empty { color: #98a2b3; font-style: italic; }
+.rv-reply { margin-top: 12px; background: #f9fafb; border: 1px solid #eaecf0; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: #344054; }
+.rv-reply b { color: #101828; }
+.rv-pill { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.rv-pill.new { background: #fef3f2; color: #b42318; }
+.rv-pill.in_progress { background: #fffaeb; color: #b54708; }
+.rv-pill.resolved { background: #ecfdf3; color: #067647; }
+.rv-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+.rv-actions .btn { font-size: 13px; }
+.rv-form { margin-top: 12px; display: none; }
+.rv-form.is-open { display: block; }
+.rv-empty { text-align: center; padding: 48px 16px; color: #667085; background: #fff; border: 1px dashed #d0d5dd; border-radius: 12px; }
+@media (max-width: 991px) { .rv-kpis { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 575px) { .rv-kpis { grid-template-columns: 1fr; } .rv-filters, .rv-filters > * { width: 100%; } }
+</style>
+
+{% macro star_row(n) -%}
+<span class="rv-stars" aria-label="{{ n }} sur 5">{% for i in range(1, 6) %}<span class="{{ '' if i <= n else 'off' }}">★</span>{% endfor %}</span>
+{%- endmacro %}
+
+<div class="rv-head">
+    <div>
+        <h1 class="rv-title">Avis clients <span class="rv-count">{{ stats.total }}</span></h1>
+        <p class="rv-sub">Notes laissées par les clients depuis leur espace. Répondez, corrigez le problème puis marquez l'avis comme traité : la réponse s'affiche dans l'espace du client.</p>
+    </div>
+</div>
+
+<div class="rv-kpis">
+    <div class="rv-card">
+        <div class="rv-label">Note moyenne</div>
+        {% if stats.avg %}
+        <div class="rv-big">{{ ('%.1f' % stats.avg).replace('.', ',') }} <small>/ 5</small></div>
+        <div class="rv-dist">
+            {% for n, c in stats.dist %}
+            <div class="rv-dist-row"><span>{{ n }} ★</span><span class="rv-bar"><span style="width: {{ (100 * c / stats.total)|round|int if stats.total else 0 }}%"></span></span><span class="text-end">{{ c }}</span></div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="rv-big">—</div>
+        <div class="text-muted small mt-1">Aucun avis pour le moment.</div>
+        {% endif %}
+    </div>
+    <div class="rv-card">
+        <div class="rv-label">Clients satisfaits (4-5 ★)</div>
+        <div class="rv-big">{{ stats.satisfaction ~ ' %' if stats.satisfaction is not none else '—' }}</div>
+    </div>
+    <div class="rv-card">
+        <div class="rv-label">À traiter</div>
+        <div class="rv-big" style="color: {{ 'var(--primary-light)' if stats.to_handle else '#101828' }}">{{ stats.to_handle }}</div>
+        <div class="text-muted small mt-1">{{ stats.counts.get('new', 0) }} nouveau(x) · {{ stats.counts.get('in_progress', 0) }} en cours</div>
+    </div>
+    <div class="rv-card">
+        <div class="rv-label">Traités</div>
+        <div class="rv-big">{{ stats.counts.get('resolved', 0) }}</div>
+        {% if stats.hidden %}<div class="text-muted small mt-1">{{ stats.hidden }} masqué(s), hors statistiques</div>{% endif %}
+    </div>
+</div>
+
+{% set base_args = {'q': q or None, 'stars': stars or None, 'hidden': '1' if show_hidden else None} %}
+<div class="rv-bar-tools">
+    <div class="rv-chips">
+        <a class="rv-chip {{ 'is-active' if not status }}" href="{{ url_for('ratings.index', **base_args) }}">Tous</a>
+        {% for key, label in [('new', 'Nouveaux'), ('in_progress', 'En cours'), ('resolved', 'Traités')] %}
+        <a class="rv-chip {{ 'is-active' if status == key }}" href="{{ url_for('ratings.index', status=key, **base_args) }}">{{ label }} <b>{{ stats.counts.get(key, 0) }}</b></a>
+        {% endfor %}
+    </div>
+    <form class="rv-filters" method="get">
+        {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Client, téléphone, commentaire…" style="width: 240px;">
+        <select name="stars" class="form-select" style="width: 150px;" onchange="this.form.submit()">
+            <option value="">Toutes les notes</option>
+            {% for n in range(5, 0, -1) %}<option value="{{ n }}" {{ 'selected' if stars == n }}>{{ n }} étoile{{ 's' if n > 1 }}</option>{% endfor %}
+        </select>
+        <label class="d-flex align-items-center gap-2 small text-muted mb-0">
+            <input type="checkbox" name="hidden" value="1" {{ 'checked' if show_hidden }} onchange="this.form.submit()"> Afficher les masqués
+        </label>
+        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
+    </form>
+</div>
+
+{% if items %}
+<div class="rv-list">
+    {% for r in items %}
+    <article class="rv-item {{ 'is-low' if r.rating <= 2 }} {{ 'is-hidden' if r.is_hidden }}" id="avis-{{ r.id }}">
+        <div class="rv-item__top">
+            <div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="rv-client">{{ r.client_name }}</span>
+                    {{ star_row(r.rating) }}
+                    <span class="fw-semibold small">{{ r.rating }}/5</span>
+                    {% if r.is_hidden %}<span class="badge bg-light text-muted border">Masqué</span>{% endif %}
+                </div>
+                <div class="rv-meta">
+                    <span>{{ r.account_number }}</span>
+                    {% if r.client_phone %}<a href="tel:{{ r.client_phone|replace(' ', '') }}"><i class="bi bi-telephone"></i> {{ r.client_phone }}</a>{% endif %}
+                    {% if r.client_email %}<a href="mailto:{{ r.client_email }}"><i class="bi bi-envelope"></i> {{ r.client_email }}</a>{% endif %}
+                    <span>{{ r.updated_at|local_dt('%d/%m/%Y %H:%M') if r.updated_at else '' }}{% if r.created_at and r.updated_at and (r.updated_at - r.created_at).total_seconds() > 60 %} (modifié){% endif %}</span>
+                </div>
+            </div>
+            <span class="rv-pill {{ r.status }}">{{ r.status_label }}</span>
+        </div>
+
+        <p class="rv-comment {{ 'is-empty' if not r.comment }}">{{ r.comment or 'Aucun commentaire.' }}</p>
+
+        {% if r.admin_reply %}
+        <div class="rv-reply"><b>Votre réponse</b>{% if r.replied_by %} · {{ r.replied_by.real_name or r.replied_by.username }}{% endif %}{% if r.replied_at %} · {{ r.replied_at|local_dt('%d/%m/%Y %H:%M') }}{% endif %}<br>{{ r.admin_reply }}</div>
+        {% endif %}
+
+        <div class="rv-actions">
+            <button type="button" class="btn btn-sm btn-danger" style="background: var(--primary-light);" onclick="document.getElementById('rvf-{{ r.id }}').classList.toggle('is-open')">
+                <i class="bi bi-reply"></i> {{ 'Modifier la réponse' if r.admin_reply else 'Répondre' }}
+            </button>
+            {% if r.status != 'resolved' %}
+            <form method="post" action="{{ url_for('ratings.set_status', rid=r.id) }}" class="d-inline">
+                <input type="hidden" name="status" value="resolved"><input type="hidden" name="next" value="{{ request.full_path }}">
+                <button class="btn btn-sm btn-outline-success"><i class="bi bi-check2-circle"></i> Marquer traité</button>
+            </form>
+            {% if r.status == 'new' %}
+            <form method="post" action="{{ url_for('ratings.set_status', rid=r.id) }}" class="d-inline">
+                <input type="hidden" name="status" value="in_progress"><input type="hidden" name="next" value="{{ request.full_path }}">
+                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-hourglass-split"></i> En cours</button>
+            </form>
+            {% endif %}
+            {% else %}
+            <form method="post" action="{{ url_for('ratings.set_status', rid=r.id) }}" class="d-inline">
+                <input type="hidden" name="status" value="in_progress"><input type="hidden" name="next" value="{{ request.full_path }}">
+                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-counterclockwise"></i> Rouvrir</button>
+            </form>
+            {% endif %}
+            {% if r.client_phone %}
+            {% set wa = r.client_phone|replace(' ', '')|replace('+', '')|replace('-', '')|replace('.', '') %}
+            {% if wa.startswith('00') %}{% set wa = wa[2:] %}{% endif %}
+            {% if wa|length == 9 %}{% set wa = '237' ~ wa %}{% endif %}
+            <a class="btn btn-sm btn-outline-success" target="_blank" rel="noopener" href="https://wa.me/{{ wa }}?text={{ ('Bonjour ' ~ r.client_name ~ ', merci pour votre avis sur 3M SERVICES. ')|urlencode }}"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+            {% endif %}
+            <form method="post" action="{{ url_for('ratings.toggle_hidden', rid=r.id) }}" class="d-inline ms-auto">
+                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <button class="btn btn-sm btn-link text-muted text-decoration-none" title="{{ 'Reprendre dans les statistiques' if r.is_hidden else 'Exclure des statistiques (avis abusif ou erroné)' }}">
+                    <i class="bi {{ 'bi-eye' if r.is_hidden else 'bi-eye-slash' }}"></i> {{ 'Afficher' if r.is_hidden else 'Masquer' }}
+                </button>
+            </form>
+        </div>
+
+        <form method="post" action="{{ url_for('ratings.reply', rid=r.id) }}" class="rv-form {{ 'is-open' if not r.admin_reply and r.rating <= 2 and r.status == 'new' }}" id="rvf-{{ r.id }}">
+            <input type="hidden" name="next" value="{{ request.full_path }}#avis-{{ r.id }}">
+            <textarea name="reply" class="form-control mb-2" rows="3" maxlength="1500" required placeholder="Ex. : Bonjour {{ r.client_name }}, merci pour votre retour. Nous avons corrigé…">{{ r.admin_reply or '' }}</textarea>
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+                <select name="status" class="form-select form-select-sm" style="width: auto;">
+                    <option value="in_progress" {{ 'selected' if r.status != 'resolved' }}>Envoyer · garder « En cours »</option>
+                    <option value="resolved" {{ 'selected' if r.status == 'resolved' }}>Envoyer · marquer « Traité »</option>
+                </select>
+                <button class="btn btn-sm btn-dark"><i class="bi bi-send"></i> Envoyer la réponse</button>
+                <span class="small text-muted">Visible par le client dans son espace.</span>
+            </div>
+        </form>
+    </article>
+    {% endfor %}
+</div>
+
+{% if total_pages > 1 %}
+<nav class="mt-4 d-flex justify-content-center">
+    <ul class="pagination pagination-sm">
+        {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {{ 'active' if p == page }}"><a class="page-link" href="{{ url_for('ratings.index', page=p, status=status or None, **base_args) }}">{{ p }}</a></li>
+        {% endfor %}
+    </ul>
+</nav>
+{% endif %}
+{% else %}
+<div class="rv-empty">
+    <i class="bi bi-star fs-2 d-block mb-2" style="color: #f79009 !important;"></i>
+    {% if q or stars or status %}Aucun avis ne correspond à ces filtres.{% else %}Aucun avis client pour le moment. Les clients peuvent noter leur expérience depuis leur espace sur le site.{% endif %}
+</div>
+{% endif %}
+{% endblock %}

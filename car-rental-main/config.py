@@ -30,6 +30,8 @@ class Config:
     APP_BASE_URL = (os.environ.get('APP_BASE_URL') or 'http://127.0.0.1:5002').rstrip('/')
     # API Node (chat, site public) appelée depuis le navigateur de l'admin
     NODE_API_URL = (os.environ.get('NODE_API_URL') or 'http://127.0.0.1:5001/api').rstrip('/')
+    # Jeton partagé Node → Flask (notifications des messages clients). Vide = appels locaux uniquement.
+    INTERNAL_API_TOKEN = os.environ.get('INTERNAL_API_TOKEN', '')
     # Fichier JSON de l'API Node, synchronisé par Flask (Docker : volume partagé)
     EXPRESS_DB_JSON = os.environ.get('EXPRESS_DB_JSON') or os.path.join(basedir, 'server', 'data', 'db.json')
     
@@ -37,7 +39,7 @@ class Config:
     UPLOAD_FOLDER = os.path.join(basedir, 'app', 'static', 'uploads')
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     os.makedirs(os.path.join(UPLOAD_FOLDER, 'parcels'), exist_ok=True)
-    MAX_CONTENT_LENGTH = 32 * 1024 * 1024  # 32 MB max
+    MAX_CONTENT_LENGTH = 55 * 1024 * 1024  # 55 Mo (documents de contrat jusqu à 50 Mo)
     
     # Mail configuration for 3M SERVICES
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')

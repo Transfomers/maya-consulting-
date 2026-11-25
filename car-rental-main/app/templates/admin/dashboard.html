@@ -70,6 +70,45 @@
     .kpi-value.money { font-size: 1.1rem; }
     .move-tag { width: 68px; }
   }
+  /* ── Indicateurs métier (4 cartes) ── */
+  .period-filter { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .period-filter a.date-filter-btn { text-decoration: none; }
+  .period-filter button.date-filter-btn { border: 0; background: transparent; }
+  .custom-range { display: flex; gap: .4rem; align-items: center; }
+  .custom-range[hidden] { display: none !important; }
+  .custom-range .form-control { width: auto; }
+  .kpi4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; transition: opacity .15s; }
+  .kpi4.is-loading { opacity: .45; pointer-events: none; }
+  .kpi4-card { display: flex; flex-direction: column; gap: 2px; padding: 18px; color: inherit; text-decoration: none; transition: border-color .15s, box-shadow .15s, transform .15s; }
+  .kpi4-card:hover { border-color: #d0d5dd; box-shadow: 0 8px 22px rgba(16,24,40,.08); color: inherit; transform: translateY(-1px); }
+  .kpi4-card:focus-visible { outline: 3px solid rgba(201,42,42,.35); outline-offset: 2px; }
+  .kpi4-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .kpi4-icon { width: 42px; height: 42px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem; }
+  .kpi4-icon i { color: inherit !important; }
+  .kpi4-icon.is-red { background: #fef3f2; color: #d92d20; }
+  .kpi4-icon.is-blue { background: #eff8ff; color: #1570ef; }
+  .kpi4-icon.is-teal { background: #f0fdf9; color: #0e9384; }
+  .kpi4-icon.is-green { background: #ecfdf3; color: #039855; }
+  .kpi4-label { font-size: .82rem; font-weight: 600; color: #475467; }
+  .kpi4-value { font-size: 2rem; font-weight: 800; line-height: 1.1; color: #101828; }
+  .kpi4-value.is-money { font-size: 1.5rem; white-space: nowrap; }
+  .kpi4-sub { font-size: .76rem; color: #667085; }
+  .kpi4-foot { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #f2f4f7; font-size: .76rem; color: #475467; }
+  .kpi4-foot b { color: #101828; }
+  .kpi-trend { display: inline-flex; align-items: center; gap: 2px; font-size: .74rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .kpi-trend i { color: inherit !important; }
+  .kpi-trend.is-up { background: #ecfdf3; color: #027a48; }
+  .kpi-trend.is-down { background: #fef3f2; color: #b42318; }
+  .kpi-trend.is-flat { background: #f2f4f7; color: #475467; }
+  .kpi-state { display: flex; gap: 12px; align-items: center; padding: 16px 18px; color: #475467; font-size: .9rem; }
+  .kpi-state > i { font-size: 1.4rem; color: #98a2b3 !important; }
+  .kpi-state.is-error { border-color: #fecdca; background: #fef3f2; color: #b42318; }
+  .kpi-state.is-error > i { color: #d92d20 !important; }
+  body.dark-mode .kpi4-value, body.dark-mode .kpi4-foot b { color: #f1f5f9; }
+  @media (max-width: 1199.98px) { .kpi4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 575.98px) { .kpi4 { grid-template-columns: minmax(0, 1fr); gap: 12px; } .kpi4-value { font-size: 1.7rem; } .custom-range { width: 100%; flex-wrap: wrap; } }
+  .kpi-test-note { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; background: #f2f4f7; color: #475467; font-size: .82rem; }
+  .kpi-test-note i { color: #667085 !important; }
 </style>
 {% endblock %}
 
@@ -91,23 +130,29 @@
         <div>
             <h1 class="fw-bold mb-1" style="font-size: 1.7rem; letter-spacing: -0.5px;">Tableau de bord</h1>
             <p class="text-muted mb-0" style="font-size: .92rem;">
-                {{ agency.name if agency else 'Toutes les agences' }} · Données au <span id="dashNow">{{ today_date.strftime('%d/%m/%Y') }}</span>
+                {{ agency.name if agency else 'Toutes les agences' }} · {{ kp.period.label }} · mis à jour le <span id="dashNow">{{ today_date.strftime('%d/%m/%Y') }}</span>
             </p>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <div class="date-filter-group" role="radiogroup" aria-label="Période des indicateurs">
-                <input type="radio" class="btn-check" name="dashboardRange" id="rangeDay" value="day" checked autocomplete="off">
-                <label class="date-filter-btn active" for="rangeDay">Aujourd'hui</label>
-                <input type="radio" class="btn-check" name="dashboardRange" id="rangeWeek" value="week" autocomplete="off">
-                <label class="date-filter-btn" for="rangeWeek">7 jours</label>
-                <input type="radio" class="btn-check" name="dashboardRange" id="rangeMonth" value="month" autocomplete="off">
-                <label class="date-filter-btn" for="rangeMonth">30 jours</label>
-                <input type="radio" class="btn-check" name="dashboardRange" id="rangeAll" value="all" autocomplete="off">
-                <label class="date-filter-btn" for="rangeAll">Tout</label>
-            </div>
+            {% set P = kp.period %}
+            <form class="period-filter" method="GET" action="{{ url_for('admin.dashboard') }}" id="periodForm" aria-label="Période des indicateurs">
+                <div class="date-filter-group" role="group">
+                    {% for key, label in [('today', "Aujourd'hui"), ('7d', '7 jours'), ('30d', '30 jours'), ('month', 'Ce mois'), ('year', 'Cette année')] %}
+                    <a href="{{ url_for('admin.dashboard', period=key) }}" class="date-filter-btn {% if P.key == key %}active{% endif %}" {% if P.key == key %}aria-current="true"{% endif %}>{{ label }}</a>
+                    {% endfor %}
+                    <button type="button" class="date-filter-btn {% if P.key == 'custom' %}active{% endif %}" id="customToggle" aria-expanded="{{ 'true' if P.key == 'custom' else 'false' }}" aria-controls="customRange">Personnalisé</button>
+                </div>
+                <div class="custom-range" id="customRange" {% if P.key != 'custom' %}hidden{% endif %}>
+                    <input type="hidden" name="period" value="custom">
+                    <input type="date" name="start" class="form-control form-control-sm" value="{{ P.start_date.isoformat() }}" max="{{ today_date.isoformat() }}" aria-label="Date de début" required>
+                    <span class="text-muted small">au</span>
+                    <input type="date" name="end" class="form-control form-control-sm" value="{{ P.end_date.isoformat() }}" max="{{ today_date.isoformat() }}" aria-label="Date de fin" required>
+                    <button type="submit" class="btn btn-sm btn-brand">Appliquer</button>
+                </div>
+            </form>
             <div class="d-flex gap-2">
-                <a id="btnExportPdf" href="{{ url_for('admin.export_dashboard_pdf', range='day') }}" class="btn btn-sm btn-export-pdf"><i class="bi bi-file-pdf me-1"></i> PDF</a>
-                <a id="btnExportCsv" href="{{ url_for('admin.export_dashboard_csv', range='day') }}" class="btn btn-sm btn-export-csv"><i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV</a>
+                <a id="btnExportPdf" href="{{ url_for('admin.export_dashboard_pdf', range=export_range) }}" class="btn btn-sm btn-export-pdf"><i class="bi bi-file-pdf me-1"></i> PDF</a>
+                <a id="btnExportCsv" href="{{ url_for('admin.export_dashboard_csv', range=export_range) }}" class="btn btn-sm btn-export-csv"><i class="bi bi-file-earmark-spreadsheet me-1"></i> CSV</a>
             </div>
         </div>
     </div>
@@ -120,121 +165,82 @@
     </div>
     {% endif %}
 
-    <!-- KPI tiles -->
-    <div class="row g-3 mb-4">
-        <!-- 1. Revenue collected -->
-        <div class="col-6 col-lg-4 col-xl-2">
-            <a href="{{ url_for('admin.bookings') }}" class="dash-card kpi">
-                <div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="kpi-label">Encaissé</span>
-                        <span class="kpi-icon"><i class="bi bi-cash-stack"></i></span>
-                    </div>
-                    <div class="kpi-value money js-range"{{ rng(ranges, 'revenue_collected', true) }}>{{ fcfa(S.revenue_collected) }}</div>
-                </div>
-                <div class="kpi-foot"><span>À encaisser</span><b class="js-range"{{ rng(ranges, 'revenue_outstanding', true) }}>{{ fcfa(S.revenue_outstanding) }}</b></div>
-            </a>
-        </div>
-
-        <!-- 2. Bookings -->
-        <div class="col-6 col-lg-4 col-xl-2">
-            <a href="{{ url_for('admin.bookings') }}" class="dash-card kpi">
-                <div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="kpi-label">Réservations</span>
-                        <span class="kpi-icon"><i class="bi bi-journal-check"></i></span>
-                    </div>
-                    <div class="kpi-value js-range"{{ rng(ranges, 'bookings_count') }}>{{ S.bookings_count }}</div>
-                </div>
-                <div class="kpi-foot">
-                    <span><b class="js-range"{{ rng(ranges, 'confirmed_bookings') }}>{{ S.confirmed_bookings }}</b> confirmées</span>
-                    <span><b class="js-range"{{ rng(ranges, 'pending_bookings') }}>{{ S.pending_bookings }}</b> en attente</span>
-                </div>
-            </a>
-        </div>
-
-        <!-- 3. Missions -->
-        <div class="col-6 col-lg-4 col-xl-2">
-            <a href="{{ url_for('admin.bookings', tab='missions') }}" class="dash-card kpi">
-                <div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="kpi-label">Missions</span>
-                        <span class="kpi-icon"><i class="bi bi-compass"></i></span>
-                    </div>
-                    <div class="kpi-value js-range"{{ rng(ranges, 'trips_count') }}>{{ S.trips_count }}</div>
-                </div>
-                <div class="kpi-foot">
-                    <span><b>{{ S.active_trips }}</b> en cours</span>
-                    <span><b class="js-range"{{ rng(ranges, 'upcoming_trips') }}>{{ S.upcoming_trips }}</b> à venir</span>
-                </div>
-            </a>
-        </div>
-
-        <!-- 4. Clients -->
-        <div class="col-6 col-lg-4 col-xl-2">
-            <a href="{{ url_for('admin.users') }}" class="dash-card kpi">
-                <div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="kpi-label">Nouveaux clients</span>
-                        <span class="kpi-icon"><i class="bi bi-person-plus"></i></span>
-                    </div>
-                    <div class="kpi-value js-range"{{ rng(ranges, 'new_customers') }}>{{ S.new_customers }}</div>
-                </div>
-                <div class="kpi-foot">
-                    <span><b>{{ S.total_clients }}</b> au total</span>
-                    <span><b class="js-range"{{ rng(ranges, 'active_customers') }}>{{ S.active_customers }}</b> actifs</span>
-                </div>
-            </a>
-        </div>
-
-        <!-- 5. Fleet (live) -->
-        <div class="col-6 col-lg-4 col-xl-2">
-            <a href="{{ url_for('admin.buses') }}" class="dash-card kpi">
-                <div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="kpi-label">Flotte</span>
-                        <span class="live-pill">Direct</span>
-                    </div>
-                    <div class="kpi-value">{{ fleet.available }}<span class="text-muted fw-semibold" style="font-size: .95rem;"> / {{ fleet.total }} dispo.</span></div>
-                    {% if fleet.total %}
-                    <div class="fleet-bar" role="img" aria-label="{{ fleet.available }} disponibles, {{ fleet.rented }} en location, {{ fleet.maintenance }} en maintenance">
-                        {% if fleet.available %}<span class="c-available" style="flex: {{ fleet.available }};"></span>{% endif %}
-                        {% if fleet.rented %}<span class="c-rented" style="flex: {{ fleet.rented }};"></span>{% endif %}
-                        {% if fleet.maintenance %}<span class="c-maint" style="flex: {{ fleet.maintenance }};"></span>{% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="kpi-foot">
-                    <span><i class="fleet-dot c-rented"></i><b>{{ fleet.rented }}</b> loués</span>
-                    <span><i class="fleet-dot c-maint"></i><b>{{ fleet.maintenance }}</b> maint.</span>
-                </div>
-            </a>
-        </div>
-
-        <!-- 6. Furnished apartments (live) -->
-        <div class="col-6 col-lg-4 col-xl-2">
-            <a href="{{ url_for('admin.apartments') }}" class="dash-card kpi">
-                <div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="kpi-label">Résidences</span>
-                        <span class="live-pill">Direct</span>
-                    </div>
-                    <div class="kpi-value">{{ available_apartments }}<span class="text-muted fw-semibold" style="font-size: .95rem;"> / {{ total_apartments }} dispo.</span></div>
-                </div>
-                <div class="kpi-foot">
-                    <span><b>{{ fleet.promo }}</b> véhicule{{ 's' if fleet.promo != 1 }} en promo</span>
-                </div>
-            </a>
-        </div>
+    <!-- Indicateurs métier -->
+    {% macro trend_badge(t) %}{% if t is not none %}<span class="kpi-trend {% if t > 0 %}is-up{% elif t < 0 %}is-down{% else %}is-flat{% endif %}" title="Par rapport à la période précédente de même durée"><i class="bi bi-{{ 'arrow-up-right' if t > 0 else ('arrow-down-right' if t < 0 else 'dash') }}"></i>{{ t|abs }} %</span>{% endif %}{% endmacro %}
+    {% if kp_error %}
+    <div class="dash-card kpi-state is-error mb-4" role="alert">
+        <i class="bi bi-exclamation-octagon"></i>
+        <div><strong>Indicateurs indisponibles.</strong> Le calcul a échoué ; l'erreur est enregistrée dans le journal du serveur. <a href="{{ request.full_path }}">Réessayer</a></div>
     </div>
+    {% else %}
+    {% set V, C, A, R = kp.vehicles, kp.clients, kp.apartments, kp.revenue %}
+    {% set X = kp.excluded or {} %}
+    {% set x_total = (X.clients or 0) + (X.bookings or 0) + (X.trips or 0) + (X.apartments or 0) + (X.contracts or 0) %}
+    {% if x_total %}
+    <div class="kpi-test-note mb-3" role="note">
+        <i class="bi bi-funnel"></i>
+        Données réelles uniquement : {{ x_total }} enregistrement{{ 's' if x_total > 1 }} de démonstration exclu{{ 's' if x_total > 1 }}
+        ({% if X.bookings %}{{ X.bookings }} réservation{{ 's' if X.bookings > 1 }}{% endif %}{% if X.clients %}{% if X.bookings %}, {% endif %}{{ X.clients }} client{{ 's' if X.clients > 1 }}{% endif %}{% if X.trips %}, {{ X.trips }} mission{{ 's' if X.trips > 1 }}{% endif %}{% if X.apartments %}, {{ X.apartments }} séjour{{ 's' if X.apartments > 1 }}{% endif %}{% if X.contracts %}, {{ X.contracts }} contrat{{ 's' if X.contracts > 1 }}{% endif %}).
+    </div>
+    {% endif %}
+    <div class="kpi4 mb-4" id="kpiCards">
+        <a href="{{ url_for('admin.bookings', tab='missions') }}" class="dash-card kpi4-card">
+            <div class="kpi4-top"><span class="kpi4-icon is-red"><i class="bi bi-car-front"></i></span>{{ trend_badge(V.trend) }}</div>
+            <span class="kpi4-label">Réservations véhicules</span>
+            <strong class="kpi4-value">{{ V.new }}</strong>
+            <span class="kpi4-sub">nouvelles · {{ kp.period.label|lower }}</span>
+            <div class="kpi4-foot">
+                <span><b>{{ V.confirmed }}</b> confirmées</span>
+                <span><b>{{ V.pending }}</b> en attente</span>
+                <span><b>{{ V.active }}</b> en cours</span>
+                <span class="w-100 text-muted">{{ V.total }} au total{% if V.site_pending %} · <b class="text-warning-emphasis">{{ V.site_pending }}</b> demande{{ 's' if V.site_pending > 1 }} du site à traiter{% endif %}</span>
+            </div>
+        </a>
+        <a href="{{ url_for('admin.users') }}" class="dash-card kpi4-card">
+            <div class="kpi4-top"><span class="kpi4-icon is-blue"><i class="bi bi-person-plus"></i></span>{{ trend_badge(C.trend) }}</div>
+            <span class="kpi4-label">Nouveaux clients</span>
+            <strong class="kpi4-value">{{ C.new }}</strong>
+            <span class="kpi4-sub">inscrits · {{ kp.period.label|lower }}</span>
+            <div class="kpi4-foot">
+                <span><b>{{ C.total }}</b> clients au total</span>
+                {% if C.duplicates_merged %}<span class="w-100 text-muted">{{ C.duplicates_merged }} doublon{{ 's' if C.duplicates_merged > 1 }} (même téléphone / e-mail) non compté{{ 's' if C.duplicates_merged > 1 }}</span>{% endif %}
+            </div>
+        </a>
+        <a href="{{ url_for('properties.property_calendar') }}" class="dash-card kpi4-card">
+            <div class="kpi4-top"><span class="kpi4-icon is-teal"><i class="bi bi-building"></i></span>{{ trend_badge(A.trend) }}</div>
+            <span class="kpi4-label">Réservations appartements</span>
+            <strong class="kpi4-value">{{ A.new }}</strong>
+            <span class="kpi4-sub">nouvelles · {{ kp.period.label|lower }}</span>
+            <div class="kpi4-foot">
+                <span><b>{{ A.confirmed }}</b> confirmées</span>
+                <span><b>{{ A.unpaid }}</b> non payées</span>
+                <span><b>{{ A.active }}</b> séjours en cours</span>
+                <span class="w-100 text-muted">{{ A.total }} au total · {{ A.upcoming }} à venir</span>
+            </div>
+        </a>
+        <a href="{{ url_for('invoices.index') }}" class="dash-card kpi4-card">
+            <div class="kpi4-top"><span class="kpi4-icon is-green"><i class="bi bi-cash-coin"></i></span>{{ trend_badge(R.trend) }}</div>
+            <span class="kpi4-label">Chiffre d'affaires encaissé</span>
+            <strong class="kpi4-value is-money">{{ fcfa(R.period) }}</strong>
+            <span class="kpi4-sub">{{ kp.period.label|lower }}</span>
+            <div class="kpi4-foot">
+                <span><b>{{ fcfa(R.total_all) }}</b> depuis le début</span>
+                <span class="w-100 text-muted">Réservations {{ fcfa(R.breakdown.reservations) }} · Contrats {{ fcfa(R.breakdown.contracts) }} · Appartements {{ fcfa(R.breakdown.apartments) }}</span>
+            </div>
+        </a>
+    </div>
+    {% if not (V.total or C.total or A.total or R.total_all) %}
+    <div class="dash-card kpi-state mb-4"><i class="bi bi-inbox"></i><div>Aucune donnée pour le moment : les indicateurs se rempliront avec les premières réservations et les premiers paiements.</div></div>
+    {% endif %}
+    {% endif %}
 
     <!-- Charts + top vehicles -->
     <div class="row g-3 mb-4">
         <div class="col-md-6 col-xl-4">
             <div class="dash-card p-3 h-100">
                 <div class="d-flex justify-content-between align-items-baseline mb-2">
-                    <h2 class="dash-card-title">Réservations par jour</h2>
-                    <small class="text-muted js-chart-span">7 derniers jours</small>
+                    <h2 class="dash-card-title">Réservations</h2>
+                    <small class="text-muted js-chart-span"></small>
                 </div>
                 <div style="position: relative; height: 210px;"><canvas id="chartBookings" aria-label="Nombre de réservations par jour" role="img"></canvas></div>
             </div>
@@ -242,8 +248,8 @@
         <div class="col-md-6 col-xl-4">
             <div class="dash-card p-3 h-100">
                 <div class="d-flex justify-content-between align-items-baseline mb-2">
-                    <h2 class="dash-card-title">Encaissements par jour</h2>
-                    <small class="text-muted js-chart-span">7 derniers jours</small>
+                    <h2 class="dash-card-title">Encaissements</h2>
+                    <small class="text-muted js-chart-span"></small>
                 </div>
                 <div style="position: relative; height: 210px;"><canvas id="chartRevenue" aria-label="Montant encaissé par jour en FCFA" role="img"></canvas></div>
             </div>
@@ -572,60 +578,53 @@ document.addEventListener('DOMContentLoaded', function () {
     var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)';
     var tickColor = isDark ? '#94a3b8' : '#64748b';
 
-    // ── Daily charts (one measure per chart, no dual axis) ───────────────
-    var ALL_LABELS = {{ chart_labels|tojson }};
-    var ALL_BOOKINGS = {{ chart_bookings|tojson }};
-    var ALL_REVENUE = {{ chart_revenue|tojson }};
-
-    function barChart(id, data, color, label, tooltipFmt, tickFmt) {
+    // ── Graphiques de la période choisie (jour, ou mois au-delà de 62 jours) ──
+    var SERIES = {{ (kp.series if kp.series is defined else {'labels': [], 'vehicles': [], 'apartments': [], 'revenue': []})|tojson }};
+    function chartFor(id, datasets, tooltipFmt, tickFmt) {
         var el = document.getElementById(id);
         if (!el || typeof Chart === 'undefined') return null;
         return new Chart(el, {
             type: 'bar',
-            data: { labels: ALL_LABELS.slice(-7), datasets: [{ label: label, data: data.slice(-7), backgroundColor: color, borderRadius: 4, maxBarThickness: 22 }] },
+            data: { labels: SERIES.labels, datasets: datasets },
             options: {
                 responsive: true, maintainAspectRatio: false, animation: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return tooltipFmt(c.parsed.y); } } } },
+                plugins: {
+                    legend: { display: datasets.length > 1, position: 'bottom', labels: { boxWidth: 10, color: tickColor } },
+                    tooltip: { callbacks: { label: function (c) { return (datasets.length > 1 ? c.dataset.label + ' : ' : '') + tooltipFmt(c.parsed.y); } } }
+                },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: gridColor }, border: { display: false }, ticks: { color: tickColor, precision: 0, callback: tickFmt } },
-                    x: { grid: { display: false }, ticks: { color: tickColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } }
+                    y: { stacked: true, beginAtZero: true, grid: { color: gridColor }, border: { display: false }, ticks: { color: tickColor, precision: 0, callback: tickFmt } },
+                    x: { stacked: true, grid: { display: false }, ticks: { color: tickColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } }
                 }
             }
         });
     }
-    var chartBookings = barChart('chartBookings', ALL_BOOKINGS, isDark ? '#94a3b8' : '#475569', 'Réservations',
-        function (v) { return v + ' réservation' + (v > 1 ? 's' : ''); }, undefined);
-    var chartRevenue = barChart('chartRevenue', ALL_REVENUE, '#E20713', 'Encaissé',
-        fmtFcfa, function (v) { return v >= 1000 ? (v / 1000).toLocaleString('fr-FR') + ' k' : v; });
+    chartFor('chartBookings', [
+        { label: 'Véhicules', data: SERIES.vehicles, backgroundColor: isDark ? '#94a3b8' : '#475569', borderRadius: 3, maxBarThickness: 22 },
+        { label: 'Appartements', data: SERIES.apartments, backgroundColor: '#0e9384', borderRadius: 3, maxBarThickness: 22 }
+    ], function (v) { return v + ' réservation' + (v > 1 ? 's' : ''); }, undefined);
+    chartFor('chartRevenue', [
+        { label: 'Encaissé', data: SERIES.revenue, backgroundColor: '#E20713', borderRadius: 3, maxBarThickness: 22 }
+    ], fmtFcfa, function (v) { return v >= 1000 ? (v / 1000).toLocaleString('fr-FR') + ' k' : v; });
+    var spanLabel = {{ kp.period.label|tojson }} + (SERIES.monthly ? ' · par mois' : ' · par jour');
+    document.querySelectorAll('.js-chart-span').forEach(function (el) { el.textContent = spanLabel; });
 
-    function setChartSpan(days) {
-        [[chartBookings, ALL_BOOKINGS], [chartRevenue, ALL_REVENUE]].forEach(function (pair) {
-            if (!pair[0]) return;
-            pair[0].data.labels = ALL_LABELS.slice(-days);
-            pair[0].data.datasets[0].data = pair[1].slice(-days);
-            pair[0].update();
-        });
-        document.querySelectorAll('.js-chart-span').forEach(function (el) { el.textContent = days + ' derniers jours'; });
-    }
-
-    // ── Period switcher: KPI values, chart span, export links ────────────
-    var exportPdfBase = "{{ url_for('admin.export_dashboard_pdf') }}";
-    var exportCsvBase = "{{ url_for('admin.export_dashboard_csv') }}";
-    document.querySelectorAll('input[name="dashboardRange"]').forEach(function (radio) {
-        radio.addEventListener('change', function () {
-            if (!this.checked) return;
-            var range = this.value;
-            document.querySelectorAll('.js-range').forEach(function (el) {
-                var v = el.getAttribute('data-' + range);
-                if (v !== null) el.textContent = v;
-            });
-            document.querySelectorAll('.date-filter-btn').forEach(function (l) {
-                l.classList.toggle('active', l.getAttribute('for') === radio.id);
-            });
-            setChartSpan(range === 'day' || range === 'week' ? 7 : 30);
-            document.getElementById('btnExportPdf').href = exportPdfBase + '?range=' + range;
-            document.getElementById('btnExportCsv').href = exportCsvBase + '?range=' + range;
-        });
+    // ── Période personnalisée + état de chargement ───────────────────────
+    var customToggle = document.getElementById('customToggle');
+    var customRange = document.getElementById('customRange');
+    if (customToggle) customToggle.addEventListener('click', function () {
+        customRange.hidden = !customRange.hidden;
+        customToggle.setAttribute('aria-expanded', String(!customRange.hidden));
+        if (!customRange.hidden) customRange.querySelector('input[type=date]').focus();
+    });
+    var kpiCards = document.getElementById('kpiCards');
+    function showLoading() { if (kpiCards) kpiCards.classList.add('is-loading'); }
+    document.querySelectorAll('.period-filter a.date-filter-btn').forEach(function (a) { a.addEventListener('click', showLoading); });
+    var periodForm = document.getElementById('periodForm');
+    if (periodForm) periodForm.addEventListener('submit', function (e) {
+        var st = periodForm.elements.start.value, en = periodForm.elements.end.value;
+        if (st && en && en < st) { e.preventDefault(); alert('La date de fin doit être postérieure à la date de début.'); return; }
+        showLoading();
     });
 
     var nowEl = document.getElementById('dashNow');

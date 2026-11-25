@@ -2,75 +2,136 @@ import React, { useState } from "react";
 import Footer from "../components/Footer";
 import HeroPages from "../components/HeroPages";
 import { useTranslation } from "../context/LanguageContext";
-import { API_BASE } from "../config/api";
+import { getCurrentClient } from "../utils/customerAccounts";
+import { postContact, queueContact, flushPendingContacts } from "../utils/pendingContacts";
 
 function Contact() {
   const { lang } = useTranslation();
   const isFr = lang === "fr";
+  const currentClient = getCurrentClient();
 
   const [formData, setFormData] = useState({
-    name: "",
-    contact: "",
+    name: currentClient?.name || "",
+    contact: currentClient?.phone || currentClient?.email || "",
     message: ""
   });
+  const [isSending, setIsSending] = useState(false);
+  const [submitState, setSubmitState] = useState(null); // { type: 'success'|'error', text: string, whatsappUrl?: string }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const trimmedName = formData.name.trim();
+    const trimmedContact = formData.contact.trim();
+    const trimmedMessage = formData.message.trim();
+    if (!trimmedName || !trimmedContact || !trimmedMessage || isSending) return;
+
+    const isEmail = trimmedContact.includes("@");
+    const phone = !isEmail ? trimmedContact : currentClient?.phone || "";
+    const email = isEmail ? trimmedContact : currentClient?.email || "";
+
+    let guestId = localStorage.getItem("3m_guest_chat_id");
+    if (!guestId) {
+      guestId = "GUEST-" + Math.floor(100000 + Math.random() * 900000);
+      localStorage.setItem("3m_guest_chat_id", guestId);
+    }
+    const clientId = currentClient?.accountNumber || guestId;
+
+    // Request browser notification permission on user gesture so concierge replies alert the client
+    try {
+      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission().catch(() => {});
+      }
+    } catch (_) {}
+
     const newContact = {
       id: `ct-${Date.now()}`,
-      name: formData.name,
-      contact: formData.contact,
-      phone: formData.contact,
+      name: trimmedName,
+      contact: trimmedContact,
+      phone,
+      email,
       subject: "Demande Contact & Conciergerie",
-      message: formData.message,
+      message: trimmedMessage,
       createdAt: new Date().toISOString()
     };
 
-    // 1. Sync to local CRM store & fire notification across device tabs
+    // 1. Sync to local CRM store & persist guest contact info for PrivateChatWidget
     try {
+      localStorage.setItem(
+        "3m_guest_contact_info",
+        JSON.stringify({ name: trimmedName, phone, email })
+      );
       const rawStore = localStorage.getItem("3m_crm_store_v2");
       let store = {};
       if (rawStore) store = JSON.parse(rawStore);
-      const updatedContacts = [newContact, ...(store.contacts || [])];
-      store.contacts = updatedContacts;
+      store.contacts = [newContact, ...(store.contacts || [])];
       localStorage.setItem("3m_crm_store_v2", JSON.stringify(store));
       localStorage.setItem("3m_last_message_ping", Date.now().toString());
-
-      // Dispatch event to active admin tabs on same window/device
       window.dispatchEvent(new CustomEvent("3m_new_contact", { detail: newContact }));
     } catch (localErr) {
       console.warn("Local notification sync error:", localErr);
     }
 
-    // 2. Background sync to backend API
-    try {
-      fetch(`${API_BASE}/contacts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          contact: formData.contact,
-          message: formData.message
-        })
-      }).catch((err) => console.warn("Backend non joignable:", err));
-    } catch (err) {
-      console.warn("Backend non joignable:", err);
+    // 2. Envoi à la conciergerie (Express -> chat Conciergerie + notification admin Flask)
+    setIsSending(true);
+    setSubmitState(null);
+
+    const waText = encodeURIComponent(
+      `Bonjour 3M SERVICES,\n` +
+        `Message envoyé depuis le formulaire de contact :\n` +
+        `• Nom : ${trimmedName}\n` +
+        `• Contact : ${trimmedContact}\n` +
+        `• Message : ${trimmedMessage}\n`
+    );
+    const whatsappUrl = `https://wa.me/237691786447?text=${waText}`;
+    const payload = {
+      requestId: `ct-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name: trimmedName,
+      contact: trimmedContact,
+      phone,
+      email,
+      message: trimmedMessage,
+      clientId,
+      guestId
+    };
+
+    const result = await postContact(payload);
+    setIsSending(false);
+
+    if (result.ok) {
+      setSubmitState({
+        type: "success",
+        text: isFr
+          ? "Votre demande a été transmise à la conciergerie 3M SERVICES ! Un conseiller vous répond dans cette discussion ou vous contacte au numéro / e-mail indiqué."
+          : "Your request has been sent to the 3M SERVICES concierge! An advisor will reply in this chat or contact you using the details you provided.",
+        whatsappUrl
+      });
+      setFormData((prev) => ({ ...prev, message: "" }));
+      flushPendingContacts();
+      // Ouvre la discussion : le client voit sa demande et reçoit les réponses au même endroit
+      window.dispatchEvent(
+        new CustomEvent("3m-open-chat", { detail: { name: trimmedName, phone, email, refresh: true } })
+      );
+      return;
     }
 
-    const text = encodeURIComponent(
-      `Bonjour 3M SERVICES,\n` +
-      `Message envoyé depuis le formulaire de contact :\n` +
-      `• Nom : ${formData.name}\n` +
-      `• Contact : ${formData.contact}\n` +
-      `• Message : ${formData.message}\n`
-    );
-    window.open(`https://wa.me/237691786447?text=${text}`, "_blank");
-    alert(
-      isFr
-        ? "Votre message a été enregistré et transmis à la conciergerie 3M SERVICES !"
-        : "Your message has been received and forwarded to 3M SERVICES concierge!"
-    );
-    setFormData({ name: "", contact: "", message: "" });
+    if (result.retry) {
+      // Serveur injoignable : le message est gardé et renvoyé automatiquement (jamais perdu)
+      queueContact(payload);
+      setSubmitState({
+        type: "pending",
+        text: isFr
+          ? "Connexion momentanément indisponible. Votre message est enregistré et sera transmis automatiquement à la conciergerie dès le retour de la connexion. Un conseiller vous contactera au numéro / e-mail indiqué. Pour une réponse immédiate, continuez sur WhatsApp."
+          : "Connection temporarily unavailable. Your message is saved and will be sent to the concierge automatically as soon as the connection is back. An advisor will contact you using the details you provided. For an immediate answer, continue on WhatsApp.",
+        whatsappUrl
+      });
+      setFormData((prev) => ({ ...prev, message: "" }));
+      return;
+    }
+
+    setSubmitState({
+      type: "error",
+      text: result.error || (isFr ? "Veuillez vérifier les informations saisies." : "Please check the information entered.")
+    });
   };
 
   return (
@@ -141,8 +202,78 @@ function Contact() {
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 />
 
-                <button type="submit">
-                  <i className="fa-solid fa-paper-plane"></i>&nbsp; {isFr ? "Envoyer le Message" : "Send Message"}
+                {submitState && (
+                  <div
+                    role="status"
+                    style={{
+                      marginBottom: "1.4rem",
+                      padding: "1.1rem 1.3rem",
+                      borderRadius: "10px",
+                      fontSize: "1.35rem",
+                      lineHeight: 1.5,
+                      border: { success: "1px solid #abefc6", pending: "1px solid #fedf89" }[submitState.type] || "1px solid #fecdca",
+                      background: { success: "#ecfdf3", pending: "#fffaeb" }[submitState.type] || "#fef3f2",
+                      color: { success: "#067647", pending: "#93370d" }[submitState.type] || "#b42318"
+                    }}
+                  >
+                    <div>{submitState.text}</div>
+                    {submitState.whatsappUrl && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "10px" }}>
+                        {submitState.type === "success" && (
+                        <button
+                          type="button"
+                          onClick={() => window.dispatchEvent(new CustomEvent("3m-open-chat", { detail: { refresh: true } }))}
+                          style={{
+                            padding: "7px 14px",
+                            borderRadius: "8px",
+                            border: "1px solid #067647",
+                            background: "#067647",
+                            color: "#fff",
+                            fontSize: "1.25rem",
+                            fontWeight: 600,
+                            cursor: "pointer"
+                          }}
+                        >
+                          <i className="fa-regular fa-comment-dots"></i>&nbsp;
+                          {isFr ? "Ouvrir la discussion Conciergerie" : "Open Concierge Chat"}
+                        </button>
+                        )}
+                        {submitState.whatsappUrl && (
+                          <a
+                            href={submitState.whatsappUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              padding: "7px 14px",
+                              borderRadius: "8px",
+                              border: "1px solid #25D366",
+                              background: "#fff",
+                              color: "#128c4b",
+                              fontSize: "1.25rem",
+                              fontWeight: 600,
+                              textDecoration: "none"
+                            }}
+                          >
+                            <i className="fa-brands fa-whatsapp"></i>&nbsp;
+                            {submitState.type === "pending"
+                              ? (isFr ? "Continuer sur WhatsApp" : "Continue on WhatsApp")
+                              : (isFr ? "Continuer aussi sur WhatsApp" : "Also continue on WhatsApp")}
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button type="submit" disabled={isSending}>
+                  <i className="fa-solid fa-paper-plane"></i>&nbsp;{" "}
+                  {isSending
+                    ? isFr
+                      ? "Envoi en cours..."
+                      : "Sending..."
+                    : isFr
+                      ? "Envoyer le Message"
+                      : "Send Message"}
                 </button>
               </form>
             </div>

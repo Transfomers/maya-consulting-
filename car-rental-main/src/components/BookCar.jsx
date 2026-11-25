@@ -8,6 +8,7 @@ import CarRav4 from "../images/cars/toyota-rav4-front.webp";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { useTranslation } from "../context/LanguageContext";
 import { API_BASE } from "../config/api";
+import "../styles/BookingModal.css";
 
 function BookCar() {
   const { lang, t } = useTranslation();
@@ -190,6 +191,14 @@ function BookCar() {
 
   const getCarKey = () => matchedCar?.id || carType || "prado";
 
+  // Tarif journalier réel du véhicule (null si inconnu : pas de montant inventé)
+  const dailyRate = (() => {
+    const raw = matchedCar?.promoPrice || matchedCar?.pricePerDay || matchedCar?.price;
+    const n = typeof raw === "number" ? raw : parseInt(String(raw || "").replace(/\D/g, ""), 10);
+    return n > 0 ? n : null;
+  })();
+  const fmtFcfa = (n) => `${Math.round(n).toLocaleString("fr-FR")} FCFA`;
+
   const getCarCardUrl = () => {
     const origin = typeof window !== "undefined" ? window.location.origin : "https://3mservice.shop";
     return `${origin}/models?car=${encodeURIComponent(getCarKey())}`;
@@ -231,7 +240,6 @@ function BookCar() {
   const handleSendViaAppChat = () => {
     const msg = buildDirectBookingMessage();
     const carCardUrl = getCarCardUrl();
-    const dailyPrice = matchedCar?.promoPrice || matchedCar?.pricePerDay || matchedCar?.price || 120000;
 
     setModal(false);
     setIsEditingSummary(false);
@@ -249,7 +257,7 @@ function BookCar() {
           car: {
             id: getCarKey(),
             name: carType,
-            price: typeof dailyPrice === "number" ? dailyPrice : parseInt(String(dailyPrice).replace(/\D/g, ""), 10) || 120000,
+            price: dailyRate,
             image: imgUrl,
             url: carCardUrl
           }
@@ -424,7 +432,7 @@ function BookCar() {
       {/* ==================================================================
           STREAMLINED DIRECT BOOKING MODAL (NO PERSONAL INFO REQUIRED)
           ================================================================== */}
-      <div className={`booking-modal ${modal ? "active-modal" : ""}`}>
+      <div className={`booking-modal bm-v2 ${modal ? "active-modal" : ""}`} role="dialog" aria-modal="true" aria-label={isFr ? "Confirmer votre réservation" : "Confirm your reservation"}>
         {/* Modal Header */}
         <div className="booking-modal__title">
           <div className="booking-modal__title__left">
@@ -539,62 +547,47 @@ function BookCar() {
               </div>
             </div>
           ) : (
-            <div className="booking-modal__summary-content">
-              <div className="summary-info-grid">
-                <div className="summary-item summary-item--vehicle">
-                  <span className="summary-label">{isFr ? "Véhicule :" : "Vehicle:"}</span>
-                  <strong className="summary-value summary-value--highlight">{carType || "Toyota Prado VIP"}</strong>
-                </div>
-
-                <div className="summary-item">
-                  <span className="summary-label">{isFr ? "Prise en charge :" : "Pick-up:"}</span>
-                  <span className="summary-value">{formatDateReadable(pickTime)}</span>
-                </div>
-
-                <div className="summary-item">
-                  <span className="summary-label">{isFr ? "Restitution :" : "Drop-off:"}</span>
-                  <span className="summary-value">{formatDateReadable(dropTime)}</span>
-                </div>
-
-                <div className="summary-item">
-                  <span className="summary-label">{isFr ? "Lieu de prise :" : "Pick-up location:"}</span>
-                  <span className="summary-value">{pickUp}</span>
-                </div>
-
-                <div className="summary-item">
-                  <span className="summary-label">{isFr ? "Lieu de restitution :" : "Drop-off location:"}</span>
-                  <span className="summary-value">{dropOff}</span>
-                </div>
-
-                <div className="summary-item summary-item--duration">
-                  <span className="summary-label">{isFr ? "Durée estimée :" : "Estimated duration:"}</span>
-                  <strong className="summary-value summary-duration-badge">
-                    {calculateDays()} {isFr ? "Jour(s)" : "Day(s)"}
-                  </strong>
+            <div className="bm-summary">
+              <div className="bm-vehicle">
+                {imgUrl && <img src={imgUrl} alt={carType} className="bm-vehicle__img" />}
+                <div className="bm-vehicle__info">
+                  <span className="bm-label">{isFr ? "Véhicule" : "Vehicle"}</span>
+                  <strong className="bm-vehicle__name">{carType || (isFr ? "Véhicule à choisir" : "Vehicle to choose")}</strong>
+                  <a href={getCarCardUrl()} className="bm-link">
+                    <i className="fa-solid fa-arrow-up-right-from-square"></i> {isFr ? "Voir la fiche du véhicule" : "View vehicle card"}
+                  </a>
                 </div>
               </div>
 
-              {imgUrl && (
-                <div className="summary-vehicle-preview">
-                  <img src={imgUrl} alt={carType} />
-                  <a
-                    href={getCarCardUrl()}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "0.5rem",
-                      marginTop: "0.8rem",
-                      fontSize: "1.25rem",
-                      fontWeight: 700,
-                      color: "#D62828",
-                      textDecoration: "underline",
-                      width: "100%"
-                    }}
-                  >
-                    <i className="fa-solid fa-arrow-up-right-from-square"></i>
-                    <span>{isFr ? "Voir la fiche du véhicule" : "View vehicle card"}</span>
-                  </a>
+              <div className="bm-trip">
+                <div className="bm-stop">
+                  <span className="bm-stop__icon"><i className="fa-solid fa-location-dot"></i></span>
+                  <div>
+                    <span className="bm-label">{isFr ? "Prise en charge" : "Pick-up"}</span>
+                    <strong>{formatDateReadable(pickTime)}</strong>
+                    <span className="bm-place">{pickUp || (isFr ? "Lieu à préciser" : "Location to confirm")}</span>
+                  </div>
+                </div>
+                <div className="bm-trip__line" aria-hidden="true">
+                  <span className="bm-days">{calculateDays()} {isFr ? (calculateDays() > 1 ? "jours" : "jour") : (calculateDays() > 1 ? "days" : "day")}</span>
+                </div>
+                <div className="bm-stop">
+                  <span className="bm-stop__icon is-end"><i className="fa-solid fa-flag-checkered"></i></span>
+                  <div>
+                    <span className="bm-label">{isFr ? "Restitution" : "Drop-off"}</span>
+                    <strong>{formatDateReadable(dropTime)}</strong>
+                    <span className="bm-place">{dropOff || (isFr ? "Lieu à préciser" : "Location to confirm")}</span>
+                  </div>
+                </div>
+              </div>
+
+              {dailyRate && carType && (
+                <div className="bm-estimate">
+                  <div>
+                    <span className="bm-label">{isFr ? "Estimation" : "Estimate"}</span>
+                    <small>{calculateDays()} × {fmtFcfa(dailyRate)} · {isFr ? "tarif confirmé par la conciergerie" : "rate confirmed by our concierge"}</small>
+                  </div>
+                  <strong>{fmtFcfa(dailyRate * calculateDays())}</strong>
                 </div>
               )}
             </div>
@@ -602,54 +595,27 @@ function BookCar() {
         </div>
 
         {/* B. DIRECT SEND CHANNEL CHOICE (WHATSAPP OR IN-APP CHAT) */}
-        <div className="booking-modal__person-info">
-          <h4 className="personal-section-title">
-            <i className="fa-solid fa-paper-plane" style={{ color: "#D62828" }}></i>
-            <span>{isFr ? "Choisissez comment envoyer votre demande" : "Choose how to send your booking"}</span>
-          </h4>
-          <p style={{ fontSize: "1.35rem", color: "#475569", marginBottom: "1.6rem", lineHeight: 1.5 }}>
-            {isFr
-              ? "Aucune saisie personnelle requise : envoyez directement les détails de cette réservation avec le lien vers la fiche du véhicule sur WhatsApp ou dans les messages de l'application."
-              : "No personal form required: send these booking details with the vehicle card link directly via WhatsApp or in-app messages."}
+        <div className="bm-send">
+          <h3 className="bm-send__title">{isFr ? "Envoyer ma demande" : "Send my request"}</h3>
+          <p className="bm-send__hint">
+            {isFr ? "Aucun formulaire : vos dates, lieux et la fiche du véhicule sont envoyés directement." : "No form: your dates, locations and vehicle card are sent directly."}
           </p>
-
-          <div className="booking-modal__action-cluster">
-            {/* Option 1: WhatsApp Direct */}
-            <button
-              type="button"
-              onClick={handleSendViaWhatsApp}
-              className="btn-confirm-whatsapp"
-              style={{ backgroundColor: "#16A34A" }}
-              title={isFr ? "Envoyer sur WhatsApp (+237 691 78 64 47)" : "Send via WhatsApp (+237 691 78 64 47)"}
-            >
-              <i className="fa-brands fa-whatsapp"></i>
-              <div className="btn-confirm-whatsapp__content">
-                <strong>{isFr ? "Envoyer sur WhatsApp (+237 691 78 64 47)" : "Send via WhatsApp (+237 691 78 64 47)"}</strong>
-                <small>
-                  {isFr
-                    ? "Transmet les dates, trajets et le lien vers la fiche du véhicule"
-                    : "Sends dates, locations, and direct vehicle card link"}
-                </small>
-              </div>
+          <div className="bm-send__options">
+            <button type="button" onClick={handleSendViaAppChat} className="bm-option is-chat">
+              <span className="bm-option__icon"><i className="fa-solid fa-comments"></i></span>
+              <span className="bm-option__text">
+                <strong>{isFr ? "Chat Privé 3M" : "3M Private Chat"}</strong>
+                <small>{isFr ? "Réponse dans l'application · votre conversation est conservée" : "Reply in the app · your conversation is kept"}</small>
+              </span>
+              <i className="fa-solid fa-chevron-right bm-option__arrow"></i>
             </button>
-
-            {/* Option 2: In-App Messages (Chat Privé 3M) */}
-            <button
-              type="button"
-              onClick={handleSendViaAppChat}
-              className="btn-confirm-whatsapp"
-              style={{ backgroundColor: "#D62828" }}
-              title={isFr ? "Envoyer dans le Chat Privé 3M (Messages de l'application)" : "Send via In-App Chat (Messages)"}
-            >
-              <i className="fa-solid fa-comments"></i>
-              <div className="btn-confirm-whatsapp__content">
-                <strong>{isFr ? "Envoyer dans les Messages de l'Application (Chat Privé 3M)" : "Send via In-App Messages (3M Private Chat)"}</strong>
-                <small>
-                  {isFr
-                    ? "Ouvre le chat et envoie automatiquement les détails + lien véhicule"
-                    : "Opens chat and immediately sends booking details + vehicle card link"}
-                </small>
-              </div>
+            <button type="button" onClick={handleSendViaWhatsApp} className="bm-option is-wa">
+              <span className="bm-option__icon"><i className="fa-brands fa-whatsapp"></i></span>
+              <span className="bm-option__text">
+                <strong>WhatsApp</strong>
+                <small>+237 691 78 64 47</small>
+              </span>
+              <i className="fa-solid fa-chevron-right bm-option__arrow"></i>
             </button>
           </div>
         </div>

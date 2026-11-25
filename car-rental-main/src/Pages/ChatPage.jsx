@@ -2,11 +2,30 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import ChatAttachment from "../components/ChatAttachment";
+import { API_BASE } from "../config/api";
 
-const API_BASE = "http://127.0.0.1:5001/api";
+function playPageChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  } catch (_) {}
+}
 
 function ChatPage() {
   const [clientId, setClientId] = useState("");
+  const [guestId, setGuestId] = useState("");
   const [clientName, setClientName] = useState("Client VIP 3M");
   const [clientPhone, setClientPhone] = useState("");
   const [messages, setMessages] = useState([]);
@@ -16,37 +35,59 @@ function ChatPage() {
   const [editingMsgId, setEditingMsgId] = useState(null);
   const [editingText, setEditingText] = useState("");
   const messagesEndRef = useRef(null);
+  const knownMsgIdsRef = useRef(new Set());
+  const initializedRef = useRef(false);
 
   // Initialize client ID from localStorage
   useEffect(() => {
     let savedClient = null;
+    let savedGuest = null;
     try {
       const raw = localStorage.getItem("3m_vip_account");
       if (raw) savedClient = JSON.parse(raw);
+      const rawGuest = localStorage.getItem("3m_guest_contact_info");
+      if (rawGuest) savedGuest = JSON.parse(rawGuest);
     } catch (e) {}
 
-    let cid = savedClient?.accountNumber || localStorage.getItem("3m_guest_chat_id");
-    if (!cid) {
-      cid = "VIP-" + Math.floor(100000 + Math.random() * 900000);
-      localStorage.setItem("3m_guest_chat_id", cid);
+    let gid = localStorage.getItem("3m_guest_chat_id");
+    if (!gid) {
+      gid = "GUEST-" + Math.floor(100000 + Math.random() * 900000);
+      localStorage.setItem("3m_guest_chat_id", gid);
     }
+    setGuestId(gid);
+    const cid = savedClient?.accountNumber || gid;
     setClientId(cid);
-    if (savedClient?.name) setClientName(savedClient.name);
-    if (savedClient?.phone) setClientPhone(savedClient.phone);
+    if (savedClient?.name || savedGuest?.name) setClientName(savedClient?.name || savedGuest?.name);
+    if (savedClient?.phone || savedGuest?.phone) setClientPhone(savedClient?.phone || savedGuest?.phone);
   }, []);
 
   // Fetch chat thread from Express backend
   const fetchMessages = async () => {
     if (!clientId) return;
     try {
-      const res = await fetch(`${API_BASE}/chats/${encodeURIComponent(clientId)}?name=${encodeURIComponent(clientName)}&phone=${encodeURIComponent(clientPhone)}`);
+      const res = await fetch(
+        `${API_BASE}/chats/${encodeURIComponent(clientId)}?guestId=${encodeURIComponent(guestId)}&name=${encodeURIComponent(clientName)}&phone=${encodeURIComponent(clientPhone)}`
+      );
       const data = await res.json();
       if (data && data.messages) {
+        let hasNewAdmin = false;
+        data.messages.forEach((m) => {
+          if (!knownMsgIdsRef.current.has(m.id)) {
+            knownMsgIdsRef.current.add(m.id);
+            if (initializedRef.current && m.sender === "admin") hasNewAdmin = true;
+          }
+        });
+        initializedRef.current = true;
+        if (hasNewAdmin) playPageChime();
+
         setMessages(data.messages);
-        if (data.adminTyping) {
-          setIsAdminTyping(true);
-        } else {
-          setIsAdminTyping(false);
+        setIsAdminTyping(Boolean(data.adminTyping));
+        if (data.unreadClient) {
+          fetch(`${API_BASE}/chats/${encodeURIComponent(clientId)}/read`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ reader: "client" })
+          }).catch(() => {});
         }
       }
     } catch (err) {
@@ -94,7 +135,8 @@ function ChatPage() {
           text: textToSend,
           sender: "client",
           clientName: clientName,
-          clientPhone: clientPhone
+          clientPhone: clientPhone,
+          guestId
         })
       });
       fetchMessages();

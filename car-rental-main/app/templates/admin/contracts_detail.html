@@ -1,0 +1,430 @@
+{% extends "base.html" %}
+{% block title %}Contrat {{ c.reference }} - 3M SERVICES{% endblock %}
+
+{% block content %}
+<style>
+.cd-card { background: #fff; border: 1px solid #eaecf0; border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; }
+.cd-card h2 { font-size: 15px; font-weight: 700; color: #101828; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+.cd-card h2 i { color: #98a2b3 !important; }
+.cd-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.cd-grid.is-wide { grid-template-columns: minmax(0, 2.3fr) minmax(280px, 1fr); }
+.cd-dl { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 8px 14px; margin: 0; font-size: 14px; }
+.cd-dl dt { color: #667085; font-weight: 500; }
+.cd-dl dd { margin: 0; color: #101828; overflow-wrap: anywhere; }
+.cd-tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid #eaecf0; margin-bottom: 18px; }
+.cd-tab { flex: 0 0 auto; padding: 10px 12px; font-size: 13.5px; font-weight: 500; color: #667085; text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.cd-tab:hover { color: #101828; }
+.cd-tab.is-active { color: var(--primary-light); border-bottom-color: var(--primary-light); font-weight: 600; }
+.cd-tab .tab-count { margin-left: 4px; }
+.cd-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.cd-stat { background: #fff; border: 1px solid #eaecf0; border-radius: 12px; padding: 14px 16px; }
+.cd-stat span { display: block; font-size: 12.5px; color: #667085; }
+.cd-stat strong { font-size: 19px; color: #101828; white-space: nowrap; }
+.cd-stat.is-danger strong { color: #b42318; }
+.cd-stat.is-ok strong { color: #027a48; }
+.cd-progress { height: 8px; border-radius: 999px; background: #f2f4f7; overflow: hidden; margin-top: 8px; }
+.cd-progress span { display: block; height: 100%; background: #12b76a; }
+.cd-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
+.cd-actions form { margin: 0; }
+.cd-steps { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.cd-step { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: #f2f4f7; color: #667085; }
+.cd-step.is-done { background: #ecfdf3; color: #027a48; }
+.cd-step.is-now { background: #101828; color: #fff; }
+.cd-warn { padding: 10px 12px; border-radius: 10px; background: #fffaeb; color: #93370d; font-size: 13px; margin-bottom: 12px; }
+.cd-terms { white-space: pre-line; font-size: 13.5px; color: #475467; line-height: 1.65; }
+.cd-docs { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.cd-doc { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #eaecf0; border-radius: 10px; }
+.cd-doc__ico { width: 40px; height: 40px; flex: 0 0 40px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; background: #fef3f2; color: #d92d20; }
+.cd-doc__ico.is-img { background: #eff8ff; color: #1570ef; }
+.cd-doc__ico.is-word { background: #eef4ff; color: #3538cd; }
+.cd-doc__ico i { color: inherit !important; }
+.cd-doc__body { flex: 1; min-width: 0; }
+.cd-doc__body strong { display: block; font-size: 13.5px; color: #101828; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cd-doc__body small { color: #667085; font-size: 12px; }
+.cd-doc__actions { display: flex; gap: 4px; }
+.cd-doc__actions form { margin: 0; }
+.cd-icon-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid #eaecf0; background: #fff; color: #344054; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.cd-icon-btn i { color: inherit !important; }
+.cd-icon-btn:hover { background: #f9fafb; }
+.cd-preview { margin-top: 14px; border: 1px solid #eaecf0; border-radius: 12px; overflow: hidden; background: #f9fafb; }
+.cd-preview iframe { width: 100%; height: 560px; border: 0; display: block; }
+.cd-preview img { max-width: 100%; display: block; margin: 0 auto; }
+.cd-drop { display: block; border: 2px dashed #d0d5dd; border-radius: 12px; padding: 18px; text-align: center; background: #f9fafb; color: #344054; font-size: 13.5px; cursor: pointer; margin: 0; }
+.cd-drop.is-over { border-color: var(--primary-light); background: #fef3f2; }
+.cd-drop u { color: var(--primary-light); }
+.cd-history { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.cd-history li { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 12px; font-size: 13.5px; }
+.cd-history .dot { width: 10px; height: 10px; border-radius: 50%; background: #d0d5dd; margin-top: 5px; }
+.cd-history li:first-child .dot { background: var(--primary-light); }
+.cd-history strong { color: #101828; display: block; font-weight: 600; }
+.cd-history small { color: #667085; }
+.cd-table td, .cd-table th { white-space: nowrap; }
+.cd-void td { color: #98a2b3 !important; text-decoration: line-through; }
+.cd-empty { text-align: center; padding: 32px 12px; color: #667085; font-size: 13.5px; }
+.cd-empty i { font-size: 28px; display: block; margin-bottom: 6px; color: #d0d5dd !important; }
+@media (max-width: 991.98px) { .cd-grid, .cd-grid.is-wide { grid-template-columns: minmax(0, 1fr); } .cd-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575.98px) { .cd-dl { grid-template-columns: minmax(0, 1fr); gap: 2px; } .cd-dl dd { margin-bottom: 8px; } .cd-preview iframe { height: 420px; } }
+</style>
+{% macro money(v) %}{{ "{:,.0f}".format(v or 0).replace(",", " ") }} FCFA{% endmacro %}
+{% macro fsize(n) %}{% if n >= 1048576 %}{{ '%.1f'|format(n / 1048576) }} Mo{% elif n %}{{ (n / 1024)|round|int }} Ko{% else %}—{% endif %}{% endmacro %}
+{% set st_label, st_tone = status_labels.get(c.status, (c.status, 'neutral')) %}
+{% set doc_count = documents|length %}
+{% set pay_count = payments|length %}
+
+<!-- En-tête -->
+<div class="page-header">
+    <div>
+        <h1>{{ c.subject }} <span class="status-pill status-{{ st_tone }} align-middle ms-1">{{ st_label }}</span>{% if c.is_archived %} <span class="status-pill status-neutral align-middle">Archivé</span>{% endif %}</h1>
+        <p><strong>{{ c.reference }}</strong> · {{ type_labels.get(c.contract_type, c.contract_type) }}{% if c.previous_contract %} · renouvelle <a href="{{ url_for('contracts.detail', contract_id=c.previous_contract.id) }}">{{ c.previous_contract.reference }}</a>{% endif %}</p>
+    </div>
+    <div class="page-actions">
+        <a href="{{ url_for('contracts.index') }}" class="btn btn-light border"><i class="bi bi-arrow-left me-1"></i> Contrats</a>
+        {% if editable %}<a href="{{ url_for('contracts.edit', contract_id=c.id) }}" class="btn btn-light border"><i class="bi bi-pencil me-1"></i> Modifier</a>{% endif %}
+        <a href="{{ url_for('contracts.pdf', contract_id=c.id) }}" class="btn btn-brand"><i class="bi bi-file-earmark-pdf me-1"></i> PDF du contrat</a>
+    </div>
+</div>
+
+<!-- Chiffres clés -->
+{% set paid_pct = ((c.amount_paid / c.total_value * 100) if c.total_value else 0)|round|int %}
+<div class="cd-stats">
+    <div class="cd-stat"><span>Valeur du contrat</span><strong>{{ money(c.total_value) }}</strong></div>
+    <div class="cd-stat is-ok"><span>Encaissé</span><strong>{{ money(c.amount_paid) }}</strong><div class="cd-progress"><span style="width: {{ [paid_pct, 100]|min }}%"></span></div></div>
+    <div class="cd-stat {% if c.balance > 0 %}is-danger{% endif %}"><span>Reste à payer</span><strong>{{ money(c.balance) }}</strong></div>
+    <div class="cd-stat"><span>Caution</span><strong>{{ money(c.deposit_received) }}</strong><span>sur {{ money(c.deposit) }} prévus</span></div>
+</div>
+
+<!-- Onglets -->
+<nav class="cd-tabs" aria-label="Sections du contrat">
+    {% for key, label, count in [('overview', 'Aperçu', none), ('client', 'Client', none), ('assets', 'Actifs', none), ('documents', 'Documents', doc_count), ('payments', 'Paiements', pay_count), ('history', 'Historique', history|length)] %}
+    <a href="{{ url_for('contracts.detail', contract_id=c.id, tab=key) }}" class="cd-tab {% if tab == key %}is-active{% endif %}" {% if tab == key %}aria-current="page"{% endif %}>{{ label }}{% if count is not none %}<span class="tab-count">{{ count }}</span>{% endif %}</a>
+    {% endfor %}
+</nav>
+
+{% if tab == 'overview' %}
+<div class="cd-grid">
+    <div>
+        <section class="cd-card">
+            <h2><i class="bi bi-diagram-3"></i> Cycle de vie</h2>
+            {% set order = ['draft', 'pending_approval', 'active', 'completed'] %}
+            <div class="cd-steps">
+                {% for s in order %}
+                {% set idx_now = order.index(c.status) if c.status in order else (2 if c.status in ['expired', 'terminated'] else 0) %}
+                <span class="cd-step {% if s == c.status %}is-now{% elif loop.index0 < idx_now %}is-done{% endif %}">{{ status_labels[s][0] }}</span>
+                {% endfor %}
+                {% if c.status in ['expired', 'terminated'] %}<span class="cd-step is-now">{{ st_label }}</span>{% endif %}
+            </div>
+            {% if c.status == 'pending_approval' and not doc_count %}<div class="cd-warn"><i class="bi bi-exclamation-triangle me-1"></i> Ajoutez au moins un document avant d'approuver ce contrat. <a href="{{ url_for('contracts.detail', contract_id=c.id, tab='documents') }}">Ajouter</a></div>{% endif %}
+            {% if c.status == 'terminated' and c.termination_reason %}<div class="cd-warn">Résilié le {{ c.terminated_at.strftime('%d/%m/%Y') }} · motif : {{ c.termination_reason }}</div>{% endif %}
+            <div class="cd-actions">
+                {% if 'pending_approval' in transitions[c.status] %}
+                <form method="POST" action="{{ url_for('contracts.change_status', contract_id=c.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="pending_approval"><button class="btn btn-brand" data-loading><i class="bi bi-send-check me-1"></i> Soumettre pour approbation</button></form>
+                {% endif %}
+                {% if 'active' in transitions[c.status] %}
+                <form method="POST" action="{{ url_for('contracts.change_status', contract_id=c.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="active"><button class="btn btn-brand" data-loading><i class="bi bi-patch-check me-1"></i> Approuver et activer</button></form>
+                {% endif %}
+                {% if 'draft' in transitions[c.status] %}
+                <form method="POST" action="{{ url_for('contracts.change_status', contract_id=c.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="draft"><button class="btn btn-light border"><i class="bi bi-arrow-counterclockwise me-1"></i> Renvoyer en brouillon</button></form>
+                {% endif %}
+                {% if 'completed' in transitions[c.status] %}
+                <form method="POST" action="{{ url_for('contracts.change_status', contract_id=c.id) }}" onsubmit="return confirm('Clôturer ce contrat (bien restitué / prestation terminée) ?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="completed"><button class="btn btn-light border"><i class="bi bi-flag me-1"></i> Clôturer</button></form>
+                {% endif %}
+                {% if can_renew %}
+                <form method="POST" action="{{ url_for('contracts.renew', contract_id=c.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-light border"><i class="bi bi-arrow-repeat me-1"></i> Renouveler</button></form>
+                {% endif %}
+                {% if can_archive and not c.is_archived %}
+                <form method="POST" action="{{ url_for('contracts.archive', contract_id=c.id) }}" onsubmit="return confirm('Archiver ce contrat ? Il restera consultable dans les archives.');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-light border"><i class="bi bi-archive me-1"></i> Archiver</button></form>
+                {% elif c.is_archived %}
+                <form method="POST" action="{{ url_for('contracts.archive', contract_id=c.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="restore" value="1"><button class="btn btn-light border"><i class="bi bi-box-arrow-up me-1"></i> Restaurer</button></form>
+                {% endif %}
+            </div>
+            {% if can_terminate %}
+            <details class="mt-3" id="terminate">
+                <summary class="text-danger fw-semibold small" style="cursor: pointer;">Résilier le contrat…</summary>
+                <form method="POST" action="{{ url_for('contracts.terminate', contract_id=c.id) }}" class="mt-2 d-grid gap-2" onsubmit="return confirm('Résilier définitivement ce contrat ?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <label for="reason" class="small fw-semibold">Motif de la résiliation *</label>
+                    <textarea id="reason" name="reason" class="form-control" rows="2" required minlength="5" placeholder="Ex. Non-paiement, demande du client, sinistre…"></textarea>
+                    <div><button class="btn btn-light border text-danger"><i class="bi bi-x-octagon me-1"></i> Confirmer la résiliation</button></div>
+                </form>
+            </details>
+            {% endif %}
+        </section>
+
+        <section class="cd-card">
+            <h2><i class="bi bi-info-circle"></i> Informations</h2>
+            <dl class="cd-dl">
+                <dt>Période</dt><dd>du {{ c.start_date.strftime('%d/%m/%Y %H:%M') }} au {{ c.end_date.strftime('%d/%m/%Y %H:%M') }} · {{ c.days }} jour(s)</dd>
+                <dt>Client</dt><dd>{{ c.client.real_name or c.client.username if c.client else '—' }}</dd>
+                <dt>Actif</dt><dd>{% if c.vehicle %}{{ c.vehicle.brand or '' }} {{ c.vehicle.model }} · {{ c.vehicle.bus_number }}{% elif c.apartment %}{{ c.apartment.title }}{% else %}—{% endif %}</dd>
+                <dt>Modalités de paiement</dt><dd>{{ c.payment_terms or '—' }}</dd>
+                <dt>Créé</dt><dd>{{ c.created_at.strftime('%d/%m/%Y') if c.created_at }}{% if c.created_by %} par {{ c.created_by.real_name or c.created_by.username }}{% endif %}</dd>
+                {% if c.approved_at %}<dt>Approuvé</dt><dd>{{ c.approved_at.strftime('%d/%m/%Y') }}{% if c.approved_by %} par {{ c.approved_by.real_name or c.approved_by.username }}{% endif %}</dd>{% endif %}
+                {% if c.renewals %}<dt>Renouvelé par</dt><dd>{% for r in c.renewals %}<a href="{{ url_for('contracts.detail', contract_id=r.id) }}">{{ r.reference }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</dd>{% endif %}
+            </dl>
+        </section>
+    </div>
+    <div>
+        <section class="cd-card">
+            <h2><i class="bi bi-journal-text"></i> Conditions</h2>
+            <div class="cd-terms">{{ c.terms or 'Conditions générales standard 3M SERVICES (voir PDF).' }}</div>
+            {% if c.notes %}<hr><p class="mb-0 small"><strong>Notes internes :</strong> {{ c.notes }}</p>{% endif %}
+        </section>
+    </div>
+</div>
+
+{% elif tab == 'client' %}
+<div class="cd-grid">
+    <section class="cd-card">
+        <h2><i class="bi bi-person"></i> Client</h2>
+        {% if c.client %}
+        <dl class="cd-dl">
+            <dt>Nom</dt><dd>{{ c.client.real_name or c.client.username }}</dd>
+            <dt>Téléphone</dt><dd>{% if c.client.phone %}<a href="tel:{{ c.client.phone|replace(' ', '') }}">{{ c.client.phone }}</a> · <a href="https://wa.me/{{ c.client.phone|replace(' ', '')|replace('+', '') }}" target="_blank" rel="noopener">WhatsApp</a>{% else %}—{% endif %}</dd>
+            <dt>E-mail</dt><dd>{% if c.client.email and not c.client.email.endswith('.local') %}<a href="mailto:{{ c.client.email }}">{{ c.client.email }}</a>{% else %}—{% endif %}</dd>
+            <dt>Compte</dt><dd>{{ c.client.username }} · client depuis {{ c.client.created_at.strftime('%d/%m/%Y') if c.client.created_at else '—' }}</dd>
+        </dl>
+        {% else %}<p class="text-muted mb-0">Client introuvable.</p>{% endif %}
+    </section>
+    <section class="cd-card">
+        <h2><i class="bi bi-files"></i> Autres contrats du client</h2>
+        {% if client_contracts %}
+        <ul class="list-unstyled mb-0 d-grid gap-2">
+            {% for o in client_contracts %}{% set ol, ot = status_labels.get(o.status, (o.status, 'neutral')) %}
+            <li class="d-flex justify-content-between gap-2"><a href="{{ url_for('contracts.detail', contract_id=o.id) }}">{{ o.reference }} · {{ o.subject }}</a><span class="status-pill status-{{ ot }}">{{ ol }}</span></li>
+            {% endfor %}
+        </ul>
+        {% else %}<div class="cd-empty"><i class="bi bi-file-earmark"></i>Premier contrat de ce client.</div>{% endif %}
+    </section>
+</div>
+
+{% elif tab == 'assets' %}
+<div class="cd-grid">
+<section class="cd-card">
+    <h2><i class="bi bi-box-seam"></i> Actifs affectés</h2>
+    {% if c.contract_type in ['vehicle_rental', 'apartment_rental'] %}
+        {% if asset_conflicts %}
+        <div class="cd-warn"><i class="bi bi-exclamation-octagon me-1"></i> {{ asset_conflicts|join(' ') }}</div>
+        {% else %}
+        <div class="p-2 px-3 rounded-3 mb-3 small fw-semibold" style="background: #ecfdf3; color: #027a48; border: 1px solid #abefc6;">
+            <i class="bi bi-check-circle me-1"></i> Aucun conflit de disponibilité sur la période du {{ c.start_date.strftime('%d/%m/%Y') }} au {{ c.end_date.strftime('%d/%m/%Y') }}.
+        </div>
+        {% endif %}
+    {% endif %}
+    {% if c.vehicle %}
+    <dl class="cd-dl">
+        <dt>Véhicule</dt><dd>{{ c.vehicle.brand or '' }} {{ c.vehicle.model }}</dd>
+        <dt>Immatriculation</dt><dd><strong>{{ c.vehicle.bus_number }}</strong></dd>
+        <dt>État actuel</dt><dd>{% if c.vehicle.status == 'maintenance' %}<span class="status-pill status-warn">En maintenance</span>{% else %}<span class="status-pill status-ok">En service</span>{% endif %}</dd>
+        <dt>Prise en charge</dt><dd>{{ c.pickup_location or '—' }}</dd>
+        <dt>Restitution</dt><dd>{{ c.return_location or '—' }}</dd>
+        <dt>Mission VIP</dt><dd>{% if c.trip_id %}<a href="{{ url_for('missions.mission_detail', id=c.trip_id) }}">Mission #{{ c.trip_id }}</a>{% else %}—{% endif %}</dd>
+    </dl>
+    {% elif c.apartment %}
+    <dl class="cd-dl">
+        <dt>Appartement</dt><dd>{{ c.apartment.title }}</dd>
+        <dt>Adresse</dt><dd>{{ c.apartment.location }}</dd>
+        <dt>Type</dt><dd>{{ c.apartment.type }}</dd>
+        <dt>État actuel</dt><dd>{{ c.apartment.status }}</dd>
+        <dt>Tarif affiché</dt><dd>{{ c.apartment.price }}</dd>
+    </dl>
+    {% else %}<div class="cd-empty"><i class="bi bi-box"></i>Ce type de contrat n'engage aucun véhicule ni appartement.</div>{% endif %}
+    {% if c.booking_id %}<p class="mt-3 mb-0 small">Réservation liée : #{{ c.booking_id }}{% if c.booking and c.booking.booking_code %} · {{ c.booking.booking_code }}{% endif %}</p>{% endif %}
+</section>
+
+{% if editable and c.contract_type in ['vehicle_rental', 'apartment_rental'] %}
+<section class="cd-card">
+    <h2><i class="bi bi-arrow-left-right"></i> Assigner / changer l'actif</h2>
+    <form method="POST" action="{{ url_for('contracts.assign_asset', contract_id=c.id) }}" class="d-grid gap-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if c.contract_type == 'vehicle_rental' %}
+        <label for="assign_vehicle_id" class="small fw-semibold">Véhicule disponible</label>
+        <select id="assign_vehicle_id" name="vehicle_id" class="form-select" required>
+            <option value="">Sélectionner…</option>
+            {% for v in available_vehicles %}
+            <option value="{{ v.id }}" {% if c.vehicle_id == v.id %}selected{% endif %} {% if v.status == 'maintenance' %}disabled{% endif %}>{{ v.brand or '' }} {{ v.model }} · {{ v.bus_number }}{% if v.status == 'maintenance' %} (maintenance){% endif %}</option>
+            {% endfor %}
+        </select>
+        {% else %}
+        <label for="assign_apartment_id" class="small fw-semibold">Appartement disponible</label>
+        <select id="assign_apartment_id" name="apartment_id" class="form-select" required>
+            <option value="">Sélectionner…</option>
+            {% for a in available_apartments %}
+            {% set off = (a.status or '')|lower in ['maintenance', 'non publié'] %}
+            <option value="{{ a.id }}" {% if c.apartment_id == a.id %}selected{% endif %} {% if off %}disabled{% endif %}>{{ a.title }} · {{ a.location }}{% if off %} ({{ a.status }}){% endif %}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+        <button type="submit" class="btn btn-brand mt-1" data-loading><i class="bi bi-check2 me-1"></i> Mettre à jour l'affectation</button>
+    </form>
+</section>
+{% endif %}
+</div>
+
+{% elif tab == 'documents' %}
+<div class="cd-grid is-wide">
+    <section class="cd-card">
+        <h2><i class="bi bi-folder2-open"></i> Documents</h2>
+        {% if documents %}
+        <ul class="cd-docs">
+            {% for d in documents %}
+            {% set is_img = d.mime_type.startswith('image/') %}{% set is_pdf = d.mime_type == 'application/pdf' %}
+            <li class="cd-doc">
+                <span class="cd-doc__ico {% if is_img %}is-img{% elif not is_pdf %}is-word{% endif %}"><i class="bi {{ 'bi-file-earmark-image' if is_img else ('bi-file-earmark-pdf' if is_pdf else 'bi-file-earmark-word') }}"></i></span>
+                <div class="cd-doc__body">
+                    <strong title="{{ d.original_name }}">{{ d.original_name }}</strong>
+                    <small>{{ doc_type_labels.get(d.doc_type, d.doc_type) }} · {{ fsize(d.size_bytes) }} · {{ d.uploaded_at.strftime('%d/%m/%Y %H:%M') if d.uploaded_at }}{% if d.uploaded_by %} · {{ d.uploaded_by.real_name or d.uploaded_by.username }}{% endif %}</small>
+                </div>
+                <div class="cd-doc__actions">
+                    {% if is_img or is_pdf %}<a class="cd-icon-btn" href="{{ url_for('contracts.detail', contract_id=c.id, tab='documents', preview=d.id) }}" title="Aperçu" aria-label="Aperçu de {{ d.original_name }}"><i class="bi bi-eye"></i></a>{% endif %}
+                    <a class="cd-icon-btn" href="{{ url_for('contracts.document_file', contract_id=c.id, doc_id=d.id, mode='download') }}" title="Télécharger" aria-label="Télécharger {{ d.original_name }}"><i class="bi bi-download"></i></a>
+                    <form method="POST" action="{{ url_for('contracts.delete_document', contract_id=c.id, doc_id=d.id) }}" onsubmit="return confirm('Retirer ce document ?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="cd-icon-btn" title="Retirer" aria-label="Retirer {{ d.original_name }}"><i class="bi bi-trash3"></i></button></form>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% set preview_id = request.args.get('preview', type=int) %}
+        {% for d in documents if d.id == preview_id %}
+        <div class="cd-preview">
+            {% if d.mime_type.startswith('image/') %}<img src="{{ url_for('contracts.document_file', contract_id=c.id, doc_id=d.id, mode='preview') }}" alt="{{ d.original_name }}">
+            {% else %}<iframe src="{{ url_for('contracts.document_file', contract_id=c.id, doc_id=d.id, mode='preview') }}" title="Aperçu de {{ d.original_name }}"></iframe>{% endif %}
+        </div>
+        {% endfor %}
+        {% else %}<div class="cd-empty"><i class="bi bi-file-earmark-arrow-up"></i>Aucun document. Ajoutez le contrat signé et les pièces du client.</div>{% endif %}
+    </section>
+    <section class="cd-card">
+        <h2><i class="bi bi-cloud-arrow-up"></i> Ajouter des documents</h2>
+        <form method="POST" action="{{ url_for('contracts.upload_documents', contract_id=c.id) }}" enctype="multipart/form-data" class="d-grid gap-2" id="docForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="doc_type" class="small fw-semibold">Type</label>
+            <select id="doc_type" name="doc_type" class="form-select">{% for k, label in doc_type_labels.items() %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select>
+            <label class="cd-drop" id="docDrop" for="docInput"><i class="bi bi-folder2-open d-block fs-4 mb-1" style="color: var(--primary-light) !important;"></i>Déposez vos fichiers ou <u>parcourez</u><small class="d-block text-muted mt-1">PDF, DOCX, JPG, PNG, WebP · 50 Mo max</small></label>
+            <input id="docInput" name="documents" type="file" multiple accept=".pdf,.docx,.jpg,.jpeg,.png,.webp" hidden>
+            <div id="docNames" class="small text-muted"></div>
+            <button class="btn btn-brand" data-loading><i class="bi bi-upload me-1"></i> Téléverser</button>
+        </form>
+    </section>
+</div>
+
+{% elif tab == 'payments' %}
+<div class="cd-grid is-wide">
+    <section class="cd-card">
+        <h2><i class="bi bi-receipt"></i> Historique des paiements</h2>
+        {% if payments %}
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 cd-table">
+                <thead><tr><th>Date</th><th>Type</th><th>Mode</th><th>Référence</th><th class="text-end">Montant</th><th></th></tr></thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr class="{% if p.is_void %}cd-void{% endif %}">
+                        <td>{{ p.paid_at.strftime('%d/%m/%Y') if p.paid_at }}</td>
+                        <td>{{ 'Caution' if p.is_deposit else 'Paiement' }}</td>
+                        <td>{{ method_labels.get(p.method, p.method) }}</td>
+                        <td>{{ p.reference or '—' }}{% if p.note %}<div class="small text-muted">{{ p.note }}</div>{% endif %}{% if p.is_void %}<div class="small">Annulé : {{ p.void_reason }}</div>{% endif %}</td>
+                        <td class="text-end fw-semibold">{{ money(p.amount) }}</td>
+                        <td class="text-end">
+                            {% if not p.is_void %}
+                            <details><summary class="small text-muted" style="cursor: pointer;">Annuler</summary>
+                                <form method="POST" action="{{ url_for('contracts.void_payment', contract_id=c.id, payment_id=p.id) }}" class="d-flex gap-1 mt-1">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input name="reason" class="form-control form-control-sm" placeholder="Motif" required minlength="3">
+                                    <button class="btn btn-sm btn-light border">OK</button>
+                                </form>
+                            </details>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}<div class="cd-empty"><i class="bi bi-cash-coin"></i>Aucun paiement enregistré.</div>{% endif %}
+    </section>
+    <section class="cd-card">
+        <h2><i class="bi bi-plus-circle"></i> Enregistrer un paiement</h2>
+        {% if can_pay %}
+        <form method="POST" action="{{ url_for('contracts.add_payment', contract_id=c.id) }}" class="d-grid gap-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="d-flex justify-content-between align-items-center">
+                <label for="amount" class="small fw-semibold mb-0">Montant (FCFA) *</label>
+                {% if c.balance > 0 %}
+                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none fw-semibold" onclick="document.getElementById('amount').value='{{ c.balance|int }}'">Solder ({{ money(c.balance) }})</button>
+                {% endif %}
+            </div>
+            <input id="amount" name="amount" type="number" min="1" step="1" inputmode="numeric" class="form-control" required placeholder="Reste à payer : {{ money(c.balance) }}">
+            <label for="method" class="small fw-semibold">Mode de paiement *</label>
+            <select id="method" name="method" class="form-select" required>{% for k, label in method_labels.items() %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select>
+            <label for="paid_at" class="small fw-semibold">Date</label>
+            <input id="paid_at" name="paid_at" type="date" class="form-control" value="{{ today }}" max="{{ today }}">
+            <label for="reference" class="small fw-semibold">Référence (transaction, reçu…)</label>
+            <input id="reference" name="reference" class="form-control" maxlength="80">
+            <label for="note" class="small fw-semibold">Note</label>
+            <input id="note" name="note" class="form-control" maxlength="255">
+            <label class="d-flex align-items-center gap-2 small"><input type="checkbox" name="is_deposit" value="1"> Il s'agit de la caution</label>
+            <button class="btn btn-brand" data-loading><i class="bi bi-check2 me-1"></i> Enregistrer le paiement</button>
+        </form>
+        {% else %}<p class="text-muted small mb-0">{% if c.status == 'draft' %}Soumettez le contrat pour enregistrer des paiements.{% else %}Aucun paiement possible sur ce contrat.{% endif %}</p>{% endif %}
+    </section>
+</div>
+
+{% elif tab == 'history' %}
+<section class="cd-card">
+    <h2><i class="bi bi-clock-history"></i> Historique & piste d'audit</h2>
+    {% if history %}
+    <ul class="cd-history">
+        {% for h in history %}
+        <li><span class="dot"></span><div><strong>{{ h.details or h.action }}</strong><small>{{ h.created_at.strftime('%d/%m/%Y %H:%M') if h.created_at }}{% if h.user %} · {{ h.user.real_name or h.user.username }}{% endif %} · {{ h.action }}</small></div></li>
+        {% endfor %}
+    </ul>
+    {% else %}<div class="cd-empty"><i class="bi bi-clock"></i>Aucun événement.</div>{% endif %}
+</section>
+{% endif %}
+
+<script>
+// État de chargement des formulaires d'action
+document.querySelectorAll('.admin-main-body form').forEach(f => f.addEventListener('submit', e => {
+    if (e.defaultPrevented) return;
+    const b = f.querySelector('button[data-loading]');
+    if (b) { setTimeout(() => { b.disabled = true; b.insertAdjacentHTML('afterbegin', '<span class="spinner-border spinner-border-sm me-1"></span>'); }, 0); }
+}));
+// Glisser-déposer documents (file persistante + contrôle format/taille 50 Mo)
+(function () {
+    const drop = document.getElementById('docDrop'), input = document.getElementById('docInput'), names = document.getElementById('docNames'), docForm = document.getElementById('docForm');
+    if (!drop || !input) return;
+    const MAX = 50 * 1024 * 1024, OK = /\.(pdf|docx|jpe?g|png|webp)$/i;
+    let dtBuffer = new DataTransfer();
+    function render() {
+        names.innerHTML = '';
+        [...dtBuffer.files].forEach((f, idx) => {
+            const bad = !OK.test(f.name) ? 'format non accepté' : (f.size > MAX ? 'dépasse 50 Mo' : '');
+            const row = document.createElement('div');
+            row.className = 'd-flex justify-content-between align-items-center py-1 px-2 rounded border mb-1 ' + (bad ? 'border-danger text-danger bg-light' : '');
+            row.innerHTML = `<span></span><span class="d-flex align-items-center gap-2"><small></small></span>`;
+            row.firstChild.textContent = f.name;
+            row.lastChild.firstChild.textContent = bad || (f.size / 1048576).toFixed(1) + ' Mo';
+            const rm = document.createElement('button');
+            rm.type = 'button'; rm.className = 'btn btn-sm p-0 px-1 border-0 text-danger'; rm.innerHTML = '&times;';
+            rm.addEventListener('click', () => {
+                const next = new DataTransfer();
+                [...dtBuffer.files].forEach((x, i) => { if (i !== idx) next.items.add(x); });
+                dtBuffer = next; input.files = dtBuffer.files; render();
+            });
+            row.lastChild.appendChild(rm);
+            names.appendChild(row);
+        });
+    }
+    function append(list) {
+        [...list].forEach(f => dtBuffer.items.add(f));
+        input.files = dtBuffer.files;
+        render();
+    }
+    input.addEventListener('change', () => append(input.files));
+    ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('is-over'); }));
+    ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('is-over'); }));
+    drop.addEventListener('drop', e => { if (e.dataTransfer.files.length) append(e.dataTransfer.files); });
+    docForm?.addEventListener('submit', e => {
+        if (!dtBuffer.files.length) { e.preventDefault(); alert('Sélectionnez au moins un fichier.'); return; }
+        if ([...dtBuffer.files].some(f => !OK.test(f.name) || f.size > MAX)) { e.preventDefault(); alert('Retirez les fichiers invalides (>50 Mo ou format non supporté).'); }
+    });
+})();
+</script>
+{% endblock %}

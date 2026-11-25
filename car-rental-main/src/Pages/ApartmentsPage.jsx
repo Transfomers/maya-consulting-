@@ -33,60 +33,29 @@ const getApartmentSpecs = (apt) => {
   return specs.filter(Boolean).slice(0, 6);
 };
 
-const DEFAULT_APARTMENTS = [
-  {
-    id: "apt-01",
-    title: "Appartement Prestige Tsinga (Face FECAFOOT)",
-    type: "T3 Meublé Haut Standing",
-    location: "Tsinga (Face FECAFOOT), Yaoundé",
-    rooms: "2 Chambres • 2 Salons • 2 Salles de bain",
-    price: "65 000 FCFA / nuitée (Dégressif au mois)",
-    photosCount: 5,
-    image: "/Asset/appartements/appartement-meuble-suite-parentale.webp",
-    status: "Disponible",
-    description: "Situé à Tsinga, directement en face du siège de la FECAFOOT à partir de Yaoundé, cet appartement meublé grand standing vous offre une suite parentale avec literie de luxe, une cuisine équipée moderne, salle de bain design, climatisation intégrale, groupe électrogène automatique et gardiennage permanent 24/7."
-  },
-  {
-    id: "apt-02",
-    title: "Résidence Cosy Tsinga (Face FECAFOOT)",
-    type: "T2 Meublé Contemporain",
-    location: "Tsinga (Face FECAFOOT), Yaoundé",
-    rooms: "1 Chambre • 1 Grand Salon • 1 Salle de bain",
-    price: "40 000 FCFA / nuitée (Tarif spécial long séjour)",
-    photosCount: 4,
-    image: "/Asset/appartements/appartement-meuble-chambre-bleue.webp",
-    status: "Disponible",
-    description: "Élégant et chaleureux avec salon contemporain, cuisine américaine laquée, smart TV 55 pouces et connexion fibre optique haut débit."
-  },
-  {
-    id: "apt-03",
-    title: "Grand Standing Tsinga (Face FECAFOOT)",
-    type: "T4 Prestige Exécutif",
-    location: "Tsinga (Face FECAFOOT), Yaoundé",
-    rooms: "3 Chambres • Double Séjour • 3 Salles de bain",
-    price: "90 000 FCFA / nuitée",
-    photosCount: 6,
-    image: "/Asset/appartements/appartement-meuble-chambre-confort.webp",
-    status: "Disponible",
-    description: "Spacieux appartement de grand standing pour familles, délégations d'affaires ou séjours officiels avec vue dégagée."
-  },
-  {
-    id: "apt-04",
-    title: "Studio Confort Omnisports",
-    type: "Studio Meublé VIP",
-    location: "Omnisports (Rue Foe), Yaoundé",
-    rooms: "1 Grande Chambre Suite • Kitchenette équipée",
-    price: "35 000 FCFA / nuitée",
-    photosCount: 3,
-    image: "/Asset/appartements/appartement-meuble-suite-parentale.webp",
-    status: "Disponible",
-    description: "Idéalement situé à proximité immédiate de l'agence 3M Services Omnisports. Climatisation, eau chaude et sécurité."
+// Identifiant de conversation du visiteur (compte client, sinon invité) : même fil que le chat
+const getChatIds = () => {
+  const current = getCurrentClient();
+  let guestId = localStorage.getItem("3m_guest_chat_id");
+  if (!guestId) {
+    guestId = "GUEST-" + Math.floor(100000 + Math.random() * 900000);
+    localStorage.setItem("3m_guest_chat_id", guestId);
   }
-];
+  return { clientId: current?.accountNumber || guestId, guestId };
+};
+
+const frDate = (iso) => (iso ? String(iso).slice(0, 10).split("-").reverse().join("/") : "");
+const todayIso = () => new Date(Date.now() + 3600 * 1000).toISOString().slice(0, 10); // Africa/Douala (UTC+1)
+const addDays = (iso, n) => {
+  const d = new Date(`${iso}T12:00:00`);
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+};
 
 function ApartmentsPage() {
   const { lang } = useTranslation();
-  const [apartments, setApartments] = useState(DEFAULT_APARTMENTS);
+  const [apartments, setApartments] = useState([]);
+  const [loadingApts, setLoadingApts] = useState(true);
   const [selectedLocation, setSelectedLocation] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeModalApartment, setActiveModalApartment] = useState(null);
@@ -126,6 +95,10 @@ function ApartmentsPage() {
     if (!activeModalApartment) return;
     setStayFeedback(null);
     const { checkIn, checkOut, guestName, guestPhone } = stayForm;
+    if (checkIn && checkIn < todayIso()) {
+      setStayFeedback({ ok: false, msg: "La date d'arrivée est déjà passée." });
+      return;
+    }
     if (!checkIn || !checkOut || checkOut <= checkIn) {
       setStayFeedback({ ok: false, msg: "La date de départ doit être après la date d'arrivée." });
       return;
@@ -133,7 +106,7 @@ function ApartmentsPage() {
     const booked = Array.isArray(activeModalApartment.bookedDates) ? activeModalApartment.bookedDates : [];
     const conflict = booked.find((b) => b.status !== "cancelled" && b.checkIn < checkOut && b.checkOut > checkIn);
     if (conflict) {
-      setStayFeedback({ ok: false, msg: `Ces dates sont déjà réservées (${conflict.checkIn} → ${conflict.checkOut}).` });
+      setStayFeedback({ ok: false, msg: `Ces dates sont déjà réservées (du ${frDate(conflict.checkIn)} au ${frDate(conflict.checkOut)}).` });
       return;
     }
     setStaySubmitting(true);
@@ -141,16 +114,20 @@ function ApartmentsPage() {
       const res = await fetch(`${API_BASE}/apartments/${activeModalApartment.id}/book`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ checkIn, checkOut, guestName, guestPhone })
+        body: JSON.stringify({ checkIn, checkOut, guestName, guestPhone, guestEmail: getCurrentClient()?.email || "", ...getChatIds() })
       });
       const data = await res.json();
       if (!res.ok || !data.ok) {
         setStayFeedback({ ok: false, msg: data.error || "Dates indisponibles." });
       } else {
-        handleApartmentBookClick(activeModalApartment);
+        saveStayOrder(activeModalApartment, stayForm, data);
+        const amount = Number(data.totalAmount) > 0
+          ? `${Number(data.totalAmount).toLocaleString("fr-FR")} FCFA`
+          : "montant confirmé par la conciergerie";
         setStayFeedback({
           ok: true,
-          msg: `Réservation confirmée (${data.bookingRef}) pour ${data.nights} nuit(s) — ${Number(data.totalAmount).toLocaleString("fr-FR")} FCFA !`
+          chat: true,
+          msg: `Réservation enregistrée (${data.bookingRef}) : ${data.nights} nuit(s), ${amount}. La conciergerie vous répond dans votre discussion.`
         });
         const refreshed = await fetch(`${API_BASE}/apartments`).then((r) => (r.ok ? r.json() : null));
         if (Array.isArray(refreshed) && refreshed.length > 0) {
@@ -160,38 +137,23 @@ function ApartmentsPage() {
         }
       }
     } catch (err) {
-      setStayFeedback({ ok: false, msg: "Impossible de contacter le serveur. Utilisez le bouton WhatsApp ci-dessous." });
+      setStayFeedback({ ok: false, msg: "Impossible de joindre le serveur. Réessayez ou écrivez-nous via le chat ou WhatsApp ci-dessous." });
     } finally {
       setStaySubmitting(false);
     }
   };
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("3m_crm_store_v2");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed.apartments) && parsed.apartments.length > 0) {
-          setApartments(parsed.apartments);
-        }
-      }
-    } catch (e) {
-      // ignore
-    }
-
     fetch(`${API_BASE}/apartments`)
       .then((res) => {
         if (!res.ok) throw new Error("HTTP error " + res.status);
         return res.json();
       })
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setApartments(data);
-        }
+        if (Array.isArray(data)) setApartments(data);
       })
-      .catch(() => {
-        // Use default fallback silently
-      });
+      .catch(() => {})
+      .finally(() => setLoadingApts(false));
   }, []);
 
   const filterTabs = [
@@ -229,26 +191,45 @@ function ApartmentsPage() {
     return matchesFilter && matchesSearch;
   });
 
-  const handleApartmentBookClick = (apt) => {
+  // Enregistre la réservation dans l'espace client avec les vraies informations saisies
+  const saveStayOrder = (apt, form, data) => {
     try {
       const current = getCurrentClient();
-      const priceNum = Number((apt.price || "65000").replace(/[^0-9]/g, "")) || 65000;
       saveOrderAndCustomerAccount({
-        clientName: current?.name || "Client Résidence 3M",
-        phone: current?.phone || "+237 691 78 64 47",
+        clientName: form.guestName,
+        phone: form.guestPhone,
         email: current?.email || "",
         city: "Yaoundé",
         itemName: apt.title,
         itemCategory: "Appartement Meublé",
-        itemPrice: priceNum,
-        days: 1,
-        totalPrice: priceNum,
-        pickUp: apt.location || "Yaoundé",
-        notes: `Demande de réservation appartement : ${apt.title}`
+        itemPrice: Number(apt.nightlyRate) || 0,
+        days: data.nights,
+        totalPrice: Number(data.totalAmount) || 0,
+        pickUp: apt.location || "",
+        pickTime: form.checkIn,
+        dropTime: form.checkOut,
+        notes: `Séjour ${data.bookingRef} : ${apt.title}`
       });
     } catch (err) {
       console.warn("Could not save apartment order:", err);
     }
+  };
+
+  // Ouvre la discussion avec la conciergerie, message prérempli sur ce logement
+  const openConciergeChat = (apt) => {
+    const { checkIn, checkOut, guestName, guestPhone } = stayForm;
+    const dates = checkIn && checkOut ? ` du ${frDate(checkIn)} au ${frDate(checkOut)}` : "";
+    setActiveModalApartment(null);
+    window.dispatchEvent(
+      new CustomEvent("3m-open-chat", {
+        detail: {
+          name: guestName || undefined,
+          phone: guestPhone || undefined,
+          refresh: true,
+          message: `Bonjour, j'ai une question sur le logement « ${apt.title} »${dates}. `
+        }
+      })
+    );
   };
 
   const getWhatsAppLink = (apt) => {
@@ -411,7 +392,11 @@ function ApartmentsPage() {
             })}
           </div>
 
-          {filteredApartments.length === 0 && (
+          {loadingApts && apartments.length === 0 && (
+            <p style={{ textAlign: "center", padding: "5rem 2rem", fontSize: "1.5rem", color: "#64748b" }}>Chargement des résidences…</p>
+          )}
+
+          {!loadingApts && filteredApartments.length === 0 && (
             <div style={{ textAlign: "center", padding: "6rem 2rem 8rem" }}>
               <i
                 className="fa-solid fa-building"
@@ -448,17 +433,12 @@ function ApartmentsPage() {
           const curPhoto = galleryList[safeIdx];
           const isAvailable = (apt.status || "Disponible") === "Disponible";
           const money = (v) => `${Number(v).toLocaleString("fr-FR")} FCFA`;
-          const vipServices =
-            Array.isArray(apt.vipServices) && apt.vipServices.length > 0
-              ? apt.vipServices
-              : [
-                  "Groupe électrogène 24/7",
-                  "WiFi fibre optique illimité",
-                  "Climatisation intégrale",
-                  "Gardiennage & sécurité 24/7",
-                  "Ménage & conciergerie 3M",
-                  "Cuisine équipée moderne",
-                ];
+          // Services réels du bien, sans répéter un équipement déjà listé
+          const norm = (x) => String(x).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, " ").trim();
+          const equipments = Array.isArray(apt.equipments) ? apt.equipments : [];
+          const vipServices = (Array.isArray(apt.vipServices) ? apt.vipServices : []).filter(
+            (vip) => !equipments.some((eq) => norm(vip).startsWith(norm(eq)) || norm(eq).startsWith(norm(vip)))
+          );
 
           return (
             <div className="apt-modal" onClick={() => setActiveModalApartment(null)}>
@@ -472,7 +452,7 @@ function ApartmentsPage() {
                 <header className="apt-modal__head">
                   <div className="apt-modal__titles">
                     <span className="apt-modal__eyebrow">
-                      {apt.type}
+                      {apt.propertyType || apt.type}
                       {apt.neighborhood || apt.location ? ` · ${apt.neighborhood || apt.location.split(",")[0]}` : ""}
                     </span>
                     <h2 id="apt-modal-title">{apt.title}</h2>
@@ -543,14 +523,16 @@ function ApartmentsPage() {
                       </section>
                     )}
 
-                    <section className="apt-modal__section">
-                      <h3>Services inclus</h3>
-                      <ul className="apt-modal__services">
-                        {vipServices.map((vip) => (
-                          <li key={vip}><i className="fa-solid fa-circle-check"></i> {vip}</li>
-                        ))}
-                      </ul>
-                    </section>
+                    {vipServices.length > 0 && (
+                      <section className="apt-modal__section">
+                        <h3>Services inclus</h3>
+                        <ul className="apt-modal__services">
+                          {vipServices.map((vip) => (
+                            <li key={vip}><i className="fa-solid fa-circle-check"></i> {vip}</li>
+                          ))}
+                        </ul>
+                      </section>
+                    )}
                   </div>
 
                   {/* Colonne droite : réservation */}
@@ -575,17 +557,23 @@ function ApartmentsPage() {
                         {Array.isArray(apt.bookedDates) && apt.bookedDates.length > 0 && (
                           <p className="apt-modal__booked">
                             <i className="fa-solid fa-calendar-xmark"></i> Déjà réservé :{" "}
-                            {apt.bookedDates.map((b) => `${b.checkIn} → ${b.checkOut}`).join(" · ")}
+                            {apt.bookedDates
+                              .filter((b) => b.status !== "cancelled" && b.checkOut >= todayIso())
+                              .map((b) => `${frDate(b.checkIn)} → ${frDate(b.checkOut)}`)
+                              .join(" · ") || "aucune date à venir"}
                           </p>
                         )}
                         <div className="apt-modal__grid">
                           <label>
                             <span>Arrivée *</span>
-                            <input type="date" required value={stayForm.checkIn} onChange={(e) => setStayForm({ ...stayForm, checkIn: e.target.value })} />
+                            <input type="date" required min={todayIso()} value={stayForm.checkIn} onChange={(e) => {
+                              const ci = e.target.value;
+                              setStayForm({ ...stayForm, checkIn: ci, checkOut: stayForm.checkOut && stayForm.checkOut > ci ? stayForm.checkOut : (ci ? addDays(ci, Math.max(1, Number(apt.minStayNights) || 1)) : "") });
+                            }} />
                           </label>
                           <label>
                             <span>Départ *</span>
-                            <input type="date" required min={stayForm.checkIn || undefined} value={stayForm.checkOut} onChange={(e) => setStayForm({ ...stayForm, checkOut: e.target.value })} />
+                            <input type="date" required min={stayForm.checkIn ? addDays(stayForm.checkIn, 1) : todayIso()} value={stayForm.checkOut} onChange={(e) => setStayForm({ ...stayForm, checkOut: e.target.value })} />
                           </label>
                           <label className="is-full">
                             <span>Nom & prénom *</span>
@@ -602,6 +590,11 @@ function ApartmentsPage() {
                         {stayFeedback && (
                           <div className={`apt-modal__feedback ${stayFeedback.ok ? "is-ok" : "is-error"}`} role="status">
                             {stayFeedback.msg}
+                            {stayFeedback.chat && (
+                              <button type="button" className="apt-modal__feedback-link" onClick={() => openConciergeChat(apt)}>
+                                <i className="fa-regular fa-comment-dots"></i> Ouvrir la discussion
+                              </button>
+                            )}
                           </div>
                         )}
                       </form>
@@ -618,10 +611,13 @@ function ApartmentsPage() {
                     <div className="apt-modal__contact">
                       <span>Une question ?</span>
                       <div>
-                        <a className="is-wa" href={getWhatsAppLink(apt)} target="_blank" rel="noreferrer" onClick={() => handleApartmentBookClick(apt)}>
+                        <button type="button" className="is-chat" onClick={() => openConciergeChat(apt)}>
+                          <i className="fa-regular fa-comment-dots"></i> Discuter
+                        </button>
+                        <a className="is-wa" href={getWhatsAppLink(apt)} target="_blank" rel="noreferrer">
                           <i className="fa-brands fa-whatsapp"></i> WhatsApp
                         </a>
-                        <a className="is-mail" href={getEmailLink(apt)} onClick={() => handleApartmentBookClick(apt)} aria-label="Envoyer un email">
+                        <a className="is-mail" href={getEmailLink(apt)} aria-label="Envoyer un email">
                           <i className="fa-solid fa-envelope"></i>
                         </a>
                         <a className="is-tel" href="tel:+237691786447" aria-label="Appeler le +237 691 78 64 47">

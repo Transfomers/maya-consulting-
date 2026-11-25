@@ -8,6 +8,7 @@ from app.models import User, Booking, Trip, Payment, SystemNotification, Bus, Ro
 from datetime import datetime
 import os
 import json
+from app.utils.atomic_file import atomic_write
 
 client = Blueprint('client', __name__, url_prefix='/client')
 
@@ -229,7 +230,7 @@ def profile():
                     if current_user.email:
                         client_chat['clientEmail'] = current_user.email
 
-                with open(db_path, 'w', encoding='utf-8') as f:
+                with atomic_write(db_path) as f:
                     json.dump(exp_db, f, indent=2, ensure_ascii=False)
         except Exception as e:
             current_app.logger.warning(f"Error syncing client profile to db.json: {e}")
@@ -426,7 +427,7 @@ def _get_client_chat_thread(user):
         }
         chats.insert(0, chat_thread)
         exp_db['chats'] = chats
-        with open(db_path, 'w', encoding='utf-8') as f:
+        with atomic_write(db_path) as f:
             json.dump(exp_db, f, indent=2, ensure_ascii=False)
             
     return exp_db, chat_thread
@@ -442,7 +443,7 @@ def chat():
         chat_thread['unreadClient'] = 0
         db_path = current_app.config['EXPRESS_DB_JSON']
         try:
-            with open(db_path, 'w', encoding='utf-8') as f:
+            with atomic_write(db_path) as f:
                 json.dump(exp_db, f, indent=2, ensure_ascii=False)
         except Exception as e:
             current_app.logger.warning(f"Error marking chat read: {e}")
@@ -474,7 +475,7 @@ def api_chat_messages():
     chat_thread['unreadClient'] = 0
     db_path = current_app.config['EXPRESS_DB_JSON']
     try:
-        with open(db_path, 'w', encoding='utf-8') as f:
+        with atomic_write(db_path) as f:
             json.dump(exp_db, f, indent=2, ensure_ascii=False)
     except Exception:
         pass
@@ -521,8 +522,15 @@ def api_chat_send():
     chat_thread['unreadClient'] = 0
 
     db_path = current_app.config['EXPRESS_DB_JSON']
-    with open(db_path, 'w', encoding='utf-8') as f:
+    with atomic_write(db_path) as f:
         json.dump(exp_db, f, indent=2, ensure_ascii=False)
+
+    # Notification admin pour chaque message client
+    try:
+        from app.services.client_notifications import notify_client_message
+        notify_client_message('chat', current_user.real_name or current_user.username, text, phone=current_user.phone)
+    except Exception as e:
+        current_app.logger.warning(f"Notification message client non créée : {e}")
 
     return jsonify({'success': True, 'message': new_msg})
 
@@ -549,7 +557,7 @@ def api_chat_edit(msg_id):
     chat_thread['lastMessage'] = text
 
     db_path = current_app.config['EXPRESS_DB_JSON']
-    with open(db_path, 'w', encoding='utf-8') as f:
+    with atomic_write(db_path) as f:
         json.dump(exp_db, f, indent=2, ensure_ascii=False)
 
     return jsonify({'success': True, 'message': msg})
@@ -574,7 +582,7 @@ def api_chat_delete(msg_id):
         chat_thread['lastMessage'] = "Aucun message"
 
     db_path = current_app.config['EXPRESS_DB_JSON']
-    with open(db_path, 'w', encoding='utf-8') as f:
+    with atomic_write(db_path) as f:
         json.dump(exp_db, f, indent=2, ensure_ascii=False)
 
     return jsonify({'success': True})
@@ -594,7 +602,7 @@ def api_chat_clear():
     chat_thread['unreadClient'] = 0
 
     db_path = current_app.config['EXPRESS_DB_JSON']
-    with open(db_path, 'w', encoding='utf-8') as f:
+    with atomic_write(db_path) as f:
         json.dump(exp_db, f, indent=2, ensure_ascii=False)
 
     return jsonify({'success': True})

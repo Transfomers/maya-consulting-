@@ -187,111 +187,52 @@
     </div>
     {% endif %}
 
-    <!-- 8-STAGE OPERATIONAL LIFECYCLE & TELEMETRY -->
+    <!-- GUIDED 3-ACTION OPERATIONAL WORKSPACE -->
+    <style>
+    .op-ws-tabs { display: flex; gap: 4px; border-bottom: 1px solid #eaecf0; margin: 0 0 18px; overflow-x: auto; }
+    .op-ws-tab {
+        border: 0; background: transparent; padding: 10px 14px; font-size: 13.5px; font-weight: 500;
+        color: #667085; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; cursor: pointer;
+    }
+    .op-ws-tab:hover { color: #101828; }
+    .op-ws-tab.is-active { color: #D62828; border-bottom-color: #D62828; font-weight: 600; }
+    .op-ws-pane { display: none; }
+    .op-ws-pane.is-active { display: block; }
+    .op-photo-thumb { width: 84px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid #eaecf0; }
+    </style>
+
     <div class="md-card">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-            <div class="md-section-title mb-0"><i class="fas fa-route"></i> Cycle Opérationnel de la Mission (8 Étapes) & Exécution</div>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <div class="md-section-title mb-0"><i class="fas fa-tasks"></i> Actions Opérationnelles</div>
             <div class="small text-muted">
                 {% if trip.actual_departure %}<span class="me-3"><i class="fas fa-play-circle text-success me-1"></i>Départ réel : <strong>{{ trip.actual_departure.strftime('%d/%m %H:%M') }}</strong></span>{% endif %}
-                {% if trip.actual_arrival %}<span><i class="fas fa-flag-checkered text-primary me-1"></i>Retour réel : <strong>{{ trip.actual_arrival.strftime('%d/%m %H:%M') }}</strong></span>{% endif %}
+                {% if trip.actual_arrival %}<span class="me-3"><i class="fas fa-flag-checkered text-primary me-1"></i>Retour réel : <strong>{{ trip.actual_arrival.strftime('%d/%m %H:%M') }}</strong></span>{% endif %}
+                {% if trip.mileage_distance is not none %}<span class="badge bg-light text-dark border">Distance : {{ trip.mileage_distance }} km</span>{% endif %}
             </div>
         </div>
 
-        <div class="lifecycle-track mb-3">
-            {% for key, label, sub in mission_stages %}
-                {% set idx = loop.index0 %}
-                {% set pill_cls = 'current' if (not is_terminal and idx == current_stage_idx) else ('done' if (not is_terminal and idx < current_stage_idx) else '') %}
-                <div class="stage-pill {{ pill_cls }}" onclick="document.getElementById('lifecycleStatusSelect').value='{{ key }}'; toggleCancelBox();">
-                    <span class="stage-num">0{{ loop.index }}</span>
-                    <span class="stage-lbl">{{ label }}</span>
-                    <span class="stage-sub">{{ sub }}</span>
-                </div>
-            {% endfor %}
+        <div class="op-ws-tabs" role="tablist">
+            <button type="button" class="op-ws-tab {% if active_action == 'departure' %}is-active{% endif %}" onclick="switchOpPane('departure')">
+                1. Préparer le départ
+            </button>
+            <button type="button" class="op-ws-tab {% if active_action == 'track' %}is-active{% endif %}" onclick="switchOpPane('track')">
+                2. Suivre la location
+            </button>
+            <button type="button" class="op-ws-tab {% if active_action == 'return' %}is-active{% endif %}" onclick="switchOpPane('return')">
+                3. Enregistrer le retour
+            </button>
         </div>
 
-        <form method="POST" action="{{ url_for('missions.update_mission_lifecycle', id=trip.id) }}" class="row g-3 align-items-end pt-2 border-top">
-            <div class="col-md-3">
-                <label class="md-label">Statut Opérationnel</label>
-                <select name="status" id="lifecycleStatusSelect" class="form-select md-select" onchange="toggleCancelBox()">
-                    <optgroup label="Cycle Principal (8 Étapes)">
-                        {% for key, label, sub in mission_stages %}
-                        <option value="{{ key }}" {% if trip.status == key %}selected{% endif %}>{{ loop.index }}. {{ label }} — {{ sub }}</option>
-                        {% endfor %}
-                    </optgroup>
-                    <optgroup label="États Terminaux (Motif Obligatoire)">
-                        {% for tk, tl in terminal_states %}
-                        <option value="{{ tk }}" {% if trip.status == tk %}selected{% endif %}>✖ {{ tl }}</option>
-                        {% endfor %}
-                    </optgroup>
-                </select>
-            </div>
-            <div class="col-md-2 col-6">
-                <label class="md-label">Km Départ</label>
-                <input type="number" name="mileage_start" class="form-control md-input" value="{{ trip.mileage_start or '' }}" placeholder="42500">
-            </div>
-            <div class="col-md-2 col-6">
-                <label class="md-label">Km Retour</label>
-                <input type="number" name="mileage_end" class="form-control md-input" value="{{ trip.mileage_end or '' }}" placeholder="42780">
-            </div>
-            <div class="col-md-2 col-6">
-                <label class="md-label">Carburant Départ</label>
-                <select name="fuel_start" class="form-select md-select">
-                    <option value="">--</option>
-                    {% for lvl in ['Plein (100%)', '3/4 (75%)', '1/2 (50%)', '1/4 (25%)', 'Réserve'] %}
-                    <option value="{{ lvl }}" {% if trip.fuel_start == lvl %}selected{% endif %}>{{ lvl }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-3 col-6">
-                <label class="md-label">Carburant Retour</label>
-                <select name="fuel_end" class="form-select md-select">
-                    <option value="">--</option>
-                    {% for lvl in ['Plein (100%)', '3/4 (75%)', '1/2 (50%)', '1/4 (25%)', 'Réserve'] %}
-                    <option value="{{ lvl }}" {% if trip.fuel_end == lvl %}selected{% endif %}>{{ lvl }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="md-label">État Véhicule (Départ / Retour)</label>
-                <input type="text" name="vehicle_condition" class="form-control md-input" value="{{ trip.vehicle_condition or '' }}" placeholder="RAS, carrosserie propre...">
-            </div>
-            <div class="col-md-4">
-                <label class="md-label">Retard / Déviation</label>
-                <input type="text" name="delay_reason" class="form-control md-input" value="{{ trip.delay_reason or '' }}" placeholder="Vol retardé, déviation...">
-            </div>
-            <div class="col-md-4">
-                <label class="md-label">Rapport de Clôture / Retour Client</label>
-                <input type="text" name="completion_notes" class="form-control md-input" value="{{ trip.completion_notes or '' }}" placeholder="Client satisfait, mission clôturée...">
-            </div>
-            <div class="col-12" id="cancelReasonWrap" style="display: {% if is_terminal %}block{% else %}none{% endif %};">
-                <label class="md-label text-danger">Motif Obligatoire (Annulation / Rejet / Interruption / No-show)</label>
-                <input type="text" name="cancellation_reason" id="cancelReasonInput" class="form-control md-input border-danger" value="{{ trip.cancellation_reason or '' }}" placeholder="Précisez la raison exacte...">
-            </div>
-            <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div class="small text-muted">
-                    {% if trip.mileage_start and trip.mileage_end and trip.mileage_end >= trip.mileage_start %}
-                    <span class="badge bg-light text-dark border fw-bold px-3 py-2">
-                        <i class="fas fa-tachometer-alt text-danger me-1"></i>Distance parcourue : {{ trip.mileage_end - trip.mileage_start }} km
-                    </span>
-                    {% endif %}
-                </div>
-                <button type="submit" class="md-btn-red"><i class="fas fa-save me-1"></i> Mettre à Jour Statut & Exécution</button>
-            </div>
-        </form>
-    </div>
+        <!-- TAB A: PRÉPARER LE DÉPART -->
+        {% set chk = trip.pre_departure_checklist %}
+        <div class="op-ws-pane {% if active_action == 'departure' %}is-active{% endif %}" id="opPane_departure">
+            <form method="POST" action="{{ url_for('missions.confirm_handover', id=trip.id) }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next_url" value="{{ url_for('admin.bookings', tab='tracking') }}">
 
-    <div class="row g-3">
-        <!-- LEFT COLUMN -->
-        <div class="col-lg-7">
-            <!-- PRE-DEPARTURE CHECKLIST -->
-            {% set chk = trip.pre_departure_checklist %}
-            <div class="md-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="md-section-title mb-0"><i class="fas fa-clipboard-check"></i> Check-list Pré-Départ & Autorisation de Sortie</div>
-                    <span class="badge bg-dark rounded-pill">{{ chk.values()|select('equalto', true)|list|length }}/{{ pre_departure_items|length }} validés</span>
-                </div>
-                <form method="POST" action="{{ url_for('missions.update_pre_departure_checklist', id=trip.id) }}">
-                    <div class="row g-2 mb-3">
+                <div class="mb-3">
+                    <label class="md-label">Inspection du véhicule (check-list avant départ)</label>
+                    <div class="row g-2">
                         {% for ck, clbl in pre_departure_items %}
                         <div class="col-md-6">
                             <label class="d-flex align-items-center gap-2 p-2 px-3 rounded-3 border {% if chk.get(ck) %}bg-success bg-opacity-10 border-success{% else %}bg-light{% endif %} small fw-semibold" style="cursor:pointer;">
@@ -301,14 +242,214 @@
                         </div>
                         {% endfor %}
                     </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-sm btn-dark rounded-3 fw-bold px-3">
-                            <i class="fas fa-check-double me-1"></i> Enregistrer Check-list Pré-Départ
-                        </button>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="md-label">Kilométrage départ (km) *</label>
+                        <input type="number" name="mileage_start" class="form-control md-input" required min="0" value="{{ trip.mileage_start if trip.mileage_start is not none else '' }}" placeholder="Ex: 42500">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="md-label">Niveau carburant départ *</label>
+                        <select name="fuel_start" class="form-select md-select" required>
+                            <option value="">Choisir…</option>
+                            {% for lvl in ['Plein (100%)', '3/4 (75%)', '1/2 (50%)', '1/4 (25%)', 'Réserve'] %}
+                            <option value="{{ lvl }}" {% if trip.fuel_start == lvl %}selected{% endif %}>{{ lvl }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="md-label">Observations état véhicule</label>
+                        <input type="text" name="vehicle_condition" class="form-control md-input" value="{{ trip.vehicle_condition or '' }}" placeholder="RAS, carrosserie propre...">
+                    </div>
+                    <div class="col-12">
+                        <label class="md-label">Photos du véhicule au départ (JPG, PNG, WEBP)</label>
+                        <input type="file" name="handover_photos" class="form-control md-input" accept=".jpg,.jpeg,.png,.webp,image/*" multiple>
+                        {% set dep_photos = trip.handover_photos|selectattr('phase', 'equalto', 'departure')|list %}
+                        {% if dep_photos %}
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            {% for ph in dep_photos %}
+                            <a href="{{ ph.url }}" target="_blank" rel="noopener"><img src="{{ ph.url }}" alt="Photo départ" class="op-photo-thumb"></a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                    <button type="submit" class="md-btn-red"><i class="fas fa-key me-1"></i> Confirmer le départ (remise des clés)</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TAB B: SUIVRE LA LOCATION -->
+        <div class="op-ws-pane {% if active_action == 'track' %}is-active{% endif %}" id="opPane_track">
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 border bg-light bg-opacity-50 h-100">
+                        <div class="fw-bold small text-dark mb-2">Informations Client &amp; Dates</div>
+                        <div class="info-kv"><span class="k">Client</span><span class="v">{{ booking.passenger_name if booking else 'Client VIP 3M' }}</span></div>
+                        <div class="info-kv"><span class="k">Départ prévu</span><span class="v">{{ trip.departure_time.strftime('%d/%m/%Y %H:%M') if trip.departure_time else '—' }}</span></div>
+                        <div class="info-kv"><span class="k">Retour prévu</span><span class="v">{{ trip.arrival_time.strftime('%d/%m/%Y %H:%M') if trip.arrival_time else '—' }}</span></div>
+                        <div class="info-kv"><span class="k">Itinéraire</span><span class="v">{{ trip.pickup_location or (trip.route.origin if trip.route else '—') }} → {{ trip.destination_location or (trip.route.destination if trip.route else '—') }}</span></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 border bg-light bg-opacity-50 h-100">
+                        <div class="fw-bold small text-dark mb-2">Véhicule &amp; Relevés Départ</div>
+                        <div class="info-kv"><span class="k">Véhicule</span><span class="v">{{ (trip.bus.brand ~ ' ' ~ trip.bus.model ~ ' · ' ~ trip.bus.bus_number) if trip.bus else 'Non assigné' }}</span></div>
+                        <div class="info-kv"><span class="k">Chauffeur</span><span class="v">{{ trip.driver.name if trip.driver else 'Sans chauffeur' }}</span></div>
+                        <div class="info-kv"><span class="k">Km départ</span><span class="v">{{ trip.mileage_start ~ ' km' if trip.mileage_start is not none else '—' }}</span></div>
+                        <div class="info-kv"><span class="k">Carburant départ</span><span class="v">{{ trip.fuel_start or '—' }}</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3 rounded-3 border mb-3">
+                <div class="fw-bold small text-dark mb-2"><i class="fas fa-exclamation-triangle text-warning me-1"></i> Signaler un incident ou un retard</div>
+                <form method="POST" action="{{ url_for('missions.add_mission_incident', id=trip.id) }}" class="row g-2 align-items-end">
+                    <input type="hidden" name="next_url" value="{{ url_for('missions.mission_detail', id=trip.id, action='track') }}">
+                    <div class="col-md-3">
+                        <label class="md-label">Type</label>
+                        <select name="category" class="form-select md-select">
+                            <option value="delay">Retard départ / retour</option>
+                            <option value="breakdown">Panne véhicule</option>
+                            <option value="damage">Dommage véhicule</option>
+                            <option value="accident">Accident</option>
+                            <option value="complaint">Demande / remarque client</option>
+                            <option value="other">Autre incident</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="md-label">Gravité</label>
+                        <select name="severity" class="form-select md-select">
+                            <option value="low">Faible</option>
+                            <option value="medium" selected>Moyenne</option>
+                            <option value="high">Élevée</option>
+                            <option value="critical">Critique</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="md-label">Détails *</label>
+                        <input type="text" name="description" class="form-control md-input" required placeholder="Ex: Embouteillage, prolongation demandée par le client...">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-warning fw-bold w-100 py-2 rounded-3">Signaler</button>
                     </div>
                 </form>
             </div>
 
+            <div class="d-flex justify-content-end">
+                <button type="button" class="md-btn-red" onclick="switchOpPane('return')">
+                    Passer à l'enregistrement du retour <i class="fas fa-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB C: ENREGISTRER LE RETOUR -->
+        <div class="op-ws-pane {% if active_action == 'return' %}is-active{% endif %}" id="opPane_return">
+            <form method="POST" action="{{ url_for('missions.confirm_return', id=trip.id) }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next_url" value="{{ url_for('admin.bookings', tab='tracking') }}">
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <label class="md-label">Km départ relevé</label>
+                        <input type="text" class="form-control md-input bg-light" id="retMileageStart" value="{{ trip.mileage_start if trip.mileage_start is not none else '' }}" readonly placeholder="Non relevé">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="md-label">Kilométrage retour (km) *</label>
+                        <input type="number" name="mileage_end" id="retMileageEnd" class="form-control md-input" required min="{{ trip.mileage_start if trip.mileage_start is not none else 0 }}"
+                               value="{{ trip.mileage_end if trip.mileage_end is not none else '' }}" placeholder="Ex: 42780" oninput="updateReturnDistance()">
+                        <div class="small mt-1 fw-semibold" id="retDistancePreview">
+                            {% if trip.mileage_distance is not none %}Distance : {{ trip.mileage_distance }} km{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="md-label">Niveau carburant retour *</label>
+                        <select name="fuel_end" class="form-select md-select" required>
+                            <option value="">Choisir…</option>
+                            {% for lvl in ['Plein (100%)', '3/4 (75%)', '1/2 (50%)', '1/4 (25%)', 'Réserve'] %}
+                            <option value="{{ lvl }}" {% if trip.fuel_end == lvl %}selected{% endif %}>{{ lvl }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="md-label">Disponibilité véhicule après retour *</label>
+                        <select name="vehicle_availability" class="form-select md-select" required>
+                            <option value="active" selected>Disponible (Prêt pour location)</option>
+                            <option value="maintenance">Maintenance requise</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="md-label">État général au retour</label>
+                        <select name="condition_state" class="form-select md-select">
+                            <option value="Bon état (RAS)">Bon état (RAS)</option>
+                            <option value="Nettoyage requis">Nettoyage requis</option>
+                            <option value="Dommage / anomalie constatée">Dommage / anomalie constatée</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="md-label">Précisions sur l'état</label>
+                        <input type="text" name="vehicle_condition" class="form-control md-input" value="{{ trip.vehicle_condition or '' }}" placeholder="Rayure, pneu, propreté...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="md-label">Notes de clôture</label>
+                        <input type="text" name="completion_notes" class="form-control md-input" value="{{ trip.completion_notes or '' }}" placeholder="Remarques finales...">
+                    </div>
+                    <div class="col-12">
+                        <label class="md-label">Photos au retour (optionnel)</label>
+                        <input type="file" name="return_photos" class="form-control md-input" accept=".jpg,.jpeg,.png,.webp,image/*" multiple>
+                        {% set ret_photos = trip.handover_photos|selectattr('phase', 'equalto', 'return')|list %}
+                        {% if ret_photos %}
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            {% for ph in ret_photos %}
+                            <a href="{{ ph.url }}" target="_blank" rel="noopener"><img src="{{ ph.url }}" alt="Photo retour" class="op-photo-thumb"></a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end pt-2 border-top">
+                    <button type="submit" class="md-btn-red"><i class="fas fa-check-circle me-1"></i> Confirmer le retour du véhicule</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Options avancées (cycle manuel) repliées pour garder l'écran clair -->
+        <details class="mt-3 pt-2 border-top">
+            <summary class="small fw-semibold text-muted" style="cursor: pointer;">Options avancées (changement manuel de statut)</summary>
+            <form method="POST" action="{{ url_for('missions.update_mission_lifecycle', id=trip.id) }}" class="row g-2 align-items-end mt-2">
+                <div class="col-md-4">
+                    <label class="md-label">Statut Opérationnel</label>
+                    <select name="status" id="lifecycleStatusSelect" class="form-select md-select" onchange="toggleCancelBox()">
+                        <optgroup label="Cycle Principal">
+                            {% for key, label, sub in mission_stages %}
+                            <option value="{{ key }}" {% if trip.status == key %}selected{% endif %}>{{ loop.index }}. {{ label }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="États Terminaux (Motif Obligatoire)">
+                            {% for tk, tl in terminal_states %}
+                            <option value="{{ tk }}" {% if trip.status == tk %}selected{% endif %}>✖ {{ tl }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="col-md-5" id="cancelReasonWrap" style="display: {% if is_terminal %}block{% else %}none{% endif %};">
+                    <label class="md-label text-danger">Motif Obligatoire</label>
+                    <input type="text" name="cancellation_reason" id="cancelReasonInput" class="form-control md-input border-danger" value="{{ trip.cancellation_reason or '' }}" placeholder="Précisez la raison...">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-sm btn-dark w-100 py-2 rounded-3 fw-bold">Appliquer statut</button>
+                </div>
+            </form>
+        </details>
+    </div>
+
+    <div class="row g-3">
+        <!-- LEFT COLUMN -->
+        <div class="col-lg-7">
             <!-- CLIENT & ITINERARY -->
             <div class="md-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -561,6 +702,30 @@
 </div>
 
 <script>
+function switchOpPane(name) {
+    document.querySelectorAll('.op-ws-tab').forEach(btn => {
+        btn.classList.toggle('is-active', btn.getAttribute('onclick').includes("'" + name + "'"));
+    });
+    document.querySelectorAll('.op-ws-pane').forEach(pane => {
+        pane.classList.toggle('is-active', pane.id === 'opPane_' + name);
+    });
+}
+function updateReturnDistance() {
+    var sEl = document.getElementById('retMileageStart');
+    var eEl = document.getElementById('retMileageEnd');
+    var out = document.getElementById('retDistancePreview');
+    if (!eEl || !out) return;
+    var s = parseInt((sEl && sEl.value) || '', 10);
+    var e = parseInt(eEl.value || '', 10);
+    if (isNaN(e) || isNaN(s)) { out.textContent = ''; return; }
+    if (e < s) {
+        out.className = 'small mt-1 fw-semibold text-danger';
+        out.textContent = 'Erreur : inférieur au départ (' + s + ' km)';
+    } else {
+        out.className = 'small mt-1 fw-semibold text-success';
+        out.textContent = 'Distance parcourue : ' + (e - s).toLocaleString('fr-FR') + ' km';
+    }
+}
 function toggleCancelBox() {
     var sel = document.getElementById('lifecycleStatusSelect');
     var wrap = document.getElementById('cancelReasonWrap');

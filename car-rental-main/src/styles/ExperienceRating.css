@@ -1,0 +1,23 @@
+.xr-card { margin-top: 2rem; }
+.xr-help { color: #475467; font-size: 1.45rem; margin: 0 0 1rem; }
+.xr-stars { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+.xr-star { background: none; border: 0; padding: 0 0.1rem; font-size: 3.2rem; line-height: 1; color: #d0d5dd; cursor: pointer; transition: transform .12s, color .12s; }
+.xr-stars:not(.is-static) .xr-star:hover { transform: scale(1.12); }
+.xr-star.is-on { color: #f79009; }
+.xr-stars.is-static .xr-star { font-size: 2.4rem; cursor: default; }
+.xr-star-label { margin-left: 0.8rem; font-size: 1.4rem; font-weight: 600; color: #344054; }
+.xr-textarea { width: 100%; border: 1px solid #d0d5dd; border-radius: 10px; padding: 1rem 1.2rem; font-size: 1.45rem; font-family: inherit; resize: vertical; }
+.xr-textarea:focus { outline: none; border-color: #D62828; box-shadow: 0 0 0 3px rgba(214, 40, 40, .12); }
+.xr-actions { display: flex; align-items: center; gap: 1.2rem; margin-top: 1.2rem; flex-wrap: wrap; }
+.xr-comment { margin: 0.4rem 0 1rem; color: #344054; font-size: 1.45rem; font-style: italic; }
+.xr-status { display: inline-block; font-size: 1.2rem; font-weight: 600; padding: 0.3rem 1rem; border-radius: 999px; background: #f2f4f7; color: #475467; }
+.xr-status.is-resolved { background: #ecfdf3; color: #067647; }
+.xr-status.is-in_progress { background: #fffaeb; color: #b54708; }
+.xr-reply { margin-top: 1.4rem; background: #fef3f2; border: 1px solid #fecdca; border-radius: 12px; padding: 1.2rem 1.4rem; }
+.xr-reply-head { display: flex; gap: 0.8rem; align-items: center; font-weight: 700; color: #D62828; font-size: 1.35rem; }
+.xr-reply-head span { margin-left: auto; font-weight: 500; color: #667085; font-size: 1.2rem; }
+.xr-reply p { margin: 0.6rem 0 0; color: #344054; font-size: 1.45rem; white-space: pre-line; }
+.xr-msg { margin-top: 1.2rem; padding: 1rem 1.2rem; border-radius: 10px; font-size: 1.35rem; }
+.xr-msg.is-success { background: #ecfdf3; color: #067647; border: 1px solid #abefc6; }
+.xr-msg.is-error { background: #fef3f2; color: #b42318; border: 1px solid #fecdca; }
+@media (max-width: 575px) { .xr-star { font-size: 2.8rem; } }

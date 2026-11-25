@@ -34,3 +34,4 @@ yarn-error.log*
 
 # photos envoyées dans le chat (données clients)
 /app/static/uploads/chat/
+backups/

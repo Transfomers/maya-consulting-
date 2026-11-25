@@ -1,16 +1,35 @@
 {% extends "base.html" %}
-{% block title %}Calendrier des Biens Meublés — 3M SERVICES{% endblock %}
+{% block title %}Calendrier des biens meublés{% endblock %}
 
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<style>
+.pc-card { border-radius: 12px !important; border: 1px solid #eaecf0 !important; box-shadow: none !important; }
+.pc-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: #475467; margin-top: 12px; }
+.pc-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.pc-status { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.pc-status.confirmed { background: #fef3f2; color: #b42318; }
+.pc-status.checked_in { background: #ecfdf3; color: #067647; }
+.pc-status.checked_out { background: #f2f4f7; color: #475467; }
+.pc-status.cancelled { background: #f2f4f7; color: #98a2b3; text-decoration: line-through; }
+.pc-status.maintenance_block { background: #fffaeb; color: #b54708; }
+#propertyFullCalendar .fc-toolbar-title { font-size: 1.1rem; font-weight: 700; text-transform: capitalize; }
+#propertyFullCalendar .fc-button-primary { background: #fff; border-color: #d0d5dd; color: #344054; text-transform: capitalize; }
+#propertyFullCalendar .fc-button-primary:not(:disabled).fc-button-active,
+#propertyFullCalendar .fc-button-primary:not(:disabled):active { background: #101828; border-color: #101828; color: #fff; }
+#propertyFullCalendar .fc-daygrid-day.fc-day-today { background: #fef3f2; }
+#propertyFullCalendar .fc-daygrid-day:hover { background: #f9fafb; cursor: pointer; }
+tr.pc-flash { animation: pcFlash 1.6s ease; }
+@keyframes pcFlash { from { background: #fef0c7; } to { background: transparent; } }
+</style>
 
 <div class="container-fluid py-3 px-2 px-lg-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
             <span class="badge bg-danger text-white fw-bold px-2.5 py-1 mb-1">DISPONIBILITÉS IMMOBILIÈRES</span>
             <h3 class="fw-bold text-dark mb-0">Calendrier &amp; Séjours des Biens Meublés</h3>
-            <p class="text-muted small mb-0">Planning dédié aux studios, appartements, villas &amp; penthouses (indépendant du calendrier de la flotte automobile). Les dates réservées bloquent automatiquement les chevauchements et se synchronisent sur le site client.</p>
+            <p class="text-muted small mb-0">Planning des studios, appartements et villas (séparé de la flotte automobile). Les dates réservées sont bloquées automatiquement et ne sont plus proposées sur le site.</p>
         </div>
         <div class="d-flex gap-2">
             <a href="{{ url_for('admin.add_apartment') }}" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold">
@@ -25,41 +44,51 @@
     <div class="row g-4">
         <!-- BOOK A STAY FORM -->
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm p-4" style="border-radius: 1.25rem; border: 1px solid #eaecf0 !important;">
-                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-calendar-plus text-danger me-2"></i>Réserver un Séjour / Bloquer des Dates</h6>
-                <form method="POST" action="{{ url_for('properties.create_property_booking') }}" class="row g-3">
+            <div class="card pc-card p-4">
+                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-calendar-plus text-danger me-2"></i>Réserver un séjour / bloquer des dates</h6>
+                {% if not apartments %}
+                <div class="text-center text-muted small py-4">
+                    Aucun bien meublé enregistré.<br>
+                    <a href="{{ url_for('admin.add_apartment') }}" class="btn btn-sm btn-danger rounded-pill mt-2">Ajouter un bien meublé</a>
+                </div>
+                {% else %}
+                <form method="POST" action="{{ url_for('properties.create_property_booking') }}" class="row g-3" id="stayForm">
                     <div class="col-12">
-                        <label class="form-label small fw-bold text-muted text-uppercase">Bien Meublé *</label>
-                        <select name="apartment_id" class="form-select rounded-3" required>
+                        <label class="form-label small fw-bold text-muted text-uppercase">Bien meublé *</label>
+                        <select name="apartment_id" id="stayApt" class="form-select rounded-3" required>
                             {% for a in apartments %}
-                            <option value="{{ a.id }}">{{ a.reference or a.id }} · {{ a.title }} ({{ a.status }})</option>
+                            <option value="{{ a.id }}" data-night="{{ a.nightly_rate or 0 }}" data-week="{{ a.weekly_rate or 0 }}" data-month="{{ a.monthly_rate or 0 }}" data-clean="{{ a.cleaning_fee or 0 }}">{{ a.title }}{% if a.nightly_rate %} · {{ "{:,.0f}".format(a.nightly_rate).replace(',', ' ') }} F/nuit{% endif %}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="col-6">
                         <label class="form-label small fw-bold text-muted text-uppercase">Arrivée (Check-in) *</label>
-                        <input type="date" name="check_in" class="form-control rounded-3" required value="{{ today.isoformat() }}">
+                        <input type="date" name="check_in" id="stayIn" class="form-control rounded-3" required value="{{ today.isoformat() }}">
                     </div>
                     <div class="col-6">
                         <label class="form-label small fw-bold text-muted text-uppercase">Départ (Check-out) *</label>
-                        <input type="date" name="check_out" class="form-control rounded-3" required>
+                        <input type="date" name="check_out" id="stayOut" class="form-control rounded-3" required>
                     </div>
                     <div class="col-12">
-                        <label class="form-label small fw-bold text-muted text-uppercase">Client Existant (Recommandé)</label>
-                        <select name="client_user_id" class="form-select rounded-3">
-                            <option value="">-- Ou saisir un nouveau client ci-dessous --</option>
+                        <label class="form-label small fw-bold text-muted text-uppercase">Client existant</label>
+                        <select name="client_user_id" id="stayClient" class="form-select rounded-3">
+                            <option value="">— Nouveau client (saisir ci-dessous) —</option>
                             {% for c in clients %}
                             <option value="{{ c.id }}">{{ c.real_name or c.username }} {% if c.phone %}({{ c.phone }}){% endif %}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-6">
-                        <label class="form-label small fw-bold text-muted text-uppercase">Nom Occupant</label>
+                    <div class="col-6 js-new-client">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Nom de l'occupant *</label>
                         <input type="text" name="guest_name" class="form-control rounded-3" placeholder="Nom complet">
                     </div>
-                    <div class="col-6">
-                        <label class="form-label small fw-bold text-muted text-uppercase">Téléphone</label>
-                        <input type="text" name="guest_phone" class="form-control rounded-3" placeholder="+237 6XX...">
+                    <div class="col-6 js-new-client">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Téléphone *</label>
+                        <input type="tel" name="guest_phone" class="form-control rounded-3" placeholder="+237 6XX XX XX XX">
+                    </div>
+                    <div class="col-12 js-new-client">
+                        <label class="form-label small fw-bold text-muted text-uppercase">E-mail</label>
+                        <input type="email" name="guest_email" class="form-control rounded-3" placeholder="facultatif">
                     </div>
                     <div class="col-6">
                         <label class="form-label small fw-bold text-muted text-uppercase">Formule</label>
@@ -71,34 +100,36 @@
                     </div>
                     <div class="col-6">
                         <label class="form-label small fw-bold text-muted text-uppercase">Occupants</label>
-                        <input type="number" name="guests_count" class="form-control rounded-3" value="2" min="1">
+                        <input type="number" name="guests_count" class="form-control rounded-3" value="1" min="1" max="30">
                     </div>
                     <div class="col-6">
-                        <label class="form-label small fw-bold text-muted text-uppercase">Total (Auto si vide)</label>
-                        <input type="number" name="total_amount" class="form-control rounded-3" step="1000" placeholder="Auto FCFA">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Total (FCFA)</label>
+                        <input type="number" name="total_amount" id="stayTotal" class="form-control rounded-3" min="0" step="500" placeholder="Calcul auto">
                     </div>
                     <div class="col-6">
                         <label class="form-label small fw-bold text-muted text-uppercase">Acompte versé</label>
-                        <input type="number" name="deposit_paid" class="form-control rounded-3" value="0" step="1000">
+                        <input type="number" name="deposit_paid" class="form-control rounded-3" value="0" min="0" step="500">
                     </div>
                     <div class="col-12">
                         <label class="form-label small fw-bold text-muted text-uppercase">Notes / Conciergerie</label>
                         <input type="text" name="notes" class="form-control rounded-3" placeholder="Heure arrivée, transfert aéroport...">
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-danger w-100 rounded-3 fw-bold py-2" style="background:#D62828;">
-                            <i class="bi bi-check-circle me-1"></i> Confirmer &amp; Bloquer les Dates
+                        <div class="small text-muted mb-2" id="stayEstimate"></div>
+                        <button type="submit" class="btn btn-danger w-100 rounded-3 fw-bold py-2" style="background: var(--primary-light);">
+                            <i class="bi bi-check-circle me-1"></i> Confirmer et bloquer les dates
                         </button>
                     </div>
                 </form>
+                {% endif %}
             </div>
         </div>
 
         <!-- FULLCALENDAR -->
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 1.25rem; border: 1px solid #eaecf0 !important;">
+            <div class="card pc-card p-4 mb-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-calendar3 text-danger me-2"></i>Occupation par Bien Meublé</h6>
+                    <h6 class="fw-bold mb-0"><i class="bi bi-calendar3 text-danger me-2"></i>Occupation par bien meublé</h6>
                     <select id="aptCalFilter" class="form-select form-select-sm rounded-3" style="max-width: 280px;" onchange="reloadPropCal()">
                         <option value="">Tous les biens meublés</option>
                         {% for a in apartments %}
@@ -107,21 +138,28 @@
                     </select>
                 </div>
                 <div id="propertyFullCalendar" style="min-height: 460px;"></div>
+                <div class="pc-legend">
+                    <span><i style="background:#D62828"></i>Confirmé</span>
+                    <span><i style="background:#15803d"></i>En séjour</span>
+                    <span><i style="background:#64748b"></i>Terminé</span>
+                    <span><i style="background:#d97706"></i>Blocage / maintenance</span>
+                    <span class="ms-auto text-muted">Cliquez sur un jour pour le choisir comme arrivée.</span>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- ACTIVE & RECENT STAYS TABLE -->
-    <div class="card border-0 shadow-sm p-4 mt-2" style="border-radius: 1.25rem; border: 1px solid #eaecf0 !important;">
-        <h6 class="fw-bold mb-3"><i class="bi bi-list-ul text-danger me-2"></i>Registre des Séjours &amp; Réservations Immobilières ({{ stays|length }})</h6>
+    <div class="card pc-card p-4 mt-2">
+        <h6 class="fw-bold mb-3"><i class="bi bi-list-ul text-danger me-2"></i>Registre des séjours ({{ stays|length }})</h6>
         <div class="table-responsive">
             <table class="table table-sm table-hover align-middle small mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Réf Séjour</th>
-                        <th>Bien Meublé</th>
-                        <th>Client / Occupant</th>
-                        <th>Check-in → Check-out</th>
+                        <th>Réf. séjour</th>
+                        <th>Bien meublé</th>
+                        <th>Client / occupant</th>
+                        <th>Arrivée → départ</th>
                         <th class="text-end">Montant</th>
                         <th>Statut</th>
                         <th class="text-end">Action</th>
@@ -129,26 +167,29 @@
                 </thead>
                 <tbody>
                     {% for s in stays %}
-                    <tr>
+                    <tr id="stay-{{ s.id }}">
                         <td class="fw-bold">{{ s.booking_ref }}</td>
                         <td>{{ s.apartment.title if s.apartment else s.apartment_id }}</td>
-                        <td><strong>{{ s.guest_name }}</strong><br><span class="text-muted">{{ s.guest_phone }}</span></td>
-                        <td>{{ s.check_in.strftime('%d/%m/%Y') }} → {{ s.check_out.strftime('%d/%m/%Y') }}</td>
-                        <td class="text-end fw-bold text-danger">{{ "{:,.0f}".format(s.total_amount or 0).replace(',', ' ') }} F</td>
+                        <td><strong>{{ s.guest_name }}</strong>{% if s.guest_phone %}<br><a class="text-muted text-decoration-none" href="tel:{{ s.guest_phone|replace(' ', '') }}">{{ s.guest_phone }}</a>{% endif %}</td>
+                        <td>{{ s.check_in.strftime('%d/%m/%Y') }} → {{ s.check_out.strftime('%d/%m/%Y') }}<br><span class="text-muted">{{ (s.check_out - s.check_in).days }} nuit{{ 's' if (s.check_out - s.check_in).days > 1 }}</span></td>
+                        <td class="text-end">
+                            {% if s.total_amount %}<span class="fw-bold">{{ "{:,.0f}".format(s.total_amount).replace(',', ' ') }} F</span>
+                            {% if s.deposit_paid %}<br><span class="text-muted">acompte {{ "{:,.0f}".format(s.deposit_paid).replace(',', ' ') }} F</span>{% endif %}
+                            {% else %}<span class="text-muted">À confirmer</span>{% endif %}
+                        </td>
                         <td>
-                            <span class="badge {% if s.status == 'checked_in' %}bg-success{% elif s.status == 'confirmed' %}bg-danger{% else %}bg-secondary{% endif %} rounded-pill">
-                                {{ s.status }}
-                            </span>
+                            {% set st_labels = {'confirmed': 'Confirmé', 'checked_in': 'En séjour', 'checked_out': 'Terminé', 'cancelled': 'Annulé', 'maintenance_block': 'Blocage'} %}
+                            <span class="pc-status {{ s.status }}">{{ st_labels.get(s.status, s.status) }}</span>
                         </td>
                         <td class="text-end">
                             <form method="POST" action="{{ url_for('properties.update_property_booking_status', bid=s.id) }}" class="d-inline-flex gap-1">
                                 <select name="status" class="form-select form-select-sm" style="width:auto;">
                                     <option value="confirmed" {% if s.status == 'confirmed' %}selected{% endif %}>Confirmé</option>
                                     <option value="checked_in" {% if s.status == 'checked_in' %}selected{% endif %}>En séjour</option>
-                                    <option value="checked_out" {% if s.status == 'checked_out' %}selected{% endif %}>Clôturé (Check-out)</option>
+                                    <option value="checked_out" {% if s.status == 'checked_out' %}selected{% endif %}>Terminé</option>
                                     <option value="cancelled" {% if s.status == 'cancelled' %}selected{% endif %}>Annulé</option>
                                 </select>
-                                <button type="submit" class="btn btn-sm btn-outline-dark">OK</button>
+                                <button type="submit" class="btn btn-sm btn-outline-dark">Mettre à jour</button>
                             </form>
                         </td>
                     </tr>
@@ -164,7 +205,8 @@
 <script>
 let propCal = null;
 function propEventsUrl() {
-    const aid = document.getElementById('aptCalFilter').value;
+    const f = document.getElementById('aptCalFilter');
+    const aid = f ? f.value : '';
     return "{{ url_for('properties.property_calendar_events') }}" + (aid ? "?apartment_id=" + encodeURIComponent(aid) : "");
 }
 function reloadPropCal() {
@@ -172,14 +214,65 @@ function reloadPropCal() {
     propCal.removeAllEventSources();
     propCal.addEventSource(propEventsUrl());
 }
+function isoPlus(iso, days) {
+    const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+}
+const fmtF = n => Math.round(n).toLocaleString('fr-FR').replace(/\u202f|\u00a0/g, ' ') + ' F';
+function updateStayEstimate() {
+    const apt = document.getElementById('stayApt'), ci = document.getElementById('stayIn'), co = document.getElementById('stayOut');
+    const out = document.getElementById('stayEstimate'), total = document.getElementById('stayTotal');
+    if (!apt || !ci || !co) return;
+    if (ci.value) co.min = isoPlus(ci.value, 1);
+    if (ci.value && co.value && co.value <= ci.value) co.value = isoPlus(ci.value, 1);
+    const o = apt.selectedOptions[0];
+    const nights = (ci.value && co.value) ? Math.round((new Date(co.value) - new Date(ci.value)) / 86400000) : 0;
+    const formula = document.querySelector('[name=rate_formula]').value;
+    const rate = { nightly: +o.dataset.night, weekly: +o.dataset.week / 7, monthly: +o.dataset.month / 30 }[formula] || 0;
+    if (!nights) { out.textContent = ''; total.placeholder = 'Calcul auto'; return; }
+    if (!rate) {
+        out.innerHTML = `<i class="bi bi-exclamation-circle text-warning"></i> ${nights} nuit(s) — aucun tarif ${formula === 'nightly' ? 'à la nuit' : formula === 'weekly' ? 'à la semaine' : 'au mois'} pour ce bien : saisissez le total.`;
+        total.placeholder = 'Montant requis'; total.required = true; return;
+    }
+    total.required = false;
+    const est = rate * nights + (+o.dataset.clean || 0);
+    total.placeholder = fmtF(est);
+    out.textContent = `${nights} nuit(s) · estimation ${fmtF(est)}${+o.dataset.clean ? ' (ménage inclus)' : ''}`;
+}
 document.addEventListener('DOMContentLoaded', function() {
+    ['stayApt', 'stayIn', 'stayOut'].forEach(id => document.getElementById(id)?.addEventListener('change', updateStayEstimate));
+    document.querySelector('[name=rate_formula]')?.addEventListener('change', updateStayEstimate);
+    const cl = document.getElementById('stayClient');
+    const toggleNew = () => document.querySelectorAll('.js-new-client').forEach(el => el.style.display = cl.value ? 'none' : '');
+    cl?.addEventListener('change', toggleNew);
+    updateStayEstimate();
+
     const el = document.getElementById('propertyFullCalendar');
     if (!el || typeof FullCalendar === 'undefined') return;
     propCal = new FullCalendar.Calendar(el, {
         initialView: 'dayGridMonth',
         locale: 'fr',
+        firstDay: 1,
+        height: 'auto',
+        buttonText: { today: "Aujourd'hui", month: 'Mois', list: 'Liste' },
+        noEventsContent: 'Aucun séjour sur cette période',
         headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listMonth' },
-        events: propEventsUrl()
+        events: propEventsUrl(),
+        dateClick: info => {
+            const ci = document.getElementById('stayIn');
+            if (!ci) return;
+            ci.value = info.dateStr;
+            const co = document.getElementById('stayOut');
+            if (!co.value || co.value <= info.dateStr) co.value = isoPlus(info.dateStr, 1);
+            updateStayEstimate();
+            ci.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        },
+        eventClick: info => {
+            const row = document.getElementById('stay-' + info.event.id);
+            if (!row) return;
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            row.classList.remove('pc-flash'); void row.offsetWidth; row.classList.add('pc-flash');
+        }
     });
     propCal.render();
 });

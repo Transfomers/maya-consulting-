@@ -122,75 +122,9 @@ def seed_initial_3m_data():
         db.session.commit()
         print(" Missions & Trajets VIP 3M initialisés.")
 
-        # 6. Client VIP & Synchronisation des réservations depuis le site client React (db.json)
-        client_user = User.query.filter_by(email="client@3mservice.shop").first()
-        if not client_user:
-            client_user = User(
-                username="client_vip",
-                email="client@3mservice.shop",
-                password_hash=generate_password_hash(secrets.token_urlsafe(16), method='pbkdf2:sha256'),
-                role="client",
-                phone="+237 691 78 64 47",
-                is_verified=True,
-                real_name="Client VIP 3M SERVICES"
-            )
-            db.session.add(client_user)
-            db.session.commit()
-
-        buses = Bus.query.all()
-        routes = Route.query.all()
-        drivers = Driver.query.all()
-        now = datetime.utcnow()
-        for i, bus in enumerate(buses):
-            if not Trip.query.filter_by(bus_id=bus.id).first():
-                route = routes[i % len(routes)]
-                driver = drivers[i % len(drivers)]
-                trip = Trip(
-                    route_id=route.id,
-                    bus_id=bus.id,
-                    driver_id=driver.id,
-                    departure_time=now + timedelta(hours=i*2),
-                    arrival_time=now + timedelta(hours=i*2 + 4),
-                    price=route.base_price or 50000.0,
-                    status="scheduled",
-                    capacity=bus.capacity
-                )
-                db.session.add(trip)
-        db.session.commit()
-
-        # Synchroniser les réservations depuis server/data/db.json
-        db_json_path = os.path.join(os.path.dirname(__file__), "server", "data", "db.json")
-        if os.path.exists(db_json_path):
-            try:
-                import json
-                with open(db_json_path, 'r', encoding='utf-8') as f:
-                    db_data = json.load(f)
-                trips = Trip.query.all()
-                for idx, b in enumerate(db_data.get("bookings", [])):
-                    b_code = b.get("id")
-                    if b_code and not Booking.query.filter_by(booking_code=b_code).first():
-                        assigned_trip = trips[idx % len(trips)] if trips else None
-                        if assigned_trip:
-                            b_date = now - timedelta(days=idx % 7)
-                            price = float(b.get("totalPrice") or 50000.0)
-                            booking = Booking(
-                                user_id=client_user.id,
-                                trip_id=assigned_trip.id,
-                                seat_number="VIP",
-                                passenger_name=b.get("clientName", "Client VIP 3M"),
-                                booking_code=b_code,
-                                price_paid=price,
-                                status="confirmed",
-                                payment_status="paid",
-                                payment_method="momo",
-                                booking_date=b_date,
-                                num_persons=1
-                            )
-                            db.session.add(booking)
-                db.session.commit()
-                print(" Réservations clients synchronisées depuis db.json.")
-            except Exception as e:
-                print(f" Note: Sync db.json ({e})")
+        # Aucune donnée fictive n'est créée ici : pas de client « VIP » générique, pas de missions
+        # automatiques, pas d'import des demandes du site comme réservations payées.
+        # Les réservations réelles sont créées par l'équipe ou par le site client.
 
 if __name__ == '__main__':
     seed_initial_3m_data()

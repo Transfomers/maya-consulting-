@@ -1624,20 +1624,31 @@
                     <span class="sidebar-badge sidebar-badge-alert" id="sidebarChatBadge" hidden>0</span>
                 </a>
 
-                <div class="sidebar-section-title">Gestion</div>
+                <div class="sidebar-section-title">Clientèle</div>
                 <a href="{{ url_for('admin.users') }}" class="sidebar-nav-item {% if ep in ['admin.users', 'admin.edit_user'] %}active{% endif %}" title="Clients">
                     <i class="bi bi-people"></i><span class="sidebar-text">Clients</span>
                 </a>
-                <a href="{{ url_for('admin.apartments') }}" class="sidebar-nav-item {% if ep in ['admin.apartments', 'admin.add_apartment', 'admin.edit_apartment'] %}active{% endif %}" title="Locations Appartements VIP">
-                    <i class="bi bi-building"></i><span class="sidebar-text">Locations</span>
+                <a href="{{ url_for('admin.apartments') }}" class="sidebar-nav-item {% if ep in ['admin.apartments', 'admin.add_apartment', 'admin.edit_apartment', 'properties.property_calendar'] %}active{% endif %}" title="Résidences meublées">
+                    <i class="bi bi-building"></i><span class="sidebar-text">Résidences</span>
                 </a>
-                <a href="{{ url_for('admin.finance') }}" class="sidebar-nav-item {% if ep == 'admin.finance' %}active{% endif %}" title="Paiements">
-                    <i class="bi bi-credit-card"></i><span class="sidebar-text">Paiements</span>
+                <a href="{{ url_for('ratings.index') }}" class="sidebar-nav-item {% if request.blueprint == 'ratings' %}active{% endif %}" title="Avis clients">
+                    <i class="bi bi-star"></i><span class="sidebar-text">Avis clients</span>
+                    {% if shell.ratings_open %}<span class="sidebar-badge sidebar-badge-alert">{{ shell.ratings_open }}</span>{% endif %}
                 </a>
-                <a href="{{ url_for('admin.shifts') }}" class="sidebar-nav-item {% if ep in ['admin.shifts', 'admin.calendar_view'] %}active{% endif %}" title="Rapports">
-                    <i class="bi bi-bar-chart"></i><span class="sidebar-text">Rapports</span>
+
+                <div class="sidebar-section-title">Finance</div>
+                <a href="{{ url_for('invoices.index') }}" class="sidebar-nav-item {% if request.blueprint == 'invoices' %}active{% endif %}" title="Factures">
+                    <i class="bi bi-receipt"></i><span class="sidebar-text">Factures</span>
                 </a>
+                <a href="{{ url_for('contracts.index') }}" class="sidebar-nav-item {% if request.blueprint == 'contracts' %}active{% endif %}" title="Contrats">
+                    <i class="bi bi-file-earmark-text"></i><span class="sidebar-text">Contrats</span>
+                </a>
+                <a href="{{ url_for('admin.shifts') }}" class="sidebar-nav-item {% if ep in ['admin.shifts', 'admin.calendar_view'] %}active{% endif %}" title="Rapports financiers">
+                    <i class="bi bi-bar-chart"></i><span class="sidebar-text">Rapports financiers</span>
+                </a>
+
                 {% if current_user.role == 'super_admin' %}
+                <div class="sidebar-section-title">Administration</div>
                 <a href="{{ url_for('admin.agencies') }}" class="sidebar-nav-item {% if ep in ['admin.agencies', 'admin.add_agency', 'admin.edit_agency'] %}active{% endif %}" title="Agences">
                     <i class="bi bi-shop"></i><span class="sidebar-text">Agences</span>
                 </a>
@@ -1652,25 +1663,6 @@
                     <i class="bi bi-gear"></i><span class="sidebar-text">Paramètres</span>
                 </a>
             </nav>
-
-            <!-- État de la flotte (données réelles) -->
-            <div class="fleet-status-card mx-2 mb-2">
-                <div class="d-flex justify-content-between align-items-baseline mb-2">
-                    <span class="fleet-status-title">État de la flotte</span>
-                    <span class="fleet-status-total">{{ shell.vehicles }} véhicule{{ 's' if shell.vehicles != 1 }}</span>
-                </div>
-                {% set tot = shell.vehicles or 1 %}
-                <div class="fleet-status-bar" role="img" aria-label="Répartition de la flotte">
-                    <span class="seg-road" style="width: {{ (shell.on_road * 100 / tot)|round(1) }}%"></span>
-                    <span class="seg-idle" style="width: {{ (shell.available * 100 / tot)|round(1) }}%"></span>
-                    <span class="seg-maint" style="width: {{ (shell.maintenance * 100 / tot)|round(1) }}%"></span>
-                </div>
-                <ul class="fleet-status-list">
-                    <li><span class="dot dot-road"></span>En mission<b>{{ shell.on_road }}</b></li>
-                    <li><span class="dot dot-idle"></span>Disponibles<b>{{ shell.available }}</b></li>
-                    <li><span class="dot dot-maint"></span>En maintenance<b>{{ shell.maintenance }}</b></li>
-                </ul>
-            </div>
 
             <!-- Utilisateur connecté -->
             <div class="admin-sidebar-footer px-3 py-3 d-flex align-items-center gap-2">

@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+{% block title %}Contrats{% endblock %}
+
+{% block content %}
+<style>
+.ct-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.ct-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 22px; font-weight: 700; color: #101828; }
+.ct-count { font-size: 12px; font-weight: 700; color: var(--primary-light); background: #fef3f2; border: 1px solid #fecdca; padding: 1px 8px; border-radius: 6px; }
+.ct-sub { color: #667085; font-size: 13.5px; margin: 4px 0 0; }
+.ct-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+.ct-icon-btn { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #eaecf0; border-radius: 8px; background: #fff; color: #344054; text-decoration: none; }
+.ct-icon-btn:hover { background: #f9fafb; color: #101828; }
+.ct-icon-btn i { color: inherit !important; }
+
+.ct-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.ct-filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ct-filters .form-select, .ct-filters .form-control { height: 38px; font-size: 13.5px; }
+.ct-search { position: relative; width: 260px; }
+.ct-search i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #98a2b3 !important; }
+.ct-search input { padding-left: 34px; }
+.ct-view { display: inline-flex; border: 1px solid #eaecf0; border-radius: 8px; overflow: hidden; background: #fff; }
+.ct-view a { width: 38px; height: 36px; display: inline-flex; align-items: center; justify-content: center; color: #667085; text-decoration: none; }
+.ct-view a.is-active { background: #101828; color: #fff; }
+.ct-view a i { color: inherit !important; }
+
+.ct-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.ct-chip { padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 500; background: #f2f4f7; color: #475467; text-decoration: none; }
+.ct-chip b { margin-left: 4px; }
+.ct-chip.is-active { background: #101828; color: #fff; }
+
+.ct-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.ct-card { display: flex; flex-direction: column; background: #fff; border: 1px solid #eaecf0; border-radius: 12px; padding: 18px; transition: box-shadow .15s; }
+.ct-card:hover { box-shadow: 0 8px 22px rgba(16, 24, 40, .07); }
+.ct-card__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.ct-ref { font-size: 12px; font-weight: 600; color: #175cd3; background: #eff8ff; padding: 2px 8px; border-radius: 6px; text-decoration: none; white-space: nowrap; }
+.ct-menu-btn { width: 32px; height: 32px; border: 1px solid #eaecf0; border-radius: 8px; background: #fff; color: #344054; }
+.ct-menu-btn i { color: inherit !important; }
+.ct-card h3 { font-size: 15px; font-weight: 700; color: #101828; margin: 0 0 2px; }
+.ct-card h3 a { color: inherit; text-decoration: none; }
+.ct-type { font-size: 13px; color: #667085; margin: 0 0 10px; }
+.ct-dates { display: grid; gap: 6px; font-size: 13px; color: #475467; margin-bottom: 12px; }
+.ct-dates i { color: #98a2b3 !important; margin-right: 6px; }
+.ct-dates b { color: #101828; font-weight: 600; }
+.ct-party { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #f9fafb; border: 1px solid #f2f4f7; border-radius: 10px; margin-bottom: 8px; }
+.ct-avatar { width: 36px; height: 36px; flex: 0 0 36px; border-radius: 50%; background: #fef3f2; color: var(--primary-light); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+.ct-party strong { display: block; font-size: 13.5px; color: #101828; }
+.ct-party small { color: #667085; font-size: 12px; }
+.ct-links { font-size: 12.5px; color: #667085; display: grid; gap: 4px; margin-bottom: 12px; }
+.ct-links i { color: #98a2b3 !important; margin-right: 6px; }
+.ct-card__foot { margin-top: auto; padding-top: 12px; border-top: 1px solid #f2f4f7; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ct-value { font-size: 12.5px; font-weight: 700; color: #175cd3; background: #eff8ff; padding: 3px 10px; border-radius: 6px; }
+.ct-value i { color: inherit !important; margin-right: 4px; }
+.ct-pdf { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #475467; background: #f2f4f7; text-decoration: none; }
+.ct-pdf i { color: inherit !important; }
+
+.ct-table td, .ct-table th { white-space: nowrap; }
+.ct-empty { text-align: center; padding: 64px 20px; background: #fff; border: 1px dashed #d0d5dd; border-radius: 12px; color: #667085; }
+.ct-empty i { font-size: 36px; color: #d0d5dd !important; display: block; margin-bottom: 10px; }
+@media (max-width: 1399.98px) { .ct-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 991.98px) { .ct-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575.98px) { .ct-grid { grid-template-columns: minmax(0, 1fr); } .ct-search { width: 100%; } .ct-filters { width: 100%; } }
+.ct-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.ct-kpi { background: #fff; border: 1px solid #eaecf0; border-radius: 12px; padding: 14px 16px; display: grid; gap: 2px; }
+.ct-kpi span { font-size: 12.5px; color: #667085; }
+.ct-kpi strong { font-size: 20px; color: #101828; white-space: nowrap; }
+.ct-kpi small { font-size: 12px; color: #667085; }
+.ct-kpi.is-danger strong { color: #b42318; }
+.ct-kpi.is-warn { border-color: #fedf89; background: #fffcf5; }
+.ct-balance { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-right: auto; margin-left: 6px; }
+.ct-balance.is-due { color: #b42318; background: #fef3f2; }
+.ct-balance.is-ok { color: #027a48; background: #ecfdf3; }
+.ct-chip i { color: inherit !important; }
+@media (max-width: 991.98px) { .ct-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ct-crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #667085; margin-top: 4px; }
+.ct-crumb a { color: #667085; text-decoration: none; }
+.ct-crumb span { color: #101828; font-weight: 600; }
+.ct-crumb i { font-size: 10px; color: #98a2b3 !important; }
+.ct-filter-btn { position: relative; }
+.ct-filter-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--primary-light); margin-left: 4px; }
+.ct-filter-menu { width: 300px; }
+.ct-flabel { display: block; font-size: 12px; font-weight: 600; color: #344054; margin: 10px 0 4px; }
+.ct-flabel:first-of-type { margin-top: 0; }
+.ct-fcheck { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #344054; margin: 10px 0 0; }
+.ct-active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -6px 0 16px; font-size: 13px; color: #667085; }
+.ct-af { padding: 2px 10px; border-radius: 999px; background: #f2f4f7; color: #344054; }
+.ct-active-filters a { color: var(--primary-light); font-weight: 600; text-decoration: none; }
+.ct-party .status-pill { margin-left: auto; font-size: 11px; }
+.ct-loadmore { display: flex; justify-content: center; margin: 24px 0 8px; }
+@media print { .ct-tools, .ct-bar, .ct-loadmore, .ct-menu-btn, .admin-sidebar, .admin-topbar-card { display: none !important; } .ct-grid { grid-template-columns: repeat(3, 1fr) !important; } }
+</style>
+
+{% macro status_pill(s) %}{% set lbl, tone = status_labels.get(s, (s, 'neutral')) %}<span class="status-pill status-{{ tone }}">{{ lbl }}</span>{% endmacro %}
+{% macro fdate(d) %}{% set mois = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."] %}{{ d.day }} {{ mois[d.month - 1] }} {{ d.year }}{% endmacro %}
+{% macro money(v) %}{{ "{:,.0f}".format(v or 0).replace(",", " ") }} FCFA{% endmacro %}
+{% macro initials(u) %}{% set n = (u.real_name or u.username or '?') if u else '?' %}{{ (n.split()|map('first')|join)[:2]|upper }}{% endmacro %}
+{% macro row_menu(c) %}
+<div class="dropdown">
+    <button type="button" class="ct-menu-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Actions du contrat {{ c.reference }}"><i class="bi bi-three-dots-vertical"></i></button>
+    <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+        <li><a class="dropdown-item" href="{{ url_for('contracts.detail', contract_id=c.id) }}"><i class="bi bi-eye me-2"></i>Voir</a></li>
+        {% if c.status in ['draft', 'pending_approval'] and not c.is_archived %}
+        <li><a class="dropdown-item" href="{{ url_for('contracts.edit', contract_id=c.id) }}"><i class="bi bi-pencil me-2"></i>Modifier</a></li>
+        {% endif %}
+        <li><a class="dropdown-item" href="{{ url_for('contracts.pdf', contract_id=c.id) }}"><i class="bi bi-file-earmark-pdf me-2"></i>Télécharger le PDF</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('contracts.detail', contract_id=c.id, tab='payments') }}"><i class="bi bi-cash-coin me-2"></i>Paiements</a></li>
+        {% if c.status in ['active', 'expired', 'completed'] %}
+        <li>
+            <form method="POST" action="{{ url_for('contracts.renew', contract_id=c.id) }}" class="m-0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="dropdown-item"><i class="bi bi-arrow-repeat me-2"></i>Renouveler</button>
+            </form>
+        </li>
+        {% endif %}
+        {% if c.status in ['draft', 'completed', 'terminated', 'expired'] and not c.is_archived %}
+        <li>
+            <form method="POST" action="{{ url_for('contracts.archive', contract_id=c.id) }}" class="m-0" onsubmit="return confirm('Archiver ce contrat ?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="dropdown-item"><i class="bi bi-archive me-2"></i>Archiver</button>
+            </form>
+        </li>
+        {% elif c.is_archived %}
+        <li>
+            <form method="POST" action="{{ url_for('contracts.archive', contract_id=c.id) }}" class="m-0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="restore" value="1">
+                <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-up me-2"></i>Restaurer</button>
+            </form>
+        </li>
+        {% endif %}
+        {% if c.status in ['active', 'expired', 'pending_approval'] %}
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="{{ url_for('contracts.detail', contract_id=c.id) }}#terminate"><i class="bi bi-x-octagon me-2"></i>Résilier…</a></li>
+        {% endif %}
+    </ul>
+</div>
+{% endmacro %}
+
+{% set qs = dict(view=view, q=q, status=sel_status, type=sel_type, date_from=date_from, date_to=date_to, archived='1' if archived else none, due='1' if due else none) %}
+<div class="ct-head">
+    <div>
+        <h1 class="ct-title">Contrats <span class="ct-count">{{ totals.all }}</span></h1>
+        <nav class="ct-crumb" aria-label="Fil d'Ariane"><a href="{{ url_for('admin.dashboard') }}">Accueil</a><i class="bi bi-chevron-right"></i><span>Contrats</span></nav>
+    </div>
+    <div class="ct-tools">
+        <div class="dropdown">
+            <button class="btn btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-box-arrow-up me-1"></i> Exporter</button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
+                <li><a class="dropdown-item" href="{{ url_for('contracts.export_csv', q=q, status=sel_status, type=sel_type, date_from=date_from, date_to=date_to, archived='1' if archived else none, due='1' if due else none) }}"><i class="bi bi-filetype-csv me-2"></i>CSV (Excel)</a></li>
+                <li><button type="button" class="dropdown-item" onclick="window.print()"><i class="bi bi-printer me-2"></i>Imprimer la liste</button></li>
+            </ul>
+        </div>
+        <a class="ct-icon-btn" href="{{ request.full_path }}" title="Actualiser" aria-label="Actualiser"><i class="bi bi-arrow-clockwise"></i></a>
+    </div>
+</div>
+
+<div class="ct-bar">
+    <div class="ct-filters">
+        <div class="dropdown">
+            <button class="btn btn-light border dropdown-toggle ct-filter-btn" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                <i class="bi bi-funnel me-1"></i> Filtrer{% if sel_status or sel_type or date_from or date_to or archived or due %} <span class="ct-filter-dot" aria-label="filtres actifs"></span>{% endif %}
+            </button>
+            <form class="dropdown-menu shadow border rounded-3 p-3 ct-filter-menu" method="GET" action="{{ url_for('contracts.index') }}">
+                <input type="hidden" name="view" value="{{ view }}">
+                <input type="hidden" name="q" value="{{ q }}">
+                <label class="ct-flabel" for="fStatus">Statut</label>
+                <select id="fStatus" name="status" class="form-select form-select-sm">
+                    <option value="">Tous les statuts</option>
+                    {% for k, (label, tone) in status_labels.items() %}<option value="{{ k }}" {% if sel_status == k %}selected{% endif %}>{{ label }} ({{ counts[k] }})</option>{% endfor %}
+                </select>
+                <label class="ct-flabel" for="fType">Catégorie</label>
+                <select id="fType" name="type" class="form-select form-select-sm">
+                    <option value="">Toutes les catégories</option>
+                    {% for k, label in type_labels.items() %}<option value="{{ k }}" {% if sel_type == k %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+                <label class="ct-flabel">Période</label>
+                <div class="d-flex gap-2">
+                    <input type="date" name="date_from" value="{{ date_from }}" class="form-control form-control-sm" aria-label="Du">
+                    <input type="date" name="date_to" value="{{ date_to }}" class="form-control form-control-sm" aria-label="Au">
+                </div>
+                <label class="ct-fcheck"><input type="checkbox" name="due" value="1" {% if due %}checked{% endif %}> Échéance dans 7 jours ({{ totals.due_soon }})</label>
+                <label class="ct-fcheck"><input type="checkbox" name="archived" value="1" {% if archived %}checked{% endif %}> Contrats archivés ({{ totals.archived }})</label>
+                <div class="d-flex justify-content-between gap-2 mt-3">
+                    <a href="{{ url_for('contracts.index', view=view) }}" class="btn btn-sm btn-light border">Réinitialiser</a>
+                    <button type="submit" class="btn btn-sm btn-brand">Appliquer</button>
+                </div>
+            </form>
+        </div>
+        <form class="ct-search" method="GET" action="{{ url_for('contracts.index') }}" role="search">
+            {% for k, v in qs.items() if k != 'q' and v %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+            <i class="bi bi-search"></i>
+            <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher" aria-label="Rechercher un contrat (référence, client, véhicule…)">
+        </form>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        <div class="ct-view" role="group" aria-label="Affichage">
+            <a href="{{ url_for('contracts.index', **dict(qs, view='list')) }}" class="{% if view == 'list' %}is-active{% endif %}" title="Liste" aria-label="Affichage liste"><i class="bi bi-list-ul"></i></a>
+            <a href="{{ url_for('contracts.index', **dict(qs, view='grid')) }}" class="{% if view == 'grid' %}is-active{% endif %}" title="Cartes" aria-label="Affichage cartes"><i class="bi bi-grid-3x3-gap-fill"></i></a>
+        </div>
+        <a href="{{ url_for('contracts.create') }}" class="btn btn-brand"><i class="bi bi-plus-circle-fill me-1"></i> Ajouter un contrat</a>
+    </div>
+</div>
+
+{% if sel_status or sel_type or date_from or date_to or archived or due or q %}
+<div class="ct-active-filters">
+    <span>{{ total_filtered }} résultat(s)</span>
+    {% if q %}<span class="ct-af">« {{ q }} »</span>{% endif %}
+    {% if sel_status %}<span class="ct-af">{{ status_labels[sel_status][0] }}</span>{% endif %}
+    {% if sel_type %}<span class="ct-af">{{ type_labels[sel_type] }}</span>{% endif %}
+    {% if date_from or date_to %}<span class="ct-af">{{ date_from or '…' }} → {{ date_to or '…' }}</span>{% endif %}
+    {% if due %}<span class="ct-af">Échéance ≤ 7 j</span>{% endif %}
+    {% if archived %}<span class="ct-af">Archives</span>{% endif %}
+    <a href="{{ url_for('contracts.index', view=view) }}">Effacer les filtres</a>
+</div>
+{% endif %}
+
+{% if not contracts %}
+<div class="ct-empty">
+    <i class="bi bi-file-earmark-text"></i>
+    {% if q or sel_status or sel_type %}Aucun contrat ne correspond à ces filtres.{% else %}Aucun contrat pour le moment.{% endif %}
+    <div class="mt-3"><a href="{{ url_for('contracts.create') }}" class="btn btn-brand"><i class="bi bi-plus-lg me-1"></i> Créer le premier contrat</a></div>
+</div>
+{% elif view == 'grid' %}
+<div class="ct-grid">
+    {% for c in contracts %}
+    <article class="ct-card">
+        <div class="ct-card__top">
+            <a class="ct-ref" href="{{ url_for('contracts.detail', contract_id=c.id) }}">{{ c.reference }}</a>
+            {{ row_menu(c) }}
+        </div>
+        <h3><a href="{{ url_for('contracts.detail', contract_id=c.id) }}">{{ c.subject }}</a></h3>
+        <p class="ct-type">Catégorie : {{ type_labels.get(c.contract_type, c.contract_type) }}</p>
+        <div class="ct-dates">
+            <span><i class="bi bi-calendar-event"></i>Date : <b>{{ fdate(c.start_date) }}</b></span>
+            <span><i class="bi bi-calendar-x"></i>Échéance : <b>{{ fdate(c.end_date) }}</b></span>
+        </div>
+        <div class="ct-party">
+            <span class="ct-avatar">{{ initials(c.client) }}</span>
+            <span class="min-w-0"><strong class="text-truncate d-block">{{ c.client.real_name or c.client.username if c.client else '—' }}</strong><small>Client</small></span>
+            {{ status_pill(c.status) }}
+        </div>
+        <div class="ct-card__foot">
+            <span class="ct-value"><i class="bi bi-lock"></i>Valeur : {{ money(c.total_value) }}</span>
+            <a class="ct-pdf" href="{{ url_for('contracts.pdf', contract_id=c.id) }}" title="Télécharger le PDF" aria-label="Télécharger le PDF du contrat {{ c.reference }}"><i class="bi bi-file-earmark-text"></i></a>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 ct-table">
+            <thead><tr><th>Référence</th><th>Objet</th><th>Client</th><th>Actif</th><th>Période</th><th class="text-end">Valeur</th><th class="text-end">Reste à payer</th><th>Statut</th><th></th></tr></thead>
+            <tbody>
+                {% for c in contracts %}
+                <tr>
+                    <td><a class="ct-ref" href="{{ url_for('contracts.detail', contract_id=c.id) }}">{{ c.reference }}</a></td>
+                    <td><div class="fw-semibold text-dark">{{ c.subject }}</div><small class="text-muted">{{ type_labels.get(c.contract_type, '') }}</small></td>
+                    <td>{{ c.client.real_name or c.client.username if c.client else '—' }}</td>
+                    <td>{% if c.vehicle %}{{ c.vehicle.model }} <small class="text-muted">{{ c.vehicle.bus_number }}</small>{% elif c.apartment %}{{ c.apartment.title }}{% else %}—{% endif %}</td>
+                    <td>{{ c.start_date.strftime('%d/%m/%Y') }} → {{ c.end_date.strftime('%d/%m/%Y') }}</td>
+                    <td class="text-end fw-semibold">{{ money(c.total_value) }}</td>
+                    <td class="text-end {% if c.balance > 0 %}text-danger fw-semibold{% endif %}">{{ money(c.balance) }}</td>
+                    <td>{{ status_pill(c.status) }}</td>
+                    <td class="text-end">{{ row_menu(c) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% if view == 'grid' and page < total_pages %}
+<div class="ct-loadmore">
+    <button type="button" class="btn btn-brand" id="loadMoreBtn" data-next="{{ url_for('contracts.index', **dict(qs, page=page + 1)) }}" data-page="{{ page }}" data-total="{{ total_pages }}">
+        <i class="bi bi-arrow-clockwise me-1"></i> Charger plus
+    </button>
+</div>
+{% elif view == 'list' and total_pages and total_pages > 1 %}
+<nav class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2" aria-label="Pagination des contrats">
+    <span class="small text-muted">{{ total_filtered }} contrat(s) · page {{ page }} / {{ total_pages }}</span>
+    <ul class="pagination pagination-sm mb-0">
+        <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('contracts.index', view=view, q=q, status=sel_status, type=sel_type, date_from=date_from, date_to=date_to, archived='1' if archived else none, due='1' if due else none, page=page-1) }}">Précédent</a>
+        </li>
+        {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {% if p == page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('contracts.index', view=view, q=q, status=sel_status, type=sel_type, date_from=date_from, date_to=date_to, archived='1' if archived else none, due='1' if due else none, page=p) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+        <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('contracts.index', view=view, q=q, status=sel_status, type=sel_type, date_from=date_from, date_to=date_to, archived='1' if archived else none, due='1' if due else none, page=page+1) }}">Suivant</a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
+<script>
+// « Charger plus » : ajoute les cartes de la page suivante sans recharger
+(function () {
+    const btn = document.getElementById('loadMoreBtn');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+        const label = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Chargement…';
+        try {
+            const res = await fetch(btn.dataset.next, { headers: { 'X-Requested-With': 'fetch' } });
+            if (!res.ok) throw new Error();
+            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+            const grid = document.querySelector('.ct-grid');
+            doc.querySelectorAll('.ct-grid > .ct-card').forEach(card => grid.appendChild(document.importNode(card, true)));
+            const next = doc.getElementById('loadMoreBtn');
+            if (next) { btn.dataset.next = next.dataset.next; btn.disabled = false; btn.innerHTML = label; }
+            else { btn.closest('.ct-loadmore').remove(); }
+        } catch (e) {
+            btn.disabled = false;
+            btn.innerHTML = 'Réessayer';
+        }
+    });
+})();
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// « Charger plus » : ajoute les cartes de la page suivante sans recharger
+(function () {
+    const btn = document.getElementById('loadMoreBtn');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+        const label = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Chargement…';
+        try {
+            const res = await fetch(btn.dataset.next, { headers: { 'X-Requested-With': 'fetch' } });
+            if (!res.ok) throw new Error();
+            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+            const grid = document.querySelector('.ct-grid');
+            doc.querySelectorAll('.ct-grid > .ct-card').forEach(card => grid.appendChild(document.importNode(card, true)));
+            const next = doc.getElementById('loadMoreBtn');
+            if (next) { btn.dataset.next = next.dataset.next; btn.disabled = false; btn.innerHTML = label; }
+            else { btn.closest('.ct-loadmore').remove(); }
+        } catch (e) {
+            btn.disabled = false;
+            btn.innerHTML = 'Réessayer';
+        }
+    });
+})();
+</script>
+{% endblock %}

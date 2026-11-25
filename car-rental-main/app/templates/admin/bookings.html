@@ -1291,63 +1291,192 @@ a.mh-kpi:hover { border-color: #d0d5dd; box-shadow: 0 6px 18px rgba(16, 24, 40, 
     </div>
 
     <!-- ================================================================== -->
-    <!-- TAB 8: SUIVI OPÉRATIONNEL (LIVE EXECUTION BOARD)                   -->
+    <!-- TAB 8: SUIVI OPÉRATIONNEL EN DIRECT (SIMPLIFIÉ)                    -->
     <!-- ================================================================== -->
     {% elif cur_tab == 'tracking' %}
-    <div class="fm-card">
-        <h6 class="fw-bold mb-1"><i class="fas fa-satellite-dish text-danger me-2"></i>Suivi Opérationnel en Direct ({{ tracking_trips|length }} missions actives)</h6>
-        <div class="small text-muted mb-3">Pilotez les départs, check-lists pré-départ, relevés kilométriques, carburants et clôtures en temps réel.</div>
-        {% for t in tracking_trips %}
-        {% set sl, sb = status_labels.get(t.status, (t.status, 'bg-secondary')) %}
-        {% set chk = t.pre_departure_checklist %}
-        {% set chk_done = chk.values()|select('equalto', true)|list|length %}
-        <div class="p-3 rounded-4 border mb-3 bg-light bg-opacity-50">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+    <style>
+    .op-wrap i { color: inherit !important; }
+    .op-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .op-kpi {
+        text-align: left; background: #fff; border: 1px solid #eaecf0; border-radius: 12px;
+        padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        cursor: pointer; transition: border-color .15s, box-shadow .15s;
+    }
+    .op-kpi:hover { border-color: #d0d5dd; box-shadow: 0 6px 18px rgba(16, 24, 40, .06); }
+    .op-kpi.is-active { border-color: var(--primary-light); background: #fffbfa; }
+    .op-kpi__lbl { font-size: 13px; font-weight: 600; color: #667085; display: block; }
+    .op-kpi__val { font-size: 26px; font-weight: 700; color: #101828; line-height: 1.2; }
+    .op-kpi__ico { width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .op-kpi__ico.is-dep { background: #eff8ff; color: #175cd3; }
+    .op-kpi__ico.is-run { background: #ecfdf3; color: #027a48; }
+    .op-kpi__ico.is-ret { background: #fffaeb; color: #b54708; }
+
+    .op-filters { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+    .op-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .op-pill {
+        border: 1px solid #eaecf0; background: #fff; color: #475467; border-radius: 999px;
+        padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 6px; transition: all .15s;
+    }
+    .op-pill:hover { background: #f9fafb; color: #101828; }
+    .op-pill.is-active { background: #101828; border-color: #101828; color: #fff; }
+    .op-pill__cnt { font-size: 11.5px; padding: 1px 7px; border-radius: 999px; background: rgba(148, 163, 184, .18); }
+    .op-pill.is-active .op-pill__cnt { background: rgba(255, 255, 255, .2); color: #fff; }
+
+    .op-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .op-card {
+        background: #fff; border: 1px solid #eaecf0; border-radius: 12px; padding: 18px;
+        display: flex; flex-direction: column; gap: 12px; transition: box-shadow .15s;
+    }
+    .op-card:hover { box-shadow: 0 8px 20px rgba(16, 24, 40, .06); }
+    .op-card.is-overdue { border-color: #fecdca; }
+    .op-card__top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .op-ref { font-size: 12.5px; font-weight: 700; color: #175cd3; background: #eff8ff; padding: 3px 9px; border-radius: 6px; text-decoration: none; }
+    .op-badge { font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+    .op-badge.is-warn { background: #fffaeb; color: #b54708; }
+    .op-badge.is-info { background: #eff8ff; color: #175cd3; }
+    .op-badge.is-ok { background: #ecfdf3; color: #027a48; }
+    .op-badge.is-danger { background: #fef3f2; color: #b42318; }
+
+    .op-veh { font-size: 15.5px; font-weight: 700; color: #101828; margin: 0; }
+    .op-veh small { font-weight: 600; color: #667085; font-size: 13px; }
+    .op-rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; font-size: 13px; color: #475467; }
+    .op-row { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    .op-row i { color: #98a2b3 !important; flex-shrink: 0; }
+    .op-row span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .op-card__foot {
+        margin-top: auto; padding-top: 12px; border-top: 1px solid #f2f4f7;
+        display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    }
+    .op-empty { background: #fff; border: 1px dashed #d0d5dd; border-radius: 12px; padding: 48px 20px; text-align: center; color: #667085; }
+    @media (max-width: 991.98px) { .op-grid { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 767.98px) { .op-kpis { grid-template-columns: minmax(0, 1fr); } .op-rows { grid-template-columns: minmax(0, 1fr); } }
+    </style>
+
+    <div class="op-wrap">
+        <!-- 3 KPI Cards -->
+        <div class="op-kpis">
+            <button type="button" class="op-kpi {% if op_filter == 'departures' %}is-active{% endif %}" onclick="setOpFilter('departures')">
                 <div>
-                    <span class="badge bg-dark me-1">{{ t.mission_ref or ('#' ~ t.id) }}</span>
-                    <span class="badge {{ sb }} rounded-pill me-1">{{ sl }}</span>
-                    <strong class="text-dark">{{ t.mission_title or (t.route.origin ~ ' → ' ~ t.route.destination if t.route else 'Mission VIP') }}</strong>
+                    <span class="op-kpi__lbl">Départs à préparer</span>
+                    <span class="op-kpi__val">{{ op_counts.departures }}</span>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge {% if chk_done >= 6 %}bg-success{% else %}bg-warning text-dark{% endif %} rounded-pill">
-                        Check-list : {{ chk_done }}/{{ pre_departure_items|length }}
-                    </span>
-                    <a href="{{ url_for('missions.mission_detail', id=t.id) }}" class="btn btn-sm btn-danger rounded-3 fw-bold">Contrôle Complet</a>
+                <span class="op-kpi__ico is-dep"><i class="bi bi-box-arrow-up-right"></i></span>
+            </button>
+            <button type="button" class="op-kpi {% if op_filter == 'in_progress' %}is-active{% endif %}" onclick="setOpFilter('in_progress')">
+                <div>
+                    <span class="op-kpi__lbl">Locations en cours</span>
+                    <span class="op-kpi__val">{{ op_counts.in_progress }}</span>
                 </div>
+                <span class="op-kpi__ico is-run"><i class="bi bi-car-front"></i></span>
+            </button>
+            <button type="button" class="op-kpi {% if op_filter == 'returns' %}is-active{% endif %}" onclick="setOpFilter('returns')">
+                <div>
+                    <span class="op-kpi__lbl">Retours attendus</span>
+                    <span class="op-kpi__val">{{ op_counts.returns }}</span>
+                </div>
+                <span class="op-kpi__ico is-ret"><i class="bi bi-box-arrow-in-down-left"></i></span>
+            </button>
+        </div>
+
+        <!-- 4 Navigation Filters -->
+        <div class="op-filters">
+            <div class="op-pills" role="tablist" aria-label="Filtrer le suivi opérationnel">
+                <button type="button" class="op-pill {% if op_filter == 'all' %}is-active{% endif %}" data-op-tab="all" onclick="setOpFilter('all')">
+                    Toutes <span class="op-pill__cnt">{{ op_counts.all }}</span>
+                </button>
+                <button type="button" class="op-pill {% if op_filter == 'departures' %}is-active{% endif %}" data-op-tab="departures" onclick="setOpFilter('departures')">
+                    Départs <span class="op-pill__cnt">{{ op_counts.departures }}</span>
+                </button>
+                <button type="button" class="op-pill {% if op_filter == 'in_progress' %}is-active{% endif %}" data-op-tab="in_progress" onclick="setOpFilter('in_progress')">
+                    En cours <span class="op-pill__cnt">{{ op_counts.in_progress }}</span>
+                </button>
+                <button type="button" class="op-pill {% if op_filter == 'returns' %}is-active{% endif %}" data-op-tab="returns" onclick="setOpFilter('returns')">
+                    Retours <span class="op-pill__cnt">{{ op_counts.returns }}</span>
+                </button>
             </div>
-            <div class="row g-2 small text-muted mb-2">
-                <div class="col-md-3"><i class="fas fa-car text-danger me-1"></i>{{ (t.bus.brand ~ ' ' ~ t.bus.model ~ ' (' ~ t.bus.bus_number ~ ')') if t.bus else 'Sans véhicule' }}</div>
-                <div class="col-md-3"><i class="fas fa-user-tie text-danger me-1"></i>{{ t.driver.name if t.driver else 'Sans chauffeur' }}</div>
-                <div class="col-md-3"><i class="far fa-clock text-danger me-1"></i>{{ t.departure_time.strftime('%d/%m %H:%M') }} → {{ t.arrival_time.strftime('%d/%m %H:%M') }}</div>
-                <div class="col-md-3"><i class="fas fa-tachometer-alt text-danger me-1"></i>Km : {{ t.mileage_start or '—' }} → {{ t.mileage_end or '—' }}</div>
-            </div>
-            <form method="POST" action="{{ url_for('missions.update_mission_lifecycle', id=t.id) }}" class="row g-2 align-items-center pt-2 border-top">
-                <input type="hidden" name="next_url" value="{{ url_for('admin.bookings', tab='tracking') }}">
-                <div class="col-md-3">
-                    <select name="status" class="form-select form-select-sm fm-select">
-                        {% for sk, lbl, _ in mission_stages %}
-                        <option value="{{ sk }}" {% if t.status == sk %}selected{% endif %}>{{ loop.index }}. {{ lbl }}</option>
-                        {% endfor %}
-                    </select>
+        </div>
+
+        <!-- Simplified Mission Cards -->
+        {% if tracking_items %}
+        <div class="op-grid" id="opCardsGrid">
+            {% for item in tracking_items %}
+            {% set t = item.trip %}
+            <article class="op-card {% if item.is_overdue %}is-overdue{% endif %}" data-op-bucket="{{ item.op_bucket }}" {% if op_filter != 'all' and item.op_bucket != op_filter %}style="display:none;"{% endif %}>
+                <div class="op-card__top">
+                    <a href="{{ url_for('missions.mission_detail', id=t.id, action=item.op_action) }}" class="op-ref">{{ item.ref }}</a>
+                    <span class="op-badge is-{{ item.op_status_tone }}">{{ item.op_status_label }}</span>
                 </div>
-                <div class="col-md-2 col-6">
-                    <input type="number" name="mileage_start" class="form-control form-control-sm fm-input" value="{{ t.mileage_start or '' }}" placeholder="Km départ">
+
+                <h3 class="op-veh">
+                    {{ item.vehicle_name }}{% if item.vehicle_plate %} <small>· {{ item.vehicle_plate }}</small>{% endif %}
+                </h3>
+
+                <div class="op-rows">
+                    <div class="op-row" title="Client">
+                        <i class="bi bi-person"></i>
+                        <span>{{ item.client_name }}</span>
+                    </div>
+                    {% if item.driver_name %}
+                    <div class="op-row" title="Chauffeur">
+                        <i class="bi bi-person-badge"></i>
+                        <span>{{ item.driver_name }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="op-row" title="Dates départ et retour">
+                        <i class="bi bi-calendar3"></i>
+                        <span>{{ t.departure_time.strftime('%d/%m %H:%M') if t.departure_time else '—' }} → {{ t.arrival_time.strftime('%d/%m %H:%M') if t.arrival_time else '—' }}</span>
+                    </div>
+                    <div class="op-row" title="Itinéraire">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>{{ item.route_label }}</span>
+                    </div>
                 </div>
-                <div class="col-md-2 col-6">
-                    <input type="number" name="mileage_end" class="form-control form-control-sm fm-input" value="{{ t.mileage_end or '' }}" placeholder="Km retour">
+
+                <div class="op-card__foot">
+                    <a href="{{ url_for('missions.mission_detail', id=t.id) }}" class="small text-muted text-decoration-none">Voir la fiche complète</a>
+                    <a href="{{ url_for('missions.mission_detail', id=t.id, action=item.op_action) }}"
+                       class="btn btn-sm {% if item.op_action == 'return' %}btn-dark{% elif item.op_action == 'departure' %}btn-brand{% else %}btn-light border fw-semibold{% endif %}">
+                        {% if item.op_action == 'departure' %}<i class="bi bi-clipboard-check me-1"></i>
+                        {% elif item.op_action == 'return' %}<i class="bi bi-check2-circle me-1"></i>
+                        {% else %}<i class="bi bi-eye me-1"></i>{% endif %}
+                        {{ item.op_action_label }}
+                    </a>
                 </div>
-                <div class="col-md-3">
-                    <input type="text" name="vehicle_condition" class="form-control form-control-sm fm-input" value="{{ t.vehicle_condition or '' }}" placeholder="État / note terrain...">
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-sm btn-dark w-100 rounded-3 fw-bold">Mettre à jour</button>
-                </div>
-            </form>
+            </article>
+            {% endfor %}
+        </div>
+        <div class="op-empty" id="opEmptyFilter" style="display: none;">
+            <p class="mb-1 fw-semibold text-dark">Aucune mission dans cette catégorie.</p>
+            <button type="button" class="btn btn-sm btn-light border mt-1" onclick="setOpFilter('all')">Afficher toutes les missions</button>
         </div>
         {% else %}
-        <p class="text-muted text-center py-4 small mb-0">Aucune mission active à suivre pour le moment.</p>
-        {% endfor %}
+        <div class="op-empty">
+            <p class="mb-0">Aucune mission active à suivre pour le moment.</p>
+        </div>
+        {% endif %}
     </div>
+
+    <script>
+    function setOpFilter(bucket) {
+        document.querySelectorAll('.op-pill').forEach(btn => {
+            btn.classList.toggle('is-active', btn.dataset.opTab === bucket);
+        });
+        const kpis = document.querySelectorAll('.op-kpi');
+        const map = ['departures', 'in_progress', 'returns'];
+        kpis.forEach((k, idx) => k.classList.toggle('is-active', map[idx] === bucket));
+
+        let shown = 0;
+        document.querySelectorAll('#opCardsGrid .op-card').forEach(card => {
+            const match = (bucket === 'all' || card.dataset.opBucket === bucket);
+            card.style.display = match ? 'flex' : 'none';
+            if (match) shown++;
+        });
+        const emptyEl = document.getElementById('opEmptyFilter');
+        if (emptyEl) emptyEl.style.display = shown === 0 ? 'block' : 'none';
+    }
+    </script>
 
     <!-- ================================================================== -->
     <!-- TAB 9: DOCUMENTS & CONTRATS (10 BRANDED PDF DOCUMENTS)             -->
