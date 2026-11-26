@@ -1,0 +1,56 @@
+{% extends "superadmin/_layout.html" %}
+{% block title %}{{ 'Modifier ' ~ (user.real_name or user.username) if user else 'Nouvel administrateur' }}{% endblock %}
+{% block content %}
+<div class="sa-head">
+    <div>
+        <a href="{{ url_for('superadmin.admin_detail', uid=user.id) if user else url_for('superadmin.admins') }}" class="sa-back"><i class="bi bi-arrow-left"></i> {{ user.real_name if user else 'Administrateurs' }}</a>
+        <h1 class="sa-title">{{ 'Modifier l’administrateur' if user else 'Nouvel administrateur' }}</h1>
+    </div>
+</div>
+
+{% if invite %}
+{% set user = invite.user %}{% set link = invite.link %}{% set sent = invite.sent %}
+{% include "superadmin/_invite_box.html" %}
+<div class="d-flex gap-2 mt-3"><a class="btn btn-dark" href="{{ url_for('superadmin.admin_detail', uid=invite.user.id) }}">Voir la fiche</a><a class="btn btn-outline-secondary" href="{{ url_for('superadmin.admin_create') }}">Créer un autre compte</a></div>
+{% else %}
+{% if errors %}<div class="sa-alert is-danger" role="alert"><i class="bi bi-exclamation-octagon"></i><div>{% for e in errors %}<div>{{ e }}</div>{% endfor %}</div></div>{% endif %}
+<form method="post" class="sa-card" style="max-width: 860px;" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row g-3">
+        <div class="col-md-6"><label class="form-label" for="fName">Nom complet *</label><input id="fName" name="real_name" class="form-control" value="{{ values.real_name or '' }}" required maxlength="120"></div>
+        <div class="col-md-6"><label class="form-label" for="fEmail">E-mail *</label><input id="fEmail" type="email" name="email" class="form-control" value="{{ values.email or '' }}" required></div>
+        <div class="col-md-6"><label class="form-label" for="fPhone">Téléphone</label><input id="fPhone" type="tel" name="phone" class="form-control" value="{{ values.phone or '' }}" placeholder="+237 6XX XX XX XX"></div>
+        <div class="col-md-6">
+            <label class="form-label" for="fRole">Rôle *</label>
+            <select id="fRole" name="role" class="form-select" {{ 'disabled' if user and user.id == current_user.id }}>
+                {% for k, v in staff_roles.items() %}<option value="{{ k }}" {{ 'selected' if values.role == k }}>{{ v }}</option>{% endfor %}
+                <option value="super_admin" {{ 'selected' if values.role == 'super_admin' }}>Super Admin (contrôle total)</option>
+            </select>
+            {% if user and user.id == current_user.id %}<div class="sa-muted mt-1">Vous ne pouvez pas modifier votre propre rôle.</div>{% else %}<div class="sa-muted mt-1">Les permissions de chaque rôle se règlent dans <a href="{{ url_for('superadmin.roles') }}">Rôles & permissions</a>.</div>{% endif %}
+        </div>
+        {% if agencies %}
+        <div class="col-md-6"><label class="form-label" for="fAgency">Agence</label>
+            <select id="fAgency" name="agency_id" class="form-select"><option value="">—</option>{% for a in agencies %}<option value="{{ a.id }}" {{ 'selected' if values.agency_id == a.id }}>{{ a.name }}</option>{% endfor %}</select></div>
+        {% endif %}
+        <div class="col-12">
+            <span class="form-label d-block">Modules opérationnels attribués</span>
+            <div class="sa-checkgrid">
+                {% for k, v in modules.items() %}
+                <label class="sa-check"><input type="checkbox" name="modules" value="{{ k }}" {{ 'checked' if k in (values.modules or []) }}> {{ v }}</label>
+                {% endfor %}
+            </div>
+        </div>
+        {% if not user %}
+        <div class="col-md-6"><label class="form-label" for="fStatus">Statut à la création</label>
+            <select id="fStatus" name="status" class="form-select"><option value="active">Actif</option><option value="suspended">Suspendu (activer plus tard)</option></select></div>
+        <div class="col-md-6 d-flex align-items-end"><label class="sa-check"><input type="checkbox" name="send_invite" value="1" checked> Envoyer l'invitation par e-mail</label></div>
+        <div class="col-12"><p class="sa-muted mb-0"><i class="bi bi-shield-check"></i> Aucun mot de passe n'est choisi ici : la personne reçoit un lien à usage unique (72 h) pour créer le sien.</p></div>
+        {% endif %}
+    </div>
+    <div class="sa-form-actions">
+        <a class="btn btn-outline-secondary" href="{{ url_for('superadmin.admin_detail', uid=user.id) if user else url_for('superadmin.admins') }}">Annuler</a>
+        <button class="btn btn-brand">{{ 'Enregistrer' if user else 'Créer le compte' }}</button>
+    </div>
+</form>
+{% endif %}
+{% endblock %}

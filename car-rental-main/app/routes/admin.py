@@ -19,7 +19,7 @@ admin = Blueprint('admin', __name__)
 
 def admin_required(f):
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.role not in ['super_admin', 'admin_agence']:
+        if not current_user.is_authenticated or not current_user.is_staff:
             flash('Vous n\'avez pas la permission d\'accéder à cette page.', 'danger')
             return redirect(url_for('main.index'))
         return f(*args, **kwargs)
@@ -2466,7 +2466,7 @@ def add_route():
             
             # NOTIFICATION: Notify Super Admin about new route; also notify agency admin if created by super admin
             price_str = f"{int(route.base_price)} FCFA" if route.base_price is not None else "tarif non défini"
-            if current_user.role == 'admin_agence':
+            if current_user.is_agency_scoped:
                 trigger_notification(
                     title="🚦 Nouvelle Ligne Créée",
                     message=f"L'agence {current_user.agency.name} a créé la ligne {route.origin} → {route.destination} ({price_str}).",
@@ -2920,7 +2920,7 @@ def add_trip():
             car_label = f"{bus_obj.brand} {bus_obj.model} ({bus_obj.bus_number})" if bus_obj else "Véhicule VIP"
 
             route = Route.query.get(trip.route_id)
-            if current_user.role == 'admin_agence' and route and trip.price != route.base_price:
+            if current_user.is_agency_scoped and route and trip.price != route.base_price:
                 trigger_notification(
                     title="⚠️ Tarif Modifié sur Sortie VIP",
                     message=f"L'agence {current_user.agency.name} a planifié une sortie ({route.origin} → {route.destination}) au tarif de {trip.price:.0f} FCFA.",
@@ -3288,7 +3288,7 @@ def logs():
 def export_logs_csv():
     if current_user.role == 'super_admin':
         logs = AuditLog.query.order_by(AuditLog.created_at.desc()).all()
-    elif current_user.role == 'admin_agence' and current_user.agency_id:
+    elif current_user.is_agency_scoped and current_user.agency_id:
         logs = AuditLog.query.join(User).filter(User.agency_id == current_user.agency_id).order_by(AuditLog.created_at.desc()).all()
     else:
         flash("Accès refusé.", "danger")
@@ -3324,7 +3324,7 @@ def export_logs_csv():
 def export_logs_pdf():
     if current_user.role == 'super_admin':
         logs = AuditLog.query.order_by(AuditLog.created_at.desc()).limit(150).all()
-    elif current_user.role == 'admin_agence' and current_user.agency_id:
+    elif current_user.is_agency_scoped and current_user.agency_id:
         logs = AuditLog.query.join(User).filter(User.agency_id == current_user.agency_id).order_by(AuditLog.created_at.desc()).limit(150).all()
     else:
         flash("Accès refusé.", "danger")
@@ -6121,7 +6121,7 @@ def profile():
         action = request.form.get('action')
         
         # 1. Update Agency Profile (Agency Admin)
-        if action == 'update_agency' and current_user.role == 'admin_agence' and current_user.agency:
+        if action == 'update_agency' and current_user.is_agency_scoped and current_user.agency:
             agency = current_user.agency
             agency.name = request.form.get('agency_name')
             agency.city = request.form.get('agency_city')
@@ -6281,7 +6281,7 @@ def profile():
     # 2. Audit Logs
     if current_user.is_admin:
         audit_logs = AuditLog.query.order_by(AuditLog.created_at.desc()).limit(100).all()
-    elif current_user.role == 'admin_agence' and current_user.agency_id:
+    elif current_user.is_agency_scoped and current_user.agency_id:
         # Agency Admin sees logs related to their agency's users
         audit_logs = AuditLog.query.join(User).filter(User.agency_id == current_user.agency_id).order_by(AuditLog.created_at.desc()).limit(100).all()
     else:
@@ -6290,7 +6290,7 @@ def profile():
     # 3. Staff / Users 
     if current_user.is_admin:
         staff_members = User.query.filter(User.role.in_(['super_admin', 'admin_agence', 'teller', 'finance_officer'])).all()
-    elif current_user.role == 'admin_agence' and current_user.agency_id:
+    elif current_user.is_agency_scoped and current_user.agency_id:
         # Agency Admin sees staff in their own agency
         staff_members = User.query.filter(User.role.in_(['admin_agence', 'teller', 'finance_officer']), User.agency_id == current_user.agency_id).all()
     else:
@@ -6377,7 +6377,7 @@ def profile():
     payment_settings.setdefault('stripe_secret', 'sk_live_xxxxxxxxxxx')
     # 6. Contact Messages
     from app.models import ContactMessage
-    if current_user.role in ['super_admin', 'admin_agence']:
+    if current_user.is_staff:
         contact_messages = ContactMessage.query.filter_by(is_deleted=False).order_by(ContactMessage.created_at.desc()).all()
         for msg in contact_messages:
             msg.associated_user = User.query.filter_by(email=msg.email).first()

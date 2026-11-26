@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, make_response, current_app, send_file, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, make_response, current_app, send_file, session, abort
 from flask_login import login_required, current_user
 from app.models import Route, Bus, Booking, Trip, Payment, Feedback, SystemNotification, Agency, Parcel, TripSchedule
 from app import db
@@ -27,7 +27,8 @@ def health_check():
         return jsonify({"status": "ok", "database": "ok"}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"status": "error", "database": "failed", "details": str(e)}), 503
+        current_app.logger.error(f"[health] base de données indisponible : {e}")
+        return jsonify({"status": "error", "database": "failed"}), 503
 
 @bp.route('/')
 def index():
@@ -39,7 +40,7 @@ def index():
 @bp.route('/chat')
 def chat_redirect():
     if current_user.is_authenticated:
-        if current_user.role in ['super_admin', 'admin_agence']:
+        if current_user.is_staff:
             return redirect(url_for('admin.chats'))
         return redirect(url_for('client.chat'))
     return redirect(url_for('auth.login', next=url_for('client.chat')))
@@ -58,9 +59,12 @@ def offline():
 
 @bp.route('/test-email')
 def test_email():
+    # Réservé au Super Admin, uniquement vers sa propre adresse (était un relais d'e-mails ouvert)
+    if not current_user.is_authenticated or current_user.role != 'super_admin':
+        abort(404)
     from app.services.email_service import send_email
-    
-    recipient = request.args.get('email', 'safouraparadis@gmail.com')
+
+    recipient = current_user.email
     
     try:
         result = send_email(
@@ -482,7 +486,7 @@ def my_bookings():
     if current_user.role != 'client':
         if current_user.role == 'teller':
             return redirect(url_for('admin.teller_dashboard'))
-        elif current_user.role in ['super_admin', 'admin_agence']:
+        elif current_user.is_staff:
             return redirect(url_for('admin.dashboard'))
         else:
             flash("Accès réservé aux clients.", "danger")
@@ -1500,6 +1504,9 @@ def mark_all_notifications_read():
 
 @bp.route('/api/db-upgrade')
 def run_db_upgrade():
+    # Réservé au Super Admin connecté (était public : n'importe qui pouvait lancer les migrations)
+    if not current_user.is_authenticated or current_user.role != 'super_admin':
+        abort(404)
     import subprocess
     try:
         result = subprocess.run(['flask', 'db', 'upgrade'], capture_output=True, text=True, check=True)

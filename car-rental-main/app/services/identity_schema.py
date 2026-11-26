@@ -11,6 +11,8 @@ NEW_COLUMNS = {
         ('client_code', 'VARCHAR(20)'), ('display_name', 'VARCHAR(120)'), ('client_source', 'VARCHAR(30)'),
         ('external_account', 'VARCHAR(60)'), ('assigned_admin_id', 'INTEGER'), ('client_status', 'VARCHAR(20)'),
         ('phone_key', 'VARCHAR(12)'), ('last_seen_at', 'DATETIME'),
+        ('account_status', 'VARCHAR(20)'), ('status_reason', 'VARCHAR(255)'), ('admin_modules', 'TEXT'),
+        ('locked_until', 'DATETIME'), ('password_set_at', 'DATETIME'), ('invited_by_id', 'INTEGER'),
     ],
     'audit_log': [
         ('actor_name', 'VARCHAR(120)'), ('actor_role', 'VARCHAR(30)'), ('category', 'VARCHAR(30)'),
@@ -30,6 +32,8 @@ INDEXES = [
     ('ix_audit_log_action', 'audit_log', 'action', False),
     ('ix_audit_log_category', 'audit_log', 'category', False),
     ('ix_system_notification_created_at', 'system_notification', 'created_at', False),
+    ('ix_user_account_status', 'user', 'account_status', False),
+    ('ix_audit_log_target', 'audit_log', 'target_type, target_id', False),
 ]
 
 # Journal d'audit immuable : seule la mise à NULL de l'acteur (suppression d'un compte) reste permise.
@@ -44,7 +48,8 @@ TRIGGERS = {
 
 def ensure_identity_schema(bind):
     """`bind` : connexion ou moteur SQLAlchemy (op.get_bind() ou db.engine)."""
-    from app.models import Conversation, ConversationNote, NotificationPreference, RolePermission, SystemSetting
+    from app.models import (Announcement, Conversation, ConversationNote, ImprovementTask, NotificationPreference,
+                            Role, RolePermission, SystemSetting)
 
     def run(conn):
         insp = sa_inspect(conn)
@@ -56,7 +61,8 @@ def ensure_identity_schema(bind):
             for name, ddl in cols:
                 if name not in existing:
                     conn.execute(text(f'ALTER TABLE "{table}" ADD COLUMN {name} {ddl}'))
-        for model in (Conversation, ConversationNote, RolePermission, NotificationPreference, SystemSetting):
+        for model in (Conversation, ConversationNote, RolePermission, NotificationPreference, SystemSetting,
+                      Role, ImprovementTask, Announcement):
             if model.__tablename__ not in tables:
                 model.__table__.create(conn)
         for name, table, col, unique in INDEXES:

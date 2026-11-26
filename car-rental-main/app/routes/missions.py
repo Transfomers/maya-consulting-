@@ -270,7 +270,7 @@ def ensure_mission_schema():
 
 
 def _admin_only():
-    return current_user.is_authenticated and current_user.role in ['super_admin', 'admin_agence']
+    return current_user.is_authenticated and current_user.is_staff
 
 
 def _all_mission_driver_ids(trip):
@@ -1997,7 +1997,7 @@ def build_quick_actions_context():
         'qa_packages': qa_packages,
         'qa_bookings': qa_bookings,
         'qa_apartments': qa_apartments,
-        'qa_can_record_payment': current_user.role in ['super_admin', 'admin_agence'],
+        'qa_can_record_payment': current_user.is_staff,
     }
 
 
@@ -2062,7 +2062,7 @@ def qa_create_client():
 @missions_bp.route('/admin/quick-action/payment', methods=['POST'])
 @login_required
 def qa_record_payment():
-    if current_user.role not in ['super_admin', 'admin_agence']:
+    if not current_user.is_staff:
         flash("Permission refusée : vous n'êtes pas autorisé à enregistrer des paiements.", "danger")
         return redirect(url_for('admin.dashboard'))
 

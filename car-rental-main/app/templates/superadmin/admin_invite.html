@@ -1,0 +1,9 @@
+{% extends "superadmin/_layout.html" %}
+{% block title %}Lien d'accès — {{ user.real_name }}{% endblock %}
+{% block content %}
+<div class="sa-head"><div>
+    <a href="{{ url_for('superadmin.admin_detail', uid=user.id) }}" class="sa-back"><i class="bi bi-arrow-left"></i> {{ user.real_name or user.username }}</a>
+    <h1 class="sa-title">{{ 'Accès réinitialisé' if reset else 'Compte créé' }}</h1>
+</div></div>
+{% include "superadmin/_invite_box.html" %}
+{% endblock %}

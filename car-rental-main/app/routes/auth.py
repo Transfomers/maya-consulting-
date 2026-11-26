@@ -321,7 +321,7 @@ def verify_otp():
                 return redirect(url_for('admin.teller_dashboard'))
             if user.role == 'finance_officer':
                 return redirect(url_for('admin.finance'))
-            if user.role in ['super_admin', 'admin_agence']:
+            if user.is_staff:
                 return redirect(url_for('admin.dashboard'))
             return redirect(url_for('main.index'))
         else:
@@ -356,7 +356,7 @@ def login():
             return redirect(url_for('admin.teller_dashboard'))
         if current_user.role == 'finance_officer':
             return redirect(url_for('admin.finance'))
-        if current_user.role in ['super_admin', 'admin_agence']:
+        if current_user.is_staff:
             return redirect(url_for('admin.dashboard'))
         return redirect(url_for('main.index'))
     
@@ -402,6 +402,10 @@ def login():
                 # Standard local login (Admins/Tellers/Clients via password)
                 if not username or not password:
                     return _login_page("Saisissez votre email (ou nom d'utilisateur) et votre mot de passe.", 400)
+                from app.services.login_guard import blocked_message
+                blocked = blocked_message(username, request.remote_addr)
+                if blocked:
+                    return _login_page(blocked, 429)
                 user = User.query.filter(
                     (db.func.lower(User.username) == username.lower()) |
                     (db.func.lower(User.email) == username.lower())
@@ -409,8 +413,11 @@ def login():
                 from werkzeug.security import check_password_hash
                 if not user or not user.password_hash or not check_password_hash(user.password_hash, password):
                     from app.services.activity import record_failed_login
+                    from app.services.login_guard import register_failure
                     record_failed_login(username)
-                    return _login_page("Email/nom d'utilisateur ou mot de passe incorrect.", 401)
+                    locked_msg = register_failure(user, username, request.remote_addr)
+                    return _login_page(locked_msg or "Email/nom d'utilisateur ou mot de passe incorrect.",
+                                       429 if locked_msg else 401)
                     
                 # Email verification check disabled for testing
                 # if not getattr(user, 'is_verified', False):
@@ -427,8 +434,13 @@ def login():
 
             if getattr(user, 'is_suspended', False):
                 return _login_page('Ce compte a été suspendu. Veuillez contacter le support.', 403)
+            if getattr(user, 'account_status', None) == 'deactivated':
+                return _login_page('Ce compte a été désactivé.', 403)
 
             login_user(user, remember=bool(request.form.get('remember')))
+            user.locked_until = None
+            from app.services.security_hooks import mark_reauthenticated
+            mark_reauthenticated()
             session['lang'] = user.language if user.language else 'fr'
         
             # Record device log (user agent + IP)
@@ -458,7 +470,7 @@ def login():
                 return redirect(url_for('auth.login_success', next=url_for('admin.teller_dashboard')))
             if user.role == 'finance_officer':
                 return redirect(url_for('auth.login_success', next=url_for('admin.finance')))
-            if user.role in ['super_admin', 'admin_agence']:
+            if user.is_staff:
                 return redirect(url_for('auth.login_success', next=url_for('admin.dashboard')))
             return redirect(url_for('auth.login_success', next=next_page if next_page else url_for('main.index')))
             

@@ -30,8 +30,9 @@ def assignable_admins():
     """Administrateurs pouvant recevoir des conversations (actifs, non supprimés)."""
     from app.models import User
     from app.services.permissions import has_perm
-    admins = User.query.filter(User.role == 'admin_agence', User.is_deleted == False).order_by(User.id).all()  # noqa: E712
-    admins = [a for a in admins if getattr(a, 'is_active', True) and has_perm(a, 'conversations.reply')]
+    from app.services.permissions import staff_roles
+    admins = User.query.filter(User.role.in_(list(staff_roles())), User.is_deleted == False).order_by(User.id).all()  # noqa: E712
+    admins = [a for a in admins if a.is_active and has_perm(a, 'conversations.reply')]
     return admins
 
 
@@ -161,7 +162,7 @@ def assign(conv, admin_id, actor):
     from app.models import User
     old = conv.assigned_admin_id
     new_admin = db.session.get(User, admin_id) if admin_id else None
-    if admin_id and (not new_admin or new_admin.role not in ('admin_agence', 'super_admin') or new_admin.is_deleted):
+    if admin_id and (not new_admin or not new_admin.is_staff or not new_admin.is_active):
         raise ValueError('Administrateur invalide.')
     if old == (new_admin.id if new_admin else None):
         return False

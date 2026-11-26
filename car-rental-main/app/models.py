@@ -56,6 +56,46 @@ class User(UserMixin, db.Model):
     client_status = db.Column(db.String(20), nullable=True)        # active, vip, blocked, archived
     phone_key = db.Column(db.String(12), index=True, nullable=True)  # 9 derniers chiffres : détection des doublons
     last_seen_at = db.Column(db.DateTime, nullable=True)
+
+    # Compte (staff et clients) : statut, modules attribués, verrouillage après échecs de connexion
+    account_status = db.Column(db.String(20), nullable=True)     # invited, deactivated (suspension : is_suspended)
+    status_reason = db.Column(db.String(255), nullable=True)
+    admin_modules = db.Column(db.Text, nullable=True)            # JSON : modules opérationnels attribués
+    locked_until = db.Column(db.DateTime, nullable=True)
+    password_set_at = db.Column(db.DateTime, nullable=True)
+    invited_by_id = db.Column(db.Integer, nullable=True)
+
+    @property
+    def is_active(self):
+        """Flask-Login : un compte suspendu, désactivé ou supprimé ne peut pas se connecter."""
+        return not self.is_suspended and not self.is_deleted and self.account_status != 'deactivated'
+
+    @property
+    def status_key(self):
+        if self.is_deleted or self.account_status == 'deactivated':
+            return 'deactivated'
+        if self.is_suspended:
+            return 'suspended'
+        if self.account_status == 'invited' and not self.password_set_at:
+            return 'invited'
+        return 'active'
+
+    @property
+    def is_staff(self):
+        from app.services.permissions import is_staff_role
+        return is_staff_role(self.role)
+
+    @property
+    def is_agency_scoped(self):
+        """Membre du staff limité à son agence (tout le monde sauf le Super Admin)."""
+        return self.role != 'super_admin' and self.is_staff
+
+    @property
+    def modules(self):
+        try:
+            return _json.loads(self.admin_modules or '[]')
+        except ValueError:
+            return []
     # New client‑specific optional fields
     real_name = db.Column(db.String(120), nullable=True)
     first_name = db.Column(db.String(60), nullable=True)
@@ -1033,6 +1073,61 @@ class NotificationPreference(db.Model):
     category = db.Column(db.String(50), nullable=False)
     enabled = db.Column(db.Boolean, default=True)
     __table_args__ = (db.UniqueConstraint('user_id', 'category', name='_notif_pref_uc'),)
+
+
+class Role(db.Model):
+    """Rôle (système ou créé par le Super Admin). Les permissions sont dans `role_permission`."""
+    __tablename__ = 'role'
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(30), unique=True, nullable=False, index=True)
+    name = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    is_system = db.Column(db.Boolean, default=False)      # rôles d'origine : non supprimables
+    is_staff = db.Column(db.Boolean, default=True)        # accès à l'administration
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by_id = db.Column(db.Integer, nullable=True)
+
+
+class ImprovementTask(db.Model):
+    """Centre d'audit : problème identifié → correction suivie (jamais exécutée automatiquement)."""
+    __tablename__ = 'improvement_task'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(160), nullable=False)
+    module = db.Column(db.String(40), nullable=True, index=True)
+    severity = db.Column(db.String(10), nullable=False, default='medium', index=True)   # critical, high, medium, low
+    business_impact = db.Column(db.Text, nullable=True)
+    technical_impact = db.Column(db.Text, nullable=True)
+    recommendation = db.Column(db.Text, nullable=True)
+    complexity = db.Column(db.String(10), nullable=True)        # small, medium, large
+    priority = db.Column(db.Integer, nullable=True)             # 1 (urgent) → 4
+    status = db.Column(db.String(15), nullable=False, default='open', index=True)  # open, in_progress, done, wont_fix
+    source = db.Column(db.String(20), nullable=True)            # manual, health_check
+    assignee_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    resolved_at = db.Column(db.DateTime, nullable=True)
+
+    assignee = db.relationship('User', foreign_keys=[assignee_id])
+    created_by = db.relationship('User', foreign_keys=[created_by_id])
+
+
+class Announcement(db.Model):
+    """Annonce envoyée par le Super Admin (staff, clients ou tous), avec suivi d'envoi réel."""
+    __tablename__ = 'announcement'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    audience = db.Column(db.String(20), nullable=False)          # staff, clients, all, role:<key>
+    channels = db.Column(db.String(60), nullable=False, default='in_app')   # in_app, email
+    module = db.Column(db.String(40), nullable=True)
+    recipients = db.Column(db.Integer, default=0)
+    emails_sent = db.Column(db.Integer, default=0)
+    emails_failed = db.Column(db.Integer, default=0)
+    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    created_by = db.relationship('User', foreign_keys=[created_by_id])
 
 
 class SystemSetting(db.Model):

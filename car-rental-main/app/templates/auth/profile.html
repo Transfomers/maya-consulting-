@@ -421,11 +421,11 @@ body.dark-mode .notif-item.unread-notif {
                     <div class="status-dot"></div>
                 </div>
                 <div class="profile-name">{{ current_user.username }}</div>
-                <div class="profile-role {{ 'super-admin' if current_user.role == 'super_admin' else ('admin-agence' if current_user.role == 'admin_agence' else 'teller') }}">
-                    <i class="bi {% if current_user.role == 'super_admin' %}bi-shield-lock-fill{% elif current_user.role == 'admin_agence' %}bi-building{% else %}bi-person-badge-fill{% endif %} me-1"></i>
+                <div class="profile-role {{ 'super-admin' if current_user.role == 'super_admin' else ('admin-agence' if current_user.is_agency_scoped else 'teller') }}">
+                    <i class="bi {% if current_user.role == 'super_admin' %}bi-shield-lock-fill{% elif current_user.is_agency_scoped %}bi-building{% else %}bi-person-badge-fill{% endif %} me-1"></i>
                     {% if current_user.role == 'super_admin' %}
                         {{ _t('Super Admin') }}
-                    {% elif current_user.role == 'admin_agence' %}
+                    {% elif current_user.is_agency_scoped %}
                         {{ _t('Admin Agence') }}
                     {% elif current_user.role == 'teller' %}
                         {{ _t('Agent Guichet') }}
@@ -436,7 +436,7 @@ body.dark-mode .notif-item.unread-notif {
                     {% endif %}
                 </div>
                 
-                {% if current_user.role == 'admin_agence' and current_user.agency %}
+                {% if current_user.is_agency_scoped and current_user.agency %}
                     <div class="text-muted small fw-bold mt-2 text-uppercase" style="letter-spacing: 0.05em;"><i class="bi bi-building me-1 text-primary"></i> {{ current_user.agency.name }}</div>
                 {% endif %}
                 <div class="text-muted small mt-1 opacity-75"><i class="bi bi-circle-fill text-success me-1" style="font-size:0.5rem;"></i> {{ _t('Dernière connexion: En ligne') }}</div>
@@ -448,7 +448,7 @@ body.dark-mode .notif-item.unread-notif {
                 <a class="ops-nav-link" onclick="switchTab('tab-security', this)"><i class="bi bi-shield-check fs-5"></i> {{ _t('Sécurité & Accès') }}</a>
                 
                 
-                {% if current_user.role == 'admin_agence' %}
+                {% if current_user.is_agency_scoped %}
                     <a class="ops-nav-link" onclick="switchTab('tab-agency-profile', this)"><i class="bi bi-briefcase fs-5"></i> {{ _t('Profil Agence') }}</a>
                 {% elif current_user.role == 'super_admin' %}
                     <a class="ops-nav-link" onclick="switchTab('tab-global-settings', this)"><i class="bi bi-globe fs-5"></i> {{ _t('Plateforme Globale') }}</a>

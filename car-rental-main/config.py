@@ -8,13 +8,37 @@ try:
 except ImportError:
     pass
 
+IS_PRODUCTION = (os.environ.get('APP_ENV') or os.environ.get('FLASK_ENV') or '').lower() == 'production'
+
+
 class Config:
+    APP_ENV = 'production' if IS_PRODUCTION else 'development'
+    APP_VERSION = os.environ.get('APP_VERSION', '')
     SECRET_KEY = os.environ.get('SECRET_KEY')
     if not SECRET_KEY:
-        # Clé de dev uniquement : en production, SECRET_KEY doit être défini dans .env
+        if IS_PRODUCTION:
+            # En production, une clé connue permettrait de forger des sessions : on refuse de démarrer.
+            raise RuntimeError("SECRET_KEY doit être défini dans .env en production (APP_ENV=production).")
         import warnings
         warnings.warn("SECRET_KEY absent de l'environnement : clé de développement utilisée.")
         SECRET_KEY = 'dev-only-insecure-key'
+
+    # Cookies de session : inaccessibles au JavaScript, envoyés en HTTPS uniquement en production
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SECURE = IS_PRODUCTION
+    REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SAMESITE = 'Lax'
+    REMEMBER_COOKIE_SECURE = IS_PRODUCTION
+    REMEMBER_COOKIE_DURATION = 60 * 60 * 24 * 14          # 14 jours
+    PERMANENT_SESSION_LIFETIME = 60 * 60 * 12             # 12 h
+
+    # Connexion : verrouillage après échecs répétés
+    LOGIN_MAX_FAILURES = int(os.environ.get('LOGIN_MAX_FAILURES', 5))
+    LOGIN_LOCK_MINUTES = int(os.environ.get('LOGIN_LOCK_MINUTES', 15))
+    LOGIN_MAX_FAILURES_PER_IP = int(os.environ.get('LOGIN_MAX_FAILURES_PER_IP', 20))
+    # Actions critiques du Super Admin : mot de passe redemandé si la dernière confirmation date de plus de…
+    REAUTH_MINUTES = int(os.environ.get('REAUTH_MINUTES', 10))
     
     # Database configuration (SQLite default with auto-creation of instance directory)
     db_path = os.path.join(basedir, 'instance', '3mservices.db')

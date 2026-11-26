@@ -14,7 +14,8 @@ import socket
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 
-from flask import (Blueprint, Response, abort, flash, jsonify, redirect, render_template, request, url_for)
+from flask import (Blueprint, Response, abort, current_app, flash, jsonify, redirect, render_template, request,
+                   url_for)
 from flask_login import current_user, login_required
 from sqlalchemy import func, or_
 
@@ -25,8 +26,7 @@ from app.services import conversations as convs
 from app.services.activity import CATEGORY_LABELS, action_label, record
 from app.services.identity import (CLIENT_STATUSES, FIELD_LABELS, SOURCES, get_setting, real_email, set_setting,
                                    update_client_profile)
-from app.services.permissions import (PERMISSIONS, ROLE_LABELS, STAFF_ROLES, has_perm, role_permissions,
-                                      set_role_permissions, super_admin_only)
+from app.services.permissions import has_perm, role_labels, staff_roles, super_admin_only
 from app.utils.security import csrf_protect
 
 superadmin_bp = Blueprint('superadmin', __name__)
@@ -63,7 +63,8 @@ def _sa_helpers():
     except Exception:
         db.session.rollback()
     return {'action_label': action_label, 'category_labels': CATEGORY_LABELS, 'has_perm': has_perm,
-            'role_labels': ROLE_LABELS, 'real_email': real_email, 'sa_waiting': waiting}
+            'role_labels': role_labels(), 'real_email': real_email, 'sa_waiting': waiting,
+            'view_functions': current_app.view_functions}
 
 
 def _check_csrf():
@@ -98,13 +99,17 @@ def _date_range():
             end + timedelta(days=1) - timedelta(hours=1) if end else None)
 
 
+def _staff_keys():
+    return ['super_admin'] + list(staff_roles())
+
+
 def _staff():
-    return User.query.filter(User.role.in_(STAFF), User.is_deleted == False).order_by(User.role, User.real_name).all()  # noqa: E712
+    return User.query.filter(User.role.in_(_staff_keys()), User.is_deleted == False).order_by(User.role, User.real_name).all()  # noqa: E712
 
 
 def _admins_for_assignment():
-    return User.query.filter(User.role.in_(('admin_agence', 'super_admin')), User.is_deleted == False).order_by(  # noqa: E712
-        User.real_name, User.username).all()
+    return [u for u in User.query.filter(User.role.in_(_staff_keys()), User.is_deleted == False).order_by(  # noqa: E712
+        User.real_name, User.username).all() if u.is_active and (u.role == 'super_admin' or has_perm(u, 'conversations.reply'))]
 
 
 # ── 1. Vue d'ensemble ────────────────────────────────────────────────────────
@@ -134,14 +139,14 @@ def overview():
         'late': late.count(),
         'avg_first_response': sum(resp_times) // len(resp_times) if resp_times else None,
         'avg_resolution': sum(res_times) // len(res_times) if res_times else None,
-        'admins': User.query.filter(User.role.in_(STAFF[1:]), User.is_deleted == False).count(),  # noqa: E712
+        'admins': User.query.filter(User.role.in_(list(staff_roles())), User.is_deleted == False).count(),  # noqa: E712
         'admins_today': db.session.query(func.count(func.distinct(AuditLog.user_id))).filter(
-            AuditLog.created_at >= now - timedelta(hours=24), AuditLog.actor_role.in_(STAFF)).scalar() or 0,
+            AuditLog.created_at >= now - timedelta(hours=24), AuditLog.actor_role.in_(_staff_keys())).scalar() or 0,
         'minutes': minutes,
     }
     by_status = dict(db.session.query(Conversation.status, func.count()).group_by(Conversation.status).all())
     late_list = late.order_by(Conversation.last_client_message_at).limit(8).all()
-    recent_activity = AuditLog.query.filter(AuditLog.actor_role.in_(STAFF)).order_by(AuditLog.created_at.desc()).limit(12).all()
+    recent_activity = AuditLog.query.filter(AuditLog.actor_role.in_(_staff_keys())).order_by(AuditLog.created_at.desc()).limit(12).all()
     new_clients = clients.order_by(User.created_at.desc()).limit(6).all()
     return render_template('superadmin/overview.html', stats=stats, by_status=by_status, late_list=late_list,
                            recent_activity=recent_activity, new_clients=new_clients, now=now)
@@ -286,7 +291,7 @@ def _client_scope(query):
 
 
 def _staff_only():
-    if not current_user.is_authenticated or current_user.role not in ('super_admin', 'admin_agence', 'finance_officer', 'teller'):
+    if not current_user.is_authenticated or not current_user.is_staff:
         abort(403)
 
 
@@ -394,7 +399,7 @@ def client_assign(cid):
     user = User.query.filter_by(id=cid, role='client').first_or_404()
     raw = request.form.get('admin_id', '')
     new = int(raw) if raw.isdigit() else None
-    if new and not User.query.filter(User.id == new, User.role.in_(('admin_agence', 'super_admin'))).first():
+    if new and not (db.session.get(User, new) and db.session.get(User, new).is_staff):
         flash('Administrateur invalide.', 'danger')
         return redirect(url_for('superadmin.client_detail', cid=cid))
     if new != user.assigned_admin_id:
@@ -463,60 +468,6 @@ def client_suggest(cid):
     return _render_client(user, suggestion)
 
 
-# ── 4. Administrateurs ───────────────────────────────────────────────────────
-@superadmin_bp.route('/superadmin/admins')
-@login_required
-@super_admin_only
-def admins():
-    now = datetime.utcnow()
-    staff = _staff()
-    week = now - timedelta(days=7)
-    open_counts = dict(db.session.query(Conversation.assigned_admin_id, func.count()).filter(
-        Conversation.status.in_(('new', 'open', 'pending'))).group_by(Conversation.assigned_admin_id).all())
-    waiting = dict(db.session.query(Conversation.assigned_admin_id, func.count()).filter(
-        Conversation.status.in_(('new', 'open')), Conversation.last_sender == 'client').group_by(
-        Conversation.assigned_admin_id).all())
-    replies = dict(db.session.query(AuditLog.user_id, func.count()).filter(
-        AuditLog.action == 'CONVERSATION_REPLIED', AuditLog.created_at >= week).group_by(AuditLog.user_id).all())
-    actions = dict(db.session.query(AuditLog.user_id, func.count()).filter(AuditLog.created_at >= week).group_by(
-        AuditLog.user_id).all())
-    last_login = dict(db.session.query(AuditLog.user_id, func.max(AuditLog.created_at)).filter(
-        AuditLog.action == 'LOGIN').group_by(AuditLog.user_id).all())
-    last_action = dict(db.session.query(AuditLog.user_id, func.max(AuditLog.created_at)).group_by(AuditLog.user_id).all())
-    resp = {}
-    for c in Conversation.query.filter(Conversation.first_response_by_id != None,  # noqa: E711
-                                       Conversation.first_client_message_at >= now - timedelta(days=30)).all():
-        if c.first_response_seconds is not None:
-            resp.setdefault(c.first_response_by_id, []).append(c.first_response_seconds)
-    rows = [{
-        'user': u, 'open': open_counts.get(u.id, 0), 'waiting': waiting.get(u.id, 0),
-        'replies': replies.get(u.id, 0), 'actions': actions.get(u.id, 0),
-        'last_login': last_login.get(u.id), 'last_action': last_action.get(u.id),
-        'avg_response': (sum(resp[u.id]) // len(resp[u.id])) if resp.get(u.id) else None,
-    } for u in staff]
-    return render_template('superadmin/admins.html', rows=rows, unassigned=open_counts.get(None, 0),
-                           roles=STAFF_ROLES)
-
-
-@superadmin_bp.route('/superadmin/admins/<int:uid>/role', methods=['POST'])
-@login_required
-@super_admin_only
-@csrf_protect
-def admin_role(uid):
-    user = db.get_or_404(User, uid)
-    role = request.form.get('role')
-    if user.id == current_user.id:
-        flash('Vous ne pouvez pas modifier votre propre rôle.', 'warning')
-    elif user.role == 'super_admin' or role not in STAFF_ROLES:
-        flash('Changement de rôle non autorisé.', 'danger')
-    elif role != user.role:
-        old = user.role
-        user.role = role          # journalisé automatiquement (PERMISSION_CHANGED)
-        db.session.commit()
-        flash(f'{user.real_name or user.username} : {ROLE_LABELS.get(old, old)} → {ROLE_LABELS[role]}.', 'success')
-    return redirect(url_for('superadmin.admins'))
-
-
 # ── 5 & 7. Activité et journal d'audit ───────────────────────────────────────
 def _audit_query():
     q = AuditLog.query
@@ -546,13 +497,13 @@ def _audit_query():
 @login_required
 @super_admin_only
 def activity():
-    q = _audit_query().filter(or_(AuditLog.actor_role.in_(STAFF), AuditLog.action == 'LOGIN_FAILED'))
+    q = _audit_query().filter(or_(AuditLog.actor_role.in_(_staff_keys()), AuditLog.action == 'LOGIN_FAILED'))
     items, pager = _paginate(q, 40)
     since = datetime.utcnow() - timedelta(days=7)
     per_admin = db.session.query(AuditLog.user_id, AuditLog.actor_name, func.count()).filter(
-        AuditLog.created_at >= since, AuditLog.actor_role.in_(STAFF)).group_by(AuditLog.user_id, AuditLog.actor_name).all()
+        AuditLog.created_at >= since, AuditLog.actor_role.in_(_staff_keys())).group_by(AuditLog.user_id, AuditLog.actor_name).all()
     per_cat = dict(db.session.query(AuditLog.category, func.count()).filter(
-        AuditLog.created_at >= since, AuditLog.actor_role.in_(STAFF)).group_by(AuditLog.category).all())
+        AuditLog.created_at >= since, AuditLog.actor_role.in_(_staff_keys())).group_by(AuditLog.category).all())
     return render_template('superadmin/activity.html', items=items, pg=pager, staff=_staff(),
                            per_admin=per_admin, per_cat=per_cat, mode='activity')
 
@@ -618,35 +569,6 @@ def notification_preferences():
     return redirect(request.form.get('next') or url_for('superadmin.notifications'))
 
 
-# ── 8. Rôles & permissions ───────────────────────────────────────────────────
-@superadmin_bp.route('/superadmin/roles', methods=['GET', 'POST'])
-@login_required
-@super_admin_only
-def roles():
-    if request.method == 'POST':
-        _check_csrf()
-        changes = {}
-        for role in STAFF_ROLES:
-            before = role_permissions(role)
-            after = {p for p in request.form.getlist(f'perm_{role}')}
-            if before != after:
-                set_role_permissions(role, after)
-                changes[role] = {'ajoutees': sorted(after - before), 'retirees': sorted(before - after)}
-        if changes:
-            for role, diff in changes.items():
-                record('ROLE_PERMISSIONS_UPDATED', 'permission', 'Role', None, ROLE_LABELS.get(role, role),
-                       meta=diff, commit=False)
-            db.session.commit()
-            flash('Permissions mises à jour.', 'success')
-        else:
-            flash('Aucune modification.', 'info')
-        return redirect(url_for('superadmin.roles'))
-    matrix = {role: role_permissions(role) for role in STAFF_ROLES}
-    counts = dict(db.session.query(User.role, func.count()).filter(User.is_deleted == False).group_by(User.role).all())  # noqa: E712
-    return render_template('superadmin/roles.html', permissions=PERMISSIONS, matrix=matrix, roles=STAFF_ROLES,
-                           counts=counts)
-
-
 # ── 9. Paramètres ────────────────────────────────────────────────────────────
 @superadmin_bp.route('/superadmin/settings', methods=['GET', 'POST'])
 @login_required
@@ -670,3 +592,7 @@ def settings():
                            unanswered_minutes=int(get_setting('unanswered_minutes', 15) or 15),
                            auto_assign=get_setting('auto_assign', 'least_busy'),
                            assignable=convs.assignable_admins())
+
+
+# Administrateurs, rôles, ré-authentification (module séparé, même blueprint)
+from app.routes import sa_admins  # noqa: E402,F401

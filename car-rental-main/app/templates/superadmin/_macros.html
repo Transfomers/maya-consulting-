@@ -19,3 +19,11 @@
 {%- endmacro %}
 
 {% macro conv_status(c) -%}<span class="sa-pill {{ c.status }}">{{ c.status_label }}</span>{%- endmacro %}
+
+{% macro status_pill(key, labels) -%}
+<span class="sa-pill {{ {'active': 'resolved', 'invited': 'pending', 'suspended': 'new', 'deactivated': 'closed'}.get(key, key) }}">{{ labels.get(key, key) }}</span>
+{%- endmacro %}
+
+{% macro empty(message, icon='bi-inbox') -%}
+<div class="sa-empty"><i class="bi {{ icon }}"></i><p>{{ message }}</p></div>
+{%- endmacro %}

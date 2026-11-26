@@ -107,7 +107,7 @@ def _public_asset_dir():
 
 
 def _admin_only():
-    return current_user.is_authenticated and current_user.role in ['super_admin', 'admin_agence']
+    return current_user.is_authenticated and current_user.is_staff
 
 
 def ensure_property_schema():

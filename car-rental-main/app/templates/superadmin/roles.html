@@ -1,34 +1,75 @@
 {% extends "superadmin/_layout.html" %}
-{% block title %}Super Admin — Rôles & permissions{% endblock %}
+{% block title %}Rôles & permissions{% endblock %}
 {% block content %}
 <div class="sa-head">
     <div>
         <h1 class="sa-title">Rôles & permissions</h1>
-        <p class="sa-sub">Ce que chaque rôle peut faire. Vérifié côté serveur à chaque action. Le Super Admin a toujours tous les droits.</p>
+        <p class="sa-sub">Chaque route de l'administration exige une permission, vérifiée par le serveur. Le Super Admin a toujours tous les droits ; lui seul gère les comptes staff et les rôles.</p>
     </div>
+    <button class="btn btn-brand" type="button" data-bs-toggle="collapse" data-bs-target="#newRole" aria-expanded="false"><i class="bi bi-plus-lg"></i> Nouveau rôle</button>
 </div>
+
+<div class="collapse" id="newRole">
+    <form method="post" action="{{ url_for('superadmin.role_create') }}" class="sa-card mb-3" style="max-width: 860px;">
+        <h2>Créer un rôle</h2>
+        <div class="row g-3">
+            <div class="col-md-4"><label class="form-label" for="rName">Nom *</label><input id="rName" name="name" class="form-control" required minlength="3" maxlength="80" placeholder="Ex. : Responsable flotte"></div>
+            <div class="col-md-5"><label class="form-label" for="rDesc">Description</label><input id="rDesc" name="description" class="form-control" maxlength="255"></div>
+            <div class="col-md-3"><label class="form-label" for="rCopy">Partir des droits de</label>
+                <select id="rCopy" name="copy_from" class="form-select"><option value="">Aucun (lecture du tableau de bord)</option>{% for r in staff %}<option value="{{ r.key }}">{{ r.name }}</option>{% endfor %}</select></div>
+        </div>
+        <div class="sa-form-actions"><button class="btn btn-brand">Créer</button></div>
+    </form>
+</div>
+
 <form method="post" class="sa-card p-0">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="table-responsive">
     <table class="sa-table sa-matrix">
-        <thead><tr><th>Permission</th><th>Super Admin</th>{% for k, v in roles.items() %}<th>{{ v }}<div class="sa-muted fw-normal text-lowercase">{{ counts.get(k, 0) }} compte(s)</div></th>{% endfor %}</tr></thead>
+        <thead><tr><th>Permission</th><th>Super Admin</th>{% for r in staff %}<th>{{ r.name }}<div class="sa-muted fw-normal text-lowercase">{{ counts.get(r.key, 0) }} compte(s)</div></th>{% endfor %}</tr></thead>
         <tbody>
         {% for group, perms in permissions.items() %}
-        <tr><td colspan="{{ roles|length + 2 }}" class="fw-bold" style="background: #f9fafb;">{{ group }}</td></tr>
+        <tr class="sa-matrix__group"><td colspan="{{ staff|length + 2 }}">{{ group }}</td></tr>
         {% for key, label in perms %}
         <tr>
             <td>{{ label }}<div class="sa-muted"><code>{{ key }}</code></div></td>
-            <td><i class="bi bi-check-lg text-success"></i></td>
-            {% for role in roles %}<td><input type="checkbox" class="form-check-input" name="perm_{{ role }}" value="{{ key }}" {{ 'checked' if key in matrix[role] }}></td>{% endfor %}
+            <td><i class="bi bi-check-lg text-success" aria-label="Toujours"></i></td>
+            {% for r in staff %}<td><input type="checkbox" class="form-check-input" name="perm_{{ r.key }}" value="{{ key }}" aria-label="{{ r.name }} — {{ label }}" {{ 'checked' if key in matrix[r.key] }}></td>{% endfor %}
         </tr>
         {% endfor %}
+        {% endfor %}
+        <tr class="sa-matrix__group"><td colspan="{{ staff|length + 2 }}">Super Admin uniquement (non délégable)</td></tr>
+        <tr><td>Gérer les administrateurs, les rôles, le journal d'audit et les paramètres système</td><td><i class="bi bi-check-lg text-success"></i></td>{% for r in staff %}<td><i class="bi bi-dash text-muted"></i></td>{% endfor %}</tr>
+        </tbody>
+    </table>
+    </div>
+    <div class="sa-form-actions px-3 pb-3">
+        <span class="sa-muted me-auto">Modifier les permissions redemande votre mot de passe et est journalisé.</span>
+        <button class="btn btn-brand">Enregistrer les permissions</button>
+    </div>
+</form>
+
+<section class="sa-card">
+    <h2>Rôles</h2>
+    <div class="table-responsive">
+    <table class="sa-table">
+        <thead><tr><th>Rôle</th><th>Description</th><th class="text-center">Comptes</th><th>Type</th><th></th></tr></thead>
+        <tbody>
+        {% for r in all_roles %}
+        <tr>
+            <td class="fw-semibold">{{ r.name }}<div class="sa-muted"><code>{{ r.key }}</code></div></td>
+            <td>{% if r.is_system or r.key == 'super_admin' %}{{ r.description or '' }}{% else %}
+                <form method="post" action="{{ url_for('superadmin.role_update', rid=r.id) }}" class="d-flex gap-2">
+                    <input name="name" class="form-control form-control-sm" value="{{ r.name }}" style="max-width: 200px;" aria-label="Nom">
+                    <input name="description" class="form-control form-control-sm" value="{{ r.description or '' }}" aria-label="Description">
+                    <button class="btn btn-sm btn-outline-secondary">OK</button></form>{% endif %}</td>
+            <td class="text-center">{{ counts.get(r.key, 0) }}</td>
+            <td>{{ 'Système' if r.is_system else 'Personnalisé' }}{{ '' if r.is_staff else ' · sans accès admin' }}</td>
+            <td class="text-end">{% if not r.is_system %}<form method="post" action="{{ url_for('superadmin.role_delete', rid=r.id) }}" data-confirm="Supprimer le rôle « {{ r.name|e }} » ?"><button class="btn btn-sm btn-link text-danger" {{ 'disabled' if counts.get(r.key, 0) }} title="{{ 'Des comptes ont ce rôle' if counts.get(r.key, 0) else 'Supprimer' }}"><i class="bi bi-trash"></i></button></form>{% endif %}</td>
+        </tr>
         {% endfor %}
         </tbody>
     </table>
     </div>
-    <div class="d-flex justify-content-between align-items-center p-3 flex-wrap gap-2">
-        <span class="sa-muted">Toute modification est enregistrée dans le journal d'audit et signalée.</span>
-        <button class="btn btn-danger btn-sm px-3" style="background: var(--primary-light);">Enregistrer les permissions</button>
-    </div>
-</form>
+</section>
 {% endblock %}

@@ -74,3 +74,43 @@ a.sa-kpi:hover { box-shadow: 0 6px 18px rgba(16, 24, 40, .06); }
 @media (max-width: 1100px) { .sa-conv, .sa-grid-2 { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 991px) { .sa-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 575px) { .sa-kpis { grid-template-columns: 1fr; } .sa-filters > * { width: 100% !important; } .sa-table { font-size: 12.5px; } .sa-hide-sm { display: none; } }
+
+/* ── Composants partagés (formulaires, alertes, auth, confirmations) ── */
+.btn-brand { background: var(--primary-light, #C92A2A); border: 1px solid var(--primary-light, #C92A2A); color: #fff; font-weight: 600; }
+.btn-brand:hover, .btn-brand:focus { background: #a61e1e; border-color: #a61e1e; color: #fff; }
+.sa-back { display: inline-flex; align-items: center; gap: 6px; color: #667085; font-size: 13px; text-decoration: none; margin-bottom: 4px; }
+.sa-back:hover { color: #101828; }
+.sa-alert { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; font-size: 13.5px; margin-bottom: 14px; border: 1px solid; }
+.sa-alert i { font-size: 16px; line-height: 1.2; }
+.sa-alert.is-success { background: #ecfdf3; border-color: #abefc6; color: #067647; }
+.sa-alert.is-warning { background: #fffaeb; border-color: #fedf89; color: #93370d; }
+.sa-alert.is-danger { background: #fef3f2; border-color: #fecdca; color: #b42318; }
+.sa-alert.is-info { background: #eff8ff; border-color: #b2ddff; color: #175cd3; }
+.sa-tag { display: inline-block; font-size: 11.5px; background: #f2f4f7; color: #344054; border-radius: 6px; padding: 2px 7px; margin: 0 4px 4px 0; }
+.sa-checkgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.sa-check { display: flex; align-items: center; gap: 8px; font-size: 13.5px; padding: 8px 10px; border: 1px solid #eaecf0; border-radius: 8px; cursor: pointer; margin: 0; }
+.sa-check:hover { background: #f9fafb; }
+.sa-form-actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.sa-card .form-label, .sa-card label.form-label { font-size: 12.5px; font-weight: 600; color: #344054; }
+.sa-chart { position: relative; height: 240px; }
+.sa-chart.is-sm { height: 200px; }
+.sa-danger-zone { border-color: #fecdca; }
+.sa-danger-zone h2 { color: #b42318; }
+.sa-empty i { font-size: 26px; color: #d0d5dd; display: block; margin-bottom: 6px; }
+.sa-empty p { margin: 0; }
+.sa-matrix__group td { background: #f9fafb; font-weight: 700; color: #101828; text-align: left !important; }
+.sa-auth { min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 24px 12px; }
+.sa-auth__card { width: 100%; max-width: 420px; padding: 28px; }
+.sa-auth__logo { display: block; height: 42px; margin: 0 auto 14px; }
+.sa-auth__icon { width: 52px; height: 52px; border-radius: 50%; background: #fef3f2; color: var(--primary-light, #C92A2A); display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 12px; }
+.sa-segment { display: inline-flex; border: 1px solid #eaecf0; border-radius: 8px; overflow: hidden; background: #fff; flex-wrap: wrap; }
+.sa-segment a { padding: 7px 12px; font-size: 13px; color: #475467; text-decoration: none; border-right: 1px solid #eaecf0; }
+.sa-segment a:last-child { border-right: 0; }
+.sa-segment a.is-active { background: #101828; color: #fff; }
+.sa-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.sa-health { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #f2f4f7; font-size: 13.5px; }
+.sa-health:last-child { border-bottom: 0; }
+.sa-health__state { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.sa-health__state.ok { background: #12b76a; } .sa-health__state.warn { background: #f79009; } .sa-health__state.down { background: #d92d20; } .sa-health__state.na { background: #d0d5dd; }
+@media (max-width: 1199px) { .sa-hide-md { display: none; } }
+@media (max-width: 991px) { .sa-grid-3 { grid-template-columns: minmax(0, 1fr); } }

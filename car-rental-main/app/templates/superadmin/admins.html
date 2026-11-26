@@ -1,42 +1,61 @@
 {% extends "superadmin/_layout.html" %}
-{% from "superadmin/_macros.html" import initials %}
-{% block title %}Super Admin — Administrateurs{% endblock %}
+{% from "superadmin/_macros.html" import initials, pager, status_pill, empty %}
+{% block title %}Administrateurs{% endblock %}
 {% block content %}
 <div class="sa-head">
     <div>
-        <h1 class="sa-title">Administrateurs <span class="sa-badge">{{ rows|length }}</span></h1>
-        <p class="sa-sub">Charge, réactivité et activité de chaque membre de l'équipe. {% if unassigned %}<span class="text-danger fw-semibold">{{ unassigned }} conversation(s) active(s) non assignée(s).</span>{% endif %}</p>
+        <h1 class="sa-title">Administrateurs <span class="sa-badge">{{ counts.total }}</span></h1>
+        <p class="sa-sub">Comptes de l'équipe : rôles, modules, statut et activité. Un compte n'est jamais supprimé : il est désactivé et son historique est conservé.</p>
     </div>
+    <a class="btn btn-brand" href="{{ url_for('superadmin.admin_create') }}"><i class="bi bi-person-plus"></i> Nouvel administrateur</a>
 </div>
+
+<div class="sa-kpis">
+    <a class="sa-kpi" href="{{ url_for('superadmin.admins') }}"><div class="sa-kpi__label">Comptes staff</div><div class="sa-kpi__value">{{ counts.total }}</div></a>
+    <a class="sa-kpi" href="{{ url_for('superadmin.admins') }}"><div class="sa-kpi__label">Actifs</div><div class="sa-kpi__value">{{ counts.active }}</div></a>
+    <a class="sa-kpi" href="{{ url_for('superadmin.admins', status='suspended') }}"><div class="sa-kpi__label">Suspendus</div><div class="sa-kpi__value {{ 'is-alert' if counts.suspended }}">{{ counts.suspended }}</div></a>
+    <a class="sa-kpi" href="{{ url_for('superadmin.admins', status='invited') }}"><div class="sa-kpi__label">Invitations en attente</div><div class="sa-kpi__value">{{ counts.invited }}</div></a>
+</div>
+
+<form class="sa-filters" method="get" role="search">
+    <input type="search" name="q" class="form-control" value="{{ request.args.get('q', '') }}" placeholder="Nom, e-mail, téléphone…" aria-label="Rechercher">
+    <select name="role" class="form-select" aria-label="Rôle">
+        <option value="">Tous les rôles</option>
+        <option value="super_admin" {{ 'selected' if request.args.get('role') == 'super_admin' }}>Super Admin</option>
+        {% for k, v in staff_roles.items() %}<option value="{{ k }}" {{ 'selected' if request.args.get('role') == k }}>{{ v }}</option>{% endfor %}
+    </select>
+    <select name="status" class="form-select" aria-label="Statut">
+        <option value="">Actifs & suspendus</option>
+        {% for k, v in [('invited', 'Invitation envoyée'), ('suspended', 'Suspendus'), ('deactivated', 'Désactivés'), ('all', 'Tous')] %}<option value="{{ k }}" {{ 'selected' if request.args.get('status') == k }}>{{ v }}</option>{% endfor %}
+    </select>
+    <select name="sort" class="form-select" aria-label="Trier">
+        {% for k, v in [('name', 'Nom'), ('created', 'Plus récents'), ('role', 'Rôle')] %}<option value="{{ k }}" {{ 'selected' if request.args.get('sort', 'name') == k }}>Tri : {{ v }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-dark"><i class="bi bi-funnel"></i> Filtrer</button>
+</form>
+
 <div class="sa-card p-0">
+    {% if items %}
     <div class="table-responsive">
     <table class="sa-table">
-        <thead><tr><th>Membre</th><th>Rôle</th><th class="text-center">Conv. actives</th><th class="text-center">En attente</th><th class="text-center">Réponses (7 j)</th><th class="text-center">1re réponse moy.</th><th class="sa-hide-sm">Dernière connexion</th><th class="sa-hide-sm">Dernière action</th></tr></thead>
+        <thead><tr><th>Administrateur</th><th class="sa-hide-sm">Téléphone</th><th>Rôle</th><th class="sa-hide-md">Modules</th><th>Statut</th><th class="sa-hide-sm">Dernière connexion</th><th class="sa-hide-md">Dernière activité</th><th class="sa-hide-md">Créé le</th></tr></thead>
         <tbody>
-        {% for r in rows %}{% set u = r.user %}
-        <tr>
-            <td><div class="sa-user"><span class="sa-avatar">{{ initials(u.real_name or u.username) }}</span><div class="min-w-0"><div class="sa-name">{{ u.real_name or u.username }}</div><div class="sa-muted">{{ u.email }}</div></div></div></td>
-            <td>
-                {% if u.role == 'super_admin' or u.id == current_user.id %}
-                <span class="sa-pill vip">{{ role_labels.get(u.role, u.role) }}</span>
-                {% else %}
-                <form method="post" action="{{ url_for('superadmin.admin_role', uid=u.id) }}" class="d-flex gap-1" onsubmit="return confirm('Changer le rôle de {{ (u.real_name or u.username)|e }} ?');">
-                    <select name="role" class="form-select form-select-sm" style="width: auto;">{% for k, v in roles.items() %}<option value="{{ k }}" {{ 'selected' if u.role == k }}>{{ v }}</option>{% endfor %}</select>
-                    <button class="btn btn-sm btn-outline-dark">OK</button>
-                </form>
-                {% endif %}
-            </td>
-            <td class="text-center"><a href="{{ url_for('superadmin.conversations', admin=u.id, status='active') }}">{{ r.open }}</a></td>
-            <td class="text-center {{ 'text-danger fw-semibold' if r.waiting }}">{{ r.waiting }}</td>
-            <td class="text-center">{{ r.replies }}</td>
-            <td class="text-center">{{ r.avg_response|duration }}</td>
-            <td class="sa-hide-sm sa-muted">{{ r.last_login|local_dt('%d/%m/%Y %H:%M') or '—' }}</td>
-            <td class="sa-hide-sm"><a class="sa-muted" href="{{ url_for('superadmin.activity', admin=u.id) }}">{{ r.last_action|local_dt('%d/%m/%Y %H:%M') or '—' }} · {{ r.actions }} (7 j)</a></td>
+        {% for u in items %}
+        <tr class="is-clickable" onclick="location.href='{{ url_for('superadmin.admin_detail', uid=u.id) }}'">
+            <td><div class="sa-user"><span class="sa-avatar">{{ initials(u.real_name or u.username) }}</span><div class="min-w-0"><div class="sa-name text-truncate">{{ u.real_name or u.username }}{% if u.id == current_user.id %} <span class="sa-muted">(vous)</span>{% endif %}</div><div class="sa-muted text-truncate">{{ u.email }}</div></div></div></td>
+            <td class="sa-hide-sm">{{ u.phone or '—' }}</td>
+            <td><span class="sa-pill {{ 'vip' if u.role == 'super_admin' else 'open' }}">{{ roles.get(u.role, u.role) }}</span></td>
+            <td class="sa-hide-md">{% for m in u.modules %}<span class="sa-tag">{{ modules.get(m, m) }}</span>{% else %}<span class="sa-muted">—</span>{% endfor %}</td>
+            <td>{{ status_pill(u.status_key, status_labels) }}{% if open_convs.get(u.id) %}<div class="sa-muted">{{ open_convs[u.id] }} conv. active(s)</div>{% endif %}</td>
+            <td class="sa-hide-sm sa-muted">{{ last_login.get(u.id)|local_dt('%d/%m/%Y %H:%M') or 'Jamais' }}</td>
+            <td class="sa-hide-md sa-muted">{{ last_action.get(u.id)|local_dt('%d/%m/%Y %H:%M') or '—' }}</td>
+            <td class="sa-hide-md sa-muted">{{ u.created_at|local_dt('%d/%m/%Y') }}</td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
     </div>
+    {% else %}{{ empty('Aucun administrateur ne correspond à ces filtres.', 'bi-person-badge') }}{% endif %}
 </div>
-<p class="sa-muted mt-2">Les nouveaux comptes staff se créent depuis <a href="{{ url_for('admin.admins') }}">Administration → Comptes administrateurs</a>. Les changements de rôle sont journalisés.</p>
+{{ pager(pg, 'superadmin.admins') }}
 {% endblock %}

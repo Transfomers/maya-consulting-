@@ -1,0 +1,13 @@
+<section class="sa-card" style="max-width: 760px;">
+    {% if sent %}
+    <div class="sa-alert is-success"><i class="bi bi-envelope-check"></i> E-mail envoyé à <strong>{{ user.email }}</strong> avec le lien pour choisir son mot de passe.</div>
+    {% else %}
+    <div class="sa-alert is-warning"><i class="bi bi-exclamation-triangle"></i> L'e-mail n'a pas pu être envoyé (messagerie non configurée ou en erreur). Transmettez ce lien à {{ user.real_name or user.username }} par un canal sûr.</div>
+    {% endif %}
+    <label class="form-label small fw-semibold mt-2">Lien personnel (valable 72 h, usage unique)</label>
+    <div class="input-group">
+        <input id="inviteLink" class="form-control" value="{{ link }}" readonly>
+        <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('inviteLink').value); this.textContent='Copié';">Copier</button>
+    </div>
+    <p class="sa-muted mt-2 mb-0">Ce lien n'est affiché qu'une fois. Il ne contient aucun mot de passe : la personne choisit le sien.</p>
+</section>

@@ -169,6 +169,8 @@ def create_app():
     app.register_blueprint(superadmin_bp)
     from app.services.activity import init_activity
     init_activity(app)
+    from app.services.security_hooks import init_security
+    init_security(app)
     from app.services.test_data import test_data_cli
     app.cli.add_command(test_data_cli)
 
@@ -284,6 +286,8 @@ def create_app():
             ensure_rating_schema()
             from app.services.identity_schema import ensure_identity_schema
             ensure_identity_schema(db.engine)
+            from app.services.permissions import seed_roles
+            seed_roles(db.engine)
             try:   # identifiants permanents des clients existants + fils de discussion déjà présents
                 from app.models import User as _U
                 from app.services.identity import assign_identity

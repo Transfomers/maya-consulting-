@@ -3,29 +3,49 @@
 {% block sidebar_nav %}
 {% set ep = request.endpoint %}
 <nav class="admin-sidebar-nav px-2 py-2" aria-label="Menu Super Admin">
-    <div class="sidebar-section-title">Super Admin</div>
-    {% for endpoint, icon, label, extra in [
-        ('superadmin.overview', 'bi-speedometer2', "Vue d'ensemble", []),
-        ('superadmin.conversations', 'bi-chat-square-text', 'Conversations', ['superadmin.conversation_detail']),
-        ('superadmin.clients', 'bi-people', 'Clients', ['superadmin.client_detail']),
-        ('superadmin.admins', 'bi-person-badge', 'Administrateurs', []),
-        ('superadmin.activity', 'bi-activity', "Suivi d'activité", []),
-        ('superadmin.notifications', 'bi-bell', 'Notifications', []),
-        ('superadmin.audit', 'bi-journal-lock', "Journal d'audit", []),
-        ('superadmin.roles', 'bi-shield-check', 'Rôles & permissions', []),
-        ('superadmin.settings', 'bi-sliders', 'Paramètres système', []),
+    {% for section, entries in [
+        ('Pilotage', [
+            ('superadmin.overview', 'bi-speedometer2', "Vue d'ensemble", []),
+            ('superadmin.analytics', 'bi-graph-up-arrow', 'Rapports & analyses', []),
+            ('superadmin.finance', 'bi-cash-coin', 'Paiements & finances', ['superadmin.transaction_detail']),
+        ]),
+        ('Équipe', [
+            ('superadmin.admins', 'bi-person-badge', 'Administrateurs', ['superadmin.admin_detail', 'superadmin.admin_edit', 'superadmin.admin_create', 'superadmin.admin_reset_access']),
+            ('superadmin.roles', 'bi-shield-check', 'Rôles & permissions', []),
+            ('superadmin.activity', 'bi-activity', "Suivi d'activité", []),
+        ]),
+        ('Clients', [
+            ('superadmin.clients', 'bi-people', 'Clients', ['superadmin.client_detail']),
+            ('superadmin.conversations', 'bi-chat-square-text', 'Conversations', ['superadmin.conversation_detail']),
+            ('ratings.index', 'bi-star', 'Avis clients', []),
+        ]),
+        ('Exploitation', [
+            ('admin.bookings', 'bi-calendar3', 'Réservations & missions', []),
+            ('admin.buses', 'bi-car-front', 'Véhicules', []),
+            ('admin.apartments', 'bi-building', 'Résidences', []),
+            ('contracts.index', 'bi-file-earmark-text', 'Contrats', []),
+            ('invoices.index', 'bi-receipt', 'Factures', []),
+        ]),
+        ('Plateforme', [
+            ('superadmin.notifications', 'bi-bell', 'Notifications & annonces', ['superadmin.announcements']),
+            ('admin.settings', 'bi-globe2', 'Site web & entreprise', []),
+            ('superadmin.health', 'bi-heart-pulse', 'Santé de la plateforme', []),
+            ('superadmin.improvements', 'bi-clipboard2-check', 'Audit & améliorations', []),
+            ('superadmin.audit', 'bi-journal-lock', "Journal d'audit", []),
+            ('superadmin.settings', 'bi-sliders', 'Paramètres système', []),
+        ]),
     ] %}
-    <a href="{{ url_for(endpoint) }}" class="sidebar-nav-item {% if ep == endpoint or ep in extra %}active{% endif %}" title="{{ label }}">
+    <div class="sidebar-section-title">{{ section }}</div>
+    {% for endpoint, icon, label, extra in entries if endpoint in view_functions %}
+    <a href="{{ url_for(endpoint) }}" class="sidebar-nav-item {% if ep == endpoint or ep in extra %}active{% endif %}" title="{{ label }}" {% if ep == endpoint or ep in extra %}aria-current="page"{% endif %}>
         <i class="bi {{ icon }}"></i><span class="sidebar-text">{{ label }}</span>
         {% if endpoint == 'superadmin.conversations' and sa_waiting %}<span class="sidebar-badge sidebar-badge-alert">{{ sa_waiting }}</span>{% endif %}
     </a>
     {% endfor %}
-    <div class="sidebar-section-title">Exploitation</div>
-    <a href="{{ url_for('admin.dashboard') }}" class="sidebar-nav-item" title="Retour à l'administration">
-        <i class="bi bi-arrow-left-square"></i><span class="sidebar-text">Administration</span>
-    </a>
-    <a href="{{ url_for('admin.chats') }}" class="sidebar-nav-item" title="Messagerie">
-        <i class="bi bi-chat-dots"></i><span class="sidebar-text">Messagerie</span>
+    {% endfor %}
+    <div class="sidebar-section-title">Retour</div>
+    <a href="{{ url_for('admin.dashboard') }}" class="sidebar-nav-item" title="Administration courante">
+        <i class="bi bi-arrow-left-square"></i><span class="sidebar-text">Administration courante</span>
     </a>
 </nav>
 {% endblock %}

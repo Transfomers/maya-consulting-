@@ -4,6 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+    // Jeton CSRF ajouté automatiquement à toute requête (fetch / XHR) vers ce site qui modifie des données
+    (function () {
+        var meta = document.querySelector('meta[name="csrf-token"]');
+        if (!meta) return;
+        var token = meta.content, unsafe = /^(POST|PUT|PATCH|DELETE)$/i;
+        var sameOrigin = function (url) { try { return new URL(url, location.href).origin === location.origin; } catch (e) { return true; } };
+        var origFetch = window.fetch;
+        if (origFetch) {
+            window.fetch = function (input, init) {
+                init = init || {};
+                var method = init.method || (input && input.method) || 'GET';
+                var url = typeof input === 'string' ? input : (input && input.url) || '';
+                if (unsafe.test(method) && sameOrigin(url)) {
+                    var h = new Headers(init.headers || (input && input.headers) || {});
+                    if (!h.has('X-CSRFToken')) h.set('X-CSRFToken', token);
+                    init.headers = h;
+                }
+                return origFetch.call(this, input, init);
+            };
+        }
+        var origOpen = XMLHttpRequest.prototype.open, origSend = XMLHttpRequest.prototype.send;
+        XMLHttpRequest.prototype.open = function (method, url) { this._m = method; this._u = url; return origOpen.apply(this, arguments); };
+        XMLHttpRequest.prototype.send = function () {
+            if (unsafe.test(this._m || '') && sameOrigin(this._u || '')) { try { this.setRequestHeader('X-CSRFToken', token); } catch (e) {} }
+            return origSend.apply(this, arguments);
+        };
+    })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>3M SERVICES - {% block title %}{% endblock %}</title>
     <!-- Favicon (3M SERVICES) -->
@@ -1681,7 +1710,7 @@
                 <div class="sidebar-user-avatar">{{ ((current_user.real_name or current_user.username or 'A').split()|map('first')|join)[:2]|upper }}</div>
                 <div class="user-details flex-grow-1 text-truncate">
                     <div class="sidebar-user-name text-truncate">{{ current_user.real_name or current_user.username }}</div>
-                    <div class="sidebar-user-role">{{ 'Super admin' if current_user.role == 'super_admin' else 'Admin agence' if current_user.role == 'admin_agence' else current_user.role|capitalize }}</div>
+                    <div class="sidebar-user-role">{{ 'Super admin' if current_user.role == 'super_admin' else 'Admin agence' if current_user.is_agency_scoped else current_user.role|capitalize }}</div>
                 </div>
                 <a href="{{ url_for('auth.logout') }}" class="btn-logout" title="Déconnexion" aria-label="Déconnexion">
                     <i class="bi bi-box-arrow-right"></i>
@@ -1823,7 +1852,7 @@
                                 </a>
                             </li>
                             {% if current_user.is_authenticated %}
-                            {% if current_user.role in ['super_admin', 'admin_agence'] %}
+                            {% if current_user.is_staff %}
                             <li class="nav-item">
                                 <a class="nav-link fw-semibold px-2 {% if request.endpoint == 'admin.dashboard' %}active{% endif %}"
                                     href="{{ url_for('admin.dashboard') }}">Dashboard Admin</a>
@@ -2040,7 +2069,7 @@
                                                 class="bi bi-envelope-fill me-2 text-white"></i>{{ _t('Contact') }}</a>
                                     </li>
                                     {% if current_user.is_authenticated %}
-                                    {% if current_user.role in ['super_admin', 'admin_agence'] %}
+                                    {% if current_user.is_staff %}
                                     <li>
                                         <a class="mobile-nav-link text-white {% if request.endpoint == 'admin.dashboard' %}active text-warning{% endif %}"
                                             href="{{ url_for('admin.dashboard') }}"><i
@@ -2473,7 +2502,7 @@
                             let notifUrl = "";
                             {% if current_user.role == 'client' %}
                             notifUrl = "{{ url_for('client.notifications') }}";
-                            {% elif current_user.role in ['super_admin', 'admin_agence'] %}
+                            {% elif current_user.is_staff %}
                             notifUrl = "{{ url_for('admin.profile') }}#tab-notifications";
                             {% endif %}
 
@@ -2560,6 +2589,41 @@
             }
         });
     </script>
+    {% if current_user.is_authenticated and current_user.is_staff %}
+    <!-- Confirmation unique pour toutes les actions sensibles (formulaires / liens avec data-confirm) -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border-radius: 14px;">
+            <div class="modal-body p-4">
+                <div class="d-flex gap-3">
+                    <span class="confirm-modal__icon"><i class="bi bi-exclamation-triangle"></i></span>
+                    <div><h5 class="fw-bold mb-1" id="confirmModalTitle">Confirmer l'action</h5><p class="text-muted mb-0" id="confirmModalText"></p></div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-danger" id="confirmModalOk">Confirmer</button>
+                </div>
+            </div>
+        </div></div>
+    </div>
+    <script>
+    (function () {
+        var modalEl = document.getElementById('confirmModal'); if (!modalEl || !window.bootstrap) return;
+        var modal = new bootstrap.Modal(modalEl), pending = null;
+        document.addEventListener('submit', function (e) {
+            var f = e.target;
+            if (!f.matches('form[data-confirm]') || f.dataset.confirmed === '1') return;
+            e.preventDefault(); pending = function () { f.dataset.confirmed = '1'; f.requestSubmit ? f.requestSubmit() : f.submit(); };
+            document.getElementById('confirmModalText').textContent = f.dataset.confirm; modal.show();
+        }, true);
+        document.addEventListener('click', function (e) {
+            var a = e.target.closest('a[data-confirm]'); if (!a) return;
+            e.preventDefault(); pending = function () { location.href = a.href; };
+            document.getElementById('confirmModalText').textContent = a.dataset.confirm; modal.show();
+        });
+        document.getElementById('confirmModalOk').addEventListener('click', function () { modal.hide(); if (pending) pending(); pending = null; });
+    })();
+    </script>
+    {% endif %}
     {% block extra_js %}{% endblock %}
     <!-- Global Loader -->
     <div id="global-loader" class="global-loader d-none">
