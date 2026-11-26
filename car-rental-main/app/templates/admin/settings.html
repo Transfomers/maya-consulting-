@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Paramètres Système - 3M SERVICES{% endblock %}
+{% block title %}Site web & entreprise{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -189,20 +189,9 @@
                                         <label class="form-label">Email de Support Principal</label>
                                         <input type="email" class="form-control" value="contact@3mservice.shop" name="support_email">
                                     </div>
-                                    
-                                    <div class="col-12 mt-4">
-                                        <div class="alert alert-warning d-flex align-items-center rounded-3 border-0 shadow-sm">
-                                            <i class="bi bi-cone-striped fs-3 me-3"></i>
-                                            <div>
-                                                <strong>Mode Maintenance :</strong>
-                                                <div class="form-check form-switch mt-1">
-                                                    <input class="form-check-input" type="checkbox" id="maintenanceMode">
-                                                    <label class="form-check-label" for="maintenanceMode">Activer le mode maintenance (suspend l'accès public)</label>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="col-12 mt-3">
+                                        <div class="alert alert-warning mb-0"><i class="bi bi-cone-striped me-2"></i>Le mode maintenance se règle dans <a href="{{ url_for('superadmin.settings') }}">Super Admin → Paramètres système</a> (confirmation par mot de passe).</div>
                                     </div>
-                                </div>
                                 <div class="mt-4 text-end">
                                     <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="bi bi-save me-2"></i> Appliquer</button>
                                 </div>
@@ -211,79 +200,35 @@
                     </div>
                 </div>
 
-                <!-- Payment Gateways (Mock) -->
+                <!-- Paiements en ligne : état réel (aucune passerelle intégrée) -->
                 <div class="tab-pane fade" id="paymentSettings">
-                    <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
-                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-                            <h4 class="fw-bold"><i class="bi bi-credit-card text-primary me-2"></i> Passerelles de Paiement</h4>
-                            <p class="text-muted">Configuration des API pour les paiements en ligne.</p>
+                    <div class="card">
+                        <div class="card-header pt-4 pb-3">
+                            <h4 class="fw-bold mb-1"><i class="bi bi-credit-card text-primary me-2"></i> Paiements en ligne</h4>
+                            <p class="text-muted mb-0">État de l'intégration des moyens de paiement.</p>
                         </div>
                         <div class="card-body p-4">
-                            <form method="POST" action="{{ url_for('admin.settings') }}">
-                                <h6 class="fw-bold mb-3 text-secondary border-bottom pb-2">Configuration Mobile Money (MTN/Orange)</h6>
-                                <div class="row g-3 mb-4">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Merchant ID</label>
-                                        <input type="password" class="form-control" value="MOMO_123456" name="momo_merchant">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">API Secret Key</label>
-                                        <input type="password" class="form-control" value="xxxxxxxxxxxxxxxxxxxx" name="momo_secret">
-                                    </div>
-                                </div>
-                                
-                                <h6 class="fw-bold mb-3 text-secondary border-bottom pb-2">Configuration Stripe (Cartes Bancaires)</h6>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Stripe Public Key</label>
-                                        <input type="password" class="form-control" value="pk_live_xxxxxxxxxxx" name="stripe_public">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Stripe Secret Key</label>
-                                        <input type="password" class="form-control" value="sk_live_xxxxxxxxxxx" name="stripe_secret">
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4 text-end">
-                                    <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="bi bi-save me-2"></i> Sauvegarder les clés API</button>
-                                </div>
-                            </form>
+                            <div class="alert alert-info mb-3"><i class="bi bi-info-circle me-2"></i>Aucune passerelle de paiement en ligne (Mobile Money MTN/Orange, carte bancaire) n'est intégrée à la plateforme. Les paiements sont enregistrés manuellement par l'équipe.</div>
+                            <p class="small text-muted mb-0">L'intégration d'un prestataire (ex. CinetPay, Campay, Notch Pay, Flutterwave) nécessite un compte marchand. Les clés seront alors stockées dans le fichier <code>.env</code> du serveur, jamais dans cette page, et chaque paiement sera confirmé par le prestataire (webhook) avant d'être marqué payé.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- SMTP Server (Mock) -->
+                <!-- Messagerie : configuration réelle lue depuis .env (aucun secret affiché) -->
                 <div class="tab-pane fade" id="emailSettings">
-                    <div class="card border-0 shadow-sm" style="border-radius: 1rem;">
-                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-                            <h4 class="fw-bold"><i class="bi bi-envelope-at text-primary me-2"></i> Serveur Email (SMTP)</h4>
-                            <p class="text-muted">Configuration de l'envoi d'emails système (Tickets, Factures).</p>
+                    <div class="card">
+                        <div class="card-header pt-4 pb-3">
+                            <h4 class="fw-bold mb-1"><i class="bi bi-envelope-at text-primary me-2"></i> Serveur e-mail (SMTP)</h4>
+                            <p class="text-muted mb-0">Configuration lue depuis le fichier <code>.env</code> du serveur.</p>
                         </div>
                         <div class="card-body p-4">
-                            <form method="POST" action="{{ url_for('admin.settings') }}">
-                                <div class="row g-3">
-                                    <div class="col-md-8">
-                                        <label class="form-label">SMTP Host</label>
-                                        <input type="text" class="form-control" value="smtp.3mservice.shop" name="smtp_host">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Port</label>
-                                        <input type="number" class="form-control" value="587" name="smtp_port">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Username</label>
-                                        <input type="text" class="form-control" value="no-reply@3mservice.shop" name="smtp_user">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Password</label>
-                                        <input type="password" class="form-control" value="********" name="smtp_pass">
-                                    </div>
-                                </div>
-                                <div class="mt-4 d-flex justify-content-between">
-                                    <button type="button" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-send me-2"></i> Tester la connexion</button>
-                                    <button type="submit" class="btn btn-primary rounded-pill px-4"><i class="bi bi-save me-2"></i> Sauvegarder</button>
-                                </div>
-                            </form>
+                            <dl class="row mb-3 small">
+                                <dt class="col-sm-4">Serveur</dt><dd class="col-sm-8">{{ config.get('MAIL_SERVER') or '—' }}{% if config.get('MAIL_PORT') %}:{{ config.get('MAIL_PORT') }}{% endif %}</dd>
+                                <dt class="col-sm-4">Expéditeur</dt><dd class="col-sm-8">{{ config.get('MAIL_DEFAULT_SENDER') or config.get('MAIL_USERNAME') or '—' }}</dd>
+                                <dt class="col-sm-4">Mot de passe</dt><dd class="col-sm-8">{% if config.get('MAIL_PASSWORD') %}<span class="badge bg-success">Configuré</span>{% else %}<span class="badge bg-danger">Manquant : les e-mails ne partent pas</span>{% endif %}</dd>
+                            </dl>
+                            <p class="small text-muted">Pour modifier ces valeurs, éditez <code>MAIL_*</code> dans <code>.env</code> puis redémarrez l'application.</p>
+                            {% if config.get('MAIL_PASSWORD') %}<a class="btn btn-outline-secondary btn-sm" href="{{ url_for('main.test_email') }}"><i class="bi bi-send"></i> M'envoyer un e-mail de test</a>{% endif %}
                         </div>
                     </div>
                 </div>

@@ -1,14 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Flotte de Véhicules VIP — 3M SERVICES{% endblock %}
+{% block title %}Flotte de Véhicules VIP{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
     <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
             <h2 class="fw-bold text-dark mb-1"
-                style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Fleet & Vehicles
-                Management</h2>
+                style="font-size: 1.75rem; letter-spacing: -0.5px; color: #101828 !important;">Flotte de véhicules</h2>
             <p class="text-muted mb-0" style="font-size: 0.95rem; color: #667085 !important;">Supervision en temps réel
                 des véhicules VIP 3M SERVICES, assignations chauffeurs et disponibilité.</p>
         </div>
@@ -18,7 +17,7 @@
                 <i class="bi bi-fire me-1"></i> + Configurer Offre Promo VIP
             </button>
             <a href="{{ url_for('admin.add_bus') }}" class="btn btn-sm btn-primary">
-                <i class="bi bi-plus-lg me-1"></i> Add Vehicle
+                <i class="bi bi-plus-lg me-1"></i> Ajouter un véhicule
             </a>
         </div>
     </div>
@@ -150,7 +149,7 @@
                         <option value="" disabled selected>Choisir une action groupée...</option>
                         <option value="active">Rendre Actifs (En Service)</option>
                         <option value="maintenance">Mettre en Maintenance</option>
-                        <option value="delete">Supprimer de la flotte (Soft Delete)</option>
+                        <option value="delete">Retirer de la flotte</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-sm btn-primary px-3"

@@ -106,7 +106,7 @@ class User(UserMixin, db.Model):
     city = db.Column(db.String(100), nullable=True)
     country = db.Column(db.String(100), nullable=True)
     profile_picture = db.Column(db.Text, nullable=True)  # base64 string or filename
-    language = db.Column(db.String(10), default='en')
+    language = db.Column(db.String(10), default='fr')
     momo_number = db.Column(db.String(50), nullable=True)
     orange_number = db.Column(db.String(50), nullable=True)
     preferred_payment_method = db.Column(db.String(30), nullable=True)

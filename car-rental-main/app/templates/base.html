@@ -779,56 +779,11 @@
             border-color: #ffd4c9;
         }
 
-        /* Dark mode styles */
+        /* Dark mode base tokens (detailed dark rules live in static/css/dark-mode.css) */
         body.dark-mode {
-            background: linear-gradient(135deg, #181a1b 0%, #23272b 100%);
+            background: #0b0f19;
             color: var(--text-dark);
             --glass-bg-light: var(--glass-bg-dark);
-            /* Ensure inline usages adapt properly */
-        }
-
-        /* Ensure all standard Tailwind body texts are perfectly visible in dark mode */
-        body.dark-mode .text-gray-900,
-        body.dark-mode .text-dark,
-        body.dark-mode .lead,
-        body.dark-mode p,
-        body.dark-mode span:not(.badge):not(.status-pill):not(.legend-dot) {
-            color: var(--text-dark) !important;
-        }
-
-        body.dark-mode .text-muted,
-        body.dark-mode .form-text {
-            color: var(--text-muted-dark) !important;
-        }
-
-        body.dark-mode .bg-light,
-        body.dark-mode .bg-white {
-            background-color: var(--glass-bg-dark) !important;
-            color: var(--text-dark) !important;
-            border-color: rgba(255, 255, 255, 0.08) !important;
-        }
-
-        body.dark-mode .modal-content {
-            background-color: var(--input-bg-dark) !important;
-            color: var(--text-dark) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-
-        body.dark-mode .modal-header,
-        body.dark-mode .modal-footer {
-            border-color: rgba(255, 255, 255, 0.1) !important;
-        }
-
-        body.dark-mode .list-group-item {
-            background-color: var(--glass-bg-dark) !important;
-            color: var(--text-dark) !important;
-            border-color: rgba(255, 255, 255, 0.08) !important;
-        }
-
-        body.dark-mode .list-group-item.active {
-            background-color: var(--accent-dark) !important;
-            border-color: var(--accent-dark) !important;
-            color: #181a1b !important;
         }
 
         body.dark-mode .alert {
@@ -837,104 +792,26 @@
             color: var(--text-dark) !important;
         }
 
-        body.dark-mode .alert-info {
-            border-left: 4px solid #0dcaf0 !important;
-        }
-
-        body.dark-mode .alert-success {
-            border-left: 4px solid #198754 !important;
-        }
-
-        body.dark-mode .alert-warning {
-            border-left: 4px solid #ffc107 !important;
-        }
-
-        body.dark-mode .alert-danger {
-            border-left: 4px solid #dc3545 !important;
-        }
+        body.dark-mode .alert-info { border-left: 4px solid #0dcaf0 !important; }
+        body.dark-mode .alert-success { border-left: 4px solid #198754 !important; }
+        body.dark-mode .alert-warning { border-left: 4px solid #ffc107 !important; }
+        body.dark-mode .alert-danger { border-left: 4px solid #dc3545 !important; }
 
         body.dark-mode .navbar,
         body.dark-mode .footer {
-            background-color: var(--glass-bg-dark) !important;
+            background-color: #111827 !important;
             color: var(--text-dark) !important;
             box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.18);
         }
 
         body.dark-mode .footer {
-            border-top: 1.5px solid var(--input-border-dark) !important;
+            border-top: 1.5px solid #1f2937 !important;
         }
 
-        /* Footer headers and links in dark mode */
-        body.dark-mode .footer h5 {
-            color: var(--accent-dark) !important;
-        }
-
+        body.dark-mode .footer h5 { color: #f3f4f6 !important; }
         body.dark-mode .footer .text-muted,
-        body.dark-mode .footer a.text-muted {
-            color: var(--text-muted-dark) !important;
-        }
-
-        body.dark-mode .footer a.text-muted:hover {
-            color: var(--accent-dark) !important;
-        }
-
-        /* Preserve original logo colors in dark mode as requested */
-        body.dark-mode img[src*="logorv.png"] {
-            /* filter: brightness(0) invert(1); removed to keep original color */
-        }
-
-        body.dark-mode .card {
-            background: var(--glass-bg-dark);
-            color: var(--text-dark);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.22);
-        }
-
-        body.dark-mode i,
-        body.dark-mode .bi,
-        body.dark-mode .fas,
-        body.dark-mode .far {
-            color: var(--accent-dark) !important;
-        }
-
-        body.dark-mode a:hover i,
-        body.dark-mode button:hover i,
-        body.dark-mode .card:hover i {
-            color: #ffb74d !important;
-        }
-
-        body.dark-mode .btn-primary {
-            background-color: transparent !important;
-            border: 2px solid var(--accent-dark) !important;
-            color: var(--accent-dark) !important;
-        }
-
-        body.dark-mode .btn-primary i {
-            color: var(--accent-dark) !important;
-        }
-
-        body.dark-mode .btn-primary:hover,
-        body.dark-mode .btn-primary:focus {
-            background-color: var(--accent-dark) !important;
-            border-color: var(--accent-dark) !important;
-            color: #181a1b !important;
-        }
-
-        body.dark-mode .btn-primary:hover i {
-            color: #181a1b !important;
-        }
-
-        body.dark-mode .btn-outline-primary {
-            color: var(--text-dark) !important;
-            border-color: rgba(255, 255, 255, 0.15) !important;
-        }
-
-        body.dark-mode .btn-outline-primary:hover,
-        body.dark-mode .btn-check:checked+.btn-outline-primary {
-            background-color: var(--accent-dark) !important;
-            border-color: var(--accent-dark) !important;
-            color: #181a1b !important;
-        }
+        body.dark-mode .footer a.text-muted { color: #9ca3af !important; }
+        body.dark-mode .footer a.text-muted:hover { color: #FF5B35 !important; }
 
         body.dark-mode .btn-outline-secondary {
             color: var(--text-dark) !important;
@@ -1026,15 +903,14 @@
             color: var(--text-dark);
         }
 
-        body.dark-mode .nav-link,
-        body.dark-mode .navbar .dropdown-item {
-            color: var(--accent-dark) !important;
+        body.dark-mode .nav-link {
+            color: #d1d5db;
         }
 
         body.dark-mode .nav-link.active,
         body.dark-mode .nav-link:focus {
-            border-bottom: 2.5px solid var(--accent-dark);
-            color: #ffb74d !important;
+            border-bottom: 2.5px solid #FF5B35;
+            color: #ffffff;
         }
 
         .theme-toggle {
@@ -1600,11 +1476,13 @@
         }
     </style>
     {% block extra_css %}{% endblock %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-shell.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-shell.css') }}?v=3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}?v=1">
 </head>
 
 <body>
-    {% set is_admin_page = (request.blueprint == 'admin' or request.path.startswith('/admin')) %}
+    <script>try{if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark-mode');}}catch(e){}</script>
+    {% set is_admin_page = (request.blueprint == 'admin' or request.path.startswith('/admin') or request.path.startswith('/superadmin')) %}
 
     {% if is_admin_page %}
     <!-- ══ UNIFIED 3M SERVICES ADMIN SIDEBAR & TOPBAR LAYOUT ══ -->
@@ -1640,52 +1518,74 @@
                 </a>
                 {% endif %}
                 <div class="sidebar-section-title">Opérations</div>
+                {% if has_perm(current_user, 'dashboard.view') %}
                 <a href="{{ url_for('admin.dashboard') }}" class="sidebar-nav-item {% if ep == 'admin.dashboard' %}active{% endif %}" title="Tableau de bord">
                     <i class="bi bi-grid"></i><span class="sidebar-text">Tableau de bord</span>
                 </a>
+                {% endif %}
+                {% if has_perm(current_user, 'bookings.view') %}
                 <a href="{{ url_for('admin.bookings') }}" class="sidebar-nav-item {% if ep in ['admin.bookings', 'admin.edit_booking', 'missions.missions_hub', 'missions.mission_detail'] %}active{% endif %}" title="Sorties & Missions VIP">
                     <i class="bi bi-calendar3"></i><span class="sidebar-text">Sorties & Missions VIP</span>
                     {% if shell.missions_open %}<span class="sidebar-badge">{{ shell.missions_open }}</span>{% endif %}
                 </a>
+                {% endif %}
+                {% if has_perm(current_user, 'vehicles.view') %}
                 <a href="{{ url_for('admin.buses') }}" class="sidebar-nav-item {% if ep in ['admin.buses', 'admin.add_bus', 'admin.edit_bus'] %}active{% endif %}" title="Véhicules">
                     <i class="bi bi-car-front"></i><span class="sidebar-text">Véhicules</span>
                     {% if shell.vehicles %}<span class="sidebar-badge">{{ shell.vehicles }}</span>{% endif %}
                 </a>
+                {% endif %}
+                {% if has_perm(current_user, 'drivers.view') %}
                 <a href="{{ url_for('admin.drivers') }}" class="sidebar-nav-item {% if ep in ['admin.drivers', 'admin.add_driver', 'admin.edit_driver'] %}active{% endif %}" title="Chauffeurs">
                     <i class="bi bi-person-badge"></i><span class="sidebar-text">Chauffeurs</span>
                 </a>
+                {% endif %}
+                {% if has_perm(current_user, 'conversations.view_assigned') or has_perm(current_user, 'conversations.view_unassigned') or has_perm(current_user, 'conversations.view_all') %}
                 <a href="{{ url_for('admin.chats') }}" class="sidebar-nav-item {% if ep == 'admin.chats' %}active{% endif %}" title="Messagerie & Chat">
                     <i class="bi bi-chat-dots"></i><span class="sidebar-text">Messagerie & Chat</span>
                     <span class="sidebar-badge sidebar-badge-alert" id="sidebarChatBadge" hidden>0</span>
                 </a>
+                {% endif %}
 
                 <div class="sidebar-section-title">Clientèle</div>
+                {% if has_perm(current_user, 'clients.view_all') or has_perm(current_user, 'clients.view_assigned') %}
                 <a href="{{ url_for('admin.users') }}" class="sidebar-nav-item {% if ep in ['admin.users', 'admin.edit_user'] %}active{% endif %}" title="Clients">
                     <i class="bi bi-people"></i><span class="sidebar-text">Clients</span>
                 </a>
+                {% endif %}
+                {% if has_perm(current_user, 'listings.view') %}
                 <a href="{{ url_for('admin.apartments') }}" class="sidebar-nav-item {% if ep in ['admin.apartments', 'admin.add_apartment', 'admin.edit_apartment', 'properties.property_calendar'] %}active{% endif %}" title="Résidences meublées">
                     <i class="bi bi-building"></i><span class="sidebar-text">Résidences</span>
                 </a>
+                {% endif %}
                 {% if current_user.role != 'super_admin' %}
                 <a href="{{ url_for('superadmin.my_clients') }}" class="sidebar-nav-item {% if ep in ['superadmin.my_clients', 'superadmin.client_detail'] %}active{% endif %}" title="Mes clients">
                     <i class="bi bi-person-lines-fill"></i><span class="sidebar-text">Mes clients</span>
                 </a>
                 {% endif %}
+                {% if has_perm(current_user, 'ratings.view') %}
                 <a href="{{ url_for('ratings.index') }}" class="sidebar-nav-item {% if request.blueprint == 'ratings' %}active{% endif %}" title="Avis clients">
                     <i class="bi bi-star"></i><span class="sidebar-text">Avis clients</span>
                     {% if shell.ratings_open %}<span class="sidebar-badge sidebar-badge-alert">{{ shell.ratings_open }}</span>{% endif %}
                 </a>
+                {% endif %}
 
                 <div class="sidebar-section-title">Finance</div>
+                {% if has_perm(current_user, 'invoices.view') %}
                 <a href="{{ url_for('invoices.index') }}" class="sidebar-nav-item {% if request.blueprint == 'invoices' %}active{% endif %}" title="Factures">
                     <i class="bi bi-receipt"></i><span class="sidebar-text">Factures</span>
                 </a>
+                {% endif %}
+                {% if has_perm(current_user, 'contracts.view') %}
                 <a href="{{ url_for('contracts.index') }}" class="sidebar-nav-item {% if request.blueprint == 'contracts' %}active{% endif %}" title="Contrats">
                     <i class="bi bi-file-earmark-text"></i><span class="sidebar-text">Contrats</span>
                 </a>
-                <a href="{{ url_for('admin.shifts') }}" class="sidebar-nav-item {% if ep in ['admin.shifts', 'admin.calendar_view'] %}active{% endif %}" title="Rapports financiers">
-                    <i class="bi bi-bar-chart"></i><span class="sidebar-text">Rapports financiers</span>
+                {% endif %}
+                {% if current_user.role == 'super_admin' %}
+                <a href="{{ url_for('superadmin.finance') }}" class="sidebar-nav-item" title="Paiements & finances">
+                    <i class="bi bi-bar-chart"></i><span class="sidebar-text">Paiements & finances</span>
                 </a>
+                {% endif %}
 
                 {% if current_user.role == 'super_admin' %}
                 <div class="sidebar-section-title">Administration</div>
@@ -1760,10 +1660,11 @@
                             <a class="notif-menu__all" href="{{ url_for('admin.notifications') }}">Voir toutes les notifications</a>
                         </div>
                     </div>
-                    <button type="button" class="topbar-icon-btn" onclick="toggleTheme()" title="Basculer Mode Sombre/Clair" aria-label="Mode sombre">
-                        <i class="bi bi-moon"></i>
+                    <button type="button" class="topbar-icon-btn" onclick="toggleTheme()" title="Basculer Mode Sombre/Clair" aria-label="Basculer Mode Sombre/Clair">
+                        <i class="bi bi-moon" id="adminThemeIcon"></i>
                     </button>
 
+                    {% if has_perm(current_user, 'bookings.create') %}
                     <!-- Action principale + actions rapides -->
                     <div class="btn-group">
                         <a href="{{ url_for('admin.add_trip') }}" class="btn btn-brand"><i class="bi bi-plus-lg me-1"></i><span class="d-none d-sm-inline">Nouvelle Mission</span></a>
@@ -1771,11 +1672,12 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border rounded-3">
                             <li><h6 class="dropdown-header">Action Rapide</h6></li>
                             <li><a class="dropdown-item" href="{{ url_for('admin.add_trip') }}"><i class="bi bi-calendar-plus me-2"></i>Nouvelle Mission Flotte</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('admin.teller_book') }}"><i class="bi bi-journal-plus me-2"></i>Nouveau Contrat Location</a></li>
+                            {% if has_perm(current_user, 'legacy.access') %}<li><a class="dropdown-item" href="{{ url_for('admin.teller_book') }}"><i class="bi bi-journal-plus me-2"></i>Nouveau Contrat Location</a></li>{% endif %}
                             <li><a class="dropdown-item" href="{{ url_for('admin.add_bus') }}"><i class="bi bi-car-front me-2"></i>Ajouter un Véhicule VIP</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('admin.add_driver') }}"><i class="bi bi-person-plus me-2"></i>Enregistrer Chauffeur VIP</a></li>
                         </ul>
                     </div>
+                    {% endif %}
 
                     <div class="dropdown">
                         <button class="btn p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mon compte">
@@ -1855,7 +1757,7 @@
                             {% if current_user.is_staff %}
                             <li class="nav-item">
                                 <a class="nav-link fw-semibold px-2 {% if request.endpoint == 'admin.dashboard' %}active{% endif %}"
-                                    href="{{ url_for('admin.dashboard') }}">Dashboard Admin</a>
+                                    href="{{ url_for('admin.dashboard') }}">Tableau de bord</a>
                             </li>
                             {% endif %}
                             {% if current_user.role == 'client' %}
@@ -2073,7 +1975,7 @@
                                     <li>
                                         <a class="mobile-nav-link text-white {% if request.endpoint == 'admin.dashboard' %}active text-warning{% endif %}"
                                             href="{{ url_for('admin.dashboard') }}"><i
-                                                class="bi bi-speedometer2 me-2 text-white"></i>Dashboard Admin</a>
+                                                class="bi bi-speedometer2 me-2 text-white"></i>Tableau de bord</a>
                                     </li>
                                     {% endif %}
                                     {% if current_user.role == 'client' %}
@@ -2367,25 +2269,24 @@
         function setTheme(mode) {
             const themeIcon = document.getElementById('themeIcon');
             const themeIconMobile = document.getElementById('themeIconMobile');
+            const adminThemeIcon = document.getElementById('adminThemeIcon');
             if (mode === 'dark') {
                 document.body.classList.add('dark-mode');
-                if (themeIcon) {
-                    themeIcon.classList.remove('bi-moon-fill');
-                    themeIcon.classList.add('bi-sun-fill');
-                }
-                if (themeIconMobile) {
-                    themeIconMobile.classList.remove('bi-moon-fill');
-                    themeIconMobile.classList.add('bi-sun-fill');
+                [themeIcon, themeIconMobile].forEach(function (el) {
+                    if (el) { el.classList.remove('bi-moon-fill'); el.classList.add('bi-sun-fill'); }
+                });
+                if (adminThemeIcon) {
+                    adminThemeIcon.classList.remove('bi-moon');
+                    adminThemeIcon.classList.add('bi-sun-fill');
                 }
             } else {
                 document.body.classList.remove('dark-mode');
-                if (themeIcon) {
-                    themeIcon.classList.remove('bi-sun-fill');
-                    themeIcon.classList.add('bi-moon-fill');
-                }
-                if (themeIconMobile) {
-                    themeIconMobile.classList.remove('bi-sun-fill');
-                    themeIconMobile.classList.add('bi-moon-fill');
+                [themeIcon, themeIconMobile].forEach(function (el) {
+                    if (el) { el.classList.remove('bi-sun-fill'); el.classList.add('bi-moon-fill'); }
+                });
+                if (adminThemeIcon) {
+                    adminThemeIcon.classList.remove('bi-sun-fill');
+                    adminThemeIcon.classList.add('bi-moon');
                 }
             }
         }

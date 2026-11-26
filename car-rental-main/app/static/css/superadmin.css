@@ -114,3 +114,5 @@ a.sa-kpi:hover { box-shadow: 0 6px 18px rgba(16, 24, 40, .06); }
 .sa-health__state.ok { background: #12b76a; } .sa-health__state.warn { background: #f79009; } .sa-health__state.down { background: #d92d20; } .sa-health__state.na { background: #d0d5dd; }
 @media (max-width: 1199px) { .sa-hide-md { display: none; } }
 @media (max-width: 991px) { .sa-grid-3 { grid-template-columns: minmax(0, 1fr); } }
+/* Même marge intérieure que les pages d'exploitation (conteneur Bootstrap px-lg-4) */
+@media (min-width: 992px) { .admin-layout-wrapper .admin-main-body:has(> .sa-head), .admin-layout-wrapper .admin-main-body:has(> .sa-auth) { padding-left: 48px !important; padding-right: 48px !important; } }

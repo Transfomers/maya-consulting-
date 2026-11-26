@@ -93,7 +93,7 @@ def create_app():
 
     # Set login view
     login_manager.login_view = 'auth.login'
-    login_manager.login_message = 'Please log in to access this page.'
+    login_manager.login_message = 'Veuillez vous connecter pour accéder à cette page.'
     login_manager.login_message_category = 'info'
 
     # Setup simple i18n
@@ -114,7 +114,9 @@ def create_app():
     
     def translate(text):
         lang = session.get('lang', 'fr')
-        if lang == 'fr':
+        # L'administration est entièrement en français (cohérence de toutes les pages) ;
+        # la préférence de langue ne s'applique qu'aux pages clients.
+        if lang == 'fr' or request.path.startswith(('/admin', '/superadmin')):
             return text
         return en_translations.get(text, text)
         

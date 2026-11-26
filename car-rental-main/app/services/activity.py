@@ -45,6 +45,19 @@ ACTION_LABELS = {
     'INVOICE_CREATED': 'Facture créée', 'INVOICE_UPDATED': 'Facture modifiée',
     'STAFF_CREATED': 'Compte staff créé', 'PERMISSION_CHANGED': 'Rôle / permissions modifiés',
     'ROLE_PERMISSIONS_UPDATED': 'Permissions d’un rôle modifiées', 'SETTINGS_UPDATED': 'Paramètres modifiés',
+    'STAFF_UPDATED': 'Compte staff modifié', 'ADMIN_CREATED': 'Administrateur créé', 'ADMIN_UPDATED': 'Administrateur modifié',
+    'ADMIN_SUSPENDED': 'Administrateur suspendu', 'ADMIN_ACTIVATED': 'Administrateur réactivé',
+    'ADMIN_DEACTIVATED': 'Administrateur désactivé', 'ADMIN_ACCESS_RESET': 'Accès réinitialisé',
+    'ROLE_CREATED': 'Rôle créé', 'ROLE_UPDATED': 'Rôle modifié', 'ROLE_DELETED': 'Rôle supprimé',
+    'PASSWORD_SET': 'Mot de passe défini', 'ACCOUNT_LOCKED': 'Compte verrouillé (échecs de connexion)',
+    'REAUTHENTICATED': 'Identité confirmée', 'REAUTH_FAILED': 'Échec de confirmation d’identité',
+    'CLIENT_SUSPENDED': 'Client suspendu', 'CLIENT_REACTIVATED': 'Client réactivé',
+    'CLIENT_NAME_SUGGESTION': 'Suggestion de nom recherchée', 'CLIENTS_EXPORTED': 'Export des clients',
+    'REPORT_EXPORTED': 'Export de rapport', 'AUDIT_EXPORTED': 'Export du journal d’audit',
+    'ANNOUNCEMENT_SENT': 'Annonce envoyée', 'IMPROVEMENT_CREATED': 'Tâche d’amélioration créée',
+    'IMPROVEMENT_UPDATED': 'Tâche d’amélioration mise à jour', 'NOTIFICATIONS_DELETED_ALL': 'Notifications supprimées',
+    'RATING_REPLIED': 'Réponse à un avis', 'RATING_STATUS': 'Statut d’un avis', 'RATING_HIDDEN': 'Avis masqué',
+    'RATING_SHOWN': 'Avis réaffiché', 'APARTMENT_STAY_BOOKED': 'Séjour réservé',
 }
 
 
