@@ -1,0 +1,28 @@
+{% extends "superadmin/_layout.html" %}
+{% block title %}Transaction — {{ tx.label }}{% endblock %}
+{% macro money(v) %}{{ '{:,.0f}'.format(v or 0).replace(',', ' ') }} F{% endmacro %}
+{% block content %}
+<div class="sa-head"><div>
+    <a href="{{ url_for('superadmin.finance') }}" class="sa-back"><i class="bi bi-arrow-left"></i> Paiements & finances</a>
+    <h1 class="sa-title">{{ tx.label }} <span class="sa-pill {{ {'completed': 'resolved', 'pending': 'pending', 'failed': 'new', 'refunded': 'closed'}.get(tx.status, 'open') }}">{{ statuses.get(tx.status, tx.status) }}</span></h1>
+    <p class="sa-sub">{{ money(tx.amount) }} · {{ tx.date|local_dt('%d/%m/%Y %H:%M') }}</p>
+</div></div>
+<div class="sa-grid-2">
+    <section class="sa-card"><h2>Détails</h2>
+        <dl class="sa-kv">
+            <dt>Montant</dt><dd class="fw-semibold">{{ money(tx.amount) }}</dd>
+            <dt>Moyen</dt><dd>{{ tx.method or '—' }}</dd>
+            <dt>Référence</dt><dd>{{ tx.reference or '—' }}</dd>
+            <dt>Confirmation</dt><dd>Saisie manuelle par l'équipe (aucune confirmation automatique)</dd>
+            {% if tx.deposit %}<dt>Nature</dt><dd>Caution</dd>{% endif %}
+            {% if tx.note %}<dt>Note</dt><dd>{{ tx.note }}</dd>{% endif %}
+            {% if tx.voided_at %}<dt>Annulé le</dt><dd>{{ tx.voided_at|local_dt('%d/%m/%Y %H:%M') }}{% if tx.void_reason %} — {{ tx.void_reason }}{% endif %}</dd>{% endif %}
+        </dl>
+        {% if tx.contract %}<a class="btn btn-outline-secondary btn-sm mt-3" href="{{ url_for('contracts.detail', contract_id=tx.contract.id) }}">Ouvrir le contrat {{ tx.contract.reference }}</a>{% endif %}
+        {% if tx.contract and tx.status == 'completed' %}<p class="sa-muted mt-2 mb-0">Pour annuler / rembourser ce paiement, utilisez l'onglet Paiements du contrat (permission « Annuler / rembourser un paiement », motif obligatoire).</p>{% endif %}
+    </section>
+    <section class="sa-card"><h2>Historique</h2>
+        <ul class="sa-list">{% for a in history %}<li><div class="flex-grow-1"><strong>{{ a.actor_name or 'Système' }}</strong> · {{ action_label(a.action) }}</div><span class="sa-muted text-nowrap">{{ a.created_at|local_dt('%d/%m/%Y %H:%M') }}</span></li>{% else %}<li class="sa-muted">Aucune action enregistrée sur cette transaction.</li>{% endfor %}</ul>
+    </section>
+</div>
+{% endblock %}

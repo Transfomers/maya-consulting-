@@ -21,6 +21,7 @@ PERIODS = {
     'today': "Aujourd'hui",
     '7d': '7 derniers jours',
     '30d': '30 derniers jours',
+    '90d': '90 derniers jours',
     'month': 'Ce mois-ci',
     'year': 'Cette année',
     'custom': 'Période personnalisée',
@@ -56,6 +57,8 @@ def resolve_period(args):
         start_d, end_d = today - timedelta(days=6), today
     elif key == '30d':
         start_d, end_d = today - timedelta(days=29), today
+    elif key == '90d':
+        start_d, end_d = today - timedelta(days=89), today
     elif key == 'month':
         start_d, end_d = today.replace(day=1), today
     elif key == 'year':

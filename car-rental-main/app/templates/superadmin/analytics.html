@@ -1,0 +1,95 @@
+{% extends "superadmin/_layout.html" %}
+{% block title %}Rapports & analyses{% endblock %}
+{% macro money(v) %}{{ '{:,.0f}'.format(v or 0).replace(',', ' ') }} F{% endmacro %}
+{% block content %}
+<div class="sa-head">
+    <div>
+        <h1 class="sa-title">Rapports & analyses</h1>
+        <p class="sa-sub">Indicateurs calculés sur les enregistrements réels (données de démonstration exclues). Revenus = paiements effectivement enregistrés.</p>
+    </div>
+    {% set ex = request.args.to_dict() %}{% set _ = ex.update({'export': 'csv'}) %}
+    <a class="btn btn-outline-secondary" href="{{ url_for('superadmin.analytics', **ex) }}"><i class="bi bi-download"></i> Exporter le rapport</a>
+</div>
+{% include "superadmin/_period.html" %}
+
+<div class="sa-kpis">
+    <div class="sa-kpi"><div class="sa-kpi__label">Clients enregistrés</div><div class="sa-kpi__value">{{ kpis.clients_total }}</div><div class="sa-kpi__hint">+{{ kpis.clients_new }} sur la période</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Réservations (période)</div><div class="sa-kpi__value">{{ kpis.bookings_total }}</div><div class="sa-kpi__hint">{{ kpis.bookings_all_time }} depuis le début</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Revenus encaissés</div><div class="sa-kpi__value">{{ money(kpis.revenue_total) }}</div><div class="sa-kpi__hint">{{ kpis.payments.completed }} paiement(s) réussi(s)</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Administrateurs</div><div class="sa-kpi__value">{{ kpis.admins_active }} <small class="sa-muted fs-6">/ {{ kpis.admins_total }}</small></div><div class="sa-kpi__hint">{{ kpis.admins_suspended }} suspendu(s)</div></div>
+</div>
+<div class="sa-kpis">
+    {% for k, label in booking_status.items() %}<div class="sa-kpi"><div class="sa-kpi__label">Réservations {{ label|lower }}</div><div class="sa-kpi__value">{{ kpis.bookings[k] }}</div></div>{% endfor %}
+</div>
+<div class="sa-kpis">
+    {% for k, label in services.items() %}<div class="sa-kpi"><div class="sa-kpi__label">Revenus — {{ label }}</div><div class="sa-kpi__value">{{ money(kpis.revenue_service[k]) }}</div></div>{% endfor %}
+    <div class="sa-kpi"><div class="sa-kpi__label">Services / annonces</div><div class="sa-kpi__value">{{ kpis.listings_active }} <small class="sa-muted fs-6">/ {{ kpis.services_total }}</small></div><div class="sa-kpi__hint">actives / enregistrées</div></div>
+</div>
+<div class="sa-kpis">
+    {% for k, label in payment_status.items() %}<div class="sa-kpi"><div class="sa-kpi__label">Paiements {{ label|lower }}</div><div class="sa-kpi__value {{ 'is-alert' if k == 'failed' and kpis.payments[k] }}">{{ kpis.payments[k] }}</div>{% if k == 'pending' %}<div class="sa-kpi__hint">{{ money(kpis.payments_pending_amount) }} en attente</div>{% endif %}</div>{% endfor %}
+</div>
+
+<div class="sa-grid-2">
+    <section class="sa-card"><h2>Revenus encaissés</h2><div class="sa-chart"><canvas id="cRevenue"></canvas></div></section>
+    <section class="sa-card"><h2>Inscriptions de clients</h2><div class="sa-chart"><canvas id="cReg"></canvas></div></section>
+</div>
+<div class="sa-grid-2 mt-3">
+    <section class="sa-card"><h2>Réservations</h2><div class="sa-chart"><canvas id="cBookings"></canvas></div></section>
+    <section class="sa-card"><h2>Activité des clients <span class="sa-muted fw-normal">(conversations actives)</span></h2><div class="sa-chart"><canvas id="cClients"></canvas></div></section>
+</div>
+<div class="sa-grid-3 mt-3">
+    <section class="sa-card"><h2>Réservations par service</h2><div class="sa-chart is-sm"><canvas id="cBySvc"></canvas></div></section>
+    <section class="sa-card"><h2>Statut des réservations</h2><div class="sa-chart is-sm"><canvas id="cStatus"></canvas></div></section>
+    <section class="sa-card"><h2>Statut des paiements</h2><div class="sa-chart is-sm"><canvas id="cPay"></canvas></div></section>
+</div>
+<div class="sa-grid-2 mt-3">
+    <section class="sa-card"><h2>Revenus par service</h2><div class="sa-chart"><canvas id="cRevSvc"></canvas></div></section>
+    <section class="sa-card"><h2>Services les plus demandés</h2><div class="sa-chart"><canvas id="cTop"></canvas></div></section>
+</div>
+<div class="sa-grid-2 mt-3">
+    <section class="sa-card"><h2>Activité des administrateurs <span class="sa-muted fw-normal">(nombre d'actions)</span></h2><div class="sa-chart"><canvas id="cAdmins"></canvas></div>
+        <p class="sa-muted mt-2 mb-0">Le volume d'actions n'est pas une mesure de performance : comparez-le avec la charge et les délais (fiche de chaque administrateur).</p></section>
+    <section class="sa-card"><h2>Performance mensuelle (12 mois)</h2><div class="sa-chart"><canvas id="cMonthly"></canvas></div></section>
+</div>
+<section class="sa-card mt-3">
+    <h2>Performance annuelle</h2>
+    <div class="table-responsive"><table class="sa-table"><thead><tr><th>Année</th><th class="text-end">Réservations</th><th class="text-end">Revenus encaissés</th></tr></thead>
+    <tbody>{% for y in charts.yearly %}<tr><td>{{ y.label }}</td><td class="text-end">{{ y.bookings }}</td><td class="text-end fw-semibold">{{ money(y.revenue) }}</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    var C = {{ charts|tojson }}, RED = '#C92A2A', PAL = ['#C92A2A', '#101828', '#F79009', '#12B76A', '#2E90FA', '#7A5AF8', '#98A2B3', '#EE46BC'];
+    var fmt = function (v) { return Math.round(v).toLocaleString('fr-FR') + ' F'; };
+    Chart.defaults.font.family = "'Poppins', system-ui, sans-serif"; Chart.defaults.color = '#667085';
+    var empty = function (arr) { return !arr.some(function (v) { return v; }); };
+    function mount(id, cfg, values) {
+        var el = document.getElementById(id); if (!el) return;
+        if (values && empty(values)) { el.parentNode.innerHTML = '<div class="sa-empty"><i class="bi bi-bar-chart"></i><p>Aucune donnée sur la période.</p></div>'; return; }
+        new Chart(el, cfg);
+    }
+    var base = { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 } } } };
+    var money = JSON.parse(JSON.stringify(base)); money.scales.y.ticks = { callback: function (v) { return fmt(v); } }; money.plugins.tooltip = { callbacks: { label: function (c) { return fmt(c.parsed.y); } } };
+    var doughnut = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } }, cutout: '62%' };
+    mount('cRevenue', { type: 'line', data: { labels: C.labels, datasets: [{ data: C.revenue, borderColor: RED, backgroundColor: 'rgba(201,42,42,.08)', fill: true, tension: .3, pointRadius: 0 }] }, options: money }, C.revenue);
+    mount('cReg', { type: 'bar', data: { labels: C.labels, datasets: [{ data: C.registrations, backgroundColor: '#101828', borderRadius: 4, maxBarThickness: 18 }] }, options: base }, C.registrations);
+    mount('cBookings', { type: 'bar', data: { labels: C.labels, datasets: [{ data: C.bookings, backgroundColor: RED, borderRadius: 4, maxBarThickness: 18 }] }, options: base }, C.bookings);
+    mount('cClients', { type: 'line', data: { labels: C.labels, datasets: [{ data: C.client_activity, borderColor: '#2E90FA', tension: .3, pointRadius: 0 }] }, options: base }, C.client_activity);
+    mount('cBySvc', { type: 'doughnut', data: { labels: {{ services.values()|list|tojson }}, datasets: [{ data: C.bookings_by_service, backgroundColor: PAL }] }, options: doughnut }, C.bookings_by_service);
+    mount('cStatus', { type: 'doughnut', data: { labels: {{ booking_status.values()|list|tojson }}, datasets: [{ data: C.booking_status, backgroundColor: ['#F79009', '#2E90FA', '#12B76A', '#C92A2A'] }] }, options: doughnut }, C.booking_status);
+    mount('cPay', { type: 'doughnut', data: { labels: {{ payment_status.values()|list|tojson }}, datasets: [{ data: C.payment_status, backgroundColor: ['#12B76A', '#F79009', '#C92A2A', '#98A2B3'] }] }, options: doughnut }, C.payment_status);
+    var hb = JSON.parse(JSON.stringify(money)); hb.indexAxis = 'y'; hb.scales = { x: { beginAtZero: true, ticks: { callback: function (v) { return fmt(v); } } }, y: { grid: { display: false } } }; hb.plugins.tooltip = { callbacks: { label: function (c) { return fmt(c.parsed.x); } } };
+    mount('cRevSvc', { type: 'bar', data: { labels: {{ services.values()|list|tojson }}, datasets: [{ data: C.revenue_by_service, backgroundColor: PAL, borderRadius: 4 }] }, options: hb }, C.revenue_by_service);
+    var hc = JSON.parse(JSON.stringify(base)); hc.indexAxis = 'y'; hc.scales = { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { grid: { display: false } } };
+    mount('cTop', { type: 'bar', data: { labels: C.top_items.labels, datasets: [{ data: C.top_items.data, backgroundColor: RED, borderRadius: 4 }] }, options: hc }, C.top_items.data);
+    mount('cAdmins', { type: 'bar', data: { labels: C.admin_activity.labels, datasets: [{ data: C.admin_activity.data, backgroundColor: '#101828', borderRadius: 4 }] }, options: hc }, C.admin_activity.data);
+    var mo = { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } }, scales: { y: { beginAtZero: true, position: 'left', ticks: { callback: function (v) { return fmt(v); } } }, y1: { beginAtZero: true, position: 'right', grid: { display: false }, ticks: { precision: 0 } }, x: { grid: { display: false } } } };
+    mount('cMonthly', { type: 'bar', data: { labels: C.monthly.map(function (m) { return m.label; }), datasets: [
+        { label: 'Revenus', data: C.monthly.map(function (m) { return m.revenue; }), backgroundColor: 'rgba(201,42,42,.85)', borderRadius: 4, yAxisID: 'y' },
+        { label: 'Réservations', type: 'line', data: C.monthly.map(function (m) { return m.bookings; }), borderColor: '#101828', tension: .3, yAxisID: 'y1' }] }, options: mo },
+        C.monthly.map(function (m) { return m.revenue + m.bookings; }));
+})();
+</script>
+{% endblock %}

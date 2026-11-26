@@ -419,9 +419,12 @@
                     <span class="inv-sum-row--ctrl">
                         TVA
                         <select name="tax_percent" id="sumTaxPct" class="form-select form-select-sm">
-                            <option value="0" {% if not inv or (inv.tax_percent or 0) == 0 %}selected{% endif %}>0%</option>
-                            <option value="19.25" {% if inv and inv.tax_percent == 19.25 %}selected{% endif %}>19,25% (TVA Cameroun)</option>
-                            <option value="10" {% if inv and inv.tax_percent == 10 %}selected{% endif %}>10%</option>
+                            {% set _tax_default = platform_setting('default_tax_percent', '0')|float %}
+                            {% set _tax = inv.tax_percent if inv else _tax_default %}
+                            <option value="0" {% if (_tax or 0) == 0 %}selected{% endif %}>0%</option>
+                            <option value="19.25" {% if _tax == 19.25 %}selected{% endif %}>19,25% (TVA Cameroun)</option>
+                            <option value="10" {% if _tax == 10 %}selected{% endif %}>10%</option>
+                            {% if _tax not in (0, 19.25, 10) %}<option value="{{ _tax }}" selected>{{ _tax }}%</option>{% endif %}
                         </select>
                     </span>
                     <span id="sumTaxAmt">0 FCFA</span>

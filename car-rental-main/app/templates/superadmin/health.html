@@ -1,0 +1,39 @@
+{% extends "superadmin/_layout.html" %}
+{% block title %}Santé de la plateforme{% endblock %}
+{% block content %}
+{% set labels = {'ok': 'Opérationnel', 'warn': 'À surveiller', 'down': 'En panne', 'na': 'Non disponible'} %}
+<div class="sa-head">
+    <div>
+        <h1 class="sa-title">Santé de la plateforme</h1>
+        <p class="sa-sub">Vérifications en direct (rechargez la page pour les relancer). Aucune donnée sensible ni secret n'est affiché.</p>
+    </div>
+    <a href="{{ url_for('superadmin.health') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i> Relancer</a>
+</div>
+<div class="sa-kpis">
+    <div class="sa-kpi"><div class="sa-kpi__label">Services opérationnels</div><div class="sa-kpi__value">{{ checks|selectattr('state', 'equalto', 'ok')|list|length }} / {{ checks|length }}</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Version</div><div class="sa-kpi__value fs-5">{{ info.version }}</div><div class="sa-kpi__hint">Environnement : {{ info.env }} · Python {{ info.python }}</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Échecs de connexion (24 h)</div><div class="sa-kpi__value {{ 'is-alert' if info.failed_logins > 10 }}">{{ info.failed_logins }}</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Lignes du journal d'audit</div><div class="sa-kpi__value">{{ info.audit_rows }}</div><div class="sa-kpi__hint">immuable</div></div>
+</div>
+<div class="sa-grid-2">
+    <section class="sa-card"><h2>Services</h2>
+        {% for c in checks %}
+        <div class="sa-health"><span class="sa-health__state {{ c.state }}" aria-hidden="true"></span>
+            <div class="flex-grow-1"><strong>{{ c.name }}</strong> <span class="sa-muted">— {{ labels[c.state] }}</span><div class="sa-muted">{{ c.detail }}</div></div>
+            <span class="sa-muted">{{ c.ms }} ms</span></div>
+        {% endfor %}
+    </section>
+    <section class="sa-card"><h2>Contrôles des données <a href="{{ url_for('superadmin.improvements') }}">Créer des tâches</a></h2>
+        {% if findings %}
+        <ul class="sa-list">{% for sev, module, msg in findings %}
+            <li><span class="sa-dot {{ {'critical': 'danger', 'high': 'danger', 'medium': 'warning', 'low': 'info'}[sev] }}"></span><div class="flex-grow-1">{{ msg }}<div class="sa-muted">{{ module }}</div></div></li>{% endfor %}</ul>
+        {% else %}<div class="sa-empty"><i class="bi bi-check2-circle text-success"></i><p>Aucune incohérence détectée.</p></div>{% endif %}
+    </section>
+</div>
+<section class="sa-card mt-3"><h2>Sauvegarde & restauration</h2>
+    <p class="mb-2 small">Base SQLite (<code>instance/3mservices.db</code>) et données du site (<code>server/data/db.json</code>). À sauvegarder ensemble, au moins une fois par jour, hors du serveur :</p>
+    <pre class="small bg-light border rounded-3 p-3 mb-2">sqlite3 instance/3mservices.db ".backup 'backups/3mservices-$(date +%F).db'"
+cp server/data/db.json backups/db-$(date +%F).json</pre>
+    <p class="sa-muted mb-0">Restauration : arrêter Flask et Node, remettre les deux fichiers, redémarrer. Les migrations n'effacent jamais de données.</p>
+</section>
+{% endblock %}

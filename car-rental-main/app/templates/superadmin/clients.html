@@ -27,7 +27,12 @@
         {% for a in admins.values() %}<option value="{{ a.id }}" {{ 'selected' if request.args.get('admin') == a.id|string }}>{{ a.real_name or a.username }}</option>{% endfor %}
     </select>
     {% endif %}
-    <button class="btn btn-dark btn-sm px-3" style="height: 38px;"><i class="bi bi-search"></i> Rechercher</button>
+    <select name="account" class="form-select" aria-label="Compte"><option value="">Tous les comptes</option><option value="suspended" {{ 'selected' if request.args.get('account') == 'suspended' }}>Suspendus</option></select>
+    <input type="date" name="date_from" class="form-control" value="{{ request.args.get('date_from', '') }}" aria-label="Inscrit depuis le">
+    <input type="date" name="date_to" class="form-control" value="{{ request.args.get('date_to', '') }}" aria-label="Inscrit jusqu'au">
+    <select name="sort" class="form-select" aria-label="Trier">{% for k, v in [('', 'Plus récents'), ('old', 'Plus anciens'), ('name', 'Nom'), ('code', 'Identifiant')] %}<option value="{{ k }}" {{ 'selected' if request.args.get('sort', '') == k }}>Tri : {{ v }}</option>{% endfor %}</select>
+    <button class="btn btn-dark"><i class="bi bi-search"></i> Rechercher</button>
+    {% if has_perm(current_user, 'reports.export') %}{% set ex = request.args.to_dict() %}{% set _ = ex.update({'export': 'csv'}) %}<a class="btn btn-outline-secondary" href="{{ url_for(request.endpoint, **ex) }}"><i class="bi bi-download"></i> Exporter</a>{% endif %}
 </form>
 <div class="sa-card p-0">
     {% if items %}
@@ -42,7 +47,7 @@
             <td class="sa-hide-sm">{{ u.phone or '' }}{% if real_email(u.email) %}<div class="sa-muted">{{ real_email(u.email) }}</div>{% endif %}</td>
             <td class="sa-hide-sm">{{ sources.get(u.client_source, u.client_source or '—') }}</td>
             <td class="sa-hide-sm">{{ (admins[u.assigned_admin_id].real_name or admins[u.assigned_admin_id].username) if u.assigned_admin_id in admins else '—' }}</td>
-            <td><span class="sa-pill {{ u.client_status or 'active' }}">{{ statuses.get(u.client_status or 'active') }}</span></td>
+            <td>{% if u.is_suspended %}<span class="sa-pill new">Suspendu</span>{% else %}<span class="sa-pill {{ u.client_status or 'active' }}">{{ statuses.get(u.client_status or 'active') }}</span>{% endif %}</td>
             <td class="text-end sa-muted text-nowrap">{{ u.created_at|local_dt('%d/%m/%Y') }}</td>
         </tr>
         {% endfor %}

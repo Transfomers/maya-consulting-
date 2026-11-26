@@ -50,6 +50,29 @@ def init_security(app):
 
     app.before_request(enforce_permissions)
 
+    @app.before_request
+    def _maintenance_mode():
+        # Pages clients Flask fermées pendant une maintenance ; staff, connexion et API internes inchangés
+        ep = request.endpoint or ''
+        if not ep or ep == 'static' or ep.startswith(('auth.', 'internal.')) or ep.split('.')[0] in STAFF_BLUEPRINTS:
+            return None
+        if current_user.is_authenticated and current_user.is_staff:
+            return None
+        if ep in ('main.health_check', 'main.manifest', 'main.service_worker', 'main.favicon'):
+            return None
+        try:
+            from app.services.identity import get_setting
+            if get_setting('maintenance_mode', '0') != '1':
+                return None
+            message = get_setting('maintenance_message') or 'Le service est momentanément en maintenance. Merci de réessayer un peu plus tard.'
+        except Exception:
+            return None
+        from flask import render_template
+        if request.path.startswith('/api/') or request.is_json:
+            return jsonify({'error': message, 'maintenance': True}), 503
+        return render_template('errors/error.html', code=503, icon='🛠️', title='Maintenance en cours',
+                               description=message), 503
+
     @app.after_request
     def _security_headers(resp):
         resp.headers.setdefault('X-Content-Type-Options', 'nosniff')

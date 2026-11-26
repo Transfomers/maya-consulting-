@@ -7,7 +7,7 @@
     <div class="sa-user">
         <span class="sa-avatar is-lg">{{ initials(client_name(client)) }}</span>
         <div>
-            <h1 class="sa-title">{{ client_name(client) }} <span class="sa-pill {{ client.client_status or 'active' }}">{{ statuses.get(client.client_status or 'active') }}</span></h1>
+            <h1 class="sa-title">{{ client_name(client) }} {% if client.is_suspended %}<span class="sa-pill new">Compte suspendu</span>{% else %}<span class="sa-pill {{ client.client_status or 'active' }}">{{ statuses.get(client.client_status or 'active') }}</span>{% endif %}</h1>
             <p class="sa-sub"><span class="sa-code">{{ client.client_code }}</span> @{{ client.username }} · inscrit le {{ client.created_at|local_dt('%d/%m/%Y') }} · {{ sources.get(client.client_source, client.client_source or 'source inconnue') }}</p>
         </div>
     </div>
@@ -17,6 +17,13 @@
     </div>
 </div>
 
+{% macro money(v) %}{{ '{:,.0f}'.format(v or 0).replace(',', ' ') }} F{% endmacro %}
+<div class="sa-kpis">
+    <div class="sa-kpi"><div class="sa-kpi__label">Réservations</div><div class="sa-kpi__value">{{ stats.bookings }}</div><div class="sa-kpi__hint">{{ stats.completed }} terminée(s) · {{ stats.cancelled }} annulée(s)</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Total dépensé</div><div class="sa-kpi__value">{{ money(stats.spent) }}</div><div class="sa-kpi__hint">paiements enregistrés, hors cautions</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Factures à régler</div><div class="sa-kpi__value {{ 'is-alert' if stats.invoices_due }}">{{ money(stats.invoices_due) }}</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Conversations</div><div class="sa-kpi__value">{{ conversations|length }}</div><div class="sa-kpi__hint">historique du support</div></div>
+</div>
 <div class="sa-grid-2">
     <div>
         <section class="sa-card">
@@ -111,6 +118,30 @@
             <p class="sa-muted mt-2 mb-0">Ses prochaines conversations lui seront assignées.</p>
         </section>
         {% endif %}
+        {% if can_suspend %}
+        <section class="sa-card {{ 'sa-danger-zone' if not client.is_suspended }}">
+            <h2>Compte</h2>
+            {% if client.is_suspended %}
+            <p class="sa-muted">Compte suspendu{% if client.status_reason %} — {{ client.status_reason }}{% endif %}. Le client ne peut plus se connecter ; ses données sont conservées.</p>
+            <form method="post" action="{{ url_for('superadmin.client_account', cid=client.id) }}"><input type="hidden" name="action" value="activate"><button class="btn btn-outline-success btn-sm w-100">Réactiver le compte</button></form>
+            {% else %}
+            <form method="post" action="{{ url_for('superadmin.client_account', cid=client.id) }}" data-confirm="Suspendre le compte de {{ client_name(client)|e }} ? Il ne pourra plus se connecter.">
+                <input type="hidden" name="action" value="suspend"><input name="reason" class="form-control form-control-sm mb-2" placeholder="Motif (facultatif)" maxlength="255">
+                <button class="btn btn-outline-danger btn-sm w-100">Suspendre le compte</button></form>
+            {% endif %}
+        </section>
+        {% endif %}
+        <section class="sa-card">
+            <h2>Paiements</h2>
+            {% for p in payments %}<div class="d-flex justify-content-between small py-1 border-bottom gap-2"><span class="text-truncate">{% if p.url and current_user.role == 'super_admin' %}<a href="{{ p.url }}">{{ p.label }}</a>{% else %}{{ p.label }}{% endif %}<span class="sa-muted d-block">{{ p.date|local_dt('%d/%m/%Y') }} · {{ p.method or '—' }}{{ ' · annulé' if p.status == 'refunded' else '' }}</span></span><span class="fw-semibold text-nowrap">{{ money(p.amount) }}</span></div>
+            {% else %}<p class="sa-muted mb-0">Aucun paiement.</p>{% endfor %}
+        </section>
+        <section class="sa-card">
+            <h2>Factures & contrats</h2>
+            {% for i in invoices %}<div class="d-flex justify-content-between small py-1 border-bottom"><a href="{{ url_for('invoices.detail', invoice_id=i.id) if 'invoices.detail' in view_functions else '#' }}">{{ i.reference }}</a><span class="sa-muted">{{ money(i.total_amount) }} · {{ i.status }}</span></div>{% endfor %}
+            {% for c in contracts %}<div class="d-flex justify-content-between small py-1 border-bottom"><a href="{{ url_for('contracts.detail', contract_id=c.id) }}">{{ c.reference }}</a><span class="sa-muted">{{ c.status }}</span></div>{% endfor %}
+            {% if not invoices and not contracts %}<p class="sa-muted mb-0">Aucun.</p>{% endif %}
+        </section>
         <section class="sa-card">
             <h2>Réservations véhicules</h2>
             {% for b in bookings %}<div class="d-flex justify-content-between small py-1 border-bottom"><span>{{ b.booking_code or ('#' ~ b.id) }}</span><span class="sa-muted">{{ b.status }}</span></div>

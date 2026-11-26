@@ -1,0 +1,67 @@
+{% extends "superadmin/_layout.html" %}
+{% from "superadmin/_macros.html" import pager, empty %}
+{% block title %}Audit & améliorations{% endblock %}
+{% block content %}
+<div class="sa-head">
+    <div>
+        <h1 class="sa-title">Audit & améliorations</h1>
+        <p class="sa-sub">Problèmes identifiés et corrections à suivre. Rien n'est modifié ni déployé automatiquement : chaque correction est décidée et réalisée par une personne.</p>
+    </div>
+    <button class="btn btn-brand" type="button" data-bs-toggle="collapse" data-bs-target="#newTask"><i class="bi bi-plus-lg"></i> Nouvelle tâche</button>
+</div>
+<div class="sa-kpis">
+    {% for k, v in severities.items() %}
+    {% set args = request.args.to_dict() %}{% set _ = args.update({'severity': k}) %}
+    <a class="sa-kpi" href="{{ url_for('superadmin.improvements', **args) }}"><div class="sa-kpi__label">{{ v }}</div><div class="sa-kpi__value {{ 'is-alert' if k in ('critical', 'high') and counts.get(k) }}">{{ counts.get(k, 0) }}</div><div class="sa-kpi__hint">à traiter</div></a>
+    {% endfor %}
+</div>
+
+<div class="collapse {{ 'show' if request.args.get('new') }}" id="newTask">
+<form method="post" class="sa-card mb-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2>Nouvelle tâche</h2>
+    <div class="row g-3">
+        <div class="col-md-6"><label class="form-label" for="tTitle">Problème identifié *</label><input id="tTitle" name="title" class="form-control" required minlength="4" maxlength="160" value="{{ request.args.get('title', '') }}"></div>
+        <div class="col-md-2"><label class="form-label" for="tSev">Sévérité *</label><select id="tSev" name="severity" class="form-select">{% for k, v in severities.items() %}<option value="{{ k }}" {{ 'selected' if request.args.get('sev', 'medium') == k }}>{{ v }}</option>{% endfor %}</select></div>
+        <div class="col-md-2"><label class="form-label" for="tMod">Module</label><select id="tMod" name="module" class="form-select"><option value="">—</option>{% for m in modules %}<option {{ 'selected' if request.args.get('module') == m }}>{{ m }}</option>{% endfor %}</select></div>
+        <div class="col-md-2"><label class="form-label" for="tCx">Complexité</label><select id="tCx" name="complexity" class="form-select"><option value="">—</option>{% for k, v in complexity.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div>
+        <div class="col-md-6"><label class="form-label" for="tBiz">Impact métier</label><textarea id="tBiz" name="business_impact" class="form-control" rows="2"></textarea></div>
+        <div class="col-md-6"><label class="form-label" for="tTech">Impact technique</label><textarea id="tTech" name="technical_impact" class="form-control" rows="2"></textarea></div>
+        <div class="col-md-8"><label class="form-label" for="tReco">Correction recommandée</label><textarea id="tReco" name="recommendation" class="form-control" rows="2"></textarea></div>
+        <div class="col-md-2"><label class="form-label" for="tPrio">Priorité</label><select id="tPrio" name="priority" class="form-select"><option value="">Auto</option>{% for p in range(1, 5) %}<option value="{{ p }}">P{{ p }}</option>{% endfor %}</select></div>
+        <div class="col-md-2"><label class="form-label" for="tAs">Responsable</label><select id="tAs" name="assignee_id" class="form-select"><option value="">—</option>{% for u in staff %}<option value="{{ u.id }}">{{ u.real_name or u.username }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="sa-form-actions"><button class="btn btn-brand">Créer la tâche</button></div>
+</form>
+</div>
+
+{% if findings %}
+<section class="sa-card mb-3"><h2>Détecté automatiquement (à valider)</h2>
+    <ul class="sa-list">{% for sev, module, msg in findings %}
+        <li><span class="sa-dot {{ {'critical': 'danger', 'high': 'danger', 'medium': 'warning', 'low': 'info'}[sev] }}"></span><div class="flex-grow-1">{{ msg }}<div class="sa-muted">{{ module }} · {{ severities[sev] }}</div></div>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('superadmin.improvements', new=1, title=msg, sev=sev, module=module) }}">Créer une tâche</a></li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+<div class="sa-chips">
+    {% for k, v in [('active', 'En cours de traitement')] + statuses.items()|list + [('all', 'Toutes')] %}
+    <a class="sa-chip {{ 'is-active' if request.args.get('status', 'active') == k }}" href="{{ url_for('superadmin.improvements', status=k) }}">{{ v }}</a>{% endfor %}
+</div>
+<div class="sa-card p-0">
+    {% if items %}
+    <div class="table-responsive"><table class="sa-table">
+        <thead><tr><th>Problème</th><th>Sévérité</th><th class="sa-hide-sm">Module</th><th class="sa-hide-md">Priorité</th><th>Statut</th><th class="sa-hide-sm">Responsable</th></tr></thead>
+        <tbody>{% for t in items %}
+        <tr>
+            <td><strong>{{ t.title }}</strong>{% if t.recommendation %}<div class="sa-muted">→ {{ t.recommendation }}</div>{% endif %}<div class="sa-muted">{{ t.created_at|local_dt('%d/%m/%Y') }}{% if t.created_by %} · {{ t.created_by.real_name or t.created_by.username }}{% endif %}</div></td>
+            <td><span class="sa-pill {{ {'critical': 'new', 'high': 'new', 'medium': 'pending', 'low': 'closed'}[t.severity] }}">{{ severities[t.severity] }}</span></td>
+            <td class="sa-hide-sm">{{ t.module or '—' }}</td>
+            <td class="sa-hide-md">P{{ t.priority or '—' }}{% if t.complexity %}<div class="sa-muted">{{ complexity[t.complexity] }}</div>{% endif %}</td>
+            <td><form method="post" action="{{ url_for('superadmin.improvement_update', tid=t.id) }}"><select name="status" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Statut">{% for k, v in statuses.items() %}<option value="{{ k }}" {{ 'selected' if t.status == k }}>{{ v }}</option>{% endfor %}</select></form></td>
+            <td class="sa-hide-sm"><form method="post" action="{{ url_for('superadmin.improvement_update', tid=t.id) }}"><select name="assignee_id" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Responsable"><option value="">—</option>{% for u in staff %}<option value="{{ u.id }}" {{ 'selected' if t.assignee_id == u.id }}>{{ u.real_name or u.username }}</option>{% endfor %}</select></form></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}{{ empty('Aucune tâche dans cette vue.', 'bi-clipboard2-check') }}{% endif %}
+</div>
+{{ pager(pg, 'superadmin.improvements') }}
+{% endblock %}

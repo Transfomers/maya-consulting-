@@ -64,7 +64,7 @@ def _sa_helpers():
         db.session.rollback()
     return {'action_label': action_label, 'category_labels': CATEGORY_LABELS, 'has_perm': has_perm,
             'role_labels': role_labels(), 'real_email': real_email, 'sa_waiting': waiting,
-            'view_functions': current_app.view_functions}
+            'view_functions': current_app.view_functions, 'platform_setting': get_setting}
 
 
 def _check_csrf():
@@ -327,7 +327,30 @@ def _clients_list(template):
         q = q.filter(User.assigned_admin_id == int(admin))
     if request.args.get('test') != '1':
         q = q.filter(or_(User.is_test == False, User.is_test == None))  # noqa: E711,E712
-    items, pager = _paginate(q.order_by(User.created_at.desc()))
+    if request.args.get('account') == 'suspended':
+        q = q.filter(User.is_suspended == True)  # noqa: E712
+    start, end = _date_range()
+    if start:
+        q = q.filter(User.created_at >= start)
+    if end:
+        q = q.filter(User.created_at < end)
+    sort = {'name': User.real_name, 'code': User.client_code, 'old': User.created_at}.get(request.args.get('sort'), User.created_at.desc())
+    q = q.order_by(sort)
+    if request.args.get('export') == 'csv':
+        if not has_perm(current_user, 'reports.export'):
+            abort(403)
+        out = io.StringIO()
+        w = csv.writer(out, delimiter=';')
+        w.writerow(['Identifiant', 'Utilisateur', 'Nom', 'Téléphone', 'E-mail', 'Source', 'Statut', 'Inscription'])
+        for u in q.limit(20000).all():
+            w.writerow([u.client_code or '', u.username, u.display_name or u.real_name or '', u.phone or '',
+                        real_email(u.email), SOURCES.get(u.client_source, u.client_source or ''),
+                        'Suspendu' if u.is_suspended else CLIENT_STATUSES.get(u.client_status or 'active', ''),
+                        u.created_at.strftime('%d/%m/%Y') if u.created_at else ''])
+        record('CLIENTS_EXPORTED', 'security', meta={'filtres': dict(request.args)})
+        return Response('\ufeff' + out.getvalue(), mimetype='text/csv; charset=utf-8',
+                        headers={'Content-Disposition': f'attachment; filename=clients-{datetime.now():%Y%m%d}.csv'})
+    items, pager = _paginate(q)
     conv_counts = dict(db.session.query(Conversation.client_id, func.count()).filter(
         Conversation.client_id.in_([u.id for u in items])).group_by(Conversation.client_id).all()) if items else {}
     admins = {a.id: a for a in _admins_for_assignment()}
@@ -360,9 +383,37 @@ def _render_client(user, suggestion=None):
     bookings = Booking.query.filter_by(user_id=user.id).order_by(Booking.id.desc()).limit(10).all()
     stays = ApartmentBooking.query.filter_by(user_id=user.id).order_by(ApartmentBooking.id.desc()).limit(10).all()
     rating = ExperienceRating.query.filter_by(user_id=user.id).first()
+    from app.models import Contract, ContractPayment, Invoice, Payment
+    contracts = Contract.query.filter_by(client_id=user.id, is_deleted=False).order_by(Contract.id.desc()).all()
+    invoices = Invoice.query.filter_by(client_id=user.id).order_by(Invoice.id.desc()).limit(15).all()
+    all_bookings = Booking.query.filter_by(user_id=user.id).all()
+    all_stays = ApartmentBooking.query.filter_by(user_id=user.id).all()
+    payments = []
+    for p in Payment.query.filter(Payment.booking_id.in_([b.id for b in all_bookings] or [0])).all():
+        payments.append({'date': p.created_at, 'amount': p.amount or 0, 'label': f'Réservation #{p.booking_id}',
+                         'status': p.status, 'method': p.payment_method, 'url': url_for('superadmin.transaction_detail', kind='payment', tid=p.id)})
+    for p in ContractPayment.query.filter(ContractPayment.contract_id.in_([c.id for c in contracts] or [0])).all():
+        payments.append({'date': p.paid_at, 'amount': p.amount or 0, 'label': (p.contract.reference if p.contract else 'Contrat') + (' · caution' if p.is_deposit else ''),
+                         'status': 'refunded' if p.is_void else 'completed', 'method': p.method, 'deposit': p.is_deposit,
+                         'url': url_for('superadmin.transaction_detail', kind='contract', tid=p.id)})
+    for a in all_stays:
+        if a.payment_status in ('paid', 'partial'):
+            payments.append({'date': a.created_at, 'amount': (a.total_amount if a.payment_status == 'paid' else a.deposit_paid) or 0,
+                             'label': f'Séjour {a.booking_ref}', 'status': 'completed', 'method': a.payment_method, 'url': None})
+    payments = sorted([p for p in payments if p['date']], key=lambda p: p['date'], reverse=True)
+    stats = {
+        'bookings': len(all_bookings) + len(all_stays) + len(contracts),
+        'completed': sum(1 for a in all_stays if a.status == 'checked_out') + sum(1 for c in contracts if c.status in ('completed', 'expired')),
+        'cancelled': sum(1 for b in all_bookings if b.status == 'cancelled') + sum(1 for a in all_stays if a.status == 'cancelled')
+                     + sum(1 for c in contracts if c.status in ('cancelled', 'terminated')),
+        'spent': sum(p['amount'] for p in payments if p['status'] == 'completed' and not p.get('deposit')),
+        'invoices_due': sum(max(0, (i.total_amount or 0) - (i.amount_paid or 0)) for i in invoices if i.status not in ('paid', 'cancelled', 'draft')),
+    }
     layout = 'superadmin/_layout.html' if current_user.role == 'super_admin' else 'base.html'
     return render_template('superadmin/client_detail.html', client=user, conversations=conversations_q.all(),
                            history=history, bookings=bookings, stays=stays, rating=rating, layout=layout,
+                           contracts=contracts, invoices=invoices, payments=payments[:20], stats=stats,
+                           can_suspend=has_perm(current_user, 'clients.suspend'),
                            admins=_admins_for_assignment(), statuses=CLIENT_STATUSES, sources=SOURCES,
                            field_labels=FIELD_LABELS, suggestion=suggestion,
                            can_edit=has_perm(current_user, 'clients.edit'),
@@ -389,6 +440,31 @@ def client_edit(cid):
     else:
         flash('Aucune modification.', 'info')
     return redirect(url_for('superadmin.client_detail', cid=user.id))
+
+
+@superadmin_bp.route('/admin/clients/<int:cid>/account', methods=['POST'])
+@login_required
+@csrf_protect
+def client_account(cid):
+    """Suspendre / réactiver le compte d'un client (connexion bloquée, données conservées)."""
+    _staff_only()
+    user = _get_client_or_403(cid)
+    if not has_perm(current_user, 'clients.suspend'):
+        abort(403)
+    action = request.form.get('action')
+    if action not in ('suspend', 'activate'):
+        abort(400)
+    user.is_suspended = action == 'suspend'
+    user.status_reason = (request.form.get('reason') or '').strip()[:255] or None
+    db.session.info['skip_activity'] = True
+    db.session.flush()
+    db.session.info.pop('skip_activity', None)
+    record('CLIENT_SUSPENDED' if action == 'suspend' else 'CLIENT_REACTIVATED', 'client', 'User', user.id,
+           f'{user.client_code} · {user.display_name or user.real_name or user.username}',
+           meta={'motif': user.status_reason}, commit=False)
+    db.session.commit()
+    flash('Compte client suspendu : il ne peut plus se connecter.' if action == 'suspend' else 'Compte client réactivé.', 'success')
+    return redirect(url_for('superadmin.client_detail', cid=cid))
 
 
 @superadmin_bp.route('/admin/clients/<int:cid>/assign', methods=['POST'])
@@ -576,14 +652,31 @@ def notification_preferences():
 def settings():
     if request.method == 'POST':
         _check_csrf()
+        from app.services.security_hooks import recently_authenticated
+        if not recently_authenticated():
+            flash('Paramètres critiques : confirmez votre mot de passe puis enregistrez à nouveau.', 'warning')
+            return redirect(url_for('superadmin.confirm_password', next=url_for('superadmin.settings')))
         minutes = request.form.get('unanswered_minutes', type=int)
         mode = request.form.get('auto_assign')
-        before = {'unanswered_minutes': get_setting('unanswered_minutes', 15), 'auto_assign': get_setting('auto_assign', 'least_busy')}
+        tax = request.form.get('default_tax_percent', type=float)
+        maint = '1' if request.form.get('maintenance_mode') == '1' else '0'
+        msg = (request.form.get('maintenance_message') or '').strip()[:300]
+        keys = ('unanswered_minutes', 'auto_assign', 'default_tax_percent', 'maintenance_mode', 'maintenance_message')
+        before = {k: get_setting(k) for k in keys}
         if minutes and 1 <= minutes <= 1440:
             set_setting('unanswered_minutes', minutes, current_user.id)
         if mode in ('least_busy', 'none'):
             set_setting('auto_assign', mode, current_user.id)
-        after = {'unanswered_minutes': minutes, 'auto_assign': mode}
+        if tax is not None and 0 <= tax <= 50:
+            set_setting('default_tax_percent', f'{tax:g}', current_user.id)
+        set_setting('maintenance_mode', maint, current_user.id)
+        set_setting('maintenance_message', msg or None, current_user.id)
+        after = {k: get_setting(k) for k in keys}
+        if before.get('maintenance_mode') != maint:
+            from app.services.activity import notify_super_admin
+            notify_super_admin('🛠️ Mode maintenance ' + ('activé' if maint == '1' else 'désactivé'),
+                               f'Par {current_user.real_name or current_user.username}', 'settings',
+                               'warning' if maint == '1' else 'info', commit=False)
         record('SETTINGS_UPDATED', 'settings', meta={'avant': before, 'apres': after}, commit=False)
         db.session.commit()
         flash('Paramètres enregistrés.', 'success')
@@ -591,8 +684,12 @@ def settings():
     return render_template('superadmin/settings.html',
                            unanswered_minutes=int(get_setting('unanswered_minutes', 15) or 15),
                            auto_assign=get_setting('auto_assign', 'least_busy'),
+                           default_tax=get_setting('default_tax_percent', '19.25'),
+                           maintenance=get_setting('maintenance_mode', '0') == '1',
+                           maintenance_message=get_setting('maintenance_message', '') or '',
                            assignable=convs.assignable_admins())
 
 
 # Administrateurs, rôles, ré-authentification (module séparé, même blueprint)
 from app.routes import sa_admins  # noqa: E402,F401
+from app.routes import sa_platform  # noqa: E402,F401

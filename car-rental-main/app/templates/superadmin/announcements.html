@@ -1,0 +1,40 @@
+{% extends "superadmin/_layout.html" %}
+{% from "superadmin/_macros.html" import pager, empty %}
+{% block title %}Annonces{% endblock %}
+{% block content %}
+<div class="sa-head"><div>
+    <a href="{{ url_for('superadmin.notifications') }}" class="sa-back"><i class="bi bi-arrow-left"></i> Notifications</a>
+    <h1 class="sa-title">Annonces</h1>
+    <p class="sa-sub">Message à toute la plateforme, à l'équipe, aux clients ou à un rôle. Notification dans l'application et, si la messagerie est configurée, par e-mail.</p>
+</div></div>
+<div class="sa-grid-2">
+    <form method="post" class="sa-card" data-confirm="Publier cette annonce ? Elle sera envoyée immédiatement.">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <h2>Nouvelle annonce</h2>
+        <div class="mb-3"><label class="form-label" for="aTitle">Titre *</label><input id="aTitle" name="title" class="form-control" maxlength="150" required></div>
+        <div class="mb-3"><label class="form-label" for="aBody">Message *</label><textarea id="aBody" name="body" class="form-control" rows="5" maxlength="4000" required></textarea></div>
+        <div class="row g-3">
+            <div class="col-md-7"><label class="form-label" for="aAud">Destinataires *</label>
+                <select id="aAud" name="audience" class="form-select">{% for k, v in audiences %}<option value="{{ k }}">{{ v }} ({{ counts[k] }})</option>{% endfor %}</select></div>
+            <div class="col-md-5"><label class="form-label" for="aMod">Module (facultatif)</label>
+                <select id="aMod" name="module" class="form-select"><option value="">Général</option>{% for m in ['Véhicules', 'Résidences', 'Réservations', 'Paiements', 'Maintenance'] %}<option>{{ m }}</option>{% endfor %}</select></div>
+        </div>
+        <div class="d-flex gap-3 mt-3 flex-wrap">
+            <label class="sa-check"><input type="checkbox" name="channels" value="in_app" checked> Notification dans l'application</label>
+            <label class="sa-check {{ '' if mail_ready else 'opacity-50' }}"><input type="checkbox" name="channels" value="email" {{ '' if mail_ready else 'disabled' }}> E-mail</label>
+        </div>
+        {% if not mail_ready %}<p class="sa-muted mt-2 mb-0">E-mail indisponible : la messagerie n'est pas configurée (MAIL_PASSWORD). SMS et WhatsApp ne sont pas intégrés.</p>{% endif %}
+        <div class="sa-form-actions"><button class="btn btn-brand"><i class="bi bi-megaphone"></i> Publier</button></div>
+    </form>
+    <section class="sa-card p-0">
+        <h2 class="px-3 pt-3">Historique</h2>
+        {% if items %}
+        <ul class="sa-list px-3">{% for a in items %}
+            <li><div class="flex-grow-1 min-w-0"><strong>{{ a.title }}</strong><div class="sa-muted text-truncate">{{ a.body }}</div>
+                <div class="sa-muted">{{ audience_labels.get(a.audience, a.audience) }} · {{ a.recipients }} destinataire(s){% if 'email' in a.channels %} · e-mails : {{ a.emails_sent }} envoyé(s), {{ a.emails_failed }} échec(s){% endif %}</div></div>
+                <span class="sa-muted text-nowrap">{{ a.created_at|local_dt('%d/%m/%Y %H:%M') }}</span></li>{% endfor %}</ul>
+        <div class="px-3 pb-3">{{ pager(pg, 'superadmin.announcements') }}</div>
+        {% else %}{{ empty('Aucune annonce envoyée.', 'bi-megaphone') }}{% endif %}
+    </section>
+</div>
+{% endblock %}

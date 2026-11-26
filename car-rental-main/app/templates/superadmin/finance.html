@@ -1,0 +1,56 @@
+{% extends "superadmin/_layout.html" %}
+{% from "superadmin/_macros.html" import pager, empty %}
+{% block title %}Paiements & finances{% endblock %}
+{% macro money(v) %}{{ '{:,.0f}'.format(v or 0).replace(',', ' ') }} F{% endmacro %}
+{% block content %}
+<div class="sa-head">
+    <div>
+        <h1 class="sa-title">Paiements & finances</h1>
+        <p class="sa-sub">Transactions enregistrées (réservations et contrats), revenus et montants à encaisser.</p>
+    </div>
+    {% set ex = request.args.to_dict() %}{% set _ = ex.update({'export': 'csv'}) %}
+    <a class="btn btn-outline-secondary" href="{{ url_for('superadmin.finance', **ex) }}"><i class="bi bi-download"></i> Exporter</a>
+</div>
+<div class="sa-alert is-info"><i class="bi bi-info-circle"></i><div>Aucun prestataire de paiement en ligne (Mobile Money, carte) n'est intégré : chaque paiement est <strong>saisi manuellement</strong> par l'équipe et aucun n'est confirmé automatiquement. Les remboursements = paiements annulés.</div></div>
+{% include "superadmin/_period.html" %}
+
+<div class="sa-kpis">
+    <div class="sa-kpi"><div class="sa-kpi__label">Revenus bruts encaissés</div><div class="sa-kpi__value">{{ money(rev.total) }}</div><div class="sa-kpi__hint">hors cautions ({{ money(summary.deposits) }} reçues)</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Transactions</div><div class="sa-kpi__value">{{ summary.count }}</div><div class="sa-kpi__hint">{{ summary.completed }} réussie(s) · {{ summary.pending }} en attente · {{ summary.failed }} échouée(s)</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Remboursements / annulations</div><div class="sa-kpi__value">{{ summary.refunded }}</div><div class="sa-kpi__hint">{{ money(summary.refunded_amount) }}</div></div>
+    <div class="sa-kpi"><div class="sa-kpi__label">Reste à encaisser</div><div class="sa-kpi__value {{ 'is-alert' if outstanding.total }}">{{ money(outstanding.total) }}</div><div class="sa-kpi__hint">factures, contrats, séjours</div></div>
+</div>
+
+<div class="sa-grid-3 mb-3">
+    <section class="sa-card"><h2>Revenus par service</h2>
+        <dl class="sa-kv"><dt>Véhicules & missions</dt><dd class="text-end fw-semibold">{{ money(rev.reservations) }}</dd><dt>Résidences</dt><dd class="text-end fw-semibold">{{ money(rev.apartments) }}</dd><dt>Contrats</dt><dd class="text-end fw-semibold">{{ money(rev.contracts) }}</dd></dl></section>
+    <section class="sa-card"><h2>Moyens de paiement</h2>
+        {% if methods %}<dl class="sa-kv">{% for m, v in methods %}<dt>{{ m }}</dt><dd class="text-end fw-semibold">{{ money(v) }}</dd>{% endfor %}</dl>{% else %}<p class="sa-muted mb-0">Aucun paiement sur la période.</p>{% endif %}</section>
+    <section class="sa-card"><h2>Reste à encaisser</h2>
+        <dl class="sa-kv"><dt>Factures</dt><dd class="text-end fw-semibold">{{ money(outstanding.invoices) }}</dd><dt>Contrats</dt><dd class="text-end fw-semibold">{{ money(outstanding.contracts) }}</dd><dt>Séjours</dt><dd class="text-end fw-semibold">{{ money(outstanding.apartments) }}</dd></dl></section>
+</div>
+
+<form class="sa-filters" method="get">
+    {% for k in ('period', 'start', 'end') %}{% if request.args.get(k) %}<input type="hidden" name="{{ k }}" value="{{ request.args.get(k) }}">{% endif %}{% endfor %}
+    <select name="kind" class="form-select" aria-label="Type"><option value="">Tous les types</option><option value="payment" {{ 'selected' if request.args.get('kind') == 'payment' }}>Réservations</option><option value="contract" {{ 'selected' if request.args.get('kind') == 'contract' }}>Contrats</option></select>
+    <select name="status" class="form-select" aria-label="Statut"><option value="">Tous les statuts</option>{% for k, v in statuses.items() %}<option value="{{ k }}" {{ 'selected' if request.args.get('status') == k }}>{{ v }}</option>{% endfor %}</select>
+    <select name="method" class="form-select" aria-label="Moyen"><option value="">Tous les moyens</option>{% for m in all_methods %}<option value="{{ m }}" {{ 'selected' if request.args.get('method') == m }}>{{ m }}</option>{% endfor %}</select>
+    <button class="btn btn-dark"><i class="bi bi-funnel"></i> Filtrer</button>
+</form>
+<div class="sa-card p-0">
+    {% if rows %}
+    <div class="table-responsive"><table class="sa-table">
+        <thead><tr><th>Date</th><th>Transaction</th><th class="sa-hide-sm">Moyen</th><th class="sa-hide-sm">Référence</th><th>Statut</th><th class="text-end">Montant</th></tr></thead>
+        <tbody>{% for t in rows %}
+        <tr class="is-clickable" onclick="location.href='{{ url_for('superadmin.transaction_detail', kind=t.kind, tid=t.id) }}'">
+            <td class="sa-muted text-nowrap">{{ t.date|local_dt('%d/%m/%Y %H:%M') }}</td>
+            <td class="fw-semibold">{{ t.label }}<div class="sa-muted">{{ 'Réservation' if t.kind == 'payment' else 'Contrat' }}</div></td>
+            <td class="sa-hide-sm">{{ t.method }}</td><td class="sa-hide-sm sa-muted">{{ t.reference or '—' }}</td>
+            <td><span class="sa-pill {{ {'completed': 'resolved', 'pending': 'pending', 'failed': 'new', 'refunded': 'closed'}.get(t.status, 'open') }}">{{ statuses.get(t.status, t.status) }}</span></td>
+            <td class="text-end fw-semibold text-nowrap">{{ money(t.amount) }}</td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}{{ empty('Aucune transaction sur cette période.', 'bi-cash-stack') }}{% endif %}
+</div>
+{{ pager(pg, 'superadmin.finance') }}
+{% endblock %}

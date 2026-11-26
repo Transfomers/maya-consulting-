@@ -235,7 +235,7 @@ def set_role_permissions(role, perms):
 MODULE_RULES = [
     (r'^admin\.(notifications|notifications_feed|read_notification|read_all_notifications|archive_notification|'
      r'delete_notification|delete_all_notifications|profile|select_agency|api_visitor_checkin)$', None),
-    (r'^superadmin\.(my_clients|client_detail|client_edit|client_suggest|notification_preferences)$', None),
+    (r'^superadmin\.(my_clients|client_detail|client_edit|client_suggest|client_account|notification_preferences)$', None),
     (r'^superadmin\.', 'superadmin'),
     (r'^admin\.(admins|add_admin|edit_admin|delete_admin|toggle_admin_status)$', 'superadmin'),
     (r'^admin\.dashboard$', 'dashboard'),

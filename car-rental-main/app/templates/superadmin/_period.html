@@ -1,0 +1,15 @@
+{# Filtre de période commun (aujourd'hui, 7 j, 30 j, 90 j, année, personnalisée) #}
+<form class="sa-filters" method="get" id="periodForm">
+    {% for k, v in request.args.items() if k not in ('period', 'start', 'end', 'page', 'export') %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+    <div class="sa-segment" role="group" aria-label="Période">
+        {% for k, label in periods %}{% if k != 'custom' %}
+        {% set args = request.args.to_dict() %}{% set _ = args.update({'period': k}) %}{% set _ = args.pop('page', None) %}
+        <a href="{{ url_for(request.endpoint, **args) }}" class="{{ 'is-active' if period.key == k }}">{{ label }}</a>
+        {% endif %}{% endfor %}
+    </div>
+    <input type="hidden" name="period" value="custom">
+    <input type="date" name="start" class="form-control" value="{{ period.start_date.isoformat() if period.key == 'custom' else '' }}" aria-label="Du">
+    <input type="date" name="end" class="form-control" value="{{ period.end_date.isoformat() if period.key == 'custom' else '' }}" aria-label="Au">
+    <button class="btn btn-outline-secondary">Appliquer</button>
+    <span class="sa-muted ms-auto">{{ period.label }}</span>
+</form>
