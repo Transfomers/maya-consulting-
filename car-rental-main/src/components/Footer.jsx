@@ -5,21 +5,29 @@ import { API_BASE } from "../config/api";
 
 function Footer() {
   const [emailInput, setEmailInput] = useState("");
+  const [newsBusy, setNewsBusy] = useState(false);
+  const [newsMsg, setNewsMsg] = useState(null);
   const { t, lang } = useTranslation();
 
   const handleNewsletter = async (e) => {
     e.preventDefault();
+    if (newsBusy) return;
+    setNewsBusy(true);
+    setNewsMsg(null);
     try {
-      await fetch(`${API_BASE}/newsletter`, {
+      const res = await fetch(`${API_BASE}/newsletter`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailInput })
+        body: JSON.stringify({ email: emailInput.trim() })
       });
+      if (!res.ok) throw new Error("newsletter");
+      setNewsMsg({ ok: true, text: lang === "fr" ? "Inscription confirmée. Merci !" : "Subscribed. Thank you!" });
+      setEmailInput("");
     } catch (err) {
-      console.warn("Backend newsletter:", err);
+      setNewsMsg({ ok: false, text: lang === "fr" ? "Inscription impossible pour le moment. Veuillez réessayer." : "Could not subscribe. Please try again." });
+    } finally {
+      setNewsBusy(false);
     }
-    alert(lang === "fr" ? "Merci pour votre inscription à la newsletter 3M SERVICES !" : "Thank you for subscribing to 3M SERVICES newsletter!");
-    setEmailInput("");
   };
 
   return (
@@ -169,7 +177,7 @@ function Footer() {
                     }}
                   />
                   <button
-                    type="submit"
+                    type="submit" disabled={newsBusy}
                     className="submit-email"
                     style={{
                       backgroundColor: "#E20713",
@@ -185,6 +193,11 @@ function Footer() {
                   >
                     {t("footer_subscribe")}
                   </button>
+                  {newsMsg && (
+                    <p role="status" style={{ margin: 0, fontSize: "13px", color: newsMsg.ok ? "#067647" : "#b42318" }}>
+                      {newsMsg.text}
+                    </p>
+                  )}
                 </form>
               </li>
             </ul>

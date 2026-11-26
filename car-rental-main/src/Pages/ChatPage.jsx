@@ -394,7 +394,9 @@ function ChatPage() {
                       border: isClient ? "none" : "1.5px solid #fbbf24"
                     }}
                   >
-                    {isClient ? (clientName ? clientName[0].toUpperCase() : "C") : "3M"}
+                    {isClient
+                      ? (clientName ? clientName[0].toUpperCase() : "C")
+                      : ((msg.senderName || "3M").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("") || "3M")}
                   </div>
 
                   {/* Message Bubble */}
@@ -411,6 +413,11 @@ function ChatPage() {
                       wordBreak: "break-word"
                     }}
                   >
+                    {!isClient && msg.senderName && (
+                      <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#E20713", marginBottom: "4px" }}>
+                        {msg.senderName}
+                      </div>
+                    )}
                     {msg.attachedCar && (
                       <div
                         style={{

@@ -173,6 +173,15 @@ def create_app():
     init_activity(app)
     from app.services.security_hooks import init_security
     init_security(app)
+
+    @app.before_request
+    def _enforce_password_change():
+        from flask import request as _req, redirect as _redir, url_for as _url
+        from flask_login import current_user as _cu
+        if _cu.is_authenticated and getattr(_cu, 'must_change_password', False):
+            ep = _req.endpoint or ''
+            if ep not in ('auth.change_first_password', 'auth.logout', 'static') and not _req.path.startswith('/static/'):
+                return _redir(_url('auth.change_first_password'))
     from app.services.test_data import test_data_cli
     app.cli.add_command(test_data_cli)
 

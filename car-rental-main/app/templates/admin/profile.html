@@ -1187,84 +1187,18 @@ body.dark-mode .notif-item.unread-notif {
             {% endif %}
 
             {% if current_user.role == 'super_admin' %}
-            <!-- 8. GLOBAL SYSTEM SETTINGS TAB (Functional Form) -->
+            <!-- 8. Plateforme : réglages réels dans l'espace Super Admin -->
             <div id="tab-global-settings" class="ops-tab-pane">
-                <h2 class="ops-section-title"><i class="bi bi-globe me-2 text-primary"></i> Configuration Globale</h2>
-                
-                <form method="POST" action="{{ url_for('admin.profile') }}">
-                    <input type="hidden" name="action" value="update_global">
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6 ops-input-group">
-                            <label class="ops-label">Nom de la Plateforme</label>
-                            <input type="text" name="platform_name" class="ops-input" value="{{ global_settings.platform_name }}" required>
-                        </div>
-                        
-                        <div class="col-md-6 ops-input-group">
-                            <label class="ops-label">Email Support Principal</label>
-                            <input type="email" name="support_email" class="ops-input" value="{{ global_settings.support_email }}" required>
-                        </div>
-                        
-                        <div class="col-12 mt-3">
-                            <div class="card border-danger bg-danger bg-opacity-10 p-4 rounded-3 border">
-                                <div class="d-flex align-items-center gap-3">
-                                    <i class="bi bi-cone-striped fs-2 text-danger"></i>
-                                    <div>
-                                        <h5 class="fw-bold mb-1 text-danger">Mode Maintenance</h5>
-                                        <p class="text-muted small mb-3">
-                                            Activer le mode maintenance suspend l'accès public des clients aux réservations et redirige vers une page d'attente.
-                                        </p>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" name="maintenance_mode" id="maintenance_mode" value="true" {% if global_settings.maintenance_mode %}checked{% endif %}>
-                                            <label class="form-check-label fw-bold text-dark" for="maintenance_mode">Activer la Maintenance Générale</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4 pt-4 border-top">
-                        <button type="submit" class="ops-btn-primary"><i class="bi bi-check-circle me-2"></i> Appliquer les paramètres globaux</button>
-                    </div>
-                </form>
+                <h2 class="ops-section-title"><i class="bi bi-globe me-2 text-primary"></i> Configuration de la plateforme</h2>
+                <p class="text-muted">La maintenance, la TVA par défaut et les règles des conversations se règlent dans les paramètres système (confirmation par mot de passe, modifications journalisées).</p>
+                <a class="ops-btn-primary text-decoration-none" href="{{ url_for('superadmin.settings') }}"><i class="bi bi-sliders me-2"></i> Ouvrir les paramètres système</a>
             </div>
 
-            <!-- 9. PAYMENT CONFIGURATION TAB (Functional Form) -->
+            <!-- 9. Paiements : aucune passerelle intégrée (aucune clé saisie ici) -->
             <div id="tab-payment-settings" class="ops-tab-pane">
-                <h2 class="ops-section-title"><i class="bi bi-credit-card me-2 text-primary"></i> Passerelles de Paiement Cashless</h2>
-                
-                <form method="POST" action="{{ url_for('admin.profile') }}">
-                    <input type="hidden" name="action" value="update_payments">
-                    
-                    <h5 class="fw-bold mb-3 text-secondary border-bottom pb-2">Configuration Mobile Money (MTN MoMo & Orange Money)</h5>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6 ops-input-group">
-                            <label class="ops-label">Merchant ID Unique</label>
-                            <input type="text" name="momo_merchant" class="ops-input" value="{{ payment_settings.momo_merchant }}" required>
-                        </div>
-                        <div class="col-md-6 ops-input-group">
-                            <label class="ops-label">Clé Secrète API</label>
-                            <input type="password" name="momo_secret" class="ops-input" value="{{ payment_settings.momo_secret }}" required>
-                        </div>
-                    </div>
-                    
-                    <h5 class="fw-bold mb-3 text-secondary border-bottom pb-2">Configuration Stripe (Secours / International)</h5>
-                    <div class="row g-3">
-                        <div class="col-md-6 ops-input-group">
-                            <label class="ops-label">Clé Publique Stripe</label>
-                            <input type="text" name="stripe_public" class="ops-input" value="{{ payment_settings.stripe_public }}">
-                        </div>
-                        <div class="col-md-6 ops-input-group">
-                            <label class="ops-label">Clé Secrète Stripe</label>
-                            <input type="password" name="stripe_secret" class="ops-input" value="{{ payment_settings.stripe_secret }}">
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4 pt-4 border-top">
-                        <button type="submit" class="ops-btn-primary"><i class="bi bi-save me-2"></i> Sauvegarder les clés de paiement</button>
-                    </div>
-                </form>
+                <h2 class="ops-section-title"><i class="bi bi-credit-card me-2 text-primary"></i> Paiements en ligne</h2>
+                <div class="alert alert-info"><i class="bi bi-info-circle me-2"></i>Aucune passerelle de paiement (Mobile Money, carte) n'est intégrée : les paiements sont enregistrés manuellement par l'équipe.</div>
+                <p class="text-muted small mb-0">Lorsqu'un prestataire sera choisi, ses clés seront placées dans le fichier <code>.env</code> du serveur, jamais dans cette page.</p>
             </div>
             {% endif %}
 

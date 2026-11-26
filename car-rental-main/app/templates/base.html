@@ -1477,6 +1477,7 @@
     </style>
     {% block extra_css %}{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-shell.css') }}?v=3">
+    <link rel=\"stylesheet\" href=\"{{ url_for('static', filename='css/forms.css') }}?v=1\">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}?v=1">
 </head>
 
@@ -1640,10 +1641,12 @@
                         <i class="bi bi-search"></i>
                         <input type="search" id="adminSearchInput" placeholder="Filtrer cette page…" aria-label="Filtrer les lignes de cette page">
                     </div>
+                    {% if has_perm(current_user, 'conversations.view_assigned') or has_perm(current_user, 'conversations.view_unassigned') or has_perm(current_user, 'conversations.view_all') %}
                     <a href="{{ url_for('admin.chats') }}" class="topbar-icon-btn position-relative" title="Messagerie & Chat" aria-label="Messagerie & Chat">
                         <i class="bi bi-chat-square-text"></i>
                         <span class="topbar-dot" id="topbarChatBadge" hidden></span>
                     </a>
+                    {% endif %}
                     <div class="dropdown">
                         <button type="button" class="topbar-icon-btn position-relative" id="notifBellBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Notifications" aria-label="Notifications{% if shell.notifications %} ({{ shell.notifications }} non lues){% endif %}">
                             <i class="bi bi-bell"></i>
@@ -1673,8 +1676,8 @@
                             <li><h6 class="dropdown-header">Action Rapide</h6></li>
                             <li><a class="dropdown-item" href="{{ url_for('admin.add_trip') }}"><i class="bi bi-calendar-plus me-2"></i>Nouvelle Mission Flotte</a></li>
                             {% if has_perm(current_user, 'legacy.access') %}<li><a class="dropdown-item" href="{{ url_for('admin.teller_book') }}"><i class="bi bi-journal-plus me-2"></i>Nouveau Contrat Location</a></li>{% endif %}
-                            <li><a class="dropdown-item" href="{{ url_for('admin.add_bus') }}"><i class="bi bi-car-front me-2"></i>Ajouter un Véhicule VIP</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('admin.add_driver') }}"><i class="bi bi-person-plus me-2"></i>Enregistrer Chauffeur VIP</a></li>
+                            {% if has_perm(current_user, 'vehicles.create') %}<li><a class="dropdown-item" href="{{ url_for('admin.add_bus') }}"><i class="bi bi-car-front me-2"></i>Ajouter un Véhicule VIP</a></li>{% endif %}
+                            {% if has_perm(current_user, 'drivers.create') %}<li><a class="dropdown-item" href="{{ url_for('admin.add_driver') }}"><i class="bi bi-person-plus me-2"></i>Enregistrer Chauffeur VIP</a></li>{% endif %}
                         </ul>
                     </div>
                     {% endif %}
@@ -2525,6 +2528,7 @@
     })();
     </script>
     {% endif %}
+    <script src="{{ url_for('static', filename='js/forms.js') }}?v=1"></script>
     {% block extra_js %}{% endblock %}
     <!-- Global Loader -->
     <div id="global-loader" class="global-loader d-none">

@@ -61,7 +61,107 @@
   "bookings": [],
   "contacts": [],
   "subscribers": [],
-  "chats": [],
+  "chats": [
+    {
+      "id": "3M-CLI-9978",
+      "clientId": "3M-CLI-9978",
+      "clientName": "àpara",
+      "clientPhone": "690090099",
+      "clientEmail": "superadmin@gmail.com",
+      "unreadAdmin": 0,
+      "unreadClient": 0,
+      "createdAt": "2026-11-26T13:45:37.220Z",
+      "lastMessageAt": "2026-11-26T14:19:06.183Z",
+      "lastMessage": "merci",
+      "messages": [
+        {
+          "id": "msg-1795700737221-892",
+          "sender": "client",
+          "senderName": "àpara",
+          "text": "Bonjour, quel est le tarif et la disponibilité pour une mission de 3 jours à Yaoundé ?",
+          "carInfo": null,
+          "timestamp": "2026-11-26T13:45:37.220Z"
+        },
+        {
+          "id": "msg-admin-1795697247088",
+          "sender": "admin",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "text": "hi",
+          "timestamp": "2026-11-26T13:47:27.088487Z",
+          "carInfo": null
+        },
+        {
+          "id": "msg-1795700898471-754",
+          "sender": "client",
+          "senderName": "àpara",
+          "text": "Hello 3M SERVICES,\n\nI would like to book this vehicle:\n\n🚗 Vehicle: Toyota Land Cruiser V8 LC200 Prestige\n📅 Pick-up: Yaoundé - Tsinga (Face FECAFOOT / 3M Services) — November 27, 2026\n🏁 Drop-off: Yaoundé - Agence Omnisports (Rue Foe) — November 28, 2026\n⏱️ Estimated duration: 1 Day(s)\n🔗 Vehicle card link: http://localhost:3001/models?car=bus-1\n\nPlease confirm availability and rental details.",
+          "carInfo": {
+            "id": "bus-1",
+            "name": "Toyota Land Cruiser V8 LC200 Prestige",
+            "price": 130000,
+            "image": "/images/cars/toyota-landcruiser-v8-black.webp",
+            "url": "http://localhost:3001/models?car=bus-1"
+          },
+          "timestamp": "2026-11-26T13:48:18.471Z"
+        },
+        {
+          "id": "msg-1795700914357-112",
+          "sender": "client",
+          "senderName": "àpara",
+          "text": "Hello 3M SERVICES,\n\nI would like to book this vehicle:\n\n🚗 Vehicle: Prado\n📅 Pick-up: Yaoundé - Tsinga (Face FECAFOOT / 3M Services) — November 27, 2026\n🏁 Drop-off: Yaoundé - Agence Omnisports (Rue Foe) — November 28, 2026\n⏱️ Estimated duration: 1 Day(s)\n🔗 Vehicle card link: http://localhost:3001/models?car=prado\n\nPlease confirm availability and rental details.",
+          "carInfo": {
+            "id": "prado",
+            "name": "Prado",
+            "price": 100000,
+            "image": "/images/cars/flyer-prado.webp",
+            "url": "http://localhost:3001/models?car=prado"
+          },
+          "timestamp": "2026-11-26T13:48:34.357Z"
+        },
+        {
+          "id": "msg-admin-1795699033978",
+          "sender": "admin",
+          "senderName": "Administrateur Général 3M SERVICES",
+          "text": "welcome",
+          "timestamp": "2026-11-26T14:17:13.978025Z",
+          "carInfo": null
+        },
+        {
+          "id": "msg-1795702746183-422",
+          "sender": "client",
+          "senderName": "àpara",
+          "text": "merci",
+          "carInfo": null,
+          "timestamp": "2026-11-26T14:19:06.183Z"
+        }
+      ],
+      "aliases": [
+        "GUEST-431524"
+      ],
+      "clientNotifications": [
+        {
+          "id": "cnotif-1795699033978-1",
+          "msgId": "msg-admin-1795699033978",
+          "title": "Nouveau message — Conciergerie 3M",
+          "message": "welcome",
+          "senderName": "Administrateur Général 3M SERVICES",
+          "type": "chat",
+          "createdAt": "2026-11-26T14:17:13.978025Z",
+          "read": true
+        },
+        {
+          "id": "cnotif-1795697247090-0",
+          "msgId": "msg-admin-1795697247088",
+          "title": "Nouveau message — Conciergerie 3M",
+          "message": "hi",
+          "senderName": "Conciergerie VIP 3M (admin3m)",
+          "type": "chat",
+          "createdAt": "2026-11-26T13:47:27.088487Z",
+          "read": true
+        }
+      ]
+    }
+  ],
   "apartments": [
     {
       "id": "apt-02",

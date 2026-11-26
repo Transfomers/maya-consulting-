@@ -201,11 +201,14 @@ def _form_values(user=None):
     f = request.form
     return {
         'real_name': (f.get('real_name') or '').strip()[:120],
+        'username': (f.get('username') or '').strip()[:60],
         'email': (f.get('email') or '').strip().lower()[:120],
         'phone': (f.get('phone') or '').strip()[:40],
         'role': f.get('role') or (user.role if user else ''),
         'agency_id': f.get('agency_id', type=int),
         'modules': [m for m in f.getlist('modules') if m in MODULES],
+        'initial_password': (f.get('initial_password') or '').strip(),
+        'must_change_password': f.get('must_change_password') == '1',
     }
 
 
@@ -213,6 +216,11 @@ def _validate(values, user=None):
     errors = []
     if len(values['real_name']) < 2:
         errors.append('Le nom complet est obligatoire.')
+    if not user and values.get('username'):
+        if not re.match(r'^[A-Za-z0-9._-]{3,60}$', values['username']):
+            errors.append("Le nom d'utilisateur doit contenir entre 3 et 60 caractères (lettres, chiffres, ., _, -).")
+        elif User.query.filter(func.lower(User.username) == values['username'].lower()).first():
+            errors.append("Ce nom d'utilisateur est déjà utilisé.")
     if not EMAIL_RE.match(values['email']):
         errors.append('Adresse e-mail invalide.')
     elif User.query.filter(func.lower(User.email) == values['email'], User.id != (user.id if user else 0)).first():
@@ -222,6 +230,10 @@ def _validate(values, user=None):
     allowed = set(staff_roles()) | {'super_admin'}
     if values['role'] not in allowed:
         errors.append('Rôle invalide.')
+    if not user and values.get('initial_password'):
+        pw = values['initial_password']
+        if len(pw) < 8 or not re.search(r'[A-Za-z]', pw) or not re.search(r'\d', pw):
+            errors.append('Le mot de passe initial doit contenir au moins 8 caractères avec des lettres et des chiffres.')
     return errors
 
 
@@ -242,27 +254,44 @@ def admin_create():
         values = _form_values()
         errors = _validate(values)
         if not errors:
-            base = re.sub(r'[^a-z0-9]', '', values['email'].split('@')[0].lower())[:20] or 'admin'
-            uname, k = base, 1
-            while User.query.filter(func.lower(User.username) == uname).first():
-                k += 1
-                uname = f'{base}{k}'
+            if values.get('username'):
+                uname = values['username']
+            else:
+                base = re.sub(r'[^a-z0-9]', '', values['email'].split('@')[0].lower())[:20] or 'admin'
+                uname, k = base, 1
+                while User.query.filter(func.lower(User.username) == uname).first():
+                    k += 1
+                    uname = f'{base}{k}'
+            initial_pw = values.get('initial_password') or ''
+            has_initial_pw = bool(initial_pw)
             user = User(username=uname, email=values['email'], real_name=values['real_name'],
                         phone=values['phone'] or None, role=values['role'], is_verified=True,
                         agency_id=values['agency_id'] or None, admin_modules=json.dumps(values['modules']),
-                        account_status='invited', invited_by_id=current_user.id,
+                        account_status=None if has_initial_pw else 'invited',
+                        invited_by_id=current_user.id,
+                        must_change_password=bool(values.get('must_change_password')) if has_initial_pw else False,
+                        password_set_at=datetime.utcnow() if has_initial_pw else None,
                         is_suspended=request.form.get('status') == 'suspended')
             parts = values['real_name'].split(' ', 1)
             user.first_name, user.last_name = parts[0], (parts[1] if len(parts) > 1 else '')
-            user.set_password(secrets.token_urlsafe(32))     # inutilisable : le mot de passe est choisi via le lien
-            db.session.add(user)
-            db.session.flush()
-            link = issue_setup_link(user)
-            sent = _send_setup_email(user, link) if request.form.get('send_invite', '1') == '1' else False
+            if has_initial_pw:
+                user.set_password(initial_pw)
+                db.session.add(user)
+                db.session.flush()
+                link, sent = None, False
+            else:
+                user.set_password(secrets.token_urlsafe(32))
+                db.session.add(user)
+                db.session.flush()
+                link = issue_setup_link(user)
+                sent = _send_setup_email(user, link) if request.form.get('send_invite', '1') == '1' else False
             record('ADMIN_CREATED', 'permission', 'User', user.id, f'{user.real_name} ({role_labels().get(user.role, user.role)})',
-                   meta={'role': user.role, 'modules': values['modules'], 'invitation_envoyee': sent}, commit=False)
+                   meta={'role': user.role, 'modules': values['modules'], 'mot_de_passe_initial': has_initial_pw,
+                         'changement_requis': bool(user.must_change_password), 'invitation_envoyee': sent}, commit=False)
             db.session.commit()
-            invite = {'user': user, 'link': link, 'sent': sent}
+            invite = {'user': user, 'link': link, 'sent': sent,
+                      'initial_password': initial_pw if has_initial_pw else None,
+                      'must_change_password': bool(user.must_change_password)}
             flash(f'Compte créé pour {user.real_name}.', 'success')
     return render_template('superadmin/admin_form.html', user=None, values=values or {}, errors=errors,
                            invite=invite, staff_roles=staff_roles(), modules=MODULES, agencies=_agencies())

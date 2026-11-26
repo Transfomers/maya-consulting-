@@ -5,6 +5,7 @@ import { useTranslation } from "../context/LanguageContext";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { API_BASE } from "../config/api";
 import {
+  getCurrentClient,
   saveOrderAndCustomerAccount,
   getFavoriteCarIds,
   toggleFavoriteCar
@@ -34,13 +35,40 @@ function Models() {
     };
   }, []);
 
-  // Modal reservation form state
+  // Modal reservation form state (pre-filled from logged-in client or saved guest contact)
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [bookingSent, setBookingSent] = useState(false);
+
+  const prefillClientInfo = () => {
+    try {
+      const current = getCurrentClient();
+      const rawGuest = localStorage.getItem("3m_guest_contact_info");
+      const savedGuest = rawGuest ? JSON.parse(rawGuest) : {};
+      const nextName = current?.name || current?.username || savedGuest?.name || "";
+      const nextPhone = current?.phone || savedGuest?.phone || "";
+      const nextEmail = current?.email || savedGuest?.email || "";
+      if (nextName) setClientName(nextName);
+      if (nextPhone) setClientPhone(nextPhone);
+      if (nextEmail) setClientEmail(nextEmail);
+    } catch (_) {}
+  };
+
+  useEffect(() => {
+    prefillClientInfo();
+    window.addEventListener("3m-client-auth-changed", prefillClientInfo);
+    return () => window.removeEventListener("3m-client-auth-changed", prefillClientInfo);
+  }, []);
+
+  useEffect(() => {
+    if (selectedCarForModal) {
+      setBookingSent(false);
+      prefillClientInfo();
+    }
+  }, [selectedCarForModal]);
 
 
   // Fetch cars from API (fallback to static CARS_CATALOGUE)
@@ -119,41 +147,45 @@ function Models() {
 
   const getWhatsAppLink = (car) => {
     const carName = car?.name || car?.model || "Véhicule 3M";
+    const clientLines = [
+      clientName ? `• Client : ${clientName}` : null,
+      clientPhone ? `• Téléphone / WhatsApp : ${clientPhone}` : null,
+      clientEmail ? `• Email : ${clientEmail}` : null
+    ].filter(Boolean).join("\n");
     const text = encodeURIComponent(
       `Bonjour 3M SERVICES,\n\nJe souhaite réserver le véhicule suivant :\n` +
       `• Modèle : ${carName}\n` +
       `• Tarif officiel : ${car?.price || "Sur demande"}\n` +
-      `• Période souhaitée : ${pickupDate || "À convenir"} au ${returnDate || "À convenir"}\n\n` +
-      `Merci de me confirmer la disponibilité.`
+      `• Période souhaitée : ${pickupDate || "À convenir"} au ${returnDate || "À convenir"}\n` +
+      (clientLines ? `${clientLines}\n` : "") +
+      `\nMerci de me confirmer la disponibilité.`
     );
     return `https://wa.me/237691786447?text=${text}`;
   };
 
-  const handleSendEmailReservation = (e) => {
+  const handleSendChatReservation = (e) => {
     e.preventDefault();
     if (!selectedCarForModal) return;
 
     const carName = selectedCarForModal.name || selectedCarForModal.model || "Véhicule 3M";
-    const subject = encodeURIComponent(`Réservation 3M SERVICES : ${carName}`);
-    const body = encodeURIComponent(
-      `Bonjour l'équipe 3M SERVICES,\n\n` +
-      `Je vous contacte pour confirmer la réservation du véhicule suivant :\n\n` +
-      `• VÉHICULE : ${carName}\n` +
-      `• TARIF : ${selectedCarForModal.price}\n` +
-      `• DATE DE PRISE : ${pickupDate || "À convenir"}\n` +
-      `• DATE DE RESTITUTION : ${returnDate || "À convenir"}\n\n` +
-      `COORDONNÉES CLIENT :\n` +
-      `• Nom : ${clientName || "Non renseigné"}\n` +
-      `• Téléphone / WhatsApp : ${clientPhone || "Non renseigné"}\n` +
-      `• Email : ${clientEmail || "Non renseigné"}\n\n` +
-      `Merci de m'adresser la confirmation et le contrat de réservation.\n\nCordialement,`
-    );
+    const carPriceNum = Number(String(selectedCarForModal?.price || "").split("/")[0].replace(/[^0-9]/g, "")) || 0;
+
+    // Persist guest contact info for future pre-filling
+    try {
+      localStorage.setItem(
+        "3m_guest_contact_info",
+        JSON.stringify({
+          name: clientName.trim(),
+          phone: clientPhone.trim(),
+          email: clientEmail.trim()
+        })
+      );
+    } catch (_) {}
 
     // Save booking and synchronize customer account
-    const carPriceNum = Number((selectedCarForModal?.price || "120000").replace(/[^0-9]/g, "")) || 120000;
     saveOrderAndCustomerAccount({
       clientName: clientName || "Client 3M Services",
-      phone: clientPhone || "+237 691 78 64 47",
+      phone: clientPhone,
       email: clientEmail || "",
       itemName: carName,
       itemCategory: selectedCarForModal?.category || "Véhicule VIP",
@@ -162,12 +194,44 @@ function Models() {
       totalPrice: carPriceNum,
       pickTime: pickupDate || new Date().toISOString().split("T")[0],
       dropTime: returnDate || pickupDate || new Date().toISOString().split("T")[0],
-      notes: "Réservation via modal de détail /models",
+      notes: "Réservation via Chat Privé (/models)",
       source: "Catalogue Véhicules (/models)"
     });
 
+    const chatMessage =
+      `🚗 Demande de réservation véhicule\n` +
+      `• Modèle : ${carName}\n` +
+      `• Tarif officiel : ${selectedCarForModal.price || "Sur demande"}\n` +
+      `• Prise en charge : ${pickupDate || "À convenir"}\n` +
+      `• Restitution : ${returnDate || "À convenir"}\n` +
+      `• Client : ${clientName || "Non renseigné"}\n` +
+      `• Téléphone / WhatsApp : ${clientPhone || "Non renseigné"}` +
+      (clientEmail ? `\n• Email : ${clientEmail}` : "");
+
+    const attachedCarPayload = {
+      id: selectedCarForModal.id,
+      name: carName,
+      price: carPriceNum,
+      img: selectedCarForModal.img || selectedCarForModal.image || (selectedCarForModal.images && selectedCarForModal.images[0]) || "",
+      url: `/models?car=${encodeURIComponent(selectedCarForModal.id || carName)}`
+    };
+
     setBookingSent(true);
-    window.location.href = `mailto:contact@3mservice.shop?subject=${subject}&body=${body}`;
+    setSelectedCarForModal(null);
+
+    window.dispatchEvent(
+      new CustomEvent("3m-open-chat", {
+        detail: {
+          name: clientName.trim(),
+          phone: clientPhone.trim(),
+          email: clientEmail.trim(),
+          car: attachedCarPayload,
+          message: chatMessage,
+          autoSend: true,
+          refresh: true
+        }
+      })
+    );
   };
 
   return (
@@ -613,7 +677,7 @@ function Models() {
             </div>
 
             {/* Reservation Form */}
-            <form onSubmit={handleSendEmailReservation}>
+            <form onSubmit={handleSendChatReservation}>
               <h4 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#0b0f19", marginBottom: "1.4rem" }}>
                 {isFr ? "Vos Informations de Réservation" : "Your Booking Information"}
               </h4>
@@ -690,14 +754,14 @@ function Models() {
                 </div>
               </div>
 
-              {/* Action Buttons: Email and WhatsApp */}
+              {/* Action Buttons: Private Chat and WhatsApp */}
               <div className="models-modal-actions">
                 <button
                   type="submit"
                   className="models-modal-btn-email"
                 >
-                  <i className="fa-solid fa-envelope"></i>
-                  <span>{isFr ? "Envoyer par Email (contact@3mservice.shop)" : "Send via Email (contact@3mservice.shop)"}</span>
+                  <i className="fa-solid fa-comments"></i>
+                  <span>{isFr ? "Confirmer via le Chat Privé 3M" : "Confirm via 3M Private Chat"}</span>
                 </button>
 
                 <a

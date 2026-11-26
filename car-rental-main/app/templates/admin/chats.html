@@ -169,6 +169,14 @@
                 </div>
             </header>
 
+            <!-- Position en direct partagée par le client -->
+            <div id="liveLocationBar" class="alert alert-success d-flex align-items-center gap-2 mx-3 mt-2 mb-0 py-2 {{ '' if live_location else 'd-none' }}" role="status">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span class="small flex-grow-1"><strong>Position en direct</strong> <span id="liveLocationMeta">{% if live_location %}mise à jour il y a {{ live_location.updatedSeconds }} s{% endif %}</span></span>
+                <a id="liveLocationLink" class="btn btn-sm btn-success" target="_blank" rel="noopener noreferrer"
+                   href="{% if live_location %}https://www.google.com/maps/search/?api=1&query={{ live_location.lat }},{{ live_location.lng }}{% else %}#{% endif %}">Voir sur la carte</a>
+            </div>
+
             <!-- Collapsible Client Info Drawer -->
             <div id="clientInfoDrawer" class="chat-info-drawer d-none">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
@@ -1611,12 +1619,24 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Real-Time Poller
+function updateLiveLocation(live) {
+    const bar = document.getElementById('liveLocationBar');
+    if (!bar) return;
+    bar.classList.toggle('d-none', !live);
+    if (!live) return;
+    const s = live.updatedSeconds;
+    document.getElementById('liveLocationMeta').textContent =
+        'mise à jour il y a ' + (s < 60 ? s + ' s' : Math.round(s / 60) + ' min') + (live.accuracy ? ' · précision ' + live.accuracy + ' m' : '');
+    document.getElementById('liveLocationLink').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(live.lat + ',' + live.lng);
+}
+
 async function pollMessages(manual = false) {
     if (!activeClientId) return;
     try {
         const res = await fetch(`/admin/chats/${encodeURIComponent(activeClientId)}/api/messages`);
         if (!res.ok) return;
         const data = await res.json();
+        updateLiveLocation(data.chat ? data.chat.liveLocation : null);
         if (!data.success || !data.chat) return;
 
         const chat = data.chat;

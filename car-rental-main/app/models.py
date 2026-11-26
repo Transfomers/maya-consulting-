@@ -63,6 +63,7 @@ class User(UserMixin, db.Model):
     admin_modules = db.Column(db.Text, nullable=True)            # JSON : modules opérationnels attribués
     locked_until = db.Column(db.DateTime, nullable=True)
     password_set_at = db.Column(db.DateTime, nullable=True)
+    must_change_password = db.Column(db.Boolean, default=False)
     invited_by_id = db.Column(db.Integer, nullable=True)
 
     @property

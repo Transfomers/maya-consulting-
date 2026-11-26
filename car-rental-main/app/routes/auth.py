@@ -459,13 +459,20 @@ def login():
                     user.profile_picture = 'default_male.png'
                 db.session.commit()
 
-            flash(f'Bon retour, {user.username} ! Vous êtes connecté. 👋', 'success')
+            # Force first-login password change when attributed by Super Admin
+            if getattr(user, 'must_change_password', False):
+                flash('Pour sécuriser votre compte, veuillez choisir votre nouveau mot de passe personnel.', 'info')
+                return redirect(url_for('auth.change_first_password'))
+
+            flash(f'Bon retour, {user.real_name or user.username} ! Vous êtes connecté. 👋', 'success')
 
             # Role-based redirection
             next_page = _safe_next(request.form.get('next') or request.args.get('next'))
             if next_page:
                 return redirect(next_page)
             
+            if user.role == 'super_admin':
+                return redirect(url_for('auth.login_success', next=url_for('superadmin.overview')))
             if user.role == 'teller':
                 return redirect(url_for('auth.login_success', next=url_for('admin.teller_dashboard')))
             if user.role == 'finance_officer':
@@ -480,6 +487,45 @@ def login():
             return _login_page("Une erreur est survenue pendant la connexion. Réessayez dans un instant.", 500)
 
     return _login_page()
+
+@auth.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_first_password():
+    """Permet à un administrateur / Super Admin connecté de définir son nouveau mot de passe personnel."""
+    import re as _re
+    from datetime import datetime as _dt
+    error = None
+    if request.method == 'POST':
+        pw = request.form.get('password') or ''
+        pw2 = request.form.get('password2') or ''
+        if len(pw) < 8 or not _re.search(r'[A-Za-z]', pw) or not _re.search(r'\d', pw):
+            error = 'Le nouveau mot de passe doit contenir au moins 8 caractères avec des lettres et des chiffres.'
+        elif pw != pw2:
+            error = 'Les deux mots de passe ne correspondent pas.'
+        elif current_user.check_password(pw):
+            error = 'Veuillez choisir un mot de passe différent du mot de passe temporaire.'
+        else:
+            current_user.set_password(pw)
+            current_user.must_change_password = False
+            current_user.password_set_at = _dt.utcnow()
+            if current_user.account_status == 'invited':
+                current_user.account_status = None
+            db.session.commit()
+            try:
+                from app.services.activity import record
+                record('PASSWORD_SET', 'security', 'User', current_user.id,
+                       current_user.real_name or current_user.username, actor=current_user, commit=True)
+            except Exception:
+                pass
+            flash('Votre mot de passe a été mis à jour avec succès.', 'success')
+            if current_user.role == 'super_admin':
+                return redirect(url_for('superadmin.overview'))
+            if current_user.is_staff:
+                return redirect(url_for('admin.dashboard'))
+            return redirect(url_for('main.index'))
+    return render_template('auth/change_password.html', error=error,
+                           forced=bool(getattr(current_user, 'must_change_password', False)))
+
 
 @auth.route('/logout')
 @login_required

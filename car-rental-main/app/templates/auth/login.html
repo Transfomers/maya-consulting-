@@ -2,265 +2,105 @@
 {% block title %}Connexion{% endblock %}
 
 {% block extra_css %}
-<style>
-  /* Page plein écran : on masque la navigation et le pied de page globaux */
-  .navbar, .footer { display: none !important; }
-  main, main.py-4 { padding: 0 !important; }
-
-  .auth {
-    --brand: var(--primary-light, #C92A2A);
-    --brand-dark: var(--primary-dark, #A61E1E);
-    --ink: #101828;
-    --ink-2: #344054;
-    --muted: #667085;
-    --line: #d0d5dd;
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    background: #fff;
-  }
-
-  /* ── Colonne formulaire ── */
-  .auth-panel {
-    display: flex;
-    flex-direction: column;
-    padding: 32px 48px;
-  }
-  .auth-logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
-  .auth-logo img { height: 40px; width: auto; }
-  .auth-form-wrap {
-    width: 100%;
-    max-width: 400px;
-    margin: auto;
-    padding: 40px 0;
-  }
-  .auth h1 { font-size: 28px; font-weight: 700; color: var(--ink); margin: 0 0 8px; letter-spacing: -0.01em; }
-  .auth-sub { font-size: 15px; color: var(--muted); margin: 0 0 32px; line-height: 1.5; }
-
-  .auth-alert {
-    display: flex; gap: 10px; align-items: flex-start;
-    padding: 12px 14px; border-radius: 10px; margin-bottom: 20px;
-    font-size: 14px; line-height: 1.45;
-  }
-  .auth-alert i { font-size: 16px; margin-top: 1px; }
-  .auth-alert-danger { background: #fef3f2; color: #b42318; border: 1px solid #fecdca; }
-  .auth-alert-success { background: #ecfdf3; color: #027a48; border: 1px solid #abefc6; }
-  .auth-alert-info { background: #eff8ff; color: #175cd3; border: 1px solid #b2ddff; }
-
-  .auth-field { margin-bottom: 20px; }
-  .auth-field label { display: block; font-size: 14px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
-  .auth-input-box { position: relative; }
-  .auth-input-box > i {
-    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-    color: #98a2b3; font-size: 16px; pointer-events: none;
-  }
-  .auth-input {
-    width: 100%; height: 48px; padding: 0 44px 0 42px;
-    border: 1px solid var(--line); border-radius: 10px;
-    font-size: 15px; color: var(--ink); background: #fff;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .auth-input::placeholder { color: #98a2b3; }
-  .auth-input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 14%, transparent); }
-  .auth-input[aria-invalid="true"] { border-color: #f04438; }
-  .auth-eye {
-    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-    width: 36px; height: 36px; border: 0; background: transparent; border-radius: 8px;
-    color: var(--muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
-  }
-  .auth-eye:hover { background: #f2f4f7; color: var(--ink); }
-  .auth-hint { display: none; font-size: 13px; color: #b54708; margin-top: 6px; }
-  .auth-hint.show { display: flex; gap: 6px; align-items: center; }
-
-  .auth-row { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 24px; gap: 12px; }
-  .auth-check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); cursor: pointer; margin: 0; }
-  .auth-check input { width: 16px; height: 16px; accent-color: var(--brand); }
-  .auth-link { font-size: 14px; font-weight: 600; color: var(--brand); text-decoration: none; }
-  .auth-link:hover { color: var(--brand-dark); text-decoration: underline; }
-
-  .auth-btn {
-    width: 100%; height: 48px; border-radius: 10px; font-size: 15px; font-weight: 600;
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
-    transition: background .15s, box-shadow .15s, opacity .15s;
-  }
-  .auth-btn-primary { background: var(--brand); color: #fff; border: 1px solid var(--brand); }
-  .auth-btn-primary:hover { background: var(--brand-dark); border-color: var(--brand-dark); }
-  .auth-btn-primary:focus-visible, .auth-btn-google:focus-visible { outline: 3px solid color-mix(in srgb, var(--brand) 35%, transparent); outline-offset: 2px; }
-  .auth-btn-google { background: #fff; color: var(--ink-2); border: 1px solid var(--line); }
-  .auth-btn-google:hover { background: #f9fafb; }
-  .auth-btn-google img { width: 20px; height: 20px; }
-  .auth-btn[disabled] { opacity: .7; cursor: progress; }
-  .auth-spinner {
-    display: none; width: 18px; height: 18px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,.45); border-top-color: #fff; animation: auth-spin .7s linear infinite;
-  }
-  .auth-btn.loading .auth-spinner { display: inline-block; }
-  .auth-btn.loading .auth-btn-label { opacity: .85; }
-  @keyframes auth-spin { to { transform: rotate(360deg); } }
-
-  .auth-divider { display: flex; align-items: center; gap: 12px; margin: 24px 0; color: #98a2b3; font-size: 13px; }
-  .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: #eaecf0; }
-
-  .auth-foot-link { text-align: center; font-size: 14px; color: var(--muted); margin-top: 24px; }
-  .auth-copy { font-size: 13px; color: #98a2b3; }
-
-  /* ── Colonne visuelle ── */
-  .auth-visual {
-    position: relative; overflow: hidden; margin: 16px; border-radius: 20px;
-    background: #101828 url("{{ url_for('static', filename='images/cars/toyota-landcruiser-v8-black.webp') }}") 62% center / cover no-repeat;
-    display: flex; align-items: flex-end;
-  }
-  .auth-visual::before {
-    content: ""; position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(16,24,40,.15) 0%, rgba(16,24,40,.55) 45%, rgba(16,24,40,.92) 100%);
-  }
-  .auth-visual-content { position: relative; padding: 48px; color: #fff; max-width: 560px; }
-  .auth-visual-tag {
-    display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px;
-    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
-    font-size: 13px; font-weight: 600; margin-bottom: 20px; backdrop-filter: blur(6px);
-  }
-  .auth-visual h2 { font-size: 34px; font-weight: 700; line-height: 1.2; margin: 0 0 16px; color: #fff; }
-  .auth-visual p { font-size: 16px; line-height: 1.6; color: rgba(255,255,255,.8); margin: 0 0 28px; }
-  .auth-points { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-  .auth-points li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: rgba(255,255,255,.92); }
-  .auth-points i {
-    width: 32px; height: 32px; border-radius: 8px; flex: 0 0 32px;
-    display: inline-flex; align-items: center; justify-content: center;
-    background: var(--brand); color: #fff; font-size: 15px;
-  }
-
-  /* Couleurs d'icônes (la règle globale peint toutes les icônes en rouge) */
-  .auth .auth-input-box > i { color: #98a2b3 !important; }
-  .auth .auth-eye i { color: inherit !important; }
-  .auth .auth-alert i { color: inherit !important; }
-  .auth .auth-hint i { color: inherit !important; }
-  .auth .auth-points i, .auth .auth-visual-tag i { color: #fff !important; }
-  .auth .auth-input:focus + i, .auth .auth-input-box:focus-within > i { color: var(--brand) !important; }
-
-  /* ── Mode sombre ── */
-  body.dark-mode .auth { background: #0b0f19; --ink: #f2f4f7; --ink-2: #d0d5dd; --muted: #98a2b3; --line: #344054; }
-  body.dark-mode .auth-input, body.dark-mode .auth-btn-google { background: #111827; color: var(--ink); }
-  body.dark-mode .auth-eye:hover, body.dark-mode .auth-btn-google:hover { background: #1f2937; }
-
-  /* ── Responsive ── */
-  @media (max-width: 991.98px) {
-    .auth { grid-template-columns: 1fr; }
-    .auth-visual { display: none; }
-    .auth-panel { padding: 24px; }
-  }
-  @media (max-width: 480px) {
-    .auth-form-wrap { padding: 24px 0; }
-    .auth h1 { font-size: 24px; }
-    .auth-row { flex-wrap: wrap; }
-  }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}?v=2">
 {% endblock %}
 
 {% block content %}
-<div class="auth">
-  <!-- Formulaire -->
-  <section class="auth-panel">
-    <a href="{{ public_site_url or '/' }}" class="auth-logo" aria-label="3M SERVICES — accueil">
-      <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES">
-    </a>
-
-    <div class="auth-form-wrap">
-      <h1>{{ _t('Connexion') }}</h1>
-      <p class="auth-sub">Accédez à votre espace 3M SERVICES : location VIP, missions et résidences.</p>
-
-      <div aria-live="polite">
-        {% if error %}
-        <div class="auth-alert auth-alert-danger" role="alert">
-          <i class="bi bi-exclamation-circle-fill"></i><span>{{ error }}</span>
-        </div>
-        {% endif %}
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-        <div class="auth-alert auth-alert-{{ 'danger' if category in ['error', 'danger'] else 'success' if category == 'success' else 'info' }}" role="{{ 'alert' if category in ['error', 'danger'] else 'status' }}">
-          <i class="bi bi-{{ 'exclamation-circle-fill' if category in ['error', 'danger'] else 'check-circle-fill' if category == 'success' else 'info-circle-fill' }}"></i>
-          <span>{{ message }}</span>
-        </div>
-        {% endfor %}
-        {% endwith %}
+<main class="auth">
+  <div class="auth-card">
+    <!-- Panneau visuel -->
+    <aside class="auth-visual" style="--auth-photo: url('{{ url_for('static', filename='images/cars/toyota-landcruiser-v8-black.webp') }}');">
+      <a href="{{ public_site_url or '/' }}" class="auth-brand" aria-label="3M SERVICES — accueil">
+        <img src="{{ url_for('static', filename='logorv.png') }}" alt="3M SERVICES">
+      </a>
+      <div class="auth-visual-text">
+        <h2>Location VIP, missions &amp; résidences à Yaoundé</h2>
+        <ul>
+          <li><i class="bi bi-car-front-fill"></i> Véhicules VIP avec ou sans chauffeur</li>
+          <li><i class="bi bi-building-fill"></i> Résidences meublées face FECAFOOT</li>
+          <li><i class="bi bi-headset"></i> Conciergerie 24/7 · +237 691 78 64 47</li>
+        </ul>
       </div>
+    </aside>
 
-      <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm" novalidate>
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="next" value="{{ next_url or '' }}">
-        <input type="hidden" name="id_token" id="id_token">
+    <!-- Formulaire -->
+    <section class="auth-panel">
+      <a href="{{ public_site_url or '/' }}" class="auth-back"><i class="bi bi-arrow-left"></i> Retour au site</a>
+      <div class="auth-form-wrap">
+        <h1>{{ _t('Connexion') }}</h1>
+        <p class="auth-sub">Heureux de vous revoir. Entrez vos identifiants pour continuer.</p>
 
-        <div class="auth-field">
-          <label for="username">{{ _t("Email ou nom d'utilisateur") }}</label>
-          <div class="auth-input-box">
-            <i class="bi bi-person"></i>
-            <input type="text" class="auth-input" id="username" name="username" value="{{ username or '' }}"
-              placeholder="nom@exemple.com" autocomplete="username" autocapitalize="none" spellcheck="false"
-              required {% if not username %}autofocus{% endif %} {% if error %}aria-invalid="true"{% endif %}
-              aria-describedby="usernameHint">
+        <div aria-live="polite">
+          {% if error %}
+          <div class="auth-alert auth-alert-danger" role="alert"><i class="bi bi-exclamation-circle-fill"></i><span>{{ error }}</span></div>
+          {% endif %}
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+          <div class="auth-alert auth-alert-{{ 'danger' if category in ['error', 'danger'] else 'success' if category == 'success' else 'info' }}" role="{{ 'alert' if category in ['error', 'danger'] else 'status' }}">
+            <i class="bi bi-{{ 'exclamation-circle-fill' if category in ['error', 'danger'] else 'check-circle-fill' if category == 'success' else 'info-circle-fill' }}"></i>
+            <span>{{ message }}</span>
           </div>
-          <div class="auth-hint" id="usernameHint"><i class="bi bi-exclamation-triangle"></i>Saisissez votre email ou nom d'utilisateur.</div>
+          {% endfor %}
+          {% endwith %}
         </div>
 
-        <div class="auth-field">
-          <label for="password">{{ _t('Mot de passe') }}</label>
-          <div class="auth-input-box">
-            <i class="bi bi-lock"></i>
-            <input type="password" class="auth-input" id="password" name="password" placeholder="Votre mot de passe"
-              autocomplete="current-password" required {% if username %}autofocus{% endif %}
-              {% if error %}aria-invalid="true"{% endif %} aria-describedby="capsHint passwordHint">
-            <button type="button" class="auth-eye" id="eyeBtn" aria-label="Afficher le mot de passe" aria-pressed="false">
-              <i class="bi bi-eye" id="eyeIcon"></i>
-            </button>
-          </div>
-          <div class="auth-hint" id="passwordHint"><i class="bi bi-exclamation-triangle"></i>Saisissez votre mot de passe.</div>
-          <div class="auth-hint" id="capsHint"><i class="bi bi-capslock"></i>Verrouillage majuscules activé.</div>
-        </div>
+        <button type="button" class="auth-btn auth-btn-google" id="googleBtn">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" aria-hidden="true">
+          Continuer avec Google
+        </button>
+        <div class="auth-divider">{{ _t('ou') }}</div>
 
-        <div class="auth-row">
+        <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="next" value="{{ next_url or '' }}">
+          <input type="hidden" name="id_token" id="id_token">
+
+          <div class="auth-field">
+            <label for="username">{{ _t("Email ou nom d'utilisateur") }}</label>
+            <div class="auth-input-box">
+              <i class="bi bi-person"></i>
+              <input type="text" class="auth-input" id="username" name="username" value="{{ username or '' }}"
+                placeholder="nom@exemple.com" autocomplete="username" autocapitalize="none" spellcheck="false"
+                required {% if not username %}autofocus{% endif %} {% if error %}aria-invalid="true"{% endif %} aria-describedby="usernameHint">
+            </div>
+            <div class="auth-hint" id="usernameHint"><i class="bi bi-exclamation-triangle"></i>Saisissez votre email ou nom d'utilisateur.</div>
+          </div>
+
+          <div class="auth-field">
+            <div class="auth-label-row">
+              <label for="password">{{ _t('Mot de passe') }}</label>
+              <a href="{{ url_for('auth.forgot_password') }}" class="auth-link">{{ _t('Mot de passe oublié ?') }}</a>
+            </div>
+            <div class="auth-input-box">
+              <i class="bi bi-lock"></i>
+              <input type="password" class="auth-input" id="password" name="password" placeholder="Votre mot de passe"
+                autocomplete="current-password" required {% if username %}autofocus{% endif %}
+                {% if error %}aria-invalid="true"{% endif %} aria-describedby="capsHint passwordHint">
+              <button type="button" class="auth-eye" id="eyeBtn" aria-label="Afficher le mot de passe" aria-pressed="false">
+                <i class="bi bi-eye" id="eyeIcon"></i>
+              </button>
+            </div>
+            <div class="auth-hint" id="passwordHint"><i class="bi bi-exclamation-triangle"></i>Saisissez votre mot de passe.</div>
+            <div class="auth-hint" id="capsHint"><i class="bi bi-capslock"></i>Verrouillage majuscules activé.</div>
+          </div>
+
           <label class="auth-check">
             <input type="checkbox" name="remember" id="remember" {% if remember %}checked{% endif %}>
             {{ _t('Se souvenir de moi') }}
           </label>
-          <a href="{{ url_for('auth.forgot_password') }}" class="auth-link">{{ _t('Mot de passe oublié ?') }}</a>
-        </div>
 
-        <button type="submit" class="auth-btn auth-btn-primary" id="loginBtn">
-          <span class="auth-spinner" aria-hidden="true"></span>
-          <span class="auth-btn-label">{{ _t('Se connecter') }}</span>
-        </button>
-      </form>
+          <button type="submit" class="auth-btn auth-btn-primary" id="loginBtn">
+            <span class="auth-spinner" aria-hidden="true"></span>
+            <span class="auth-btn-label">{{ _t('Se connecter') }}</span>
+          </button>
+        </form>
 
-      <div class="auth-divider">{{ _t('ou') }}</div>
-
-      <button type="button" class="auth-btn auth-btn-google" id="googleBtn">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" aria-hidden="true">
-        Continuer avec Google
-      </button>
-
-      <p class="auth-foot-link">
-        {{ _t('Pas encore de compte ?') }}
-        <a href="{{ url_for('auth.register') }}" class="auth-link">{{ _t('Créer un compte') }}</a>
-      </p>
-    </div>
-
-    <div class="auth-copy">© {{ now_wat.year }} 3M SERVICES · Omnisports, Yaoundé</div>
-  </section>
-
-  <!-- Visuel -->
-  <aside class="auth-visual" aria-hidden="true">
-    <div class="auth-visual-content">
-      <span class="auth-visual-tag"><i class="bi bi-geo-alt-fill"></i> Yaoundé, Cameroun</span>
-      <h2>Location VIP, missions &amp; résidences meublées</h2>
-      <p>Gérez la flotte, les chauffeurs, les réservations et les paiements depuis un seul espace.</p>
-      <ul class="auth-points">
-        <li><i class="bi bi-car-front-fill"></i> Véhicules VIP avec ou sans chauffeur</li>
-        <li><i class="bi bi-building-fill"></i> Résidences meublées face FECAFOOT</li>
-        <li><i class="bi bi-headset"></i> Conciergerie 24/7 · +237 691 78 64 47</li>
-      </ul>
-    </div>
-  </aside>
-</div>
+        <p class="auth-foot-link">{{ _t('Pas encore de compte ?') }} <a href="{{ url_for('auth.register') }}" class="auth-link">{{ _t('Créer un compte') }}</a></p>
+      </div>
+      <div class="auth-copy">© {{ now_wat.year }} 3M SERVICES · Omnisports, Yaoundé</div>
+    </section>
+  </div>
+</main>
 {% endblock %}
 
 {% block extra_js %}

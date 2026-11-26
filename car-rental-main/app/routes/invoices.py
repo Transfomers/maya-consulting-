@@ -876,10 +876,11 @@ def send_to_chat(invoice_id):
         f"• Solde restant : {balance_str}\n"
         f"• Échéance : {due_str}"
     )
+    staff_display_name = (current_user.real_name or current_user.username or 'Conciergerie VIP 3M').strip()
     new_msg = {
         'id': f"msg-inv-{inv.id}-{int(datetime.utcnow().timestamp() * 1000)}",
         'sender': 'admin',
-        'senderName': f"Conciergerie VIP 3M ({current_user.username})",
+        'senderName': staff_display_name,
         'text': msg_text,
         'timestamp': now_iso,
         'attachment': {

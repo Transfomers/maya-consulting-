@@ -1,4 +1,28 @@
 <section class="sa-card" style="max-width: 760px;">
+    {% if initial_password %}
+    <div class="sa-alert is-success">
+        <i class="bi bi-shield-check"></i>
+        <div>
+            Compte créé et actif immédiatement pour <strong>{{ user.real_name or user.username }}</strong>.
+            {% if must_change_password %}
+            Un changement de mot de passe personnel sera demandé dès la première connexion.
+            {% endif %}
+        </div>
+    </div>
+    <dl class="sa-kv mt-3 mb-3">
+        <dt>Nom affiché (chat)</dt><dd><strong>{{ user.real_name or user.username }}</strong></dd>
+        <dt>Identifiant</dt><dd><code class="sa-code">{{ user.username }}</code></dd>
+        <dt>E-mail</dt><dd>{{ user.email }}</dd>
+        <dt>Mot de passe</dt>
+        <dd>
+            <div class="input-group input-group-sm" style="max-width: 340px;">
+                <input id="initPwCopy" class="form-control" value="{{ initial_password }}" readonly>
+                <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('initPwCopy').value); this.textContent='Copié';">Copier</button>
+            </div>
+        </dd>
+    </dl>
+    <p class="sa-muted mb-0">Ce mot de passe initial n'est affiché qu'une seule fois. Communiquez l'identifiant et le mot de passe par un canal sécurisé.</p>
+    {% else %}
     {% if sent %}
     <div class="sa-alert is-success"><i class="bi bi-envelope-check"></i> E-mail envoyé à <strong>{{ user.email }}</strong> avec le lien pour choisir son mot de passe.</div>
     {% else %}
@@ -10,4 +34,5 @@
         <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('inviteLink').value); this.textContent='Copié';">Copier</button>
     </div>
     <p class="sa-muted mt-2 mb-0">Ce lien n'est affiché qu'une fois. Il ne contient aucun mot de passe : la personne choisit le sien.</p>
+    {% endif %}
 </section>

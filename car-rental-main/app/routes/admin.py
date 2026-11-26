@@ -2095,6 +2095,37 @@ def drivers():
         drivers = Driver.query.filter_by(agency_id=current_user.agency_id, is_deleted=False).all()
     return render_template('admin/drivers.html', drivers=drivers)
 
+def _resolve_agency_id(agency_id):
+    """Agence choisie, sinon la seule agence existante (champ vide ne doit pas faire planter l'enregistrement)."""
+    try:
+        if agency_id:
+            return int(agency_id)
+    except (TypeError, ValueError):
+        return None
+    only = Agency.query.filter_by(is_deleted=False).all()
+    return only[0].id if len(only) == 1 else None
+
+
+def _driver_errors(name, phone, license_number, agency_id, driver_id=None):
+    errors = []
+    if not (name or '').strip():
+        errors.append('Le nom du chauffeur est obligatoire.')
+    if not (phone or '').strip():
+        errors.append('Le téléphone du chauffeur est obligatoire.')
+    license_number = (license_number or '').strip()
+    if not license_number:
+        errors.append('Le numéro de permis est obligatoire.')
+    else:
+        other = Driver.query.filter(Driver.license_number == license_number)
+        if driver_id:
+            other = other.filter(Driver.id != driver_id)
+        if other.first():
+            errors.append(f'Le permis « {license_number} » est déjà enregistré pour un autre chauffeur.')
+    if not agency_id:
+        errors.append('Choisissez une agence.')
+    return errors
+
+
 @admin.route('/admin/add_driver', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -2115,13 +2146,18 @@ def add_driver():
                 return redirect(url_for('admin.add_driver'))
                 
         from app.utils.validators import is_valid_phone
+        name, phone, license_number = (name or '').strip(), (phone or '').strip(), (license_number or '').strip()
         if phone and not is_valid_phone(phone):
             flash('Format de numéro de téléphone invalide.', 'danger')
             return redirect(url_for('admin.add_driver'))
-                
-        driver_id = request.form.get('driver_id')
-        driver_id = int(driver_id) if driver_id else None
-        
+
+        agency_id = _resolve_agency_id(agency_id)
+        errors = _driver_errors(name, phone, license_number, agency_id)
+        if errors:
+            for err in errors:
+                flash(err, 'danger')
+            return redirect(url_for('admin.add_driver'))
+
         driver = Driver(
             name=name,
             phone=phone,
@@ -2149,9 +2185,17 @@ def edit_driver(id):
         return redirect(url_for('admin.drivers'))
         
     if request.method == 'POST':
-        driver.name = request.form.get('name')
-        driver.phone = request.form.get('phone')
-        driver.license_number = request.form.get('license_number')
+        name = (request.form.get('name') or '').strip()
+        phone = (request.form.get('phone') or '').strip()
+        license_number = (request.form.get('license_number') or '').strip()
+        errors = _driver_errors(name, phone, license_number, driver.agency_id, driver_id=driver.id)
+        if errors:
+            for err in errors:
+                flash(err, 'danger')
+            return redirect(url_for('admin.edit_driver', id=driver.id))
+        driver.name = name
+        driver.phone = phone
+        driver.license_number = license_number
         driver.status = request.form.get('status', 'available')
         rating_input = request.form.get('rating', type=float)
         if rating_input is not None:
@@ -2159,7 +2203,7 @@ def edit_driver(id):
         license_expiration_str = request.form.get('license_expiration')
         
         if current_user.role == 'super_admin':
-            driver.agency_id = request.form.get('agency_id', driver.agency_id)
+            driver.agency_id = request.form.get('agency_id', type=int) or driver.agency_id
             
         if license_expiration_str:
             try:
@@ -6145,33 +6189,9 @@ def profile():
             flash('Profil de l\'agence mis à jour avec succès.', 'success')
             return redirect(url_for('admin.profile'))
             
-        # 2. Update Global Platform (Super Admin)
-        elif action == 'update_global' and current_user.role == 'super_admin':
-            settings_path = os.path.join(current_app.instance_path, 'global_settings.json')
-            os.makedirs(os.path.dirname(settings_path), exist_ok=True)
-            global_settings = {
-                'platform_name': request.form.get('platform_name', '3M SERVICES'),
-                'support_email': request.form.get('support_email', 'contact@3mservice.shop'),
-                'maintenance_mode': request.form.get('maintenance_mode') == 'true'
-            }
-            with open(settings_path, 'w') as f:
-                json.dump(global_settings, f)
-            flash('Paramètres globaux mis à jour avec succès.', 'success')
-            return redirect(url_for('admin.profile'))
-            
-        # 3. Update Payment Gateways (Super Admin)
-        elif action == 'update_payments' and current_user.role == 'super_admin':
-            settings_path = os.path.join(current_app.instance_path, 'payment_settings.json')
-            os.makedirs(os.path.dirname(settings_path), exist_ok=True)
-            payment_settings = {
-                'momo_merchant': request.form.get('momo_merchant', ''),
-                'momo_secret': request.form.get('momo_secret', ''),
-                'stripe_public': request.form.get('stripe_public', ''),
-                'stripe_secret': request.form.get('stripe_secret', '')
-            }
-            with open(settings_path, 'w') as f:
-                json.dump(payment_settings, f)
-            flash('Paramètres de paiement mis à jour avec succès.', 'success')
+        # 2-3. Anciens formulaires (maintenance / clés de paiement) retirés : ils n'avaient aucun effet
+        elif action in ('update_global', 'update_payments'):
+            flash('Ces réglages se font désormais dans Super Admin → Paramètres système.', 'info')
             return redirect(url_for('admin.profile'))
 
         # 4. Password Change Request
@@ -6570,8 +6590,10 @@ def chats():
     available_buses = Bus.query.filter(Bus.status != 'maintenance').all()
 
     active_conv = conv_map.get(active_chat.get('id')) if active_chat else None
+    live_location = active_live_location(active_chat) if active_chat else None
     return render_template('admin/chats.html', chat_threads=chat_threads, active_chat=active_chat,
-                           available_buses=available_buses, conv_map=conv_map, active_conv=active_conv)
+                           available_buses=available_buses, conv_map=conv_map, active_conv=active_conv,
+                           live_location=live_location)
 
 
 def _can_access_thread(thread_id, conv=None):
@@ -6718,10 +6740,11 @@ def send_admin_chat_reply(client_id):
             chats = exp_db.get('chats', [])
             chat = next((c for c in chats if c.get('id') == client_id or c.get('clientId') == client_id), None)
             now = datetime.utcnow().isoformat() + "Z"
+            staff_display_name = (current_user.real_name or current_user.username or 'Conciergerie VIP 3M').strip()
             new_msg = {
                 'id': f"msg-admin-{int(datetime.utcnow().timestamp()*1000)}",
                 'sender': 'admin',
-                'senderName': f"Conciergerie VIP 3M ({current_user.username})",
+                'senderName': staff_display_name,
                 'text': text,
                 'timestamp': now,
                 'carInfo': car_info
@@ -6821,6 +6844,22 @@ def send_admin_chat_reply(client_id):
 
     return redirect(url_for('admin.chats', client_id=client_id))
 
+def active_live_location(chat):
+    """Position partagée en cours (None si arrêtée ou expirée)."""
+    live = (chat or {}).get('liveLocation') or {}
+    if not live.get('active') or live.get('lat') is None:
+        return None
+    try:
+        expires = datetime.strptime(str(live.get('expiresAt', ''))[:19], '%Y-%m-%dT%H:%M:%S')
+        updated = datetime.strptime(str(live.get('updatedAt', ''))[:19], '%Y-%m-%dT%H:%M:%S')
+    except ValueError:
+        return None
+    if expires <= datetime.utcnow():
+        return None
+    return {'lat': float(live['lat']), 'lng': float(live['lng']), 'accuracy': live.get('accuracy'),
+            'updatedSeconds': max(0, int((datetime.utcnow() - updated).total_seconds()))}
+
+
 @admin.route('/admin/chats/<client_id>/api/messages', methods=['GET'])
 @login_required
 @admin_required
@@ -6842,6 +6881,7 @@ def get_admin_chat_messages(client_id):
                 with atomic_write(db_path) as f:
                     _json.dump(exp_db, f, indent=2, ensure_ascii=False)
                 clean_chat = dict(chat)
+                clean_chat['liveLocation'] = active_live_location(chat)
                 clean_chat['messages'] = [
                     m for m in (chat.get('messages') or [])
                     if not str(m.get('id') or '').startswith('msg-welcome')

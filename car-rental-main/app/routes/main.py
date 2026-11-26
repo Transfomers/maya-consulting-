@@ -770,23 +770,27 @@ def contact_submit():
     from app.models import ContactMessage, SystemNotification
     from app import db
     
-    name = request.form.get('name')
-    email = request.form.get('email')
-    message_text = request.form.get('message')
-    
-    if not name or not email or not message_text:
+    name = (request.form.get('name') or '').strip()[:100]
+    email = (request.form.get('email') or '').strip()[:120]
+    message_text = (request.form.get('message') or '').strip()[:4000]
+    phone = (request.form.get('phone') or '').strip()[:40]
+    subject = (request.form.get('subject') or '').strip()[:150]
+
+    if not name or not email or '@' not in email or not message_text:
         flash("Veuillez remplir tous les champs obligatoires.", "danger")
         return redirect(url_for('main.contact'))
         
     try:
         # Save to database
-        new_msg = ContactMessage(name=name, email=email, message=message_text)
+        details = [f'Objet : {subject}' if subject else '', f'Téléphone : {phone}' if phone else '']
+        full_message = '\n'.join([d for d in details if d] + [message_text])
+        new_msg = ContactMessage(name=name, email=email, message=full_message)
         db.session.add(new_msg)
         
         # Create an admin notification
         notif = SystemNotification(
             title="Nouveau Message",
-            message=f"Nouveau message de contact reçu de {name}",
+            message=f"Nouveau message de contact reçu de {name}" + (f" — {subject}" if subject else "") + (f" · {phone}" if phone else ""),
             type="info",
             role_target="super_admin"
         )

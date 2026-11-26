@@ -1,0 +1,36 @@
+/* Connexion / création de compte client — même langage visuel que /login */
+.auth3m { max-width: 108rem; margin: 3rem auto; display: grid; grid-template-columns: 1fr 1fr; background: #fff; border-radius: 2.6rem; overflow: hidden;
+  box-shadow: 0 3rem 7rem rgba(16, 24, 40, 0.14), 0 0.2rem 0.6rem rgba(16, 24, 40, 0.06); }
+.auth3m-visual { position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: space-between; gap: 3rem; padding: 3.6rem; color: #fff; min-height: 56rem;
+  background-color: #101828; background-position: 60% center; background-size: cover; background-repeat: no-repeat; }
+.auth3m-visual::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(16,24,40,.45) 0%, rgba(16,24,40,.1) 35%, rgba(16,24,40,.94) 100%); }
+.auth3m-visual h2 { color: #fff; font-size: 3rem; line-height: 1.22; margin: 0 0 2rem; }
+.auth3m-visual ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.auth3m-visual li { display: flex; align-items: center; gap: 1.2rem; font-size: 1.45rem; color: rgba(255,255,255,.92); }
+.auth3m-visual li i { width: 3.2rem; height: 3.2rem; flex: none; border-radius: .9rem; background: #D62828; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+.auth3m-tag { align-self: flex-start; display: inline-flex; align-items: center; gap: .8rem; background: #fff; color: #101828; border-radius: 99rem; padding: .8rem 1.6rem; font-size: 1.3rem; font-weight: 700; }
+.auth3m-tag i { color: #D62828; }
+
+.auth3m .account-auth-shell { max-width: none; width: 100%; margin: 0; padding: 4rem 4.4rem; background: transparent; border: 0; box-shadow: none; border-radius: 0; display: flex; flex-direction: column; justify-content: center; text-align: left; }
+.auth3m .account-auth-title { text-align: left; font-size: 3rem; margin: 0 0 .6rem; color: #101828; }
+.auth3m .account-auth-sub { text-align: left; font-size: 1.4rem; color: #667085; margin: 0 0 2.2rem; line-height: 1.55; }
+.auth3m .account-auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; background: #f2f4f7; border: 0; border-radius: 1.2rem; padding: .4rem; margin-bottom: 2.2rem; }
+.auth3m .account-auth-tab { border: 0; border-radius: .9rem; background: transparent; color: #667085; font-weight: 600; font-size: 1.4rem; padding: 1rem; margin: 0; cursor: pointer; }
+.auth3m .account-auth-tab.is-active { background: #fff; color: #101828; box-shadow: 0 .2rem .6rem rgba(16,24,40,.1); }
+.auth3m .account-form-group { margin-bottom: 1.6rem; }
+.auth3m .account-form-label { display: block; font-size: 1.3rem; font-weight: 600; color: #344054; margin-bottom: .7rem; }
+.auth3m .account-form-input { width: 100%; height: 4.8rem; padding: 0 1.4rem; border: 1.5px solid #e4e7ec; border-radius: 1.2rem; background: #f9fafb; font-size: 1.5rem; color: #101828; }
+.auth3m .account-form-input:focus { outline: none; background: #fff; border-color: #D62828; box-shadow: 0 0 0 .4rem rgba(214,40,40,.13); }
+.auth3m .account-password-wrap .account-form-input { padding-right: 4.8rem; }
+.auth3m .account-btn-primary { width: 100%; height: 5rem; border-radius: 1.2rem; font-size: 1.5rem; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 1rem; margin-top: .6rem; background: #D62828; border: 0; color: #fff; box-shadow: 0 .8rem 1.8rem rgba(214,40,40,.25); cursor: pointer; }
+.auth3m .account-btn-primary:hover { background: #B71C1C; }
+.auth3m .account-btn-primary i { color: #fff; }
+.auth3m .account-profile-grid { gap: 1.2rem; }
+
+@media (max-width: 860px) {
+  .auth3m { grid-template-columns: 1fr; margin: 0 0 2rem; border-radius: 2rem; }
+  .auth3m-visual { min-height: 18rem; padding: 2rem; }
+  .auth3m-visual ul { display: none; }
+  .auth3m-visual h2 { font-size: 2.1rem; margin: 0; }
+  .auth3m .account-auth-shell { padding: 2.4rem 2rem 3rem; }
+}

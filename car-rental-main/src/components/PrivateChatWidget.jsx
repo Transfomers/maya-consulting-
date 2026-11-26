@@ -3,6 +3,7 @@ import { getCurrentClient } from "../utils/customerAccounts";
 import { API_BASE } from "../config/api";
 import "./PrivateChatWidget.css";
 import ChatAttachment from "./ChatAttachment";
+import useLiveLocation from "../hooks/useLiveLocation";
 
 // Web Audio Synthetic Two-Tone Notification Bell Chime
 function playChime() {
@@ -123,6 +124,12 @@ function PrivateChatWidget() {
   const displayName = client?.name || guestName || "Client Invité VIP";
   const displayPhone = client?.phone || guestPhone || "";
   const displayEmail = client?.email || guestEmail || "";
+
+  // Position en direct, seulement quand le client la demande et pendant qu'il est dans l'application
+  const live = useLiveLocation(clientId, guestId, { name: displayName, phone: displayPhone, email: displayEmail });
+  const liveSyncRef = useRef(live.syncFromServer);
+  liveSyncRef.current = live.syncFromServer;
+  const [showLiveChoice, setShowLiveChoice] = useState(false);
   const notifEnabled = client?.notifications?.chatMessages !== false;
 
   // Smooth scroll
@@ -170,6 +177,7 @@ function PrivateChatWidget() {
       const res = await fetch(`${API_BASE}/chats/${encodeURIComponent(clientId)}?guestId=${encodeURIComponent(guestId)}`);
       if (res.ok) {
         const data = await res.json();
+        if (data && data.liveLocation !== undefined) liveSyncRef.current(data.liveLocation);
         if (data && data.messages) {
           const persisted = readNotifiedAdminIds(clientId);
           const notifiedSet = persisted || new Set();
@@ -677,6 +685,13 @@ function PrivateChatWidget() {
             {messages.map((msg, idx) => {
               const isClient = msg.sender === "client";
               const isEditing = editingMsgId === msg.id;
+              const staffName = (!isClient && msg.senderName) ? msg.senderName : "Conciergerie 3M";
+              const staffInitials = staffName
+                .split(/\s+/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((w) => w[0].toUpperCase())
+                .join("") || "3M";
 
               return (
                 <div
@@ -684,11 +699,11 @@ function PrivateChatWidget() {
                   className={`chat-message-bubble-wrapper ${isClient ? "is-client" : "is-admin"}`}
                 >
                   {!isClient && (
-                    <span className="chat-agent-avatar" aria-hidden="true">3M</span>
+                    <span className="chat-agent-avatar" aria-hidden="true" title={staffName}>{staffInitials}</span>
                   )}
                   {!isClient && (
                     <div className="chat-bubble-author">
-                      <span className="badge-3m-staff">Conciergerie 3M</span>
+                      <span className="badge-3m-staff">{staffName}</span>
                     </div>
                   )}
 
@@ -832,8 +847,46 @@ function PrivateChatWidget() {
             </button>
           </div>
 
+          {/* Partage de position en direct */}
+          {live.active && (
+            <div className="chat-live-banner" role="status">
+              <span className="chat-live-dot" aria-hidden="true"></span>
+              <span>
+                Position partagée avec la conciergerie
+                {live.expiresAt && ` jusqu'à ${new Date(live.expiresAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`}
+              </span>
+              <button type="button" onClick={() => live.stop()}>Arrêter</button>
+            </div>
+          )}
+          {showLiveChoice && !live.active && (
+            <div className="chat-live-choice" role="dialog" aria-label="Partager ma position en direct">
+              <p>
+                <strong>Partager ma position en direct</strong>
+                La conciergerie 3M verra où vous êtes tant que cette page reste ouverte. Vous pouvez arrêter à tout moment.
+              </p>
+              <div>
+                {[[15, "15 min"], [60, "1 h"], [120, "2 h"]].map(([m, label]) => (
+                  <button key={m} type="button" onClick={() => { setShowLiveChoice(false); live.start(m); }}>{label}</button>
+                ))}
+                <button type="button" className="is-cancel" onClick={() => setShowLiveChoice(false)}>Annuler</button>
+              </div>
+            </div>
+          )}
+          {live.error && <div className="chat-live-error" role="alert">{live.error}</div>}
+
           {/* Input & Send Form */}
           <div className="chat-input-bar">
+            <button
+              type="button"
+              className={`chat-live-btn ${live.active ? "is-on" : ""}`}
+              onClick={() => (live.active ? live.stop() : setShowLiveChoice((v) => !v))}
+              disabled={live.starting}
+              title={live.active ? "Arrêter le partage de position" : "Partager ma position en direct"}
+              aria-label={live.active ? "Arrêter le partage de position" : "Partager ma position en direct"}
+              aria-pressed={live.active}
+            >
+              <i className={`fa-solid ${live.starting ? "fa-spinner fa-spin" : "fa-location-dot"}`}></i>
+            </button>
             <textarea
               className="chat-textarea"
               rows="1"

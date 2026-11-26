@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import { useTranslation } from "../context/LanguageContext";
 import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { API_BASE } from "../config/api";
+import { googleLogin } from "../firebase";
 import {
   getCurrentClient,
   setCurrentClient,
@@ -16,6 +17,7 @@ import {
   toggleFavoriteCar
 } from "../utils/customerAccounts";
 import "../styles/AccountPage.css";
+import "../styles/AuthPage.css";
 import ExperienceRatingCard from "../components/ExperienceRatingCard";
 
 const VALID_TABS = ["dashboard", "profile", "orders", "favorites", "signin"];
@@ -113,7 +115,7 @@ function AccountPage() {
       setEditEmail(client.email || "");
       setEditPassword("");
       setEditConfirmPassword("");
-      setEditLanguage(client.language || lang || "fr");
+      setEditLanguage(client.language || "system");
       setEditHourFormat(client.hourFormat || "24-hour");
       setEditPhone(client.phone || "");
       setEditCity(client.city || "Yaoundé");
@@ -236,6 +238,67 @@ function AccountPage() {
     navigate("/account/dashboard");
   };
 
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setAuthError("");
+    setGoogleLoading(true);
+    try {
+      const user = await googleLogin();
+      const email = (user?.email || "").trim();
+      const displayName = (user?.displayName || (email ? email.split("@")[0] : "Client VIP 3M")).trim();
+      const phone = (user?.phoneNumber || "").trim();
+      const avatar = user?.photoURL || "";
+
+      let account = email ? authenticateClient(email, "") : null;
+      if (!account) {
+        account = registerClientAccount({
+          name: displayName,
+          username: displayName,
+          email,
+          phone,
+          password: "",
+          city: "Yaoundé",
+          avatar,
+          provider: "google",
+          firebaseUid: user?.uid || "",
+          language: "",
+          hourFormat: "24-hour"
+        });
+      } else {
+        const merged = {
+          ...account,
+          name: account.name || displayName,
+          avatar: account.avatar || avatar,
+          provider: account.provider || "google",
+          firebaseUid: user?.uid || account.firebaseUid
+        };
+        setCurrentClient(merged);
+        account = merged;
+      }
+
+      try {
+        localStorage.setItem(
+          "3m_guest_contact_info",
+          JSON.stringify({ name: account.name || displayName, phone: account.phone || phone, email: account.email || email })
+        );
+      } catch (_) {}
+
+      setClient(account);
+      navigate("/account/dashboard");
+    } catch (error) {
+      if (error?.code !== "auth/popup-closed-by-user" && error?.code !== "auth/cancelled-popup-request") {
+        setAuthError(
+          isFr
+            ? `Connexion Google impossible : ${error?.message || "réessayez."}`
+            : `Google sign-in failed: ${error?.message || "please try again."}`
+        );
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   const handleSignOut = () => {
     setCurrentClient(null);
     setClient(null);
@@ -285,7 +348,7 @@ function AccountPage() {
       phone: editPhone.trim(),
       city: editCity.trim(),
       avatar: editAvatar,
-      language: editLanguage,
+      language: editLanguage === "system" ? "" : editLanguage,
       hourFormat: editHourFormat,
       ...(editPassword ? { password: editPassword } : {})
     });
@@ -465,11 +528,21 @@ function AccountPage() {
       <div className="account-page">
         <div className="account-container">
           {!client ? (
-            <div className="account-auth-shell">
-              <div className="account-auth-badge">
-                <i className="fa-solid fa-crown"></i>
-                <span>3M SERVICES • ESPACE CLIENT VIP</span>
-              </div>
+            <div className="auth3m">
+              <aside className="auth3m-visual" style={{ backgroundImage: "url(/images/cars/toyota-landcruiser-v8-black.webp)" }}>
+                <span className="auth3m-tag">
+                  <i className="fa-solid fa-crown"></i> {isFr ? "Espace client" : "Client area"}
+                </span>
+                <div>
+                  <h2>{isFr ? "Vos réservations, au même endroit" : "All your bookings in one place"}</h2>
+                  <ul>
+                    <li><i className="fa-solid fa-calendar-check"></i> {isFr ? "Suivez vos réservations" : "Track your bookings"}</li>
+                    <li><i className="fa-solid fa-heart"></i> {isFr ? "Retrouvez vos véhicules favoris" : "Keep your favourite cars"}</li>
+                    <li><i className="fa-solid fa-headset"></i> {isFr ? "Conciergerie 24/7" : "24/7 concierge"} · +237 691 78 64 47</li>
+                  </ul>
+                </div>
+              </aside>
+              <div className="account-auth-shell">
               <h1 className="account-auth-title">
                 {authMode === "login"
                   ? isFr
@@ -522,6 +595,7 @@ function AccountPage() {
                       type="text"
                       className="account-form-input"
                       placeholder="Ex: arnaud.mbarga@gmail.com ou +237 698 66 87 61"
+                      autoComplete="username"
                       value={loginIdentifier}
                       onChange={(e) => setLoginIdentifier(e.target.value)}
                       required
@@ -536,6 +610,7 @@ function AccountPage() {
                         type={showLoginPassword ? "text" : "password"}
                         className="account-form-input"
                         placeholder="*********"
+                        autoComplete="current-password"
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
                       />
@@ -581,6 +656,7 @@ function AccountPage() {
                       type="email"
                       className="account-form-input"
                       placeholder="monica@exemple.com"
+                      autoComplete="email"
                       value={regEmail}
                       onChange={(e) => setRegEmail(e.target.value)}
                       required
@@ -591,9 +667,10 @@ function AccountPage() {
                       {isFr ? "Téléphone / WhatsApp *" : "Phone / WhatsApp *"}
                     </label>
                     <input
-                      type="text"
+                      type="tel"
                       className="account-form-input"
                       placeholder="+237 6XX XX XX XX"
+                      autoComplete="tel"
                       value={regPhone}
                       onChange={(e) => setRegPhone(e.target.value)}
                       required
@@ -608,6 +685,7 @@ function AccountPage() {
                         type="password"
                         className="account-form-input"
                         placeholder="*********"
+                        autoComplete="new-password"
                         value={regPassword}
                         onChange={(e) => setRegPassword(e.target.value)}
                         required
@@ -621,6 +699,7 @@ function AccountPage() {
                         type="password"
                         className="account-form-input"
                         placeholder="*********"
+                        autoComplete="new-password"
                         value={regConfirmPassword}
                         onChange={(e) => setRegConfirmPassword(e.target.value)}
                         required
@@ -642,6 +721,45 @@ function AccountPage() {
                   </button>
                 </form>
               )}
+
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", margin: "1.6rem 0 1.2rem" }}>
+                <span style={{ flex: 1, height: "1px", background: "#e2e8f0" }}></span>
+                <span style={{ fontSize: "1.25rem", color: "#64748b", fontWeight: 600 }}>
+                  {isFr ? "ou" : "or"}
+                </span>
+                <span style={{ flex: 1, height: "1px", background: "#e2e8f0" }}></span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={googleLoading}
+                style={{
+                  width: "100%",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "1rem",
+                  padding: "1.2rem 1.6rem",
+                  borderRadius: "10px",
+                  border: "1.5px solid #cbd5e1",
+                  backgroundColor: "#ffffff",
+                  color: "#0f172a",
+                  fontSize: "1.45rem",
+                  fontWeight: 700,
+                  cursor: googleLoading ? "wait" : "pointer",
+                  boxShadow: "0 2px 6px rgba(15, 23, 42, 0.06)",
+                  transition: "background-color 0.15s ease"
+                }}
+              >
+                <img src="/google.svg" alt="Google" width="20" height="20" />
+                <span>
+                  {googleLoading
+                    ? (isFr ? "Connexion Google..." : "Signing in with Google...")
+                    : (isFr ? "Continuer avec Google" : "Continue with Google")}
+                </span>
+              </button>
+            </div>
             </div>
           ) : (
             <div className="account-layout">
@@ -933,8 +1051,21 @@ function AccountPage() {
                             <select
                               className="account-form-input"
                               value={editLanguage}
-                              onChange={(e) => setEditLanguage(e.target.value)}
+                              onChange={(e) => {
+                                const nextVal = e.target.value;
+                                setEditLanguage(nextVal);
+                                if (setLang) setLang(nextVal);
+                                if (client) {
+                                  const synced = updateClientProfile({
+                                    language: nextVal === "system" ? "" : nextVal
+                                  });
+                                  if (synced) setClient(synced);
+                                }
+                              }}
                             >
+                              <option value="system">
+                                {isFr ? "Langue du système (par défaut)" : "System language (default)"}
+                              </option>
                               <option value="en">English</option>
                               <option value="fr">Français</option>
                             </select>

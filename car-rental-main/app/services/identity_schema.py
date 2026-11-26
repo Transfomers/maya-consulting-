@@ -12,7 +12,7 @@ NEW_COLUMNS = {
         ('external_account', 'VARCHAR(60)'), ('assigned_admin_id', 'INTEGER'), ('client_status', 'VARCHAR(20)'),
         ('phone_key', 'VARCHAR(12)'), ('last_seen_at', 'DATETIME'),
         ('account_status', 'VARCHAR(20)'), ('status_reason', 'VARCHAR(255)'), ('admin_modules', 'TEXT'),
-        ('locked_until', 'DATETIME'), ('password_set_at', 'DATETIME'), ('invited_by_id', 'INTEGER'),
+        ('locked_until', 'DATETIME'), ('password_set_at', 'DATETIME'), ('must_change_password', 'BOOLEAN DEFAULT 0'), ('invited_by_id', 'INTEGER'),
     ],
     'audit_log': [
         ('actor_name', 'VARCHAR(120)'), ('actor_role', 'VARCHAR(30)'), ('category', 'VARCHAR(30)'),

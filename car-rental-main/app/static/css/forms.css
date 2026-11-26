@@ -1,0 +1,15 @@
+/* États communs des formulaires (administration, espace client, authentification) */
+.fx-req { color: #C92A2A; font-weight: 700; }
+.fx-invalid, .form-control.fx-invalid, .form-select.fx-invalid { border-color: #d92d20 !important; box-shadow: 0 0 0 3px rgba(217, 45, 32, .12) !important; }
+.fx-error { color: #b42318; font-size: 12.5px; margin-top: 4px; line-height: 1.35; width: 100%; }
+.fx-password { position: relative; width: 100%; }
+.fx-password > input { padding-right: 42px !important; width: 100%; }
+.fx-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: #667085; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; }
+.fx-eye:hover { background: #f2f4f7; color: #101828; }
+.fx-loading { position: relative; }
+.fx-loading::after { content: ""; display: inline-block; width: 13px; height: 13px; margin-left: 8px; vertical-align: -2px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: fxSpin .7s linear infinite; }
+button[data-fx-locked] { cursor: progress; opacity: .75; }
+@keyframes fxSpin { to { transform: rotate(360deg); } }
+/* Formulaires : champs confortables et lisibles sur mobile (évite le zoom iOS) */
+@media (max-width: 575.98px) { input.form-control, select.form-select, textarea.form-control { font-size: 16px !important; } }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(201, 42, 42, .28); outline-offset: 1px; }

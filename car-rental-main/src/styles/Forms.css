@@ -1,0 +1,5 @@
+/* Champs en erreur visibles sur tout le site, après une tentative de saisie */
+input:user-invalid, select:user-invalid, textarea:user-invalid { border-color: #d92d20 !important; box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.12) !important; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(214, 40, 40, 0.28); outline-offset: 1px; }
+button:disabled { cursor: not-allowed; opacity: 0.65; }
+@media (max-width: 600px) { input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px !important; } }

@@ -18,6 +18,10 @@ import PrivateChatWidget from "./components/PrivateChatWidget";
 import VisitorLocation from "./components/VisitorLocation";
 import { LanguageProvider } from "./context/LanguageContext";
 import { startPendingContactsSync } from "./utils/pendingContacts";
+import installFrenchFormMessages from "./utils/formMessages";
+import "./styles/Forms.css";
+
+installFrenchFormMessages();
 import ChatPage from "./Pages/ChatPage";
 import AccountPage from "./Pages/AccountPage";
 import "./styles/Responsive.css"; // correctifs mobile, chargé en dernier

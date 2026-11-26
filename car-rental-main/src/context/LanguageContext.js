@@ -353,33 +353,93 @@ const translations = {
 
 const LanguageContext = createContext();
 
+export function detectSystemLanguage() {
+  try {
+    const raw = (
+      (Array.isArray(navigator.languages) && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.userLanguage ||
+      "fr"
+    ).toLowerCase();
+    if (raw.startsWith("en")) return "en";
+    if (raw.startsWith("fr")) return "fr";
+  } catch (e) {
+    // fallback
+  }
+  return "fr";
+}
+
+function readClientProfileLanguage() {
+  try {
+    const raw = localStorage.getItem("3m_vip_account");
+    if (!raw) return null;
+    const client = JSON.parse(raw);
+    if (client?.language === "fr" || client?.language === "en") return client.language;
+  } catch (e) {
+    // ignore
+  }
+  return null;
+}
+
 export function LanguageProvider({ children }) {
-  const [lang, setLang] = useState(() => {
-    // 1. Check saved language in localStorage
+  const [lang, setLangState] = useState(() => {
+    // 1. Logged-in client profile language (highest priority)
+    const profileLang = readClientProfileLanguage();
+    if (profileLang) return profileLang;
+
+    // 2. Explicitly chosen language saved in localStorage
     const saved = localStorage.getItem("3m_lang");
     if (saved === "fr" || saved === "en") return saved;
 
-    // 2. Default to device language
-    try {
-      const browserLang = (
-        navigator.language ||
-        navigator.userLanguage ||
-        "fr"
-      ).toLowerCase();
-      if (browserLang.startsWith("en")) return "en";
-    } catch (e) {
-      // fallback
-    }
-    return "fr";
+    // 3. Default to device/system language (without locking localStorage)
+    return detectSystemLanguage();
   });
 
   useEffect(() => {
-    localStorage.setItem("3m_lang", lang);
     document.documentElement.lang = lang;
   }, [lang]);
 
+  // Sync site language immediately when client signs in, updates profile, or logs out
+  useEffect(() => {
+    const handleClientAuth = (e) => {
+      const nextClient = e?.detail;
+      if (nextClient?.language === "fr" || nextClient?.language === "en") {
+        localStorage.setItem("3m_lang", nextClient.language);
+        setLangState(nextClient.language);
+      } else if (!nextClient) {
+        const saved = localStorage.getItem("3m_lang");
+        setLangState(saved === "fr" || saved === "en" ? saved : detectSystemLanguage());
+      }
+    };
+    window.addEventListener("3m-client-auth-changed", handleClientAuth);
+    return () => window.removeEventListener("3m-client-auth-changed", handleClientAuth);
+  }, []);
+
+  const setLang = (nextLang) => {
+    if (nextLang === "system" || !nextLang) {
+      localStorage.removeItem("3m_lang");
+      setLangState(detectSystemLanguage());
+      return;
+    }
+    if (nextLang !== "fr" && nextLang !== "en") return;
+    localStorage.setItem("3m_lang", nextLang);
+    setLangState(nextLang);
+    // Keep signed-in client's profile language in sync
+    try {
+      const raw = localStorage.getItem("3m_vip_account");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.language !== nextLang) {
+          localStorage.setItem("3m_vip_account", JSON.stringify({ ...parsed, language: nextLang }));
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  };
+
   const toggleLang = () => {
-    setLang((prev) => (prev === "fr" ? "en" : "fr"));
+    setLang(lang === "fr" ? "en" : "fr");
   };
 
   const t = (key, fallback = "") => {

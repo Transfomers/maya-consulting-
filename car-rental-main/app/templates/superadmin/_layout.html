@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/superadmin.css') }}">{% endblock %}
 {% block sidebar_nav %}
+{% if current_user.role == 'super_admin' %}
 {% set ep = request.endpoint %}
 <nav class="admin-sidebar-nav px-2 py-2" aria-label="Menu Super Admin">
     {% for section, entries in [
@@ -48,4 +49,7 @@
         <i class="bi bi-arrow-left-square"></i><span class="sidebar-text">Administration courante</span>
     </a>
 </nav>
+{% else %}
+{{ super() }}
+{% endif %}
 {% endblock %}

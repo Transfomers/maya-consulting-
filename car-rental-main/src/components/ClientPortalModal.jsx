@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { googleLogin } from "../firebase";
 import {
   getCurrentClient,
   setCurrentClient,
   loginClient,
+  registerClientAccount,
   getClientOrders,
   getCrmStore
 } from "../utils/customerAccounts";
@@ -113,6 +115,48 @@ function ClientPortalModal() {
       console.error(err);
     } finally {
       setPortalChatSending(false);
+    }
+  };
+
+  const handleGoogleModalLogin = async () => {
+    setLoginError("");
+    try {
+      const user = await googleLogin();
+      const email = (user?.email || "").trim();
+      const displayName = (user?.displayName || (email ? email.split("@")[0] : "Client VIP 3M")).trim();
+      const phone = (user?.phoneNumber || "").trim();
+      const avatar = user?.photoURL || "";
+      let account = email ? loginClient(email) : null;
+      if (!account) {
+        account = registerClientAccount({
+          name: displayName,
+          username: displayName,
+          email,
+          phone,
+          password: "",
+          city: "Yaoundé",
+          avatar,
+          provider: "google",
+          firebaseUid: user?.uid || "",
+          language: "",
+          hourFormat: "24-hour"
+        });
+      } else {
+        const merged = { ...account, name: account.name || displayName, avatar: account.avatar || avatar };
+        setCurrentClient(merged);
+        account = merged;
+      }
+      try {
+        localStorage.setItem(
+          "3m_guest_contact_info",
+          JSON.stringify({ name: account.name || displayName, phone: account.phone || phone, email: account.email || email })
+        );
+      } catch (_) {}
+      setClient(account);
+    } catch (error) {
+      if (error?.code !== "auth/popup-closed-by-user" && error?.code !== "auth/cancelled-popup-request") {
+        setLoginError(`Connexion Google impossible : ${error?.message || "réessayez."}`);
+      }
     }
   };
 
@@ -346,6 +390,35 @@ function ClientPortalModal() {
                   Accéder à mon Espace Client
                 </button>
               </form>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", margin: "1.6rem 0 1.2rem" }}>
+                <span style={{ flex: 1, height: "1px", background: "#e2e8f0" }}></span>
+                <span style={{ fontSize: "1.2rem", color: "#64748b", fontWeight: 600 }}>ou</span>
+                <span style={{ flex: 1, height: "1px", background: "#e2e8f0" }}></span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleGoogleModalLogin}
+                style={{
+                  width: "100%",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "1rem",
+                  padding: "1.2rem",
+                  borderRadius: "10px",
+                  border: "1.5px solid #cbd5e1",
+                  backgroundColor: "#ffffff",
+                  color: "#0f172a",
+                  fontSize: "1.45rem",
+                  fontWeight: 700,
+                  cursor: "pointer"
+                }}
+              >
+                <img src="/google.svg" alt="Google" width="20" height="20" />
+                <span>Continuer avec Google</span>
+              </button>
             </div>
           ) : (
             /* Logged-In Client Account Dashboard */

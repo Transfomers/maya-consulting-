@@ -8,7 +8,7 @@
         <div>
             <a href="{{ url_for('superadmin.admins') }}" class="sa-back"><i class="bi bi-arrow-left"></i> Administrateurs</a>
             <h1 class="sa-title">{{ user.real_name or user.username }} {{ status_pill(user.status_key, status_labels) }}</h1>
-            <p class="sa-sub">{{ roles.get(user.role, user.role) }} · {{ user.email }}{% if user.phone %} · {{ user.phone }}{% endif %} · créé le {{ user.created_at|local_dt('%d/%m/%Y') }}</p>
+            <p class="sa-sub">{{ roles.get(user.role, user.role) }} · @{{ user.username }} · {{ user.email }}{% if user.phone %} · {{ user.phone }}{% endif %} · créé le {{ user.created_at|local_dt('%d/%m/%Y') }}</p>
         </div>
     </div>
     <div class="d-flex gap-2 flex-wrap">

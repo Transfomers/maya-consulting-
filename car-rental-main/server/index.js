@@ -2078,7 +2078,8 @@ function stripWelcomeMessages(messages) {
 }
 
 // 1. Get all chat threads (for Admin overview)
-app.get("/api/chats", (req, res) => {
+// Liste de toutes les conversations : données personnelles, réservée à un administrateur authentifié
+app.get("/api/chats", authenticateToken, (req, res) => {
   const db = readDb();
   const chats = (db.chats || []).filter((c) => !c.mergedInto && hasRealClientMessage(c));
   const summaries = chats.map((c) => {
@@ -2155,6 +2156,7 @@ app.get("/api/chats/:clientId", (req, res) => {
   const clientNotifications = Array.isArray(chat.clientNotifications) ? chat.clientNotifications : [];
   const chatResponse = {
     ...chat,
+    liveLocation: publicLiveState(liveLocationState(chat)),
     messages: stripWelcomeMessages(chat.messages),
     clientNotifications,
     unreadNotifications: clientNotifications.filter((n) => !n.read).length,
@@ -2320,6 +2322,97 @@ app.post("/api/chats/:clientId/typing", (req, res) => {
 });
 
 // 7. Get typing status
+/* ── Position en direct du client (pendant qu'il utilise l'application) ─────────
+   Seule la dernière position est conservée ; elle expire côté serveur et est effacée à l'arrêt. */
+const LIVE_DURATIONS = [15, 60, 120];
+const publicLiveState = (l) => (l ? { active: true, expiresAt: l.expiresAt, updatedAt: l.updatedAt } : null);
+function liveLocationState(thread) {
+  const live = thread && thread.liveLocation;
+  if (!live || !live.active) return null;
+  if (live.expiresAt && Date.parse(live.expiresAt) <= Date.now()) {
+    thread.liveLocation = { active: false, stoppedAt: live.expiresAt, reason: "expired" };
+    return null;
+  }
+  return live;
+}
+
+app.post("/api/chats/:clientId/live-location", (req, res) => {
+  const lat = Number(req.body.lat), lng = Number(req.body.lng), accuracy = Number(req.body.accuracy) || null;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+    return res.status(400).json({ error: "Position invalide." });
+  }
+  const db = readDb();
+  db.chats = db.chats || [];
+  const idx = findChatIndex(db, req.params.clientId, { guestId: req.body.guestId }).index;
+  const now = new Date();
+  let thread = idx === -1 ? null : db.chats[idx];
+  if (!thread) {
+    thread = {
+      id: normalizeChatId(req.params.clientId), clientId: req.params.clientId,
+      clientName: String(req.body.name || "Client").slice(0, 120), clientPhone: String(req.body.phone || "").slice(0, 40),
+      clientEmail: String(req.body.email || "").slice(0, 120), unreadAdmin: 0, unreadClient: 0,
+      createdAt: now.toISOString(), messages: []
+    };
+    db.chats.unshift(thread);
+  }
+  let live = liveLocationState(thread);
+  const starting = !live;
+  if (starting) {
+    const minutes = LIVE_DURATIONS.includes(Number(req.body.durationMinutes)) ? Number(req.body.durationMinutes) : 60;
+    const expiresAt = new Date(now.getTime() + minutes * 60000);
+    live = { active: true, startedAt: now.toISOString(), expiresAt: expiresAt.toISOString() };
+    const hhmm = expiresAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Douala" });
+    const msg = {
+      id: `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`, sender: "client",
+      senderName: thread.clientName || "Client", type: "live_location",
+      text: `📍 Position partagée en direct (jusqu'à ${hhmm})`, timestamp: now.toISOString()
+    };
+    thread.messages = thread.messages || [];
+    thread.messages.push(msg);
+    thread.lastMessage = msg.text;
+    thread.lastMessageAt = msg.timestamp;
+    thread.unreadAdmin = (thread.unreadAdmin || 0) + 1;
+  } else if (live.updatedAt && now - Date.parse(live.updatedAt) < 5000) {
+    return res.json({ success: true, live: publicLiveState(live), throttled: true });   // au plus une mise à jour toutes les 5 s
+  }
+  live.lat = Math.round(lat * 1e6) / 1e6;
+  live.lng = Math.round(lng * 1e6) / 1e6;
+  live.accuracy = accuracy ? Math.round(accuracy) : null;
+  live.updatedAt = now.toISOString();
+  thread.liveLocation = live;
+  if (!writeDb(db)) return res.status(500).json({ error: "Position non enregistrée." });
+  if (starting) {
+    notifyAdminOfClientMessage({
+      kind: "chat", name: thread.clientName || "", phone: thread.clientPhone || "", email: thread.clientEmail || "",
+      text: "📍 Le client partage sa position en direct", ref: thread.id, threadId: thread.id, accountNumber: thread.clientId
+    });
+  }
+  res.json({ success: true, live: publicLiveState(live) });
+});
+
+function stopLiveLocation(req, res) {
+  const db = readDb();
+  const idx = findChatIndex(db, req.params.clientId, { guestId: (req.body || {}).guestId }).index;
+  if (idx === -1) return res.status(404).json({ error: "Conversation introuvable." });
+  const thread = db.chats[idx];
+  const live = liveLocationState(thread);
+  thread.liveLocation = { active: false, stoppedAt: new Date().toISOString(), reason: "stopped" };   // coordonnées effacées
+  if (live) {
+    thread.messages = thread.messages || [];
+    thread.messages.push({
+      id: `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`, sender: "client", senderName: thread.clientName || "Client",
+      type: "live_location_stop", text: "📍 Partage de position arrêté", timestamp: new Date().toISOString()
+    });
+  }
+  writeDb(db);
+  res.json({ success: true });
+}
+app.delete("/api/chats/:clientId/live-location", stopLiveLocation);
+app.post("/api/chats/:clientId/live-location/stop", express.text({ type: "*/*" }), (req, res) => {
+  if (typeof req.body === "string") { try { req.body = JSON.parse(req.body || "{}"); } catch (_) { req.body = {}; } }
+  stopLiveLocation(req, res);
+});
+
 app.get("/api/chats/:clientId/typing", (req, res) => {
   const cleanId = normalizeChatId(req.params.clientId);
   const state = chatTypingState[cleanId] || { clientTypingUntil: 0, adminTypingUntil: 0 };
