@@ -313,28 +313,75 @@ function About() {
                 </li>
               </ul>
 
-              <a
-                href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20conna%C3%AEtre%20les%20conditions%20de%20leasing%20automobile"
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                  backgroundColor: "#C92A2A",
-                  color: "#ffffff",
-                  fontWeight: 700,
-                  fontSize: "1.45rem",
-                  padding: "1.3rem 2.8rem",
-                  borderRadius: "10px",
-                  textDecoration: "none",
-                  boxShadow: "0 6px 18px rgba(201, 42, 42, 0.28)",
-                  transition: "all 0.25s ease",
-                }}
-              >
-                <i className="fa-brands fa-whatsapp" style={{ fontSize: "1.9rem" }}></i>
-                {isFr ? "Demander les Conditions de Leasing (Conciergerie 24/7)" : "Request Leasing Conditions (24/7 Concierge)"}
-              </a>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "1.2rem", alignItems: "center" }}>
+                <a
+                  href={`${process.env.PUBLIC_URL || ""}/Asset/catalogue-leasing.pdf`}
+                  download="Catalogue_Leasing_3M_SERVICES.pdf"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "1rem",
+                    backgroundColor: "#0f172a",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    fontSize: "1.45rem",
+                    padding: "1.3rem 2.6rem",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    boxShadow: "0 6px 18px rgba(15, 23, 42, 0.22)",
+                    transition: "all 0.25s ease",
+                  }}
+                >
+                  <i className="fa-solid fa-file-arrow-down" style={{ fontSize: "1.8rem" }}></i>
+                  {isFr ? "Télécharger le Catalogue Leasing (PDF)" : "Download Leasing Catalogue (PDF)"}
+                </a>
+
+                <a
+                  href={`${process.env.PUBLIC_URL || ""}/Asset/catalogue-leasing.pdf`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.9rem",
+                    backgroundColor: "#ffffff",
+                    color: "#0f172a",
+                    border: "2px solid #0f172a",
+                    fontWeight: 700,
+                    fontSize: "1.45rem",
+                    padding: "1.15rem 2.2rem",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    transition: "all 0.25s ease",
+                  }}
+                >
+                  <i className="fa-solid fa-file-pdf" style={{ fontSize: "1.7rem", color: "#C92A2A" }}></i>
+                  {isFr ? "Consulter le Catalogue" : "View Catalogue"}
+                </a>
+
+                <a
+                  href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20conna%C3%AEtre%20les%20conditions%20de%20leasing%20automobile"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "1rem",
+                    backgroundColor: "#C92A2A",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    fontSize: "1.45rem",
+                    padding: "1.3rem 2.8rem",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    boxShadow: "0 6px 18px rgba(201, 42, 42, 0.28)",
+                    transition: "all 0.25s ease",
+                  }}
+                >
+                  <i className="fa-brands fa-whatsapp" style={{ fontSize: "1.9rem" }}></i>
+                  {isFr ? "Demander les Conditions de Leasing (Conciergerie 24/7)" : "Request Leasing Conditions (24/7 Concierge)"}
+                </a>
+              </div>
             </div>
 
             {/* Bottom Card: Official Bilateral Partnership Signing with MUPOCAM (Blog / Act of Proof) */}
