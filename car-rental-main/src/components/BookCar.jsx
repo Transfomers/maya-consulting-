@@ -310,12 +310,6 @@ function BookCar() {
       <div className="container">
         <div className="book-content">
           <div className="book-card-v2">
-            {/* Top-right promotional ribbon matching reference design */}
-            <div className="book-card-v2__ribbon">
-              <strong>{L("ÉCONOMISEZ 15%", "SAVE 15%")}</strong>{" "}
-              {L("en réservant en ligne", "if you prepay your booking")}
-            </div>
-
             <h2 className="book-card-v2__title">{t("book_title")}</h2>
 
             {formError && (
