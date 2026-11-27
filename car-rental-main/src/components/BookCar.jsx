@@ -1,4 +1,4 @@
-// Compact 2-row horizontal booking card matching the official 3M SERVICES design
+// Réserver un Véhicule — Onglets Aller simple / Aller-retour + Votre trajet (Ville, Arrondissement, Quartier, Repère, Inverser)
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { API_BASE } from "../config/api";
@@ -7,16 +7,50 @@ import { CARS_CATALOGUE } from "../data/carsCatalogue";
 import { getCurrentClient, saveOrderAndCustomerAccount } from "../utils/customerAccounts";
 import "../styles/RentalBooking.css";
 
-const FALLBACK_LOCATIONS = [
-  { key: "1:0:Agence Omnisports, Yaoundé", cityId: 1, neighbourhoodId: null, label: "Yaoundé — Agence Omnisports" },
-  { key: "1:0:Aéroport Yaoundé-Nsimalen", cityId: 1, neighbourhoodId: null, label: "Yaoundé — Aéroport Nsimalen" },
-  { key: "1:0:Bastos, Yaoundé", cityId: 1, neighbourhoodId: null, label: "Yaoundé — Bastos" },
-  { key: "1:0:Tsinga (Face FECAFOOT), Yaoundé", cityId: 1, neighbourhoodId: null, label: "Yaoundé — Tsinga (Face FECAFOOT)" },
-  { key: "1:0:Centre-ville, Yaoundé", cityId: 1, neighbourhoodId: null, label: "Yaoundé — Centre-ville" },
-  { key: "2:0:Aéroport International de Douala", cityId: 2, neighbourhoodId: null, label: "Douala — Aéroport International" },
-  { key: "2:0:Bonanjo, Douala", cityId: 2, neighbourhoodId: null, label: "Douala — Bonanjo" },
-  { key: "2:0:Akwa, Douala", cityId: 2, neighbourhoodId: null, label: "Douala — Akwa" },
-  { key: "2:0:Bonapriso, Douala", cityId: 2, neighbourhoodId: null, label: "Douala — Bonapriso" }
+const EMPTY_PLACE = { cityId: "", districtId: "", neighbourhoodId: null, neighbourhoodText: "", address: "" };
+
+const FALLBACK_CITIES = [
+  {
+    id: 1,
+    name: "Yaoundé",
+    districts: [
+      { id: 1, name: "Yaoundé I" },
+      { id: 2, name: "Yaoundé II" },
+      { id: 3, name: "Yaoundé III" },
+      { id: 4, name: "Yaoundé IV" },
+      { id: 5, name: "Yaoundé V" },
+      { id: 6, name: "Yaoundé VI" },
+      { id: 7, name: "Yaoundé VII" }
+    ],
+    neighbourhoods: [
+      { id: 101, name: "Omnisports", districtId: 5, aliases: [], landmarks: [] },
+      { id: 102, name: "Bastos", districtId: 1, aliases: [], landmarks: [] },
+      { id: 103, name: "Tsinga", districtId: 2, aliases: [], landmarks: ["FECAFOOT"] },
+      { id: 104, name: "Aéroport Nsimalen", districtId: 4, aliases: ["Nsimalen"], landmarks: [] },
+      { id: 105, name: "Centre-ville", districtId: 1, aliases: [], landmarks: [] },
+      { id: 106, name: "Mvan", districtId: 4, aliases: [], landmarks: [] },
+      { id: 107, name: "Biyem-Assi", districtId: 6, aliases: [], landmarks: [] }
+    ]
+  },
+  {
+    id: 2,
+    name: "Douala",
+    districts: [
+      { id: 8, name: "Douala I" },
+      { id: 9, name: "Douala II" },
+      { id: 10, name: "Douala III" },
+      { id: 11, name: "Douala IV" },
+      { id: 12, name: "Douala V" }
+    ],
+    neighbourhoods: [
+      { id: 201, name: "Akwa", districtId: 8, aliases: [], landmarks: [] },
+      { id: 202, name: "Bonanjo", districtId: 8, aliases: [], landmarks: [] },
+      { id: 203, name: "Bonapriso", districtId: 8, aliases: [], landmarks: [] },
+      { id: 204, name: "Bali", districtId: 8, aliases: [], landmarks: [] },
+      { id: 205, name: "Aéroport de Douala", districtId: 9, aliases: [], landmarks: [] },
+      { id: 206, name: "Bonamoussadi", districtId: 12, aliases: [], landmarks: [] }
+    ]
+  }
 ];
 
 const TIME_SLOTS = Array.from({ length: 24 }, (_, h) => {
@@ -25,6 +59,14 @@ const TIME_SLOTS = Array.from({ length: 24 }, (_, h) => {
   const ampm = h < 12 ? "AM" : "PM";
   return { value: `${hh}:00`, labelFr: `${hh}:00`, labelEn: `${h12}:00 ${ampm}` };
 });
+
+const normText = (s) =>
+  String(s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 
 const todayStr = () => new Date(Date.now() + 3600000).toISOString().slice(0, 10);
 const newKey = () => `rq-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -39,6 +81,89 @@ const guestId = () => {
   return id;
 };
 
+function QuartierCombo({ city, districtId, value, text, onChange, isFr, id }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const hoods = useMemo(() => {
+    if (!city) return [];
+    const all = Array.isArray(city.neighbourhoods) ? city.neighbourhoods : [];
+    const scoped = districtId ? all.filter((n) => String(n.districtId) === String(districtId)) : all;
+    const q = normText(query);
+    if (!q) return scoped.slice(0, 40);
+    return scoped
+      .filter((n) => [n.name, ...(n.aliases || []), ...(n.landmarks || [])].some((x) => normText(x).includes(q)))
+      .slice(0, 40);
+  }, [city, districtId, query]);
+
+  const selectedName = useMemo(() => {
+    if (!city) return "";
+    const found = (city.neighbourhoods || []).find((n) => n.id === value);
+    return found ? found.name : text || "";
+  }, [city, value, text]);
+
+  const disabled = !city;
+
+  return (
+    <div className="book-card-v2__combo">
+      <input
+        id={id}
+        type="text"
+        disabled={disabled}
+        autoComplete="off"
+        placeholder={
+          disabled
+            ? isFr ? "Choisissez d'abord la ville" : "Choose a city first"
+            : isFr ? "Rechercher un quartier…" : "Search a neighbourhood…"
+        }
+        value={open ? query : selectedName}
+        onFocus={() => { if (!disabled) { setOpen(true); setQuery(selectedName); } }}
+        onBlur={() => setTimeout(() => setOpen(false), 160)}
+        onChange={(e) => {
+          const val = e.target.value;
+          setQuery(val);
+          setOpen(true);
+          onChange({ neighbourhoodId: null, neighbourhoodText: val });
+        }}
+      />
+      {open && !disabled && (
+        <ul className="book-card-v2__combo-list" role="listbox">
+          {hoods.map((h) => (
+            <li
+              key={h.id}
+              role="option"
+              aria-selected={h.id === value}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onChange({ neighbourhoodId: h.id, neighbourhoodText: h.name });
+                setQuery(h.name);
+                setOpen(false);
+              }}
+            >
+              <span>{h.name}</span>
+            </li>
+          ))}
+          {query.trim().length >= 2 && !hoods.some((h) => normText(h.name) === normText(query)) && (
+            <li
+              className="is-custom"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onChange({ neighbourhoodId: null, neighbourhoodText: query.trim() });
+                setOpen(false);
+              }}
+            >
+              <span>+ {isFr ? "Utiliser" : "Use"} « {query.trim()} »</span>
+            </li>
+          )}
+          {hoods.length === 0 && query.trim().length < 2 && (
+            <li className="is-empty">{isFr ? "Tapez le nom du quartier" : "Type neighbourhood name"}</li>
+          )}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function BookCar() {
   const { lang, t } = useTranslation();
   const isFr = lang === "fr";
@@ -48,9 +173,10 @@ function BookCar() {
   const [options, setOptions] = useState(null);
   const [catalogue, setCatalogue] = useState(CARS_CATALOGUE);
 
+  const [tripType, setTripType] = useState("one_way"); // "one_way" | "round_trip"
   const [vehicleKey, setVehicleKey] = useState("");
-  const [pickUpKey, setPickUpKey] = useState("");
-  const [dropOffKey, setDropOffKey] = useState("");
+  const [pickup, setPickup] = useState(EMPTY_PLACE);
+  const [destination, setDestination] = useState(EMPTY_PLACE);
   const [pickDate, setPickDate] = useState("");
   const [pickTime, setPickTime] = useState("09:00");
   const [dropDate, setDropDate] = useState("");
@@ -71,7 +197,6 @@ function BookCar() {
   const requestKey = useRef(newKey());
   const wantedCar = useRef(sessionStorage.getItem("selected_booking_car"));
 
-  // Sync client profile changes reactively
   useEffect(() => {
     const onAuth = (e) => {
       const next = e?.detail !== undefined ? e.detail : getCurrentClient();
@@ -89,7 +214,6 @@ function BookCar() {
     return () => window.removeEventListener("3m-client-auth-changed", onAuth);
   }, []);
 
-  // Load vehicles & locations from backend (non-blocking; falls back gracefully)
   useEffect(() => {
     fetch(`${API_BASE}/rental/options`)
       .then((r) => (r.ok ? r.json() : null))
@@ -101,7 +225,11 @@ function BookCar() {
       .catch(() => {});
   }, []);
 
-  // Build unified vehicles list (prefer backend catalogue enriched with Flask bus IDs)
+  const cities = useMemo(() => {
+    const apiCities = options?.cities || [];
+    return apiCities.length ? apiCities : FALLBACK_CITIES;
+  }, [options]);
+
   const vehicles = useMemo(() => {
     const apiVehicles = options?.vehicles || [];
     if (catalogue.length > 0) {
@@ -128,37 +256,6 @@ function BookCar() {
     }));
   }, [options, catalogue]);
 
-  // Build unified locations list from Flask cities/neighbourhoods (with fallback)
-  const locations = useMemo(() => {
-    const cities = options?.cities || [];
-    if (!cities.length) return FALLBACK_LOCATIONS;
-    const out = [];
-    cities.forEach((city) => {
-      const hoods = Array.isArray(city.neighbourhoods) ? city.neighbourhoods : [];
-      if (hoods.length) {
-        hoods.forEach((h) => {
-          out.push({
-            key: `${city.id}:${h.id}:${h.name}`,
-            cityId: city.id,
-            neighbourhoodId: h.id,
-            neighbourhoodText: h.name,
-            label: `${city.name} — ${h.name}`
-          });
-        });
-      } else {
-        out.push({
-          key: `${city.id}:0:${city.name}`,
-          cityId: city.id,
-          neighbourhoodId: null,
-          neighbourhoodText: city.name,
-          label: city.name
-        });
-      }
-    });
-    return out.length ? out : FALLBACK_LOCATIONS;
-  }, [options]);
-
-  // Select vehicle if triggered from elsewhere on the page
   useEffect(() => {
     const selectByName = (name) => {
       const n = String(name || "").toLowerCase();
@@ -179,33 +276,57 @@ function BookCar() {
     return () => window.removeEventListener("select-booking-car", onSelect);
   }, [vehicles]);
 
+  const cityOf = (place) => cities.find((c) => String(c.id) === String(place.cityId)) || null;
+  const placeLabel = (place) => {
+    const c = cityOf(place);
+    const hood = c?.neighbourhoods?.find((n) => n.id === place.neighbourhoodId)?.name || place.neighbourhoodText;
+    return [hood, c?.name, place.address].filter(Boolean).join(", ");
+  };
+
   const selectedVehicle = vehicles.find((v) => v.key === vehicleKey) || null;
-  const selectedPickUp = locations.find((l) => l.key === pickUpKey) || null;
-  const selectedDropOff = locations.find((l) => l.key === dropOffKey) || selectedPickUp || null;
+  const isRoundTrip = tripType === "round_trip";
 
   const rentalDays = useMemo(() => {
     if (!pickDate) return 1;
+    if (!isRoundTrip) return 1;
     const d1 = new Date(pickDate);
     const d2 = new Date(dropDate || pickDate);
     if (isNaN(d1) || isNaN(d2)) return 1;
     return Math.max(1, Math.round((d2 - d1) / 86400000));
-  }, [pickDate, dropDate]);
+  }, [pickDate, dropDate, isRoundTrip]);
 
   const estimatedTotal = selectedVehicle?.pricePerDay ? selectedVehicle.pricePerDay * rentalDays : 0;
+
+  const swapPlaces = () => {
+    setPickup(destination);
+    setDestination(pickup);
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
     setFormError("");
-    if (!vehicleKey || !pickUpKey || !dropOffKey || !pickDate || !dropDate) {
-      setFormError(
-        L("Veuillez renseigner tous les champs requis (véhicule, lieux et dates).", "Please fill in all required fields (car, locations, and dates).")
-      );
+    if (!vehicleKey) {
+      setFormError(L("Veuillez choisir un véhicule.", "Please select a vehicle."));
       return;
     }
-    if (dropDate < pickDate) {
-      setFormError(
-        L("La date de restitution doit être postérieure ou égale à la date de prise en charge.", "Drop-off date must be on or after the pick-up date.")
-      );
+    if (!pickup.cityId || (!pickup.neighbourhoodId && !pickup.neighbourhoodText.trim())) {
+      setFormError(L("Veuillez renseigner la ville et le quartier de prise en charge.", "Please select the pick-up city and neighbourhood."));
+      return;
+    }
+    if (!destination.cityId || (!destination.neighbourhoodId && !destination.neighbourhoodText.trim())) {
+      setFormError(L("Veuillez renseigner la ville et le quartier de destination.", "Please select the destination city and neighbourhood."));
+      return;
+    }
+    if (!pickDate) {
+      setFormError(L("Veuillez choisir la date de départ.", "Please select the departure date."));
+      return;
+    }
+    if (isRoundTrip && !dropDate) {
+      setFormError(L("Veuillez choisir la date de retour.", "Please select the return date."));
+      return;
+    }
+    if (isRoundTrip && dropDate < pickDate) {
+      setFormError(L("La date de retour doit être postérieure ou égale à la date de départ.", "Return date must be on or after the departure date."));
       return;
     }
     setDone(null);
@@ -227,23 +348,24 @@ function BookCar() {
     }
 
     setSending(true);
-    const pickLoc = selectedPickUp || locations[0];
-    const dropLoc = selectedDropOff || pickLoc;
-    const isSameDay = dropDate === pickDate;
+    const pickStr = placeLabel(pickup) || "Yaoundé";
+    const destStr = placeLabel(destination) || pickStr;
+    const effectiveDropDate = isRoundTrip ? (dropDate || pickDate) : pickDate;
+
     const payload = {
-      tripType: isSameDay ? "one_way" : "round_trip",
+      tripType,
       vehicleId: selectedVehicle?.busId || 1,
       vehicleName: selectedVehicle?.name || "Véhicule VIP 3M",
-      pickupCityId: pickLoc?.cityId || 1,
-      pickupNeighbourhoodId: pickLoc?.neighbourhoodId || null,
-      pickupNeighbourhoodText: pickLoc?.neighbourhoodText || pickLoc?.label || "Yaoundé",
-      pickupAddress: pickLoc?.label || "Yaoundé",
-      destinationCityId: dropLoc?.cityId || pickLoc?.cityId || 1,
-      destinationNeighbourhoodId: dropLoc?.neighbourhoodId || null,
-      destinationNeighbourhoodText: dropLoc?.neighbourhoodText || dropLoc?.label || "Yaoundé",
-      destinationAddress: dropLoc?.label || "Yaoundé",
+      pickupCityId: Number(pickup.cityId) || 1,
+      pickupNeighbourhoodId: pickup.neighbourhoodId || null,
+      pickupNeighbourhoodText: pickup.neighbourhoodText || "",
+      pickupAddress: pickup.address || "",
+      destinationCityId: Number(destination.cityId) || Number(pickup.cityId) || 1,
+      destinationNeighbourhoodId: destination.neighbourhoodId || null,
+      destinationNeighbourhoodText: destination.neighbourhoodText || "",
+      destinationAddress: destination.address || "",
       departureAt: `${pickDate}T${pickTime || "09:00"}`,
-      returnAt: !isSameDay ? `${dropDate}T${dropTime || "18:00"}` : "",
+      returnAt: isRoundTrip ? `${effectiveDropDate}T${dropTime || "18:00"}` : "",
       driverRequired: false,
       notes: contact.notes.trim(),
       name: contact.name.trim(),
@@ -277,16 +399,16 @@ function BookCar() {
         clientName: contact.name.trim(),
         phone: contact.phone.trim(),
         email: contact.email.trim(),
-        city: (pickLoc?.label || "Yaoundé").split("—")[0].trim(),
+        city: cityOf(pickup)?.name || "Yaoundé",
         itemName: selectedVehicle?.name || "Véhicule VIP 3M",
-        itemCategory: "Location Véhicule",
+        itemCategory: isRoundTrip ? "Aller-retour" : "Aller simple",
         itemPrice: selectedVehicle?.pricePerDay || 0,
         days: rentalDays,
         totalPrice: serverEstimate,
         pickTime: pickDate,
-        dropTime: dropDate,
-        pickUp: pickLoc?.label || "Yaoundé",
-        dropOff: dropLoc?.label || pickLoc?.label || "Yaoundé",
+        dropTime: effectiveDropDate,
+        pickUp: pickStr,
+        dropOff: destStr,
         notes: contact.notes.trim(),
         source: "Réserver un Véhicule (Accueil)"
       });
@@ -294,7 +416,7 @@ function BookCar() {
       const finalRef = refCode || saved?.booking?.id || `3M-RES-${Date.now().toString().slice(-4)}`;
       const waText =
         summary ||
-        `Bonjour 3M SERVICES,\nJe souhaite réserver :\n• Véhicule : ${selectedVehicle?.name}\n• Prise en charge : ${pickLoc?.label} (${pickDate} ${pickTime})\n• Restitution : ${dropLoc?.label} (${dropDate} ${dropTime})\n• Nom : ${contact.name}\n• Tél : ${contact.phone}\n• Réf : ${finalRef}`;
+        `Bonjour 3M SERVICES,\nType : ${isRoundTrip ? "Aller-retour" : "Aller simple"}\n• Véhicule : ${selectedVehicle?.name}\n• Prise en charge : ${pickStr} (${pickDate} ${pickTime})\n• Destination : ${destStr}${isRoundTrip ? `\n• Retour : ${effectiveDropDate} ${dropTime}` : ""}\n• Nom : ${contact.name}\n• Tél : ${contact.phone}\n• Réf : ${finalRef}`;
 
       setDone({ reference: finalRef, estimate: serverEstimate, summary: waText });
       requestKey.current = newKey();
@@ -305,12 +427,122 @@ function BookCar() {
     }
   };
 
+  const renderPlaceRow = (prefix, title, place, setter, dotClass) => {
+    const c = cityOf(place);
+    return (
+      <div className="book-card-v2__place">
+        <div className="book-card-v2__place-title">
+          <span className={`book-card-v2__dot ${dotClass}`} aria-hidden="true"></span>
+          <span>{title}</span>
+        </div>
+        <div className="book-card-v2__place-grid">
+          <div className="book-card-v2__field">
+            <label htmlFor={`${prefix}-city`}>{L("Ville", "City")} *</label>
+            <select
+              id={`${prefix}-city`}
+              value={place.cityId}
+              onChange={(e) => {
+                setter({ ...EMPTY_PLACE, cityId: e.target.value, address: place.address });
+                setFormError("");
+              }}
+            >
+              <option value="">{L("Choisir…", "Choose…")}</option>
+              {cities.map((ct) => (
+                <option key={ct.id} value={ct.id}>{ct.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="book-card-v2__field">
+            <label htmlFor={`${prefix}-district`}>{L("Arrondissement", "District")}</label>
+            <select
+              id={`${prefix}-district`}
+              value={place.districtId}
+              disabled={!c?.districts?.length}
+              onChange={(e) =>
+                setter((prev) => ({
+                  ...prev,
+                  districtId: e.target.value,
+                  neighbourhoodId: null,
+                  neighbourhoodText: ""
+                }))
+              }
+            >
+              <option value="">{L("Tous", "All")}</option>
+              {(c?.districts || []).map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="book-card-v2__field">
+            <label htmlFor={`${prefix}-hood`}>{L("Quartier", "Neighbourhood")} *</label>
+            <QuartierCombo
+              id={`${prefix}-hood`}
+              city={c}
+              districtId={place.districtId}
+              value={place.neighbourhoodId}
+              text={place.neighbourhoodText}
+              isFr={isFr}
+              onChange={({ neighbourhoodId, neighbourhoodText }) => {
+                setter((prev) => ({ ...prev, neighbourhoodId, neighbourhoodText }));
+                setFormError("");
+              }}
+            />
+          </div>
+
+          <div className="book-card-v2__field">
+            <label htmlFor={`${prefix}-address`}>{L("Repère (facultatif)", "Landmark (optional)")}</label>
+            <input
+              id={`${prefix}-address`}
+              type="text"
+              maxLength={200}
+              value={place.address}
+              onChange={(e) => setter((prev) => ({ ...prev, address: e.target.value }))}
+              placeholder={L("Hôtel, rue, face à…", "Hotel, street, near…")}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <section id="booking-section" className="book-section">
       <div className="container">
         <div className="book-content">
           <div className="book-card-v2">
-            <h2 className="book-card-v2__title">{t("book_title")}</h2>
+            {/* Header + 2 Trip Mode Tabs (Aller simple / Aller-retour) */}
+            <div className="book-card-v2__header">
+              <div>
+                <h2 className="book-card-v2__title">{t("book_title")}</h2>
+                <p className="book-card-v2__subtitle">
+                  {L("Où allez-vous ? Choisissez votre trajet et votre véhicule.", "Where are you going? Choose your route and vehicle.")}
+                </p>
+              </div>
+              <div className="book-card-v2__tabs" role="tablist" aria-label={L("Type de trajet", "Trip type")}>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={tripType === "one_way"}
+                  className={`book-card-v2__tab ${tripType === "one_way" ? "is-active" : ""}`}
+                  onClick={() => { setTripType("one_way"); setFormError(""); }}
+                >
+                  <i className="fa-solid fa-arrow-right-long"></i>
+                  <span>{L("Aller simple", "One way")}</span>
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={tripType === "round_trip"}
+                  className={`book-card-v2__tab ${tripType === "round_trip" ? "is-active" : ""}`}
+                  onClick={() => { setTripType("round_trip"); setFormError(""); }}
+                >
+                  <i className="fa-solid fa-right-left"></i>
+                  <span>{L("Aller-retour", "Round trip")}</span>
+                </button>
+              </div>
+            </div>
 
             {formError && (
               <div className="book-card-v2__error" role="alert">
@@ -321,52 +553,44 @@ function BookCar() {
             )}
 
             <form className="book-card-v2__form" onSubmit={handleSearch} noValidate>
-              {/* Row 1: Car Type | Pick-up | Drop-off */}
-              <div className="book-card-v2__row book-card-v2__row--top">
-                <div className="book-card-v2__field">
-                  <label htmlFor="bc-car">
-                    <i className="fa-solid fa-car"></i> {t("book_car_type")}
-                  </label>
-                  <select id="bc-car" value={vehicleKey} onChange={(e) => { setVehicleKey(e.target.value); setFormError(""); }}>
-                    <option value="">{t("book_car_type_placeholder")}</option>
-                    {vehicles.map((v) => (
-                      <option key={v.key} value={v.key}>
-                        {v.name}{v.priceLabel ? ` — ${v.priceLabel}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="book-card-v2__field">
-                  <label htmlFor="bc-pickup">
-                    <i className="fa-solid fa-location-dot"></i> {t("book_pickup")}
-                  </label>
-                  <select id="bc-pickup" value={pickUpKey} onChange={(e) => { setPickUpKey(e.target.value); setFormError(""); }}>
-                    <option value="">{t("book_pickup_placeholder")}</option>
-                    {locations.map((loc) => (
-                      <option key={`pu-${loc.key}`} value={loc.key}>{loc.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="book-card-v2__field">
-                  <label htmlFor="bc-dropoff">
-                    <i className="fa-solid fa-location-dot"></i> {t("book_dropoff")}
-                  </label>
-                  <select id="bc-dropoff" value={dropOffKey} onChange={(e) => { setDropOffKey(e.target.value); setFormError(""); }}>
-                    <option value="">{t("book_dropoff_placeholder")}</option>
-                    {locations.map((loc) => (
-                      <option key={`do-${loc.key}`} value={loc.key}>{loc.label}</option>
-                    ))}
-                  </select>
-                </div>
+              {/* Vehicle Select */}
+              <div className="book-card-v2__field">
+                <label htmlFor="bc-car">
+                  <i className="fa-solid fa-car"></i> {t("book_car_type")} *
+                </label>
+                <select id="bc-car" value={vehicleKey} onChange={(e) => { setVehicleKey(e.target.value); setFormError(""); }}>
+                  <option value="">{t("book_car_type_placeholder")}</option>
+                  {vehicles.map((v) => (
+                    <option key={v.key} value={v.key}>
+                      {v.name}{v.priceLabel ? ` — ${v.priceLabel}` : ""}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Row 2: Pick-up Date + Time | Drop-off Date + Time | Search CTA */}
-              <div className="book-card-v2__row book-card-v2__row--bottom">
+              {/* Votre trajet: Lieu de prise en charge + Inverser + Destination */}
+              <div className="book-card-v2__route-box">
+                <div className="book-card-v2__route-heading">
+                  <i className="fa-solid fa-route"></i>
+                  <span>{L("Votre trajet — Où allez-vous ?", "Your route — Where are you going?")}</span>
+                </div>
+
+                {renderPlaceRow("pickup", L("Lieu de prise en charge", "Pick-up location"), pickup, setPickup, "is-from")}
+
+                <div className="book-card-v2__swap">
+                  <button type="button" onClick={swapPlaces} aria-label={L("Inverser le départ et la destination", "Swap pick-up and destination")}>
+                    <i className="fa-solid fa-arrows-up-down"></i> {L("Inverser", "Swap")}
+                  </button>
+                </div>
+
+                {renderPlaceRow("dest", L("Destination", "Destination"), destination, setDestination, "is-to")}
+              </div>
+
+              {/* Dates & Times + Search CTA (1 date for Aller simple, 2 dates for Aller-retour) */}
+              <div className={`book-card-v2__row ${isRoundTrip ? "book-card-v2__row--bottom" : "book-card-v2__row--oneway"}`}>
                 <div className="book-card-v2__field">
                   <label htmlFor="bc-pickdate">
-                    <i className="fa-regular fa-calendar-days"></i> {t("book_pickup")}
+                    <i className="fa-regular fa-calendar-days"></i> {L("Date & heure de départ", "Departure date & time")} *
                   </label>
                   <div className="book-card-v2__datetime">
                     <input
@@ -380,7 +604,7 @@ function BookCar() {
                         setFormError("");
                       }}
                     />
-                    <select aria-label={L("Heure de prise en charge", "Pick-up time")} value={pickTime} onChange={(e) => setPickTime(e.target.value)}>
+                    <select aria-label={L("Heure de départ", "Departure time")} value={pickTime} onChange={(e) => setPickTime(e.target.value)}>
                       {TIME_SLOTS.map((ts) => (
                         <option key={`pt-${ts.value}`} value={ts.value}>{isFr ? ts.labelFr : ts.labelEn}</option>
                       ))}
@@ -388,25 +612,27 @@ function BookCar() {
                   </div>
                 </div>
 
-                <div className="book-card-v2__field">
-                  <label htmlFor="bc-dropdate">
-                    <i className="fa-regular fa-calendar-days"></i> {t("book_dropoff")}
-                  </label>
-                  <div className="book-card-v2__datetime">
-                    <input
-                      id="bc-dropdate"
-                      type="date"
-                      min={pickDate || todayStr()}
-                      value={dropDate}
-                      onChange={(e) => { setDropDate(e.target.value); setFormError(""); }}
-                    />
-                    <select aria-label={L("Heure de restitution", "Drop-off time")} value={dropTime} onChange={(e) => setDropTime(e.target.value)}>
-                      {TIME_SLOTS.map((ts) => (
-                        <option key={`dt-${ts.value}`} value={ts.value}>{isFr ? ts.labelFr : ts.labelEn}</option>
-                      ))}
-                    </select>
+                {isRoundTrip && (
+                  <div className="book-card-v2__field">
+                    <label htmlFor="bc-dropdate">
+                      <i className="fa-regular fa-calendar-days"></i> {L("Date & heure de retour", "Return date & time")} *
+                    </label>
+                    <div className="book-card-v2__datetime">
+                      <input
+                        id="bc-dropdate"
+                        type="date"
+                        min={pickDate || todayStr()}
+                        value={dropDate}
+                        onChange={(e) => { setDropDate(e.target.value); setFormError(""); }}
+                      />
+                      <select aria-label={L("Heure de retour", "Return time")} value={dropTime} onChange={(e) => setDropTime(e.target.value)}>
+                        {TIME_SLOTS.map((ts) => (
+                          <option key={`dt-${ts.value}`} value={ts.value}>{isFr ? ts.labelFr : ts.labelEn}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="book-card-v2__cta-wrap">
                   <button type="submit" className="book-card-v2__submit">
@@ -468,9 +694,13 @@ function BookCar() {
                 <div className="bc-modal__summary">
                   {selectedVehicle?.image && <img src={selectedVehicle.image} alt={selectedVehicle.name} />}
                   <div>
-                    <strong>{selectedVehicle?.name}</strong>
-                    <p><i className="fa-solid fa-location-dot"></i> {selectedPickUp?.label} → {selectedDropOff?.label}</p>
-                    <p><i className="fa-regular fa-calendar"></i> {pickDate} ({pickTime}) → {dropDate} ({dropTime}) · {rentalDays} {L(rentalDays > 1 ? "jours" : "jour", rentalDays > 1 ? "days" : "day")}</p>
+                    <strong>{selectedVehicle?.name} · {isRoundTrip ? L("Aller-retour", "Round trip") : L("Aller simple", "One way")}</strong>
+                    <p><i className="fa-solid fa-location-dot"></i> {placeLabel(pickup)} → {placeLabel(destination)}</p>
+                    <p>
+                      <i className="fa-regular fa-calendar"></i>{" "}
+                      {pickDate} ({pickTime})
+                      {isRoundTrip ? ` → ${dropDate} (${dropTime}) · ${rentalDays} ${L(rentalDays > 1 ? "jours" : "jour", rentalDays > 1 ? "days" : "day")}` : ""}
+                    </p>
                     {estimatedTotal > 0 && <span className="bc-modal__price">{fcfa(estimatedTotal)}</span>}
                   </div>
                 </div>
