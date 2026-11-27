@@ -1739,8 +1739,36 @@ app.post("/api/rental/request", async (req, res) => {
   const body = req.body || {};
   const { status, json } = await callFlaskInternal("POST", "/api/internal/rental/request", body);
   if (status === 201 && json.summary) {
-    // La demande apparaît dans la discussion du client : la conciergerie poursuit l'échange là
+    // La demande apparaît dans la discussion du client ET dans ses réservations (db.bookings)
     const db = readDb();
+    db.bookings = db.bookings || [];
+    const now = new Date().toISOString();
+    const depDate = String(body.departureAt || "").slice(0, 10) || now.slice(0, 10);
+    const retDate = String(body.returnAt || "").slice(0, 10) || depDate;
+    const summaryFirstLine = String(json.summary || "").split("\n")[0] || "";
+    const existingIdx = db.bookings.findIndex((b) => b.id === json.reference);
+    if (existingIdx === -1) {
+      db.bookings.unshift({
+        id: json.reference || `3M-RES-${Date.now().toString().slice(-5)}`,
+        accountNumber: String(body.accountNumber || body.clientId || ""),
+        clientName: String(body.name || "Client 3M VIP").slice(0, 120),
+        customerName: String(body.name || "Client 3M VIP").slice(0, 120),
+        phone: String(body.phone || "").slice(0, 40),
+        customerPhone: String(body.phone || "").slice(0, 40),
+        email: String(body.email || "").slice(0, 120),
+        customerEmail: String(body.email || "").slice(0, 120),
+        carName: String(body.vehicleName || summaryFirstLine || "Véhicule VIP 3M").slice(0, 120),
+        pickUp: String(body.pickupNeighbourhoodText || body.pickupAddress || "Yaoundé").slice(0, 160),
+        dropOff: String(body.destinationNeighbourhoodText || body.destinationAddress || body.pickupNeighbourhoodText || "Yaoundé").slice(0, 160),
+        pickTime: depDate,
+        dropTime: retDate,
+        totalPrice: Number(json.estimate) || 0,
+        notes: String(body.notes || "").slice(0, 500),
+        status: "Demande reçue",
+        source: "Réserver un Véhicule (Accueil)",
+        createdAt: now
+      });
+    }
     const thread = appendClientChatMessage(db, {
       clientId: body.clientId, guestId: body.guestId, name: String(body.name || "").slice(0, 120),
       phone: String(body.phone || "").slice(0, 40), email: String(body.email || "").slice(0, 120),
@@ -1754,6 +1782,92 @@ app.post("/api/rental/request", async (req, res) => {
     }
   }
   res.status(status).json(json);
+});
+
+// Client profile orders: list & modify client reservations
+app.get("/api/clients/orders", (req, res) => {
+  const acct = String(req.query.accountNumber || "").trim().toLowerCase();
+  const email = String(req.query.email || "").trim().toLowerCase();
+  const phone = String(req.query.phone || "").replace(/\D/g, "");
+  const phoneTail = phone.length >= 8 ? phone.slice(-8) : "";
+  if (!acct && !email && !phoneTail) {
+    return res.json({ orders: [] });
+  }
+  const db = readDb();
+  const orders = (db.bookings || []).filter((b) => {
+    const bAcct = String(b.accountNumber || "").trim().toLowerCase();
+    const bEmail = String(b.email || b.customerEmail || "").trim().toLowerCase();
+    const bPhone = String(b.phone || b.customerPhone || "").replace(/\D/g, "");
+    const bTail = bPhone.length >= 8 ? bPhone.slice(-8) : "";
+    return (
+      (acct && bAcct && bAcct === acct) ||
+      (email && bEmail && bEmail === email) ||
+      (phoneTail && bTail && bTail === phoneTail)
+    );
+  });
+  res.json({ orders });
+});
+
+app.put("/api/clients/orders/:id", (req, res) => {
+  const orderId = String(req.params.id || "").trim();
+  const body = req.body || {};
+  if (!orderId) return res.status(400).json({ error: "Identifiant de réservation requis." });
+  const db = readDb();
+  db.bookings = db.bookings || [];
+  let idx = db.bookings.findIndex((b) => String(b.id) === orderId);
+  const now = new Date().toISOString();
+  if (idx === -1) {
+    db.bookings.unshift({
+      id: orderId,
+      accountNumber: String(body.accountNumber || ""),
+      clientName: String(body.clientName || "Client 3M VIP").slice(0, 120),
+      customerName: String(body.clientName || "Client 3M VIP").slice(0, 120),
+      phone: String(body.phone || "").slice(0, 40),
+      customerPhone: String(body.phone || "").slice(0, 40),
+      email: String(body.email || "").slice(0, 120),
+      customerEmail: String(body.email || "").slice(0, 120),
+      carName: String(body.carName || "Véhicule VIP 3M").slice(0, 120),
+      pickUp: String(body.pickUp || "Yaoundé").slice(0, 160),
+      dropOff: String(body.dropOff || body.pickUp || "Yaoundé").slice(0, 160),
+      pickTime: String(body.pickTime || "").slice(0, 20),
+      dropTime: String(body.dropTime || "").slice(0, 20),
+      days: Number(body.days) || 1,
+      notes: String(body.notes || "").slice(0, 500),
+      status: String(body.status || "Demande reçue").slice(0, 40),
+      createdAt: now,
+      updatedAt: now
+    });
+    idx = 0;
+  } else {
+    const cur = db.bookings[idx];
+    db.bookings[idx] = {
+      ...cur,
+      ...(body.carName !== undefined ? { carName: String(body.carName).slice(0, 120) } : {}),
+      ...(body.pickUp !== undefined ? { pickUp: String(body.pickUp).slice(0, 160) } : {}),
+      ...(body.dropOff !== undefined ? { dropOff: String(body.dropOff).slice(0, 160) } : {}),
+      ...(body.pickTime !== undefined ? { pickTime: String(body.pickTime).slice(0, 20) } : {}),
+      ...(body.dropTime !== undefined ? { dropTime: String(body.dropTime).slice(0, 20) } : {}),
+      ...(body.days !== undefined ? { days: Number(body.days) || 1 } : {}),
+      ...(body.notes !== undefined ? { notes: String(body.notes).slice(0, 500) } : {}),
+      ...(body.status !== undefined ? { status: String(body.status).slice(0, 40) } : {}),
+      updatedAt: now
+    };
+  }
+  const updated = db.bookings[idx];
+  // Notify in existing client chat thread if the client modified the reservation
+  if (body.status !== "Annulée" && (body.carName || body.pickUp || body.pickTime)) {
+    const summaryMsg = `✏️ Modification de la réservation #${orderId} :\n• Véhicule : ${updated.carName}\n• Trajet : ${updated.pickUp} → ${updated.dropOff}\n• Dates : ${updated.pickTime || "—"} au ${updated.dropTime || "—"}${updated.notes ? `\n• Notes : ${updated.notes}` : ""}`;
+    appendClientChatMessage(db, {
+      clientId: updated.accountNumber || body.accountNumber,
+      name: updated.clientName || body.clientName,
+      phone: updated.phone || body.phone,
+      email: updated.email || body.email,
+      text: summaryMsg,
+      source: "order_modified"
+    });
+  }
+  writeDb(db);
+  res.json({ success: true, order: updated });
 });
 
 app.get("/api/experience-rating", async (req, res) => {

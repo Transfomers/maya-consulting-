@@ -145,6 +145,7 @@ export const authenticateClient = (identifier, password = "") => {
  * Upsert or create Customer Account when an order / booking is made
  */
 export const saveOrderAndCustomerAccount = ({
+  orderId = "",
   clientName,
   phone,
   email = "",
@@ -169,7 +170,7 @@ export const saveOrderAndCustomerAccount = ({
   const safePrice = Number(totalPrice) || (Number(itemPrice) * (Number(days) || 1)) || 0; // 0 = à confirmer
 
   const phoneDigits = safePhone.replace(/[^0-9]/g, "");
-  const orderRef = "3M-RES-" + Math.floor(1000 + Math.random() * 9000);
+  const orderRef = (orderId || "").trim() || ("3M-RES-" + Math.floor(1000 + Math.random() * 9000));
 
   // Check if customer already exists
   let customerIndex = store.customers.findIndex((c) => {
@@ -246,6 +247,7 @@ export const saveOrderAndCustomerAccount = ({
     paidAmount: 0,
     balance: safePrice,
     status: "Demande reçue", // Official 3M Lifecycle Status #1 (Page 5 & 13)
+    notes: notes || "",
     source,
     createdAt: now,
     messages: [
@@ -625,6 +627,99 @@ export const updateClientProfile = (updates = {}) => {
 export const ensureDemoClientBookings = () => {};
 
 /**
+ * Update an existing order belonging to the client in the CRM store and sync to backend
+ */
+export const updateClientOrder = (orderId, patch = {}) => {
+  if (!orderId) return null;
+  const store = getCrmStore();
+  const idx = (store.bookings || []).findIndex((b) => b.id === orderId);
+  if (idx === -1) return null;
+
+  const existing = store.bookings[idx];
+  const pickTime = patch.pickTime !== undefined ? patch.pickTime : existing.pickTime;
+  const dropTime = patch.dropTime !== undefined ? patch.dropTime : existing.dropTime;
+  let days = existing.days || 1;
+  if (pickTime && dropTime) {
+    const d1 = new Date(pickTime);
+    const d2 = new Date(dropTime);
+    if (!isNaN(d1) && !isNaN(d2)) {
+      days = Math.max(1, Math.round((d2 - d1) / 86400000));
+    }
+  }
+
+  const updatedBooking = {
+    ...existing,
+    ...(patch.carName !== undefined ? { carName: patch.carName } : {}),
+    ...(patch.pickUp !== undefined ? { pickUp: patch.pickUp } : {}),
+    ...(patch.dropOff !== undefined ? { dropOff: patch.dropOff } : {}),
+    ...(patch.pickTime !== undefined ? { pickTime } : {}),
+    ...(patch.dropTime !== undefined ? { dropTime } : {}),
+    ...(patch.notes !== undefined ? { notes: patch.notes } : {}),
+    days,
+    updatedAt: new Date().toISOString()
+  };
+
+  store.bookings[idx] = updatedBooking;
+  saveCrmStore(store);
+
+  try {
+    const current = getCurrentClient();
+    fetch(`${API_BASE}/clients/orders/${encodeURIComponent(orderId)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        carName: updatedBooking.carName,
+        pickUp: updatedBooking.pickUp,
+        dropOff: updatedBooking.dropOff,
+        pickTime: updatedBooking.pickTime,
+        dropTime: updatedBooking.dropTime,
+        days: updatedBooking.days,
+        notes: updatedBooking.notes || "",
+        accountNumber: current?.accountNumber || updatedBooking.accountNumber || "",
+        clientName: current?.name || updatedBooking.clientName || "",
+        phone: current?.phone || updatedBooking.phone || "",
+        email: current?.email || updatedBooking.email || ""
+      })
+    }).catch(() => {});
+  } catch (e) {}
+
+  return updatedBooking;
+};
+
+/**
+ * Fetch client bookings from backend and merge into local CRM store
+ */
+export const fetchClientOrdersFromBackend = async (client = getCurrentClient()) => {
+  if (!client || typeof fetch === "undefined") return getClientOrders(client);
+  try {
+    const qs = new URLSearchParams({
+      accountNumber: client.accountNumber || "",
+      email: client.email || "",
+      phone: client.phone || ""
+    });
+    const res = await fetch(`${API_BASE}/clients/orders?${qs.toString()}`);
+    if (!res.ok) return getClientOrders(client);
+    const data = await res.json();
+    const remote = Array.isArray(data?.orders) ? data.orders : [];
+    if (remote.length > 0) {
+      const store = getCrmStore();
+      const map = new Map();
+      (store.bookings || []).forEach((b) => { if (b && b.id) map.set(b.id, b); });
+      remote.forEach((rb) => {
+        if (!rb || !rb.id) return;
+        const local = map.get(rb.id);
+        map.set(rb.id, local ? { ...local, ...rb } : rb);
+      });
+      store.bookings = Array.from(map.values()).sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+      );
+      saveCrmStore(store);
+    }
+  } catch (e) {}
+  return getClientOrders(client);
+};
+
+/**
  * Cancel an order belonging to the client in the CRM store
  */
 export const cancelClientOrder = (orderId) => {
@@ -640,6 +735,13 @@ export const cancelClientOrder = (orderId) => {
   };
   store.bookings[idx] = updatedBooking;
   saveCrmStore(store);
+  try {
+    fetch(`${API_BASE}/clients/orders/${encodeURIComponent(orderId)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "Annulée" })
+    }).catch(() => {});
+  } catch (e) {}
   return updatedBooking;
 };
 

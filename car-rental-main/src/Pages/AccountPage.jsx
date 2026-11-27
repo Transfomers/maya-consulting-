@@ -12,6 +12,8 @@ import {
   registerClientAccount,
   updateClientProfile,
   getClientOrders,
+  updateClientOrder,
+  fetchClientOrdersFromBackend,
   cancelClientOrder,
   getFavoriteCarIds,
   toggleFavoriteCar
@@ -55,6 +57,9 @@ function AccountPage() {
     getCurrentClient() ? getClientOrders(getCurrentClient()) : []
   );
   const [favoriteIds, setFavoriteIds] = useState(() => getFavoriteCarIds(getCurrentClient()));
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [orderEditForm, setOrderEditForm] = useState({ carName: "", pickUp: "", dropOff: "", pickTime: "", dropTime: "", notes: "" });
+  const [orderSavedBanner, setOrderSavedBanner] = useState("");
   const [cars, setCars] = useState(CARS_CATALOGUE);
 
   // Auth forms state (Sign In & Create Account)
@@ -110,6 +115,9 @@ function AccountPage() {
   useEffect(() => {
     if (client) {
       setOrders(getClientOrders(client));
+      fetchClientOrdersFromBackend(client).then((merged) => {
+        if (Array.isArray(merged)) setOrders(merged);
+      }).catch(() => {});
       setFavoriteIds(getFavoriteCarIds(client));
       setEditUsername(client.username || client.name || "");
       setEditEmail(client.email || "");
@@ -500,6 +508,25 @@ function AccountPage() {
             </div>
             {showActions && (
               <div className="account-order-card__actions">
+                {kind === "scheduled" && (
+                  <button
+                    type="button"
+                    className="account-mini-btn is-primary"
+                    onClick={() => {
+                      setEditingOrder(ord);
+                      setOrderEditForm({
+                        carName: ord.carName || "",
+                        pickUp: ord.pickUp || "",
+                        dropOff: ord.dropOff || "",
+                        pickTime: (ord.pickTime || "").slice(0, 10),
+                        dropTime: (ord.dropTime || ord.pickTime || "").slice(0, 10),
+                        notes: ord.notes || ""
+                      });
+                    }}
+                  >
+                    <i className="fa-solid fa-pen-to-square"></i> {isFr ? "Modifier" : "Edit"}
+                  </button>
+                )}
                 <button type="button" className="account-mini-btn" onClick={() => handleChatAboutOrder(ord)}>
                   <i className="fa-regular fa-comment-dots"></i> {isFr ? "Discuter" : "Chat"}
                 </button>
@@ -930,7 +957,7 @@ function AccountPage() {
                           </Link>
                         </div>
                       ) : (
-                        renderOrderCards(orders.slice(0, 4), { showActions: false })
+                        renderOrderCards(orders.slice(0, 4), { showActions: true })
                       )}
                     </section>
 
@@ -1386,6 +1413,176 @@ function AccountPage() {
           )}
         </div>
       </div>
+
+      {orderSavedBanner && (
+        <div
+          role="status"
+          style={{
+            position: "fixed",
+            bottom: "2.4rem",
+            right: "2.4rem",
+            zIndex: 99998,
+            background: "#16a34a",
+            color: "#fff",
+            padding: "1.2rem 2rem",
+            borderRadius: "10px",
+            fontSize: "1.4rem",
+            fontWeight: 600,
+            boxShadow: "0 12px 28px rgba(0,0,0,0.22)"
+          }}
+        >
+          <i className="fa-solid fa-circle-check" style={{ marginRight: "0.7rem" }}></i>
+          {orderSavedBanner}
+        </div>
+      )}
+
+      {editingOrder && (
+        <div
+          onClick={() => setEditingOrder(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 99999,
+            backgroundColor: "rgba(15, 23, 42, 0.72)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1.6rem"
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: "14px",
+              maxWidth: "520px",
+              width: "100%",
+              padding: "2.4rem",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.35)"
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.6rem" }}>
+              <h3 style={{ margin: 0, fontSize: "2rem", color: "#0f172a" }}>
+                {isFr ? `Modifier la réservation #${editingOrder.id}` : `Edit Booking #${editingOrder.id}`}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingOrder(null)}
+                aria-label={isFr ? "Fermer" : "Close"}
+                style={{ border: "none", background: "#f1f5f9", width: "34px", height: "34px", borderRadius: "50%", fontSize: "2rem", cursor: "pointer" }}
+              >
+                &times;
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                updateClientOrder(editingOrder.id, orderEditForm);
+                setOrders(getClientOrders(client));
+                setEditingOrder(null);
+                setOrderSavedBanner(isFr ? "Réservation mise à jour avec succès !" : "Booking updated successfully!");
+                setTimeout(() => setOrderSavedBanner(""), 3500);
+              }}
+              style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}
+            >
+              <div>
+                <label style={{ display: "block", fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.4rem", color: "#334155" }}>
+                  {isFr ? "Véhicule" : "Vehicle"}
+                </label>
+                <select
+                  value={orderEditForm.carName}
+                  onChange={(e) => setOrderEditForm((f) => ({ ...f, carName: e.target.value }))}
+                  style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.4rem" }}
+                >
+                  {orderEditForm.carName && !cars.some((c) => c.name === orderEditForm.carName) && (
+                    <option value={orderEditForm.carName}>{orderEditForm.carName}</option>
+                  )}
+                  {cars.map((c) => (
+                    <option key={c.id || c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.4rem", color: "#334155" }}>
+                    {isFr ? "Prise en charge" : "Pick-up"}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={orderEditForm.pickUp}
+                    onChange={(e) => setOrderEditForm((f) => ({ ...f, pickUp: e.target.value }))}
+                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.4rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.4rem", color: "#334155" }}>
+                    {isFr ? "Destination / Restitution" : "Drop-off"}
+                  </label>
+                  <input
+                    type="text"
+                    value={orderEditForm.dropOff}
+                    onChange={(e) => setOrderEditForm((f) => ({ ...f, dropOff: e.target.value }))}
+                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.4rem" }}
+                  />
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.4rem", color: "#334155" }}>
+                    {isFr ? "Date de départ" : "Pick-up date"}
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={orderEditForm.pickTime}
+                    onChange={(e) => setOrderEditForm((f) => ({ ...f, pickTime: e.target.value }))}
+                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.4rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.4rem", color: "#334155" }}>
+                    {isFr ? "Date de retour" : "Return date"}
+                  </label>
+                  <input
+                    type="date"
+                    value={orderEditForm.dropTime}
+                    onChange={(e) => setOrderEditForm((f) => ({ ...f, dropTime: e.target.value }))}
+                    style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.4rem" }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.4rem", color: "#334155" }}>
+                  {isFr ? "Remarques (facultatif)" : "Notes (optional)"}
+                </label>
+                <textarea
+                  rows={2}
+                  value={orderEditForm.notes}
+                  onChange={(e) => setOrderEditForm((f) => ({ ...f, notes: e.target.value }))}
+                  style={{ width: "100%", padding: "1rem 1.2rem", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.4rem" }}
+                />
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "0.6rem" }}>
+                <button
+                  type="button"
+                  onClick={() => setEditingOrder(null)}
+                  style={{ padding: "1rem 1.8rem", borderRadius: "8px", border: "1px solid #cbd5e1", background: "#fff", color: "#334155", fontSize: "1.4rem", fontWeight: 600, cursor: "pointer" }}
+                >
+                  {isFr ? "Annuler" : "Cancel"}
+                </button>
+                <button
+                  type="submit"
+                  style={{ padding: "1rem 2rem", borderRadius: "8px", border: "none", background: "#E20713", color: "#fff", fontSize: "1.4rem", fontWeight: 700, cursor: "pointer" }}
+                >
+                  {isFr ? "Enregistrer les modifications" : "Save changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );

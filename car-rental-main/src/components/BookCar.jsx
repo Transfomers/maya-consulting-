@@ -1,12 +1,19 @@
-// Réservation d'un véhicule : aller simple, aller-retour ou mise à disposition avec chauffeur.
+// Réservation d'un véhicule : aller simple, aller-retour ou location à la durée.
 // Les lieux, véhicules, tarifs et disponibilités viennent du serveur ; rien n'est inventé ici.
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { API_BASE } from "../config/api";
 import { useTranslation } from "../context/LanguageContext";
-import { getCurrentClient } from "../utils/customerAccounts";
+import { getCurrentClient, saveOrderAndCustomerAccount } from "../utils/customerAccounts";
 import NeighbourhoodPicker from "./NeighbourhoodPicker";
 import "../styles/RentalBooking.css";
 
+const frDay = (d, isFr) => new Date(`${d}T12:00:00`).toLocaleDateString(isFr ? "fr-FR" : "en-GB", { weekday: "short", day: "numeric", month: "short" });
+const plusDays = (d, n) => {
+  const x = new Date(`${d}T12:00:00`);
+  x.setDate(x.getDate() + n);
+  return x.toISOString().slice(0, 10);
+};
 const emptyPlace = { cityId: "", districtId: "", neighbourhoodId: null, neighbourhoodText: "", address: "" };
 const fcfa = (n) => `${Math.round(n).toLocaleString("fr-FR")} FCFA`;
 const today = () => new Date(Date.now() + 3600000).toISOString().slice(0, 10); // Africa/Douala
@@ -32,7 +39,9 @@ function BookCar() {
   const [vehicleId, setVehicleId] = useState("");
   const [pickup, setPickup] = useState(emptyPlace);
   const [destination, setDestination] = useState(emptyPlace);
-  const [dates, setDates] = useState({ depDate: "", depTime: "", retDate: "", retTime: "", hours: "8" });
+  const [dates, setDates] = useState({ depDate: "", depTime: "09:00", retDate: "", retTime: "18:00", hours: "8" });
+  const [back, setBack] = useState({ address: "", notes: "" });
+  const [catalogue, setCatalogue] = useState([]);
   const [stops, setStops] = useState("");
   const [notes, setNotes] = useState("");
   const [contact, setContact] = useState({ name: client?.name || "", phone: client?.phone || "", email: client?.email || "" });
@@ -63,11 +72,22 @@ function BookCar() {
       .catch(() => setLoadError(true));
   };
   useEffect(load, []);
+  // Photos et noms du catalogue (mêmes véhicules que « Nos Véhicules »)
+  useEffect(() => {
+    fetch(`${API_BASE}/cars`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setCatalogue(Array.isArray(d) ? d : []))
+      .catch(() => {});
+  }, []);
+  const carOf = (id) => catalogue.find((c) => c.id === `bus-${id}`);
 
   // Véhicule choisi depuis le catalogue (« Réserver »)
   const selectByName = (name) => {
     const n = String(name || "").toLowerCase();
-    const found = options?.vehicles.find((v) => n.includes(v.name.toLowerCase()) || v.name.toLowerCase().includes(n));
+    const listed = catalogue.find((c) => String(c.name || "").toLowerCase() === n);
+    const found =
+      options?.vehicles.find((v) => listed && listed.id === `bus-${v.id}`) ||
+      options?.vehicles.find((v) => n.includes(v.name.toLowerCase()) || v.name.toLowerCase().includes(n));
     if (found) setVehicleId(String(found.id));
   };
   useEffect(() => {
@@ -83,7 +103,7 @@ function BookCar() {
     };
     window.addEventListener("select-booking-car", onSelect);
     return () => window.removeEventListener("select-booking-car", onSelect);
-  }, [options]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [options, catalogue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const cityOf = (place) => options?.cities.find((c) => c.id === Number(place.cityId));
   const needsDestination = tripType !== "disposal";
@@ -101,12 +121,14 @@ function BookCar() {
       destinationAddress: needsDestination ? destination.address : "",
       departureAt: dates.depDate && dates.depTime ? `${dates.depDate}T${dates.depTime}` : "",
       returnAt: tripType === "round_trip" && dates.retDate && dates.retTime ? `${dates.retDate}T${dates.retTime}` : "",
+      returnAddress: tripType === "round_trip" ? back.address : "",
+      returnNotes: tripType === "round_trip" ? back.notes : "",
       durationHours: tripType === "disposal" ? dates.hours : "",
       driverRequired: false,
       stops: tripType === "disposal" ? stops : "",
       notes
     }),
-    [tripType, vehicleId, pickup, destination, dates, stops, notes, needsDestination]
+    [tripType, vehicleId, pickup, destination, dates, back, stops, notes, needsDestination]
   );
 
   const complete =
@@ -153,7 +175,8 @@ function BookCar() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...payload, ...contact, requestKey: requestKey.current, guestId: guestId(),
+          ...payload, ...contact, vehicleName: chosenCar?.name || chosen?.name || "",
+          requestKey: requestKey.current, guestId: guestId(),
           clientId: client?.accountNumber || guestId(), accountNumber: client?.accountNumber || ""
         })
       });
@@ -163,6 +186,32 @@ function BookCar() {
         setSendError(data.error || L("Envoi impossible, réessayez.", "Could not send, try again."));
         return;
       }
+      // Save reservation in the client's profile so they can view & modify it anytime
+      try {
+        const pickedLabel = placeLabel(pickup) || cityName(pickup) || "Yaoundé";
+        const destLabel = needsDestination ? (placeLabel(destination) || cityName(destination) || pickedLabel) : pickedLabel;
+        const dropDateVal = tripType === "round_trip" && dates.retDate ? dates.retDate : dates.depDate;
+        const d1 = new Date(dates.depDate);
+        const d2 = new Date(dropDateVal || dates.depDate);
+        const calcDays = !isNaN(d1) && !isNaN(d2) ? Math.max(1, Math.round((d2 - d1) / 86400000)) : 1;
+        saveOrderAndCustomerAccount({
+          orderId: data.reference || "",
+          clientName: contact.name,
+          phone: contact.phone,
+          email: contact.email,
+          city: cityName(pickup) || client?.city || "Yaoundé",
+          itemName: chosenCar?.name || chosen?.name || "Véhicule VIP 3M",
+          itemCategory: "Location Véhicule",
+          totalPrice: Number(data.estimate) || 0,
+          days: calcDays,
+          pickTime: dates.depDate,
+          dropTime: dropDateVal,
+          pickUp: pickedLabel,
+          dropOff: destLabel,
+          notes: [notes, stops, back.notes].filter(Boolean).join(" • "),
+          source: "Réserver un Véhicule (Accueil)"
+        });
+      } catch (_) {}
       setDone(data);
       requestKey.current = newKey();
     } catch (_) {
@@ -172,13 +221,31 @@ function BookCar() {
     }
   };
 
+  // Une erreur disparaît dès que le champ concerné est corrigé
+  useEffect(() => {
+    setErrors((e) => (Object.keys(e).length ? {} : e));
+  }, [vehicleId, pickup, destination, dates]);
+
   const setPlace = (setter, patch) => setter((p) => ({ ...p, ...patch }));
   const err = (k) => errors[k] || quote?.errors?.[k];
   const errorLine = (k) => err(k) && <span className="rb-error" role="alert">{err(k)}</span>;
 
-  const placeBlock = (prefix, title, place, setter) => (
-    <fieldset className="rb-block">
-      <legend><i className="fa-solid fa-location-dot"></i> {title}</legend>
+  const cityName = (place) => cityOf(place)?.name || "";
+  const placeLabel = (place) => {
+    const hood = cityOf(place)?.neighbourhoods.find((n) => n.id === place.neighbourhoodId)?.name || place.neighbourhoodText;
+    return [hood, cityName(place)].filter(Boolean).join(", ");
+  };
+  const fromLabel = placeLabel(pickup) || L("Prise en charge", "Pick-up");
+  const toLabel = placeLabel(destination) || L("Destination", "Destination");
+  const when = (date, time) => (date ? `${frDay(date, isFr)}${time ? ` · ${time}` : ""}` : L("Date à choisir", "Choose a date"));
+  const swap = () => {
+    setPickup(destination);
+    setDestination(pickup);
+  };
+
+  const placeBlock = (prefix, title, place, setter, dot) => (
+    <div className="rb-place">
+      <h4><span className={`rb-dot ${dot}`} aria-hidden="true"></span>{title}</h4>
       <div className="rb-grid">
         <div className="rb-field">
           <label htmlFor={`${prefix}-city`}>{L("Ville", "City")} *</label>
@@ -206,11 +273,11 @@ function BookCar() {
           isFr={isFr}
         />
         <div className="rb-field">
-          <label htmlFor={`${prefix}-address`}>{L("Précision ou repère (facultatif)", "Address or landmark (optional)")}</label>
+          <label htmlFor={`${prefix}-address`}>{L("Repère (facultatif)", "Landmark (optional)")}</label>
           <input id={`${prefix}-address`} value={place.address} maxLength={200} onChange={(e) => setPlace(setter, { address: e.target.value })} placeholder={L("Hôtel, rue, face à…", "Hotel, street…")} />
         </div>
       </div>
-    </fieldset>
+    </div>
   );
 
   const dateField = (id, label, type, key, extra = {}) => (
@@ -220,13 +287,38 @@ function BookCar() {
     </div>
   );
 
+  const step = (n, title) => (
+    <h3 className="rb-step"><span>{n}</span>{title}</h3>
+  );
+
   const TYPES = [
     ["one_way", "fa-arrow-right-long", L("Aller simple", "One way"), L("Prise en charge → destination", "Pick-up → destination")],
     ["round_trip", "fa-right-left", L("Aller-retour", "Round trip"), L("Prise en charge et retour", "Pick-up and return")],
     ["disposal", "fa-clock", L("Mise à disposition", "Hourly / Daily"), L("Véhicule réservé à la durée", "Vehicle reserved by the hour")]
   ];
+  const typeLabel = TYPES.find(([k]) => k === tripType)[2];
 
+  const chosen = options?.vehicles.find((v) => v.id === Number(vehicleId));
+  const chosenCar = chosen && carOf(chosen.id);
   const summaryText = done?.summary || "";
+
+  const status = !complete ? { tone: "idle", text: L("Complétez le trajet pour voir la disponibilité.", "Complete the trip to check availability.") }
+    : !quote ? { tone: "idle", text: L("Vérification…", "Checking…") }
+    : quote.errors ? { tone: "bad", text: Object.values(quote.errors)[0] }
+    : !quote.available ? { tone: "bad", text: quote.message }
+    : { tone: "ok", text: L("Véhicule disponible", "Vehicle available") };
+  const price = quote?.available ? (quote.estimate ? fcfa(quote.estimate) : L("Sur devis", "On request")) : "—";
+
+  const leg = (icon, title, from, to, time) => (
+    <div className="rb-leg">
+      <i className={`fa-solid ${icon}`} aria-hidden="true"></i>
+      <div>
+        <strong>{title}</strong>
+        <span>{from} → {to}</span>
+        <small>{time}</small>
+      </div>
+    </div>
+  );
 
   return (
     <section id="booking-section" className="book-section">
@@ -245,6 +337,9 @@ function BookCar() {
                   <button type="button" className="rb-primary" onClick={() => window.dispatchEvent(new CustomEvent("3m-open-chat", { detail: { refresh: true } }))}>
                     <i className="fa-regular fa-comment-dots"></i> {L("Ouvrir la discussion", "Open the chat")}
                   </button>
+                  <Link className="rb-link" to="/account/orders" style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem", textDecoration: "none" }}>
+                    <i className="fa-regular fa-calendar-check"></i> {L("Voir / Modifier dans mon Profil", "View / Edit in My Profile")}
+                  </Link>
                   <a className="rb-wa" target="_blank" rel="noreferrer" href={`https://wa.me/237691786447?text=${encodeURIComponent(summaryText)}`}>
                     <i className="fa-brands fa-whatsapp"></i> WhatsApp
                   </a>
@@ -260,7 +355,7 @@ function BookCar() {
                 </div>
               </div>
             ) : !options ? (
-              <p className="rb-loading">{L("Chargement…", "Loading…")}</p>
+              <div className="rb-skeleton" aria-label={L("Chargement…", "Loading…")}><span></span><span></span><span></span></div>
             ) : (
               <form onSubmit={submit} noValidate>
                 <div className="rb-types" role="radiogroup" aria-label={L("Type de trajet", "Trip type")}>
@@ -273,69 +368,156 @@ function BookCar() {
                   ))}
                 </div>
 
-                <div className="rb-grid">
-                  <div className="rb-field">
-                    <label htmlFor="rb-vehicle">{L("Véhicule", "Vehicle")} *</label>
-                    <select id="rb-vehicle" value={vehicleId} onChange={(e) => setVehicleId(e.target.value)}>
-                      <option value="">{L("Choisir un véhicule…", "Choose a vehicle…")}</option>
-                      {options.vehicles.map((v) => <option key={v.id} value={v.id}>{v.name} · {v.seats} {L("places", "seats")}</option>)}
-                    </select>
-                    {errorLine("vehicleId")}
+                <div className="rb-layout">
+                  <div className="rb-main">
+                    <section className="rb-card">
+                      {step(1, L("Choisissez le véhicule", "Choose your vehicle"))}
+                      <div className="rb-cars" role="radiogroup" aria-label={L("Véhicule", "Vehicle")}>
+                        {[...options.vehicles]
+                          .sort((x, y) => {
+                            const pos = (v) => { const i = catalogue.findIndex((c) => c.id === `bus-${v.id}`); return i === -1 ? catalogue.length : i; };
+                            return pos(x) - pos(y);
+                          })
+                          .map((v) => {
+                          const car = carOf(v.id);
+                          const active = Number(vehicleId) === v.id;
+                          return (
+                            <button key={v.id} type="button" role="radio" aria-checked={active} className={`rb-car ${active ? "is-active" : ""}`} onClick={() => setVehicleId(String(v.id))}>
+                              <span className="rb-car__photo">
+                                {car?.image ? <img src={car.image} alt="" loading="lazy" /> : <i className="fa-solid fa-car-side"></i>}
+                              </span>
+                              <strong>{car?.name || v.name}</strong>
+                              <small>{v.seats} {L("places", "seats")}</small>
+                              {active && <i className="fa-solid fa-circle-check rb-car__check" aria-hidden="true"></i>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {errorLine("vehicleId")}
+                    </section>
+
+                    <section className="rb-card">
+                      {step(2, L("Votre trajet", "Your route"))}
+                      {placeBlock("pickup", L("Lieu de prise en charge", "Pick-up"), pickup, setPickup, "is-from")}
+                      {needsDestination && (
+                        <>
+                          <div className="rb-swap">
+                            <button type="button" onClick={swap} aria-label={L("Inverser le départ et la destination", "Swap pick-up and destination")}>
+                              <i className="fa-solid fa-arrows-up-down"></i> {L("Inverser", "Swap")}
+                            </button>
+                          </div>
+                          {placeBlock("destination", L("Destination", "Destination"), destination, setDestination, "is-to")}
+                        </>
+                      )}
+                      {tripType === "one_way" && (
+                        <p className="rb-info"><i className="fa-solid fa-circle-info"></i> {L("Aller simple : le véhicule ne reste pas à destination. Son retour est pris en compte dans le tarif et le planning.", "One way: the vehicle returns to base; this is included in pricing and scheduling.")}</p>
+                      )}
+                      {tripType === "disposal" && (
+                        <div className="rb-field rb-wide">
+                          <label htmlFor="rb-stops">{L("Déplacements prévus (facultatif)", "Planned stops (optional)")}</label>
+                          <input id="rb-stops" value={stops} maxLength={600} onChange={(e) => setStops(e.target.value)} placeholder={L("Ex : réunion à Bastos, puis aéroport", "e.g. meeting in Bastos, then airport")} />
+                        </div>
+                      )}
+                    </section>
+
+                    <section className="rb-card">
+                      {step(3, tripType === "round_trip" ? L("Aller", "Outbound journey") : L("Dates et horaires", "Dates and times"))}
+                      <div className="rb-grid rb-grid--2">
+                        {dateField("rb-dd", L("Date de départ", "Departure date"), "date", "depDate", { min: today() })}
+                        {dateField("rb-dt", L("Heure de départ", "Departure time"), "time", "depTime")}
+                      </div>
+                      {errorLine("departureAt")}
+                      {tripType === "disposal" && (
+                        <div className="rb-duration">
+                          <span className="rb-label">{L("Durée", "Duration")} *</span>
+                          <div className="rb-chips">
+                            {[["4", "4 h"], ["8", "8 h"], ["12", "12 h"], ["24", L("1 jour", "1 day")], ["48", L("2 jours", "2 days")], ["72", L("3 jours", "3 days")]].map(([h, label]) => (
+                              <button key={h} type="button" className={dates.hours === h ? "is-active" : ""} onClick={() => setDates({ ...dates, hours: h })}>{label}</button>
+                            ))}
+                          </div>
+                          <div className="rb-grid rb-grid--2">{dateField("rb-h", L("Nombre d'heures", "Number of hours"), "number", "hours", { min: 1, max: 240, step: 1 })}</div>
+                          {errorLine("durationHours")}
+                        </div>
+                      )}
+                    </section>
+
+                    {tripType === "round_trip" && (
+                      <section className="rb-card rb-card--return">
+                        {step(4, L("Retour", "Return journey"))}
+                        <p className="rb-route">
+                          <i className="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                          <span><strong>{toLabel}</strong> → <strong>{fromLabel}</strong></span>
+                        </p>
+                        <div className="rb-chips" aria-label={L("Date de retour rapide", "Quick return date")}>
+                          {[[0, L("Le même jour", "Same day")], [1, L("Le lendemain", "Next day")], [2, L("2 jours après", "2 days later")], [7, L("1 semaine après", "1 week later")]].map(([n, label]) => (
+                            <button key={n} type="button" disabled={!dates.depDate} className={dates.depDate && dates.retDate === plusDays(dates.depDate, n) ? "is-active" : ""} onClick={() => setDates({ ...dates, retDate: plusDays(dates.depDate, n) })}>{label}</button>
+                          ))}
+                        </div>
+                        <div className="rb-grid rb-grid--2">
+                          {dateField("rb-rd", L("Date de retour", "Return date"), "date", "retDate", { min: dates.depDate || today() })}
+                          {dateField("rb-rt", L("Heure de retour", "Return time"), "time", "retTime")}
+                        </div>
+                        {errorLine("returnAt")}
+                        <div className="rb-grid rb-grid--2">
+                          <div className="rb-field">
+                            <label htmlFor="rb-ra">{L("Point de rendez-vous du retour (facultatif)", "Return meeting point (optional)")}</label>
+                            <input id="rb-ra" value={back.address} maxLength={200} onChange={(e) => setBack({ ...back, address: e.target.value })} placeholder={L("Vide = même lieu que la destination", "Empty = same as destination")} />
+                          </div>
+                          <div className="rb-field">
+                            <label htmlFor="rb-rn">{L("Précisions pour le retour (facultatif)", "Return details (optional)")}</label>
+                            <input id="rb-rn" value={back.notes} maxLength={300} onChange={(e) => setBack({ ...back, notes: e.target.value })} placeholder={L("N° de vol, train, consignes…", "Flight or train number…")} />
+                          </div>
+                        </div>
+                        <p className="rb-info"><i className="fa-solid fa-circle-info"></i> {L("Le véhicule reste réservé pour toute la durée de votre aller-retour.", "The vehicle remains reserved for the full duration of your round trip.")}</p>
+                      </section>
+                    )}
+
+                    <section className="rb-card">
+                      {step(tripType === "round_trip" ? 5 : 4, L("Vos coordonnées", "Your details"))}
+                      <div className="rb-grid rb-grid--2">
+                        <div className="rb-field"><label htmlFor="rb-name">{L("Nom & prénom", "Full name")} *</label><input id="rb-name" autoComplete="name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} />{errorLine("name")}</div>
+                        <div className="rb-field"><label htmlFor="rb-phone">{L("Téléphone / WhatsApp", "Phone / WhatsApp")} *</label><input id="rb-phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+237 6XX XX XX XX" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} />{errorLine("phone")}</div>
+                        <div className="rb-field"><label htmlFor="rb-email">E-mail</label><input id="rb-email" type="email" autoComplete="email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} />{errorLine("email")}</div>
+                        <div className="rb-field"><label htmlFor="rb-notes">{L("Remarque (facultatif)", "Note (optional)")}</label><input id="rb-notes" maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+                      </div>
+                    </section>
                   </div>
+
+                  <aside className="rb-summary" aria-label={L("Récapitulatif", "Summary")}>
+                    <h3>{L("Récapitulatif", "Your trip")}</h3>
+                    <div className="rb-summary__car">
+                      {chosenCar?.image && <img src={chosenCar.image} alt="" />}
+                      <div>
+                        <strong>{chosen ? chosenCar?.name || chosen.name : L("Aucun véhicule choisi", "No vehicle yet")}</strong>
+                        <span>{typeLabel}</span>
+                      </div>
+                    </div>
+                    {tripType === "disposal"
+                      ? leg("fa-clock", L("Location à la durée", "Hourly / daily rental"), fromLabel, `${dates.hours || "?"} h`, when(dates.depDate, dates.depTime))
+                      : leg("fa-arrow-right-long", L("Aller", "Outbound"), fromLabel, toLabel, when(dates.depDate, dates.depTime))}
+                    {tripType === "round_trip" && leg("fa-rotate-left", L("Retour", "Return"), toLabel, fromLabel, when(dates.retDate, dates.retTime))}
+                    <div className="rb-summary__foot" aria-live="polite">
+                      <p className={`rb-status is-${status.tone}`}>{status.text}</p>
+                      <div className="rb-price"><span>{L("Estimation", "Estimate")}</span><strong>{price}</strong></div>
+                      <button type="submit" className="rb-primary" disabled={sending || quote?.available === false}>
+                        {sending && <span className="rb-spin" aria-hidden="true"></span>}
+                        {sending ? L("Envoi…", "Sending…") : L("Envoyer ma demande", "Send my request")}
+                      </button>
+                      {sendError && <p className="rb-error" role="alert">{sendError}</p>}
+                    </div>
+                  </aside>
                 </div>
 
-                {placeBlock("pickup", L("Lieu de prise en charge", "Pick-up"), pickup, setPickup)}
-                {needsDestination && placeBlock("destination", L("Destination", "Destination"), destination, setDestination)}
-
-                {tripType === "one_way" && (
-                  <p className="rb-info"><i className="fa-solid fa-circle-info"></i> {L("Aller simple : le véhicule ne reste pas à destination. Son retour est pris en compte dans le tarif et le planning.", "One way: the vehicle returns to base; this is included in pricing and scheduling.")}</p>
-                )}
-                {tripType === "round_trip" && (
-                  <p className="rb-info"><i className="fa-solid fa-circle-info"></i> {L("Le véhicule reste réservé pour toute la durée de votre aller-retour.", "The vehicle remains reserved for the full duration of your round trip.")}</p>
-                )}
-                {tripType === "disposal" && (
-                  <div className="rb-field">
-                    <label htmlFor="rb-stops">{L("Déplacements prévus (facultatif)", "Planned stops (optional)")}</label>
-                    <input id="rb-stops" value={stops} maxLength={600} onChange={(e) => setStops(e.target.value)} placeholder={L("Ex : réunion à Bastos, puis aéroport", "e.g. meeting in Bastos, then airport")} />
-                  </div>
-                )}
-
-                <fieldset className="rb-block">
-                  <legend><i className="fa-regular fa-calendar-days"></i> {L("Dates et horaires", "Dates and times")}</legend>
-                  <div className="rb-grid">
-                    {dateField("rb-dd", L("Date de départ", "Departure date"), "date", "depDate", { min: today() })}
-                    {dateField("rb-dt", L("Heure de départ", "Departure time"), "time", "depTime")}
-                    {tripType === "round_trip" && dateField("rb-rd", L("Date de retour", "Return date"), "date", "retDate", { min: dates.depDate || today() })}
-                    {tripType === "round_trip" && dateField("rb-rt", L("Heure de retour", "Return time"), "time", "retTime")}
-                    {tripType === "disposal" && dateField("rb-h", L("Durée (heures)", "Duration (hours)"), "number", "hours", { min: 1, max: 240, step: 1 })}
-                  </div>
-                  {errorLine("departureAt")}{errorLine("returnAt")}{errorLine("durationHours")}
-                </fieldset>
-
-                <fieldset className="rb-block">
-                  <legend><i className="fa-regular fa-user"></i> {L("Vos coordonnées", "Your details")}</legend>
-                  <div className="rb-grid">
-                    <div className="rb-field"><label htmlFor="rb-name">{L("Nom & prénom", "Full name")} *</label><input id="rb-name" autoComplete="name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} />{errorLine("name")}</div>
-                    <div className="rb-field"><label htmlFor="rb-phone">{L("Téléphone / WhatsApp", "Phone / WhatsApp")} *</label><input id="rb-phone" type="tel" autoComplete="tel" placeholder="+237 6XX XX XX XX" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} />{errorLine("phone")}</div>
-                    <div className="rb-field"><label htmlFor="rb-email">E-mail</label><input id="rb-email" type="email" autoComplete="email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} />{errorLine("email")}</div>
-                    <div className="rb-field"><label htmlFor="rb-notes">{L("Remarque (facultatif)", "Note (optional)")}</label><input id="rb-notes" maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
-                  </div>
-                </fieldset>
-
-                <div className="rb-footer">
-                  <div className="rb-quote" aria-live="polite">
-                    {!complete ? <span>{L("Complétez le trajet pour voir la disponibilité.", "Complete the trip to check availability.")}</span>
-                      : !quote ? <span>{L("Vérification…", "Checking…")}</span>
-                      : quote.errors ? <span className="rb-error">{Object.values(quote.errors)[0]}</span>
-                      : !quote.available ? <span className="rb-error">{quote.message}</span>
-                      : (<><span>{L("Véhicule disponible", "Vehicle available")} ✓</span>
-                          <strong>{quote.estimate ? `${L("Estimation", "Estimate")} : ${fcfa(quote.estimate)}` : L("Tarif sur devis", "Price on request")}</strong></>)}
+                <div className="rb-mobilebar">
+                  <div>
+                    <span>{L("Estimation", "Estimate")}</span>
+                    <strong>{price}</strong>
+                    <small className={`rb-status is-${status.tone}`}>{status.tone === "idle" ? typeLabel : status.text}</small>
                   </div>
                   <button type="submit" className="rb-primary" disabled={sending || quote?.available === false}>
-                    {sending ? L("Envoi…", "Sending…") : L("Envoyer ma demande", "Send my request")}
+                    {sending ? L("Envoi…", "Sending…") : L("Envoyer", "Send")}
                   </button>
                 </div>
-                {sendError && <p className="rb-error" role="alert">{sendError}</p>}
               </form>
             )}
           </div>
