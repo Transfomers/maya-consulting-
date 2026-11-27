@@ -21,6 +21,7 @@ export default function HumanAvatar3D({
   tie,
   glasses = false,
   beard = false,
+  female = false,
   title,
 }) {
   const uid = useId().replace(/:/g, "");
@@ -70,29 +71,54 @@ export default function HumanAvatar3D({
 
       {/* Cheveux longs (derrière la tête) */}
       {hair === "long" && (
-        <path d="M52 92 C48 140 58 170 70 178 L130 178 C142 170 152 140 148 92 Z" fill={`url(#${id("hair")})`} />
+        female ? (
+          <path
+            d="M44 90 C36 138 42 178 62 192 L138 192 C158 178 164 138 156 90 C154 48 130 28 100 28 C70 28 46 48 44 90 Z"
+            fill={`url(#${id("hair")})`}
+          />
+        ) : (
+          <path d="M52 92 C48 140 58 170 70 178 L130 178 C142 170 152 140 148 92 Z" fill={`url(#${id("hair")})`} />
+        )
       )}
 
       {/* Buste / veste */}
-      <path d="M28 200 C30 166 52 148 100 146 C148 148 170 166 172 200 Z" fill={`url(#${id("outfit")})`} />
-      {/* Chemise en V */}
-      <path d="M82 148 L100 182 L118 148 C112 146 106 145 100 145 C94 145 88 146 82 148 Z" fill={`url(#${id("shirt")})`} />
-      {/* Revers de veste */}
-      <path d="M80 149 L96 184 L86 200 L70 162 Z" fill={shade(outfit, -0.08)} opacity="0.9" />
-      <path d="M120 149 L104 184 L114 200 L130 162 Z" fill={shade(outfit, -0.08)} opacity="0.9" />
-      {tie && (
-        <path d="M96 156 L104 156 L106 162 L102 192 L98 192 L94 162 Z" fill={tie} />
+      {female ? (
+        <>
+          <path d="M36 200 C38 168 58 150 100 148 C142 150 162 168 164 200 Z" fill={`url(#${id("outfit")})`} />
+          <path d="M78 150 Q100 176 122 150 C115 147 108 146 100 146 C92 146 85 147 78 150 Z" fill={`url(#${id("shirt")})`} />
+          {/* Collier doré */}
+          <path d="M84 152 Q100 166 116 152" stroke="#f5c542" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+          <circle cx="100" cy="161" r="3" fill="#fde68a" stroke="#d97706" strokeWidth="0.8" />
+        </>
+      ) : (
+        <>
+          <path d="M28 200 C30 166 52 148 100 146 C148 148 170 166 172 200 Z" fill={`url(#${id("outfit")})`} />
+          {/* Chemise en V */}
+          <path d="M82 148 L100 182 L118 148 C112 146 106 145 100 145 C94 145 88 146 82 148 Z" fill={`url(#${id("shirt")})`} />
+          {/* Revers de veste */}
+          <path d="M80 149 L96 184 L86 200 L70 162 Z" fill={shade(outfit, -0.08)} opacity="0.9" />
+          <path d="M120 149 L104 184 L114 200 L130 162 Z" fill={shade(outfit, -0.08)} opacity="0.9" />
+          {tie && (
+            <path d="M96 156 L104 156 L106 162 L102 192 L98 192 L94 162 Z" fill={tie} />
+          )}
+        </>
       )}
 
       {/* Cou */}
-      <path d="M86 122 L86 148 C92 156 108 156 114 148 L114 122 Z" fill={`url(#${id("neck")})`} />
+      <path d={female ? "M89 124 L89 150 C94 156 106 156 111 150 L111 124 Z" : "M86 122 L86 148 C92 156 108 156 114 148 L114 122 Z"} fill={`url(#${id("neck")})`} />
 
-      {/* Oreilles */}
-      <ellipse cx="57" cy="98" rx="8" ry="12" fill={shade(skin, -0.06)} />
-      <ellipse cx="143" cy="98" rx="8" ry="12" fill={shade(skin, -0.06)} />
+      {/* Oreilles + boucles d'oreilles */}
+      <ellipse cx="57" cy="98" rx="7.5" ry="11" fill={shade(skin, -0.06)} />
+      <ellipse cx="143" cy="98" rx="7.5" ry="11" fill={shade(skin, -0.06)} />
+      {female && (
+        <g>
+          <circle cx="56" cy="110" r="3.6" fill="#f5c542" stroke="#b45309" strokeWidth="0.9" />
+          <circle cx="144" cy="110" r="3.6" fill="#f5c542" stroke="#b45309" strokeWidth="0.9" />
+        </g>
+      )}
 
       {/* Tête */}
-      <ellipse cx="100" cy="92" rx="43" ry="50" fill={`url(#${id("skin")})`} />
+      <ellipse cx="100" cy="92" rx={female ? "41" : "43"} ry="49" fill={`url(#${id("skin")})`} />
 
       {/* Cheveux (dessus) */}
       {hair === "short" && (
@@ -115,29 +141,54 @@ export default function HumanAvatar3D({
         </g>
       )}
       {hair === "long" && (
-        <path d="M55 96 C50 54 74 36 100 36 C126 36 150 54 145 96 C140 72 128 58 106 56 C96 66 76 72 62 74 C58 80 56 88 55 96 Z" fill={`url(#${id("hair")})`} />
+        female ? (
+          <g fill={`url(#${id("hair")})`}>
+            <path d="M54 102 C48 56 72 34 100 34 C128 34 152 56 146 102 C142 74 128 56 108 54 C96 66 76 70 62 76 C56 84 55 92 54 102 Z" />
+            <path d="M52 94 C44 126 48 158 60 176 C56 152 56 124 62 102 Z" />
+            <path d="M148 94 C156 126 152 158 140 176 C144 152 144 124 138 102 Z" />
+          </g>
+        ) : (
+          <path d="M55 96 C50 54 74 36 100 36 C126 36 150 54 145 96 C140 72 128 58 106 56 C96 66 76 72 62 74 C58 80 56 88 55 96 Z" fill={`url(#${id("hair")})`} />
+        )
       )}
 
       {/* Sourcils */}
-      <path d="M74 80 Q83 74 92 79" stroke={shade(hairColor, 0.05)} strokeWidth="4" fill="none" strokeLinecap="round" />
-      <path d="M108 79 Q117 74 126 80" stroke={shade(hairColor, 0.05)} strokeWidth="4" fill="none" strokeLinecap="round" />
+      <path d={female ? "M74 81 Q83 74 92 79" : "M74 80 Q83 74 92 79"} stroke={shade(hairColor, 0.05)} strokeWidth={female ? "2.4" : "4"} fill="none" strokeLinecap="round" />
+      <path d={female ? "M108 79 Q117 74 126 81" : "M108 79 Q117 74 126 80"} stroke={shade(hairColor, 0.05)} strokeWidth={female ? "2.4" : "4"} fill="none" strokeLinecap="round" />
 
-      {/* Yeux */}
+      {/* Yeux (+ cils féminins) */}
       {[83, 117].map((cx) => (
         <g key={cx}>
-          <ellipse cx={cx} cy="94" rx="8" ry="7" fill="#fff" />
+          <ellipse cx={cx} cy="94" rx="8" ry={female ? "6.8" : "7"} fill="#fff" />
           <circle cx={cx + 0.5} cy="95" r="5" fill={`url(#${id("eye")})`} />
           <circle cx={cx + 2} cy="93" r="1.8" fill="#fff" />
+          {female && (
+            <path
+              d={cx < 100 ? "M74 91 Q78 86 89 89 M73 89 L76 92" : "M126 91 Q122 86 111 89 M127 89 L124 92"}
+              stroke="#1a0f0a"
+              strokeWidth="1.9"
+              fill="none"
+              strokeLinecap="round"
+            />
+          )}
         </g>
       ))}
 
       {/* Lunettes */}
       {glasses && (
-        <g fill="none" stroke="#111827" strokeWidth="2.6">
-          <rect x="70" y="84" width="27" height="20" rx="7" />
-          <rect x="103" y="84" width="27" height="20" rx="7" />
-          <path d="M97 92 L103 92" />
-        </g>
+        female ? (
+          <g fill="none" stroke="#92400e" strokeWidth="2.1">
+            <ellipse cx="83" cy="94" rx="13.5" ry="9.5" />
+            <ellipse cx="117" cy="94" rx="13.5" ry="9.5" />
+            <path d="M96.5 93 L103.5 93" />
+          </g>
+        ) : (
+          <g fill="none" stroke="#111827" strokeWidth="2.6">
+            <rect x="70" y="84" width="27" height="20" rx="7" />
+            <rect x="103" y="84" width="27" height="20" rx="7" />
+            <path d="M97 92 L103 92" />
+          </g>
+        )
       )}
 
       {/* Nez */}
@@ -148,8 +199,8 @@ export default function HumanAvatar3D({
       <circle cx="105" cy="112" r="1.6" fill={shade(skin, -0.3)} />
 
       {/* Joues */}
-      <ellipse cx="74" cy="112" rx="8" ry="5" fill="#ff7a7a" opacity="0.18" />
-      <ellipse cx="126" cy="112" rx="8" ry="5" fill="#ff7a7a" opacity="0.18" />
+      <ellipse cx="74" cy="112" rx="8" ry="5" fill="#ff7a7a" opacity={female ? "0.26" : "0.18"} />
+      <ellipse cx="126" cy="112" rx="8" ry="5" fill="#ff7a7a" opacity={female ? "0.26" : "0.18"} />
 
       {/* Barbe courte */}
       {beard && (
@@ -157,8 +208,17 @@ export default function HumanAvatar3D({
       )}
 
       {/* Sourire */}
-      <path d="M86 122 Q100 133 114 122" stroke={shade(skin, -0.32)} strokeWidth="3" fill="none" strokeLinecap="round" />
-      <path d="M90 124 Q100 130 110 124" fill="#fff" opacity="0.85" />
+      {female ? (
+        <g>
+          <path d="M87 122 Q100 134 113 122 Q106 120 100 122 Q94 120 87 122 Z" fill="#be185d" />
+          <path d="M91 124 Q100 129 109 124" fill="#fff" opacity="0.9" />
+        </g>
+      ) : (
+        <>
+          <path d="M86 122 Q100 133 114 122" stroke={shade(skin, -0.32)} strokeWidth="3" fill="none" strokeLinecap="round" />
+          <path d="M90 124 Q100 130 110 124" fill="#fff" opacity="0.85" />
+        </>
+      )}
 
       {/* Reflet (volume 3D) */}
       <ellipse cx="82" cy="66" rx="16" ry="9" fill="#fff" opacity="0.12" transform="rotate(-20 82 66)" />

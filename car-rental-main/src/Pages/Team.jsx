@@ -34,7 +34,7 @@ function Team() {
     {
       photo: null,
       name: "Augustine GUIDAMA",
-      look: { skin: "#9a6237", hair: "bun", hairColor: "#2a1a14", outfit: "#0f766e", shirt: "#f0fdfa" },
+      look: { skin: "#9a6237", hair: "bun", hairColor: "#2a1a14", outfit: "#0f766e", shirt: "#f0fdfa", female: true },
       role: isFr ? "Concierge des Meublés" : "Furnished Apartments Concierge",
       dept: isFr ? "Gestion des Meublés" : "Apartments Management",
       badgeColor: "#0f766e",
@@ -42,7 +42,7 @@ function Team() {
     {
       photo: null,
       name: "Mme NKOUNOU ONANA Augustine Alice",
-      look: { skin: "#7f4b2b", hair: "long", hairColor: "#1b1210", outfit: "#7c2d12", shirt: "#fff7ed", glasses: true },
+      look: { skin: "#7f4b2b", hair: "long", hairColor: "#1b1210", outfit: "#7c2d12", shirt: "#fff7ed", glasses: true, female: true },
       role: isFr ? "Secrétaire Particulière du PDG" : "Executive Assistant to the CEO",
       dept: isFr ? "Direction Générale" : "Executive Office",
       badgeColor: "#7c2d12",
