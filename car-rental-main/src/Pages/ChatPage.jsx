@@ -28,6 +28,8 @@ function ChatPage() {
   const [guestId, setGuestId] = useState("");
   const [clientName, setClientName] = useState("Client VIP 3M");
   const [clientPhone, setClientPhone] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [clientAvatar, setClientAvatar] = useState("");
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -38,27 +40,42 @@ function ChatPage() {
   const knownMsgIdsRef = useRef(new Set());
   const initializedRef = useRef(false);
 
-  // Initialize client ID from localStorage
+  // Initialize & reactively sync client profile from localStorage / auth events
   useEffect(() => {
-    let savedClient = null;
-    let savedGuest = null;
-    try {
-      const raw = localStorage.getItem("3m_vip_account");
-      if (raw) savedClient = JSON.parse(raw);
-      const rawGuest = localStorage.getItem("3m_guest_contact_info");
-      if (rawGuest) savedGuest = JSON.parse(rawGuest);
-    } catch (e) { }
+    const syncFromClient = (evtClient) => {
+      let savedClient = evtClient;
+      let savedGuest = null;
+      try {
+        if (!savedClient) {
+          const rawCur = localStorage.getItem("3m_current_client") || localStorage.getItem("3m_vip_account");
+          if (rawCur) savedClient = JSON.parse(rawCur);
+        }
+        const rawGuest = localStorage.getItem("3m_guest_contact_info");
+        if (rawGuest) savedGuest = JSON.parse(rawGuest);
+      } catch (e) { }
 
-    let gid = localStorage.getItem("3m_guest_chat_id");
-    if (!gid) {
-      gid = "GUEST-" + Math.floor(100000 + Math.random() * 900000);
-      localStorage.setItem("3m_guest_chat_id", gid);
-    }
-    setGuestId(gid);
-    const cid = savedClient?.accountNumber || gid;
-    setClientId(cid);
-    if (savedClient?.name || savedGuest?.name) setClientName(savedClient?.name || savedGuest?.name);
-    if (savedClient?.phone || savedGuest?.phone) setClientPhone(savedClient?.phone || savedGuest?.phone);
+      let gid = localStorage.getItem("3m_guest_chat_id");
+      if (!gid) {
+        gid = "GUEST-" + Math.floor(100000 + Math.random() * 900000);
+        localStorage.setItem("3m_guest_chat_id", gid);
+      }
+      setGuestId(gid);
+      const cid = savedClient?.accountNumber || gid;
+      setClientId(cid);
+      if (savedClient?.name || savedGuest?.name) setClientName(savedClient?.name || savedGuest?.name);
+      if (savedClient?.phone || savedGuest?.phone) setClientPhone(savedClient?.phone || savedGuest?.phone);
+      if (savedClient?.email || savedGuest?.email) setClientEmail(savedClient?.email || savedGuest?.email || "");
+      setClientAvatar(savedClient?.avatar || "");
+    };
+
+    syncFromClient(null);
+    const onAuth = (e) => syncFromClient(e?.detail || null);
+    window.addEventListener("3m-client-auth-changed", onAuth);
+    window.addEventListener("storage", onAuth);
+    return () => {
+      window.removeEventListener("3m-client-auth-changed", onAuth);
+      window.removeEventListener("storage", onAuth);
+    };
   }, []);
 
   // Fetch chat thread from Express backend
@@ -140,8 +157,11 @@ function ChatPage() {
         body: JSON.stringify({
           text: textToSend,
           sender: "client",
+          senderName: clientName,
           clientName: clientName,
           clientPhone: clientPhone,
+          clientEmail: clientEmail,
+          clientAvatar: clientAvatar,
           guestId
         })
       });

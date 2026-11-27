@@ -76,7 +76,11 @@
                    data-thread-id="{{ th_id }}"
                    data-search="{{ (thread.clientName or '') ~ ' ' ~ (thread.clientPhone or '') ~ ' ' ~ (thread.lastMessage or '') }}">
                     <div class="chat-avatar chat-avatar-soft-{{ color_idx }}">
+                        {% if thread.clientAvatar %}
+                        <img src="{{ thread.clientAvatar }}" alt="{{ th_name }}" class="chat-avatar-img">
+                        {% else %}
                         <span>{{ th_initials }}</span>
+                        {% endif %}
                         <span class="chat-online-dot"></span>
                     </div>
                     <div class="chat-thread-body">
@@ -122,21 +126,25 @@
                     <button type="button" class="chat-mobile-back-btn d-md-none" onclick="showMobileThreadList()" title="Retour aux messages" aria-label="Retour aux messages">
                         <i class="bi bi-chevron-left"></i>
                     </button>
-                    <div class="chat-avatar chat-avatar-soft-0">
+                    <div class="chat-avatar chat-avatar-soft-0" id="activeClientHeaderAvatar">
+                        {% if active_chat.clientAvatar %}
+                        <img src="{{ active_chat.clientAvatar }}" alt="{{ active_name }}" class="chat-avatar-img">
+                        {% else %}
                         <span>{{ active_initials }}</span>
+                        {% endif %}
                         <span class="chat-online-dot"></span>
                     </div>
                     <div class="min-w-0">
-                        <div class="chat-active-client-name text-truncate">{{ active_name }}</div>
-                        <div class="chat-active-client-status text-truncate">
+                        <div class="chat-active-client-name text-truncate" id="activeClientHeaderName">{{ active_name }}</div>
+                        <div class="chat-active-client-status text-truncate" id="activeClientHeaderStatus">
                             <span class="chat-status-dot"></span>
                             <span>En ligne</span>
                             {% if active_chat.clientPhone %}
                             <span class="chat-status-sep">&bull;</span>
-                            <span>{{ active_chat.clientPhone }}</span>
+                            <span id="activeClientHeaderSub">{{ active_chat.clientPhone }}</span>
                             {% elif active_email %}
                             <span class="chat-status-sep">&bull;</span>
-                            <span>{{ active_email }}</span>
+                            <span id="activeClientHeaderSub">{{ active_email }}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -181,10 +189,18 @@
             <div id="clientInfoDrawer" class="chat-info-drawer d-none">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                     <div class="d-flex flex-wrap align-items-center gap-3 small">
+                        <div class="chat-avatar chat-avatar-sm chat-avatar-soft-0" id="drawerClientAvatar">
+                            {% if active_chat.clientAvatar %}
+                            <img src="{{ active_chat.clientAvatar }}" alt="{{ active_name }}" class="chat-avatar-img">
+                            {% else %}
+                            <span>{{ active_initials }}</span>
+                            {% endif %}
+                        </div>
                         <span><strong class="text-dark">ID :</strong> <code class="chat-client-id-code">{{ active_chat.clientId or active_chat.id }}</code></span>
-                        <span><strong class="text-dark">Tél :</strong> {{ active_chat.clientPhone or 'Non renseigné' }}</span>
-                        {% if active_email %}
-                        <span><strong class="text-dark">Email :</strong> <a href="mailto:{{ active_email }}">{{ active_email }}</a></span>
+                        <span><strong class="text-dark">Tél :</strong> <span id="drawerClientPhone">{{ active_chat.clientPhone or 'Non renseigné' }}</span></span>
+                        <span id="drawerClientEmailWrap" class="{% if not active_email %}d-none{% endif %}"><strong class="text-dark">Email :</strong> <a id="drawerClientEmail" href="mailto:{{ active_email }}">{{ active_email }}</a></span>
+                        {% if active_chat.clientCity %}
+                        <span><strong class="text-dark">Ville :</strong> <span id="drawerClientCity">{{ active_chat.clientCity }}</span></span>
                         {% endif %}
                         <span class="chat-verified-pill"><i class="bi bi-shield-check me-1"></i>Vérifié 3M</span>
                     </div>
@@ -195,7 +211,7 @@
             </div>
 
             <!-- Messages Stream Canvas -->
-            <div class="chat-messages-stream" id="chatMessagesStream" data-client-name="{{ active_name }}" data-client-initials="{{ active_initials }}" data-admin-initials="{{ admin_initials }}">
+            <div class="chat-messages-stream" id="chatMessagesStream" data-client-name="{{ active_name }}" data-client-initials="{{ active_initials }}" data-client-avatar="{{ active_chat.clientAvatar or '' }}" data-admin-initials="{{ admin_initials }}">
                 {% set date_ns = namespace(last_date='') %}
                 {% for msg in active_chat.messages %}
                 {% set msg_date = msg.timestamp[:10] if msg.timestamp else '' %}
@@ -211,8 +227,12 @@
                 {% set attached_car = msg.carInfo or msg.car %}
                 <div class="chat-msg-row {% if is_admin %}is-outgoing{% else %}is-incoming{% endif %} msg-row" id="msgRow-{{ msg.id }}" data-msg-date="{{ msg_date }}">
                     {% if not is_admin %}
-                    <div class="chat-avatar chat-avatar-sm chat-avatar-soft-0">
+                    <div class="chat-avatar chat-avatar-sm chat-avatar-soft-0 js-client-msg-avatar">
+                        {% if active_chat.clientAvatar %}
+                        <img src="{{ active_chat.clientAvatar }}" alt="{{ active_name }}" class="chat-avatar-img">
+                        {% else %}
                         <span>{{ active_initials }}</span>
+                        {% endif %}
                         <span class="chat-online-dot chat-online-dot-sm"></span>
                     </div>
                     {% endif %}
@@ -776,6 +796,13 @@
     font-size: 0.84rem;
     flex-shrink: 0;
     user-select: none;
+}
+.chat-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
 }
 .chat-avatar-sm {
     width: 34px;
@@ -1642,6 +1669,54 @@ async function pollMessages(manual = false) {
         const chat = data.chat;
         const messages = chat.messages || [];
 
+        // Live sync of client profile (name, phone, email, avatar) when client updates their profile
+        (function syncClientProfileUi() {
+            const stream = document.getElementById('chatMessagesStream');
+            const newName = chat.clientName || '';
+            const newAvatar = chat.clientAvatar || '';
+            const newPhone = chat.clientPhone || '';
+            const newEmail = chat.clientEmail || '';
+            const parts = (newName || 'C').trim().split(/\s+/);
+            const newInitials = ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase() || 'C';
+            if (stream) {
+                if (newName) stream.setAttribute('data-client-name', newName);
+                stream.setAttribute('data-client-initials', newInitials);
+                stream.setAttribute('data-client-avatar', newAvatar);
+            }
+            const nameEl = document.getElementById('activeClientHeaderName');
+            if (nameEl && newName && nameEl.textContent !== newName) nameEl.textContent = newName;
+            const subEl = document.getElementById('activeClientHeaderSub');
+            if (subEl && (newPhone || newEmail)) subEl.textContent = newPhone || newEmail;
+            const phoneEl = document.getElementById('drawerClientPhone');
+            if (phoneEl && newPhone) phoneEl.textContent = newPhone;
+            const emailWrap = document.getElementById('drawerClientEmailWrap');
+            const emailEl = document.getElementById('drawerClientEmail');
+            if (emailWrap && emailEl && newEmail) {
+                emailWrap.classList.remove('d-none');
+                emailEl.href = 'mailto:' + newEmail;
+                emailEl.textContent = newEmail;
+            }
+            const applyAvatar = (el, dotClass) => {
+                if (!el) return;
+                const prev = el.getAttribute('data-avatar-src') || '';
+                if (prev === newAvatar && el.querySelector('img, span')) return;
+                el.setAttribute('data-avatar-src', newAvatar);
+                const inner = newAvatar
+                    ? `<img src="${escapeHtml(newAvatar)}" alt="${escapeHtml(newName)}" class="chat-avatar-img">`
+                    : `<span>${escapeHtml(newInitials)}</span>`;
+                el.innerHTML = inner + (dotClass ? `<span class="${dotClass}"></span>` : '');
+            };
+            applyAvatar(document.getElementById('activeClientHeaderAvatar'), 'chat-online-dot');
+            applyAvatar(document.getElementById('drawerClientAvatar'), '');
+            document.querySelectorAll('.js-client-msg-avatar').forEach(el => applyAvatar(el, 'chat-online-dot chat-online-dot-sm'));
+            const sideItem = document.querySelector(`.chat-thread-item[data-thread-id="${CSS.escape(activeClientId)}"]`);
+            if (sideItem) {
+                const sName = sideItem.querySelector('.chat-thread-name');
+                if (sName && newName && sName.textContent !== newName) sName.textContent = newName;
+                applyAvatar(sideItem.querySelector('.chat-avatar'), 'chat-online-dot');
+            }
+        })();
+
         const typingEl = document.getElementById('liveTypingIndicator');
         if (typingEl) {
             typingEl.classList.toggle('d-none', !chat.clientTyping);
@@ -1744,7 +1819,7 @@ function appendMessageBubble(msg) {
             : '';
         const linkHtml = attachedCar.url
             ? `<a href="${escapeHtml(attachedCar.url)}" target="_blank" rel="noopener noreferrer" class="chat-car-link">Voir fiche <i class="bi bi-box-arrow-up-right ms-1"></i></a>`
-            : `<span class="chat-car-note">Chauffeur inclus</span>`;
+            : `<span class="chat-car-note">Véhicule certifié 3M</span>`;
 
         carHtml = `
             <div class="chat-embedded-car-card">
@@ -1800,8 +1875,9 @@ function appendMessageBubble(msg) {
             </ul>
         </div>` : '';
 
+    const clientAvatar = stream.getAttribute('data-client-avatar') || '';
     const leftAvatar = !isAdmin
-        ? `<div class="chat-avatar chat-avatar-sm chat-avatar-soft-0"><span>${escapeHtml(clientInitials)}</span><span class="chat-online-dot chat-online-dot-sm"></span></div>`
+        ? `<div class="chat-avatar chat-avatar-sm chat-avatar-soft-0 js-client-msg-avatar" data-avatar-src="${escapeHtml(clientAvatar)}">${clientAvatar ? `<img src="${escapeHtml(clientAvatar)}" alt="${escapeHtml(clientName)}" class="chat-avatar-img">` : `<span>${escapeHtml(clientInitials)}</span>`}<span class="chat-online-dot chat-online-dot-sm"></span></div>`
         : '';
     const rightAvatar = isAdmin
         ? `<div class="chat-avatar chat-avatar-sm chat-avatar-admin"><span>${escapeHtml(adminInitials)}</span><span class="chat-online-dot chat-online-dot-sm"></span></div>`

@@ -1707,6 +1707,55 @@ function callFlaskInternal(method, pathWithQuery, payload) {
   });
 }
 
+/* ── Réservation avec chauffeur : lieux, estimation et demande (logique et stockage côté Flask) ── */
+const rentalHits = new Map();   // limite simple : 20 envois par adresse et par heure
+function tooMany(req) {
+  const key = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "?";
+  const now = Date.now();
+  const hits = (rentalHits.get(key) || []).filter((t) => now - t < 3600000);
+  hits.push(now);
+  rentalHits.set(key, hits);
+  return hits.length > 20;
+}
+
+app.get("/api/rental/options", async (req, res) => {
+  const { status, json } = await callFlaskInternal("GET", "/api/internal/rental/options");
+  res.status(status).json(json);
+});
+
+app.post("/api/rental/quote", async (req, res) => {
+  const { status, json } = await callFlaskInternal("POST", "/api/internal/rental/quote", req.body || {});
+  res.status(status).json(json);
+});
+
+app.post("/api/rental/suggest-neighbourhood", async (req, res) => {
+  if (tooMany(req)) return res.status(429).json({ error: "Trop de demandes, réessayez plus tard." });
+  const { status, json } = await callFlaskInternal("POST", "/api/internal/rental/suggest-neighbourhood", req.body || {});
+  res.status(status).json(json);
+});
+
+app.post("/api/rental/request", async (req, res) => {
+  if (tooMany(req)) return res.status(429).json({ error: "Trop de demandes, réessayez plus tard ou écrivez-nous sur WhatsApp." });
+  const body = req.body || {};
+  const { status, json } = await callFlaskInternal("POST", "/api/internal/rental/request", body);
+  if (status === 201 && json.summary) {
+    // La demande apparaît dans la discussion du client : la conciergerie poursuit l'échange là
+    const db = readDb();
+    const thread = appendClientChatMessage(db, {
+      clientId: body.clientId, guestId: body.guestId, name: String(body.name || "").slice(0, 120),
+      phone: String(body.phone || "").slice(0, 40), email: String(body.email || "").slice(0, 120),
+      text: json.summary, source: "rental_request"
+    });
+    if (writeDb(db)) {
+      notifyAdminOfClientMessage({
+        kind: "booking", name: body.name, phone: body.phone, email: body.email, text: json.summary,
+        ref: json.reference, threadId: thread.id, accountNumber: String(body.clientId || "")
+      });
+    }
+  }
+  res.status(status).json(json);
+});
+
 app.get("/api/experience-rating", async (req, res) => {
   const qs = new URLSearchParams({
     account: String(req.query.account || ""),
@@ -2167,9 +2216,142 @@ app.get("/api/chats/:clientId", (req, res) => {
   res.json(chatResponse);
 });
 
+function sanitizeAvatar(raw) {
+  if (raw === undefined) return undefined;
+  const s = String(raw || "").trim();
+  if (!s) return "";
+  if (s.length > 500000) return undefined;
+  if (/^https?:\/\/\S+$/i.test(s) || /^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(s)) {
+    return s;
+  }
+  return undefined;
+}
+
+// Public client profile sync (create / update personal info + avatar across customers, existing chats & bookings)
+app.post("/api/clients/sync-profile", (req, res) => {
+  const body = req.body || {};
+  const accountNumber = String(body.accountNumber || body.clientId || "").trim();
+  const guestId = String(body.guestId || "").trim();
+  const name = String(body.name || body.username || "").trim().slice(0, 120);
+  const username = String(body.username || name || "").trim().slice(0, 120);
+  const phone = String(body.phone || "").trim().slice(0, 40);
+  const email = String(body.email || "").trim().slice(0, 160);
+  const city = String(body.city || "").trim().slice(0, 80);
+  const address = String(body.address || "").trim().slice(0, 200);
+  const language = String(body.language || "").trim().slice(0, 16);
+  const previousEmail = String(body.previousEmail || "").trim().toLowerCase();
+  const previousPhone = String(body.previousPhone || "").replace(/\D/g, "");
+  const avatar = sanitizeAvatar(body.avatar);
+
+  if (!accountNumber && !email && !phone && !guestId) {
+    return res.status(400).json({ error: "Identifiant client requis." });
+  }
+
+  const db = readDb();
+  db.customers = db.customers || [];
+  db.chats = db.chats || [];
+  db.bookings = db.bookings || [];
+
+  const normAcct = accountNumber ? normalizeChatId(accountNumber) : "";
+  const normGuest = guestId ? normalizeChatId(guestId) : "";
+  const emailLower = email.toLowerCase();
+  const phoneDigits = phone.replace(/\D/g, "");
+  const phoneTail = phoneDigits.length >= 8 ? phoneDigits.slice(-8) : "";
+  const prevPhoneTail = previousPhone.length >= 8 ? previousPhone.slice(-8) : "";
+  const now = new Date().toISOString();
+
+  const matchesClient = (rec) => {
+    if (!rec) return false;
+    const recId = normalizeChatId(rec.id || "");
+    const recClientId = normalizeChatId(rec.clientId || "");
+    const recAcct = normalizeChatId(rec.accountNumber || "");
+    const recEmail = String(rec.email || rec.clientEmail || rec.customerEmail || "").trim().toLowerCase();
+    const recPhone = String(rec.phone || rec.clientPhone || rec.customerPhone || "").replace(/\D/g, "");
+    const recTail = recPhone.length >= 8 ? recPhone.slice(-8) : "";
+
+    if (normAcct && (recId === normAcct || recClientId === normAcct || recAcct === normAcct)) return true;
+    if (normGuest && (recId === normGuest || recClientId === normGuest)) return true;
+    if (emailLower && recEmail && recEmail === emailLower) return true;
+    if (previousEmail && recEmail && recEmail === previousEmail) return true;
+    if (phoneTail && recTail && recTail === phoneTail) return true;
+    if (prevPhoneTail && recTail && recTail === prevPhoneTail) return true;
+    return false;
+  };
+
+  // 1. Upsert in db.customers
+  let custIdx = db.customers.findIndex(matchesClient);
+  if (custIdx >= 0) {
+    const cur = db.customers[custIdx];
+    db.customers[custIdx] = {
+      ...cur,
+      ...(accountNumber ? { accountNumber } : {}),
+      ...(name ? { name } : {}),
+      ...(username ? { username } : {}),
+      ...(phone ? { phone } : {}),
+      ...(email ? { email } : {}),
+      ...(city ? { city } : {}),
+      ...(address ? { address } : {}),
+      ...(language ? { language } : {}),
+      ...(avatar !== undefined ? { avatar } : {}),
+      updatedAt: now
+    };
+  } else {
+    const newCustomer = {
+      id: accountNumber || `CUST-${Date.now().toString().slice(-6)}`,
+      accountNumber: accountNumber || `3M-CLI-${Math.floor(1000 + Math.random() * 9000)}`,
+      name: name || "Client 3M VIP",
+      username: username || name || "Client 3M VIP",
+      phone,
+      email,
+      city: city || "Yaoundé",
+      address,
+      language: language || "fr",
+      avatar: avatar || "",
+      status: "Actif VIP",
+      createdAt: now,
+      updatedAt: now
+    };
+    db.customers.unshift(newCustomer);
+    custIdx = 0;
+  }
+
+  // 2. Propagate to all matching existing chat threads & their client messages
+  let updatedChats = 0;
+  db.chats.forEach((chat) => {
+    if (!matchesClient(chat)) return;
+    if (name) chat.clientName = name;
+    if (phone) chat.clientPhone = phone;
+    if (email) chat.clientEmail = email;
+    if (city) chat.clientCity = city;
+    if (address) chat.clientAddress = address;
+    if (avatar !== undefined) chat.clientAvatar = avatar;
+    if (name && Array.isArray(chat.messages)) {
+      chat.messages.forEach((m) => {
+        if (m && m.sender === "client") {
+          m.senderName = name;
+        }
+      });
+    }
+    updatedChats += 1;
+  });
+
+  // 3. Propagate to matching bookings
+  db.bookings.forEach((b) => {
+    if (!matchesClient(b)) return;
+    if (name) b.customerName = name;
+    if (phone) b.customerPhone = phone;
+    if (email) b.customerEmail = email;
+    if (avatar !== undefined) b.customerAvatar = avatar;
+  });
+
+  writeDb(db);
+  res.json({ success: true, updatedChats, customer: db.customers[custIdx] });
+});
+
 // 4. Send message in a client thread (by client or by admin)
 app.post("/api/chats/:clientId/messages", (req, res) => {
   const { text, sender, senderName, carInfo, clientName, clientPhone, clientEmail } = req.body;
+  const clientAvatar = sanitizeAvatar(req.body.clientAvatar);
   if (!text || !text.trim()) {
     return res.status(400).json({ error: "Le message ne peut pas être vide." });
   }
@@ -2200,6 +2382,7 @@ app.post("/api/chats/:clientId/messages", (req, res) => {
       clientName: clientName || (isClient ? senderName : "Client VIP 3M"),
       clientPhone: clientPhone || "",
       clientEmail: clientEmail || "",
+      clientAvatar: clientAvatar || "",
       unreadAdmin: isClient ? 1 : 0,
       unreadClient: isClient ? 0 : 1,
       createdAt: now,
@@ -2227,6 +2410,7 @@ app.post("/api/chats/:clientId/messages", (req, res) => {
     if (clientName) chat.clientName = clientName;
     if (clientPhone) chat.clientPhone = clientPhone;
     if (clientEmail) chat.clientEmail = clientEmail;
+    if (clientAvatar !== undefined && clientAvatar !== "") chat.clientAvatar = clientAvatar;
 
     if (isClient) {
       chat.unreadAdmin = (chat.unreadAdmin || 0) + 1;

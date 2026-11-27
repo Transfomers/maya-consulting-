@@ -107,8 +107,19 @@ function PrivateChatWidget() {
   const sendMessageRef = useRef(null);
   const [pendingAutoSend, setPendingAutoSend] = useState(null);
 
-  // Retrieve current client or guest session
-  const client = getCurrentClient();
+  // Retrieve current client or guest session (reactively updated when profile changes)
+  const [client, setClientState] = useState(() => getCurrentClient());
+  useEffect(() => {
+    const onAuthChanged = (e) => {
+      setClientState(e?.detail !== undefined ? e.detail : getCurrentClient());
+    };
+    window.addEventListener("3m-client-auth-changed", onAuthChanged);
+    window.addEventListener("storage", onAuthChanged);
+    return () => {
+      window.removeEventListener("3m-client-auth-changed", onAuthChanged);
+      window.removeEventListener("storage", onAuthChanged);
+    };
+  }, []);
   // Identifiant invité propre à cet appareil (conservé après connexion pour relier la conversation)
   const guestId = (function () {
     let gid = localStorage.getItem("3m_guest_chat_id");
@@ -412,6 +423,7 @@ function PrivateChatWidget() {
           clientName: displayName,
           clientPhone: displayPhone,
           clientEmail: displayEmail,
+          clientAvatar: client?.avatar || "",
           guestId,
           carInfo: optimisticMsg.car
         })

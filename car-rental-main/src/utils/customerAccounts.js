@@ -440,6 +440,36 @@ const getFavoriteScopeKey = (client = getCurrentClient()) => {
 };
 
 /**
+ * Sync client profile (personal info + avatar) to backend customers, existing chats & bookings
+ */
+export const syncClientProfileToBackend = (client, previous = {}) => {
+  if (!client || typeof fetch === "undefined") return;
+  try {
+    const guestId =
+      typeof localStorage !== "undefined" ? localStorage.getItem("3m_guest_chat_id") || "" : "";
+    fetch(`${API_BASE}/clients/sync-profile`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clientId: client.accountNumber || client.id || "",
+        accountNumber: client.accountNumber || "",
+        guestId,
+        name: client.name || client.username || "",
+        username: client.username || client.name || "",
+        phone: client.phone || "",
+        email: client.email || "",
+        city: client.city || "",
+        address: client.address || "",
+        language: client.language || "",
+        avatar: client.avatar !== undefined ? client.avatar : "",
+        previousEmail: previous.email || "",
+        previousPhone: previous.phone || ""
+      })
+    }).catch(() => {});
+  } catch (e) {}
+};
+
+/**
  * Register or log in a VIP client profile
  */
 export const registerClientAccount = ({
@@ -450,6 +480,7 @@ export const registerClientAccount = ({
   password = "",
   city = "Yaoundé",
   address = "",
+  avatar = "",
   language = "fr",
   hourFormat = "24-hour"
 }) => {
@@ -486,6 +517,7 @@ export const registerClientAccount = ({
       phone: safePhone || store.customers[existingIndex].phone || "",
       city: city || store.customers[existingIndex].city || "Yaoundé",
       address: address || store.customers[existingIndex].address || "",
+      avatar: avatar || store.customers[existingIndex].avatar || "",
       language: language || store.customers[existingIndex].language || "fr",
       hourFormat: hourFormat || store.customers[existingIndex].hourFormat || "24-hour",
       notifications: store.customers[existingIndex].notifications || defaultNotifications,
@@ -503,6 +535,7 @@ export const registerClientAccount = ({
       ...(password ? { password } : {}),
       city: city || "Yaoundé",
       address: address || "",
+      avatar: avatar || "",
       language: language || "fr",
       hourFormat: hourFormat || "24-hour",
       notifications: defaultNotifications,
@@ -522,6 +555,7 @@ export const registerClientAccount = ({
   try {
     localStorage.setItem("3m_vip_account", JSON.stringify(customer));
   } catch (e) {}
+  syncClientProfileToBackend(customer);
   return customer;
 };
 
@@ -532,6 +566,7 @@ export const updateClientProfile = (updates = {}) => {
   const current = getCurrentClient();
   if (!current) return null;
 
+  const previous = { email: current.email || "", phone: current.phone || "" };
   const cleanUpdates = { ...updates };
   if (!cleanUpdates.password) {
     delete cleanUpdates.password;
@@ -552,13 +587,35 @@ export const updateClientProfile = (updates = {}) => {
 
   if (idx >= 0) {
     store.customers[idx] = { ...store.customers[idx], ...cleanUpdates };
-    saveCrmStore(store);
   }
 
+  // Also propagate updated name/phone/email to the client's local bookings
+  if (Array.isArray(store.bookings)) {
+    const prevPhoneDigits = (previous.phone || "").replace(/[^0-9]/g, "");
+    const prevEmailLower = (previous.email || "").trim().toLowerCase();
+    store.bookings = store.bookings.map((b) => {
+      const bPhone = (b.customerPhone || b.phone || "").replace(/[^0-9]/g, "");
+      const bEmail = (b.customerEmail || b.email || "").trim().toLowerCase();
+      const isMine =
+        (current.accountNumber && b.accountNumber === current.accountNumber) ||
+        (prevEmailLower && bEmail === prevEmailLower) ||
+        (prevPhoneDigits && bPhone && bPhone.endsWith(prevPhoneDigits.slice(-8)));
+      if (!isMine) return b;
+      return {
+        ...b,
+        ...(updated.name ? { customerName: updated.name } : {}),
+        ...(updated.phone ? { customerPhone: updated.phone } : {}),
+        ...(updated.email ? { customerEmail: updated.email } : {})
+      };
+    });
+  }
+
+  saveCrmStore(store);
   setCurrentClient(updated);
   try {
     localStorage.setItem("3m_vip_account", JSON.stringify(updated));
   } catch (e) {}
+  syncClientProfileToBackend(updated, previous);
   return updated;
 };
 

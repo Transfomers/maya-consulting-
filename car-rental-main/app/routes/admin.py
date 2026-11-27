@@ -6525,6 +6525,34 @@ def toggle_bus_promo(id):
     flash(f"Offre promotionnelle {'activée' if bus.is_promo else 'retirée'} pour le véhicule {bus.brand} {bus.model} !", 'success')
     return redirect(url_for('admin.buses'))
 
+def _enrich_chat_profile(chat, customers):
+    """Hydrate clientAvatar / clientCity / clientAddress from exp_db.customers if missing on chat."""
+    if not chat or not isinstance(customers, list):
+        return
+    cid = str(chat.get('clientId') or chat.get('id') or '').strip().upper()
+    cemail = str(chat.get('clientEmail') or '').strip().lower()
+    cphone = ''.join(ch for ch in str(chat.get('clientPhone') or '') if ch.isdigit())
+    for cust in customers:
+        if not isinstance(cust, dict):
+            continue
+        acct = str(cust.get('accountNumber') or cust.get('id') or '').strip().upper()
+        em = str(cust.get('email') or '').strip().lower()
+        ph = ''.join(ch for ch in str(cust.get('phone') or '') if ch.isdigit())
+        matched = (
+            (cid and acct and cid == acct) or
+            (cemail and em and cemail == em) or
+            (len(cphone) >= 8 and len(ph) >= 8 and cphone[-8:] == ph[-8:])
+        )
+        if matched:
+            if not chat.get('clientAvatar') and cust.get('avatar'):
+                chat['clientAvatar'] = cust.get('avatar')
+            if not chat.get('clientCity') and cust.get('city'):
+                chat['clientCity'] = cust.get('city')
+            if not chat.get('clientAddress') and cust.get('address'):
+                chat['clientAddress'] = cust.get('address')
+            break
+
+
 @admin.route('/admin/chats')
 @login_required
 @admin_required
@@ -6532,11 +6560,13 @@ def chats():
     import json as _json
     db_path = current_app.config['EXPRESS_DB_JSON']
     chat_threads = []
+    customers = []
     if os.path.exists(db_path):
         try:
             with open(db_path, 'r', encoding='utf-8') as f:
                 exp_db = _json.load(f)
             chat_threads = exp_db.get('chats', [])
+            customers = exp_db.get('customers', [])
         except Exception as e:
             current_app.logger.warning(f"Error reading chats from db.json: {e}")
     # Conversations fusionnées ou sans message client réel : on garde uniquement les vrais échanges clients
@@ -6556,6 +6586,7 @@ def chats():
     chat_threads = [c for c in chat_threads if _is_real_thread(c)]
     for th in chat_threads:
         th['messages'] = [m for m in (th.get('messages') or []) if not str(m.get('id') or '').startswith('msg-welcome')]
+        _enrich_chat_profile(th, customers)
 
     # Conversations centralisées : un administrateur ne voit que celles qu'il a le droit de voir
     from app.models import Conversation as _Conv
@@ -6881,6 +6912,7 @@ def get_admin_chat_messages(client_id):
                 with atomic_write(db_path) as f:
                     _json.dump(exp_db, f, indent=2, ensure_ascii=False)
                 clean_chat = dict(chat)
+                _enrich_chat_profile(clean_chat, exp_db.get('customers', []))
                 clean_chat['liveLocation'] = active_live_location(chat)
                 clean_chat['messages'] = [
                     m for m in (chat.get('messages') or [])

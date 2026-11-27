@@ -310,9 +310,27 @@ function AccountPage() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setEditAvatar(reader.result);
-      }
+      if (typeof reader.result !== "string") return;
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const maxDim = 256;
+          const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          const w = Math.max(1, Math.round(img.width * scale));
+          const h = Math.max(1, Math.round(img.height * scale));
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressed = canvas.toDataURL("image/jpeg", 0.82);
+          setEditAvatar(compressed);
+        } catch (_) {
+          setEditAvatar(reader.result);
+        }
+      };
+      img.onerror = () => setEditAvatar(reader.result);
+      img.src = reader.result;
     };
     reader.readAsDataURL(file);
   };

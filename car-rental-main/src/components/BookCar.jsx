@@ -24,7 +24,7 @@ function BookCar() {
   const { lang, t } = useTranslation();
   const isFr = lang === "fr";
   const L = (fr, en) => (isFr ? fr : en);
-  const client = getCurrentClient();
+  const [client, setClientState] = useState(() => getCurrentClient());
 
   const [options, setOptions] = useState(null);
   const [loadError, setLoadError] = useState(false);
@@ -36,6 +36,17 @@ function BookCar() {
   const [stops, setStops] = useState("");
   const [notes, setNotes] = useState("");
   const [contact, setContact] = useState({ name: client?.name || "", phone: client?.phone || "", email: client?.email || "" });
+  useEffect(() => {
+    const onAuth = (e) => {
+      const next = e?.detail !== undefined ? e.detail : getCurrentClient();
+      setClientState(next);
+      if (next) {
+        setContact({ name: next.name || "", phone: next.phone || "", email: next.email || "" });
+      }
+    };
+    window.addEventListener("3m-client-auth-changed", onAuth);
+    return () => window.removeEventListener("3m-client-auth-changed", onAuth);
+  }, []);
   const [errors, setErrors] = useState({});
   const [quote, setQuote] = useState(null);
   const [sending, setSending] = useState(false);
