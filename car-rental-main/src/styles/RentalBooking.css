@@ -3,7 +3,7 @@
   position: relative;
   background: #ffffff;
   background-image: radial-gradient(circle at 14% 20%, rgba(15, 23, 42, 0.025) 0, transparent 45%),
-    radial-gradient(circle at 86% 80%, rgba(255, 77, 48, 0.03) 0, transparent 48%);
+    radial-gradient(circle at 86% 80%, rgba(226, 7, 19, 0.03) 0, transparent 48%);
   border-radius: 10px;
   padding: 4.2rem 4.5rem 4.6rem;
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
@@ -97,7 +97,7 @@
 }
 
 .book-card-v2__field label i {
-  color: #ff4d30;
+  color: #E20713;
   font-size: 1.65rem;
 }
 
@@ -118,8 +118,8 @@
 
 .book-card-v2__field select:focus,
 .book-card-v2__field input:focus {
-  border-color: #ff4d30;
-  box-shadow: 0 0 0 3px rgba(255, 77, 48, 0.14);
+  border-color: #E20713;
+  box-shadow: 0 0 0 3px rgba(226, 7, 19, 0.14);
 }
 
 .book-card-v2__datetime {
@@ -138,18 +138,18 @@
   height: 5.2rem;
   border: none;
   border-radius: 6px;
-  background: #ff4d30;
+  background: #E20713;
   color: #ffffff;
   font-size: 1.65rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 10px 20px rgba(255, 77, 48, 0.34);
+  box-shadow: 0 10px 20px rgba(226, 7, 19, 0.34);
   transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .book-card-v2__submit:hover {
-  background: #e20713;
-  box-shadow: 0 12px 24px rgba(226, 7, 19, 0.4);
+  background: #b91c1c;
+  box-shadow: 0 12px 24px rgba(185, 28, 28, 0.42);
   transform: translateY(-1px);
 }
 
@@ -180,7 +180,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.8rem 2.4rem;
-  background: #ff4d30;
+  background: #E20713;
   color: #ffffff;
 }
 
@@ -241,7 +241,7 @@
 }
 
 .bc-modal__summary i {
-  color: #ff4d30;
+  color: #E20713;
   margin-right: 0.4rem;
 }
 
@@ -339,7 +339,7 @@
 }
 
 .bc-btn--primary {
-  background: #ff4d30;
+  background: #E20713;
   color: #ffffff;
 }
 
