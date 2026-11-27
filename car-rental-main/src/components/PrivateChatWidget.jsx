@@ -834,9 +834,9 @@ function PrivateChatWidget() {
             <button
               type="button"
               className="quick-chip"
-              onClick={() => handleSendMessage("Bonjour, vos chauffeurs VIP sont-ils bien inclus dans les forfaits promotionnels ?")}
+              onClick={() => handleSendMessage("Bonjour, quelles sont les conditions de location (assurance et caution) pour vos forfaits promotionnels ?")}
             >
-              <i className="fa-solid fa-user-tie"></i> Chauffeur VIP inclus ?
+              <i className="fa-solid fa-shield-halved"></i> Assurance & caution ?
             </button>
             <button
               type="button"

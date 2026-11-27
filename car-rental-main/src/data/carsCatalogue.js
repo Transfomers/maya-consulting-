@@ -16,7 +16,7 @@ export const CARS_CATALOGUE = [
     promoPrice: 130000,
     isPromo: true,
     promoBadge: "OFFRE FLASH -15%",
-    promoDescription: "V8 Prestige grand luxe • 7 places cuir VIP • Chauffeur dédié inclus",
+    promoDescription: "V8 Prestige grand luxe • 7 places cuir VIP • Climatisation intégrale",
     doors: "5",
     seats: "7 places cuir VIP",
     transmission: "Automatique 4x4",

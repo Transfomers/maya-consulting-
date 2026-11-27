@@ -1,626 +1,336 @@
-import { useEffect, useState } from "react";
-import CarPrado from "../images/cars/toyota-prado-txl-front.webp";
-import CarJeep from "../images/cars/jeep-grand-cherokee-front.webp";
-import CarToyota from "../images/cars/toyota-camry-front.webp";
-import CarFortuner from "../images/cars/toyota-fortuner-front.webp";
-import CarMercedes from "../images/cars/mercedes-classe-e-front.webp";
-import CarRav4 from "../images/cars/toyota-rav4-front.webp";
-import { CARS_CATALOGUE } from "../data/carsCatalogue";
-import { useTranslation } from "../context/LanguageContext";
+// Réservation d'un véhicule : aller simple, aller-retour ou mise à disposition avec chauffeur.
+// Les lieux, véhicules, tarifs et disponibilités viennent du serveur ; rien n'est inventé ici.
+import { useEffect, useMemo, useRef, useState } from "react";
 import { API_BASE } from "../config/api";
-import "../styles/BookingModal.css";
+import { useTranslation } from "../context/LanguageContext";
+import { getCurrentClient } from "../utils/customerAccounts";
+import NeighbourhoodPicker from "./NeighbourhoodPicker";
+import "../styles/RentalBooking.css";
+
+const emptyPlace = { cityId: "", districtId: "", neighbourhoodId: null, neighbourhoodText: "", address: "" };
+const fcfa = (n) => `${Math.round(n).toLocaleString("fr-FR")} FCFA`;
+const today = () => new Date(Date.now() + 3600000).toISOString().slice(0, 10); // Africa/Douala
+const newKey = () => `rq-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+const guestId = () => {
+  let id = localStorage.getItem("3m_guest_chat_id");
+  if (!id) {
+    id = "GUEST-" + Math.floor(100000 + Math.random() * 900000);
+    localStorage.setItem("3m_guest_chat_id", id);
+  }
+  return id;
+};
 
 function BookCar() {
   const { lang, t } = useTranslation();
   const isFr = lang === "fr";
+  const L = (fr, en) => (isFr ? fr : en);
+  const client = getCurrentClient();
 
-  const [modal, setModal] = useState(false);
+  const [options, setOptions] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+  const [tripType, setTripType] = useState("one_way");
+  const [vehicleId, setVehicleId] = useState("");
+  const [pickup, setPickup] = useState(emptyPlace);
+  const [destination, setDestination] = useState(emptyPlace);
+  const [dates, setDates] = useState({ depDate: "", depTime: "", retDate: "", retTime: "", hours: "8" });
+  const [stops, setStops] = useState("");
+  const [notes, setNotes] = useState("");
+  const [contact, setContact] = useState({ name: client?.name || "", phone: client?.phone || "", email: client?.email || "" });
+  const [errors, setErrors] = useState({});
+  const [quote, setQuote] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [done, setDone] = useState(null);
+  const [sendError, setSendError] = useState("");
+  const requestKey = useRef(newKey());
+  const wantedCar = useRef(sessionStorage.getItem("selected_booking_car"));
 
-  // Booking fields
-  const [carType, setCarType] = useState("");
-  const [pickUp, setPickUp] = useState("");
-  const [dropOff, setDropOff] = useState("");
-  const [pickTime, setPickTime] = useState("");
-  const [dropTime, setDropTime] = useState("");
-  const [carImg, setCarImg] = useState("");
+  const load = () => {
+    setLoadError(false);
+    fetch(`${API_BASE}/rental/options`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("options"))))
+      .then(setOptions)
+      .catch(() => setLoadError(true));
+  };
+  useEffect(load, []);
 
-  // Inline editing & status
-  const [isEditingSummary, setIsEditingSummary] = useState(false);
-  const [successStatus, setSuccessStatus] = useState("");
-
-  // Backend live data
-  const [carsList, setCarsList] = useState(CARS_CATALOGUE);
-  const [pickupLocations, setPickupLocations] = useState([]);
-  const [dropoffLocations, setDropoffLocations] = useState([]);
-
+  // Véhicule choisi depuis le catalogue (« Réserver »)
+  const selectByName = (name) => {
+    const n = String(name || "").toLowerCase();
+    const found = options?.vehicles.find((v) => n.includes(v.name.toLowerCase()) || v.name.toLowerCase().includes(n));
+    if (found) setVehicleId(String(found.id));
+  };
   useEffect(() => {
-    fetch(`${API_BASE}/cars`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => {
-        if (data && data.length > 0) {
-          setCarsList(data);
-        }
-      })
-      .catch((err) => console.log("Backend offline, fallback cars:", err));
-
-    fetch(`${API_BASE}/locations`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data && data.pickup) {
-          setPickupLocations(data.pickup.filter((l) => l.active !== false));
-        }
-        if (data && data.dropoff) {
-          setDropoffLocations(data.dropoff.filter((l) => l.active !== false));
-        }
-      })
-      .catch((err) => console.log("Backend offline, fallback locations:", err));
-
-    const storedCar = sessionStorage.getItem("selected_booking_car");
-    if (storedCar) {
-      setCarType(storedCar);
-      setCarImg(storedCar);
+    if (options && wantedCar.current) {
+      selectByName(wantedCar.current);
       sessionStorage.removeItem("selected_booking_car");
+      wantedCar.current = null;
     }
-
-    const handleSelectCar = (e) => {
-      if (e.detail && e.detail.carName) {
-        setCarType(e.detail.carName);
-        setCarImg(e.detail.carName);
-        const bookingSection = document.querySelector("#booking-section");
-        if (bookingSection) {
-          bookingSection.scrollIntoView({ behavior: "smooth" });
-        }
-      }
+    const onSelect = (e) => {
+      if (!e.detail?.carName) return;
+      selectByName(e.detail.carName);
+      document.querySelector("#booking-section")?.scrollIntoView({ behavior: "smooth" });
     };
-    window.addEventListener("select-booking-car", handleSelectCar);
-    return () => window.removeEventListener("select-booking-car", handleSelectCar);
-  }, []);
+    window.addEventListener("select-booking-car", onSelect);
+    return () => window.removeEventListener("select-booking-car", onSelect);
+  }, [options]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const defaultPickups = [
-    "Yaoundé - Agence Omnisports (Rue Foe)",
-    "Aéroport International de Yaoundé-Nsimalen (NSI)",
-    "Yaoundé - Bastos (Ambassades & Hôtels)",
-    "Yaoundé - Tsinga (Face FECAFOOT / 3M Services)",
-    "Douala - Aéroport International de Douala (DLA)",
-    "Douala - Akwa / Bonanjo (Centre d'Affaires)",
-    "Kribi - Station Balnéaire & Hôtels",
-    "Bafoussam - Centre-ville (Région de l'Ouest)",
-    "Livraison VIP personnalisée à domicile ou hôtel"
-  ];
+  const cityOf = (place) => options?.cities.find((c) => c.id === Number(place.cityId));
+  const needsDestination = tripType !== "disposal";
+  const payload = useMemo(
+    () => ({
+      tripType,
+      vehicleId: Number(vehicleId) || null,
+      pickupCityId: Number(pickup.cityId) || null,
+      pickupNeighbourhoodId: pickup.neighbourhoodId,
+      pickupNeighbourhoodText: pickup.neighbourhoodText,
+      pickupAddress: pickup.address,
+      destinationCityId: needsDestination ? Number(destination.cityId) || null : null,
+      destinationNeighbourhoodId: needsDestination ? destination.neighbourhoodId : null,
+      destinationNeighbourhoodText: needsDestination ? destination.neighbourhoodText : "",
+      destinationAddress: needsDestination ? destination.address : "",
+      departureAt: dates.depDate && dates.depTime ? `${dates.depDate}T${dates.depTime}` : "",
+      returnAt: tripType === "round_trip" && dates.retDate && dates.retTime ? `${dates.retDate}T${dates.retTime}` : "",
+      durationHours: tripType === "disposal" ? dates.hours : "",
+      driverRequired: false,
+      stops: tripType === "disposal" ? stops : "",
+      notes
+    }),
+    [tripType, vehicleId, pickup, destination, dates, stops, notes, needsDestination]
+  );
 
-  const defaultDropoffs = [
-    "Même lieu que la prise en charge",
-    "Yaoundé - Agence Omnisports (Rue Foe)",
-    "Aéroport International de Yaoundé-Nsimalen (NSI)",
-    "Yaoundé - Bastos",
-    "Yaoundé - Tsinga (Face FECAFOOT)",
-    "Douala - Aéroport International de Douala (DLA)",
-    "Douala - Akwa / Bonanjo",
-    "Kribi - Station Balnéaire & Hôtels",
-    "Restitution personnalisée sur devis"
-  ];
+  const complete =
+    payload.vehicleId && payload.pickupCityId && (payload.pickupNeighbourhoodId || payload.pickupNeighbourhoodText) &&
+    payload.departureAt && (!needsDestination || (payload.destinationCityId && (payload.destinationNeighbourhoodId || payload.destinationNeighbourhoodText))) &&
+    (tripType !== "round_trip" || payload.returnAt) && (tripType !== "disposal" || Number(payload.durationHours) > 0);
 
-  // Open modal when search form is filled
-  const openModal = (e) => {
-    e.preventDefault();
-    const errorMsg = document.querySelector(".error-message");
-    if (
-      pickUp === "" ||
-      dropOff === "" ||
-      pickTime === "" ||
-      dropTime === "" ||
-      carType === ""
-    ) {
-      if (errorMsg) errorMsg.style.display = "flex";
-    } else {
-      setSuccessStatus("");
-      setIsEditingSummary(false);
-      setModal(true);
-      const modalDiv = document.querySelector(".booking-modal");
-      if (modalDiv) modalDiv.scroll(0, 0);
-      if (errorMsg) errorMsg.style.display = "none";
-    }
-  };
-
-  const closeModal = () => {
-    setModal(false);
-    setIsEditingSummary(false);
-  };
-
+  // Estimation et disponibilité en direct
   useEffect(() => {
-    document.body.style.overflow = modal ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [modal]);
+    setQuote(null);
+    if (!complete) return undefined;
+    const timer = setTimeout(() => {
+      fetch(`${API_BASE}/rental/quote`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+        .then(async (r) => ({ ok: r.ok, data: await r.json().catch(() => ({})) }))
+        .then(({ ok, data }) => setQuote(ok ? data : { errors: data.errors || {} }))
+        .catch(() => setQuote(null));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [payload, complete]);
 
-  const calculateDays = () => {
-    if (!pickTime || !dropTime) return 1;
-    const p = new Date(pickTime);
-    const d = new Date(dropTime);
-    const diff = Math.ceil((d - p) / (1000 * 60 * 60 * 24));
-    return diff > 0 ? diff : 1;
-  };
-
-  const formatDateReadable = (dateStr) => {
-    if (!dateStr) return isFr ? "À convenir" : "To be confirmed";
+  const submit = async (e) => {
+    e.preventDefault();
+    if (sending) return;
+    const missing = {};
+    const required = L("Champ obligatoire.", "Required.");
+    if (!vehicleId) missing.vehicleId = L("Choisissez un véhicule.", "Choose a vehicle.");
+    if (!pickup.cityId) missing.pickupCityId = required;
+    if (!pickup.neighbourhoodId && !pickup.neighbourhoodText) missing.pickupNeighbourhoodId = L("Choisissez un quartier.", "Choose an area.");
+    if (needsDestination && !destination.cityId) missing.destinationCityId = required;
+    if (needsDestination && !destination.neighbourhoodId && !destination.neighbourhoodText) missing.destinationNeighbourhoodId = L("Choisissez un quartier.", "Choose an area.");
+    if (!payload.departureAt) missing.departureAt = L("Date et heure de départ obligatoires.", "Departure date and time required.");
+    if (tripType === "round_trip" && !payload.returnAt) missing.returnAt = L("Date et heure de retour obligatoires.", "Return date and time required.");
+    if (contact.name.trim().length < 2) missing.name = L("Indiquez votre nom.", "Enter your name.");
+    if (contact.phone.replace(/\D/g, "").length < 8) missing.phone = L("Numéro de téléphone invalide.", "Invalid phone number.");
+    setErrors(missing);
+    setSendError("");
+    if (Object.keys(missing).length) {
+      setTimeout(() => document.querySelector("#booking-section .rb-error")?.scrollIntoView({ block: "center", behavior: "smooth" }), 50);
+      return;
+    }
+    setSending(true);
     try {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString(isFr ? "fr-FR" : "en-US", {
-        day: "numeric",
-        month: "long",
-        year: "numeric"
+      const res = await fetch(`${API_BASE}/rental/request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...payload, ...contact, requestKey: requestKey.current, guestId: guestId(),
+          clientId: client?.accountNumber || guestId(), accountNumber: client?.accountNumber || ""
+        })
       });
-    } catch {
-      return dateStr;
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErrors(data.errors || {});
+        setSendError(data.error || L("Envoi impossible, réessayez.", "Could not send, try again."));
+        return;
+      }
+      setDone(data);
+      requestKey.current = newKey();
+    } catch (_) {
+      setSendError(L("Connexion impossible. Réessayez ou contactez-nous sur WhatsApp.", "No connection. Retry or use WhatsApp."));
+    } finally {
+      setSending(false);
     }
   };
 
-  // Determine matched car & preview image
-  let imgUrl = CarPrado;
-  const lowerCar = (carType || "").toLowerCase();
-  const matchedCar =
-    carsList.find(
-      (c) =>
-        c.name &&
-        (c.name.toLowerCase() === lowerCar ||
-          c.name.toLowerCase().includes(lowerCar) ||
-          lowerCar.includes(c.name.toLowerCase()))
-    ) ||
-    CARS_CATALOGUE.find(
-      (c) =>
-        c.name &&
-        (c.name.toLowerCase() === lowerCar ||
-          c.name.toLowerCase().includes(lowerCar) ||
-          lowerCar.includes(c.name.toLowerCase()))
-    );
+  const setPlace = (setter, patch) => setter((p) => ({ ...p, ...patch }));
+  const err = (k) => errors[k] || quote?.errors?.[k];
+  const errorLine = (k) => err(k) && <span className="rb-error" role="alert">{err(k)}</span>;
 
-  if (matchedCar && (matchedCar.image || matchedCar.img)) {
-    imgUrl = matchedCar.image || matchedCar.img;
-  } else if (lowerCar.includes("jeep") || lowerCar.includes("cherokee") || carImg === "Jeep Grand Cherokee V6 MUPOCAM") {
-    imgUrl = CarJeep;
-  } else if (lowerCar.includes("mercedes") || lowerCar.includes("classe e") || carImg === "Mercedes-Benz Classe E VIP") {
-    imgUrl = CarMercedes;
-  } else if (lowerCar.includes("fortuner") || carImg === "Toyota Fortuner 4x4") {
-    imgUrl = CarFortuner;
-  } else if (lowerCar.includes("rav4") || carImg === "Toyota RAV4 4WD") {
-    imgUrl = CarRav4;
-  } else if (lowerCar.includes("camry") || carImg === "Toyota Camry Executive") {
-    imgUrl = CarToyota;
-  }
+  const placeBlock = (prefix, title, place, setter) => (
+    <fieldset className="rb-block">
+      <legend><i className="fa-solid fa-location-dot"></i> {title}</legend>
+      <div className="rb-grid">
+        <div className="rb-field">
+          <label htmlFor={`${prefix}-city`}>{L("Ville", "City")} *</label>
+          <select id={`${prefix}-city`} value={place.cityId} onChange={(e) => setPlace(setter, { ...emptyPlace, cityId: e.target.value, address: place.address })}>
+            <option value="">{L("Choisir…", "Choose…")}</option>
+            {options.cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          {errorLine(`${prefix}CityId`)}
+        </div>
+        <div className="rb-field">
+          <label htmlFor={`${prefix}-district`}>{L("Arrondissement", "District")}</label>
+          <select id={`${prefix}-district`} value={place.districtId} disabled={!cityOf(place)?.districts.length} onChange={(e) => setPlace(setter, { districtId: e.target.value, neighbourhoodId: null, neighbourhoodText: "" })}>
+            <option value="">{L("Tous", "All")}</option>
+            {cityOf(place)?.districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          </select>
+        </div>
+        <NeighbourhoodPicker
+          city={cityOf(place)}
+          districtId={place.districtId}
+          value={place.neighbourhoodId}
+          text={place.neighbourhoodText}
+          onChange={({ id, text }) => setPlace(setter, { neighbourhoodId: id, neighbourhoodText: text })}
+          label={L("Quartier", "Neighbourhood")}
+          error={err(`${prefix}NeighbourhoodId`)}
+          isFr={isFr}
+        />
+        <div className="rb-field">
+          <label htmlFor={`${prefix}-address`}>{L("Précision ou repère (facultatif)", "Address or landmark (optional)")}</label>
+          <input id={`${prefix}-address`} value={place.address} maxLength={200} onChange={(e) => setPlace(setter, { address: e.target.value })} placeholder={L("Hôtel, rue, face à…", "Hotel, street…")} />
+        </div>
+      </div>
+    </fieldset>
+  );
 
-  const getCarKey = () => matchedCar?.id || carType || "prado";
+  const dateField = (id, label, type, key, extra = {}) => (
+    <div className="rb-field">
+      <label htmlFor={id}>{label} *</label>
+      <input id={id} type={type} value={dates[key]} onChange={(e) => setDates({ ...dates, [key]: e.target.value })} {...extra} />
+    </div>
+  );
 
-  // Tarif journalier réel du véhicule (null si inconnu : pas de montant inventé)
-  const dailyRate = (() => {
-    const raw = matchedCar?.promoPrice || matchedCar?.pricePerDay || matchedCar?.price;
-    const n = typeof raw === "number" ? raw : parseInt(String(raw || "").replace(/\D/g, ""), 10);
-    return n > 0 ? n : null;
-  })();
-  const fmtFcfa = (n) => `${Math.round(n).toLocaleString("fr-FR")} FCFA`;
+  const TYPES = [
+    ["one_way", "fa-arrow-right-long", L("Aller simple", "One way"), L("Prise en charge → destination", "Pick-up → destination")],
+    ["round_trip", "fa-right-left", L("Aller-retour", "Round trip"), L("Prise en charge et retour", "Pick-up and return")],
+    ["disposal", "fa-clock", L("Mise à disposition", "Hourly / Daily"), L("Véhicule réservé à la durée", "Vehicle reserved by the hour")]
+  ];
 
-  const getCarCardUrl = () => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://3mservice.shop";
-    return `${origin}/models?car=${encodeURIComponent(getCarKey())}`;
-  };
-
-  const buildDirectBookingMessage = () => {
-    const days = calculateDays();
-    const formattedPick = formatDateReadable(pickTime);
-    const formattedDrop = formatDateReadable(dropTime);
-    const carCardUrl = getCarCardUrl();
-
-    return isFr
-      ? `Bonjour 3M SERVICES,\n\nJe souhaite réserver ce véhicule :\n\n` +
-          `🚗 Véhicule : ${carType}\n` +
-          `📅 Prise en charge : ${pickUp} — ${formattedPick}\n` +
-          `🏁 Restitution : ${dropOff} — ${formattedDrop}\n` +
-          `⏱️ Durée estimée : ${days} jour(s)\n` +
-          `🔗 Fiche du véhicule : ${carCardUrl}\n\n` +
-          `Merci de me confirmer la disponibilité et les modalités.`
-      : `Hello 3M SERVICES,\n\nI would like to book this vehicle:\n\n` +
-          `🚗 Vehicle: ${carType}\n` +
-          `📅 Pick-up: ${pickUp} — ${formattedPick}\n` +
-          `🏁 Drop-off: ${dropOff} — ${formattedDrop}\n` +
-          `⏱️ Estimated duration: ${days} Day(s)\n` +
-          `🔗 Vehicle card link: ${carCardUrl}\n\n` +
-          `Please confirm availability and rental details.`;
-  };
-
-  const handleSendViaWhatsApp = () => {
-    const msg = buildDirectBookingMessage();
-    window.open(`https://wa.me/237691786447?text=${encodeURIComponent(msg)}`, "_blank");
-    setSuccessStatus(
-      isFr
-        ? "Votre demande avec le lien vers le véhicule a été préparée dans WhatsApp !"
-        : "Your booking details and vehicle link have been opened in WhatsApp!"
-    );
-  };
-
-  const handleSendViaAppChat = () => {
-    const msg = buildDirectBookingMessage();
-    const carCardUrl = getCarCardUrl();
-
-    setModal(false);
-    setIsEditingSummary(false);
-    setSuccessStatus(
-      isFr
-        ? "Votre demande et la fiche véhicule ont été envoyées dans le Chat Privé 3M !"
-        : "Your booking details and vehicle card were sent to 3M In-App Chat!"
-    );
-
-    window.dispatchEvent(
-      new CustomEvent("3m-open-chat", {
-        detail: {
-          message: msg,
-          autoSend: true,
-          car: {
-            id: getCarKey(),
-            name: carType,
-            price: dailyRate,
-            image: imgUrl,
-            url: carCardUrl
-          }
-        }
-      })
-    );
-  };
+  const summaryText = done?.summary || "";
 
   return (
-    <>
-      <section id="booking-section" className="book-section">
-        <div className="container">
-          <div className="book-content">
-            <div className="book-content__box">
-              <h2>{t("book_title")}</h2>
+    <section id="booking-section" className="book-section">
+      <div className="container">
+        <div className="book-content">
+          <div className="book-content__box rb">
+            <h2>{t("book_title")}</h2>
 
-              <p className="error-message">
-                {t("book_error")} <i className="fa-solid fa-xmark"></i>
-              </p>
-
-              {successStatus && (
-                <div className="booking-success-banner">
-                  <i className="fa-solid fa-circle-check"></i>
-                  <span>{successStatus}</span>
+            {done ? (
+              <div className="rb-done" role="status">
+                <i className="fa-solid fa-circle-check"></i>
+                <h3>{L("Demande envoyée", "Request sent")} — {done.reference}</h3>
+                <p>{done.estimate ? `${L("Estimation", "Estimate")} : ${fcfa(done.estimate)}. ` : L("Le tarif vous sera communiqué (sur devis). ", "We will send you a quote. ")}
+                  {L("Notre équipe vous contacte pour confirmer la disponibilité du véhicule.", "Our team will contact you to confirm vehicle availability.")}</p>
+                <div className="rb-actions">
+                  <button type="button" className="rb-primary" onClick={() => window.dispatchEvent(new CustomEvent("3m-open-chat", { detail: { refresh: true } }))}>
+                    <i className="fa-regular fa-comment-dots"></i> {L("Ouvrir la discussion", "Open the chat")}
+                  </button>
+                  <a className="rb-wa" target="_blank" rel="noreferrer" href={`https://wa.me/237691786447?text=${encodeURIComponent(summaryText)}`}>
+                    <i className="fa-brands fa-whatsapp"></i> WhatsApp
+                  </a>
+                  <button type="button" className="rb-link" onClick={() => setDone(null)}>{L("Nouvelle demande", "New request")}</button>
                 </div>
-              )}
-
-              <form className="box-form">
-                <div className="box-form__car-type">
-                  <label htmlFor="cartype">
-                    <i className="fa-solid fa-car" style={{ color: "#D62828", marginRight: "7px" }}></i>
-                    <span>{t("book_car_type")}</span>
-                  </label>
-                  <input
-                    id="cartype"
-                    list="car-types-list"
-                    type="text"
-                    value={carType}
-                    placeholder={t("book_car_type_placeholder") || "Select your car type"}
-                    onChange={(e) => {
-                      setCarType(e.target.value);
-                      setCarImg(e.target.value);
-                    }}
-                    autoComplete="off"
-                  />
-                  <datalist id="car-types-list">
-                    {carsList && carsList.length > 0
-                      ? carsList.map((car) => (
-                          <option key={car.id || car.name} value={car.name}>
-                            {car.name} {car.price ? `(${car.price})` : ""}
-                          </option>
-                        ))
-                      : CARS_CATALOGUE.map((car) => (
-                          <option key={car.id} value={car.name}>
-                            {car.name}
-                          </option>
-                        ))}
-                  </datalist>
+              </div>
+            ) : loadError ? (
+              <div className="rb-done" role="alert">
+                <p>{L("La réservation en ligne est momentanément indisponible.", "Online booking is temporarily unavailable.")}</p>
+                <div className="rb-actions">
+                  <button type="button" className="rb-primary" onClick={load}>{L("Réessayer", "Retry")}</button>
+                  <a className="rb-wa" href="https://wa.me/237691786447" target="_blank" rel="noreferrer"><i className="fa-brands fa-whatsapp"></i> WhatsApp</a>
+                </div>
+              </div>
+            ) : !options ? (
+              <p className="rb-loading">{L("Chargement…", "Loading…")}</p>
+            ) : (
+              <form onSubmit={submit} noValidate>
+                <div className="rb-types" role="radiogroup" aria-label={L("Type de trajet", "Trip type")}>
+                  {TYPES.map(([key, icon, label, help]) => (
+                    <button key={key} type="button" role="radio" aria-checked={tripType === key} className={tripType === key ? "is-active" : ""} onClick={() => { setTripType(key); setErrors({}); }}>
+                      <i className={`fa-solid ${icon}`}></i>
+                      <strong>{label}</strong>
+                      <small>{help}</small>
+                    </button>
+                  ))}
                 </div>
 
-                <div className="box-form__car-type">
-                  <label htmlFor="pick">
-                    <i className="fa-solid fa-location-dot" style={{ color: "#D62828", marginRight: "7px" }}></i>
-                    <span>{t("book_pickup")}</span>
-                  </label>
-                  <input
-                    id="pick"
-                    list="pickup-locations-list"
-                    type="text"
-                    value={pickUp}
-                    placeholder={t("book_pickup_placeholder") || "Select pick-up location"}
-                    onChange={(e) => setPickUp(e.target.value)}
-                    autoComplete="off"
-                  />
-                  <datalist id="pickup-locations-list">
-                    {pickupLocations && pickupLocations.length > 0
-                      ? pickupLocations.map((loc) => (
-                          <option key={loc.id || loc.name} value={loc.name}>
-                            {loc.name}
-                          </option>
-                        ))
-                      : defaultPickups.map((loc, idx) => (
-                          <option key={idx} value={loc}>
-                            {loc}
-                          </option>
-                        ))}
-                  </datalist>
+                <div className="rb-grid">
+                  <div className="rb-field">
+                    <label htmlFor="rb-vehicle">{L("Véhicule", "Vehicle")} *</label>
+                    <select id="rb-vehicle" value={vehicleId} onChange={(e) => setVehicleId(e.target.value)}>
+                      <option value="">{L("Choisir un véhicule…", "Choose a vehicle…")}</option>
+                      {options.vehicles.map((v) => <option key={v.id} value={v.id}>{v.name} · {v.seats} {L("places", "seats")}</option>)}
+                    </select>
+                    {errorLine("vehicleId")}
+                  </div>
                 </div>
 
-                <div className="box-form__car-type">
-                  <label htmlFor="drop">
-                    <i className="fa-solid fa-location-dot" style={{ color: "#D62828", marginRight: "7px" }}></i>
-                    <span>{t("book_dropoff")}</span>
-                  </label>
-                  <input
-                    id="drop"
-                    list="dropoff-locations-list"
-                    type="text"
-                    value={dropOff}
-                    placeholder={t("book_dropoff_placeholder") || "Select drop-off location"}
-                    onChange={(e) => setDropOff(e.target.value)}
-                    autoComplete="off"
-                  />
-                  <datalist id="dropoff-locations-list">
-                    {dropoffLocations && dropoffLocations.length > 0
-                      ? dropoffLocations.map((loc) => (
-                          <option key={loc.id || loc.name} value={loc.name}>
-                            {loc.name}
-                          </option>
-                        ))
-                      : defaultDropoffs.map((loc, idx) => (
-                          <option key={idx} value={loc}>
-                            {loc}
-                          </option>
-                        ))}
-                  </datalist>
-                </div>
+                {placeBlock("pickup", L("Lieu de prise en charge", "Pick-up"), pickup, setPickup)}
+                {needsDestination && placeBlock("destination", L("Destination", "Destination"), destination, setDestination)}
 
-                <div className="box-form__car-time">
-                  <label htmlFor="picktime">
-                    <i className="fa-regular fa-calendar-days" style={{ color: "#D62828", marginRight: "7px" }}></i>
-                    <span>{t("book_pickup_date")}</span>
-                  </label>
-                  <input
-                    id="picktime"
-                    value={pickTime}
-                    onChange={(e) => setPickTime(e.target.value)}
-                    type="date"
-                    placeholder="dd/mm/yyyy"
-                    min={new Date().toISOString().split("T")[0]}
-                  />
-                </div>
+                {tripType === "one_way" && (
+                  <p className="rb-info"><i className="fa-solid fa-circle-info"></i> {L("Aller simple : le véhicule ne reste pas à destination. Son retour est pris en compte dans le tarif et le planning.", "One way: the vehicle returns to base; this is included in pricing and scheduling.")}</p>
+                )}
+                {tripType === "round_trip" && (
+                  <p className="rb-info"><i className="fa-solid fa-circle-info"></i> {L("Le véhicule reste réservé pour toute la durée de votre aller-retour.", "The vehicle remains reserved for the full duration of your round trip.")}</p>
+                )}
+                {tripType === "disposal" && (
+                  <div className="rb-field">
+                    <label htmlFor="rb-stops">{L("Déplacements prévus (facultatif)", "Planned stops (optional)")}</label>
+                    <input id="rb-stops" value={stops} maxLength={600} onChange={(e) => setStops(e.target.value)} placeholder={L("Ex : réunion à Bastos, puis aéroport", "e.g. meeting in Bastos, then airport")} />
+                  </div>
+                )}
 
-                <div className="box-form__car-time">
-                  <label htmlFor="droptime">
-                    <i className="fa-regular fa-calendar-days" style={{ color: "#D62828", marginRight: "7px" }}></i>
-                    <span>{t("book_dropoff_date")}</span>
-                  </label>
-                  <input
-                    id="droptime"
-                    value={dropTime}
-                    onChange={(e) => setDropTime(e.target.value)}
-                    type="date"
-                    placeholder="dd/mm/yyyy"
-                    min={pickTime || new Date().toISOString().split("T")[0]}
-                  />
-                </div>
+                <fieldset className="rb-block">
+                  <legend><i className="fa-regular fa-calendar-days"></i> {L("Dates et horaires", "Dates and times")}</legend>
+                  <div className="rb-grid">
+                    {dateField("rb-dd", L("Date de départ", "Departure date"), "date", "depDate", { min: today() })}
+                    {dateField("rb-dt", L("Heure de départ", "Departure time"), "time", "depTime")}
+                    {tripType === "round_trip" && dateField("rb-rd", L("Date de retour", "Return date"), "date", "retDate", { min: dates.depDate || today() })}
+                    {tripType === "round_trip" && dateField("rb-rt", L("Heure de retour", "Return time"), "time", "retTime")}
+                    {tripType === "disposal" && dateField("rb-h", L("Durée (heures)", "Duration (hours)"), "number", "hours", { min: 1, max: 240, step: 1 })}
+                  </div>
+                  {errorLine("departureAt")}{errorLine("returnAt")}{errorLine("durationHours")}
+                </fieldset>
 
-                <div className="box-form__btn-wrapper">
-                  <label className="box-form__btn-label" aria-hidden="true">
-                    &nbsp;
-                  </label>
-                  <button onClick={openModal} type="submit" className="book-search-btn">
-                    {t("book_search") || "Search"}
+                <fieldset className="rb-block">
+                  <legend><i className="fa-regular fa-user"></i> {L("Vos coordonnées", "Your details")}</legend>
+                  <div className="rb-grid">
+                    <div className="rb-field"><label htmlFor="rb-name">{L("Nom & prénom", "Full name")} *</label><input id="rb-name" autoComplete="name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} />{errorLine("name")}</div>
+                    <div className="rb-field"><label htmlFor="rb-phone">{L("Téléphone / WhatsApp", "Phone / WhatsApp")} *</label><input id="rb-phone" type="tel" autoComplete="tel" placeholder="+237 6XX XX XX XX" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} />{errorLine("phone")}</div>
+                    <div className="rb-field"><label htmlFor="rb-email">E-mail</label><input id="rb-email" type="email" autoComplete="email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} />{errorLine("email")}</div>
+                    <div className="rb-field"><label htmlFor="rb-notes">{L("Remarque (facultatif)", "Note (optional)")}</label><input id="rb-notes" maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+                  </div>
+                </fieldset>
+
+                <div className="rb-footer">
+                  <div className="rb-quote" aria-live="polite">
+                    {!complete ? <span>{L("Complétez le trajet pour voir la disponibilité.", "Complete the trip to check availability.")}</span>
+                      : !quote ? <span>{L("Vérification…", "Checking…")}</span>
+                      : quote.errors ? <span className="rb-error">{Object.values(quote.errors)[0]}</span>
+                      : !quote.available ? <span className="rb-error">{quote.message}</span>
+                      : (<><span>{L("Véhicule disponible", "Vehicle available")} ✓</span>
+                          <strong>{quote.estimate ? `${L("Estimation", "Estimate")} : ${fcfa(quote.estimate)}` : L("Tarif sur devis", "Price on request")}</strong></>)}
+                  </div>
+                  <button type="submit" className="rb-primary" disabled={sending || quote?.available === false}>
+                    {sending ? L("Envoi…", "Sending…") : L("Envoyer ma demande", "Send my request")}
                   </button>
                 </div>
+                {sendError && <p className="rb-error" role="alert">{sendError}</p>}
               </form>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Backdrop Overlay */}
-      {modal && (
-        <div
-          onClick={closeModal}
-          className="modal-overlay active-modal"
-          aria-hidden={!modal}
-        ></div>
-      )}
-
-      {/* ==================================================================
-          STREAMLINED DIRECT BOOKING MODAL (NO PERSONAL INFO REQUIRED)
-          ================================================================== */}
-      <div className={`booking-modal bm-v2 ${modal ? "active-modal" : ""}`} role="dialog" aria-modal="true" aria-label={isFr ? "Confirmer votre réservation" : "Confirm your reservation"}>
-        {/* Modal Header */}
-        <div className="booking-modal__title">
-          <div className="booking-modal__title__left">
-            <span className="booking-modal__brand-badge">3M SERVICES • YAOUNDÉ</span>
-            <h2>{t("modal_title")}</h2>
-          </div>
-          <button type="button" onClick={closeModal} className="booking-modal__close-btn" aria-label="Fermer">
-            <i className="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-
-        {/* Success Alert */}
-        {successStatus && (
-          <div className="booking-modal__alert-success">
-            <i className="fa-solid fa-circle-check"></i>
-            <span>{successStatus}</span>
-          </div>
-        )}
-
-        {/* A. BOOKING SUMMARY (WITH INLINE EDIT TOGGLE & VEHICLE CARD LINK) */}
-        <div className="booking-modal__summary-card">
-          <div className="booking-modal__summary-header">
-            <div className="booking-modal__summary-header-left">
-              <i className="fa-solid fa-clipboard-check" style={{ color: "#D62828" }}></i>
-              <h3>{t("modal_summary_title") || (isFr ? "Récapitulatif de la Réservation" : "Booking Summary")}</h3>
-            </div>
-            <button
-              type="button"
-              className="booking-modal__edit-btn"
-              onClick={() => setIsEditingSummary(!isEditingSummary)}
-            >
-              <i className={`fa-solid ${isEditingSummary ? "fa-check" : "fa-pen-to-square"}`}></i>
-              <span>
-                {isEditingSummary
-                  ? (isFr ? "Fermer l'édition" : "Done")
-                  : (isFr ? "Modifier" : "Edit")}
-              </span>
-            </button>
-          </div>
-
-          {isEditingSummary ? (
-            <div className="booking-modal__inline-edit-panel">
-              <div className="inline-edit-grid">
-                <div className="inline-edit-field">
-                  <label>{t("book_car_type")}</label>
-                  <select
-                    value={carType}
-                    onChange={(e) => {
-                      setCarType(e.target.value);
-                      setCarImg(e.target.value);
-                    }}
-                  >
-                    {carsList.map((car) => (
-                      <option key={car.id || car.name} value={car.name}>
-                        {car.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="inline-edit-field">
-                  <label>{t("modal_pickup_loc")}</label>
-                  <select value={pickUp} onChange={(e) => setPickUp(e.target.value)}>
-                    {(pickupLocations.length > 0 ? pickupLocations.map((l) => l.name) : defaultPickups).map((loc, i) => (
-                      <option key={i} value={loc}>
-                        {loc}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="inline-edit-field">
-                  <label>{t("modal_dropoff_loc")}</label>
-                  <select value={dropOff} onChange={(e) => setDropOff(e.target.value)}>
-                    {(dropoffLocations.length > 0 ? dropoffLocations.map((l) => l.name) : defaultDropoffs).map((loc, i) => (
-                      <option key={i} value={loc}>
-                        {loc}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="inline-edit-field">
-                  <label>{t("modal_pickup_date")}</label>
-                  <input
-                    type="date"
-                    value={pickTime}
-                    min={new Date().toISOString().split("T")[0]}
-                    onChange={(e) => setPickTime(e.target.value)}
-                  />
-                </div>
-
-                <div className="inline-edit-field">
-                  <label>{t("modal_dropoff_date")}</label>
-                  <input
-                    type="date"
-                    value={dropTime}
-                    min={pickTime || new Date().toISOString().split("T")[0]}
-                    onChange={(e) => setDropTime(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="inline-edit-actions">
-                <button
-                  type="button"
-                  className="inline-edit-save-btn"
-                  onClick={() => setIsEditingSummary(false)}
-                >
-                  <i className="fa-solid fa-check"></i>
-                  <span>{isFr ? "Valider les modifications" : "Save Changes"}</span>
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="bm-summary">
-              <div className="bm-vehicle">
-                {imgUrl && <img src={imgUrl} alt={carType} className="bm-vehicle__img" />}
-                <div className="bm-vehicle__info">
-                  <span className="bm-label">{isFr ? "Véhicule" : "Vehicle"}</span>
-                  <strong className="bm-vehicle__name">{carType || (isFr ? "Véhicule à choisir" : "Vehicle to choose")}</strong>
-                  <a href={getCarCardUrl()} className="bm-link">
-                    <i className="fa-solid fa-arrow-up-right-from-square"></i> {isFr ? "Voir la fiche du véhicule" : "View vehicle card"}
-                  </a>
-                </div>
-              </div>
-
-              <div className="bm-trip">
-                <div className="bm-stop">
-                  <span className="bm-stop__icon"><i className="fa-solid fa-location-dot"></i></span>
-                  <div>
-                    <span className="bm-label">{isFr ? "Prise en charge" : "Pick-up"}</span>
-                    <strong>{formatDateReadable(pickTime)}</strong>
-                    <span className="bm-place">{pickUp || (isFr ? "Lieu à préciser" : "Location to confirm")}</span>
-                  </div>
-                </div>
-                <div className="bm-trip__line" aria-hidden="true">
-                  <span className="bm-days">{calculateDays()} {isFr ? (calculateDays() > 1 ? "jours" : "jour") : (calculateDays() > 1 ? "days" : "day")}</span>
-                </div>
-                <div className="bm-stop">
-                  <span className="bm-stop__icon is-end"><i className="fa-solid fa-flag-checkered"></i></span>
-                  <div>
-                    <span className="bm-label">{isFr ? "Restitution" : "Drop-off"}</span>
-                    <strong>{formatDateReadable(dropTime)}</strong>
-                    <span className="bm-place">{dropOff || (isFr ? "Lieu à préciser" : "Location to confirm")}</span>
-                  </div>
-                </div>
-              </div>
-
-              {dailyRate && carType && (
-                <div className="bm-estimate">
-                  <div>
-                    <span className="bm-label">{isFr ? "Estimation" : "Estimate"}</span>
-                    <small>{calculateDays()} × {fmtFcfa(dailyRate)} · {isFr ? "tarif confirmé par la conciergerie" : "rate confirmed by our concierge"}</small>
-                  </div>
-                  <strong>{fmtFcfa(dailyRate * calculateDays())}</strong>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* B. DIRECT SEND CHANNEL CHOICE (WHATSAPP OR IN-APP CHAT) */}
-        <div className="bm-send">
-          <h3 className="bm-send__title">{isFr ? "Envoyer ma demande" : "Send my request"}</h3>
-          <p className="bm-send__hint">
-            {isFr ? "Aucun formulaire : vos dates, lieux et la fiche du véhicule sont envoyés directement." : "No form: your dates, locations and vehicle card are sent directly."}
-          </p>
-          <div className="bm-send__options">
-            <button type="button" onClick={handleSendViaAppChat} className="bm-option is-chat">
-              <span className="bm-option__icon"><i className="fa-solid fa-comments"></i></span>
-              <span className="bm-option__text">
-                <strong>{isFr ? "Chat Privé 3M" : "3M Private Chat"}</strong>
-                <small>{isFr ? "Réponse dans l'application · votre conversation est conservée" : "Reply in the app · your conversation is kept"}</small>
-              </span>
-              <i className="fa-solid fa-chevron-right bm-option__arrow"></i>
-            </button>
-            <button type="button" onClick={handleSendViaWhatsApp} className="bm-option is-wa">
-              <span className="bm-option__icon"><i className="fa-brands fa-whatsapp"></i></span>
-              <span className="bm-option__text">
-                <strong>WhatsApp</strong>
-                <small>+237 691 78 64 47</small>
-              </span>
-              <i className="fa-solid fa-chevron-right bm-option__arrow"></i>
-            </button>
+            )}
           </div>
         </div>
       </div>
-    </>
+    </section>
   );
 }
 

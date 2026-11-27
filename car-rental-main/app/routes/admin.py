@@ -6503,12 +6503,12 @@ def toggle_bus_promo(id):
                     "plate": bus.bus_number,
                     "img": "/images/cars/toyota-landcruiser-v8-black.webp",
                     "image": "/images/cars/toyota-landcruiser-v8-black.webp",
-                    "description": bus.promo_description or f"{bus.brand} {bus.model} avec chauffeur dédié inclus.",
+                    "description": bus.promo_description or f"{bus.brand} {bus.model} • {bus.capacity} places cuir VIP.",
                     "isPromo": True,
                     "regularPrice": bus.regular_price or int((bus.promo_price or 100000) * 1.18),
                     "promoPrice": bus.promo_price or 100000,
                     "promoBadge": bus.promo_badge or "OFFRE SPÉCIALE VIP",
-                    "promoDescription": bus.promo_description or f"{bus.model} • {bus.capacity} places cuir VIP • Chauffeur dédié inclus"
+                    "promoDescription": bus.promo_description or f"{bus.model} • {bus.capacity} places cuir VIP • Climatisation intégrale"
                 }
                 cars.append(new_car)
 

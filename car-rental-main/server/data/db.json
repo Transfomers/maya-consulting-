@@ -22,12 +22,12 @@
       "plate": "CE-982-LT",
       "img": "/images/cars/toyota-landcruiser-v8-black.webp",
       "image": "/images/cars/toyota-landcruiser-v8-black.webp",
-      "description": "V8 Prestige grand luxe • 7 places cuir VIP • Chauffeur dédié inclus",
+      "description": "V8 Prestige grand luxe • 7 places cuir VIP • Climatisation intégrale",
       "isPromo": true,
       "regularPrice": 150000,
       "promoPrice": 130000,
       "promoBadge": "OFFRE VIP EXCLUSIVE",
-      "promoDescription": "V8 Prestige grand luxe • 7 places cuir VIP • Chauffeur dédié inclus"
+      "promoDescription": "V8 Prestige grand luxe • 7 places cuir VIP • Climatisation intégrale"
     },
     {
       "id": "bus-2",
@@ -50,12 +50,12 @@
       "plate": "LT-104-AB",
       "img": "/images/cars/toyota-landcruiser-v8-black.webp",
       "image": "/images/cars/toyota-landcruiser-v8-black.webp",
-      "description": "Toyota Land Cruiser V8 LC300 VIP avec chauffeur dédié inclus.",
+      "description": "Toyota Land Cruiser V8 LC300 VIP • 7 places cuir • Climatisation intégrale.",
       "isPromo": true,
       "regularPrice": 130000,
       "promoPrice": 80000,
       "promoBadge": "OFFRE VIP EXCLUSIVE",
-      "promoDescription": "Land Cruiser V8 LC300 VIP • 7 places cuir VIP • Chauffeur dédié inclus"
+      "promoDescription": "Land Cruiser V8 LC300 VIP • 7 places cuir VIP • Climatisation intégrale"
     }
   ],
   "bookings": [],

@@ -55,7 +55,7 @@ function Faq() {
                   <p>
                     {t(
                       "faq_q2",
-                      "2. Proposez-vous un service de chauffeur professionnel ?"
+                      "2. Les véhicules sont-ils révisés et assurés ?"
                     )}
                   </p>
                   <span className="faq-box__toggle-icon" aria-hidden="true">
@@ -69,7 +69,7 @@ function Faq() {
                 >
                   {t(
                     "faq_a2",
-                    "Oui, tous nos véhicules (Toyota Prado VIP, berlines, SUV) sont disponibles avec des chauffeurs bilingues, courtois et expérimentés sur les axes de Yaoundé et les trajets interurbains (Douala, Kribi, Bafoussam)."
+                    "Oui, tous nos véhicules (Toyota Prado VIP, berlines, SUV) sont rigoureusement contrôlés avant chaque remise des clés, entièrement assurés et couverts par notre assistance 24/7 à Yaoundé et sur les axes interurbains (Douala, Kribi, Bafoussam)."
                   )}
                 </div>
               </div>

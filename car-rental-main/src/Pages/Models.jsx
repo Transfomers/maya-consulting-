@@ -244,19 +244,19 @@ function Models() {
             image: "/images/cars/toyota-landcruiser-v8-black.webp",
             title: isFr ? "Flotte VIP" : "VIP Fleet",
             subtitle: isFr
-              ? "Découvrez Yaoundé avec confort et prestige, avec ou sans chauffeur."
-              : "Discover Yaoundé in comfort and style, with or without a chauffeur.",
+              ? "Découvrez Yaoundé avec confort et prestige, en toute liberté."
+              : "Discover Yaoundé in comfort and style, with complete freedom.",
             cta: { label: isFr ? "Découvrir" : "Discover", href: "#fleet-catalog" },
           },
           {
             image: "/images/cars/toyota-prado-txl-front.webp",
-            title: isFr ? "Chauffeur dédié" : "Dedicated Chauffeur",
+            title: isFr ? "Livraison VIP & Nsimalen" : "VIP Delivery & Airport",
             subtitle: isFr
-              ? "Transferts aéroport, missions et déplacements VIP avec chauffeurs professionnels bilingues."
-              : "Airport transfers, missions and VIP travel with professional bilingual chauffeurs.",
+              ? "Prise en charge à l'aéroport de Nsimalen, agence Omnisports ou livraison rapide à Yaoundé."
+              : "Pickup at Nsimalen airport, Omnisports showroom or fast delivery in Yaoundé.",
             cta: {
               label: isFr ? "Réserver sur WhatsApp" : "Book on WhatsApp",
-              href: "https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20un%20chauffeur%20bilingue",
+              href: "https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20r%C3%A9server%20un%20v%C3%A9hicule",
               external: true,
             },
           },
@@ -302,10 +302,10 @@ function Models() {
               {isFr ? "Formule Sérénité" : "Full Peace of Mind"}
             </span>
             <h3 className="marketo-banner-card__title">
-              {isFr ? "Chauffeur Dédié & Accueil Nsimalen" : "Dedicated Chauffeur & Airport Pickup"}
+              {isFr ? "Livraison VIP & Accueil Nsimalen" : "VIP Delivery & Airport Pickup"}
             </h3>
             <a
-              href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20un%20chauffeur%20bilingue"
+              href="https://wa.me/237691786447?text=Bonjour%203M%20SERVICES%2C%20je%20souhaite%20r%C3%A9server%20un%20v%C3%A9hicule"
               target="_blank"
               rel="noreferrer"
               className="marketo-banner-card__btn"
@@ -480,8 +480,8 @@ function Models() {
             <h2>{isFr ? "Réservez votre véhicule VIP en quelques minutes !" : "Book your VIP vehicle in minutes!"}</h2>
             <p>
               {isFr
-                ? "Chauffeurs bilingues · Véhicules certifiés · Assistance 24/7 à Yaoundé"
-                : "Bilingual chauffeurs · Certified vehicles · 24/7 assistance in Yaoundé"}
+                ? "Véhicules certifiés · Assurance incluse · Assistance 24/7 à Yaoundé"
+                : "Certified vehicles · Insurance included · 24/7 assistance in Yaoundé"}
             </p>
           </div>
           <button
@@ -519,9 +519,9 @@ function Models() {
               text: isFr ? "Une équipe joignable jour et nuit au +237 691 78 64 47." : "A team available day and night on +237 691 78 64 47.",
             },
             {
-              icon: "fa-user-tie",
-              title: isFr ? "Chauffeurs bilingues" : "Bilingual Chauffeurs",
-              text: isFr ? "Ponctualité, discrétion et courtoisie, en français et en anglais." : "Punctuality, discretion and courtesy, in French and English.",
+              icon: "fa-key",
+              title: isFr ? "Remise des clés rapide" : "Fast Key Handover",
+              text: isFr ? "Prise en charge à Omnisports, Nsimalen ou livraison à domicile." : "Pickup at Omnisports, Nsimalen or doorstep delivery.",
             },
             {
               icon: "fa-rotate",

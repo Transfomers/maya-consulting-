@@ -72,7 +72,7 @@ function PromoCars() {
           </h2>
           <p className="promo-cars-header__desc">
             {t("promo_desc") ||
-              "Bénéficiez de tarifs préférentiels exclusifs sur notre flotte VIP avec chauffeur professionnel inclus. Réservez et échangez directement avec nos conseillers."}
+              "Bénéficiez de tarifs préférentiels exclusifs sur notre flotte VIP révisée et assurée. Réservez et échangez directement avec nos conseillers."}
           </p>
         </div>
 

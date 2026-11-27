@@ -642,7 +642,7 @@ export const getClientCoupons = (client = getCurrentClient()) => {
       code: "3M-VIP15",
       title: "Offre Flash Land Cruiser V8",
       discount: "-15%",
-      desc: "Valable sur Toyota Land Cruiser V8 (LC200) avec chauffeur VIP"
+      desc: "Valable sur Toyota Land Cruiser V8 (LC200 Prestige)"
     },
     {
       code: "3M-PRADO17",

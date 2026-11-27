@@ -195,8 +195,8 @@ function Contact() {
                   required
                   placeholder={
                     isFr
-                      ? "Véhicule souhaité, dates de location, formule avec chauffeur..."
-                      : "Desired vehicle, rental dates, chauffeur service..."
+                      ? "Véhicule souhaité, dates de location, lieu de prise en charge..."
+                      : "Desired vehicle, rental dates, pick-up location..."
                   }
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}

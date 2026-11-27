@@ -558,7 +558,7 @@ function ChatPage() {
             {[
               "🚘 Disponibilité Toyota Land Cruiser V8",
               "🏢 Réservation Appartement Tsinga FECAFOOT",
-              "🤵 Forfait VIP avec Chauffeur",
+              "🚘 Forfait Location VIP",
               "⏱️ Prolonger ma location en cours",
               "📄 Facture et Contrat de location"
             ].map((chip, idx) => (

@@ -17,7 +17,7 @@ const translations = {
     hero_title: "Voyagez en grand avec",
     hero_title_1: "Voyagez en grand",
     hero_title_2: "avec",
-    hero_desc: "Location de véhicules de prestige, Toyota Prado VIP, berlines avec chauffeur professionnel et conciergerie 24/7 au Cameroun.",
+    hero_desc: "Location de véhicules de prestige, Toyota Prado VIP, berlines haut de gamme et conciergerie 24/7 au Cameroun.",
     hero_book: "Réserver",
     hero_fleet: "Explorer Notre Flotte",
     hero_fleet_mobile: "Flotte",
@@ -80,10 +80,10 @@ const translations = {
     // Promo cars
     promo_badge: "OFFRES PROMOTIONNELLES DU MOMENT",
     promo_title: "Nos Véhicules en Promotion",
-    promo_desc: "Bénéficiez de tarifs préférentiels exclusifs sur notre flotte VIP avec chauffeur professionnel inclus. Réservez et échangez directement avec nos conseillers.",
+    promo_desc: "Bénéficiez de tarifs préférentiels exclusifs sur notre flotte VIP révisée et assurée. Réservez et échangez directement avec nos conseillers.",
     promo_start_convo: "Démarrer une conversation",
     promo_convo_whatsapp: "WhatsApp Direct",
-    promo_driver_included: "Chauffeur VIP inclus",
+    promo_driver_included: "Véhicule révisé & assuré",
     promo_save_badge: "Économisez",
     promo_per_day: "/ jour",
     promo_standard_price: "Tarif standard",
@@ -97,7 +97,7 @@ const translations = {
     step2_title: "2. Contactez notre Conciergerie",
     step2_desc: "Nos conseillers 24/7 organisent immédiatement votre contrat et vos options VIP (+237 691 78 64 47).",
     step3_title: "3. Prenez la Route",
-    step3_desc: "Prise en charge à Omnisports, à Nsimalen ou livraison VIP à domicile avec ou sans chauffeur.",
+    step3_desc: "Prise en charge à Omnisports, à Nsimalen ou livraison VIP directement à domicile.",
 
     // Pick car
     fleet_sub: "Nos Véhicules",
@@ -116,7 +116,7 @@ const translations = {
 
     // Banner
     banner_title: "Voyagez au meilleur tarif à partir de Yaoundé avec 3M SERVICES !",
-    banner_desc: "Accueil Aéroport Nsimalen • Chauffeurs VIP Bilingues • Assistance 24/7",
+    banner_desc: "Accueil Aéroport Nsimalen • Véhicules Révisés & Assurés • Assistance 24/7",
 
     // Choose us
     choose_sub: "Pourquoi Nous Choisir",
@@ -126,7 +126,7 @@ const translations = {
     box1_title: "Trajets Urbains & Régionaux",
     box1_desc: "Circulez sereinement à partir de Yaoundé et rejoignez Douala, Kribi ou Bafoussam dans des véhicules 4x4 sécurisés.",
     box2_title: "Tarifs Tout Compris",
-    box2_desc: "Profitez de tarifs transparents en FCFA avec assurance et chauffeur professionnel inclus.",
+    box2_desc: "Profitez de tarifs transparents en FCFA avec assurance et assistance 24/7 incluses.",
     box3_title: "Zéro Frais Cachés",
     box3_desc: "Transparence totale et restitution rigoureuse de la caution dès la fin de votre location.",
 
@@ -141,7 +141,7 @@ const translations = {
     testi_sub: "Avis Vérifiés",
     testi_title: "Témoignages Clients 3M SERVICES",
     testi_desc: "Découvrez la satisfaction de nos clients professionnels, délégations et membres de la diaspora ayant fait confiance à 3M SERVICES à partir de Yaoundé.",
-    testi_1_quote: "« Nous avons loué la Toyota Prado TXL pour une mission d'une semaine entre Yaoundé et Kribi. Véhicule impeccable, chauffeur ponctuel et courtois. Service d'une qualité rare ! »",
+    testi_1_quote: "« Nous avons loué la Toyota Prado TXL pour une mission d'une semaine entre Yaoundé et Kribi. Véhicule impeccable, prise en charge ponctuelle et courtoise. Service d'une qualité rare ! »",
     testi_1_name: "Arnaud Mbarga",
     testi_1_role: "Cadre d'entreprise",
     testi_2_quote: "« Accueil chaleureux dès l'atterrissage à Nsimalen. Véhicule récent, climatisé et réservation combinée avec l'appartement à Tsinga face FECAFOOT. Expérience parfaite ! »",
@@ -159,13 +159,13 @@ const translations = {
     faq_desc: "Tout ce que vous devez savoir pour votre location de voiture à partir de Yaoundé et vos déplacements au Cameroun.",
     faq_q1: "1. Comment réserver un véhicule chez 3M SERVICES ?",
     faq_a1: "La réservation est immédiate : choisissez votre véhicule dans notre formulaire en ligne, appelez notre équipe ou contactez-nous directement sur WhatsApp au +237 691 78 64 47. Nous confirmons la disponibilité et préparons votre contrat en quelques minutes.",
-    faq_q2: "2. Proposez-vous un service de chauffeur professionnel ?",
-    faq_a2: "Oui, tous nos véhicules (Toyota Prado VIP, berlines, SUV) sont disponibles avec des chauffeurs bilingues, courtois et expérimentés sur les axes de Yaoundé et les trajets interurbains (Douala, Kribi, Bafoussam).",
+    faq_q2: "2. Les véhicules sont-ils révisés et assurés ?",
+    faq_a2: "Oui, tous nos véhicules (Toyota Prado VIP, berlines, SUV) sont rigoureusement contrôlés avant chaque remise des clés, entièrement assurés et couverts par notre assistance 24/7 à Yaoundé et sur les axes interurbains (Douala, Kribi, Bafoussam).",
     faq_q3: "3. Assurez-vous la navette vers l'Aéroport de Yaoundé-Nsimalen ?",
     faq_a3: "Oui, notre service navette 24/7 prend en charge votre accueil dès la sortie de l'aéroport avec une pancarte nominative et assure votre transfert en toute sérénité vers votre hôtel, domicile ou résidence meublée.",
 
     // Footer
-    footer_desc: "Location de véhicules de prestige, Toyota Prado VIP, vente de voitures, formule avec chauffeur professionnel et conciergerie 24/7 à partir de Yaoundé, Cameroun.",
+    footer_desc: "Location de véhicules de prestige, Toyota Prado VIP, vente de voitures, leasing et conciergerie 24/7 à partir de Yaoundé, Cameroun.",
     footer_nav: "Navigation",
     footer_home: "Accueil",
     footer_about: "À Propos",
@@ -191,7 +191,7 @@ const translations = {
     hero_title: "Travel in style with",
     hero_title_1: "Travel in style",
     hero_title_2: "with",
-    hero_desc: "Premium car rentals, Toyota Prado VIP, luxury sedans with professional drivers and 24/7 concierge services across Cameroon.",
+    hero_desc: "Premium car rentals, Toyota Prado VIP, luxury sedans and 24/7 concierge services across Cameroon.",
     hero_book: "Book a Car",
     hero_fleet: "Explore Our Fleet",
     hero_fleet_mobile: "Fleet",
@@ -254,10 +254,10 @@ const translations = {
     // Promo cars
     promo_badge: "FEATURED PROMOTIONAL DEALS",
     promo_title: "Special Promo Vehicles",
-    promo_desc: "Take advantage of our exclusive promotional rates on our VIP fleet with professional driver included. Inquire and chat directly with our team.",
+    promo_desc: "Take advantage of our exclusive promotional rates on our inspected and insured VIP fleet. Inquire and chat directly with our team.",
     promo_start_convo: "Start a conversation",
     promo_convo_whatsapp: "Direct WhatsApp",
-    promo_driver_included: "VIP Chauffeur included",
+    promo_driver_included: "Certified & insured vehicle",
     promo_save_badge: "Save",
     promo_per_day: "/ day",
     promo_standard_price: "Standard rate",
@@ -271,7 +271,7 @@ const translations = {
     step2_title: "2. Contact Our Concierge",
     step2_desc: "Our 24/7 dedicated agents are ready to prepare your contract and VIP options (+237 691 78 64 47).",
     step3_title: "3. Let's Drive",
-    step3_desc: "Airport pickup (Nsimalen), Omnisports showroom or VIP doorstep delivery with or without driver.",
+    step3_desc: "Airport pickup (Nsimalen), Omnisports showroom or VIP doorstep delivery.",
 
     // Pick car
     fleet_sub: "Our Vehicles",
@@ -290,7 +290,7 @@ const translations = {
 
     // Banner
     banner_title: "Save big with our affordable car rentals from Yaoundé !",
-    banner_desc: "Nsimalen Airport Meet & Greet • Bilingual VIP Chauffeurs • 24/7 Assistance",
+    banner_desc: "Nsimalen Airport Meet & Greet • Certified & Insured Vehicles • 24/7 Assistance",
 
     // Choose us
     choose_sub: "Why Choose Us",
@@ -300,7 +300,7 @@ const translations = {
     box1_title: "Cross-Country Drive",
     box1_desc: "Travel safely across Yaoundé, Douala, Kribi, or Bafoussam in certified 4x4 SUVs.",
     box2_title: "All Inclusive Pricing",
-    box2_desc: "Transparent rates in FCFA with insurance and experienced drivers available.",
+    box2_desc: "Transparent rates in FCFA with insurance and 24/7 assistance included.",
     box3_title: "No Hidden Charges",
     box3_desc: "Clear rental agreements and prompt deposit refund upon car return.",
 
@@ -315,7 +315,7 @@ const translations = {
     testi_sub: "Verified Reviews",
     testi_title: "Client Testimonials 3M SERVICES",
     testi_desc: "Discover what corporate clients, delegations, and diaspora members say about their experience with 3M SERVICES from Yaoundé.",
-    testi_1_quote: "\"We rented the Toyota Prado TXL for a week-long executive trip between Yaoundé and Kribi. Spotless vehicle, punctual and courteous chauffeur. Outstanding quality!\"",
+    testi_1_quote: "\"We rented the Toyota Prado TXL for a week-long executive trip between Yaoundé and Kribi. Spotless vehicle, prompt and seamless handover. Outstanding quality!\"",
     testi_1_name: "Arnaud Mbarga",
     testi_1_role: "Corporate Executive",
     testi_2_quote: "\"Warm welcome upon landing at Nsimalen Airport. Recent AC vehicle and seamless combo booking with the furnished flat in Tsinga opposite FECAFOOT. Flawless service!\"",
@@ -333,13 +333,13 @@ const translations = {
     faq_desc: "Everything you need to know about renting a car from Yaoundé and traveling across Cameroon.",
     faq_q1: "1. How do I book a vehicle with 3M SERVICES?",
     faq_a1: "Booking is instant: select your vehicle using our online booking form, call our team, or message us directly on WhatsApp at +237 691 78 64 47. We verify availability and prepare your rental agreement within minutes.",
-    faq_q2: "2. Do you provide professional chauffeur services?",
-    faq_a2: "Yes, all our vehicles (Toyota Prado VIP, sedans, luxury SUVs) are available with bilingual, courteous, and highly experienced drivers for trips in Yaoundé as well as intercity routes (Douala, Kribi, Bafoussam).",
+    faq_q2: "2. Are all vehicles inspected and insured?",
+    faq_a2: "Yes, all our vehicles (Toyota Prado VIP, sedans, luxury SUVs) undergo strict safety inspection before every handover, are fully insured, and include 24/7 assistance in Yaoundé as well as on intercity routes (Douala, Kribi, Bafoussam).",
     faq_q3: "3. Do you provide airport shuttle services to Yaoundé-Nsimalen Airport?",
     faq_a3: "Yes, our 24/7 airport transfer service welcomes you at airport arrivals with a personalized name sign and guarantees smooth, secure transportation to your hotel, home, or furnished apartment.",
 
     // Footer
-    footer_desc: "Luxury car rentals, Toyota Prado VIP, car sales, professional driver services and 24/7 concierge from Yaoundé, Cameroon.",
+    footer_desc: "Luxury car rentals, Toyota Prado VIP, car sales, automotive leasing and 24/7 concierge from Yaoundé, Cameroon.",
     footer_nav: "Navigation",
     footer_home: "Home",
     footer_about: "About",

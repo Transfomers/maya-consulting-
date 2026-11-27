@@ -1134,8 +1134,8 @@ function AccountPage() {
                               </h4>
                               <p className="account-notif-desc">
                                 {isFr
-                                  ? "Recevez une alerte lorsque votre véhicule et chauffeur sont confirmés."
-                                  : "Get notified when your vehicle and chauffeur assignment are confirmed."}
+                                  ? "Recevez une alerte lorsque votre véhicule et votre réservation sont confirmés."
+                                  : "Get notified when your vehicle and booking are confirmed."}
                               </p>
                             </div>
                             <label className="account-toggle-switch">
