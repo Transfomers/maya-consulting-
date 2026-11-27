@@ -217,14 +217,42 @@ function PlacePopoverField({ id, label, placeholder, cities, place, onChange, is
                       className="is-custom"
                       onMouseDown={(e) => {
                         e.preventDefault();
-                        onChange({ ...place, neighbourhoodId: null, neighbourhoodText: hoodQuery.trim() });
+                        const proposed = hoodQuery.trim();
+                        onChange({ ...place, neighbourhoodId: null, neighbourhoodText: proposed });
                         setHoodListOpen(false);
+                        fetch(`${API_BASE}/rental/suggest-neighbourhood`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            cityId: Number(city.id),
+                            districtId: place.districtId ? Number(place.districtId) : null,
+                            name: proposed
+                          })
+                        }).catch(() => {});
                       }}
                     >
-                      + {isFr ? "Utiliser" : "Use"} « {hoodQuery.trim()} »
+                      + {isFr ? "Proposer" : "Suggest"} « {hoodQuery.trim()} »
                     </li>
                   )}
                 </ul>
+              )}
+              {city && hoods.length > 0 && (
+                <div className="book-card-v2__hood-chips" aria-label={isFr ? "Quartiers proposés" : "Suggested neighbourhoods"}>
+                  {hoods.slice(0, 8).map((h) => (
+                    <button
+                      key={`chip-${h.id}`}
+                      type="button"
+                      className={`book-card-v2__hood-chip ${place.neighbourhoodId === h.id ? "is-active" : ""}`}
+                      onClick={() => {
+                        onChange({ ...place, neighbourhoodId: h.id, neighbourhoodText: h.name });
+                        setHoodQuery(h.name);
+                        setHoodListOpen(false);
+                      }}
+                    >
+                      {h.name}
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
 
