@@ -50,3 +50,11 @@
 @media (max-width: 600px) {
   .team-page .team-container { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Cartes comme la maquette : ombre légère, texte resserré, adresse alignée à gauche */
+.team-page .team-container__box { box-shadow: 0 0.4rem 1.4rem rgba(15, 23, 42, 0.08) !important; }
+.team-page .team-container__box__descr { padding: 2rem 1.6rem 1.6rem !important; }
+.team-page .team-container__box__descr h3 { font-size: 1.9rem !important; line-height: 1.35; }
+.team-page .team-container__box__descr p { min-height: 0 !important; }
+.team-page .team-container__box__descr div { justify-content: flex-start; text-align: left; border-top: 0 !important; padding-top: 0 !important; }
+.team-page .team-container__box__descr div span { font-size: 1.2rem; line-height: 1.4; text-align: left; }

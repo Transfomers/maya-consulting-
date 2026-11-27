@@ -167,6 +167,9 @@ def create_app():
     app.register_blueprint(internal_bp)
     from app.routes.ratings import ratings_bp, ensure_rating_schema
     app.register_blueprint(ratings_bp)
+    from app.routes.rentals import rental_api_bp, rentals_bp
+    app.register_blueprint(rentals_bp)
+    app.register_blueprint(rental_api_bp)
     from app.routes.superadmin import superadmin_bp
     app.register_blueprint(superadmin_bp)
     from app.services.activity import init_activity
@@ -297,6 +300,8 @@ def create_app():
             ensure_rating_schema()
             from app.services.identity_schema import ensure_identity_schema
             ensure_identity_schema(db.engine)
+            from app.services.rental_schema import ensure_rental_schema
+            ensure_rental_schema(db.engine)
             from app.services.permissions import seed_roles
             seed_roles(db.engine)
             try:   # identifiants permanents des clients existants + fils de discussion déjà présents

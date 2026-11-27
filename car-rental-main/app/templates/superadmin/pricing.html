@@ -1,0 +1,42 @@
+{% extends "superadmin/_layout.html" %}
+{% from "superadmin/_macros.html" import empty %}
+{% block title %}Tarifs des trajets{% endblock %}
+{% macro money(v) %}{{ '{:,.0f}'.format(v).replace(',', ' ') ~ ' F' if v else '—' }}{% endmacro %}
+{% block content %}
+<div class="sa-head"><div>
+    <h1 class="sa-title">Tarifs des trajets</h1>
+    <p class="sa-sub">La règle la plus précise s'applique (véhicule, puis ville de départ et d'arrivée). Sans règle, le client voit « sur devis » : aucun prix n'est inventé.</p>
+</div></div>
+<div class="sa-grid-2">
+    <div class="sa-card p-0">
+        {% if rules %}<div class="table-responsive"><table class="sa-table">
+            <thead><tr><th>Trajet</th><th>Villes</th><th class="sa-hide-sm">Véhicule</th><th class="text-end">Prix de base</th><th class="sa-hide-sm">Options</th><th></th></tr></thead>
+            <tbody>{% for r in rules %}
+            <tr><td class="fw-semibold">{{ types[r.trip_type] }}{% if not r.is_active %} <span class="sa-pill closed">Inactif</span>{% endif %}</td>
+                <td>{{ r.origin_city.name if r.origin_city else 'Toutes' }}{% if r.trip_type != 'disposal' %} → {{ r.destination_city.name if r.destination_city else 'Toutes' }}{% endif %}</td>
+                <td class="sa-hide-sm">{{ (r.vehicle.brand ~ ' ' ~ r.vehicle.model) if r.vehicle else 'Tous' }}</td>
+                <td class="text-end text-nowrap fw-semibold">{{ money(r.base_price) }}</td>
+                <td class="sa-hide-sm sa-muted">{% if r.included_hours %}{{ '%g'|format(r.included_hours) }} h incluses{% endif %}{% if r.extra_hour_price %} · {{ money(r.extra_hour_price) }}/h sup.{% endif %}{% if r.empty_return_fee %} · retour à vide {{ money(r.empty_return_fee) }}{% endif %}{% if r.estimated_hours %} · {{ '%g'|format(r.estimated_hours) }} h de route{% endif %}</td>
+                <td class="text-end text-nowrap"><a class="btn btn-sm btn-outline-secondary" href="{{ url_for('superadmin.pricing', edit=r.id) }}">Modifier</a>
+                    <form method="post" class="d-inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="id" value="{{ r.id }}"><input type="hidden" name="toggle" value="1"><button class="btn btn-sm btn-link text-muted">{{ 'Désactiver' if r.is_active else 'Activer' }}</button></form></td></tr>{% endfor %}</tbody>
+        </table></div>
+        {% else %}{{ empty('Aucun tarif configuré : toutes les demandes sont « sur devis ».', 'bi-tags') }}{% endif %}
+    </div>
+    <form method="post" class="sa-card">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if edit %}<input type="hidden" name="id" value="{{ edit.id }}">{% endif %}
+        <h2>{{ 'Modifier le tarif' if edit else 'Nouveau tarif' }}{% if edit %} <a href="{{ url_for('superadmin.pricing') }}">Nouveau</a>{% endif %}</h2>
+        <div class="row g-2">
+            <div class="col-12"><label class="form-label" for="pType">Type de trajet</label><select id="pType" name="trip_type" class="form-select" required>{% for k, v in types.items() %}<option value="{{ k }}" {{ 'selected' if edit and edit.trip_type == k }}>{{ v }}</option>{% endfor %}</select></div>
+            <div class="col-6"><label class="form-label" for="pFrom">Ville de départ</label><select id="pFrom" name="origin_city_id" class="form-select"><option value="">Toutes</option>{% for c in cities %}<option value="{{ c.id }}" {{ 'selected' if edit and edit.origin_city_id == c.id }}>{{ c.name }}</option>{% endfor %}</select></div>
+            <div class="col-6"><label class="form-label" for="pTo">Ville d'arrivée</label><select id="pTo" name="destination_city_id" class="form-select"><option value="">Toutes</option>{% for c in cities %}<option value="{{ c.id }}" {{ 'selected' if edit and edit.destination_city_id == c.id }}>{{ c.name }}</option>{% endfor %}</select></div>
+            <div class="col-12"><label class="form-label" for="pVeh">Véhicule</label><select id="pVeh" name="vehicle_id" class="form-select"><option value="">Tous les véhicules</option>{% for b in vehicles %}<option value="{{ b.id }}" {{ 'selected' if edit and edit.vehicle_id == b.id }}>{{ b.brand }} {{ b.model }} · {{ b.bus_number }}</option>{% endfor %}</select></div>
+            <div class="col-12"><label class="form-label" for="pBase">Prix de base (FCFA)</label><input id="pBase" type="number" min="1" step="500" name="base_price" class="form-control" required value="{{ '%d'|format(edit.base_price) if edit else '' }}"></div>
+            {% for field, label in [('included_hours', 'Heures incluses (mise à disposition)'), ('extra_hour_price', 'Prix par heure supplémentaire'), ('empty_return_fee', 'Retour à vide (aller simple)'), ('estimated_hours', 'Durée de route estimée (h)'), ('distance_km', 'Distance (km)')] %}
+            <div class="col-6"><label class="form-label" for="p_{{ field }}">{{ label }}</label><input id="p_{{ field }}" type="number" min="0" step="any" name="{{ field }}" class="form-control" value="{{ ('%g'|format(edit[field])) if edit and edit[field] is not none else '' }}"></div>
+            {% endfor %}
+            <div class="col-12"><button class="btn btn-brand w-100">Enregistrer le tarif</button></div>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "superadmin/_layout.html" %}
+{% from "superadmin/_macros.html" import empty %}
+{% block title %}Lieux & quartiers{% endblock %}
+{% block content %}
+<div class="sa-head"><div>
+    <h1 class="sa-title">Lieux & quartiers</h1>
+    <p class="sa-sub">Cameroun → ville → arrondissement → quartier. La liste initiale (Yaoundé, Douala) est une base de départ non officielle : corrigez-la et complétez-la.</p>
+</div></div>
+
+{% if pending %}
+<section class="sa-card mb-3"><h2>Quartiers proposés par des clients ({{ pending|length }})</h2>
+    <ul class="sa-list">{% for n in pending %}
+        <li><div class="flex-grow-1"><strong>{{ n.name }}</strong> <span class="sa-muted">— {{ n.city.name }}{% if n.suggested_by %} · proposé par {{ n.suggested_by }}{% endif %}</span></div>
+            {% for action, label, cls in [('approve', 'Publier', 'btn-outline-success'), ('reject', 'Refuser', 'btn-outline-danger')] %}
+            <form method="post" action="{{ url_for('superadmin.neighbourhood_save') }}"><input type="hidden" name="id" value="{{ n.id }}"><input type="hidden" name="action" value="{{ action }}"><button class="btn btn-sm {{ cls }}">{{ label }}</button></form>
+            {% endfor %}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+<div class="sa-chips">{% for c in cities %}<a class="sa-chip {{ 'is-active' if city and c.id == city.id }}" href="{{ url_for('superadmin.locations', city=c.id) }}">{{ c.name }}{{ ' (masquée)' if not c.is_active }}</a>{% endfor %}</div>
+
+<div class="sa-grid-2">
+    <div>
+        {% if city %}
+        <form class="sa-filters" method="get"><input type="hidden" name="city" value="{{ city.id }}"><input type="search" name="q" class="form-control" value="{{ term }}" placeholder="Quartier ou autre nom…" aria-label="Rechercher"><button class="btn btn-dark"><i class="bi bi-search"></i> Rechercher</button></form>
+        <div class="sa-card p-0">
+            {% if hoods %}<div class="table-responsive"><table class="sa-table">
+                <thead><tr><th>Quartier</th><th>Arrondissement</th><th class="sa-hide-sm">Autres noms</th><th class="sa-hide-sm">Repères</th><th></th></tr></thead>
+                <tbody>{% for n in hoods %}
+                <tr><td class="fw-semibold">{{ n.name }}{% if not n.is_active %} <span class="sa-pill closed">Masqué</span>{% endif %}</td>
+                    <td>{{ n.district.name if n.district else '—' }}</td>
+                    <td class="sa-hide-sm">{{ n.aliases|map(attribute='alias')|join(', ') or '—' }}</td>
+                    <td class="sa-hide-sm">{{ n.landmarks|map(attribute='name')|join(', ') or '—' }}</td>
+                    <td class="text-end text-nowrap">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="editHood(this)" data-id="{{ n.id }}" data-name="{{ n.name }}" data-district="{{ n.district_id or '' }}" data-aliases="{{ n.aliases|map(attribute='alias')|join(', ') }}" data-landmarks="{{ n.landmarks|map(attribute='name')|join(', ') }}">Modifier</button>
+                        <form method="post" action="{{ url_for('superadmin.neighbourhood_save') }}" class="d-inline"><input type="hidden" name="id" value="{{ n.id }}"><input type="hidden" name="action" value="toggle"><button class="btn btn-sm btn-link text-muted">{{ 'Masquer' if n.is_active else 'Afficher' }}</button></form>
+                    </td></tr>{% endfor %}</tbody></table></div>
+            {% else %}{{ empty('Aucun quartier.', 'bi-geo-alt') }}{% endif %}
+        </div>
+        {% else %}{{ empty('Ajoutez une première ville.', 'bi-geo-alt') }}{% endif %}
+    </div>
+    <div>
+        {% if city %}
+        <section class="sa-card" id="hoodForm"><h2 id="hoodTitle">Ajouter un quartier</h2>
+            <form method="post" action="{{ url_for('superadmin.neighbourhood_save') }}" class="row g-2">
+                <input type="hidden" name="city_id" value="{{ city.id }}"><input type="hidden" name="id" id="hId">
+                <div class="col-12"><label class="form-label" for="hName">Nom</label><input id="hName" name="name" class="form-control" required maxlength="100"></div>
+                <div class="col-12"><label class="form-label" for="hDist">Arrondissement</label><select id="hDist" name="district_id" class="form-select"><option value="">—</option>{% for d in city.districts %}<option value="{{ d.id }}">{{ d.name }}</option>{% endfor %}</select></div>
+                <div class="col-12"><label class="form-label" for="hAlias">Autres noms / orthographes (séparés par des virgules)</label><input id="hAlias" name="aliases" class="form-control"></div>
+                <div class="col-12"><label class="form-label" for="hMarks">Repères connus (séparés par des virgules)</label><input id="hMarks" name="landmarks" class="form-control"></div>
+                <div class="col-12 d-flex gap-2"><button class="btn btn-brand flex-grow-1">Enregistrer</button><button type="reset" class="btn btn-outline-secondary" onclick="document.getElementById('hId').value='';document.getElementById('hoodTitle').textContent='Ajouter un quartier'">Effacer</button></div>
+            </form>
+        </section>
+        <section class="sa-card"><h2>Arrondissements de {{ city.name }}</h2>
+            <ul class="sa-list">{% for d in city.districts %}
+                <li><div class="flex-grow-1">{{ d.name }}{{ ' (masqué)' if not d.is_active }}</div>
+                    <form method="post" action="{{ url_for('superadmin.district_save') }}"><input type="hidden" name="city_id" value="{{ city.id }}"><input type="hidden" name="id" value="{{ d.id }}"><input type="hidden" name="toggle" value="1"><button class="btn btn-sm btn-link text-muted p-0">{{ 'Masquer' if d.is_active else 'Afficher' }}</button></form></li>{% endfor %}</ul>
+            <form method="post" action="{{ url_for('superadmin.district_save') }}" class="d-flex gap-2 mt-2"><input type="hidden" name="city_id" value="{{ city.id }}"><input name="name" class="form-control form-control-sm" placeholder="Nouvel arrondissement" required aria-label="Nouvel arrondissement"><button class="btn btn-sm btn-dark">Ajouter</button></form>
+        </section>
+        {% endif %}
+        <section class="sa-card"><h2>Villes</h2>
+            <form method="post" action="{{ url_for('superadmin.city_save') }}" class="d-flex gap-2 mb-2"><input name="name" class="form-control form-control-sm" placeholder="Nouvelle ville (ex. Kribi)" required aria-label="Nouvelle ville"><button class="btn btn-sm btn-dark">Ajouter</button></form>
+            {% if city %}<form method="post" action="{{ url_for('superadmin.city_save') }}" {% if city.is_active %}data-confirm="Masquer {{ city.name }} du site ?"{% endif %}><input type="hidden" name="id" value="{{ city.id }}"><input type="hidden" name="toggle" value="1"><button class="btn btn-sm btn-outline-secondary">{{ 'Masquer' if city.is_active else 'Réactiver' }} {{ city.name }}</button></form>{% endif %}
+        </section>
+    </div>
+</div>
+<script>
+function editHood(b) {
+    document.getElementById('hId').value = b.dataset.id;
+    document.getElementById('hName').value = b.dataset.name;
+    document.getElementById('hDist').value = b.dataset.district;
+    document.getElementById('hAlias').value = b.dataset.aliases;
+    document.getElementById('hMarks').value = b.dataset.landmarks;
+    document.getElementById('hoodTitle').textContent = 'Modifier « ' + b.dataset.name + ' »';
+    document.getElementById('hoodForm').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% endblock %}

@@ -133,7 +133,114 @@
       "promoDescription": "Land Cruiser V8 LC300 VIP • 7 places cuir VIP • Climatisation intégrale"
     }
   ],
-  "bookings": [],
+  "bookings": [
+    {
+      "id": "3M-RES-3962",
+      "accountNumber": "",
+      "clientName": "Client 3M VIP",
+      "customerName": "Client 3M VIP",
+      "phone": "",
+      "customerPhone": "",
+      "email": "",
+      "customerEmail": "",
+      "carName": "Véhicule VIP 3M",
+      "pickUp": "Yaoundé",
+      "dropOff": "Yaoundé",
+      "pickTime": "",
+      "dropTime": "",
+      "days": 1,
+      "notes": "",
+      "status": "Annulée",
+      "createdAt": "2026-11-27T13:48:08.600Z",
+      "updatedAt": "2026-11-27T13:48:08.600Z"
+    },
+    {
+      "id": "3M-RES-2026-002",
+      "clientName": "àpara",
+      "firstName": "",
+      "lastName": "",
+      "phone": "690090099",
+      "whatsapp": "690090099",
+      "age": "",
+      "email": "superadmin@gmail.com",
+      "address": "",
+      "city": "Yaoundé",
+      "zipcode": "",
+      "marketingConsent": false,
+      "carName": "Toyota Prado",
+      "carId": "",
+      "rentalType": "Avec Chauffeur",
+      "pickUp": "Yaoundé — Tsinga",
+      "dropOff": "Douala — SADI",
+      "pickTime": "2026-11-28",
+      "dropTime": "2026-11-28",
+      "days": 1,
+      "pricePerDay": 100000,
+      "totalPrice": 100000,
+      "agreedPrice": 100000,
+      "deposit": 0,
+      "paidAmount": 0,
+      "balance": 100000,
+      "paymentStatus": "En attente",
+      "status": "Demande reçue",
+      "source": "Site Web",
+      "withDriver": true,
+      "assignedDriverId": "",
+      "internalNotes": [],
+      "statusHistory": [
+        {
+          "status": "Demande reçue",
+          "changedAt": "2026-11-27T13:46:56.448Z",
+          "changedBy": "Client (Formulaire Web)",
+          "note": "Création initiale de la réservation"
+        }
+      ],
+      "createdAt": "2026-11-27T13:46:56.448Z"
+    },
+    {
+      "id": "3M-RES-2026-001",
+      "clientName": "àpara",
+      "firstName": "",
+      "lastName": "",
+      "phone": "690090099",
+      "whatsapp": "690090099",
+      "age": "",
+      "email": "superadmin@gmail.com",
+      "address": "",
+      "city": "Yaoundé",
+      "zipcode": "",
+      "marketingConsent": false,
+      "carName": "Pickup Bleu (Urbain)",
+      "carId": "",
+      "rentalType": "Avec Chauffeur",
+      "pickUp": "Biyem-Assi, Yaoundé",
+      "dropOff": "Biyem-Assi, Yaoundé",
+      "pickTime": "2026-11-28",
+      "dropTime": "2026-11-30",
+      "days": 2,
+      "pricePerDay": 70000,
+      "totalPrice": 140000,
+      "agreedPrice": 140000,
+      "deposit": 0,
+      "paidAmount": 0,
+      "balance": 140000,
+      "paymentStatus": "En attente",
+      "status": "Demande reçue",
+      "source": "Site Web",
+      "withDriver": true,
+      "assignedDriverId": "",
+      "internalNotes": [],
+      "statusHistory": [
+        {
+          "status": "Demande reçue",
+          "changedAt": "2026-11-27T13:39:53.382Z",
+          "changedBy": "Client (Formulaire Web)",
+          "note": "Création initiale de la réservation"
+        }
+      ],
+      "createdAt": "2026-11-27T13:39:53.382Z"
+    }
+  ],
   "contacts": [],
   "subscribers": [],
   "chats": [
@@ -234,7 +341,8 @@
           "createdAt": "2026-11-26T13:47:27.088487Z",
           "read": true
         }
-      ]
+      ],
+      "clientCity": "Yaoundé"
     }
   ],
   "apartments": [
@@ -385,6 +493,38 @@
     }
   ],
   "visitors": [],
-  "customers": [],
-  "activity_logs": []
+  "customers": [
+    {
+      "id": "CUST-1795786793392-408",
+      "name": "àpara",
+      "phone": "690090099",
+      "whatsapp": "690090099",
+      "email": "superadmin@gmail.com",
+      "address": "",
+      "city": "Yaoundé",
+      "zipcode": "",
+      "age": "",
+      "marketingConsent": false,
+      "createdAt": "2026-11-27T13:39:53.392Z",
+      "lastBookingAt": "2026-11-27T13:46:56.458Z",
+      "status": "Actif",
+      "notes": ""
+    }
+  ],
+  "activity_logs": [
+    {
+      "id": "ACT-1795787216459-223",
+      "action": "NOUVELLE_RÉSERVATION",
+      "details": "Réservation 3M-RES-2026-002 créée pour àpara (Toyota Prado)",
+      "user": "Site Web",
+      "timestamp": "2026-11-27T13:46:56.459Z"
+    },
+    {
+      "id": "ACT-1795786793394-842",
+      "action": "NOUVELLE_RÉSERVATION",
+      "details": "Réservation 3M-RES-2026-001 créée pour àpara (Pickup Bleu (Urbain))",
+      "user": "Site Web",
+      "timestamp": "2026-11-27T13:39:53.394Z"
+    }
+  ]
 }

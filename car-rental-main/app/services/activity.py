@@ -58,6 +58,9 @@ ACTION_LABELS = {
     'IMPROVEMENT_UPDATED': 'Tâche d’amélioration mise à jour', 'NOTIFICATIONS_DELETED_ALL': 'Notifications supprimées',
     'RATING_REPLIED': 'Réponse à un avis', 'RATING_STATUS': 'Statut d’un avis', 'RATING_HIDDEN': 'Avis masqué',
     'RATING_SHOWN': 'Avis réaffiché', 'APARTMENT_STAY_BOOKED': 'Séjour réservé',
+    'RENTAL_REQUEST_CREATED': 'Demande de location reçue', 'RENTAL_REQUEST_CONVERTED': 'Demande convertie en mission',
+    'LOCATION_CREATED': 'Lieu ajouté', 'LOCATION_UPDATED': 'Lieu modifié',
+    'PRICING_CREATED': 'Tarif ajouté', 'PRICING_UPDATED': 'Tarif modifié',
 }
 
 

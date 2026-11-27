@@ -201,7 +201,7 @@ function Models() {
     const chatMessage =
       `🚗 Demande de réservation véhicule\n` +
       `• Modèle : ${carName}\n` +
-      `• Tarif officiel : ${selectedCarForModal.price || "Sur demande"}\n` +
+      `• Tarif officiel : ${selectedCarForModal.price || "Sur demande"}${selectedCarForModal.altPrice ? ` (second tarif : ${Number(selectedCarForModal.altPrice).toLocaleString("fr-FR")} FCFA)` : ""}\n` +
       `• Prise en charge : ${pickupDate || "À convenir"}\n` +
       `• Restitution : ${returnDate || "À convenir"}\n` +
       `• Client : ${clientName || "Non renseigné"}\n` +
@@ -421,6 +421,7 @@ function Models() {
                         {showPromo && <del>{regular.toLocaleString("fr-FR")} FCFA</del>}
                         <strong className={showPromo ? "is-promo" : ""}>
                           {daily ? `${daily.toLocaleString("fr-FR")} FCFA` : car.price}
+                            {daily && car.altPrice ? <><br />{`& ${Number(car.altPrice).toLocaleString("fr-FR")} FCFA`}</> : null}
                         </strong>
                         <span>{isFr ? "par jour" : "per day"}</span>
                       </div>
@@ -588,7 +589,9 @@ function Models() {
                   {selectedCarForModal.name}
                 </h3>
                 <div className="models-modal-header-price">
-                  {selectedCarForModal.price}
+                  {selectedCarForModal.altPrice
+                    ? `${Number(selectedCarForModal.pricePerDay).toLocaleString("fr-FR")} & ${Number(selectedCarForModal.altPrice).toLocaleString("fr-FR")} FCFA / jour`
+                    : selectedCarForModal.price}
                 </div>
               </div>
             </div>

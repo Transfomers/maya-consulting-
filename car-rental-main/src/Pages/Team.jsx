@@ -13,7 +13,7 @@ function Team() {
   // look  : skin, hair (short | fade | curly | bun | long | bald), hairColor, outfit, shirt, tie, glasses, beard
   const teamPpl = [
     {
-      photo: null,
+      photo: "/images/team/monroi-maya.webp",
       name: "M. Monroi Maya Michael",
       look: { skin: "#7a4a2a", hair: "fade", hairColor: "#1b1210", outfit: "#111827", shirt: "#ffffff", tie: "#E20713", beard: true },
       role: isFr ? "PDG & Fondateur" : "CEO & Founder",
@@ -24,7 +24,7 @@ function Team() {
         : "Omnisports Showroom Headquarters, Yaoundé",
     },
     {
-      photo: null,
+      photo: "/images/team/martin-abena.webp",
       name: "Martin Roger ABENA",
       look: { skin: "#8d5524", hair: "short", hairColor: "#1b1210", outfit: "#1e3a8a", shirt: "#e0e7ff" },
       role: isFr ? "Responsable Logistique" : "Logistics Manager",
@@ -32,7 +32,7 @@ function Team() {
       badgeColor: "#1e3a8a",
     },
     {
-      photo: null,
+      photo: "/images/team/augustine-guidama.webp",
       name: "Augustine GUIDAMA",
       look: { skin: "#9a6237", hair: "bun", hairColor: "#2a1a14", outfit: "#0f766e", shirt: "#f0fdfa", female: true },
       role: isFr ? "Concierge des Meublés" : "Furnished Apartments Concierge",
@@ -40,7 +40,7 @@ function Team() {
       badgeColor: "#0f766e",
     },
     {
-      photo: null,
+      photo: "/images/team/alice-nkounou.webp",
       name: "Mme NKOUNOU ONANA Augustine Alice",
       look: { skin: "#7f4b2b", hair: "long", hairColor: "#1b1210", outfit: "#7c2d12", shirt: "#fff7ed", glasses: true, female: true },
       role: isFr ? "Secrétaire Particulière du PDG" : "Executive Assistant to the CEO",
@@ -48,7 +48,7 @@ function Team() {
       badgeColor: "#7c2d12",
     },
     {
-      photo: null,
+      photo: "/images/team/francois-pempeme.webp",
       name: "M. François N. PEMPEME",
       look: { skin: "#86502c", hair: "curly", hairColor: "#1b1210", outfit: "#c2410c", shirt: "#ffffff" },
       role: isFr ? "Responsable Marketing et Commercial" : "Marketing & Sales Manager",
@@ -56,7 +56,7 @@ function Team() {
       badgeColor: "#c2410c",
     },
     {
-      photo: null,
+      photo: "/images/team/guy-misse.webp",
       name: "M. MISSÉ Guy Roger",
       look: { skin: "#6e4024", hair: "short", hairColor: "#141010", outfit: "#27272a", shirt: "#f4f4f5", glasses: true, beard: true },
       role: isFr ? "Responsable BTP" : "Construction (BTP) Manager",
@@ -122,7 +122,8 @@ function Team() {
                     <img
                       src={ppl.photo}
                       alt={ppl.name}
-                      style={{ width: "100%", height: "28rem", objectFit: "cover", objectPosition: "center top" }}
+                      loading="lazy"
+                      style={{ width: "100%", height: "auto", aspectRatio: "414 / 315", objectFit: "cover", objectPosition: "center top", display: "block" }}
                     />
                   ) : (
                     <div className="team-avatar" style={{ "--tone": ppl.badgeColor }}>

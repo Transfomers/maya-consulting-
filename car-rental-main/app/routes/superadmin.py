@@ -693,3 +693,4 @@ def settings():
 # Administrateurs, rôles, ré-authentification (module séparé, même blueprint)
 from app.routes import sa_admins  # noqa: E402,F401
 from app.routes import sa_platform  # noqa: E402,F401
+from app.routes import sa_rental  # noqa: E402,F401

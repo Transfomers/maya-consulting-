@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Demande {{ r.reference }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/superadmin.css') }}">{% endblock %}
+{% block content %}
+<div class="sa-head"><div>
+    <a class="sa-back" href="{{ url_for('rentals.index') }}"><i class="bi bi-arrow-left"></i> Demandes de location</a>
+    <h1 class="sa-title">{{ r.reference }} <span class="sa-pill {{ {'pending': 'new', 'confirmed': 'open', 'converted': 'resolved', 'cancelled': 'closed'}[r.status] }}">{{ r.status_label }}</span></h1>
+    <p class="sa-sub">{{ r.type_label }} · reçue le {{ r.created_at|local_dt('%d/%m/%Y %H:%M') }}</p>
+</div></div>
+{% if r.availability_note %}<div class="sa-alert is-warning"><i class="bi bi-exclamation-triangle"></i>{{ r.availability_note }}</div>{% endif %}
+{% if vehicle_error and r.status != 'cancelled' %}<div class="sa-alert is-danger"><i class="bi bi-exclamation-octagon"></i>{{ vehicle_error }}</div>{% endif %}
+<div class="sa-grid-2">
+    <div>
+        <section class="sa-card"><h2>Trajet</h2>
+            <dl class="sa-kv">
+                <dt>Prise en charge</dt><dd>{{ r.place('pickup') }}</dd>
+                {% if r.trip_type == 'disposal' %}<dt>Déplacements</dt><dd>{{ r.stops or 'Non précisés' }}</dd>
+                {% else %}<dt>Destination</dt><dd>{{ r.place('destination') }}</dd>{% endif %}
+                <dt>Départ</dt><dd>{{ r.departure_at.strftime('%d/%m/%Y à %H:%M') }}</dd>
+                {% if r.return_at %}<dt>Retour</dt><dd>{{ r.return_at.strftime('%d/%m/%Y à %H:%M') }}<div class="sa-muted">{{ r.place('destination') }} → {{ r.place('pickup') }}</div></dd>
+                <dt>Rendez-vous retour</dt><dd>{{ r.return_address or 'Même lieu que la destination' }}</dd>
+                {% if r.return_notes %}<dt>Précisions retour</dt><dd>{{ r.return_notes }}</dd>{% endif %}{% endif %}
+                {% if r.duration_hours %}<dt>Durée</dt><dd>{{ '%g'|format(r.duration_hours) }} h</dd>{% endif %}
+                <dt>Véhicule</dt><dd>{{ r.vehicle.brand or '' }} {{ r.vehicle.model }} · {{ r.vehicle.bus_number }}</dd>
+                <dt>Chauffeur</dt><dd>{{ 'Demandé' if r.driver_required else 'Non (véhicule seul)' }}</dd>
+                {% if r.driver_return_required %}<dt>Retour à vide</dt><dd>Le véhicule doit revenir à sa base après la dépose.</dd>{% endif %}
+                {% if r.passengers %}<dt>Passagers</dt><dd>{{ r.passengers }}</dd>{% endif %}
+                {% if r.notes %}<dt>Notes</dt><dd>{{ r.notes }}</dd>{% endif %}
+                <dt>Estimation</dt><dd class="fw-semibold">{{ '{:,.0f} FCFA'.format(r.estimated_price).replace(',', ' ') if r.estimated_price else 'Sur devis (aucun tarif configuré pour ce trajet)' }}</dd>
+            </dl>
+        </section>
+        <section class="sa-card"><h2>Client</h2>
+            <dl class="sa-kv">
+                <dt>Nom</dt><dd>{{ r.customer_name }}{% if r.client and r.client.client_code %} · <a href="{{ url_for('superadmin.client_detail', cid=r.client.id) }}">{{ r.client.client_code }}</a>{% endif %}</dd>
+                <dt>Téléphone</dt><dd><a href="tel:{{ r.customer_phone|replace(' ', '') }}">{{ r.customer_phone }}</a></dd>
+                {% if r.customer_email %}<dt>E-mail</dt><dd><a href="mailto:{{ r.customer_email }}">{{ r.customer_email }}</a></dd>{% endif %}
+            </dl>
+        </section>
+    </div>
+    <div>
+        {% if r.trip_id %}
+        <section class="sa-card"><h2>Mission</h2><p class="mb-2">La mission {{ r.trip.mission_ref }} a été créée.</p>
+            <a class="btn btn-brand w-100" href="{{ url_for('missions.mission_detail', id=r.trip_id) }}">Ouvrir la mission</a></section>
+        {% else %}
+        <section class="sa-card"><h2>Suivi</h2>
+            <div class="d-flex gap-2 flex-wrap">
+                {% for key, label, cls in [('confirmed', 'Confirmer', 'btn-outline-success'), ('pending', 'Remettre à traiter', 'btn-outline-secondary'), ('cancelled', 'Annuler', 'btn-outline-danger')] if key != r.status %}
+                <form method="post" action="{{ url_for('rentals.update_status', rid=r.id) }}" {% if key == 'cancelled' %}data-confirm="Annuler la demande {{ r.reference }} ?"{% endif %}>
+                    <input type="hidden" name="status" value="{{ key }}"><button class="btn btn-sm {{ cls }}">{{ label }}</button></form>
+                {% endfor %}
+            </div>
+        </section>
+        {% if r.status != 'cancelled' %}
+        <section class="sa-card"><h2>Créer la mission</h2>
+            <form method="post" action="{{ url_for('rentals.create_mission_from_request', rid=r.id) }}" class="row g-3">
+                <div class="col-12"><label class="form-label" for="mDep">Début</label><input id="mDep" type="datetime-local" name="departure" class="form-control" value="{{ start.strftime('%Y-%m-%dT%H:%M') }}" required></div>
+                <div class="col-12"><label class="form-label" for="mArr">Fin (véhicule de retour)</label><input id="mArr" type="datetime-local" name="arrival" class="form-control" value="{{ end.strftime('%Y-%m-%dT%H:%M') }}" required></div>
+                <div class="col-12"><label class="form-label" for="mDrv">Chauffeur</label>
+                    <select id="mDrv" name="driver_id" class="form-select" {{ 'required' if r.driver_required }}>
+                        <option value="">{{ 'Choisir un chauffeur' if r.driver_required else 'Sans chauffeur' }}</option>
+                        {% for d in drivers %}<option value="{{ d.id }}" {{ 'disabled' if not free[d.id] }}>{{ d.name }}{{ ' — occupé' if not free[d.id] }}</option>{% endfor %}
+                    </select></div>
+                <div class="col-12"><label class="form-label" for="mPrice">Prix convenu (FCFA)</label><input id="mPrice" type="number" name="price" min="1" step="500" class="form-control" value="{{ '%d'|format(r.estimated_price) if r.estimated_price else '' }}" required></div>
+                <div class="col-12"><button class="btn btn-brand w-100">Créer la mission</button></div>
+            </form>
+        </section>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

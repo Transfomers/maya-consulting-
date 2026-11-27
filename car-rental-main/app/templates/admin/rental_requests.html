@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "superadmin/_macros.html" import empty %}
+{% block title %}Demandes de location{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/superadmin.css') }}">{% endblock %}
+{% block content %}
+<div class="sa-head"><div>
+    <h1 class="sa-title">Demandes de location <span class="sa-badge">{{ total }}</span></h1>
+    <p class="sa-sub">Demandes du site : aller simple, aller-retour et mise à disposition. Confirmez puis créez la mission.</p>
+</div></div>
+<div class="sa-chips">
+    {% for k, v in statuses.items() %}<a class="sa-chip {{ 'is-active' if status == k }}" href="{{ url_for('rentals.index', status=k) }}">{{ v }} <b>{{ counts.get(k, 0) }}</b></a>{% endfor %}
+    <a class="sa-chip {{ 'is-active' if status == 'all' }}" href="{{ url_for('rentals.index', status='all') }}">Toutes</a>
+</div>
+<form class="sa-filters" method="get">
+    <input type="hidden" name="status" value="{{ status }}">
+    <input type="search" name="q" class="form-control" value="{{ request.args.get('q', '') }}" placeholder="Référence, client, téléphone…" aria-label="Rechercher">
+    <select name="type" class="form-select" aria-label="Type de trajet"><option value="">Tous les trajets</option>{% for k, v in types.items() %}<option value="{{ k }}" {{ 'selected' if request.args.get('type') == k }}>{{ v }}</option>{% endfor %}</select>
+    <button class="btn btn-dark"><i class="bi bi-funnel"></i> Filtrer</button>
+</form>
+<div class="sa-card p-0">
+    {% if items %}
+    <div class="table-responsive"><table class="sa-table">
+        <thead><tr><th>Demande</th><th>Trajet</th><th>Départ</th><th class="sa-hide-sm">Véhicule</th><th class="sa-hide-sm">Estimation</th><th>Statut</th></tr></thead>
+        <tbody>{% for r in items %}
+        <tr class="is-clickable" onclick="location.href='{{ url_for('rentals.detail', rid=r.id) }}'">
+            <td><strong>{{ r.customer_name }}</strong><div class="sa-muted"><a href="{{ url_for('rentals.detail', rid=r.id) }}">{{ r.reference }}</a> · {{ r.customer_phone }}</div></td>
+            <td><span class="sa-pill {{ {'one_way': 'open', 'round_trip': 'vip', 'disposal': 'pending'}[r.trip_type] }}">{{ r.type_label }}</span>
+                <div class="sa-muted">{{ r.place('pickup') }}{% if r.trip_type != 'disposal' %} → {{ r.place('destination') }}{% endif %}</div></td>
+            <td class="text-nowrap">{{ r.departure_at.strftime('%d/%m/%Y %H:%M') }}{% if r.return_at %}<div class="sa-muted">retour {{ r.return_at.strftime('%d/%m %H:%M') }}</div>{% elif r.duration_hours %}<div class="sa-muted">{{ '%g'|format(r.duration_hours) }} h</div>{% endif %}</td>
+            <td class="sa-hide-sm">{{ r.vehicle.brand or '' }} {{ r.vehicle.model }}</td>
+            <td class="sa-hide-sm text-nowrap">{{ '{:,.0f} F'.format(r.estimated_price).replace(',', ' ') if r.estimated_price else 'Sur devis' }}</td>
+            <td><span class="sa-pill {{ {'pending': 'new', 'confirmed': 'open', 'converted': 'resolved', 'cancelled': 'closed'}[r.status] }}">{{ r.status_label }}</span></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}{{ empty('Aucune demande dans cette vue.', 'bi-signpost-split') }}{% endif %}
+</div>
+{% if pages > 1 %}<div class="sa-pager"><span>Page {{ page }} / {{ pages }}</span><div class="d-flex gap-2">
+    {% if page > 1 %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('rentals.index', status=status, page=page - 1) }}">← Précédent</a>{% endif %}
+    {% if page < pages %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('rentals.index', status=status, page=page + 1) }}">Suivant →</a>{% endif %}
+</div></div>{% endif %}
+{% endblock %}

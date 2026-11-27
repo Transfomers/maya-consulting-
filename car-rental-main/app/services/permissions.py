@@ -257,6 +257,7 @@ MODULE_RULES = [
     (r'^contracts\.', 'contracts'),
     (r'^invoices\.', 'invoices'),
     (r'^ratings\.', 'ratings'),
+    (r'^rentals\.', 'bookings'),
     (r'^admin\.(agencies|add_agency|edit_agency|delete_agency|toggle_agency_status)$', 'agencies'),
     (r'^admin\.(settings|email_logs|privacy_records)$', 'settings'),
     (r'^admin\.logs$', 'audit_logs'),
@@ -273,7 +274,7 @@ CREATE_WORDS = ('add', 'create', 'new', 'duplicate', 'generate', 'convert', 'upl
 DELETE_WORDS = ('delete', 'remove', 'clear')
 CANCEL_WORDS = ('cancel', 'void', 'terminate')
 
-STAFF_BLUEPRINTS = {'admin', 'missions', 'properties', 'contracts', 'invoices', 'ratings', 'superadmin', 'trips'}
+STAFF_BLUEPRINTS = {'admin', 'missions', 'properties', 'contracts', 'invoices', 'ratings', 'superadmin', 'trips', 'rentals'}
 PUBLIC_ENDPOINTS = {'properties.api_public_apartment_booking', 'properties.serve_public_asset',
                     'properties.serve_uploaded_file', 'ratings.internal_rating', 'invoices.public_pdf',
                     'contracts.api_availability', 'superadmin.setup_password'}

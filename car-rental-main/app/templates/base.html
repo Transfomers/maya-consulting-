@@ -1525,6 +1525,11 @@
                 </a>
                 {% endif %}
                 {% if has_perm(current_user, 'bookings.view') %}
+                <a href="{{ url_for('rentals.index') }}" class="sidebar-nav-item {% if request.blueprint == 'rentals' %}active{% endif %}" title="Demandes de location">
+                    <i class="bi bi-signpost-split"></i><span class="sidebar-text">Demandes de location</span>
+                </a>
+                {% endif %}
+                {% if has_perm(current_user, 'bookings.view') %}
                 <a href="{{ url_for('admin.bookings') }}" class="sidebar-nav-item {% if ep in ['admin.bookings', 'admin.edit_booking', 'missions.missions_hub', 'missions.mission_detail'] %}active{% endif %}" title="Sorties & Missions VIP">
                     <i class="bi bi-calendar3"></i><span class="sidebar-text">Sorties & Missions VIP</span>
                     {% if shell.missions_open %}<span class="sidebar-badge">{{ shell.missions_open }}</span>{% endif %}

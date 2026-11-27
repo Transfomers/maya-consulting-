@@ -1649,3 +1649,140 @@ class InvoiceItem(db.Model):
     amount = db.Column(db.Float, nullable=False, default=0.0)
     sort_order = db.Column(db.Integer, nullable=False, default=0)
 
+
+
+# ═══ Lieux (Cameroun) et demandes de location avec chauffeur ═══════════════════
+class LocCity(db.Model):
+    __tablename__ = 'loc_city'
+    id = db.Column(db.Integer, primary_key=True)
+    country = db.Column(db.String(60), nullable=False, default='Cameroun')
+    name = db.Column(db.String(80), nullable=False, unique=True)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    districts = db.relationship('LocDistrict', backref='city', lazy='select', order_by='LocDistrict.position, LocDistrict.name')
+    neighbourhoods = db.relationship('LocNeighbourhood', backref='city', lazy='select', order_by='LocNeighbourhood.name')
+
+
+class LocDistrict(db.Model):
+    __tablename__ = 'loc_district'
+    id = db.Column(db.Integer, primary_key=True)
+    city_id = db.Column(db.Integer, db.ForeignKey('loc_city.id'), nullable=False, index=True)
+    name = db.Column(db.String(80), nullable=False)
+    position = db.Column(db.Integer, default=0)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    __table_args__ = (db.UniqueConstraint('city_id', 'name', name='_loc_district_uc'),)
+
+
+class LocNeighbourhood(db.Model):
+    __tablename__ = 'loc_neighbourhood'
+    id = db.Column(db.Integer, primary_key=True)
+    city_id = db.Column(db.Integer, db.ForeignKey('loc_city.id'), nullable=False, index=True)
+    district_id = db.Column(db.Integer, db.ForeignKey('loc_district.id'), nullable=True, index=True)
+    name = db.Column(db.String(100), nullable=False, index=True)
+    status = db.Column(db.String(10), nullable=False, default='approved', index=True)  # approved, pending (proposé), rejected
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    suggested_by = db.Column(db.String(160), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    district = db.relationship('LocDistrict', backref='neighbourhoods')
+    aliases = db.relationship('LocAlias', backref='neighbourhood', cascade='all, delete-orphan', lazy='select')
+    landmarks = db.relationship('LocLandmark', backref='neighbourhood', cascade='all, delete-orphan', lazy='select')
+
+
+class LocAlias(db.Model):
+    __tablename__ = 'location_alias'
+    id = db.Column(db.Integer, primary_key=True)
+    neighbourhood_id = db.Column(db.Integer, db.ForeignKey('loc_neighbourhood.id'), nullable=False, index=True)
+    alias = db.Column(db.String(100), nullable=False)
+
+
+class LocLandmark(db.Model):
+    __tablename__ = 'loc_landmark'
+    id = db.Column(db.Integer, primary_key=True)
+    neighbourhood_id = db.Column(db.Integer, db.ForeignKey('loc_neighbourhood.id'), nullable=False, index=True)
+    name = db.Column(db.String(140), nullable=False)
+
+
+class TripPriceRule(db.Model):
+    """Tarif configuré par le Super Admin. Aucun tarif n'est inventé : sans règle, la demande est « sur devis »."""
+    __tablename__ = 'trip_price_rule'
+    id = db.Column(db.Integer, primary_key=True)
+    trip_type = db.Column(db.String(20), nullable=False, index=True)   # one_way, round_trip, disposal
+    vehicle_id = db.Column(db.Integer, db.ForeignKey('bus.id'), nullable=True)          # vide = tous
+    origin_city_id = db.Column(db.Integer, db.ForeignKey('loc_city.id'), nullable=True)  # vide = toutes
+    destination_city_id = db.Column(db.Integer, db.ForeignKey('loc_city.id'), nullable=True)
+    base_price = db.Column(db.Float, nullable=False)                   # trajet, ou forfait de mise à disposition
+    included_hours = db.Column(db.Float, nullable=True)
+    extra_hour_price = db.Column(db.Float, nullable=True)
+    empty_return_fee = db.Column(db.Float, nullable=True)              # aller simple : retour à vide du véhicule
+    estimated_hours = db.Column(db.Float, nullable=True)               # durée d'un trajet (planning)
+    distance_km = db.Column(db.Float, nullable=True)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    vehicle = db.relationship('Bus', foreign_keys=[vehicle_id])
+    origin_city = db.relationship('LocCity', foreign_keys=[origin_city_id])
+    destination_city = db.relationship('LocCity', foreign_keys=[destination_city_id])
+
+
+class RentalRequest(db.Model):
+    """Demande de location (site) — convertie en mission par l'équipe."""
+    __tablename__ = 'rental_request'
+    id = db.Column(db.Integer, primary_key=True)
+    reference = db.Column(db.String(30), nullable=False, unique=True, index=True)
+    request_key = db.Column(db.String(64), nullable=True, unique=True)   # évite les doublons (renvoi / double clic)
+    trip_type = db.Column(db.String(20), nullable=False, index=True)
+    status = db.Column(db.String(20), nullable=False, default='pending', index=True)  # pending, confirmed, converted, cancelled
+    vehicle_id = db.Column(db.Integer, db.ForeignKey('bus.id'), nullable=False, index=True)
+    pickup_city_id = db.Column(db.Integer, db.ForeignKey('loc_city.id'), nullable=False)
+    pickup_neighbourhood_id = db.Column(db.Integer, db.ForeignKey('loc_neighbourhood.id'), nullable=True)
+    pickup_neighbourhood_text = db.Column(db.String(100), nullable=True)
+    pickup_address = db.Column(db.String(200), nullable=True)
+    destination_city_id = db.Column(db.Integer, db.ForeignKey('loc_city.id'), nullable=True)
+    destination_neighbourhood_id = db.Column(db.Integer, db.ForeignKey('loc_neighbourhood.id'), nullable=True)
+    destination_neighbourhood_text = db.Column(db.String(100), nullable=True)
+    destination_address = db.Column(db.String(200), nullable=True)
+    stops = db.Column(db.Text, nullable=True)                 # mise à disposition : destinations libres
+    departure_at = db.Column(db.DateTime, nullable=False, index=True)   # heure locale (Yaoundé), comme les missions
+    return_at = db.Column(db.DateTime, nullable=True)
+    return_address = db.Column(db.String(200), nullable=True)   # point de rendez-vous du retour (vide = destination)
+    return_notes = db.Column(db.String(300), nullable=True)     # vol, train, consignes pour le retour
+    duration_hours = db.Column(db.Float, nullable=True)
+    driver_required = db.Column(db.Boolean, nullable=False, default=True)
+    driver_return_required = db.Column(db.Boolean, nullable=False, default=False)  # retour à vide du véhicule
+    passengers = db.Column(db.Integer, nullable=True)
+    notes = db.Column(db.String(1000), nullable=True)
+    estimated_price = db.Column(db.Float, nullable=True)      # vide = sur devis
+    price_rule_id = db.Column(db.Integer, db.ForeignKey('trip_price_rule.id'), nullable=True)
+    availability_note = db.Column(db.String(300), nullable=True)
+    customer_name = db.Column(db.String(120), nullable=False)
+    customer_phone = db.Column(db.String(40), nullable=False)
+    customer_email = db.Column(db.String(120), nullable=True)
+    client_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
+    trip_id = db.Column(db.Integer, db.ForeignKey('trip.id'), nullable=True)
+    is_test = db.Column(db.Boolean, default=False, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    vehicle = db.relationship('Bus', foreign_keys=[vehicle_id])
+    pickup_city = db.relationship('LocCity', foreign_keys=[pickup_city_id])
+    destination_city = db.relationship('LocCity', foreign_keys=[destination_city_id])
+    pickup_neighbourhood = db.relationship('LocNeighbourhood', foreign_keys=[pickup_neighbourhood_id])
+    destination_neighbourhood = db.relationship('LocNeighbourhood', foreign_keys=[destination_neighbourhood_id])
+    client = db.relationship('User', foreign_keys=[client_id])
+    trip = db.relationship('Trip', foreign_keys=[trip_id])
+
+    TYPES = {'one_way': 'Aller simple', 'round_trip': 'Aller-retour', 'disposal': 'Mise à disposition'}
+    STATUSES = {'pending': 'À traiter', 'confirmed': 'Confirmée', 'converted': 'Mission créée', 'cancelled': 'Annulée'}
+
+    @property
+    def type_label(self):
+        return self.TYPES.get(self.trip_type, self.trip_type)
+
+    @property
+    def status_label(self):
+        return self.STATUSES.get(self.status, self.status)
+
+    def place(self, side):
+        hood = getattr(self, f'{side}_neighbourhood')
+        city = getattr(self, f'{side}_city')
+        parts = [hood.name if hood else getattr(self, f'{side}_neighbourhood_text'), getattr(self, f'{side}_address'),
+                 city.name if city else None]
+        return ', '.join(p for p in parts if p) or '—'
