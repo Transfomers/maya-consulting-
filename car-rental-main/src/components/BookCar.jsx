@@ -1,4 +1,4 @@
-// Réserver un Véhicule — Onglets Aller simple / Aller-retour + Votre trajet (Ville, Arrondissement, Quartier, Repère, Inverser)
+// Compact 2-row booking card matching reference design + Aller simple / Aller-retour + Ville/Arrondissement/Quartier/Repère popover
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { API_BASE } from "../config/api";
@@ -81,84 +81,171 @@ const guestId = () => {
   return id;
 };
 
-function QuartierCombo({ city, districtId, value, text, onChange, isFr, id }) {
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
+function PlacePopoverField({ id, label, placeholder, cities, place, onChange, isOpen, onToggle, onClose, isFr, extraAction }) {
+  const wrapRef = useRef(null);
+  const [hoodQuery, setHoodQuery] = useState("");
+  const [hoodListOpen, setHoodListOpen] = useState(false);
+
+  const city = cities.find((c) => String(c.id) === String(place.cityId)) || null;
+  const hoodName = useMemo(() => {
+    if (!city) return "";
+    const found = (city.neighbourhoods || []).find((n) => n.id === place.neighbourhoodId);
+    return found ? found.name : place.neighbourhoodText || "";
+  }, [city, place.neighbourhoodId, place.neighbourhoodText]);
+
+  const displayText = useMemo(() => {
+    const parts = [city?.name, hoodName, place.address].filter(Boolean);
+    return parts.join(" — ");
+  }, [city, hoodName, place.address]);
 
   const hoods = useMemo(() => {
     if (!city) return [];
     const all = Array.isArray(city.neighbourhoods) ? city.neighbourhoods : [];
-    const scoped = districtId ? all.filter((n) => String(n.districtId) === String(districtId)) : all;
-    const q = normText(query);
-    if (!q) return scoped.slice(0, 40);
+    const scoped = place.districtId ? all.filter((n) => String(n.districtId) === String(place.districtId)) : all;
+    const q = normText(hoodQuery);
+    if (!q) return scoped.slice(0, 35);
     return scoped
       .filter((n) => [n.name, ...(n.aliases || []), ...(n.landmarks || [])].some((x) => normText(x).includes(q)))
-      .slice(0, 40);
-  }, [city, districtId, query]);
+      .slice(0, 35);
+  }, [city, place.districtId, hoodQuery]);
 
-  const selectedName = useMemo(() => {
-    if (!city) return "";
-    const found = (city.neighbourhoods || []).find((n) => n.id === value);
-    return found ? found.name : text || "";
-  }, [city, value, text]);
-
-  const disabled = !city;
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const onDocClick = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, [isOpen, onClose]);
 
   return (
-    <div className="book-card-v2__combo">
-      <input
+    <div className="book-card-v2__field book-card-v2__popover-wrap" ref={wrapRef}>
+      <div className="book-card-v2__label-row">
+        <label htmlFor={id}>
+          <i className="fa-solid fa-location-dot"></i> {label}
+        </label>
+        {extraAction}
+      </div>
+
+      <button
         id={id}
-        type="text"
-        disabled={disabled}
-        autoComplete="off"
-        placeholder={
-          disabled
-            ? isFr ? "Choisissez d'abord la ville" : "Choose a city first"
-            : isFr ? "Rechercher un quartier…" : "Search a neighbourhood…"
-        }
-        value={open ? query : selectedName}
-        onFocus={() => { if (!disabled) { setOpen(true); setQuery(selectedName); } }}
-        onBlur={() => setTimeout(() => setOpen(false), 160)}
-        onChange={(e) => {
-          const val = e.target.value;
-          setQuery(val);
-          setOpen(true);
-          onChange({ neighbourhoodId: null, neighbourhoodText: val });
-        }}
-      />
-      {open && !disabled && (
-        <ul className="book-card-v2__combo-list" role="listbox">
-          {hoods.map((h) => (
-            <li
-              key={h.id}
-              role="option"
-              aria-selected={h.id === value}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                onChange({ neighbourhoodId: h.id, neighbourhoodText: h.name });
-                setQuery(h.name);
-                setOpen(false);
-              }}
-            >
-              <span>{h.name}</span>
-            </li>
-          ))}
-          {query.trim().length >= 2 && !hoods.some((h) => normText(h.name) === normText(query)) && (
-            <li
-              className="is-custom"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                onChange({ neighbourhoodId: null, neighbourhoodText: query.trim() });
-                setOpen(false);
-              }}
-            >
-              <span>+ {isFr ? "Utiliser" : "Use"} « {query.trim()} »</span>
-            </li>
-          )}
-          {hoods.length === 0 && query.trim().length < 2 && (
-            <li className="is-empty">{isFr ? "Tapez le nom du quartier" : "Type neighbourhood name"}</li>
-          )}
-        </ul>
+        type="button"
+        className={`book-card-v2__trigger ${displayText ? "has-val" : ""} ${isOpen ? "is-open" : ""}`}
+        onClick={onToggle}
+        aria-expanded={isOpen}
+      >
+        <span className="book-card-v2__trigger-text">{displayText || placeholder}</span>
+        <i className={`fa-solid fa-chevron-down book-card-v2__chev ${isOpen ? "is-open" : ""}`}></i>
+      </button>
+
+      {isOpen && (
+        <div className="book-card-v2__popover" role="dialog" aria-label={label}>
+          <div className="book-card-v2__pop-grid">
+            <div>
+              <label>{isFr ? "Ville" : "City"} *</label>
+              <select
+                value={place.cityId}
+                onChange={(e) => {
+                  onChange({ ...EMPTY_PLACE, cityId: e.target.value, address: place.address });
+                  setHoodQuery("");
+                }}
+              >
+                <option value="">{isFr ? "Choisir…" : "Choose…"}</option>
+                {cities.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>{isFr ? "Arrondissement" : "District"}</label>
+              <select
+                value={place.districtId}
+                disabled={!city?.districts?.length}
+                onChange={(e) => {
+                  onChange({ ...place, districtId: e.target.value, neighbourhoodId: null, neighbourhoodText: "" });
+                  setHoodQuery("");
+                }}
+              >
+                <option value="">{isFr ? "Tous" : "All"}</option>
+                {(city?.districts || []).map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="book-card-v2__combo">
+              <label>{isFr ? "Quartier" : "Neighbourhood"} *</label>
+              <input
+                type="text"
+                disabled={!city}
+                autoComplete="off"
+                placeholder={
+                  !city
+                    ? isFr ? "Choisissez d'abord la ville" : "Choose a city first"
+                    : isFr ? "Rechercher un quartier…" : "Search a neighbourhood…"
+                }
+                value={hoodListOpen ? hoodQuery : hoodName}
+                onFocus={() => { if (city) { setHoodListOpen(true); setHoodQuery(hoodName); } }}
+                onBlur={() => setTimeout(() => setHoodListOpen(false), 150)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setHoodQuery(val);
+                  setHoodListOpen(true);
+                  onChange({ ...place, neighbourhoodId: null, neighbourhoodText: val });
+                }}
+              />
+              {hoodListOpen && city && (
+                <ul className="book-card-v2__combo-list" role="listbox">
+                  {hoods.map((h) => (
+                    <li
+                      key={h.id}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        onChange({ ...place, neighbourhoodId: h.id, neighbourhoodText: h.name });
+                        setHoodQuery(h.name);
+                        setHoodListOpen(false);
+                      }}
+                    >
+                      {h.name}
+                    </li>
+                  ))}
+                  {hoodQuery.trim().length >= 2 && !hoods.some((h) => normText(h.name) === normText(hoodQuery)) && (
+                    <li
+                      className="is-custom"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        onChange({ ...place, neighbourhoodId: null, neighbourhoodText: hoodQuery.trim() });
+                        setHoodListOpen(false);
+                      }}
+                    >
+                      + {isFr ? "Utiliser" : "Use"} « {hoodQuery.trim()} »
+                    </li>
+                  )}
+                </ul>
+              )}
+            </div>
+
+            <div>
+              <label>{isFr ? "Repère (facultatif)" : "Landmark (optional)"}</label>
+              <input
+                type="text"
+                maxLength={200}
+                value={place.address}
+                onChange={(e) => onChange({ ...place, address: e.target.value })}
+                placeholder={isFr ? "Hôtel, rue, face à…" : "Hotel, street, near…"}
+              />
+            </div>
+          </div>
+
+          <div className="book-card-v2__pop-foot">
+            <button type="button" className="book-card-v2__pop-ok" onClick={onClose}>
+              {isFr ? "Valider" : "Done"}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -173,10 +260,11 @@ function BookCar() {
   const [options, setOptions] = useState(null);
   const [catalogue, setCatalogue] = useState(CARS_CATALOGUE);
 
-  const [tripType, setTripType] = useState("one_way"); // "one_way" | "round_trip"
+  const [tripType, setTripType] = useState("round_trip"); // "one_way" | "round_trip"
   const [vehicleKey, setVehicleKey] = useState("");
   const [pickup, setPickup] = useState(EMPTY_PLACE);
   const [destination, setDestination] = useState(EMPTY_PLACE);
+  const [openPop, setOpenPop] = useState(null); // "pickup" | "dest" | null
   const [pickDate, setPickDate] = useState("");
   const [pickTime, setPickTime] = useState("09:00");
   const [dropDate, setDropDate] = useState("");
@@ -280,15 +368,14 @@ function BookCar() {
   const placeLabel = (place) => {
     const c = cityOf(place);
     const hood = c?.neighbourhoods?.find((n) => n.id === place.neighbourhoodId)?.name || place.neighbourhoodText;
-    return [hood, c?.name, place.address].filter(Boolean).join(", ");
+    return [c?.name, hood, place.address].filter(Boolean).join(" — ");
   };
 
   const selectedVehicle = vehicles.find((v) => v.key === vehicleKey) || null;
   const isRoundTrip = tripType === "round_trip";
 
   const rentalDays = useMemo(() => {
-    if (!pickDate) return 1;
-    if (!isRoundTrip) return 1;
+    if (!pickDate || !isRoundTrip) return 1;
     const d1 = new Date(pickDate);
     const d2 = new Date(dropDate || pickDate);
     if (isNaN(d1) || isNaN(d2)) return 1;
@@ -305,28 +392,31 @@ function BookCar() {
   const handleSearch = (e) => {
     e.preventDefault();
     setFormError("");
+    setOpenPop(null);
     if (!vehicleKey) {
       setFormError(L("Veuillez choisir un véhicule.", "Please select a vehicle."));
       return;
     }
     if (!pickup.cityId || (!pickup.neighbourhoodId && !pickup.neighbourhoodText.trim())) {
-      setFormError(L("Veuillez renseigner la ville et le quartier de prise en charge.", "Please select the pick-up city and neighbourhood."));
+      setFormError(L("Veuillez choisir la ville et le quartier de prise en charge.", "Please select the pick-up city and neighbourhood."));
+      setOpenPop("pickup");
       return;
     }
     if (!destination.cityId || (!destination.neighbourhoodId && !destination.neighbourhoodText.trim())) {
-      setFormError(L("Veuillez renseigner la ville et le quartier de destination.", "Please select the destination city and neighbourhood."));
+      setFormError(L("Veuillez choisir la ville et le quartier de destination.", "Please select the destination city and neighbourhood."));
+      setOpenPop("dest");
       return;
     }
     if (!pickDate) {
-      setFormError(L("Veuillez choisir la date de départ.", "Please select the departure date."));
+      setFormError(L("Veuillez choisir la date de départ.", "Please select the pick-up date."));
       return;
     }
     if (isRoundTrip && !dropDate) {
-      setFormError(L("Veuillez choisir la date de retour.", "Please select the return date."));
+      setFormError(L("Veuillez choisir la date de retour.", "Please select the drop-off date."));
       return;
     }
     if (isRoundTrip && dropDate < pickDate) {
-      setFormError(L("La date de retour doit être postérieure ou égale à la date de départ.", "Return date must be on or after the departure date."));
+      setFormError(L("La date de retour doit être postérieure ou égale à la date de départ.", "Drop-off date must be on or after the pick-up date."));
       return;
     }
     setDone(null);
@@ -427,99 +517,14 @@ function BookCar() {
     }
   };
 
-  const renderPlaceRow = (prefix, title, place, setter, dotClass) => {
-    const c = cityOf(place);
-    return (
-      <div className="book-card-v2__place">
-        <div className="book-card-v2__place-title">
-          <span className={`book-card-v2__dot ${dotClass}`} aria-hidden="true"></span>
-          <span>{title}</span>
-        </div>
-        <div className="book-card-v2__place-grid">
-          <div className="book-card-v2__field">
-            <label htmlFor={`${prefix}-city`}>{L("Ville", "City")} *</label>
-            <select
-              id={`${prefix}-city`}
-              value={place.cityId}
-              onChange={(e) => {
-                setter({ ...EMPTY_PLACE, cityId: e.target.value, address: place.address });
-                setFormError("");
-              }}
-            >
-              <option value="">{L("Choisir…", "Choose…")}</option>
-              {cities.map((ct) => (
-                <option key={ct.id} value={ct.id}>{ct.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="book-card-v2__field">
-            <label htmlFor={`${prefix}-district`}>{L("Arrondissement", "District")}</label>
-            <select
-              id={`${prefix}-district`}
-              value={place.districtId}
-              disabled={!c?.districts?.length}
-              onChange={(e) =>
-                setter((prev) => ({
-                  ...prev,
-                  districtId: e.target.value,
-                  neighbourhoodId: null,
-                  neighbourhoodText: ""
-                }))
-              }
-            >
-              <option value="">{L("Tous", "All")}</option>
-              {(c?.districts || []).map((d) => (
-                <option key={d.id} value={d.id}>{d.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="book-card-v2__field">
-            <label htmlFor={`${prefix}-hood`}>{L("Quartier", "Neighbourhood")} *</label>
-            <QuartierCombo
-              id={`${prefix}-hood`}
-              city={c}
-              districtId={place.districtId}
-              value={place.neighbourhoodId}
-              text={place.neighbourhoodText}
-              isFr={isFr}
-              onChange={({ neighbourhoodId, neighbourhoodText }) => {
-                setter((prev) => ({ ...prev, neighbourhoodId, neighbourhoodText }));
-                setFormError("");
-              }}
-            />
-          </div>
-
-          <div className="book-card-v2__field">
-            <label htmlFor={`${prefix}-address`}>{L("Repère (facultatif)", "Landmark (optional)")}</label>
-            <input
-              id={`${prefix}-address`}
-              type="text"
-              maxLength={200}
-              value={place.address}
-              onChange={(e) => setter((prev) => ({ ...prev, address: e.target.value }))}
-              placeholder={L("Hôtel, rue, face à…", "Hotel, street, near…")}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <section id="booking-section" className="book-section">
       <div className="container">
         <div className="book-content">
           <div className="book-card-v2">
-            {/* Header + 2 Trip Mode Tabs (Aller simple / Aller-retour) */}
+            {/* Compact Header: Title + Aller simple / Aller-retour toggle */}
             <div className="book-card-v2__header">
-              <div>
-                <h2 className="book-card-v2__title">{t("book_title")}</h2>
-                <p className="book-card-v2__subtitle">
-                  {L("Où allez-vous ? Choisissez votre trajet et votre véhicule.", "Where are you going? Choose your route and vehicle.")}
-                </p>
-              </div>
+              <h2 className="book-card-v2__title">{t("book_title")}</h2>
               <div className="book-card-v2__tabs" role="tablist" aria-label={L("Type de trajet", "Trip type")}>
                 <button
                   type="button"
@@ -553,44 +558,59 @@ function BookCar() {
             )}
 
             <form className="book-card-v2__form" onSubmit={handleSearch} noValidate>
-              {/* Vehicle Select */}
-              <div className="book-card-v2__field">
-                <label htmlFor="bc-car">
-                  <i className="fa-solid fa-car"></i> {t("book_car_type")} *
-                </label>
-                <select id="bc-car" value={vehicleKey} onChange={(e) => { setVehicleKey(e.target.value); setFormError(""); }}>
-                  <option value="">{t("book_car_type_placeholder")}</option>
-                  {vehicles.map((v) => (
-                    <option key={v.key} value={v.key}>
-                      {v.name}{v.priceLabel ? ` — ${v.priceLabel}` : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Votre trajet: Lieu de prise en charge + Inverser + Destination */}
-              <div className="book-card-v2__route-box">
-                <div className="book-card-v2__route-heading">
-                  <i className="fa-solid fa-route"></i>
-                  <span>{L("Votre trajet — Où allez-vous ?", "Your route — Where are you going?")}</span>
+              {/* ROW 1 — Exactly 3 clean inputs: Car Type | Pick-up (popover) | Drop-off (popover) */}
+              <div className="book-card-v2__row book-card-v2__row--top">
+                <div className="book-card-v2__field">
+                  <label htmlFor="bc-car">
+                    <i className="fa-solid fa-car"></i> {t("book_car_type")}
+                  </label>
+                  <select id="bc-car" value={vehicleKey} onChange={(e) => { setVehicleKey(e.target.value); setFormError(""); }}>
+                    <option value="">{t("book_car_type_placeholder")}</option>
+                    {vehicles.map((v) => (
+                      <option key={v.key} value={v.key}>
+                        {v.name}{v.priceLabel ? ` — ${v.priceLabel}` : ""}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                {renderPlaceRow("pickup", L("Lieu de prise en charge", "Pick-up location"), pickup, setPickup, "is-from")}
+                <PlacePopoverField
+                  id="bc-pickup"
+                  label={L("Prise en charge", "Pick-up")}
+                  placeholder={L("Ville, quartier (ex. Yaoundé — Omnisports)", "City, neighbourhood…")}
+                  cities={cities}
+                  place={pickup}
+                  onChange={(p) => { setPickup(p); setFormError(""); }}
+                  isOpen={openPop === "pickup"}
+                  onToggle={() => setOpenPop((cur) => (cur === "pickup" ? null : "pickup"))}
+                  onClose={() => setOpenPop(null)}
+                  isFr={isFr}
+                />
 
-                <div className="book-card-v2__swap">
-                  <button type="button" onClick={swapPlaces} aria-label={L("Inverser le départ et la destination", "Swap pick-up and destination")}>
-                    <i className="fa-solid fa-arrows-up-down"></i> {L("Inverser", "Swap")}
-                  </button>
-                </div>
-
-                {renderPlaceRow("dest", L("Destination", "Destination"), destination, setDestination, "is-to")}
+                <PlacePopoverField
+                  id="bc-dropoff"
+                  label={L("Où allez-vous ?", "Where are you going?")}
+                  placeholder={L("Ville, quartier de destination…", "Destination city, neighbourhood…")}
+                  cities={cities}
+                  place={destination}
+                  onChange={(p) => { setDestination(p); setFormError(""); }}
+                  isOpen={openPop === "dest"}
+                  onToggle={() => setOpenPop((cur) => (cur === "dest" ? null : "dest"))}
+                  onClose={() => setOpenPop(null)}
+                  isFr={isFr}
+                  extraAction={
+                    <button type="button" className="book-card-v2__swap-mini" onClick={swapPlaces} title={L("Inverser départ et destination", "Swap pick-up and destination")}>
+                      <i className="fa-solid fa-right-left"></i> {L("Inverser", "Swap")}
+                    </button>
+                  }
+                />
               </div>
 
-              {/* Dates & Times + Search CTA (1 date for Aller simple, 2 dates for Aller-retour) */}
+              {/* ROW 2 — Pick-up Date+Time | Drop-off Date+Time (if Aller-retour) | Red Search CTA */}
               <div className={`book-card-v2__row ${isRoundTrip ? "book-card-v2__row--bottom" : "book-card-v2__row--oneway"}`}>
                 <div className="book-card-v2__field">
                   <label htmlFor="bc-pickdate">
-                    <i className="fa-regular fa-calendar-days"></i> {L("Date & heure de départ", "Departure date & time")} *
+                    <i className="fa-regular fa-calendar-days"></i> {t("book_pickup")}
                   </label>
                   <div className="book-card-v2__datetime">
                     <input
@@ -604,7 +624,7 @@ function BookCar() {
                         setFormError("");
                       }}
                     />
-                    <select aria-label={L("Heure de départ", "Departure time")} value={pickTime} onChange={(e) => setPickTime(e.target.value)}>
+                    <select aria-label={L("Heure de prise en charge", "Pick-up time")} value={pickTime} onChange={(e) => setPickTime(e.target.value)}>
                       {TIME_SLOTS.map((ts) => (
                         <option key={`pt-${ts.value}`} value={ts.value}>{isFr ? ts.labelFr : ts.labelEn}</option>
                       ))}
@@ -615,7 +635,7 @@ function BookCar() {
                 {isRoundTrip && (
                   <div className="book-card-v2__field">
                     <label htmlFor="bc-dropdate">
-                      <i className="fa-regular fa-calendar-days"></i> {L("Date & heure de retour", "Return date & time")} *
+                      <i className="fa-regular fa-calendar-days"></i> {t("book_dropoff")}
                     </label>
                     <div className="book-card-v2__datetime">
                       <input
@@ -625,7 +645,7 @@ function BookCar() {
                         value={dropDate}
                         onChange={(e) => { setDropDate(e.target.value); setFormError(""); }}
                       />
-                      <select aria-label={L("Heure de retour", "Return time")} value={dropTime} onChange={(e) => setDropTime(e.target.value)}>
+                      <select aria-label={L("Heure de restitution", "Drop-off time")} value={dropTime} onChange={(e) => setDropTime(e.target.value)}>
                         {TIME_SLOTS.map((ts) => (
                           <option key={`dt-${ts.value}`} value={ts.value}>{isFr ? ts.labelFr : ts.labelEn}</option>
                         ))}
